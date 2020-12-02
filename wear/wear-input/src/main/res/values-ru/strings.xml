@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="buttons_round_top_center" msgid="5559087816427379703">"Вверху"</string>
+    <string name="buttons_round_top_right" msgid="4871780374047139328">"В правом верхнем углу"</string>
+    <string name="buttons_round_center_right" msgid="1509579668330531551">"В центре справа"</string>
+    <string name="buttons_round_bottom_right" msgid="2377403938095293895">"В правом нижнем углу"</string>
+    <string name="buttons_round_bottom_center" msgid="7330585893633364324">"Внизу"</string>
+    <string name="buttons_round_bottom_left" msgid="2128239325315047486">"В левом нижнем углу"</string>
+    <string name="buttons_round_center_left" msgid="4851687456301428363">"В центре слева"</string>
+    <string name="buttons_round_top_left" msgid="6011962751086201079">"В левом верхнем углу"</string>
+    <string name="buttons_round_top_right_upper" msgid="5489914740902966147">"В правом верхнем углу, выше"</string>
+    <string name="buttons_round_top_right_lower" msgid="49744844591556337">"В правом верхнем углу, ниже"</string>
+    <string name="buttons_round_bottom_right_upper" msgid="3762205785832512542">"В правом нижнем углу, выше"</string>
+    <string name="buttons_round_bottom_right_lower" msgid="6450671993962362349">"В правом нижнем углу, ниже"</string>
+    <string name="buttons_round_bottom_left_lower" msgid="8840562761052904241">"В левом нижнем углу, ниже"</string>
+    <string name="buttons_round_bottom_left_upper" msgid="5824161271890322696">"В левом нижнем углу, выше"</string>
+    <string name="buttons_round_top_left_lower" msgid="4749025344320804614">"В левом верхнем углу, ниже"</string>
+    <string name="buttons_round_top_left_upper" msgid="2546930425604677415">"В левом верхнем углу, выше"</string>
+    <string name="buttons_rect_left_top" msgid="5658240954637179416">"Вверху, левая сторона"</string>
+    <string name="buttons_rect_left_center" msgid="2090348335774325845">"В центре слева"</string>
+    <string name="buttons_rect_left_bottom" msgid="2890382227404669440">"Внизу, левая сторона"</string>
+    <string name="buttons_rect_right_top" msgid="8781047384037217975">"Вверху, правая сторона"</string>
+    <string name="buttons_rect_right_center" msgid="9046922334870476704">"В центре справа"</string>
+    <string name="buttons_rect_right_bottom" msgid="231110280868923853">"Внизу, правая сторона"</string>
+    <string name="buttons_rect_top_left" msgid="7572206729575579647">"В левом верхнем углу"</string>
+    <string name="buttons_rect_top_center" msgid="79705740801041383">"Вверху"</string>
+    <string name="buttons_rect_top_right" msgid="942888900599091776">"В правом верхнем углу"</string>
+    <string name="buttons_rect_bottom_left" msgid="1900303277997254019">"В левом нижнем углу"</string>
+    <string name="buttons_rect_bottom_center" msgid="7032918537319714491">"Внизу"</string>
+    <string name="buttons_rect_bottom_right" msgid="5128261908141175352">"В правом нижнем углу"</string>
+</resources>

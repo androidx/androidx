@@ -23,13 +23,13 @@ import androidx.annotation.RestrictTo
  *
  * Used for diffing in paging-runtime.
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface NullPaddedList<T> {
-    val leadingNullCount: Int
+    val placeholdersBefore: Int
     fun getFromStorage(localIndex: Int): T
-    val trailingNullCount: Int
+    val placeholdersAfter: Int
     val size: Int
     val storageCount: Int
 }

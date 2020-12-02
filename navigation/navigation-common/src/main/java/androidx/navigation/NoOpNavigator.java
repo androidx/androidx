@@ -20,12 +20,16 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 /**
  * A {@link Navigator} that only supports creating destinations.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Navigator.Name("NoOp")
-class NoOpNavigator extends Navigator<NavDestination> {
+public class NoOpNavigator extends Navigator<NavDestination> {
     @NonNull
     @Override
     public NavDestination createDestination() {

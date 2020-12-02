@@ -23,7 +23,6 @@ import android.os.Bundle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.rule.ActivityTestRule
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -35,8 +34,11 @@ import java.util.concurrent.TimeUnit
 @LargeTest
 class SafeTransactionInOnResumeTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = ActivityTestRule<OnResumeTestActivity>(OnResumeTestActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule<OnResumeTestActivity>(
+        OnResumeTestActivity::class.java
+    )
 
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.M)

@@ -34,7 +34,7 @@ public final class SelectionPredicates {
      * @param <K> Selection key type. @see {@link StorageStrategy} for supported types.
      * @return
      */
-    public static <K> SelectionPredicate<K> createSelectAnything() {
+    public static @NonNull <K> SelectionPredicate<K> createSelectAnything() {
         return new SelectionPredicate<K>() {
             @Override
             public boolean canSetStateForKey(@NonNull K key, boolean nextState) {
@@ -60,7 +60,7 @@ public final class SelectionPredicates {
      * @param <K> Selection key type. @see {@link StorageStrategy} for supported types.
      * @return
      */
-    public static <K> SelectionPredicate<K> createSelectSingleAnything() {
+    public static @NonNull <K> SelectionPredicate<K> createSelectSingleAnything() {
         return new SelectionPredicate<K>() {
             @Override
             public boolean canSetStateForKey(@NonNull K key, boolean nextState) {

@@ -22,7 +22,7 @@ plugins {
 }
 
 dependencies {
-    androidTestImplementation project(':support-media-compat-test-lib')
+    androidTestImplementation project(':media:version-compat-tests:lib')
     androidTestImplementation "com.android.support:support-media-compat:27.1.0"
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

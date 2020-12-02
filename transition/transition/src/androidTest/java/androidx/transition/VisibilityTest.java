@@ -36,15 +36,22 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.test.annotation.UiThreadTest;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
+import androidx.testutils.AnimationDurationScaleRule;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.Arrays;
 
 @MediumTest
 public class VisibilityTest extends BaseTest {
+
+    @Rule
+    public final AnimationDurationScaleRule mAnimationDurationScaleRule =
+            AnimationDurationScaleRule.createForAllTests(1f);
 
     private View mView;
     private ViewGroup mRoot;
@@ -159,6 +166,7 @@ public class VisibilityTest extends BaseTest {
         assertThat((float) animator.getAnimatedValue(), is(0.25f));
     }
 
+    @FlakyTest
     @Test
     public void testViewDetachedFromOverlayWhilePaused() throws Throwable {
         // create fake transition and listener

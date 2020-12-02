@@ -16,33 +16,44 @@
 
 package androidx.camera.core;
 
-import android.content.Context;
 import android.graphics.PointF;
 import android.view.Display;
-import android.view.WindowManager;
+import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraX.LensFacing;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.camera.core.impl.CameraInfoInternal;
 
 /**
- * A {@link MeteringPointFactory} that can create {@link MeteringPoint} by display oriented x, y.
+ * A {@link MeteringPointFactory} that can convert a {@link View} (x, y) into a
+ * {@link MeteringPoint} which can then be used to construct a {@link FocusMeteringAction} to
+ * start a focus and metering action.
  *
- * <p>This factory will consider the current display rotation and the lens facing to translate the
- * x/y correctly. Using this factory, apps do not need to handle the device rotation. They
- * can simply pass the x/y retrieved from their View. However if the camera preview is cropped,
- * scaled or rotated, it is apps' duty to transform the coordinates first.
+ * <p>For apps showing full camera preview in a View without any scaling, cropping or
+ * rotating applied, they can simply use view width and height to create the
+ * {@link DisplayOrientedMeteringPointFactory} and then pass {@link View} (x, y) to create a
+ * {@link MeteringPoint}. This factory will convert the (x, y) into the sensor (x, y) based on
+ * display rotation and lensFacing.
  *
- * <p> The width/height of this factory is the logical width/height of the preview FoV and X/Y
- * is the logical XY inside the FOV. User can set the width and height to 1.0 which will make the
- * XY the normalized coordinates [0..1].
+ * <p>If camera preview is scaled, cropped or rotated in the {@link View}, it is applications'
+ * duty to transform the coordinates properly so that the width and height of this
+ * factory represents the full Preview FOV and also the (x,y) passed to create
+ * {@link MeteringPoint} needs to be adjusted by apps to the  coordinates left-top (0,0) -
+ * right-bottom (width, height). For example, if the preview is scaled to 2X from the center and
+ * is cropped in a {@link View}. Assuming that the dimension of View is (240, 320), then the
+ * width/height of this {@link DisplayOrientedMeteringPointFactory} should be (480, 640).  And
+ * the (x, y) from the {@link View} should be converted to (x + (480-240)/2, y + (640 - 320)/2)
+ * first.
+ *
+ * @see MeteringPoint
  */
 public final class DisplayOrientedMeteringPointFactory extends MeteringPointFactory {
     /** The logical width of FoV in current display orientation */
     private final float mWidth;
     /** The logical height of FoV in current display orientation */
     private final float mHeight;
-    /** Lens facing is required for correctly adjusted for front camera */
-    private final LensFacing mLensFacing;
+
     /** {@link Display} used for detecting display orientation */
     @NonNull
     private final Display mDisplay;
@@ -50,62 +61,61 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
     private final CameraInfo mCameraInfo;
 
     /**
-     * Creates the {@link MeteringPointFactory} with default display orientation.
+     * Creates a {@link DisplayOrientedMeteringPointFactory} for converting View (x, y) into a
+     * {@link MeteringPoint} based on the current display's rotation and {@link CameraInfo}.
      *
-     * <p>The width/height is the logical width/height of the preview FoV and X/Y is the logical
-     * XY inside the FOV. User can set the width and height to 1.0 which will make the XY the
-     * normalized coordinates [0..1]. Or user can set the width/height to the View width/height and
-     * then X/Y becomes the X/Y in the view.
+     * <p>The width/height of this factory forms a coordinate left-top (0, 0) - right-bottom
+     * (width, height) which represents the full camera preview FOV in the display's
+     * orientation. For apps showing full camera preview in a {@link View}, it is as simple as
+     * passing View's width/height and passing View (x, y) directly to create a
+     * {@link MeteringPoint}. Otherwise the (x, y) passed to
+     * {@link MeteringPointFactory#createPoint(float, float)} should be adjusted to this
+     * coordinate system first.
      *
-     * @param context    context to get the {@link WindowManager} for default display rotation.
-     * @param lensFacing current lens facing.
-     * @param width      the logical width of FoV in current display orientation.
-     * @param height     the logical height of FoV in current display orientation.
-     */
-    public DisplayOrientedMeteringPointFactory(@NonNull Context context,
-            @NonNull LensFacing lensFacing, float width, float height) {
-        this(((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay(),
-                lensFacing, width, height);
-    }
-
-    /**
-     * Creates the  {@link MeteringPointFactory}  with custom display orientation. This is used
-     * in multi-display situation.
-     *
-     * <p>The width/height is the logical width/height of the preview FoV and X/Y is the logical
-     * XY inside the FOV. User can set the width and height to 1.0 which will make the XY the
-     * normalized coordinates [0..1]. Or user can set the width/height to the View width/height and
-     * then X/Y becomes the X/Y in the view.
-     * {@link Display} is used to dete
-     * @param display    {@link Display} to get the orientation from.
-     * @param lensFacing current lens facing.
-     * @param width      the logical width of FoV in current display orientation.
-     * @param height     the logical height of FoV in current display orientation.
+     * @param display        {@link Display} to get the orientation from. This should be the
+     *                       current display where camera preview is showing.
+     * @param cameraInfo     the information for the {@link Camera} to generate the metering
+     *                       point for
+     * @param width          the width of the coordinate which are mapped to the full camera preview
+     *                       FOV in given display's orientation.
+     * @param height         the height of the coordinate which are mapped to the full camera
+     *                       preview
+     *                       FOV in given display's orientation.
      */
     public DisplayOrientedMeteringPointFactory(@NonNull Display display,
-            @NonNull LensFacing lensFacing, float width, float height) {
+            @NonNull CameraInfo cameraInfo, float width, float height) {
         mWidth = width;
         mHeight = height;
-        mLensFacing = lensFacing;
         mDisplay = display;
-        try {
-            String cameraId = CameraX.getCameraWithLensFacing(lensFacing);
-            mCameraInfo = CameraX.getCameraInfo(cameraId);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Can not find CameraInfo : " + lensFacing);
+        mCameraInfo = cameraInfo;
+    }
+
+    @Nullable
+    private Integer getLensFacing() {
+        // This assumes CameraInfo is an instance of CameraInfoInternal which contains lens
+        // facing information. A Camera may not be simply of a single lens facing type so that is
+        // why it isn't exposed directly through CameraInfo.
+        if (mCameraInfo instanceof CameraInfoInternal) {
+            return ((CameraInfoInternal) mCameraInfo).getLensFacing();
         }
+        return null;
     }
 
     /**
      * {@inheritDoc}
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     @Override
-    protected PointF translatePoint(float x, float y) {
+    protected PointF convertPoint(float x, float y) {
         float width = mWidth;
         float height = mHeight;
 
-        boolean compensateForMirroring = (mLensFacing == LensFacing.FRONT);
+        final Integer lensFacing = getLensFacing();
+        boolean compensateForMirroring =
+                (lensFacing != null && lensFacing == CameraSelector.LENS_FACING_FRONT);
         int relativeCameraOrientation = getRelativeCameraOrientation(compensateForMirroring);
         float outputX = x;
         float outputY = y;

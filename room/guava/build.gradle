@@ -40,9 +40,7 @@ dependencies {
 androidx {
     name = "Android Room Guava"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.ROOM
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2018"
     description = "Android Room Guava"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }

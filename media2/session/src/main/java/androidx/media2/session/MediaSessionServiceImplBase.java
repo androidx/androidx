@@ -38,6 +38,7 @@ import androidx.media2.session.MediaSessionService.MediaNotification;
 import androidx.media2.session.MediaSessionService.MediaSessionServiceImpl;
 import androidx.versionedparcelable.ParcelImpl;
 
+import java.io.Closeable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,12 +85,7 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
                 return getServiceBinder();
             }
             case MediaBrowserServiceCompat.SERVICE_INTERFACE: {
-                String packageName = MediaBrowserServiceCompat.SERVICE_INTERFACE;
-                RemoteUserInfo remoteUserInfo = new RemoteUserInfo(packageName,
-                        0 /* pid */, 0 /* uid */);
-                ControllerInfo controllerInfo = new ControllerInfo(remoteUserInfo,
-                        false /* isTrusted */, null /* ControllerCb */,
-                        null /* connectionHints */);
+                ControllerInfo controllerInfo = ControllerInfo.createLegacyControllerInfo();
                 final MediaSession session = service.onGetSession(controllerInfo);
                 if (session == null) {
                     // Legacy MediaBrowser(Compat) cannot connect to this service.
@@ -167,12 +163,7 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
                 }
                 MediaSession session = MediaSession.getSession(intent.getData());
                 if (session == null) {
-                    String packageName = Intent.ACTION_MEDIA_BUTTON;
-                    RemoteUserInfo remoteUserInfo = new RemoteUserInfo(packageName,
-                            0 /* pid */, 0 /* uid */);
-                    ControllerInfo controllerInfo = new ControllerInfo(remoteUserInfo,
-                            false /* isTrusted */, null /* ControllerCb */,
-                            null /* connectionHints */);
+                    ControllerInfo controllerInfo = ControllerInfo.createLegacyControllerInfo();
                     session = instance.onGetSession(controllerInfo);
                 }
                 if (session == null) {
@@ -226,7 +217,7 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
     }
 
     private static final class MediaSessionServiceStub extends IMediaSessionService.Stub
-            implements AutoCloseable {
+            implements Closeable {
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         final WeakReference<MediaSessionServiceImplBase> mServiceImpl;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -283,7 +274,8 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
                             boolean isTrusted = mMediaSessionManager.isTrustedForMediaControl(
                                     remoteUserInfo);
                             ControllerInfo controllerInfo = new ControllerInfo(remoteUserInfo,
-                                    isTrusted, null /* controllerCb */, connectionHints);
+                                    request.getVersion(), isTrusted, null /* controllerCb */,
+                                    connectionHints);
 
                             if (DEBUG) {
                                 Log.d(TAG, "Handling incoming connection request from the"
@@ -303,7 +295,8 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
                                 service.addSession(session);
                                 shouldNotifyDisconnected = false;
 
-                                session.handleControllerConnectionFromService(caller, packageName,
+                                session.handleControllerConnectionFromService(caller,
+                                        request.getVersion(), packageName,
                                         pid, uid, connectionHints);
                             } catch (Exception e) {
                                 // Don't propagate exception in service to the controller.

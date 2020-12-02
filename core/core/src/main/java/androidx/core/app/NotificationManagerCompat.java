@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ResolveInfo;
+import android.content.pm.ShortcutInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.DeadObjectException;
@@ -48,6 +49,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -164,6 +167,7 @@ public final class NotificationManagerCompat {
 
     /**
      * Cancel a previously shown notification.
+     *
      * @param id the ID of the notification
      */
     public void cancel(int id) {
@@ -172,8 +176,9 @@ public final class NotificationManagerCompat {
 
     /**
      * Cancel a previously shown notification.
+     *
      * @param tag the string identifier of the notification.
-     * @param id the ID of the notification
+     * @param id  the ID of the notification
      */
     public void cancel(@Nullable String tag, int id) {
         mNotificationManager.cancel(tag, id);
@@ -192,7 +197,8 @@ public final class NotificationManagerCompat {
 
     /**
      * Post a notification to be shown in the status bar, stream, etc.
-     * @param id the ID of the notification
+     *
+     * @param id           the ID of the notification
      * @param notification the notification to post to the system
      */
     public void notify(int id, @NonNull Notification notification) {
@@ -201,10 +207,12 @@ public final class NotificationManagerCompat {
 
     /**
      * Post a notification to be shown in the status bar, stream, etc.
-     * @param tag the string identifier for a notification. Can be {@code null}.
-     * @param id the ID of the notification. The pair (tag, id) must be unique within your app.
+     *
+     * @param tag          the string identifier for a notification. Can be {@code null}.
+     * @param id           the ID of the notification. The pair (tag, id) must be unique within
+     *                     your app.
      * @param notification the notification to post to the system
-    */
+     */
     public void notify(@Nullable String tag, int id, @NonNull Notification notification) {
         if (useSideChannelForNotification(notification)) {
             pushSideChannelQueue(new NotifyTask(mContext.getPackageName(), id, tag, notification));
@@ -267,16 +275,16 @@ public final class NotificationManagerCompat {
      * <p>The importance of an existing channel will only be changed if the new importance is lower
      * than the current value and the user has not altered any settings on this channel.
      *
-     * <p>The group an existing channel will only be changed if the channel does not already
+     * <p>The group of an existing channel will only be changed if the channel does not already
      * belong to a group.
      *
      * All other fields are ignored for channels that already exist.
      *
-     * It doesn't do anything on older SDKs which doesn't support Notification Channels.
+     * It doesn't do anything on older SDKs which don't support Notification Channels.
      *
-     * @param channel  the channel to create.  Note that the created channel may differ from this
-     *                 value. If the provided channel is malformed, a RemoteException will be
-     *                 thrown.
+     * @param channel the channel to create.  Note that the created channel may differ from this
+     *                value. If the provided channel is malformed, a RemoteException will be
+     *                thrown.
      */
     public void createNotificationChannel(@NonNull NotificationChannel channel) {
         if (Build.VERSION.SDK_INT >= 26) {
@@ -285,11 +293,35 @@ public final class NotificationManagerCompat {
     }
 
     /**
+     * Creates a notification channel that notifications can be posted to.
+     *
+     * This can also be used to restore a deleted channel and to update an existing channel's
+     * name, description, group, and/or importance.
+     *
+     * <p>The importance of an existing channel will only be changed if the new importance is lower
+     * than the current value and the user has not altered any settings on this channel.
+     *
+     * <p>The group of an existing channel will only be changed if the channel does not already
+     * belong to a group.
+     *
+     * All other fields are ignored for channels that already exist.
+     *
+     * It doesn't do anything on older SDKs which don't support Notification Channels.
+     *
+     * @param channel the channel to create.  Note that the created channel may differ from this
+     *                value. If the provided channel is malformed, a RemoteException will be
+     *                thrown.
+     */
+    public void createNotificationChannel(@NonNull NotificationChannelCompat channel) {
+        createNotificationChannel(channel.getNotificationChannel());
+    }
+
+    /**
      * Creates a group container for {@link NotificationChannel} objects.
      *
      * This can be used to rename an existing group.
      *
-     * It doesn't do anything on older SDKs which doesn't support Notification Channels.
+     * It doesn't do anything on older SDKs which don't support Notification Channels.
      *
      * @param group The group to create
      */
@@ -300,10 +332,23 @@ public final class NotificationManagerCompat {
     }
 
     /**
+     * Creates a group container for {@link NotificationChannel} objects.
+     *
+     * This can be used to rename an existing group.
+     *
+     * It doesn't do anything on older SDKs which don't support Notification Channels.
+     *
+     * @param group The group to create
+     */
+    public void createNotificationChannelGroup(@NonNull NotificationChannelGroupCompat group) {
+        createNotificationChannelGroup(group.getNotificationChannelGroup());
+    }
+
+    /**
      * Creates multiple notification channels that different notifications can be posted to. See
      * {@link #createNotificationChannel(NotificationChannel)}.
      *
-     * It doesn't do anything on older SDKs which doesn't support Notification Channels.
+     * It doesn't do anything on older SDKs which don't support Notification Channels.
      *
      * @param channels the list of channels to attempt to create.
      */
@@ -314,10 +359,29 @@ public final class NotificationManagerCompat {
     }
 
     /**
+     * Creates multiple notification channels that different notifications can be posted to. See
+     * {@link #createNotificationChannel(NotificationChannelCompat)}.
+     *
+     * It doesn't do anything on older SDKs which don't support Notification Channels.
+     *
+     * @param channels the list of channels to attempt to create.
+     */
+    public void createNotificationChannelsCompat(
+            @NonNull List<NotificationChannelCompat> channels) {
+        if (Build.VERSION.SDK_INT >= 26 && !channels.isEmpty()) {
+            List<NotificationChannel> platformChannels = new ArrayList<>(channels.size());
+            for (NotificationChannelCompat channel : channels) {
+                platformChannels.add(channel.getNotificationChannel());
+            }
+            mNotificationManager.createNotificationChannels(platformChannels);
+        }
+    }
+
+    /**
      * Creates multiple notification channel groups. See
      * {@link #createNotificationChannelGroup(NotificationChannelGroup)}.
      *
-     * It doesn't do anything on older SDKs which doesn't support Notification Channels.
+     * It doesn't do anything on older SDKs which don't support Notification Channels.
      *
      * @param groups The list of groups to create
      */
@@ -328,13 +392,32 @@ public final class NotificationManagerCompat {
     }
 
     /**
+     * Creates multiple notification channel groups. See
+     * {@link #createNotificationChannelGroup(NotificationChannelGroupCompat)}.
+     *
+     * It doesn't do anything on older SDKs which don't support Notification Channels.
+     *
+     * @param groups The list of groups to create
+     */
+    public void createNotificationChannelGroupsCompat(
+            @NonNull List<NotificationChannelGroupCompat> groups) {
+        if (Build.VERSION.SDK_INT >= 26 && !groups.isEmpty()) {
+            List<NotificationChannelGroup> platformGroups = new ArrayList<>(groups.size());
+            for (NotificationChannelGroupCompat group : groups) {
+                platformGroups.add(group.getNotificationChannelGroup());
+            }
+            mNotificationManager.createNotificationChannelGroups(platformGroups);
+        }
+    }
+
+    /**
      * Deletes the given notification channel.
      *
      * <p>If you {@link #createNotificationChannel(NotificationChannel) create} a new channel with
      * this same id, the deleted channel will be un-deleted with all of the same settings it
      * had before it was deleted.
      *
-     * It doesn't do anything on older SDKs which doesn't support Notification Channels.
+     * It doesn't do anything on older SDKs which don't support Notification Channels.
      */
     public void deleteNotificationChannel(@NonNull String channelId) {
         if (Build.VERSION.SDK_INT >= 26) {
@@ -346,7 +429,7 @@ public final class NotificationManagerCompat {
      * Deletes the given notification channel group, and all notification channels that
      * belong to it.
      *
-     * It doesn't do anything on older SDKs which doesn't support Notification Channels.
+     * It doesn't do anything on older SDKs which don't support Notification Channels.
      */
     public void deleteNotificationChannelGroup(@NonNull String groupId) {
         if (Build.VERSION.SDK_INT >= 26) {
@@ -355,9 +438,33 @@ public final class NotificationManagerCompat {
     }
 
     /**
+     * Deletes notification channels for which ids are NOT given.
+     *
+     * This will NOT delete channels which are conversation children of the given channels.
+     *
+     * It doesn't do anything on older SDKs which don't support Notification Channels.
+     *
+     * @param channelIds the IDs of any channels which should NOT be deleted by this method.
+     */
+    public void deleteUnlistedNotificationChannels(@NonNull Collection<String> channelIds) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            for (NotificationChannel channel : mNotificationManager.getNotificationChannels()) {
+                if (channelIds.contains(channel.getId())) {
+                    continue;
+                }
+                if (Build.VERSION.SDK_INT >= 30
+                        && channelIds.contains(channel.getParentChannelId())) {
+                    continue;
+                }
+                mNotificationManager.deleteNotificationChannel(channel.getId());
+            }
+        }
+    }
+
+    /**
      * Returns the notification channel settings for a given channel id.
      *
-     * Returns {@code null} on older SDKs which doesn't support Notification Channels.
+     * Returns {@code null} on older SDKs which don't support Notification Channels.
      */
     @Nullable
     public NotificationChannel getNotificationChannel(@NonNull String channelId) {
@@ -368,9 +475,62 @@ public final class NotificationManagerCompat {
     }
 
     /**
+     * Returns the notification channel settings for a given channel id.
+     *
+     * Returns {@code null} on older SDKs which don't support Notification Channels.
+     */
+    @Nullable
+    public NotificationChannelCompat getNotificationChannelCompat(@NonNull String channelId) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            NotificationChannel channel = getNotificationChannel(channelId);
+            if (channel != null) {
+                return new NotificationChannelCompat(channel);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the notification channel settings for a given channel and
+     * {@link ShortcutInfo#getId() conversation id}.
+     *
+     * Returns the channel for the channelId on older SDKs which don't support Conversations.
+     *
+     * Returns {@code null} on older SDKs which don't support Notification Channels.
+     */
+    @Nullable
+    public NotificationChannel getNotificationChannel(@NonNull String channelId,
+            @NonNull String conversationId) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            return mNotificationManager.getNotificationChannel(channelId, conversationId);
+        }
+        return getNotificationChannel(channelId);
+    }
+
+    /**
+     * Returns the notification channel settings for a given channel and
+     * {@link ShortcutInfo#getId() conversation id}.
+     *
+     * Returns the channel for the channelId on older SDKs which don't support Conversations.
+     *
+     * Returns {@code null} on older SDKs which don't support Notification Channels.
+     */
+    @Nullable
+    public NotificationChannelCompat getNotificationChannelCompat(@NonNull String channelId,
+            @NonNull String conversationId) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            NotificationChannel channel = getNotificationChannel(channelId, conversationId);
+            if (channel != null) {
+                return new NotificationChannelCompat(channel);
+            }
+        }
+        return null;
+    }
+
+    /**
      * Returns the notification channel group settings for a given channel group id.
      *
-     * Returns {@code null} on older SDKs which doesn't support Notification Channels.
+     * Returns {@code null} on older SDKs which don't support Notification Channels.
      */
     @Nullable
     public NotificationChannelGroup getNotificationChannelGroup(@NonNull String channelGroupId) {
@@ -389,8 +549,30 @@ public final class NotificationManagerCompat {
     }
 
     /**
+     * Returns the notification channel group settings for a given channel group id.
+     *
+     * Returns {@code null} on older SDKs which don't support Notification Channels.
+     */
+    @Nullable
+    public NotificationChannelGroupCompat getNotificationChannelGroupCompat(
+            @NonNull String channelGroupId) {
+        if (Build.VERSION.SDK_INT >= 28) {
+            NotificationChannelGroup group = getNotificationChannelGroup(channelGroupId);
+            if (group != null) {
+                return new NotificationChannelGroupCompat(group);
+            }
+        } else if (Build.VERSION.SDK_INT >= 26) {
+            NotificationChannelGroup group = getNotificationChannelGroup(channelGroupId);
+            if (group != null) {
+                return new NotificationChannelGroupCompat(group, getNotificationChannels());
+            }
+        }
+        return null;
+    }
+
+    /**
      * Returns all notification channels belonging to the calling app
-     * or an empty list on older SDKs which doesn't support Notification Channels.
+     * or an empty list on older SDKs which don't support Notification Channels.
      */
     @NonNull
     public List<NotificationChannel> getNotificationChannels() {
@@ -401,13 +583,59 @@ public final class NotificationManagerCompat {
     }
 
     /**
+     * Returns all notification channels belonging to the calling app
+     * or an empty list on older SDKs which don't support Notification Channels.
+     */
+    @NonNull
+    public List<NotificationChannelCompat> getNotificationChannelsCompat() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            List<NotificationChannel> channels = getNotificationChannels();
+            if (!channels.isEmpty()) {
+                List<NotificationChannelCompat> channelsCompat = new ArrayList<>(channels.size());
+                for (NotificationChannel channel : channels) {
+                    channelsCompat.add(new NotificationChannelCompat(channel));
+                }
+                return channelsCompat;
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    /**
      * Returns all notification channel groups belonging to the calling app
-     * or an empty list on older SDKs which doesn't support Notification Channels.
+     * or an empty list on older SDKs which don't support Notification Channels.
      */
     @NonNull
     public List<NotificationChannelGroup> getNotificationChannelGroups() {
         if (Build.VERSION.SDK_INT >= 26) {
             return mNotificationManager.getNotificationChannelGroups();
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * Returns all notification channel groups belonging to the calling app
+     * or an empty list on older SDKs which don't support Notification Channels.
+     */
+    @NonNull
+    public List<NotificationChannelGroupCompat> getNotificationChannelGroupsCompat() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            List<NotificationChannelGroup> groups = getNotificationChannelGroups();
+            if (!groups.isEmpty()) {
+                // Don't query getNotificationChannels() on API 28+ where it isn't needed
+                List<NotificationChannel> allChannels = Build.VERSION.SDK_INT >= 28
+                        ? Collections.<NotificationChannel>emptyList()
+                        : getNotificationChannels();
+                List<NotificationChannelGroupCompat> groupsCompat = new ArrayList<>(groups.size());
+                for (NotificationChannelGroup group : groups) {
+                    if (Build.VERSION.SDK_INT >= 28) {
+                        groupsCompat.add(new NotificationChannelGroupCompat(group));
+                    } else {
+                        groupsCompat.add(new NotificationChannelGroupCompat(group, allChannels));
+                    }
+                }
+                return groupsCompat;
+            }
         }
         return Collections.emptyList();
     }
@@ -613,6 +841,7 @@ public final class NotificationManagerCompat {
 
         /**
          * Ensure we are already attempting to bind to a service, or start a new binding if not.
+         *
          * @return Whether the service bind attempt was successful.
          */
         private boolean ensureServiceBound(ListenerRecord record) {

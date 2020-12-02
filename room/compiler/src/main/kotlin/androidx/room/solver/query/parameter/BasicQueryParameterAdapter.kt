@@ -23,7 +23,7 @@ import androidx.room.solver.types.StatementValueBinder
  * Knows how to convert a query parameter into arguments
  */
 class BasicQueryParameterAdapter(val bindAdapter: StatementValueBinder) :
-            QueryParameterAdapter(false) {
+    QueryParameterAdapter(false) {
     override fun bindToStmt(
         inputVarName: String,
         stmtVarName: String,
@@ -36,7 +36,9 @@ class BasicQueryParameterAdapter(val bindAdapter: StatementValueBinder) :
     }
 
     override fun getArgCount(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
-        throw UnsupportedOperationException("should not call getArgCount on basic adapters." +
-                "It is always one.")
+        throw UnsupportedOperationException(
+            "should not call getArgCount on basic adapters." +
+                "It is always one."
+        )
     }
 }

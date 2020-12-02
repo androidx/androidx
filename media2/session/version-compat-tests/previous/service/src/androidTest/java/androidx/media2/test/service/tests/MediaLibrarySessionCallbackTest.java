@@ -21,8 +21,6 @@ import static androidx.media2.session.LibraryResult.RESULT_SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import android.os.Build;
-
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.media2.session.MediaLibraryService.MediaLibrarySession;
 import androidx.media2.session.MediaSession;
@@ -32,7 +30,6 @@ import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.RemoteMediaBrowser;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
@@ -48,7 +45,6 @@ import java.util.concurrent.TimeUnit;
  * TODO: Make this class extend MediaSessionCallbackTest.
  * TODO: Create MediaLibrarySessionTest which extends MediaSessionTest.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class MediaLibrarySessionCallbackTest extends MediaSessionTestBase {
@@ -69,7 +65,7 @@ public class MediaLibrarySessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnSubscribe() throws InterruptedException {
+    public void onSubscribe() throws InterruptedException {
         prepareLooper();
         final String testParentId = "testSubscribeId";
         final LibraryParams testParams = MediaTestUtils.createLibraryParams();
@@ -102,7 +98,7 @@ public class MediaLibrarySessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnUnsubscribe() throws InterruptedException {
+    public void onUnsubscribe() throws InterruptedException {
         prepareLooper();
         final String testParentId = "testUnsubscribeId";
 

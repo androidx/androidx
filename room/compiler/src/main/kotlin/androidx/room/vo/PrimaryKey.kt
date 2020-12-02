@@ -16,13 +16,13 @@
 package androidx.room.vo
 
 import androidx.room.migration.bundle.PrimaryKeyBundle
-import javax.lang.model.element.Element
+import androidx.room.compiler.processing.XElement
 
 /**
  * Represents a PrimaryKey for an Entity.
  */
 data class PrimaryKey(
-    val declaredIn: Element?,
+    val declaredIn: XElement?,
     override val fields: Fields,
     val autoGenerateId: Boolean
 ) : HasSchemaIdentity, HasFields {

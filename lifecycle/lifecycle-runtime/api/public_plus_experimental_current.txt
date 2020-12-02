@@ -1,9 +1,10 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.lifecycle {
 
   public class LifecycleRegistry extends androidx.lifecycle.Lifecycle {
     ctor public LifecycleRegistry(androidx.lifecycle.LifecycleOwner);
     method public void addObserver(androidx.lifecycle.LifecycleObserver);
+    method @VisibleForTesting public static androidx.lifecycle.LifecycleRegistry createUnsafe(androidx.lifecycle.LifecycleOwner);
     method public androidx.lifecycle.Lifecycle.State getCurrentState();
     method public int getObserverCount();
     method public void handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event);
@@ -14,6 +15,11 @@ package androidx.lifecycle {
 
   @Deprecated public interface LifecycleRegistryOwner extends androidx.lifecycle.LifecycleOwner {
     method @Deprecated public androidx.lifecycle.LifecycleRegistry getLifecycle();
+  }
+
+  public class ViewTreeLifecycleOwner {
+    method public static androidx.lifecycle.LifecycleOwner? get(android.view.View);
+    method public static void set(android.view.View, androidx.lifecycle.LifecycleOwner?);
   }
 
 }

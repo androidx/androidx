@@ -16,6 +16,9 @@
 
 package androidx.room.solver
 
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.writeTo
 import androidx.room.processor.Context
 import androidx.room.testing.TestInvocation
 import com.squareup.javapoet.ClassName
@@ -31,10 +34,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import simpleRun
 import testCodeGenScope
-import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.type.PrimitiveType
-import javax.lang.model.type.TypeKind
-import javax.lang.model.type.TypeMirror
 
 @RunWith(Parameterized::class)
 class BasicColumnTypeAdaptersTest(
@@ -52,36 +51,52 @@ class BasicColumnTypeAdaptersTest(
         @JvmStatic
         fun params(): List<Array<Any>> {
             return listOf(
-                    arrayOf(Input(TypeKind.INT),
-                            "st.bindLong(6, inp);",
-                            "out = crs.getInt(9);"),
-                    arrayOf(Input(TypeKind.BYTE),
-                            "st.bindLong(6, inp);",
-                            "out = (byte) crs.getShort(9);"),
-                    arrayOf(Input(TypeKind.SHORT),
-                            "st.bindLong(6, inp);",
-                            "out = crs.getShort(9);"),
-                    arrayOf(Input(TypeKind.LONG),
-                            "st.bindLong(6, inp);",
-                            "out = crs.getLong(9);"),
-                    arrayOf(Input(TypeKind.CHAR),
-                            "st.bindLong(6, inp);",
-                            "out = (char) crs.getInt(9);"),
-                    arrayOf(Input(TypeKind.FLOAT),
-                            "st.bindDouble(6, inp);",
-                            "out = crs.getFloat(9);"),
-                    arrayOf(Input(TypeKind.DOUBLE),
-                            "st.bindDouble(6, inp);",
-                            "out = crs.getDouble(9);"),
-                    arrayOf(Input(TypeKind.DECLARED, "java.lang.String"),
-                            """
+                arrayOf(
+                    Input(TypeName.INT),
+                    "st.bindLong(6, inp);",
+                    "out = crs.getInt(9);"
+                ),
+                arrayOf(
+                    Input(TypeName.BYTE),
+                    "st.bindLong(6, inp);",
+                    "out = (byte) crs.getShort(9);"
+                ),
+                arrayOf(
+                    Input(TypeName.SHORT),
+                    "st.bindLong(6, inp);",
+                    "out = crs.getShort(9);"
+                ),
+                arrayOf(
+                    Input(TypeName.LONG),
+                    "st.bindLong(6, inp);",
+                    "out = crs.getLong(9);"
+                ),
+                arrayOf(
+                    Input(TypeName.CHAR),
+                    "st.bindLong(6, inp);",
+                    "out = (char) crs.getInt(9);"
+                ),
+                arrayOf(
+                    Input(TypeName.FLOAT),
+                    "st.bindDouble(6, inp);",
+                    "out = crs.getFloat(9);"
+                ),
+                arrayOf(
+                    Input(TypeName.DOUBLE),
+                    "st.bindDouble(6, inp);",
+                    "out = crs.getDouble(9);"
+                ),
+                arrayOf(
+                    Input(TypeName.get(String::class.java)),
+                    """
                             if (inp == null) {
                               st.bindNull(6);
                             } else {
                               st.bindString(6, inp);
                             }
-                            """.trimIndent(),
-                            "out = crs.getString(9);")
+                    """.trimIndent(),
+                    "out = crs.getString(9);"
+                )
             )
         }
     }
@@ -90,7 +105,7 @@ class BasicColumnTypeAdaptersTest(
     fun bind() {
         simpleRun { invocation ->
             val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
-                    .findColumnTypeAdapter(input.getTypeMirror(invocation.processingEnv), null)!!
+                .findColumnTypeAdapter(input.getTypeMirror(invocation.processingEnv), null)!!
             adapter.bindToStmt("st", "6", "inp", scope)
             assertThat(scope.generate().toString().trim(), `is`(bindCode))
             generateCode(invocation, false)
@@ -99,15 +114,18 @@ class BasicColumnTypeAdaptersTest(
 
     @Test
     fun boxedBind() {
-        if (!input.typeKind.isPrimitive) {
+        if (!input.typeName.isPrimitive) {
             return // no-op for those
         }
         simpleRun { invocation ->
             val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
-                    .findColumnTypeAdapter(
-                            input.getBoxedTypeMirror(invocation.processingEnv), null)!!
+                .findColumnTypeAdapter(
+                    input.getBoxedTypeMirror(invocation.processingEnv), null
+                )!!
             adapter.bindToStmt("st", "6", "inp", scope)
-            assertThat(scope.generate().toString().trim(), `is`(
+            assertThat(
+                scope.generate().toString().trim(),
+                `is`(
                     """
                     if (inp == null) {
                       st.bindNull(6);
@@ -115,7 +133,8 @@ class BasicColumnTypeAdaptersTest(
                       $bindCode
                     }
                     """.trimIndent()
-            ))
+                )
+            )
             generateCode(invocation, true)
         }.compilesWithoutError()
     }
@@ -124,24 +143,26 @@ class BasicColumnTypeAdaptersTest(
         val typeMirror = if (boxed) input.getBoxedTypeMirror(invocation.processingEnv)
         else input.getTypeMirror(invocation.processingEnv)
         val spec = TypeSpec.classBuilder("OutClass")
-                .addField(FieldSpec.builder(SQLITE_STMT, "st").build())
-                .addField(FieldSpec.builder(CURSOR, "crs").build())
-                .addField(FieldSpec.builder(TypeName.get(typeMirror), "out").build())
-                .addField(FieldSpec.builder(TypeName.get(typeMirror), "inp").build())
-                .addMethod(
-                        MethodSpec.methodBuilder("foo")
-                                .addCode(scope.builder().build())
-                                .build()
-                )
-                .build()
-        JavaFile.builder("foo.bar", spec).build().writeTo(invocation.processingEnv.filer)
+            .addField(FieldSpec.builder(SQLITE_STMT, "st").build())
+            .addField(FieldSpec.builder(CURSOR, "crs").build())
+            .addField(FieldSpec.builder(typeMirror.typeName, "out").build())
+            .addField(FieldSpec.builder(typeMirror.typeName, "inp").build())
+            .addMethod(
+                MethodSpec.methodBuilder("foo")
+                    .addCode(scope.builder().build())
+                    .build()
+            )
+            .build()
+        JavaFile.builder("foo.bar", spec).build().writeTo(
+            invocation.processingEnv.filer
+        )
     }
 
     @Test
     fun read() {
         simpleRun { invocation ->
             val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
-                    .findColumnTypeAdapter(input.getTypeMirror(invocation.processingEnv), null)!!
+                .findColumnTypeAdapter(input.getTypeMirror(invocation.processingEnv), null)!!
             adapter.readFromCursor("out", "crs", "9", scope)
             assertThat(scope.generate().toString().trim(), `is`(cursorCode))
             generateCode(invocation, false)
@@ -150,15 +171,18 @@ class BasicColumnTypeAdaptersTest(
 
     @Test
     fun readBoxed() {
-        if (!input.typeKind.isPrimitive) {
+        if (!input.typeName.isPrimitive) {
             return // no-op for those
         }
         simpleRun { invocation ->
             val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
-                    .findColumnTypeAdapter(
-                            input.getBoxedTypeMirror(invocation.processingEnv), null)!!
+                .findColumnTypeAdapter(
+                    input.getBoxedTypeMirror(invocation.processingEnv), null
+                )!!
             adapter.readFromCursor("out", "crs", "9", scope)
-            assertThat(scope.generate().toString().trim(), `is`(
+            assertThat(
+                scope.generate().toString().trim(),
+                `is`(
                     """
                     if (crs.isNull(9)) {
                       out = null;
@@ -166,28 +190,19 @@ class BasicColumnTypeAdaptersTest(
                       $cursorCode
                     }
                     """.trimIndent()
-            ))
+                )
+            )
             generateCode(invocation, true)
         }.compilesWithoutError()
     }
 
-    data class Input(val typeKind: TypeKind, val qName: String? = null) {
-        fun getTypeMirror(processingEnv: ProcessingEnvironment): TypeMirror {
-            return if (typeKind.isPrimitive) {
-                processingEnv.typeUtils.getPrimitiveType(typeKind)
-            } else {
-                processingEnv.elementUtils.getTypeElement(qName).asType()
-            }
+    data class Input(val typeName: TypeName) {
+        fun getTypeMirror(processingEnv: XProcessingEnv): XType {
+            return processingEnv.requireType(typeName)
         }
 
-        fun getBoxedTypeMirror(processingEnv: ProcessingEnvironment): TypeMirror {
-            return if (typeKind.isPrimitive) {
-                processingEnv.typeUtils
-                        .boxedClass(getTypeMirror(processingEnv) as PrimitiveType)
-                        .asType()
-            } else {
-                getTypeMirror(processingEnv)
-            }
+        fun getBoxedTypeMirror(processingEnv: XProcessingEnv): XType {
+            return getTypeMirror(processingEnv).boxed()
         }
     }
 }

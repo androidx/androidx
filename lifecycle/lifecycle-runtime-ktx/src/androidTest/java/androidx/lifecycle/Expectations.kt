@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * to track execution order.
  */
 class Expectations {
-    private var counter = AtomicInteger(0)
+    private val counter = AtomicInteger(0)
 
     fun expect(expected: Int) {
         val order = counter.incrementAndGet()

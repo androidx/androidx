@@ -22,6 +22,7 @@ import static android.app.slice.SliceProvider.SLICE_TYPE;
 import static androidx.core.content.PermissionChecker.PERMISSION_DENIED;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 
+import android.annotation.SuppressLint;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -29,7 +30,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
@@ -113,7 +113,7 @@ public class SliceProviderCompat {
             @NonNull CompatPermissionManager permissionManager, @NonNull Context context) {
         mProvider = provider;
         mContext = context;
-        String prefsFile = DATA_PREFIX + getClass().getName();
+        String prefsFile = DATA_PREFIX + "androidx.slice.compat.SliceProviderCompat";
         SharedPreferences allFiles = mContext.getSharedPreferences(ALL_FILES, 0);
         Set<String> files = allFiles.getStringSet(ALL_FILES, Collections.<String>emptySet());
         if (!files.contains(prefsFile)) {
@@ -144,6 +144,7 @@ public class SliceProviderCompat {
     public Bundle call(@NonNull String method, @Nullable String arg, @NonNull Bundle extras) {
         if (method.equals(METHOD_SLICE)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             Set<SliceSpec> specs = getSpecs(extras);
 
             Slice s = handleBindSlice(uri, specs, getCallingPackage());
@@ -159,6 +160,7 @@ public class SliceProviderCompat {
         } else if (method.equals(METHOD_MAP_INTENT)) {
             Intent intent = extras.getParcelable(EXTRA_INTENT);
             Uri uri = mProvider.onMapIntentToUri(intent);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             Bundle b = new Bundle();
             if (uri != null) {
                 Set<SliceSpec> specs = getSpecs(extras);
@@ -178,11 +180,13 @@ public class SliceProviderCompat {
         } else if (method.equals(METHOD_MAP_ONLY_INTENT)) {
             Intent intent = extras.getParcelable(EXTRA_INTENT);
             Uri uri = mProvider.onMapIntentToUri(intent);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             Bundle b = new Bundle();
             b.putParcelable(EXTRA_SLICE, uri);
             return b;
         } else if (method.equals(METHOD_PIN)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             Set<SliceSpec> specs = getSpecs(extras);
             String pkg = extras.getString(EXTRA_PKG);
             if (mPinnedList.addPin(uri, pkg, specs)) {
@@ -191,6 +195,7 @@ public class SliceProviderCompat {
             return null;
         } else if (method.equals(METHOD_UNPIN)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             String pkg = extras.getString(EXTRA_PKG);
             if (mPinnedList.removePin(uri, pkg)) {
                 handleSliceUnpinned(uri);
@@ -198,6 +203,7 @@ public class SliceProviderCompat {
             return null;
         } else if (method.equals(METHOD_GET_PINNED_SPECS)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             Bundle b = new Bundle();
             ArraySet<SliceSpec> specs = mPinnedList.getSpecs(uri);
             if (specs.size() == 0) {
@@ -207,13 +213,14 @@ public class SliceProviderCompat {
             return b;
         } else if (method.equals(METHOD_GET_DESCENDANTS)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             Bundle b = new Bundle();
             b.putParcelableArrayList(EXTRA_SLICE_DESCENDANTS,
                     new ArrayList<>(handleGetDescendants(uri)));
             return b;
         } else if (method.equals(METHOD_CHECK_PERMISSION)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
-            String pkg = extras.getString(EXTRA_PKG);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             int pid = extras.getInt(EXTRA_PID);
             int uid = extras.getInt(EXTRA_UID);
             Bundle b = new Bundle();
@@ -221,6 +228,7 @@ public class SliceProviderCompat {
             return b;
         } else if (method.equals(METHOD_GRANT_PERMISSION)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             String toPkg = extras.getString(EXTRA_PKG);
             if (Binder.getCallingUid() != Process.myUid()) {
                 throw new SecurityException("Only the owning process can manage slice permissions");
@@ -228,6 +236,7 @@ public class SliceProviderCompat {
             mPermissionManager.grantSlicePermission(uri, toPkg);
         } else if (method.equals(METHOD_REVOKE_PERMISSION)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            mProvider.validateIncomingAuthority(uri.getAuthority());
             String toPkg = extras.getString(EXTRA_PKG);
             if (Binder.getCallingUid() != Process.myUid()) {
                 throw new SecurityException("Only the owning process can manage slice permissions");
@@ -423,6 +432,7 @@ public class SliceProviderCompat {
         }
     }
 
+    @SuppressLint("WrongConstant") // Needed for IconCompat.TYPE_RESOURCE lint failure
     private static Slice parseSlice(final Context context, Bundle res) {
         if (res == null) {
             return null;
@@ -435,7 +445,8 @@ public class SliceProviderCompat {
                         if (holder.mVersionedParcelable instanceof IconCompat) {
                             IconCompat icon = (IconCompat) holder.mVersionedParcelable;
                             icon.checkResource(context);
-                            if (icon.getType() == Icon.TYPE_RESOURCE && icon.getResId() == 0) {
+                            if (icon.getType() == IconCompat.TYPE_RESOURCE
+                                    && icon.getResId() == 0) {
                                 holder.mVersionedParcelable = null;
                             }
                         }

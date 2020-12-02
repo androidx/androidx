@@ -54,6 +54,11 @@ public class SystemAlarmScheduler implements Scheduler {
         mContext.startService(cancelIntent);
     }
 
+    @Override
+    public boolean hasLimitedSchedulingSlots() {
+        return true;
+    }
+
     /**
      * Periodic work is rescheduled using one-time alarms after each run. This allows the delivery
      * times to drift to guarantee that the interval duration always elapses between alarms.

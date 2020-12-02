@@ -42,7 +42,7 @@ import java.util.List;
  * Although operations may be forwarded to LayoutManager in different orders, resulting data set
  * is guaranteed to be the consistent.
  */
-class AdapterHelper implements OpReorderer.Callback {
+final class AdapterHelper implements OpReorderer.Callback {
 
     static final int POSITION_TYPE_INVISIBLE = 0;
 
@@ -627,7 +627,7 @@ class AdapterHelper implements OpReorderer.Callback {
     /**
      * Queued operation to happen when child views are updated.
      */
-    static class UpdateOp {
+    static final class UpdateOp {
 
         static final int ADD = 1;
 
@@ -681,7 +681,7 @@ class AdapterHelper implements OpReorderer.Callback {
             if (this == o) {
                 return true;
             }
-            if (o == null || getClass() != o.getClass()) {
+            if (!(o instanceof UpdateOp)) {
                 return false;
             }
 

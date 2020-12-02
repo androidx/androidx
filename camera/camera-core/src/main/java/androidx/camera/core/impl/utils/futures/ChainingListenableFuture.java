@@ -23,7 +23,6 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -50,9 +49,7 @@ import java.util.concurrent.TimeoutException;
  * <p>If the Function throws any checked exceptions, they should be wrapped
  * in a {@code UndeclaredThrowableException} so that this class can get access to the cause.
  *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ChainingListenableFuture<I, O> extends FutureChain<O> implements Runnable {
     @Nullable
     private AsyncFunction<? super I, ? extends O> mFunction;

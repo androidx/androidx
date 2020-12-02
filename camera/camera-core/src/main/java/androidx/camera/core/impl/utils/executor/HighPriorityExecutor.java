@@ -36,6 +36,7 @@ final class HighPriorityExecutor implements Executor {
                         private static final String THREAD_NAME =
                                 CameraXThreads.TAG + "camerax_high_priority";
 
+                        @SuppressWarnings("ThreadPriorityCheck")
                         @Override
                         public Thread newThread(Runnable r) {
                             Thread t = new Thread(r);

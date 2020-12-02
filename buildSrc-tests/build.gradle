@@ -31,6 +31,20 @@ dependencies {
     implementation(project.files(new File(BuildServerConfigurationKt.getRootOutDirectory(project), "buildSrc/build/libs/buildSrc.jar")))
 }
 
-androidx {
-    toolingProject = true
+// Also do style checking of the buildSrc project from within this project too
+// We run that from this project so that it doesn't block other projects while it runs
+def ktlintDir = "../buildSrc/"
+def ktlintIncludes = "src/**/*.kt"
+def ktlintInputs = project.fileTree(ktlintDir) {
+    include ktlintIncludes
 }
+tasks["ktlint"].configure({ t ->
+    t.inputs.files(ktlintInputs)
+    t.workingDir = ktlintDir
+    t.args = t.args + ktlintIncludes
+})
+tasks["ktlintFormat"].configure({ t ->
+    t.inputs.files(ktlintInputs)
+    t.workingDir = ktlintDir
+    t.args = t.args + ktlintIncludes
+})

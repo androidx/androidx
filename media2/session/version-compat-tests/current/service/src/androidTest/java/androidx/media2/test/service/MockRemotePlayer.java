@@ -17,6 +17,7 @@
 package androidx.media2.test.service;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
@@ -26,6 +27,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 
 /**
  * Mock implementation of {@link RemoteSessionPlayer}.
@@ -261,7 +263,15 @@ public class MockRemotePlayer extends RemoteSessionPlayer {
         return ITEM_NONE;
     }
 
-    @Override
-    public void close() throws Exception {
+    public void notifyVolumeChanged() {
+        int volume = mCurrentVolume;
+        for (Pair<PlayerCallback, Executor> pair : getCallbacks()) {
+            if (!(pair.first instanceof RemoteSessionPlayer.Callback)) {
+                continue;
+            }
+            RemoteSessionPlayer.Callback callback = (RemoteSessionPlayer.Callback) pair.first;
+            Executor executor = pair.second;
+            executor.execute(() -> callback.onVolumeChanged(this, volume));
+        }
     }
 }

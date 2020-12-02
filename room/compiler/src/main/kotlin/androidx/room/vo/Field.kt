@@ -16,22 +16,24 @@
 
 package androidx.room.vo
 
-import androidx.room.ext.isNonNull
-import androidx.room.ext.typeName
+import androidx.room.compiler.processing.XFieldElement
+import androidx.room.compiler.processing.XNullability
+import androidx.room.compiler.processing.XType
 import androidx.room.migration.bundle.FieldBundle
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.solver.types.CursorValueReader
 import androidx.room.solver.types.StatementValueBinder
+import capitalize
 import com.squareup.javapoet.TypeName
-import javax.lang.model.element.Element
-import javax.lang.model.type.TypeMirror
+import decapitalize
+import java.util.Locale
 
 // used in cache matching, must stay as a data class or implement equals
 data class Field(
-    val element: Element,
+    val element: XFieldElement,
     val name: String,
-    val type: TypeMirror,
+    val type: XType,
     var affinity: SQLTypeAffinity?,
     val collate: Collate? = null,
     val columnName: String = name,
@@ -42,7 +44,7 @@ data class Field(
     // index might be removed when being merged into an Entity
     var indexed: Boolean = false,
     /** Whether the table column for this field should be NOT NULL */
-    val nonNull: Boolean = calcNonNull(element, parent)
+    val nonNull: Boolean = calcNonNull(type, parent)
 ) : HasSchemaIdentity {
     lateinit var getter: FieldGetter
     lateinit var setter: FieldSetter
@@ -50,7 +52,7 @@ data class Field(
     var statementBinder: StatementValueBinder? = null
     // reads this field from a cursor column
     var cursorValueReader: CursorValueReader? = null
-    val typeName: TypeName by lazy { type.typeName() }
+    val typeName: TypeName by lazy { type.typeName }
 
     override fun getIdKey(): String {
         return buildString {
@@ -94,15 +96,15 @@ data class Field(
                 result.add(name.substring(1))
             }
             if (name.startsWith("m") && name[1].isUpperCase()) {
-                result.add(name.substring(1).decapitalize())
+                result.add(name.substring(1).decapitalize(Locale.US))
             }
 
             if (typeName == TypeName.BOOLEAN || typeName == TypeName.BOOLEAN.box()) {
                 if (name.length > 2 && name.startsWith("is") && name[2].isUpperCase()) {
-                    result.add(name.substring(2).decapitalize())
+                    result.add(name.substring(2).decapitalize(Locale.US))
                 }
                 if (name.length > 3 && name.startsWith("has") && name[3].isUpperCase()) {
-                    result.add(name.substring(3).decapitalize())
+                    result.add(name.substring(3).decapitalize(Locale.US))
                 }
             }
         }
@@ -110,18 +112,18 @@ data class Field(
     }
 
     val getterNameWithVariations by lazy {
-        nameWithVariations.map { "get${it.capitalize()}" } +
-                if (typeName == TypeName.BOOLEAN || typeName == TypeName.BOOLEAN.box()) {
-                    nameWithVariations.flatMap {
-                        listOf("is${it.capitalize()}", "has${it.capitalize()}")
-                    }
-                } else {
-                    emptyList()
+        nameWithVariations.map { "get${it.capitalize(Locale.US)}" } +
+            if (typeName == TypeName.BOOLEAN || typeName == TypeName.BOOLEAN.box()) {
+                nameWithVariations.flatMap {
+                    listOf("is${it.capitalize(Locale.US)}", "has${it.capitalize(Locale.US)}")
                 }
+            } else {
+                emptyList()
+            }
     }
 
     val setterNameWithVariations by lazy {
-        nameWithVariations.map { "set${it.capitalize()}" }
+        nameWithVariations.map { "set${it.capitalize(Locale.US)}" }
     }
 
     /**
@@ -144,13 +146,15 @@ data class Field(
         return "`$columnName` ${(affinity ?: SQLTypeAffinity.TEXT).name}$columnSpec"
     }
 
-    fun toBundle(): FieldBundle = FieldBundle(pathWithDotNotation, columnName,
-            affinity?.name ?: SQLTypeAffinity.TEXT.name, nonNull, defaultValue
+    fun toBundle(): FieldBundle = FieldBundle(
+        pathWithDotNotation, columnName,
+        affinity?.name ?: SQLTypeAffinity.TEXT.name, nonNull, defaultValue
     )
 
     companion object {
-        fun calcNonNull(element: Element, parent: EmbeddedField?): Boolean {
-            return element.isNonNull() && (parent == null || parent.isNonNullRecursively())
+        fun calcNonNull(type: XType, parent: EmbeddedField?): Boolean {
+            return XNullability.NONNULL == type.nullability &&
+                (parent == null || parent.isNonNullRecursively())
         }
     }
 }

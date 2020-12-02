@@ -18,7 +18,7 @@ package com.android.tools.build.jetifier.core.utils
 
 object Log {
 
-    var currentLevel: LogLevel = LogLevel.ERROR
+    var currentLevel: LogLevel = LogLevel.WARNING
 
     var logConsumer: LogConsumer = StdOutLogConsumer()
 

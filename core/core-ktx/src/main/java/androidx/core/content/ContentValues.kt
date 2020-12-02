@@ -23,7 +23,9 @@ import android.content.ContentValues
  *
  * @throws IllegalArgumentException When a value is not a supported type of [ContentValues].
  */
-fun contentValuesOf(vararg pairs: Pair<String, Any?>) = ContentValues(pairs.size).apply {
+public fun contentValuesOf(
+    vararg pairs: Pair<String, Any?>
+): ContentValues = ContentValues(pairs.size).apply {
     for ((key, value) in pairs) {
         when (value) {
             null -> putNull(key)

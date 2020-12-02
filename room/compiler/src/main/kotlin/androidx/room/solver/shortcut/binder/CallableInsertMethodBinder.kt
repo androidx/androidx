@@ -17,14 +17,13 @@
 package androidx.room.solver.shortcut.binder
 
 import androidx.room.ext.CallableTypeSpecBuilder
-import androidx.room.ext.typeName
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.InsertMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.TypeSpec
-import javax.lang.model.type.TypeMirror
 
 /**
  * Binder for deferred insert methods.
@@ -34,38 +33,38 @@ import javax.lang.model.type.TypeMirror
  * function.
  */
 class CallableInsertMethodBinder(
-    val typeArg: TypeMirror,
+    val typeArg: XType,
     val addStmntBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit,
     adapter: InsertMethodAdapter?
 ) : InsertMethodBinder(adapter) {
 
-        companion object {
-            fun createInsertBinder(
-                typeArg: TypeMirror,
-                adapter: InsertMethodAdapter?,
-                addCodeBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit
-            ) = CallableInsertMethodBinder(typeArg, addCodeBlock, adapter)
-        }
+    companion object {
+        fun createInsertBinder(
+            typeArg: XType,
+            adapter: InsertMethodAdapter?,
+            addCodeBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit
+        ) = CallableInsertMethodBinder(typeArg, addCodeBlock, adapter)
+    }
 
-        override fun convertAndReturn(
-            parameters: List<ShortcutQueryParameter>,
-            insertionAdapters: Map<String, Pair<FieldSpec, TypeSpec>>,
-            dbField: FieldSpec,
-            scope: CodeGenScope
-        ) {
-            val adapterScope = scope.fork()
-            val callableImpl = CallableTypeSpecBuilder(typeArg.typeName()) {
-                adapter?.createInsertionMethodBody(
-                    parameters = parameters,
-                    insertionAdapters = insertionAdapters,
-                    dbField = dbField,
-                    scope = adapterScope
-                )
-                addCode(adapterScope.generate())
-            }.build()
+    override fun convertAndReturn(
+        parameters: List<ShortcutQueryParameter>,
+        insertionAdapters: Map<String, Pair<FieldSpec, TypeSpec>>,
+        dbField: FieldSpec,
+        scope: CodeGenScope
+    ) {
+        val adapterScope = scope.fork()
+        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
+            adapter?.createInsertionMethodBody(
+                parameters = parameters,
+                insertionAdapters = insertionAdapters,
+                dbField = dbField,
+                scope = adapterScope
+            )
+            addCode(adapterScope.generate())
+        }.build()
 
-            scope.builder().apply {
-                addStmntBlock(callableImpl, dbField)
-            }
+        scope.builder().apply {
+            addStmntBlock(callableImpl, dbField)
         }
     }
+}

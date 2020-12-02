@@ -26,6 +26,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  * The selected item in the NavigationView will automatically be updated when the destination
  * changes.
  */
-fun BottomNavigationView.setupWithNavController(navController: NavController) {
+public fun BottomNavigationView.setupWithNavController(navController: NavController) {
     NavigationUI.setupWithNavController(this, navController)
 }

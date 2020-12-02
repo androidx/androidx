@@ -18,6 +18,7 @@ package androidx.emoji.text;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -257,6 +258,12 @@ public class EmojiCompat {
     @LoadStrategy private final int mMetadataLoadStrategy;
 
     /**
+     * @see Config#setGlyphChecker(GlyphChecker)
+     */
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    private final GlyphChecker mGlyphChecker;
+
+    /**
      * Private constructor for singleton instance.
      *
      * @see #init(Config)
@@ -271,6 +278,7 @@ public class EmojiCompat {
         mEmojiSpanIndicatorColor = config.mEmojiSpanIndicatorColor;
         mMetadataLoader = config.mMetadataLoader;
         mMetadataLoadStrategy = config.mMetadataLoadStrategy;
+        mGlyphChecker = config.mGlyphChecker;
         mMainHandler = new Handler(Looper.getMainLooper());
         mInitCallbacks = new ArraySet<>();
         if (config.mInitCallbacks != null && !config.mInitCallbacks.isEmpty()) {
@@ -331,17 +339,6 @@ public class EmojiCompat {
             sInstance = emojiCompat;
         }
         return sInstance;
-    }
-
-    /**
-     * Used by the tests to set GlyphChecker for EmojiProcessor.
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @VisibleForTesting
-    void setGlyphChecker(@NonNull final EmojiProcessor.GlyphChecker glyphChecker) {
-        mHelper.setGlyphChecker(glyphChecker);
     }
 
     /**
@@ -650,9 +647,9 @@ public class EmojiCompat {
      *
      * @param charSequence CharSequence to add the EmojiSpans, cannot be {@code null}
      * @param start start index in the charSequence to look for emojis, should be greater than or
-     *              equal to {@code 0}, also less than {@code charSequence.length()}
-     * @param end end index in the charSequence to look for emojis, should be greater than or
-     *            equal to {@code start} parameter, also less than {@code charSequence.length()}
+     *              equal to {@code 0}, also less than or equal to {@code charSequence.length()}
+     * @param end end index in the charSequence to look for emojis, should be greater than or equal to
+     *             {@code start} parameter, also less than or equal to {@code charSequence.length()}
      *
      * @throws IllegalStateException if not initialized yet
      * @throws IllegalArgumentException in the following cases:
@@ -682,9 +679,9 @@ public class EmojiCompat {
      *
      * @param charSequence CharSequence to add the EmojiSpans, cannot be {@code null}
      * @param start start index in the charSequence to look for emojis, should be greater than or
-     *              equal to {@code 0}, also less than {@code charSequence.length()}
+     *              equal to {@code 0}, also less than or equal to {@code charSequence.length()}
      * @param end end index in the charSequence to look for emojis, should be greater than or
-     *            equal to {@code start} parameter, also less than {@code charSequence.length()}
+     *            equal to {@code start} parameter, also less than or equal to {@code charSequence.length()}
      * @param maxEmojiCount maximum number of emojis in the {@code charSequence}, should be greater
      *                      than or equal to {@code 0}
      *
@@ -718,9 +715,9 @@ public class EmojiCompat {
      *
      * @param charSequence CharSequence to add the EmojiSpans, cannot be {@code null}
      * @param start start index in the charSequence to look for emojis, should be greater than or
-     *              equal to {@code 0}, also less than {@code charSequence.length()}
+     *              equal to {@code 0}, also less than or equal to {@code charSequence.length()}
      * @param end end index in the charSequence to look for emojis, should be greater than or
-     *            equal to {@code start} parameter, also less than {@code charSequence.length()}
+     *            equal to {@code start} parameter, also less than or equal to {@code charSequence.length()}
      * @param maxEmojiCount maximum number of emojis in the {@code charSequence}, should be greater
      *                      than or equal to {@code 0}
      * @param replaceStrategy whether to replace all emoji with {@link EmojiSpan}s, should be one of
@@ -866,6 +863,57 @@ public class EmojiCompat {
     }
 
     /**
+     * Interface to check if a given emoji exists on the system.
+     */
+    public interface GlyphChecker {
+        /**
+         * Return {@code true} if the emoji that is in {@code charSequence} between
+         * {@code start}(inclusive) and {@code end}(exclusive) can be rendered on the system
+         * using the default Typeface.
+         *
+         * <p>This function is called after an emoji is identified in the given {@code charSequence}
+         * and EmojiCompat wants to know if that emoji can be rendered on the system. The result
+         * of this call will be cached and the same emoji sequence won't be asked for the same
+         * EmojiCompat instance.
+         *
+         * <p>When the function returns {@code true}, it will mean that the system can render the
+         * emoji. In that case if {@link Config#setReplaceAll} is set to {@code false}, then no
+         * {@link EmojiSpan} will be added in the final emoji processing result.
+         *
+         * <p>When the function returns {@code false}, it will mean that the system cannot render
+         * the given emoji, therefore an {@link EmojiSpan} will be added to the final emoji
+         * processing result.
+         *
+         * <p>The default implementation of this class uses
+         * {@link androidx.core.graphics.PaintCompat#hasGlyph(Paint, String)} function to check
+         * if the emoji can be rendered on the system. This is required even if EmojiCompat
+         * knows about the SDK Version that the emoji was added on AOSP. Just the {@code sdkAdded}
+         * information is not enough to reliably decide if emoji can be rendered since this
+         * information may not be consistent across all the OEMs and all the Android versions.
+         *
+         * <p>With this interface you can apply your own heuristics to check if the emoji can be
+         * rendered on the system. For example, if you'd like to rely on the {@code sdkAdded}
+         * information, and some predefined OEMs, it is possible to write the following code
+         * snippet.
+         *
+         * {@sample frameworks/support/samples/SupportEmojiDemos/src/main/java/com/example/android/support/text/emoji/sample/GlyphCheckerSample.java glyphchecker}
+         *
+         * @param charSequence the CharSequence that is being processed
+         * @param start the inclusive starting offset for the emoji in the {@code charSequence}
+         * @param end the exclusive end offset for the emoji in the {@code charSequence}
+         * @param sdkAdded the API version that the emoji was added in AOSP
+         *
+         * @return true if the given sequence can be rendered as a single glyph, otherwise false.
+         */
+        boolean hasGlyph(
+                @NonNull CharSequence charSequence,
+                @IntRange(from = 0) int start,
+                @IntRange(from = 0) int end,
+                @IntRange(from = 0) int sdkAdded
+        );
+    }
+
+    /**
      * Callback to inform EmojiCompat about the state of the metadata load. Passed to
      * MetadataRepoLoader during {@link MetadataRepoLoader#load(MetadataRepoLoaderCallback)} call.
      */
@@ -908,6 +956,8 @@ public class EmojiCompat {
         int mEmojiSpanIndicatorColor = Color.GREEN;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         @LoadStrategy int mMetadataLoadStrategy = LOAD_STRATEGY_DEFAULT;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        GlyphChecker mGlyphChecker = new EmojiProcessor.DefaultGlyphChecker();
 
         /**
          * Default constructor.
@@ -1082,6 +1132,19 @@ public class EmojiCompat {
         }
 
         /**
+         * The interface that is used by EmojiCompat in order to check if a given emoji can be
+         * rendered by the system.
+         *
+         * @param glyphChecker {@link GlyphChecker} instance to be used.
+         */
+        @NonNull
+        public Config setGlyphChecker(@NonNull GlyphChecker glyphChecker) {
+            Preconditions.checkNotNull(glyphChecker, "GlyphChecker cannot be null");
+            mGlyphChecker = glyphChecker;
+            return this;
+        }
+
+        /**
          * Returns the {@link MetadataRepoLoader}.
          */
         protected final MetadataRepoLoader getMetadataRepoLoader() {
@@ -1173,10 +1236,6 @@ public class EmojiCompat {
             // Does not add any EditorInfo attributes.
         }
 
-        void setGlyphChecker(@NonNull EmojiProcessor.GlyphChecker glyphChecker) {
-            // intentionally empty
-        }
-
         String getAssetSignature() {
             return "";
         }
@@ -1220,7 +1279,7 @@ public class EmojiCompat {
             }
         }
 
-        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        @SuppressWarnings("SyntheticAccessor")
         void onMetadataLoadSuccess(@NonNull final MetadataRepo metadataRepo) {
             //noinspection ConstantConditions
             if (metadataRepo == null) {
@@ -1230,7 +1289,10 @@ public class EmojiCompat {
             }
 
             mMetadataRepo = metadataRepo;
-            mProcessor = new EmojiProcessor(mMetadataRepo, new SpanFactory(),
+            mProcessor = new EmojiProcessor(
+                    mMetadataRepo,
+                    new SpanFactory(),
+                    mEmojiCompat.mGlyphChecker,
                     mEmojiCompat.mUseEmojiAsDefaultStyle,
                     mEmojiCompat.mEmojiAsDefaultStyleExceptions);
 
@@ -1258,11 +1320,6 @@ public class EmojiCompat {
         void updateEditorInfoAttrs(@NonNull EditorInfo outAttrs) {
             outAttrs.extras.putInt(EDITOR_INFO_METAVERSION_KEY, mMetadataRepo.getMetadataVersion());
             outAttrs.extras.putBoolean(EDITOR_INFO_REPLACE_ALL_KEY, mEmojiCompat.mReplaceAll);
-        }
-
-        @Override
-        void setGlyphChecker(@NonNull EmojiProcessor.GlyphChecker glyphChecker) {
-            mProcessor.setGlyphChecker(glyphChecker);
         }
 
         @Override

@@ -15,7 +15,7 @@
  */
 
 plugins {
-    id('com.android.feature')
+    id('com.android.application')
     id('androidx.navigation.safeargs')
 }
 android {
@@ -29,7 +29,7 @@ android {
             storeFile file("$debugKeystoreFile")
         }
     }
-    baseFeature true
+    dynamicFeatures = [":app", ":feature", ":dynamic_feature"]
 
     flavorDimensions "mode"
     productFlavors {
@@ -39,13 +39,10 @@ android {
         notfoo {
             dimension "mode"
         }
-
     }
 }
 
 dependencies {
-    application project(':app')
-    feature project(':feature')
     implementation project(":library")
     implementation "$navigationCommonDep"
 }

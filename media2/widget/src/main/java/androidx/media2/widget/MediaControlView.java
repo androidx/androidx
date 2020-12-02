@@ -30,7 +30,6 @@ import android.net.Uri;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -52,6 +51,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
@@ -83,53 +83,75 @@ import java.util.Locale;
  * a {@link MediaController} attached to the {@link MediaSession} and set it to this view
  * by calling {@link #setMediaController}.
  * <p>
- * The easiest way to use a MediaControlView is by creating a {@link VideoView}, which will
- * internally create a MediaControlView instance and handle all the commands from buttons inside
+ * The easiest way to use a MediaControlView is by creating a {@link VideoView}, which
+ * internally creates a MediaControlView instance and handles all the commands from buttons inside
  * MediaControlView. It is also possible to create a MediaControlView programmatically and add it
  * to a custom video view. For more information, refer to {@link VideoView}.
- *
- * By default, the buttons inside MediaControlView will not visible unless the corresponding
- * {@link SessionCommand} is marked as allowed. For more details, refer to {@link MediaSession}.
  * <p>
- * <em> UI transitions : </em>
- * Currently, MediaControlView animates UI transitions between three different modes: full,
- * progress-bar only, and none. Full mode is where all the views are visible; Progress-bar only mode
- * is where only the progress bar is visible and the title, transport controls and other icons are
- * hidden; None mode is where all views are gone. The default interval between each mode is 2000ms,
- * but it can be customized by using {@link VideoView#setMediaControlView(MediaControlView, long)}.
- * Transitions occur based on the following logic:
- *   1) In Full mode
- *     a) If a touch/trackball event is received, will transition to None mode.
- *     b) If a touch/trackball event is not received, will transition to Progress-bar only mode
- *        after the interval.
- *   2) In Progress-bar only mode
- *     a) If a touch/trackball event is received, will transition to Full mode.
- *     b) If a touch/trackball event is not received, will transition to None mode after the
- *        interval.
- *   3) In None mode
- *     a) If a touch/trackball event is received, will transition to Full mode.
- *   4) While animating, all touch/trackball event will be ignored.
- *
+ * By default, each button in the MediaControlView is visible only when its corresponding
+ * {@link SessionCommand} is included in the active {@link SessionCommandGroup}.
+ * For more details, refer to {@link MediaSession#setAllowedCommands}.
  * <p>
- * <em> Customization : </em>
- * In addition, the following customizations are supported:
- *   1) Set focus to the play/pause button by calling {@link #requestPlayButtonFocus()}.
- *   2) Set full screen behavior by calling {@link #setOnFullScreenListener(OnFullScreenListener)}
+ * <h3>UI transitions</h3>
+ * The UI of an app can be in one of three modes:
+ * <ul>
+ *     <li>In <b>full</b> mode all the views, such as progress bar, title, transport controls,
+ *     and other icons are visible.
+ *     <li>In <b>progress-bar only</b> mode the progress bar is the only visible element.
+ *     The title, transport controls, and other icons are hidden.
+ *     <li>In <b>None</b> mode all the views are hidden.
+ * </ul>
+ * When the  UI mode changes, MediaControlView animates the transition. The animation does not
+ * start immediately, there is a default delay interval of 2000ms before the animation begins. You
+ * can change this interval by calling
+ * {@link VideoView#setMediaControlView(MediaControlView, long)}.
  * <p>
- * <em> Displaying metadata : </em>
+ * User actions can change the scheduled transition during the delay interval according to
+ * the following logic:
+ * <ol>
+ *   <li> In Full mode
+ *   <ul>
+ *       <li>If a touch/trackball event is received during the interval, the UI changes to None
+ *       mode.
+ *       <li>If no touch/trackball event is received during the interval, the UI changes to
+ *       progress-bar only mode.
+ *   </ul>
+ *   <li> In Progress-bar only mode
+ *   <ul>
+ *     <li>If a touch/trackball event is received, the UI changes to Full mode.
+ *     <li>If no touch/trackball event is received, the UI changes to None mode.
+ *   </ul>
+ *   <li> In None mode, if a touch/trackball event is received, the UI changes to Full mode.
+ * </ol>
+ * All touch/trackballs events are ignored while the system is animating the change between modes.
+ * <p>
+ * <h3>Customization</h3>
+ * The following customizations are supported:
+ * <ul>
+ *   <li>Set focus to the play/pause button by calling {@link #requestPlayButtonFocus()}.
+ *   <li>Set full screen behavior by calling {@link #setOnFullScreenListener(OnFullScreenListener)}.
+ *   Calling this method will also show the full screen button.
+ * </ul>
+ * <p>
+ * <h3>Displaying metadata</h3>
  * MediaControlView supports displaying metadata by calling
  * {@link MediaItem#setMetadata(MediaMetadata)}.
- *
- * Metadata display is different for two different media types: music, and non-music.
- * For music, the following metadata are supported:
- * {@link MediaMetadata#METADATA_KEY_TITLE}, {@link MediaMetadata#METADATA_KEY_ARTIST},
- * and {@link MediaMetadata#METADATA_KEY_ALBUM_ART}.
- * If values for these keys are not set, the following default values will be shown, respectively:
- * {@link androidx.media2.widget.R.string#mcv2_music_title_unknown_text}
- * {@link androidx.media2.widget.R.string#mcv2_music_artist_unknown_text}
- * {@link androidx.media2.widget.R.drawable#media2_widget_ic_default_album_image}
- *
- * For non-music, only {@link MediaMetadata#METADATA_KEY_TITLE} metadata is supported.
+ * Metadata display is different for two different media types: video (with or without sound)
+ * and audio(sound only, no video)
+ * <p>
+ * The following table shows the metadata displayed on VideoView and the default
+ * values assigned if the keys are not set:
+ * <table>
+ *     <tr><th>Key</th><th>Default</th></tr>
+ *     <tr><td>{@link MediaMetadata#METADATA_KEY_TITLE}</td>
+ *     <td>{@link androidx.media2.widget.R.string#mcv2_music_title_unknown_text}</td></tr>
+ *     <tr><td>{@link MediaMetadata#METADATA_KEY_ARTIST}</td>
+ *     <td>{@link androidx.media2.widget.R.string#mcv2_music_artist_unknown_text}</td></tr>
+ *     <tr><td>{@link MediaMetadata#METADATA_KEY_ALBUM_ART}</td>
+ *     <td>{@link androidx.media2.widget.R.drawable#media2_widget_ic_default_album_image}</td></tr>
+ *     </table>
+ * <p>
+ * For video media, {@link MediaMetadata#METADATA_KEY_TITLE} metadata is supported.
  * If the value is not set, the following default value will be shown:
  * {@link androidx.media2.widget.R.string#mcv2_non_music_title_unknown_text}
  */
@@ -324,7 +346,7 @@ public class MediaControlView extends MediaViewGroup {
         }
         mPlayer = new PlayerWrapper(controller, ContextCompat.getMainExecutor(getContext()),
                 new PlayerCallback());
-        if (isAttachedToWindow()) {
+        if (ViewCompat.isAttachedToWindow(this)) {
             mPlayer.attachCallback();
         }
     }
@@ -361,7 +383,7 @@ public class MediaControlView extends MediaViewGroup {
         }
         mPlayer = new PlayerWrapper(player, ContextCompat.getMainExecutor(getContext()),
                 new PlayerCallback());
-        if (isAttachedToWindow()) {
+        if (ViewCompat.isAttachedToWindow(this)) {
             mPlayer.attachCallback();
         }
     }
@@ -718,7 +740,7 @@ public class MediaControlView extends MediaViewGroup {
                 R.dimen.media2_widget_full_settings_width);
         mSettingsItemHeight = mResources.getDimensionPixelSize(
                 R.dimen.media2_widget_settings_height);
-        mSettingsWindowMargin = (-1) * mResources.getDimensionPixelSize(
+        mSettingsWindowMargin = mResources.getDimensionPixelSize(
                 R.dimen.media2_widget_settings_offset);
         mSettingsWindow = new PopupWindow(mSettingsListView, mEmbeddedSettingsItemWidth,
                 LayoutParams.WRAP_CONTENT, true);
@@ -1263,15 +1285,15 @@ public class MediaControlView extends MediaViewGroup {
 
             final boolean isEnteringFullScreen = !mIsFullScreen;
             if (isEnteringFullScreen) {
-                mFullScreenButton.setImageDrawable(
-                        mResources.getDrawable(R.drawable.media2_widget_ic_fullscreen_exit));
-                mMinimalFullScreenButton.setImageDrawable(
-                        mResources.getDrawable(R.drawable.media2_widget_ic_fullscreen_exit));
+                mFullScreenButton.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                        R.drawable.media2_widget_ic_fullscreen_exit));
+                mMinimalFullScreenButton.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                        R.drawable.media2_widget_ic_fullscreen_exit));
             } else {
-                mFullScreenButton.setImageDrawable(
-                        mResources.getDrawable(R.drawable.media2_widget_ic_fullscreen));
-                mMinimalFullScreenButton.setImageDrawable(
-                        mResources.getDrawable(R.drawable.media2_widget_ic_fullscreen));
+                mFullScreenButton.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                        R.drawable.media2_widget_ic_fullscreen));
+                mMinimalFullScreenButton.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                        R.drawable.media2_widget_ic_fullscreen));
             }
             mIsFullScreen = isEnteringFullScreen;
             mOnFullScreenListener.onFullScreen(MediaControlView.this,
@@ -1576,7 +1598,7 @@ public class MediaControlView extends MediaViewGroup {
         mSettingsWindow.setWidth(itemWidth);
 
         // Calculate height of window
-        int maxHeight = getMeasuredHeight() + mSettingsWindowMargin * 2;
+        int maxHeight = getHeight() - mSettingsWindowMargin * 2;
         int totalHeight = adapter.getCount() * mSettingsItemHeight;
         int height = (totalHeight < maxHeight) ? totalHeight : maxHeight;
         mSettingsWindow.setHeight(height);
@@ -1586,8 +1608,9 @@ public class MediaControlView extends MediaViewGroup {
         mSettingsWindow.dismiss();
         // Workaround for b/123271636.
         if (height > 0) {
-            mSettingsWindow.showAsDropDown(this, mSettingsWindowMargin,
-                    mSettingsWindowMargin - height, Gravity.BOTTOM | Gravity.RIGHT);
+            int xoff = getWidth() - mSettingsWindow.getWidth() - mSettingsWindowMargin;
+            int yoff = -mSettingsWindow.getHeight() - mSettingsWindowMargin;
+            mSettingsWindow.showAsDropDown(this, xoff, yoff);
             mNeedToHideBars = true;
         }
     }
@@ -1599,14 +1622,14 @@ public class MediaControlView extends MediaViewGroup {
 
     void animateOverflow(float animatedValue) {
         int extraControlWidth = mExtraControls.getWidth();
-        int extraControlTranslationX = (-1) * (int) (extraControlWidth * animatedValue);
+        int extraControlTranslationX = -1 * (int) (extraControlWidth * animatedValue);
         mExtraControls.setTranslationX(extraControlTranslationX);
 
         mTimeView.setAlpha(1 - animatedValue);
         mBasicControls.setAlpha(1 - animatedValue);
 
         int transportControlLeftWidth = findFullSizedControlButton(R.id.pause).getLeft();
-        int transportControlTranslationX = (-1) * (int) (transportControlLeftWidth * animatedValue);
+        int transportControlTranslationX = -1 * (int) (transportControlLeftWidth * animatedValue);
         mFullTransportControls.setTranslationX(transportControlTranslationX);
         findFullSizedControlButton(R.id.ffwd).setAlpha(1 - animatedValue);
     }
@@ -1625,6 +1648,7 @@ public class MediaControlView extends MediaViewGroup {
         boolean canFfwd = mPlayer.canSeekForward();
         boolean canPrev = mPlayer.canSkipToPrevious();
         boolean canNext = mPlayer.canSkipToNext();
+        boolean canSeekTo = mPlayer.canSeekTo();
 
         int n = mTransportControlsMap.size();
         for (int i = 0; i < n; i++) {
@@ -1651,14 +1675,38 @@ public class MediaControlView extends MediaViewGroup {
                 nextButton.setVisibility(canNext ? View.VISIBLE : View.GONE);
             }
         }
-        if (mPlayer.canSeekTo()) {
-            mSeekAvailable = true;
-            mProgress.setEnabled(true);
-        }
-        if (mPlayer.canSelectDeselectTrack()) {
-            mSubtitleButton.setVisibility(View.VISIBLE);
-        } else {
+        mSeekAvailable = canSeekTo;
+        mProgress.setEnabled(canSeekTo);
+        updateSubtitleButtonVisibility();
+    }
+
+    void updateSubtitleButtonVisibility() {
+        // 1. If player doesn't support select/deselect track, subtitle button will not be shown.
+        // 2. If there's no valid track information, subtitle button will not be shown.
+        // The second criteria prevents the case that "cc" button is shortly shown and disappears
+        // when the media item is a music without subtitle tracks.
+        if (!mPlayer.canSelectDeselectTrack()
+                || (mVideoTrackCount == 0 && mAudioTracks.isEmpty() && mSubtitleTracks.isEmpty())) {
             mSubtitleButton.setVisibility(View.GONE);
+            mSubtitleButton.setEnabled(false);
+            return;
+        }
+
+        if (mSubtitleTracks.isEmpty()) {
+            // For Audio only media item, CC button will not be shown when there's
+            // no subtitle tracks.
+            if (isCurrentItemMusic()) {
+                mSubtitleButton.setVisibility(View.GONE);
+                mSubtitleButton.setEnabled(false);
+            } else {
+                mSubtitleButton.setVisibility(View.VISIBLE);
+                mSubtitleButton.setAlpha(0.5f);
+                mSubtitleButton.setEnabled(false);
+            }
+        } else {
+            mSubtitleButton.setVisibility(View.VISIBLE);
+            mSubtitleButton.setAlpha(1.0f);
+            mSubtitleButton.setEnabled(true);
         }
     }
 
@@ -1772,13 +1820,16 @@ public class MediaControlView extends MediaViewGroup {
         Drawable drawable;
         String description;
         if (type == PLAY_BUTTON_PAUSE) {
-            drawable = mResources.getDrawable(R.drawable.media2_widget_ic_pause_circle_filled);
+            drawable = ContextCompat.getDrawable(getContext(),
+                    R.drawable.media2_widget_ic_pause_circle_filled);
             description = mResources.getString(R.string.mcv2_pause_button_desc);
         } else if (type == PLAY_BUTTON_PLAY) {
-            drawable = mResources.getDrawable(R.drawable.media2_widget_ic_play_circle_filled);
+            drawable = ContextCompat.getDrawable(getContext(),
+                    R.drawable.media2_widget_ic_play_circle_filled);
             description = mResources.getString(R.string.mcv2_play_button_desc);
         } else if (type == PLAY_BUTTON_REPLAY) {
-            drawable = mResources.getDrawable(R.drawable.media2_widget_ic_replay_circle_filled);
+            drawable = ContextCompat.getDrawable(getContext(),
+                    R.drawable.media2_widget_ic_replay_circle_filled);
             description = mResources.getString(R.string.mcv2_replay_button_desc);
         } else {
             throw new IllegalArgumentException("unknown type " + type);
@@ -1844,17 +1895,7 @@ public class MediaControlView extends MediaViewGroup {
 
         // Update subtitle description list and subtitle button visibility.
         mSubtitleDescriptionsList = new ArrayList<>();
-        if (mSubtitleTracks.isEmpty()) {
-            // For Audio only media item, CC button will not be shown when there's
-            // no subtitle tracks.
-            if (isCurrentItemMusic()) {
-                mSubtitleButton.setVisibility(View.GONE);
-            } else {
-                mSubtitleButton.setVisibility(View.VISIBLE);
-                mSubtitleButton.setAlpha(0.5f);
-                mSubtitleButton.setEnabled(false);
-            }
-        } else {
+        if (!mSubtitleTracks.isEmpty()) {
             mSubtitleDescriptionsList.add(mResources.getString(
                     R.string.MediaControlView_subtitle_off_text));
             for (int i = 0; i < mSubtitleTracks.size(); i++) {
@@ -1870,10 +1911,8 @@ public class MediaControlView extends MediaViewGroup {
                 }
                 mSubtitleDescriptionsList.add(trackDescription);
             }
-            mSubtitleButton.setVisibility(View.VISIBLE);
-            mSubtitleButton.setAlpha(1.0f);
-            mSubtitleButton.setEnabled(true);
         }
+        updateSubtitleButtonVisibility();
     }
 
     private boolean hasActualVideo() {
@@ -1946,7 +1985,8 @@ public class MediaControlView extends MediaViewGroup {
                 iconView.setVisibility(View.GONE);
             } else {
                 // Otherwise, set main icon.
-                iconView.setImageDrawable(mResources.getDrawable(mIconIds.get(position)));
+                iconView.setImageDrawable(
+                        ContextCompat.getDrawable(getContext(), mIconIds.get(position)));
             }
             return row;
         }
@@ -2218,8 +2258,8 @@ public class MediaControlView extends MediaViewGroup {
                         if (mSettingsMode == SETTINGS_MODE_SUBTITLE_TRACK) {
                             mSubSettingsAdapter.setCheckPosition(mSelectedSubtitleTrackIndex + 1);
                         }
-                        mSubtitleButton.setImageDrawable(
-                                mResources.getDrawable(R.drawable.media2_widget_ic_subtitle_on));
+                        mSubtitleButton.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                                R.drawable.media2_widget_ic_subtitle_on));
                         mSubtitleButton.setContentDescription(
                                 mResources.getString(R.string.mcv2_cc_is_on));
                         break;
@@ -2253,8 +2293,8 @@ public class MediaControlView extends MediaViewGroup {
                         if (mSettingsMode == SETTINGS_MODE_SUBTITLE_TRACK) {
                             mSubSettingsAdapter.setCheckPosition(mSelectedSubtitleTrackIndex + 1);
                         }
-                        mSubtitleButton.setImageDrawable(
-                                mResources.getDrawable(R.drawable.media2_widget_ic_subtitle_off));
+                        mSubtitleButton.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                                R.drawable.media2_widget_ic_subtitle_off));
                         mSubtitleButton.setContentDescription(
                                 mResources.getString(R.string.mcv2_cc_is_off));
                         break;

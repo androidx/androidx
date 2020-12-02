@@ -27,6 +27,9 @@ plugins {
 }
 
 android {
+    buildFeatures {
+        aidl = true
+    }
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }
@@ -34,10 +37,10 @@ android {
 
 dependencies {
     api(project(":room:room-common"))
-    api("androidx.sqlite:sqlite-framework:2.0.1")
-    api("androidx.sqlite:sqlite:2.0.1")
+    api("androidx.sqlite:sqlite-framework:2.1.0")
+    api("androidx.sqlite:sqlite:2.1.0")
     implementation("androidx.arch.core:core-runtime:2.0.1")
-    compileOnly("androidx.paging:paging-common:2.0.0")
+    compileOnly(projectOrArtifact(":paging:paging-common"))
     compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
 
     testImplementation("androidx.arch.core:core-testing:2.0.1")
@@ -60,7 +63,7 @@ android.libraryVariants.all { variant ->
     def name = variant.name
     def suffix = name.capitalize()
 
-    // Create jar<variant> task for testCompile in room-compiler.
+    // Create jar<variant> task for testImplementation in room-compiler.
     project.tasks.create(name: "jar${suffix}", type: Jar){
         dependsOn variant.javaCompileProvider.get()
         from variant.javaCompileProvider.get().destinationDir
@@ -71,9 +74,7 @@ android.libraryVariants.all { variant ->
 androidx {
     name = "Android Room-Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.ROOM
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room-Runtime"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }

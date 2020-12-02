@@ -19,8 +19,58 @@ AcronymName: androidx.sqlite.db.SupportSQLiteStatement:
     Acronyms should not be capitalized in class names: was `SupportSQLiteStatement`, should this be `SupportSqLiteStatement`?
 
 
-MissingBuild: androidx.sqlite.db.SupportSQLiteQueryBuilder:
-    Missing `build()` method in androidx.sqlite.db.SupportSQLiteQueryBuilder
+ArrayReturn: androidx.sqlite.db.SimpleSQLiteQuery#SimpleSQLiteQuery(String, Object[]) parameter #1:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+ArrayReturn: androidx.sqlite.db.SimpleSQLiteQuery#bind(androidx.sqlite.db.SupportSQLiteProgram, Object[]) parameter #1:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+ArrayReturn: androidx.sqlite.db.SupportSQLiteDatabase#delete(String, String, Object[]) parameter #2:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+ArrayReturn: androidx.sqlite.db.SupportSQLiteDatabase#execSQL(String, Object[]) parameter #1:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+ArrayReturn: androidx.sqlite.db.SupportSQLiteDatabase#query(String, Object[]) parameter #1:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+ArrayReturn: androidx.sqlite.db.SupportSQLiteDatabase#update(String, int, android.content.ContentValues, String, Object[]) parameter #4:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+ArrayReturn: androidx.sqlite.db.SupportSQLiteQueryBuilder#selection(String, Object[]) parameter #1:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+
+
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder#callback(androidx.sqlite.db.SupportSQLiteOpenHelper.Callback):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder.callback(androidx.sqlite.db.SupportSQLiteOpenHelper.Callback)
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder#name(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder.name(String)
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder#noBackupDirectory(boolean):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder.noBackupDirectory(boolean)
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#builder(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.builder(String)
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#columns(String[]):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.columns(String[])
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#create():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.create()
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#distinct():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.distinct()
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#groupBy(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.groupBy(String)
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#having(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.having(String)
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#limit(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.limit(String)
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#orderBy(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.orderBy(String)
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#selection(String, Object[]):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.selection(String,Object[])
+
+
+ExecutorRegistration: androidx.sqlite.db.SupportSQLiteDatabase#beginTransactionWithListener(android.database.sqlite.SQLiteTransactionListener):
+    Registration methods should have overload that accepts delivery Executor: `beginTransactionWithListener`
+ExecutorRegistration: androidx.sqlite.db.SupportSQLiteDatabase#beginTransactionWithListenerNonExclusive(android.database.sqlite.SQLiteTransactionListener):
+    Registration methods should have overload that accepts delivery Executor: `beginTransactionWithListenerNonExclusive`
+ExecutorRegistration: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder#callback(androidx.sqlite.db.SupportSQLiteOpenHelper.Callback):
+    Registration methods should have overload that accepts delivery Executor: `callback`
+
+
+MissingBuildMethod: androidx.sqlite.db.SupportSQLiteQueryBuilder:
+    androidx.sqlite.db.SupportSQLiteQueryBuilder does not declare a `build()` method, but builder classes are expected to
 
 
 MissingNullability: androidx.sqlite.db.SimpleSQLiteQuery#SimpleSQLiteQuery(String) parameter #0:
@@ -141,3 +191,11 @@ MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#selection(Strin
     Missing nullability on parameter `bindArgs` in method `selection`
 MissingNullability: androidx.sqlite.db.SupportSQLiteStatement#simpleQueryForString():
     Missing nullability on method `simpleQueryForString` return
+
+
+StaticFinalBuilder: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder:
+    Builder must be final: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder
+
+
+TopLevelBuilder: androidx.sqlite.db.SupportSQLiteQueryBuilder:
+    Builder should be defined as inner class: androidx.sqlite.db.SupportSQLiteQueryBuilder

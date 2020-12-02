@@ -71,6 +71,7 @@ public class SimpleJobIntentService extends JobIntentService {
         toast("All work complete");
     }
 
+    @SuppressWarnings("deprecation")
     final Handler mHandler = new Handler();
 
     // Helper for showing tests

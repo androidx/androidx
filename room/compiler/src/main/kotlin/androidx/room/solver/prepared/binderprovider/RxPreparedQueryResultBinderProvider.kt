@@ -17,40 +17,35 @@
 package androidx.room.solver.prepared.binderprovider
 
 import androidx.room.ext.L
-import androidx.room.ext.RoomRxJava2TypeNames
-import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.T
-import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XRawType
+import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
-import androidx.room.processor.ProcessorErrors
+import androidx.room.solver.RxType
 import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
-import com.squareup.javapoet.ClassName
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
 
-sealed class RxPreparedQueryResultBinderProvider(
+open class RxPreparedQueryResultBinderProvider internal constructor(
     val context: Context,
-    val rxType: RxType
+    private val rxType: RxType
 ) : PreparedQueryResultBinderProvider {
 
-    private val hasRxJava2Artifact by lazy {
-        context.processingEnv.elementUtils
-            .getTypeElement(RoomRxJava2TypeNames.RX_ROOM.toString()) != null
+    private val hasRxJavaArtifact by lazy {
+        context.processingEnv.findTypeElement(rxType.version.rxRoomClassName) != null
     }
 
-    override fun matches(declared: DeclaredType): Boolean =
+    override fun matches(declared: XDeclaredType): Boolean =
         declared.typeArguments.size == 1 && matchesRxType(declared)
 
-    private fun matchesRxType(declared: DeclaredType): Boolean {
-        val erasure = context.processingEnv.typeUtils.erasure(declared)
-        return erasure.typeName() == rxType.className
+    private fun matchesRxType(declared: XDeclaredType): Boolean {
+        return declared.rawType.typeName == rxType.className
     }
 
-    override fun provide(declared: DeclaredType, query: ParsedQuery): PreparedQueryResultBinder {
-        if (!hasRxJava2Artifact) {
-            context.logger.e(ProcessorErrors.MISSING_ROOM_RXJAVA2_ARTIFACT)
+    override fun provide(declared: XDeclaredType, query: ParsedQuery): PreparedQueryResultBinder {
+        if (!hasRxJavaArtifact) {
+            context.logger.e(rxType.version.missingArtifactMessage)
         }
         val typeArg = extractTypeArg(declared)
         return createPreparedBinder(
@@ -61,40 +56,35 @@ sealed class RxPreparedQueryResultBinderProvider(
         }
     }
 
-    abstract fun extractTypeArg(declared: DeclaredType): TypeMirror
+    open fun extractTypeArg(declared: XDeclaredType): XType = declared.typeArguments.first()
 
-    enum class RxType(val className: ClassName) {
-        SINGLE(RxJava2TypeNames.SINGLE),
-        MAYBE(RxJava2TypeNames.MAYBE),
-        COMPLETABLE(RxJava2TypeNames.COMPLETABLE)
+    companion object {
+        fun getAll(context: Context) = listOf(
+            RxPreparedQueryResultBinderProvider(context, RxType.RX2_SINGLE),
+            RxPreparedQueryResultBinderProvider(context, RxType.RX2_MAYBE),
+            RxCompletablePreparedQueryResultBinderProvider(context, RxType.RX2_COMPLETABLE),
+            RxPreparedQueryResultBinderProvider(context, RxType.RX3_SINGLE),
+            RxPreparedQueryResultBinderProvider(context, RxType.RX3_MAYBE),
+            RxCompletablePreparedQueryResultBinderProvider(context, RxType.RX3_COMPLETABLE)
+        )
     }
 }
 
-class RxSinglePreparedQueryResultBinderProvider(context: Context) :
-    RxPreparedQueryResultBinderProvider(context, RxType.SINGLE) {
-    override fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
-}
+private class RxCompletablePreparedQueryResultBinderProvider(
+    context: Context,
+    rxType: RxType
+) : RxPreparedQueryResultBinderProvider(context, rxType) {
 
-class RxMaybePreparedQueryResultBinderProvider(context: Context) :
-    RxPreparedQueryResultBinderProvider(context, RxType.MAYBE) {
-    override fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
-}
-
-class RxCompletablePreparedQueryResultBinderProvider(context: Context) :
-    RxPreparedQueryResultBinderProvider(context, RxType.COMPLETABLE) {
-
-    private val completableType: TypeMirror? by lazy {
-        context.processingEnv.elementUtils
-            .getTypeElement(RxJava2TypeNames.COMPLETABLE.toString())?.asType()
+    private val completableType: XRawType? by lazy {
+        context.processingEnv.findType(rxType.className)?.rawType
     }
 
-    override fun matches(declared: DeclaredType): Boolean {
+    override fun matches(declared: XDeclaredType): Boolean {
         if (completableType == null) {
             return false
         }
-        val erasure = context.processingEnv.typeUtils.erasure(declared)
-        return context.processingEnv.typeUtils.isAssignable(completableType, erasure)
+        return declared.rawType.isAssignableFrom(completableType!!)
     }
 
-    override fun extractTypeArg(declared: DeclaredType) = context.COMMON_TYPES.VOID
+    override fun extractTypeArg(declared: XDeclaredType) = context.COMMON_TYPES.VOID
 }

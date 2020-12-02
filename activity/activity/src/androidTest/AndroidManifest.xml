@@ -17,14 +17,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.activity.test">
 
-    <application>
+    <application android:name="androidx.activity.LeakCanaryApp">
+        <activity android:name="androidx.activity.LeakingActivity"
+                android:windowSoftInputMode="stateVisible"/>
         <activity android:name="androidx.activity.LifecycleComponentActivity"/>
         <activity android:name="androidx.activity.EagerOverrideLifecycleComponentActivity"/>
         <activity android:name="androidx.activity.LazyOverrideLifecycleComponentActivity"/>
         <activity android:name="androidx.activity.ViewModelActivity"/>
         <activity android:name="androidx.activity.SavedStateActivity"/>
         <activity android:name="androidx.activity.ContentViewActivity"/>
+        <activity android:name="androidx.activity.EmptyContentActivity" />
         <activity android:name="androidx.activity.AutoRestarterActivity"/>
+        <activity android:name="androidx.activity.ResultComponentActivity"/>
+        <activity android:name="androidx.activity.ResumeViewModelActivity" />
     </application>
 
 </manifest>

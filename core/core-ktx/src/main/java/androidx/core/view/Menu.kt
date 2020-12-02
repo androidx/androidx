@@ -26,10 +26,10 @@ import android.view.MenuItem
  *
  * @throws IndexOutOfBoundsException if index is less than 0 or greater than or equal to the count.
  */
-inline operator fun Menu.get(index: Int): MenuItem = getItem(index)
+public inline operator fun Menu.get(index: Int): MenuItem = getItem(index)
 
 /** Returns `true` if [item] is found in this menu. */
-operator fun Menu.contains(item: MenuItem): Boolean {
+public operator fun Menu.contains(item: MenuItem): Boolean {
     @Suppress("LoopToCallChain")
     for (index in 0 until size()) {
         if (getItem(index) == item) {
@@ -40,41 +40,42 @@ operator fun Menu.contains(item: MenuItem): Boolean {
 }
 
 /** Removes [item] from this menu. */
-inline operator fun Menu.minusAssign(item: MenuItem) = removeItem(item.itemId)
+public inline operator fun Menu.minusAssign(item: MenuItem): Unit = removeItem(item.itemId)
 
 /** Returns the number of items in this menu. */
-inline val Menu.size get() = size()
+public inline val Menu.size: Int get() = size()
 
 /** Returns true if this menu contains no items. */
-inline fun Menu.isEmpty() = size() == 0
+public inline fun Menu.isEmpty(): Boolean = size() == 0
 
 /** Returns true if this menu contains one or more items. */
-inline fun Menu.isNotEmpty() = size() != 0
+public inline fun Menu.isNotEmpty(): Boolean = size() != 0
 
 /** Performs the given action on each item in this menu. */
-inline fun Menu.forEach(action: (item: MenuItem) -> Unit) {
+public inline fun Menu.forEach(action: (item: MenuItem) -> Unit) {
     for (index in 0 until size()) {
         action(getItem(index))
     }
 }
 
 /** Performs the given action on each item in this menu, providing its sequential index. */
-inline fun Menu.forEachIndexed(action: (index: Int, item: MenuItem) -> Unit) {
+public inline fun Menu.forEachIndexed(action: (index: Int, item: MenuItem) -> Unit) {
     for (index in 0 until size()) {
         action(index, getItem(index))
     }
 }
 
 /** Returns a [MutableIterator] over the items in this menu. */
-operator fun Menu.iterator() = object : MutableIterator<MenuItem> {
-    private var index = 0
-    override fun hasNext() = index < size()
-    override fun next() = getItem(index++) ?: throw IndexOutOfBoundsException()
-    override fun remove() = removeItem(--index)
-}
+public operator fun Menu.iterator(): MutableIterator<MenuItem> =
+    object : MutableIterator<MenuItem> {
+        private var index = 0
+        override fun hasNext() = index < size()
+        override fun next() = getItem(index++) ?: throw IndexOutOfBoundsException()
+        override fun remove() = removeItem(--index)
+    }
 
 /** Returns a [Sequence] over the items in this menu. */
-val Menu.children: Sequence<MenuItem>
+public val Menu.children: Sequence<MenuItem>
     get() = object : Sequence<MenuItem> {
         override fun iterator() = this@children.iterator()
     }

@@ -45,7 +45,8 @@ class TransformationContext(
 
     // Merges all packages prefixes into one regEx pattern
     val packagePrefixPattern = Pattern.compile(
-        "^(" + config.restrictToPackagePrefixes.map { "($it)" }.joinToString("|") + ").*$")
+        "^(" + config.restrictToPackagePrefixes.map { "($it)" }.joinToString("|") + ").*$"
+    )
 
     val typeRewriter: TypeRewriter = TypeRewriter(config, useFallbackIfTypeIsMissing)
 
@@ -100,13 +101,22 @@ class TransformationContext(
      * artifact rewrite but no mapping was found for it.
      */
     fun reportNoPackageMappingFoundFailure(tag: String, packageName: String, filePath: Path) {
-        if (!useFallbackIfTypeIsMissing || (rewritingSupportLib && isInReversedMode)) {
+        if (rewritingSupportLib && isInReversedMode) {
+            // Ignore for SL de-jetification
+            return
+        }
+
+        if (!useFallbackIfTypeIsMissing) {
             packageMappingNotFoundFailuresCounts++
-            Log.w(tag, "No mapping for package '%s' in '%s', keeping identity", packageName,
-                filePath)
+            Log.w(
+                tag, "No mapping for package '%s' in '%s', keeping identity", packageName,
+                filePath
+            )
         } else {
-            Log.w(tag, "No mapping for package '%s' in '%s', keeping identity", packageName,
-                filePath)
+            Log.w(
+                tag, "No mapping for package '%s' in '%s', keeping identity", packageName,
+                filePath
+            )
         }
     }
 }

@@ -19,16 +19,16 @@ package androidx.room.vo
 import androidx.room.migration.bundle.BundleUtil
 import androidx.room.migration.bundle.FtsEntityBundle
 import androidx.room.parser.FtsVersion
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XTypeElement
 
 /**
  * An Entity with a mapping FTS table.
  */
 class FtsEntity(
-    element: TypeElement,
+    element: XTypeElement,
     tableName: String,
-    type: DeclaredType,
+    type: XDeclaredType,
     fields: List<Field>,
     embeddedFields: List<EmbeddedField>,
     primaryKey: PrimaryKey,
@@ -36,8 +36,10 @@ class FtsEntity(
     shadowTableName: String?,
     val ftsVersion: FtsVersion,
     val ftsOptions: FtsOptions
-) : Entity(element, tableName, type, fields, embeddedFields, primaryKey, emptyList(), emptyList(),
-        constructor, shadowTableName) {
+) : Entity(
+    element, tableName, type, fields, embeddedFields, primaryKey, emptyList(), emptyList(),
+    constructor, shadowTableName
+) {
 
     override val createTableQuery by lazy {
         createTableQuery(tableName)
@@ -47,7 +49,7 @@ class FtsEntity(
         fields.filterNot {
             // 'rowid' primary key column and language id column are hidden columns
             primaryKey.fields.isNotEmpty() && primaryKey.fields.first() == it ||
-                    ftsOptions.languageIdColumnName == it.columnName
+                ftsOptions.languageIdColumnName == it.columnName
         }
     }
 
@@ -86,9 +88,9 @@ class FtsEntity(
 
     private fun createTableQuery(tableName: String, includeTokenizer: Boolean = true): String {
         val definitions = nonHiddenFields.map { it.databaseDefinition(false) } +
-                ftsOptions.databaseDefinition(includeTokenizer)
+            ftsOptions.databaseDefinition(includeTokenizer)
         return "CREATE VIRTUAL TABLE IF NOT EXISTS `$tableName` " +
-                "USING ${ftsVersion.name}(${definitions.joinToString(", ")})"
+            "USING ${ftsVersion.name}(${definitions.joinToString(", ")})"
     }
 
     private fun createSyncTriggers(contentTable: String): List<String> {
@@ -105,9 +107,9 @@ class FtsEntity(
         tableName: String,
         contentTableName: String
     ) = "CREATE TRIGGER IF NOT EXISTS ${createTriggerName(tableName, "BEFORE_$triggerOp")} " +
-            "BEFORE $triggerOp ON `$contentTableName` BEGIN " +
-            "DELETE FROM `$tableName` WHERE `docid`=OLD.`rowid`; " +
-            "END"
+        "BEFORE $triggerOp ON `$contentTableName` BEGIN " +
+        "DELETE FROM `$tableName` WHERE `docid`=OLD.`rowid`; " +
+        "END"
 
     private fun createAfterTrigger(
         triggerOp: String,
@@ -115,23 +117,24 @@ class FtsEntity(
         contentTableName: String,
         columnNames: List<String>
     ) = "CREATE TRIGGER IF NOT EXISTS ${createTriggerName(tableName, "AFTER_$triggerOp")} " +
-            "AFTER $triggerOp ON `$contentTableName` BEGIN " +
-            "INSERT INTO `$tableName`(" +
-            (listOf("docid") + columnNames).joinToString(separator = ", ") { "`$it`" } + ") " +
-            "VALUES (" +
-            (listOf("rowid") + columnNames).joinToString(separator = ", ") { "NEW.`$it`" } + "); " +
-            "END"
+        "AFTER $triggerOp ON `$contentTableName` BEGIN " +
+        "INSERT INTO `$tableName`(" +
+        (listOf("docid") + columnNames).joinToString(separator = ", ") { "`$it`" } + ") " +
+        "VALUES (" +
+        (listOf("rowid") + columnNames).joinToString(separator = ", ") { "NEW.`$it`" } + "); " +
+        "END"
 
     // If trigger name prefix is changed be sure to update DBUtil#dropFtsSyncTriggers
     private fun createTriggerName(tableName: String, triggerOp: String) =
-            "room_fts_content_sync_${tableName}_$triggerOp"
+        "room_fts_content_sync_${tableName}_$triggerOp"
 
     override fun toBundle() = FtsEntityBundle(
-            tableName,
-            createTableQuery(BundleUtil.TABLE_NAME_PLACEHOLDER),
-            fields.map { it.toBundle() },
-            primaryKey.toBundle(),
-            ftsVersion.name,
-            ftsOptions.toBundle(),
-            contentSyncTriggerCreateQueries)
+        tableName,
+        createTableQuery(BundleUtil.TABLE_NAME_PLACEHOLDER),
+        nonHiddenFields.map { it.toBundle() },
+        primaryKey.toBundle(),
+        ftsVersion.name,
+        ftsOptions.toBundle(),
+        contentSyncTriggerCreateQueries
+    )
 }

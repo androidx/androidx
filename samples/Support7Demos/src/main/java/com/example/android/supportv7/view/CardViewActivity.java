@@ -105,6 +105,7 @@ public class CardViewActivity extends AppCompatActivity {
         return lp;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

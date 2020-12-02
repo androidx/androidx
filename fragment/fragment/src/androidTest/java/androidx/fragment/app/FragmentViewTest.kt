@@ -19,13 +19,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment.STARTED
+import androidx.fragment.app.Fragment.VIEW_CREATED
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.Lifecycle
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
+import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.fail
@@ -33,11 +36,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4::class)
 class FragmentViewTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(FragmentTestActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
@@ -336,6 +340,17 @@ class FragmentViewTest {
     }
 
     @Test
+    fun findInflatedFragment() {
+        activityRule.setContentView(R.layout.activity_inflated_fragment)
+        val fm = activityRule.activity.supportFragmentManager
+
+        val fragment = fm.findFragmentById(R.id.inflated_fragment)!!
+
+        assertThat(FragmentManager.findFragment<StrictViewFragment>(fragment.requireView()))
+            .isSameInstanceAs(fragment)
+    }
+
+    @Test
     fun findFragmentFindByIdChildView() {
         activityRule.setContentView(R.layout.simple_container)
         val fm = activityRule.activity.supportFragmentManager
@@ -406,6 +421,9 @@ class FragmentViewTest {
         assertWithMessage("Fragment should not go through lifecycle changes until it is added")
             .that(fragment.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.INITIALIZED)
+        assertWithMessage("Fragment should not be considered active until it is added")
+            .that(fm.activeFragments)
+            .doesNotContain(fragment)
     }
 
     // Show a hidden fragment and its View should be VISIBLE. Then pop it and the View should be
@@ -465,6 +483,9 @@ class FragmentViewTest {
         assertWithMessage("Fragment should not go through lifecycle changes until it is added")
             .that(fragment.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.INITIALIZED)
+        assertWithMessage("Fragment should not be considered active until it is added")
+            .that(fm.activeFragments)
+            .doesNotContain(fragment)
     }
 
     // Detaching a fragment should remove the View from the hierarchy. Then popping it should
@@ -557,6 +578,9 @@ class FragmentViewTest {
         assertWithMessage("Fragment should not go through lifecycle changes until it is added")
             .that(fragment.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.INITIALIZED)
+        assertWithMessage("Fragment should not be considered active until it is added")
+            .that(fm.activeFragments)
+            .doesNotContain(fragment)
     }
 
     // Attaching a fragment should add the View back into the hierarchy. Then popping it should
@@ -650,6 +674,9 @@ class FragmentViewTest {
         assertWithMessage("Fragment should not go through lifecycle changes until it is added")
             .that(fragment.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.INITIALIZED)
+        assertWithMessage("Fragment should not be considered active until it is added")
+            .that(fm.activeFragments)
+            .doesNotContain(fragment)
     }
 
     // Simple replace of one fragment in a container. Popping should replace it back again
@@ -896,6 +923,38 @@ class FragmentViewTest {
         assertThat(fragment2.requireView().visibility).isEqualTo(View.GONE)
     }
 
+    // Test that adding a fragment and making its view invisible in onStart is still invisible
+    @Test
+    fun makeFragmentInvisibleInOnStart() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val container = withActivity { findViewById<View>(R.id.content) as ViewGroup }
+
+            val fm = withActivity { supportFragmentManager }
+
+            val fragment1 = InvisibleFragment(STARTED)
+            fm.beginTransaction()
+                .add(R.id.content, fragment1)
+                .addToBackStack(null)
+                .commit()
+            executePendingTransactions()
+
+            assertChildren(container, fragment1)
+
+            assertThat(fragment1.requireView().visibility).isEqualTo(View.INVISIBLE)
+
+            val fragment2 = InvisibleFragment()
+            fragment2.visibility = View.GONE
+            fm.beginTransaction()
+                .replace(R.id.content, fragment2)
+                .addToBackStack(null)
+                .commit()
+            executePendingTransactions()
+            assertChildren(container, fragment2)
+
+            assertThat(fragment2.requireView().visibility).isEqualTo(View.GONE)
+        }
+    }
+
     // Test to ensure that popping and adding a fragment properly track the fragments added
     // and removed.
     @Test
@@ -1039,12 +1098,21 @@ class FragmentViewTest {
         return activityRule.activity.findViewById(viewId)
     }
 
-    class InvisibleFragment : StrictViewFragment() {
+    class InvisibleFragment(val state: Int = VIEW_CREATED) : StrictViewFragment() {
         var visibility = View.INVISIBLE
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            view.visibility = visibility
+            if (state == VIEW_CREATED) {
+                view.visibility = visibility
+            }
             super.onViewCreated(view, savedInstanceState)
+        }
+
+        override fun onStart() {
+            if (state == STARTED) {
+                view?.visibility = visibility
+            }
+            super.onStart()
         }
     }
 

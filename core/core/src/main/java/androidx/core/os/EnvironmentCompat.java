@@ -53,13 +53,18 @@ public final class EnvironmentCompat {
      *         {@link Environment#MEDIA_BAD_REMOVAL}, or
      *         {@link Environment#MEDIA_UNMOUNTABLE}.
      */
+    @SuppressWarnings("deprecation")
+    @NonNull
     public static String getStorageState(@NonNull File path) {
-        if (Build.VERSION.SDK_INT >= 19) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            return Environment.getExternalStorageState(path);
+        } else if (Build.VERSION.SDK_INT >= 19) {
             return Environment.getStorageState(path);
         }
 
         try {
             final String canonicalPath = path.getCanonicalPath();
+            @SuppressWarnings("deprecation")
             final String canonicalExternal = Environment.getExternalStorageDirectory()
                     .getCanonicalPath();
 

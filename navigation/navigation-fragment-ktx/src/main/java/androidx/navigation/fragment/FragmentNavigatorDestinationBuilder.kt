@@ -27,32 +27,36 @@ import kotlin.reflect.KClass
 /**
  * Construct a new [FragmentNavigator.Destination]
  */
-inline fun <reified F : Fragment> NavGraphBuilder.fragment(@IdRes id: Int) = fragment<F>(id) {}
+public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
+    @IdRes id: Int
+): Unit = fragment<F>(id) {}
 
 /**
  * Construct a new [FragmentNavigator.Destination]
  */
-inline fun <reified F : Fragment> NavGraphBuilder.fragment(
+public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
     @IdRes id: Int,
     builder: FragmentNavigatorDestinationBuilder.() -> Unit
-) = destination(FragmentNavigatorDestinationBuilder(
+): Unit = destination(
+    FragmentNavigatorDestinationBuilder(
         provider[FragmentNavigator::class],
         id,
         F::class
-).apply(builder))
+    ).apply(builder)
+)
 
 /**
  * DSL for constructing a new [FragmentNavigator.Destination]
  */
 @NavDestinationDsl
-class FragmentNavigatorDestinationBuilder(
+public class FragmentNavigatorDestinationBuilder(
     navigator: FragmentNavigator,
     @IdRes id: Int,
     private val fragmentClass: KClass<out Fragment>
 ) : NavDestinationBuilder<FragmentNavigator.Destination>(navigator, id) {
 
     override fun build(): FragmentNavigator.Destination =
-            super.build().also { destination ->
-                destination.className = fragmentClass.java.name
-            }
+        super.build().also { destination ->
+            destination.className = fragmentClass.java.name
+        }
 }

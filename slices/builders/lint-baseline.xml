@@ -1,5 +1,1237 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_HORIZONTAL`"
+        errorLine1="        builder.addHints(HINT_HORIZONTAL);"
+        errorLine2="                         ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
+            line="81"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_SEE_MORE`"
+        errorLine1="        impl.getBuilder().addHints(HINT_SEE_MORE);"
+        errorLine2="                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
+            line="100"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_SEE_MORE`"
+        errorLine1="        getBuilder().addSubSlice(new Slice.Builder(getBuilder()).addHints(HINT_SEE_MORE)"
+        errorLine2="                                                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
+            line="107"
+            column="75"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_CONTENT_DESCRIPTION`"
+        errorLine1="        getBuilder().addText(description, SUBTYPE_CONTENT_DESCRIPTION);"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
+            line="120"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_LAYOUT_DIRECTION`"
+        errorLine1="        getBuilder().addInt(layoutDirection, SUBTYPE_LAYOUT_DIRECTION);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
+            line="126"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PARTIAL`"
+        errorLine1="                    ? new String[] {HINT_PARTIAL}"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
+            line="183"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PARTIAL`"
+        errorLine1="                    ? new String[]{HINT_PARTIAL, HINT_TITLE}"
+        errorLine2="                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
+            line="192"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="                    ? new String[]{HINT_PARTIAL, HINT_TITLE}"
+        errorLine2="                                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
+            line="192"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="                    : new String[]{HINT_TITLE};"
+        errorLine2="                                   ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
+            line="193"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PARTIAL`"
+        errorLine1="                    ? new String[]{HINT_PARTIAL, HINT_OVERLAY}"
+        errorLine2="                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
+            line="209"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_CONTENT_DESCRIPTION`"
+        errorLine1="            getBuilder().addText(description, SUBTYPE_CONTENT_DESCRIPTION);"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
+            line="225"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_HORIZONTAL`"
+        errorLine1="            getBuilder().addHints(HINT_HORIZONTAL);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
+            line="234"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_COLOR`"
+        errorLine1="        getBuilder().addInt(color, SUBTYPE_COLOR);"
+        errorLine2="                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
+            line="226"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TTL`"
+        errorLine1="        getBuilder().addTimestamp(expiry, SUBTYPE_MILLIS, HINT_TTL);"
+        errorLine2="                                                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
+            line="241"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_LAYOUT_DIRECTION`"
+        errorLine1="        getBuilder().addInt(layoutDirection, SUBTYPE_LAYOUT_DIRECTION);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
+            line="257"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_ERROR`"
+        errorLine1="            builder.addHints(HINT_ERROR);"
+        errorLine2="                             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
+            line="279"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_KEYWORDS`"
+        errorLine1="            builder.addSubSlice(sb.addHints(HINT_KEYWORDS).build());"
+        errorLine2="                                            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
+            line="286"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="            slice.addItem(new SliceItem(mTitle, FORMAT_TEXT, null, new String[] { HINT_TITLE }));"
+        errorLine2="                                                                                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
+            line="299"
+            column="83"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_TEXT`"
+        errorLine1="            slice.addItem(new SliceItem(mTitle, FORMAT_TEXT, null, new String[] { HINT_TITLE }));"
+        errorLine2="                                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
+            line="299"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_TEXT`"
+        errorLine1="            slice.addItem(new SliceItem(mSubtitle, FORMAT_TEXT, null, new String[0]));"
+        errorLine2="                                                   ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
+            line="302"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="            builder.addIcon(mIconCompat, null, HINT_TITLE);"
+        errorLine2="                                               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
+            line="306"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_BUNDLE`"
+        errorLine1="                    new SliceItem(mHostExtras, FORMAT_BUNDLE, SUBTYPE_HOST_EXTRAS, new String[0]));"
+        errorLine2="                                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
+            line="311"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_LAST_UPDATED`"
+        errorLine1="        builder.addLong(getClock().currentTimeMillis(), SUBTYPE_MILLIS, HINT_LAST_UPDATED);"
+        errorLine2="                                                                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="115"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_ACTIONS`"
+        errorLine1="            builder.addSubSlice(sb.addHints(HINT_ACTIONS).build());"
+        errorLine2="                                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="124"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_ERROR`"
+        errorLine1="            builder.addHints(HINT_ERROR);"
+        errorLine2="                             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="127"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_KEYWORDS`"
+        errorLine1="            getBuilder().addSubSlice(sb.addHints(HINT_KEYWORDS).build());"
+        errorLine2="                                                 ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="134"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_BUNDLE`"
+        errorLine1="            builder.addItem(new SliceItem(mHostExtras, FORMAT_BUNDLE, SUBTYPE_HOST_EXTRAS,"
+        errorLine2="                                                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="137"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PARTIAL`"
+        errorLine1="        boolean isLoading = SliceQuery.find(slice, null, HINT_PARTIAL, null) != null;"
+        errorLine2="                                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="149"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_LIST_ITEM`"
+        errorLine1="        boolean isEmpty = SliceQuery.find(slice, FORMAT_SLICE, HINT_LIST_ITEM, null) == null;"
+        errorLine2="                                                               ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="150"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_SLICE`"
+        errorLine1="        boolean isEmpty = SliceQuery.find(slice, FORMAT_SLICE, HINT_LIST_ITEM, null) == null;"
+        errorLine2="                                                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="150"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_SHORTCUT`"
+        errorLine1="        String[] hints = new String[] {HINT_SHORTCUT, HINT_TITLE};"
+        errorLine2="                                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="151"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="        String[] hints = new String[] {HINT_SHORTCUT, HINT_TITLE};"
+        errorLine2="                                                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="151"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_ACTION`"
+        errorLine1="        SliceItem action = SliceQuery.find(slice, FORMAT_ACTION, hints, null);"
+        errorLine2="                                                  ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="152"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_SLICE`"
+        errorLine1="        List&lt;SliceItem> possiblePrimaries = SliceQuery.findAll(slice, FORMAT_SLICE, hints, null);"
+        errorLine2="                                                                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="153"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_LIST_ITEM`"
+        errorLine1="        builder.getBuilder().addHints(HINT_LIST_ITEM);"
+        errorLine2="                                      ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="185"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_LIST_ITEM`"
+        errorLine1="        impl.getBuilder().addHints(HINT_LIST_ITEM);"
+        errorLine2="                                   ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="198"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_ACTIONS`"
+        errorLine1="        Slice.Builder b = new Slice.Builder(getBuilder()).addHints(HINT_ACTIONS);"
+        errorLine2="                                                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="221"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_RANGE`"
+        errorLine1="        getBuilder().addSubSlice(impl.build(), SUBTYPE_RANGE);"
+        errorLine2="                                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="229"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_RANGE`"
+        errorLine1="        getBuilder().addSubSlice(impl.build(), SUBTYPE_RANGE);"
+        errorLine2="                                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="236"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_RANGE`"
+        errorLine1="        getBuilder().addSubSlice(impl.build(), SUBTYPE_RANGE);"
+        errorLine2="                                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="243"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_SEE_MORE`"
+        errorLine1="        impl.getBuilder().addHints(HINT_SEE_MORE);"
+        errorLine2="                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="264"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_SEE_MORE`"
+        errorLine1="                        .addHints(HINT_SEE_MORE)"
+        errorLine2="                                  ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="274"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_SEE_MORE`"
+        errorLine1="                                .addHints(HINT_SEE_MORE).build(), null)"
+        errorLine2="                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="276"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_COLOR`"
+        errorLine1="        getBuilder().addInt(color, SUBTYPE_COLOR);"
+        errorLine2="                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="284"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TTL`"
+        errorLine1="        getBuilder().addTimestamp(expiry, SUBTYPE_MILLIS, HINT_TTL);"
+        errorLine2="                                                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="299"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_LAYOUT_DIRECTION`"
+        errorLine1="        getBuilder().addInt(layoutDirection, SUBTYPE_LAYOUT_DIRECTION);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="315"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PARTIAL`"
+        errorLine1="                sb.addHints(HINT_PARTIAL);"
+        errorLine2="                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="388"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="            mStartItem = sb.addHints(HINT_TITLE).build();"
+        errorLine2="                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="390"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="                builder.addText(mTitle, null, HINT_TITLE);"
+        errorLine2="                                              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="409"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_CONTENT_DESCRIPTION`"
+        errorLine1="                builder.addText(mContentDescr, SUBTYPE_CONTENT_DESCRIPTION);"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="415"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_LAYOUT_DIRECTION`"
+        errorLine1="                builder.addInt(mLayoutDir, SUBTYPE_LAYOUT_DIRECTION);"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="421"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_LIST_ITEM`"
+        errorLine1="            builder.addHints(HINT_LIST_ITEM)"
+        errorLine2="                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="423"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_MAX`"
+        errorLine1="                    .addInt(mMax, SUBTYPE_MAX)"
+        errorLine2="                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="425"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_VALUE`"
+        errorLine1="                    .addInt(mValue, SUBTYPE_VALUE)"
+        errorLine2="                                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="426"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PARTIAL`"
+        errorLine1="                sb.addHints(HINT_PARTIAL);"
+        errorLine2="                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="475"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="            mStartItem = sb.addHints(HINT_TITLE).build();"
+        errorLine2="                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="477"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PARTIAL`"
+        errorLine1="                sb.addHints(HINT_PARTIAL);"
+        errorLine2="                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="483"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_LIST_ITEM`"
+        errorLine1="            builder.addAction(mAction, sb.build(), SUBTYPE_RANGE).addHints(HINT_LIST_ITEM);"
+        errorLine2="                                                                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="498"
+            column="76"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_RANGE`"
+        errorLine1="            builder.addAction(mAction, sb.build(), SUBTYPE_RANGE).addHints(HINT_LIST_ITEM);"
+        errorLine2="                                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="498"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PARTIAL`"
+        errorLine1="                sb.addHints(HINT_PARTIAL);"
+        errorLine2="                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="548"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="            mStartItem = sb.addHints(HINT_TITLE).build();"
+        errorLine2="                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="550"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="                builder.addText(mTitle, null, HINT_TITLE);"
+        errorLine2="                                              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="564"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_CONTENT_DESCRIPTION`"
+        errorLine1="                builder.addText(mContentDescr, SUBTYPE_CONTENT_DESCRIPTION);"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="570"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_LIST_ITEM`"
+        errorLine1="            sb.addHints(HINT_LIST_ITEM)"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="580"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_MAX`"
+        errorLine1="                    .addInt(mMax, SUBTYPE_MAX)"
+        errorLine2="                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="582"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_VALUE`"
+        errorLine1="                    .addInt(mValue, SUBTYPE_VALUE)"
+        errorLine2="                                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="583"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_LIST_ITEM`"
+        errorLine1="            builder.addAction(mAction, sb.build(), SUBTYPE_RANGE).addHints(HINT_LIST_ITEM);"
+        errorLine2="                                                                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="585"
+            column="76"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_RANGE`"
+        errorLine1="            builder.addAction(mAction, sb.build(), SUBTYPE_RANGE).addHints(HINT_LIST_ITEM);"
+        errorLine2="                                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="585"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="                    .addTimestamp(timeStamp, null).addHints(HINT_TITLE).build();"
+        errorLine2="                                                            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="675"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PARTIAL`"
+        errorLine1="                sb.addHints(HINT_PARTIAL);"
+        errorLine2="                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="691"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="            mStartItem = sb.addHints(HINT_TITLE).build();"
+        errorLine2="                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="693"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="            Slice.Builder sb = new Slice.Builder(getBuilder()).addHints(HINT_TITLE);"
+        errorLine2="                                                                        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="699"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PARTIAL`"
+        errorLine1="                sb.addHints(HINT_PARTIAL);"
+        errorLine2="                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="701"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="            mTitleItem = new SliceItem(title, FORMAT_TEXT, null, new String[] {HINT_TITLE});"
+        errorLine2="                                                                               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="715"
+            column="80"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_TEXT`"
+        errorLine1="            mTitleItem = new SliceItem(title, FORMAT_TEXT, null, new String[] {HINT_TITLE});"
+        errorLine2="                                              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="715"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PARTIAL`"
+        errorLine1="                mTitleItem.addHint(HINT_PARTIAL);"
+        errorLine2="                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="717"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_TEXT`"
+        errorLine1="            mSubtitleItem = new SliceItem(subtitle, FORMAT_TEXT, null, new String[0]);"
+        errorLine2="                                                    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="730"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PARTIAL`"
+        errorLine1="                mSubtitleItem.addHint(HINT_PARTIAL);"
+        errorLine2="                                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="732"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PARTIAL`"
+        errorLine1="                sb.addHints(HINT_PARTIAL);"
+        errorLine2="                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="750"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PARTIAL`"
+        errorLine1="                sb.addHints(HINT_PARTIAL);"
+        errorLine2="                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="760"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_LAYOUT_DIRECTION`"
+        errorLine1="            getBuilder().addInt(layoutDirection, SUBTYPE_LAYOUT_DIRECTION);"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="770"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_CONTENT_DESCRIPTION`"
+        errorLine1="                b.addText(mContentDescr, SUBTYPE_CONTENT_DESCRIPTION);"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="801"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_CONTENT_DESCRIPTION`"
+        errorLine1="                b.addText(mContentDescr, SUBTYPE_CONTENT_DESCRIPTION);"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="867"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="            mTitleItem = new SliceItem(title, FORMAT_TEXT, null, new String[] {HINT_TITLE});"
+        errorLine2="                                                                               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="880"
+            column="80"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_TEXT`"
+        errorLine1="            mTitleItem = new SliceItem(title, FORMAT_TEXT, null, new String[] {HINT_TITLE});"
+        errorLine2="                                              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="880"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PARTIAL`"
+        errorLine1="                mTitleItem.addHint(HINT_PARTIAL);"
+        errorLine2="                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="882"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_TEXT`"
+        errorLine1="            mSubtitleItem = new SliceItem(subtitle, FORMAT_TEXT, null, new String[0]);"
+        errorLine2="                                                    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="889"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PARTIAL`"
+        errorLine1="                mSubtitleItem.addHint(HINT_PARTIAL);"
+        errorLine2="                                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="891"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_TEXT`"
+        errorLine1="            mSummaryItem = new SliceItem(summarySubtitle, FORMAT_TEXT, null,"
+        errorLine2="                                                          ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="898"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_SUMMARY`"
+        errorLine1="                    new String[] {HINT_SUMMARY});"
+        errorLine2="                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="899"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PARTIAL`"
+        errorLine1="                mSummaryItem.addHint(HINT_PARTIAL);"
+        errorLine2="                                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="901"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_LAYOUT_DIRECTION`"
+        errorLine1="            getBuilder().addInt(layoutDirection, SUBTYPE_LAYOUT_DIRECTION);"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="918"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_LIST_ITEM`"
+        errorLine1="            Slice.Builder sb = new Slice.Builder(getBuilder()).addHints(HINT_LIST_ITEM);"
+        errorLine2="                                                                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
+            line="56"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 23): `android.app.slice.Slice#HINT_NO_TINT`"
+        errorLine1="                    SUBTYPE_SOURCE, HINT_NO_TINT).addHints(HINT_TITLE).build();"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
+            line="114"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 23): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="                    SUBTYPE_SOURCE, HINT_NO_TINT).addHints(HINT_TITLE).build();"
+        errorLine2="                                                           ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
+            line="114"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 23): `android.app.slice.Slice#SUBTYPE_SOURCE`"
+        errorLine1="                    SUBTYPE_SOURCE, HINT_NO_TINT).addHints(HINT_TITLE).build();"
+        errorLine2="                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
+            line="114"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_MESSAGE`"
+        errorLine1="        getBuilder().addSubSlice(builder.build(), SUBTYPE_MESSAGE);"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
+            line="47"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 23): `android.app.slice.Slice#SUBTYPE_SOURCE`"
+        errorLine1="                    android.app.slice.Slice.SUBTYPE_SOURCE);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
+            line="80"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_LIST_ITEM`"
+        errorLine1="        sliceBuilder.addHints(HINT_LIST_ITEM);"
+        errorLine2="                              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/SelectionBuilderBasicImpl.java"
+            line="50"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="            sliceBuilder.addText(selectionBuilder.getTitle(), null, HINT_TITLE);"
+        errorLine2="                                                                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/SelectionBuilderBasicImpl.java"
+            line="55"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_CONTENT_DESCRIPTION`"
+        errorLine1="                    SUBTYPE_CONTENT_DESCRIPTION);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/SelectionBuilderBasicImpl.java"
+            line="64"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_LAYOUT_DIRECTION`"
+        errorLine1="            sliceBuilder.addInt(selectionBuilder.getLayoutDirection(), SUBTYPE_LAYOUT_DIRECTION);"
+        errorLine2="                                                                       ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/SelectionBuilderBasicImpl.java"
+            line="68"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="            actionBuilder.addText(selectionBuilder.getTitle(), null, HINT_TITLE);"
+        errorLine2="                                                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/SelectionBuilderListV2Impl.java"
+            line="60"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_CONTENT_DESCRIPTION`"
+        errorLine1="                    SUBTYPE_CONTENT_DESCRIPTION);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/SelectionBuilderListV2Impl.java"
+            line="69"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_LAYOUT_DIRECTION`"
+        errorLine1="            actionBuilder.addInt(selectionBuilder.getLayoutDirection(), SUBTYPE_LAYOUT_DIRECTION);"
+        errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/SelectionBuilderListV2Impl.java"
+            line="73"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_SELECTED`"
+        errorLine1="                optionSubSliceBuilder.addHints(HINT_SELECTED);"
+        errorLine2="                                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/SelectionBuilderListV2Impl.java"
+            line="80"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_LIST_ITEM`"
+        errorLine1="        sliceBuilder.addHints(HINT_LIST_ITEM);"
+        errorLine2="                              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/SelectionBuilderListV2Impl.java"
+            line="94"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_NO_TINT`"
+        errorLine1="            hints.add(HINT_NO_TINT);"
+        errorLine2="                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
+            line="125"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_LARGE`"
+        errorLine1="            hints.add(HINT_LARGE);"
+        errorLine2="                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
+            line="128"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PARTIAL`"
+        errorLine1="            hints.add(HINT_PARTIAL);"
+        errorLine2="                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
+            line="134"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.slice.builders.impl.ListBuilderBasicImpl is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="        setTtl(ttl == null ? INFINITY : ttl.toMillis());"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
+            line="247"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.slice.builders.impl.ListBuilderImpl is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="        setTtl(ttl == null ? INFINITY : ttl.toMillis());"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="305"
+            column="45"/>
+    </issue>
 
     <issue
         id="UnknownNullness"
@@ -63,7 +1295,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/GridRowBuilder.java"
-            line="424"
+            line="459"
             column="16"/>
     </issue>
 
@@ -74,7 +1306,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/GridRowBuilder.java"
-            line="432"
+            line="467"
             column="16"/>
     </issue>
 
@@ -85,7 +1317,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/GridRowBuilder.java"
-            line="440"
+            line="475"
             column="16"/>
     </issue>
 
@@ -96,7 +1328,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/GridRowBuilder.java"
-            line="448"
+            line="483"
             column="16"/>
     </issue>
 
@@ -107,7 +1339,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/GridRowBuilder.java"
-            line="456"
+            line="491"
             column="16"/>
     </issue>
 
@@ -118,19 +1350,8 @@
         errorLine2="                                                                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="60"
+            line="56"
             column="70"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void apply(Slice.Builder builder) {"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="84"
-            column="23"/>
     </issue>
 
     <issue
@@ -140,7 +1361,7 @@
         errorLine2="                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="93"
+            line="89"
             column="25"/>
     </issue>
 
@@ -151,7 +1372,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="110"
+            line="106"
             column="34"/>
     </issue>
 
@@ -162,7 +1383,7 @@
         errorLine2="                                 ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="117"
+            line="113"
             column="34"/>
     </issue>
 
@@ -173,7 +1394,7 @@
         errorLine2="                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="123"
+            line="119"
             column="39"/>
     </issue>
 
@@ -184,492 +1405,8 @@
         errorLine2="                             ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="147"
+            line="144"
             column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void apply(Slice.Builder b) {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="254"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void addRow(RowBuilder impl);"
-        errorLine2="                ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="48"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void addGridRow(GridRowBuilder impl);"
-        errorLine2="                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="52"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void setHeader(HeaderBuilder impl);"
-        errorLine2="                   ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="60"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void addAction(SliceAction action);"
-        errorLine2="                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="66"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void addInputRange(InputRangeBuilder builder);"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="71"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void addRange(RangeBuilder builder);"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="76"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void addSelection(SelectionBuilder builder);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="81"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void setSeeMoreRow(RowBuilder builder);"
-        errorLine2="                       ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="92"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void setSeeMoreAction(PendingIntent intent);"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="103"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void setKeywords(Set&lt;String> keywords);"
-        errorLine2="                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="113"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ListBuilder setKeywords(Set&lt;String> keywords) {"
-        errorLine2="                                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="339"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected TemplateBuilderImpl selectImpl() {"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="438"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public androidx.slice.builders.impl.ListBuilder getImpl() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="453"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getTitle() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="619"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getSubtitle() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="627"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public SliceAction getPrimaryAction() {"
-        errorLine2="               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="635"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getContentDescription() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="643"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getTitle() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="835"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getSubtitle() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="843"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public PendingIntent getAction() {"
-        errorLine2="               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="851"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public PendingIntent getInputAction() {"
-        errorLine2="               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="859"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public IconCompat getThumb() {"
-        errorLine2="               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="867"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public SliceAction getPrimaryAction() {"
-        errorLine2="               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="875"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getContentDescription() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="883"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public RowBuilder(Uri uri) {"
-        errorLine2="                          ~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="980"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public RowBuilder setTitleItem(@NonNull IconCompat icon, @ImageMode int imageMode) {"
-        errorLine2="               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1013"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Uri getUri() {"
-        errorLine2="               ~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1262"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public IconCompat getTitleIcon() {"
-        errorLine2="               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1326"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public SliceAction getTitleAction() {"
-        errorLine2="               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1334"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public SliceAction getPrimaryAction() {"
-        errorLine2="               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1342"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getTitle() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1350"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getSubtitle() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1366"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getContentDescription() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1382"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public List&lt;Object> getEndItems() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1398"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public List&lt;Integer> getEndTypes() {"
-        errorLine2="               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1406"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public List&lt;Boolean> getEndLoads() {"
-        errorLine2="               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1414"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public HeaderBuilder(Uri uri) {"
-        errorLine2="                             ~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1474"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Uri getUri() {"
-        errorLine2="               ~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1598"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getTitle() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1606"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getSubtitle() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1622"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getSummary() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1638"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public SliceAction getPrimaryAction() {"
-        errorLine2="               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1654"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getContentDescription() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1662"
-            column="16"/>
     </issue>
 
     <issue
@@ -679,7 +1416,7 @@
         errorLine2="                                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="69"
+            line="76"
             column="33"/>
     </issue>
 
@@ -690,371 +1427,8 @@
         errorLine2="                                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="69"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addRow(RowBuilder builder) {"
-        errorLine2="                       ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
             line="76"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addGridRow(GridRowBuilder builder) {"
-        errorLine2="                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="97"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addAction(SliceAction action) {"
-        errorLine2="                          ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="127"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setHeader(HeaderBuilder builder) {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="134"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addInputRange(InputRangeBuilder builder) {"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="147"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addRange(RangeBuilder builder) {"
-        errorLine2="                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="163"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addSelection(SelectionBuilder builder) {"
-        errorLine2="                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="176"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setSeeMoreRow(RowBuilder builder) {"
-        errorLine2="                              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="191"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setSeeMoreAction(PendingIntent intent) {"
-        errorLine2="                                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="198"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setKeywords(Set&lt;String> keywords) {"
-        errorLine2="                            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="212"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void apply(Slice.Builder builder) {"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="243"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ListBuilderImpl(Slice.Builder b, SliceSpec spec) {"
-        errorLine2="                           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="94"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ListBuilderImpl(Slice.Builder b, SliceSpec spec) {"
-        errorLine2="                                            ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="94"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ListBuilderImpl(Slice.Builder b, SliceSpec spec, Clock clock) {"
-        errorLine2="                           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="100"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ListBuilderImpl(Slice.Builder b, SliceSpec spec, Clock clock) {"
-        errorLine2="                                            ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="100"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ListBuilderImpl(Slice.Builder b, SliceSpec spec, Clock clock) {"
-        errorLine2="                                                            ~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="100"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void apply(Slice.Builder builder) {"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="107"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Slice build() {"
-        errorLine2="           ~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="135"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addInputRange(InputRangeBuilder builder) {"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="214"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addRange(RangeBuilder builder) {"
-        errorLine2="                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="221"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addSelection(SelectionBuilder builder) {"
-        errorLine2="                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="228"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setSeeMoreRow(RowBuilder builder) {"
-        errorLine2="                              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="242"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setSeeMoreAction(PendingIntent intent) {"
-        errorLine2="                                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="252"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        protected CharSequence mTitle;"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="320"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        protected CharSequence mSubtitle;"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="321"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        protected CharSequence mContentDescr;"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="322"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        protected SliceAction mPrimaryAction;"
-        errorLine2="                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="323"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void apply(Slice.Builder builder) {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="341"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void apply(Slice.Builder builder) {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="400"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        protected void setTitleItem(IconCompat icon, int imageMode) {"
-        errorLine2="                                    ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="498"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        protected void setSubtitle(CharSequence subtitle) {"
-        errorLine2="                                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="567"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void apply(Slice.Builder b) {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="649"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void apply(Slice.Builder b) {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="719"
-            column="27"/>
+            column="50"/>
     </issue>
 
     <issue
@@ -1064,7 +1438,7 @@
         errorLine2="                              ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
-            line="46"
+            line="47"
             column="31"/>
     </issue>
 
@@ -1075,19 +1449,8 @@
         errorLine2="                                                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
-            line="46"
+            line="47"
             column="54"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void apply(Slice.Builder builder) {"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
-            line="53"
-            column="23"/>
     </issue>
 
     <issue
@@ -1097,7 +1460,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
-            line="71"
+            line="72"
             column="21"/>
     </issue>
 
@@ -1108,7 +1471,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
-            line="81"
+            line="82"
             column="12"/>
     </issue>
 
@@ -1119,7 +1482,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
-            line="97"
+            line="98"
             column="31"/>
     </issue>
 
@@ -1130,7 +1493,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
-            line="111"
+            line="112"
             column="31"/>
     </issue>
 
@@ -1141,19 +1504,8 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
-            line="119"
+            line="120"
             column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void apply(Slice.Builder builder) {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
-            line="133"
-            column="27"/>
     </issue>
 
     <issue
@@ -1207,7 +1559,7 @@
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingListV1Impl.java"
-            line="42"
+            line="43"
             column="32"/>
     </issue>
 
@@ -1218,7 +1570,7 @@
         errorLine2="                                                ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingListV1Impl.java"
-            line="42"
+            line="43"
             column="49"/>
     </issue>
 
@@ -1229,7 +1581,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingListV1Impl.java"
-            line="51"
+            line="52"
             column="21"/>
     </issue>
 
@@ -1240,19 +1592,8 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingListV1Impl.java"
-            line="59"
+            line="60"
             column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void apply(Slice.Builder builder) {"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/MessagingListV1Impl.java"
-            line="66"
-            column="23"/>
     </issue>
 
     <issue
@@ -1262,7 +1603,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingListV1Impl.java"
-            line="78"
+            line="79"
             column="31"/>
     </issue>
 
@@ -1273,7 +1614,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingListV1Impl.java"
-            line="91"
+            line="92"
             column="31"/>
     </issue>
 
@@ -1284,19 +1625,8 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingListV1Impl.java"
-            line="98"
+            line="99"
             column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void apply(Slice.Builder builder) {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/MessagingListV1Impl.java"
-            line="112"
-            column="27"/>
     </issue>
 
     <issue
@@ -1449,7 +1779,7 @@
         errorLine2="                           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
-            line="38"
+            line="39"
             column="28"/>
     </issue>
 
@@ -1460,7 +1790,7 @@
         errorLine2="                                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
-            line="38"
+            line="39"
             column="45"/>
     </issue>
 
@@ -1471,19 +1801,8 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
-            line="45"
+            line="46"
             column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void apply(Slice.Builder builder) {"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
-            line="52"
-            column="23"/>
     </issue>
 
     <issue
@@ -1493,7 +1812,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
-            line="59"
+            line="60"
             column="12"/>
     </issue>
 
@@ -1504,7 +1823,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
-            line="69"
+            line="70"
             column="31"/>
     </issue>
 
@@ -1515,7 +1834,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
-            line="77"
+            line="78"
             column="31"/>
     </issue>
 
@@ -1526,19 +1845,8 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
-            line="85"
+            line="86"
             column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void apply(Slice.Builder builder) {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
-            line="99"
-            column="27"/>
     </issue>
 
     <issue
@@ -1757,7 +2065,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/SelectionBuilderBasicImpl.java"
-            line="37"
+            line="38"
             column="38"/>
     </issue>
 
@@ -1768,19 +2076,8 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/SelectionBuilderBasicImpl.java"
-            line="38"
+            line="39"
             column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void apply(Slice.Builder sliceBuilder) {"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/SelectionBuilderBasicImpl.java"
-            line="43"
-            column="23"/>
     </issue>
 
     <issue
@@ -1790,7 +2087,7 @@
         errorLine2="                                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/SelectionBuilderImpl.java"
-            line="34"
+            line="35"
             column="33"/>
     </issue>
 
@@ -1801,19 +2098,8 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/SelectionBuilderImpl.java"
-            line="35"
+            line="36"
             column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void apply(Slice.Builder sliceBuilder);"
-        errorLine2="                               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/SelectionBuilderImpl.java"
-            line="45"
-            column="32"/>
     </issue>
 
     <issue
@@ -1823,7 +2109,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/SelectionBuilderImpl.java"
-            line="47"
+            line="48"
             column="15"/>
     </issue>
 
@@ -1834,7 +2120,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/SelectionBuilderListV2Impl.java"
-            line="45"
+            line="46"
             column="39"/>
     </issue>
 
@@ -1845,19 +2131,8 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/SelectionBuilderListV2Impl.java"
-            line="46"
+            line="47"
             column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void apply(Slice.Builder sliceBuilder) {"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/SelectionBuilderListV2Impl.java"
-            line="51"
-            column="23"/>
     </issue>
 
     <issue
@@ -1955,7 +2230,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="39"
+            line="53"
             column="35"/>
     </issue>
 
@@ -1966,7 +2241,7 @@
         errorLine2="                                                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="39"
+            line="53"
             column="52"/>
     </issue>
 
@@ -1977,7 +2252,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="43"
+            line="57"
             column="35"/>
     </issue>
 
@@ -1988,7 +2263,7 @@
         errorLine2="                                                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="43"
+            line="57"
             column="52"/>
     </issue>
 
@@ -1999,7 +2274,7 @@
         errorLine2="                                                                   ~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="43"
+            line="57"
             column="68"/>
     </issue>
 
@@ -2010,7 +2285,7 @@
         errorLine2="                              ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="49"
+            line="63"
             column="31"/>
     </issue>
 
@@ -2021,7 +2296,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="56"
+            line="70"
             column="12"/>
     </issue>
 
@@ -2032,7 +2307,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="66"
+            line="80"
             column="12"/>
     </issue>
 
@@ -2043,19 +2318,8 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="74"
+            line="88"
             column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void apply(Slice.Builder builder);"
-        errorLine2="                               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="82"
-            column="32"/>
     </issue>
 
     <issue
@@ -2065,7 +2329,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="88"
+            line="102"
             column="12"/>
     </issue>
 
@@ -2076,7 +2340,7 @@
         errorLine2="           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="96"
+            line="110"
             column="12"/>
     </issue>
 

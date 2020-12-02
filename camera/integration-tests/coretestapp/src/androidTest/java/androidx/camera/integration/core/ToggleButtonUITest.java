@@ -20,19 +20,22 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static junit.framework.TestCase.assertNotNull;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assume.assumeNotNull;
 import static org.junit.Assume.assumeTrue;
 
 import android.content.Intent;
 
-import androidx.camera.core.FlashMode;
+import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.Preview;
+import androidx.camera.core.TorchState;
 import androidx.camera.integration.core.idlingresource.ElapsedTimeIdlingResource;
 import androidx.camera.integration.core.idlingresource.WaitForViewToShow;
 import androidx.camera.testing.CameraUtil;
@@ -46,9 +49,7 @@ import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
-import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiDevice;
-import androidx.test.uiautomator.Until;
 
 import junit.framework.AssertionFailedError;
 
@@ -56,6 +57,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 /** Test toggle buttons in CoreTestApp. */
@@ -68,7 +70,6 @@ public final class ToggleButtonUITest {
 
     private final UiDevice mDevice =
             UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-    private final String mLauncherPackageName = mDevice.getLauncherPackageName();
     private final Intent mIntent = ApplicationProvider.getApplicationContext().getPackageManager()
             .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE);
 
@@ -78,8 +79,7 @@ public final class ToggleButtonUITest {
                     false);
 
     @Rule
-    public GrantPermissionRule mCameraPermissionRule =
-            GrantPermissionRule.grant(android.Manifest.permission.CAMERA);
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
     @Rule
     public GrantPermissionRule mStoragePermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -94,9 +94,13 @@ public final class ToggleButtonUITest {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws CoreAppTestUtil.ForegroundOccupiedError {
         assumeTrue(CameraUtil.deviceHasCamera());
         CoreAppTestUtil.assumeCompatibleDevice();
+
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window before start the test.
+        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation());
 
         // Launch Activity
         mActivityRule.launchActivity(mIntent);
@@ -104,14 +108,20 @@ public final class ToggleButtonUITest {
 
     @After
     public void tearDown() {
-        pressBackAndReturnHome();
+        // Idles Espresso thread and make activity complete each action.
+        waitFor(new ElapsedTimeIdlingResource(IDLE_TIMEOUT_MS));
+
         mActivityRule.finishActivity();
+
+        // Returns to Home to restart next test.
+        mDevice.pressHome();
+        mDevice.waitForIdle(IDLE_TIMEOUT_MS);
     }
 
     @Test
     public void testFlashToggleButton() {
         waitFor(new WaitForViewToShow(R.id.constraintLayout));
-        assumeTrue(detectButtonVisibility(R.id.flash_toggle));
+        assumeTrue(isButtonEnabled(R.id.flash_toggle));
 
         ImageCapture useCase = mActivityRule.getActivity().getImageCapture();
         assertNotNull(useCase);
@@ -119,90 +129,65 @@ public final class ToggleButtonUITest {
         // There are 3 different states of flash mode: ON, OFF and AUTO.
         // By pressing flash mode toggle button, the flash mode would switch to the next state.
         // The flash mode would loop in following sequence: OFF -> AUTO -> ON -> OFF.
-        FlashMode mode1 = useCase.getFlashMode();
+        @ImageCapture.FlashMode int mode1 = useCase.getFlashMode();
 
         onView(withId(R.id.flash_toggle)).perform(click());
-        FlashMode mode2 = useCase.getFlashMode();
+        @ImageCapture.FlashMode int mode2 = useCase.getFlashMode();
         // After the switch, the mode2 should be different from mode1.
         assertNotEquals(mode2, mode1);
 
         onView(withId(R.id.flash_toggle)).perform(click());
-        FlashMode mode3 = useCase.getFlashMode();
+        @ImageCapture.FlashMode int mode3 = useCase.getFlashMode();
         // The mode3 should be different from first and second time.
         assertNotEquals(mode3, mode2);
         assertNotEquals(mode3, mode1);
-
-        waitForIdlingRegistryAndPressBackAndHomeButton();
     }
 
     @Test
     public void testTorchToggleButton() {
-        waitFor(new WaitForViewToShow(R.id.torch_toggle));
+        waitFor(new WaitForViewToShow(R.id.constraintLayout));
+        assumeTrue(isButtonEnabled(R.id.torch_toggle));
 
-        Preview useCase = mActivityRule.getActivity().getPreview();
-        assertNotNull(useCase);
-        boolean isTorchOn = useCase.isTorchOn();
+        CameraInfo cameraInfo = mActivityRule.getActivity().getCameraInfo();
+        assertNotNull(cameraInfo);
+        boolean isTorchOn = isTorchOn(cameraInfo);
 
         onView(withId(R.id.torch_toggle)).perform(click());
-        assertNotEquals(useCase.isTorchOn(), isTorchOn);
+        assertNotEquals(isTorchOn(cameraInfo), isTorchOn);
 
         // By pressing the torch toggle button two times, it should switch back to original state.
         onView(withId(R.id.torch_toggle)).perform(click());
-        assertEquals(useCase.isTorchOn(), isTorchOn);
-
-        waitForIdlingRegistryAndPressBackAndHomeButton();
+        assertEquals(isTorchOn(cameraInfo), isTorchOn);
     }
 
     @Test
     public void testSwitchCameraToggleButton() {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
         waitFor(new WaitForViewToShow(R.id.direction_toggle));
 
-        boolean isPreviewExist = mActivityRule.getActivity().getPreview() != null;
-        boolean isImageCaptureExist = mActivityRule.getActivity().getImageCapture() != null;
-        boolean isVideoCaptureExist = mActivityRule.getActivity().getVideoCapture() != null;
-        boolean isImageAnalysisExist = mActivityRule.getActivity().getImageAnalysis() != null;
+        assumeNotNull(mActivityRule.getActivity().getPreview());
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 5; i++) {
+
+            // Wait for preview update.
+            mActivityRule.getActivity().resetViewIdlingResource();
+            IdlingRegistry.getInstance().register(
+                    mActivityRule.getActivity().getViewIdlingResource());
+            onView(withId(R.id.viewFinder)).check(matches(isDisplayed()));
+            IdlingRegistry.getInstance().unregister(
+                    mActivityRule.getActivity().getViewIdlingResource());
+
             onView(withId(R.id.direction_toggle)).perform(click());
-            waitFor(new ElapsedTimeIdlingResource(2000));
-            if (isImageCaptureExist) {
-                assertNotNull(mActivityRule.getActivity().getImageCapture());
-            }
-            if (isImageAnalysisExist) {
-                assertNotNull(mActivityRule.getActivity().getImageAnalysis());
-            }
-            if (isVideoCaptureExist) {
-                assertNotNull(mActivityRule.getActivity().getVideoCapture());
-            }
-            if (isPreviewExist) {
-                assertNotNull(mActivityRule.getActivity().getPreview());
-            }
         }
-
-        waitForIdlingRegistryAndPressBackAndHomeButton();
     }
 
-    private void waitForIdlingRegistryAndPressBackAndHomeButton() {
-        // Idles Espresso thread and make activity complete each action.
-        waitFor(new ElapsedTimeIdlingResource(IDLE_TIMEOUT_MS));
-
-        mDevice.pressBack();
-
-        // Returns to Home to restart next test.
-        mDevice.pressHome();
-        mDevice.wait(Until.hasObject(By.pkg(mLauncherPackageName).depth(0)), IDLE_TIMEOUT_MS);
+    private boolean isTorchOn(CameraInfo cameraInfo) {
+        return cameraInfo.getTorchState().getValue() == TorchState.ON;
     }
 
-    private void pressBackAndReturnHome() {
-        mDevice.pressBack();
-
-        // Returns to Home to restart next test.
-        mDevice.pressHome();
-    }
-
-    private boolean detectButtonVisibility(int resource) {
+    private boolean isButtonEnabled(int resource) {
         try {
-            onView(withId(resource)).check(matches(isDisplayed()));
+            onView(withId(resource)).check(matches(isEnabled()));
             // View is in hierarchy
             return true;
         } catch (AssertionFailedError e) {

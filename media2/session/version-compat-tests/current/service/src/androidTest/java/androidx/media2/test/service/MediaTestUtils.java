@@ -17,6 +17,8 @@
 package androidx.media2.test.service;
 
 import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
+import static androidx.media2.test.common.CommonConstants.KEY_CLIENT_VERSION;
+import static androidx.media2.test.common.CommonConstants.VERSION_TOT;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -36,6 +38,7 @@ import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSession.ControllerInfo;
 import androidx.media2.test.common.TestUtils;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.versionedparcelable.ParcelImpl;
 
 import java.util.ArrayList;
@@ -237,5 +240,11 @@ public final class MediaTestUtils {
             assertEquals(params.isSuggested(), rootExtras.getBoolean(BrowserRoot.EXTRA_SUGGESTED));
             assertTrue(TestUtils.contains(rootExtras, params.getExtras()));
         }
+    }
+
+    public static boolean isClientToT() {
+        String clientVersion = InstrumentationRegistry.getArguments()
+                .getString(KEY_CLIENT_VERSION, "");
+        return VERSION_TOT.equals(clientVersion);
     }
 }

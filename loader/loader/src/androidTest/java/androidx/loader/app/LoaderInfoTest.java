@@ -19,15 +19,13 @@ package androidx.loader.app;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import android.content.Context;
 
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LifecycleRegistry;
+import androidx.lifecycle.testing.TestLifecycleOwner;
 import androidx.loader.app.test.DelayLoader;
-import androidx.loader.app.test.DummyLoaderCallbacks;
+import androidx.loader.app.test.ImmediateLoaderCallbacks;
 import androidx.loader.content.Loader;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -45,21 +43,17 @@ import java.util.concurrent.TimeUnit;
 @LargeTest
 public class LoaderInfoTest {
 
-    private LifecycleOwner mOwner;
-    private LifecycleRegistry mRegistry;
+    private TestLifecycleOwner mOwner;
 
     @Before
     public void setup() {
-        mOwner = mock(LifecycleOwner.class);
-        mRegistry = new LifecycleRegistry(mOwner);
-        when(mOwner.getLifecycle()).thenReturn(mRegistry);
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        mOwner = new TestLifecycleOwner();
     }
 
     @Test
     public void testIsCallbackWaitingForData() throws Throwable {
-        final DummyLoaderCallbacks loaderCallback = new DummyLoaderCallbacks(mock(Context.class));
+        final ImmediateLoaderCallbacks loaderCallback =
+                new ImmediateLoaderCallbacks(mock(Context.class));
         final CountDownLatch deliverResultLatch = new CountDownLatch(1);
         Loader<Boolean> delayLoader = new DelayLoader(mock(Context.class),
                 deliverResultLatch);
@@ -94,7 +88,8 @@ public class LoaderInfoTest {
     @UiThreadTest
     @Test
     public void testSetCallback() {
-        final DummyLoaderCallbacks loaderCallback = new DummyLoaderCallbacks(mock(Context.class));
+        final ImmediateLoaderCallbacks loaderCallback =
+                new ImmediateLoaderCallbacks(mock(Context.class));
         Loader<Boolean> loader = loaderCallback.onCreateLoader(0, null);
         final LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
                 0, null, loader, null);
@@ -109,7 +104,8 @@ public class LoaderInfoTest {
     @UiThreadTest
     @Test
     public void testSetCallback_replace() {
-        final DummyLoaderCallbacks initialCallback = new DummyLoaderCallbacks(mock(Context.class));
+        final ImmediateLoaderCallbacks initialCallback =
+                new ImmediateLoaderCallbacks(mock(Context.class));
         Loader<Boolean> loader = initialCallback.onCreateLoader(0, null);
         LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
                 0, null, loader, null);
@@ -120,8 +116,8 @@ public class LoaderInfoTest {
         assertTrue("onLoadFinished for initial should be called after setCallback initial",
                 initialCallback.mOnLoadFinished);
 
-        final DummyLoaderCallbacks replacementCallback =
-                new DummyLoaderCallbacks(mock(Context.class));
+        final ImmediateLoaderCallbacks replacementCallback =
+                new ImmediateLoaderCallbacks(mock(Context.class));
         initialCallback.mOnLoadFinished = false;
 
         loaderInfo.setCallback(mOwner, replacementCallback);
@@ -136,8 +132,8 @@ public class LoaderInfoTest {
     @UiThreadTest
     @Test
     public void testMarkForRedelivery() {
-        DummyLoaderCallbacks loaderCallback =
-                new DummyLoaderCallbacks(mock(Context.class));
+        ImmediateLoaderCallbacks loaderCallback =
+                new ImmediateLoaderCallbacks(mock(Context.class));
         Loader<Boolean> loader = loaderCallback.onCreateLoader(0, null);
         LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
                 0, null, loader, null);
@@ -145,13 +141,13 @@ public class LoaderInfoTest {
         assertTrue("onLoadFinished should be called after setCallback",
                 loaderCallback.mOnLoadFinished);
 
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         loaderCallback.mOnLoadFinished = false;
         loaderInfo.markForRedelivery();
         assertFalse("onLoadFinished should not be called when stopped after markForRedelivery",
                 loaderCallback.mOnLoadFinished);
 
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
         assertTrue("onLoadFinished should be called after markForRedelivery",
                 loaderCallback.mOnLoadFinished);
     }
@@ -159,8 +155,8 @@ public class LoaderInfoTest {
     @UiThreadTest
     @Test
     public void testMarkForRedelivery_replace() {
-        DummyLoaderCallbacks initialCallback =
-                new DummyLoaderCallbacks(mock(Context.class));
+        ImmediateLoaderCallbacks initialCallback =
+                new ImmediateLoaderCallbacks(mock(Context.class));
         Loader<Boolean> loader = initialCallback.onCreateLoader(0, null);
         LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
                 0, null, loader, null);
@@ -168,18 +164,18 @@ public class LoaderInfoTest {
         assertTrue("onLoadFinished for initial should be called after setCallback initial",
                 initialCallback.mOnLoadFinished);
 
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         initialCallback.mOnLoadFinished = false;
         loaderInfo.markForRedelivery();
         assertFalse("onLoadFinished should not be called when stopped after markForRedelivery",
                 initialCallback.mOnLoadFinished);
 
         // Replace the callback
-        final DummyLoaderCallbacks replacementCallback =
-                new DummyLoaderCallbacks(mock(Context.class));
+        final ImmediateLoaderCallbacks replacementCallback =
+                new ImmediateLoaderCallbacks(mock(Context.class));
         loaderInfo.setCallback(mOwner, replacementCallback);
 
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
         assertFalse("onLoadFinished for initial should not be called "
                         + "after setCallback replacement",
                 initialCallback.mOnLoadFinished);
@@ -191,7 +187,8 @@ public class LoaderInfoTest {
     @UiThreadTest
     @Test
     public void testDestroy() {
-        final DummyLoaderCallbacks loaderCallback = new DummyLoaderCallbacks(mock(Context.class));
+        final ImmediateLoaderCallbacks loaderCallback =
+                new ImmediateLoaderCallbacks(mock(Context.class));
         final Loader<Boolean> loader = loaderCallback.onCreateLoader(0, null);
         final LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
                 0, null, loader, null);

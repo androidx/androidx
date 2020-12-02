@@ -122,7 +122,7 @@ public class ChangeClipBoundsTest extends BaseTransitionTest {
     }
 
     @Test
-    public void dummy() {
+    public void empty() {
         // Avoid "No tests found" on older devices
     }
 

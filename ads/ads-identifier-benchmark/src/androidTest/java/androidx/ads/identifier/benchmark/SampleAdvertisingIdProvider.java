@@ -22,7 +22,7 @@ import androidx.annotation.NonNull;
 /** An example Advertising ID Provider which always returns same ID. */
 public class SampleAdvertisingIdProvider implements AdvertisingIdProvider {
 
-    private static final String DUMMY_AD_ID = "308f629d-c857-4026-8b62-7bdd71caaaaa";
+    static final String DUMMY_AD_ID = "308f629d-c857-4026-8b62-7bdd71caaaaa";
 
     @NonNull
     @Override

@@ -16,10 +16,9 @@
 
 package androidx.camera.core.impl.utils.futures;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.Logger;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -62,7 +61,7 @@ abstract class ImmediateFuture<V> implements ListenableFuture<V> {
         } catch (RuntimeException e) {
             // ListenableFuture does not throw runtime exceptions, so swallow the exception and
             // log it here.
-            Log.e(TAG, "Experienced RuntimeException while attempting to notify " + listener
+            Logger.e(TAG, "Experienced RuntimeException while attempting to notify " + listener
                     + " on Executor " + executor, e);
         }
 

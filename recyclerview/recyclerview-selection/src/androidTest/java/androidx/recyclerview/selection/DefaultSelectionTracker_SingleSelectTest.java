@@ -16,8 +16,6 @@
 
 package androidx.recyclerview.selection;
 
-import static org.junit.Assert.fail;
-
 import androidx.recyclerview.selection.testing.SelectionProbe;
 import androidx.recyclerview.selection.testing.TestAdapter;
 import androidx.recyclerview.selection.testing.TestItemKeyProvider;
@@ -29,32 +27,27 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.List;
-
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class DefaultSelectionTracker_SingleSelectTest {
 
-    private List<String> mItems;
     private SelectionTracker<String> mTracker;
+    private TestAdapter<String> mAdapter;
     private TestSelectionObserver<String> mListener;
     private SelectionProbe mSelection;
 
     @Before
     public void setUp() throws Exception {
-        mItems = TestAdapter.createItemList(100);
+        mAdapter = TestAdapter.createStringAdapter(100);
         mListener = new TestSelectionObserver<>();
-        TestAdapter<String> adapter = new TestAdapter<>();
-        adapter.updateTestModelIds(mItems);
 
         ItemKeyProvider<String> keyProvider =
-                new TestItemKeyProvider<>(ItemKeyProvider.SCOPE_MAPPED, adapter);
+                new TestItemKeyProvider<>(ItemKeyProvider.SCOPE_MAPPED, mAdapter);
         mTracker = new DefaultSelectionTracker<>(
                 "single-selection-test",
                 keyProvider,
                 SelectionPredicates.createSelectSingleAnything(),
                 StorageStrategy.createStringStorage());
-        EventBridge.install(adapter, mTracker, keyProvider);
 
         mTracker.addObserver(mListener);
 
@@ -63,21 +56,19 @@ public class DefaultSelectionTracker_SingleSelectTest {
 
     @Test
     public void testSimpleSelect() {
-        mTracker.select(mItems.get(3));
-        mTracker.select(mItems.get(4));
+        mTracker.select(mAdapter.getSelectionKey(3));
+        mTracker.select(mAdapter.getSelectionKey(4));
         mListener.assertSelectionChanged();
+        // 3 should no longer be selected because of single select mode.
         mSelection.assertSelection(4);
     }
 
     @Test
     public void testRangeSelectionNotEstablished() {
-        mTracker.select(mItems.get(3));
+        mTracker.select(mAdapter.getSelectionKey(3));
         mListener.reset();
 
-        try {
-            mTracker.extendRange(10);
-            fail("Should have thrown.");
-        } catch (Exception expected) { }
+        mTracker.extendRange(10);
 
         mListener.assertSelectionUnchanged();
         mSelection.assertSelection(3);

@@ -21,7 +21,6 @@ import androidx.room.processor.DatabaseProcessor
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.Database
-import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -51,38 +50,49 @@ class SQLiteOpenHelperWriterTest {
     @Test
     fun createSimpleEntity() {
         singleEntity(
-                """
+            """
                 @PrimaryKey
                 @NonNull
                 String uuid;
                 String name;
                 int age;
-                """.trimIndent()
+            """.trimIndent()
         ) { database, _ ->
             val query = SQLiteOpenHelperWriter(database)
-                    .createTableQuery(database.entities.first())
-            assertThat(query, `is`("CREATE TABLE IF NOT EXISTS" +
-                    " `MyEntity` (`uuid` TEXT NOT NULL, `name` TEXT, `age` INTEGER NOT NULL," +
-                    " PRIMARY KEY(`uuid`))"))
+                .createTableQuery(database.entities.first())
+            assertThat(
+                query,
+                `is`(
+                    "CREATE TABLE IF NOT EXISTS" +
+                        " `MyEntity` (`uuid` TEXT NOT NULL, `name` TEXT, `age` INTEGER NOT NULL," +
+                        " PRIMARY KEY(`uuid`))"
+                )
+            )
         }.compilesWithoutError()
     }
 
     @Test
     fun multiplePrimaryKeys() {
         singleEntity(
-                """
+            """
                 @NonNull
                 String uuid;
                 @NonNull
                 String name;
                 int age;
-                """.trimIndent(), attributes = mapOf("primaryKeys" to "{\"uuid\", \"name\"}")
+            """.trimIndent(),
+            attributes = mapOf("primaryKeys" to "{\"uuid\", \"name\"}")
         ) { database, _ ->
             val query = SQLiteOpenHelperWriter(database)
-                    .createTableQuery(database.entities.first())
-            assertThat(query, `is`("CREATE TABLE IF NOT EXISTS" +
-                    " `MyEntity` (`uuid` TEXT NOT NULL, `name` TEXT NOT NULL, " +
-                    "`age` INTEGER NOT NULL, PRIMARY KEY(`uuid`, `name`))"))
+                .createTableQuery(database.entities.first())
+            assertThat(
+                query,
+                `is`(
+                    "CREATE TABLE IF NOT EXISTS" +
+                        " `MyEntity` (`uuid` TEXT NOT NULL, `name` TEXT NOT NULL, " +
+                        "`age` INTEGER NOT NULL, PRIMARY KEY(`uuid`, `name`))"
+                )
+            )
         }.compilesWithoutError()
     }
 
@@ -90,7 +100,7 @@ class SQLiteOpenHelperWriterTest {
     fun autoIncrementObject() {
         listOf("Long", "Integer").forEach { type ->
             singleEntity(
-                    """
+                """
                 @PrimaryKey(autoGenerate = true)
                 $type uuid;
                 String name;
@@ -98,10 +108,15 @@ class SQLiteOpenHelperWriterTest {
                 """.trimIndent()
             ) { database, _ ->
                 val query = SQLiteOpenHelperWriter(database)
-                        .createTableQuery(database.entities.first())
-                assertThat(query, `is`("CREATE TABLE IF NOT EXISTS" +
-                        " `MyEntity` (`uuid` INTEGER PRIMARY KEY AUTOINCREMENT," +
-                        " `name` TEXT, `age` INTEGER NOT NULL)"))
+                    .createTableQuery(database.entities.first())
+                assertThat(
+                    query,
+                    `is`(
+                        "CREATE TABLE IF NOT EXISTS" +
+                            " `MyEntity` (`uuid` INTEGER PRIMARY KEY AUTOINCREMENT," +
+                            " `name` TEXT, `age` INTEGER NOT NULL)"
+                    )
+                )
             }.compilesWithoutError()
         }
     }
@@ -110,7 +125,7 @@ class SQLiteOpenHelperWriterTest {
     fun autoIncrementPrimitives() {
         listOf("long", "int").forEach { type ->
             singleEntity(
-                    """
+                """
                 @PrimaryKey(autoGenerate = true)
                 $type uuid;
                 String name;
@@ -118,10 +133,15 @@ class SQLiteOpenHelperWriterTest {
                 """.trimIndent()
             ) { database, _ ->
                 val query = SQLiteOpenHelperWriter(database)
-                        .createTableQuery(database.entities.first())
-                assertThat(query, `is`("CREATE TABLE IF NOT EXISTS" +
-                        " `MyEntity` (`uuid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
-                        " `name` TEXT, `age` INTEGER NOT NULL)"))
+                    .createTableQuery(database.entities.first())
+                assertThat(
+                    query,
+                    `is`(
+                        "CREATE TABLE IF NOT EXISTS" +
+                            " `MyEntity` (`uuid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                            " `name` TEXT, `age` INTEGER NOT NULL)"
+                    )
+                )
             }.compilesWithoutError()
         }
     }
@@ -144,8 +164,10 @@ class SQLiteOpenHelperWriterTest {
         } else {
             "(" + attributes.entries.joinToString(",") { "${it.key} = ${it.value}" } + ")"
         }
-        val entity = JavaFileObjects.forSourceString("foo.bar.MyEntity",
-                ENTITY_PREFIX.format(attributesReplacement) + input + ENTITY_SUFFIX)
+        val entity = JavaFileObjects.forSourceString(
+            "foo.bar.MyEntity",
+            ENTITY_PREFIX.format(attributesReplacement) + input + ENTITY_SUFFIX
+        )
         return verify(listOf(entity), "", handler)
     }
 
@@ -153,23 +175,27 @@ class SQLiteOpenHelperWriterTest {
         query: String,
         handler: (Database, TestInvocation) -> Unit
     ): CompileTester {
-        val entity = JavaFileObjects.forSourceString("foo.bar.MyEntity",
-                ENTITY_PREFIX.format("") + """
+        val entity = JavaFileObjects.forSourceString(
+            "foo.bar.MyEntity",
+            ENTITY_PREFIX.format("") + """
                     @PrimaryKey
                     @NonNull
                     String uuid;
                     @NonNull
                     String name;
                     int age;
-                """ + ENTITY_SUFFIX)
-        val view = JavaFileObjects.forSourceString("foo.bar.MyView",
-                DATABASE_PREFIX + """
+                """ + ENTITY_SUFFIX
+        )
+        val view = JavaFileObjects.forSourceString(
+            "foo.bar.MyView",
+            DATABASE_PREFIX + """
                     @DatabaseView("$query")
                     public class MyView {
                         public String uuid;
                         public String name;
                     }
-                """)
+                """
+        )
         return verify(listOf(entity, view), "views = {MyView.class},", handler)
     }
 
@@ -186,18 +212,21 @@ class SQLiteOpenHelperWriterTest {
             }
         """
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(jfos + JavaFileObjects.forSourceString("foo.bar.MyDatabase", databaseCode))
-                .processedWith(TestProcessor.builder()
-                        .forAnnotations(androidx.room.Database::class,
-                                NonNull::class)
-                        .nextRunHandler { invocation ->
-                            val db = MoreElements.asType(invocation.roundEnv
-                                    .getElementsAnnotatedWith(
-                                            androidx.room.Database::class.java)
-                                    .first())
-                            handler(DatabaseProcessor(invocation.context, db).process(), invocation)
-                            true
-                        }
-                        .build())
+            .that(jfos + JavaFileObjects.forSourceString("foo.bar.MyDatabase", databaseCode))
+            .processedWith(
+                TestProcessor.builder()
+                    .forAnnotations(
+                        androidx.room.Database::class,
+                        NonNull::class
+                    )
+                    .nextRunHandler { invocation ->
+                        val db = invocation.roundEnv
+                            .getElementsAnnotatedWith(androidx.room.Database::class.java)
+                            .first().asTypeElement()
+                        handler(DatabaseProcessor(invocation.context, db).process(), invocation)
+                        true
+                    }
+                    .build()
+            )
     }
 }

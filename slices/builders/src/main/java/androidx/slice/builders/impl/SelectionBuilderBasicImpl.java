@@ -23,6 +23,7 @@ import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
@@ -40,7 +41,7 @@ public class SelectionBuilderBasicImpl extends SelectionBuilderImpl {
     }
 
     @Override
-    public void apply(Slice.Builder sliceBuilder) {
+    public void apply(@NonNull Slice.Builder sliceBuilder) {
         final SelectionBuilder selectionBuilder = getSelectionBuilder();
 
         selectionBuilder.check();

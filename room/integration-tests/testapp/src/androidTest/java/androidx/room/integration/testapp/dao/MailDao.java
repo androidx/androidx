@@ -24,8 +24,6 @@ import androidx.room.integration.testapp.vo.Mail;
 
 import java.util.List;
 
-import io.reactivex.Flowable;
-
 @Dao
 public interface MailDao {
 
@@ -48,7 +46,10 @@ public interface MailDao {
     List<String> getMailBodySnippets(String searchQuery);
 
     @Query("SELECT rowId, * FROM mail")
-    Flowable<List<Mail>> getFlowableMail();
+    io.reactivex.Flowable<List<Mail>> rx2_getFlowableMail();
+
+    @Query("SELECT rowId, * FROM mail")
+    io.reactivex.rxjava3.core.Flowable<List<Mail>> rx3_getFlowableMail();
 
     @Query("SELECT rowId, * FROM mail")
     LiveData<List<Mail>> getLiveDataMail();

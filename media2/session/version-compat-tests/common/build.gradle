@@ -21,12 +21,14 @@ plugins {
     id("com.android.library")
 }
 
-dependencies {
-    api(project(":annotation:annotation"))
-    api(project(":versionedparcelable"))
-    implementation(JUNIT)
+android {
+    buildFeatures {
+        aidl = true
+    }
 }
 
-androidx {
-    toolingProject = true
+dependencies {
+    api(project(":annotation:annotation"))
+    api(project(":versionedparcelable:versionedparcelable"))
+    implementation(JUNIT)
 }

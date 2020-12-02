@@ -189,7 +189,7 @@ public class SliceRenderer {
                 executor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        setPadding(false);
+                        mContext.runOnUiThread(() -> setPadding(false));
                         doRender(slice + "-ns", s, new File(output, String.format(
                                 "%s-no-scroll.png", slice)), false /* scrollable */,
                                 false /* without padding */, false /* not stripped */);

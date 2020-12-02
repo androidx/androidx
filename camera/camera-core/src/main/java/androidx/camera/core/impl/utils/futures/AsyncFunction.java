@@ -17,7 +17,6 @@
 package androidx.camera.core.impl.utils.futures;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -33,12 +32,10 @@ import java.util.concurrent.Future;
  *
  * @author Chris Povirk
  * @since 11.0
- * @hide
  * @param <I>
  * @param <O>
  */
 @FunctionalInterface
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface AsyncFunction<I, O> {
     /**
      * Returns an output {@code Future} to use in place of the given {@code input}. The output

@@ -65,7 +65,7 @@ public class RemoteMediaControllerCompatTest extends MediaSessionTestBase {
 
     @Test
     @SmallTest
-    public void testPlay() throws Exception {
+    public void play() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
         mSessionCompat.setCallback(new MediaSessionCompat.Callback() {
             @Override

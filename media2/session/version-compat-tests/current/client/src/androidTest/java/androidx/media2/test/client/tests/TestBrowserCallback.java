@@ -40,6 +40,7 @@ import androidx.media2.session.SessionCommand;
 import androidx.media2.session.SessionCommandGroup;
 import androidx.media2.session.SessionResult;
 import androidx.media2.test.client.tests.MediaSessionTestBase.TestControllerCallbackInterface;
+import androidx.media2.test.common.TestUtils;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -81,10 +82,10 @@ public class TestBrowserCallback extends BrowserCallback
     public void waitForConnect(boolean expect) throws InterruptedException {
         if (expect) {
             assertTrue(connectLatch.await(
-                    MediaSessionTestBase.TIMEOUT_MS, TimeUnit.MILLISECONDS));
+                    TestUtils.PROVIDER_SERVICE_CONNECTION_TIMEOUT_MS, TimeUnit.MILLISECONDS));
         } else {
             assertFalse(connectLatch.await(
-                    MediaSessionTestBase.TIMEOUT_MS, TimeUnit.MILLISECONDS));
+                    TestUtils.PROVIDER_SERVICE_CONNECTION_TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
 
@@ -92,10 +93,10 @@ public class TestBrowserCallback extends BrowserCallback
     public void waitForDisconnect(boolean expect) throws InterruptedException {
         if (expect) {
             assertTrue(disconnectLatch.await(
-                    MediaSessionTestBase.TIMEOUT_MS, TimeUnit.MILLISECONDS));
+                    TestUtils.PROVIDER_SERVICE_CONNECTION_TIMEOUT_MS, TimeUnit.MILLISECONDS));
         } else {
             assertFalse(disconnectLatch.await(
-                    MediaSessionTestBase.TIMEOUT_MS, TimeUnit.MILLISECONDS));
+                    TestUtils.PROVIDER_SERVICE_CONNECTION_TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
 

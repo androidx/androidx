@@ -33,7 +33,6 @@ package androidx.navigation {
   }
 
   public final class NavArgsLazyKt {
-    ctor public NavArgsLazyKt();
   }
 
   @androidx.navigation.NavDestinationDsl public final class NavArgumentBuilder {
@@ -76,13 +75,11 @@ package androidx.navigation {
   }
 
   public final class NavGraphBuilderKt {
-    ctor public NavGraphBuilderKt();
     method public static inline androidx.navigation.NavGraph navigation(androidx.navigation.NavigatorProvider, @IdRes int id = 0, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
     method public static inline void navigation(androidx.navigation.NavGraphBuilder, @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
   }
 
   public final class NavGraphKt {
-    ctor public NavGraphKt();
     method public static operator boolean contains(androidx.navigation.NavGraph, @IdRes int id);
     method public static inline operator androidx.navigation.NavDestination get(androidx.navigation.NavGraph, @IdRes int id);
     method public static inline operator void minusAssign(androidx.navigation.NavGraph, androidx.navigation.NavDestination node);
@@ -103,7 +100,6 @@ package androidx.navigation {
   }
 
   public final class NavOptionsBuilderKt {
-    ctor public NavOptionsBuilderKt();
     method public static androidx.navigation.NavOptions navOptions(kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit> optionsBuilder);
   }
 
@@ -111,7 +107,6 @@ package androidx.navigation {
   }
 
   public final class NavigatorProviderKt {
-    ctor public NavigatorProviderKt();
     method public static inline operator <T extends androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>> T get(androidx.navigation.NavigatorProvider, String name);
     method public static inline operator <T extends androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>> T get(androidx.navigation.NavigatorProvider, kotlin.reflect.KClass<T> clazz);
     method public static inline operator void plusAssign(androidx.navigation.NavigatorProvider, androidx.navigation.Navigator<? extends androidx.navigation.NavDestination> navigator);

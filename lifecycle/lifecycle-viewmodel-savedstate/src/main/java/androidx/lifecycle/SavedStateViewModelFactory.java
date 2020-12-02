@@ -41,10 +41,12 @@ import java.util.Arrays;
  * If ViewModel is instance of {@link androidx.lifecycle.AndroidViewModel}, it looks for a
  * constructor that receives an {@link Application} and {@link SavedStateHandle} (in this order),
  * otherwise it looks for a constructor that receives {@link SavedStateHandle} only.
+ * {@link androidx.lifecycle.AndroidViewModel} is only supported if you pass a non-null
+ * {@link Application} instance.
  */
 public final class SavedStateViewModelFactory extends ViewModelProvider.KeyedFactory {
     private final Application mApplication;
-    private final ViewModelProvider.AndroidViewModelFactory mFactory;
+    private final ViewModelProvider.Factory mFactory;
     private final Bundle mDefaultArgs;
     private final Lifecycle mLifecycle;
     private final SavedStateRegistry mSavedStateRegistry;
@@ -55,12 +57,13 @@ public final class SavedStateViewModelFactory extends ViewModelProvider.KeyedFac
      * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state
      * scoped to the given {@code activity}.
      *
-     * @param application an application
+     * @param application an application.  If null, {@link AndroidViewModel} instances will not be
+     *                    supported.
      * @param owner       {@link SavedStateRegistryOwner} that will provide restored state for
      *                                                   created
      *                    {@link androidx.lifecycle.ViewModel ViewModels}
      */
-    public SavedStateViewModelFactory(@NonNull Application application,
+    public SavedStateViewModelFactory(@Nullable  Application application,
             @NonNull SavedStateRegistryOwner owner) {
         this(application, owner, null);
     }
@@ -71,7 +74,8 @@ public final class SavedStateViewModelFactory extends ViewModelProvider.KeyedFac
      * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state
      * scoped to the given {@code activity}.
      *
-     * @param application an application
+     * @param application an application. If null, {@link AndroidViewModel} instances will not be
+     *                   supported.
      * @param owner       {@link SavedStateRegistryOwner} that will provide restored state for
      *                                                   created
      *                    {@link androidx.lifecycle.ViewModel ViewModels}
@@ -81,14 +85,16 @@ public final class SavedStateViewModelFactory extends ViewModelProvider.KeyedFac
      *                    misses a value by such key.
      */
     @SuppressLint("LambdaLast")
-    public SavedStateViewModelFactory(@NonNull Application application,
+    public SavedStateViewModelFactory(@Nullable Application application,
             @NonNull SavedStateRegistryOwner owner,
             @Nullable Bundle defaultArgs) {
         mSavedStateRegistry = owner.getSavedStateRegistry();
         mLifecycle = owner.getLifecycle();
         mDefaultArgs = defaultArgs;
         mApplication = application;
-        mFactory = ViewModelProvider.AndroidViewModelFactory.getInstance(application);
+        mFactory = application != null
+                ? ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+                : ViewModelProvider.NewInstanceFactory.getInstance();
     }
 
     @NonNull
@@ -96,7 +102,7 @@ public final class SavedStateViewModelFactory extends ViewModelProvider.KeyedFac
     public <T extends ViewModel> T create(@NonNull String key, @NonNull Class<T> modelClass) {
         boolean isAndroidViewModel = AndroidViewModel.class.isAssignableFrom(modelClass);
         Constructor<T> constructor;
-        if (isAndroidViewModel) {
+        if (isAndroidViewModel && mApplication != null) {
             constructor = findMatchingConstructor(modelClass, ANDROID_VIEWMODEL_SIGNATURE);
         } else {
             constructor = findMatchingConstructor(modelClass, VIEWMODEL_SIGNATURE);
@@ -110,7 +116,7 @@ public final class SavedStateViewModelFactory extends ViewModelProvider.KeyedFac
                 mSavedStateRegistry, mLifecycle, key, mDefaultArgs);
         try {
             T viewmodel;
-            if (isAndroidViewModel) {
+            if (isAndroidViewModel && mApplication != null) {
                 viewmodel = constructor.newInstance(mApplication, controller.getHandle());
             } else {
                 viewmodel = constructor.newInstance(controller.getHandle());

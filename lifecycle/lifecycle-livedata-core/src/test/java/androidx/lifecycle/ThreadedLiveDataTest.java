@@ -20,12 +20,11 @@ import static androidx.lifecycle.Lifecycle.Event.ON_START;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import androidx.annotation.Nullable;
 import androidx.arch.core.executor.JunitTaskExecutorRule;
 import androidx.arch.core.executor.TaskExecutor;
+import androidx.lifecycle.testing.TestLifecycleOwner;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -36,6 +35,8 @@ import org.junit.runners.JUnit4;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import kotlinx.coroutines.test.TestCoroutineDispatcher;
+
 @RunWith(JUnit4.class)
 public class ThreadedLiveDataTest {
 
@@ -45,15 +46,13 @@ public class ThreadedLiveDataTest {
     public JunitTaskExecutorRule mTaskExecutorRule = new JunitTaskExecutorRule(1, false);
 
     private LiveData<String> mLiveData;
-    private LifecycleOwner mLifecycleOwner;
-    private LifecycleRegistry mRegistry;
+    private TestLifecycleOwner mLifecycleOwner;
 
     @Before
     public void init() {
         mLiveData = new MutableLiveData<>();
-        mLifecycleOwner = mock(LifecycleOwner.class);
-        mRegistry = new LifecycleRegistry(mLifecycleOwner);
-        when(mLifecycleOwner.getLifecycle()).thenReturn(mRegistry);
+        mLifecycleOwner = new TestLifecycleOwner(Lifecycle.State.INITIALIZED,
+                new TestCoroutineDispatcher());
     }
 
     @Test
@@ -74,7 +73,7 @@ public class ThreadedLiveDataTest {
         taskExecutor.executeOnMainThread(new Runnable() {
             @Override
             public void run() {
-                mRegistry.handleLifecycleEvent(ON_START);
+                mLifecycleOwner.handleLifecycleEvent(ON_START);
                 mLiveData.observe(mLifecycleOwner, observer);
                 final CountDownLatch latch = new CountDownLatch(1);
                 taskExecutor.executeOnDiskIO(new Runnable() {

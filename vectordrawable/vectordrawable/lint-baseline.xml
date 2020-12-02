@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 19 (current min is 14): `android.R.attr#autoMirrored`"
+        errorLine1="            android.R.attr.width, android.R.attr.alpha, android.R.attr.autoMirrored,"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="26"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.R.attr#tintMode`"
+        errorLine1="            android.R.attr.tintMode, android.R.attr.viewportWidth, android.R.attr.viewportHeight"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="27"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.R.attr#viewportHeight`"
+        errorLine1="            android.R.attr.tintMode, android.R.attr.viewportWidth, android.R.attr.viewportHeight"
+        errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="27"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.R.attr#viewportWidth`"
+        errorLine1="            android.R.attr.tintMode, android.R.attr.viewportWidth, android.R.attr.viewportHeight"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="27"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.R.attr#translateX`"
+        errorLine1="            android.R.attr.translateX, android.R.attr.translateY"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="41"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.R.attr#translateY`"
+        errorLine1="            android.R.attr.translateX, android.R.attr.translateY"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="41"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.R.attr#fillColor`"
+        errorLine1="            android.R.attr.name, android.R.attr.fillColor, android.R.attr.pathData,"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="52"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.R.attr#pathData`"
+        errorLine1="            android.R.attr.name, android.R.attr.fillColor, android.R.attr.pathData,"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="52"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.R.attr#strokeColor`"
+        errorLine1="            android.R.attr.strokeColor, android.R.attr.strokeWidth, android.R.attr.trimPathStart,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="53"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.R.attr#strokeWidth`"
+        errorLine1="            android.R.attr.strokeColor, android.R.attr.strokeWidth, android.R.attr.trimPathStart,"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="53"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.R.attr#trimPathStart`"
+        errorLine1="            android.R.attr.strokeColor, android.R.attr.strokeWidth, android.R.attr.trimPathStart,"
+        errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="53"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.R.attr#strokeLineCap`"
+        errorLine1="            android.R.attr.trimPathEnd, android.R.attr.trimPathOffset, android.R.attr.strokeLineCap,"
+        errorLine2="                                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="54"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.R.attr#trimPathEnd`"
+        errorLine1="            android.R.attr.trimPathEnd, android.R.attr.trimPathOffset, android.R.attr.strokeLineCap,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="54"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.R.attr#trimPathOffset`"
+        errorLine1="            android.R.attr.trimPathEnd, android.R.attr.trimPathOffset, android.R.attr.strokeLineCap,"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="54"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.R.attr#strokeLineJoin`"
+        errorLine1="            android.R.attr.strokeLineJoin, android.R.attr.strokeMiterLimit,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="55"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.R.attr#strokeMiterLimit`"
+        errorLine1="            android.R.attr.strokeLineJoin, android.R.attr.strokeMiterLimit,"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="55"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.R.attr#fillAlpha`"
+        errorLine1="            android.R.attr.strokeAlpha, android.R.attr.fillAlpha, android.R.attr.fillType"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="56"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.R.attr#strokeAlpha`"
+        errorLine1="            android.R.attr.strokeAlpha, android.R.attr.fillAlpha, android.R.attr.fillType"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="56"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 24 (current min is 14): `android.R.attr#fillType`"
+        errorLine1="            android.R.attr.strokeAlpha, android.R.attr.fillAlpha, android.R.attr.fillType"
+        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="56"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.R.attr#pathData`"
+        errorLine1="            android.R.attr.name, android.R.attr.pathData, android.R.attr.fillType"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="73"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 24 (current min is 14): `android.R.attr#fillType`"
+        errorLine1="            android.R.attr.name, android.R.attr.pathData, android.R.attr.fillType"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
+            line="73"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;what&quot;, in androidx.vectordrawable.graphics.drawable.VectorDrawableCompat.scheduleSelf) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="    public void scheduleSelf(Runnable what, long when) {"
+        errorLine2="                                            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="944"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Drawable mutate() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="329"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ConstantState getConstantState() {"
+        errorLine2="           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="347"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void draw(Canvas canvas) {"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="357"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setColorFilter(ColorFilter colorFilter) {"
+        errorLine2="                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="451"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ColorFilter getColorFilter() {"
+        errorLine2="           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="462"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setTintList(ColorStateList tint) {"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="495"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setTintMode(Mode tintMode) {"
+        errorLine2="                            ~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="510"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected boolean onStateChange(int[] stateSet) {"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="536"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static VectorDrawableCompat createFromXmlInner(Resources r, XmlPullParser parser,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="682"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static VectorDrawableCompat createFromXmlInner(Resources r, XmlPullParser parser,"
+        errorLine2="                                                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="682"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static VectorDrawableCompat createFromXmlInner(Resources r, XmlPullParser parser,"
+        errorLine2="                                                                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="682"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            AttributeSet attrs, Theme theme) throws XmlPullParserException, IOException {"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="683"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            AttributeSet attrs, Theme theme) throws XmlPullParserException, IOException {"
+        errorLine2="                                ~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="683"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs)"
+        errorLine2="                        ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="697"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs)"
+        errorLine2="                                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="697"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs)"
+        errorLine2="                                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="697"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)"
+        errorLine2="                        ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="708"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)"
+        errorLine2="                                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="708"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)"
+        errorLine2="                                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="708"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)"
+        errorLine2="                                                                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="708"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onBoundsChange(Rect bounds) {"
+        errorLine2="                                  ~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="920"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void scheduleSelf(Runnable what, long when) {"
+        errorLine2="                             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="944"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void unscheduleSelf(Runnable what) {"
+        errorLine2="                               ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="961"
+            column="32"/>
+    </issue>
+
+</issues>

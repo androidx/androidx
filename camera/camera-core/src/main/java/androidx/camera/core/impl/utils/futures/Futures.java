@@ -178,6 +178,31 @@ public final class Futures {
             @NonNull final Function<? super I, ? extends O> function,
             @NonNull final CallbackToFutureAdapter.Completer<O> completer,
             @NonNull Executor executor) {
+        propagateTransform(true, input, function, completer, executor);
+    }
+
+    /**
+     * Propagates the result of the given {@code ListenableFuture} to the given {@link
+     * CallbackToFutureAdapter.Completer} by applying the provided transformation function.
+     *
+     * <p>If {@code input} fails, the failure will be propagated to the {@code completer} (and the
+     * function is not invoked)
+     *
+     * @param propagateCancellation {@code true} to propagate the cancellation from completer to
+     *                              input future.
+     * @param input                 The future to transform.
+     * @param function              A function to transform the results of the provided future to
+     *                              the results of the provided completer.
+     * @param completer             The completer which will receive the result of the provided
+     *                              future.
+     * @param executor              Executor to run the function in.
+     */
+    private static <I, O> void propagateTransform(
+            boolean propagateCancellation,
+            @NonNull final ListenableFuture<I> input,
+            @NonNull final Function<? super I, ? extends O> function,
+            @NonNull final CallbackToFutureAdapter.Completer<O> completer,
+            @NonNull Executor executor) {
         Preconditions.checkNotNull(input);
         Preconditions.checkNotNull(function);
         Preconditions.checkNotNull(completer);
@@ -199,13 +224,43 @@ public final class Futures {
             }
         }, executor);
 
-        // Propagate cancellation from completer to input future
-        completer.addCancellationListener(new Runnable() {
-            @Override
-            public void run() {
-                input.cancel(true);
-            }
-        }, CameraXExecutors.directExecutor());
+        if (propagateCancellation) {
+            // Propagate cancellation from completer to input future
+            completer.addCancellationListener(new Runnable() {
+                @Override
+                public void run() {
+                    input.cancel(true);
+                }
+            }, CameraXExecutors.directExecutor());
+        }
+    }
+
+    /**
+     * Returns a {@code ListenableFuture} whose result is set from the supplied future when it
+     * completes.
+     *
+     * <p>Cancelling the supplied future will also cancel the returned future, but
+     * cancelling the returned future will have no effect on the supplied future.
+     */
+    @NonNull
+    public static <V> ListenableFuture<V> nonCancellationPropagating(
+            @NonNull ListenableFuture<V> future) {
+        Preconditions.checkNotNull(future);
+
+        if (future.isDone()) {
+            return future;
+        }
+
+        ListenableFuture<V> output = CallbackToFutureAdapter.getFuture(
+                completer -> {
+                    @SuppressWarnings({"unchecked"}) // Input of function is same as output
+                            Function<? super V, ? extends V> identityTransform =
+                            (Function<? super V, ? extends V>) IDENTITY_FUNCTION;
+                    propagateTransform(false, future, identityTransform, completer,
+                            CameraXExecutors.directExecutor());
+                    return "nonCancellationPropagating[" + future + "]";
+                });
+        return output;
     }
 
     /**

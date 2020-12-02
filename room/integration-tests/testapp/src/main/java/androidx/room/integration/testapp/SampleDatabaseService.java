@@ -17,6 +17,7 @@
 package androidx.room.integration.testapp;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
@@ -39,7 +40,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class SampleDatabaseService extends Service {
 
-    public static final String DATABASE_NAME = "multi-process.db";
+    private static final String DATABASE_NAME_PARAM = "db-name";
 
     private final ISampleDatabaseService.Stub mBinder = new ISampleDatabaseService.Stub() {
 
@@ -87,14 +88,39 @@ public class SampleDatabaseService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        mDatabase = Room.databaseBuilder(this, SampleDatabase.class, DATABASE_NAME)
-                .enableMultiInstanceInvalidation()
-                .build();
+    }
+
+    /**
+     * Creates the test service for the given database name
+     * @param context The context to creat the intent
+     * @param databaseName The database name to be used
+     * @return A new intent that can be used to connect to this service
+     */
+    public static Intent intentFor(Context context, String databaseName) {
+        Intent intent = new Intent(context, SampleDatabaseService.class);
+        intent.putExtra(DATABASE_NAME_PARAM, databaseName);
+        return intent;
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        String databaseName = intent.getStringExtra(DATABASE_NAME_PARAM);
+        if (databaseName == null) {
+            throw new IllegalArgumentException("must pass database name in the intent");
+        }
+        if (mDatabase != null) {
+            throw new IllegalStateException("Cannot re-use the same service for different tests");
+        }
+        mDatabase = Room.databaseBuilder(this, SampleDatabase.class, databaseName)
+                .enableMultiInstanceInvalidation()
+                .build();
         return mBinder;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        mDatabase.close();
+        return super.onUnbind(intent);
     }
 }

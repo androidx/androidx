@@ -18,6 +18,7 @@
 <!-- LinearLayout -->
 <androidx.slice.widget.RemoteInputView
         xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/remote_input"
         android:background="@drawable/abc_slice_remote_input_bg"
         android:layout_height="match_parent"
@@ -64,7 +65,8 @@
                 android:src="@drawable/abc_ic_slice_send"
                 android:tint="#FFFFFF"
                 android:tintMode="src_in"
-                android:background="@drawable/abc_slice_ripple_drawable" />
+                android:background="@drawable/abc_slice_ripple_drawable"
+                tools:ignore="UseAppTint"/>
 
         <ProgressBar
                 android:id="@+id/remote_input_progress"

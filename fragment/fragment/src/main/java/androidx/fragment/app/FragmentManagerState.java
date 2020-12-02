@@ -17,6 +17,7 @@
 package androidx.fragment.app;
 
 import android.annotation.SuppressLint;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -29,6 +30,9 @@ final class FragmentManagerState implements Parcelable {
     BackStackState[] mBackStack;
     int mBackStackIndex;
     String mPrimaryNavActiveWho = null;
+    ArrayList<String> mResultKeys = new ArrayList<>();
+    ArrayList<Bundle> mResults = new ArrayList<>();
+    ArrayList<FragmentManager.LaunchedFragmentInfo> mLaunchedFragments;
 
     public FragmentManagerState() {
     }
@@ -39,6 +43,9 @@ final class FragmentManagerState implements Parcelable {
         mBackStack = in.createTypedArray(BackStackState.CREATOR);
         mBackStackIndex = in.readInt();
         mPrimaryNavActiveWho = in.readString();
+        mResultKeys = in.createStringArrayList();
+        mResults = in.createTypedArrayList(Bundle.CREATOR);
+        mLaunchedFragments = in.createTypedArrayList(FragmentManager.LaunchedFragmentInfo.CREATOR);
     }
 
     @Override
@@ -53,6 +60,9 @@ final class FragmentManagerState implements Parcelable {
         dest.writeTypedArray(mBackStack, flags);
         dest.writeInt(mBackStackIndex);
         dest.writeString(mPrimaryNavActiveWho);
+        dest.writeStringList(mResultKeys);
+        dest.writeTypedList(mResults);
+        dest.writeTypedList(mLaunchedFragments);
     }
 
     public static final Parcelable.Creator<FragmentManagerState> CREATOR

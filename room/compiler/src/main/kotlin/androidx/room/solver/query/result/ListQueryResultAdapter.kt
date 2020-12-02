@@ -18,7 +18,6 @@ package androidx.room.solver.query.result
 
 import androidx.room.ext.L
 import androidx.room.ext.T
-import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
@@ -30,14 +29,16 @@ class ListQueryResultAdapter(rowAdapter: RowAdapter) : QueryResultAdapter(rowAda
         scope.builder().apply {
             rowAdapter?.onCursorReady(cursorVarName, scope)
             val collectionType = ParameterizedTypeName
-                    .get(ClassName.get(List::class.java), type.typeName())
+                .get(ClassName.get(List::class.java), type.typeName)
             val arrayListType = ParameterizedTypeName
-                    .get(ClassName.get(ArrayList::class.java), type.typeName())
-            addStatement("final $T $L = new $T($L.getCount())",
-                    collectionType, outVarName, arrayListType, cursorVarName)
+                .get(ClassName.get(ArrayList::class.java), type.typeName)
+            addStatement(
+                "final $T $L = new $T($L.getCount())",
+                collectionType, outVarName, arrayListType, cursorVarName
+            )
             val tmpVarName = scope.getTmpVar("_item")
             beginControlFlow("while($L.moveToNext())", cursorVarName).apply {
-                addStatement("final $T $L", type.typeName(), tmpVarName)
+                addStatement("final $T $L", type.typeName, tmpVarName)
                 rowAdapter?.convert(tmpVarName, cursorVarName, scope)
                 addStatement("$L.add($L)", outVarName, tmpVarName)
             }

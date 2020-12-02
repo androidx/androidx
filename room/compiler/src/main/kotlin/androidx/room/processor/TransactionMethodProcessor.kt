@@ -19,39 +19,34 @@ package androidx.room.processor
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.RxJava2TypeNames
-import androidx.room.ext.findKotlinDefaultImpl
-import androidx.room.ext.hasAnyOf
+import androidx.room.ext.RxJava3TypeNames
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XMethodElement
 import androidx.room.vo.TransactionMethod
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier.ABSTRACT
-import javax.lang.model.element.Modifier.DEFAULT
-import javax.lang.model.element.Modifier.FINAL
-import javax.lang.model.element.Modifier.PRIVATE
-import javax.lang.model.type.DeclaredType
 
 class TransactionMethodProcessor(
     baseContext: Context,
-    val containing: DeclaredType,
-    val executableElement: ExecutableElement
+    val containing: XDeclaredType,
+    val executableElement: XMethodElement
 ) {
 
     val context = baseContext.fork(executableElement)
 
     fun process(): TransactionMethod {
         val delegate = MethodProcessorDelegate.createFor(context, containing, executableElement)
-        val kotlinDefaultImpl =
-                executableElement.findKotlinDefaultImpl(context.processingEnv.typeUtils)
+        val hasKotlinDefaultImpl = executableElement.hasKotlinDefaultImpl()
         context.checker.check(
-                !executableElement.hasAnyOf(PRIVATE, FINAL) &&
-                        (!executableElement.hasAnyOf(ABSTRACT) || kotlinDefaultImpl != null),
-                executableElement, ProcessorErrors.TRANSACTION_METHOD_MODIFIERS)
+            executableElement.isOverrideableIgnoringContainer() &&
+                (!executableElement.isAbstract() || hasKotlinDefaultImpl),
+            executableElement, ProcessorErrors.TRANSACTION_METHOD_MODIFIERS
+        )
 
         val returnType = delegate.extractReturnType()
-        val erasureReturnType = context.processingEnv.typeUtils.erasure(returnType)
+        val rawReturnType = returnType.rawType
 
         DEFERRED_TYPES.firstOrNull { className ->
-            context.processingEnv.elementUtils.getTypeElement(className.toString())?.asType()?.let {
-                context.processingEnv.typeUtils.isAssignable(it, erasureReturnType)
+            context.processingEnv.findType(className)?.let {
+                rawReturnType.isAssignableFrom(it)
             } ?: false
         }?.let { returnTypeName ->
             context.logger.e(
@@ -61,20 +56,21 @@ class TransactionMethodProcessor(
         }
 
         val callType = when {
-            executableElement.hasAnyOf(DEFAULT) ->
+            executableElement.isJavaDefault() ->
                 TransactionMethod.CallType.DEFAULT_JAVA8
-            kotlinDefaultImpl != null ->
+            hasKotlinDefaultImpl ->
                 TransactionMethod.CallType.DEFAULT_KOTLIN
             else ->
                 TransactionMethod.CallType.CONCRETE
         }
 
         return TransactionMethod(
-                element = executableElement,
-                returnType = returnType,
-                parameterNames = delegate.extractParams().map { it.simpleName.toString() },
-                callType = callType,
-                methodBinder = delegate.findTransactionMethodBinder(callType))
+            element = executableElement,
+            returnType = returnType,
+            parameterNames = delegate.extractParams().map { it.name },
+            callType = callType,
+            methodBinder = delegate.findTransactionMethodBinder(callType)
+        )
     }
 
     companion object {
@@ -85,6 +81,12 @@ class TransactionMethodProcessor(
             RxJava2TypeNames.MAYBE,
             RxJava2TypeNames.SINGLE,
             RxJava2TypeNames.COMPLETABLE,
-            GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
+            RxJava3TypeNames.FLOWABLE,
+            RxJava3TypeNames.OBSERVABLE,
+            RxJava3TypeNames.MAYBE,
+            RxJava3TypeNames.SINGLE,
+            RxJava3TypeNames.COMPLETABLE,
+            GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
+        )
     }
 }

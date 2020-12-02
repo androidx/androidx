@@ -45,14 +45,14 @@ public class LinearSnapHelper extends SnapHelper {
             @NonNull RecyclerView.LayoutManager layoutManager, @NonNull View targetView) {
         int[] out = new int[2];
         if (layoutManager.canScrollHorizontally()) {
-            out[0] = distanceToCenter(layoutManager, targetView,
+            out[0] = distanceToCenter(targetView,
                     getHorizontalHelper(layoutManager));
         } else {
             out[0] = 0;
         }
 
         if (layoutManager.canScrollVertically()) {
-            out[1] = distanceToCenter(layoutManager, targetView,
+            out[1] = distanceToCenter(targetView,
                     getVerticalHelper(layoutManager));
         } else {
             out[1] = 0;
@@ -138,8 +138,7 @@ public class LinearSnapHelper extends SnapHelper {
         return null;
     }
 
-    private int distanceToCenter(@NonNull RecyclerView.LayoutManager layoutManager,
-            @NonNull View targetView, OrientationHelper helper) {
+    private int distanceToCenter(@NonNull View targetView, OrientationHelper helper) {
         final int childCenter = helper.getDecoratedStart(targetView)
                 + (helper.getDecoratedMeasurement(targetView) / 2);
         final int containerCenter = helper.getStartAfterPadding() + helper.getTotalSpace() / 2;

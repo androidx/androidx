@@ -18,12 +18,11 @@ package androidx.room.solver.types
 
 import androidx.room.ext.L
 import androidx.room.parser.SQLTypeAffinity.TEXT
+import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.solver.CodeGenScope
-import javax.annotation.processing.ProcessingEnvironment
 
-class StringColumnTypeAdapter(processingEnvironment: ProcessingEnvironment) :
-    ColumnTypeAdapter((processingEnvironment.elementUtils.getTypeElement(
-        String::class.java.canonicalName)).asType(), TEXT) {
+class StringColumnTypeAdapter(processingEnvironment: XProcessingEnv) :
+    ColumnTypeAdapter((processingEnvironment.requireType(String::class)), TEXT) {
     override fun readFromCursor(
         outVarName: String,
         cursorVarName: String,
@@ -31,7 +30,7 @@ class StringColumnTypeAdapter(processingEnvironment: ProcessingEnvironment) :
         scope: CodeGenScope
     ) {
         scope.builder()
-                .addStatement("$L = $L.getString($L)", outVarName, cursorVarName, indexVarName)
+            .addStatement("$L = $L.getString($L)", outVarName, cursorVarName, indexVarName)
     }
 
     override fun bindToStmt(
@@ -42,9 +41,9 @@ class StringColumnTypeAdapter(processingEnvironment: ProcessingEnvironment) :
     ) {
         scope.builder().apply {
             beginControlFlow("if ($L == null)", valueVarName)
-                    .addStatement("$L.bindNull($L)", stmtName, indexVarName)
+                .addStatement("$L.bindNull($L)", stmtName, indexVarName)
             nextControlFlow("else")
-                    .addStatement("$L.bindString($L, $L)", stmtName, indexVarName, valueVarName)
+                .addStatement("$L.bindString($L, $L)", stmtName, indexVarName, valueVarName)
             endControlFlow()
         }
     }

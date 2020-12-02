@@ -24,10 +24,10 @@ import static androidx.media2.test.common.CommonConstants.KEY_CURRENT_POSITION;
 import static androidx.media2.test.common.CommonConstants.KEY_CURRENT_VOLUME;
 import static androidx.media2.test.common.CommonConstants.KEY_MAX_VOLUME;
 import static androidx.media2.test.common.CommonConstants.KEY_MEDIA_ITEM;
-import static androidx.media2.test.common.CommonConstants.KEY_METADATA;
+import static androidx.media2.test.common.CommonConstants.KEY_PLAYBACK_SPEED;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST;
-import static androidx.media2.test.common.CommonConstants.KEY_SPEED;
+import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST_METADATA;
 import static androidx.media2.test.common.CommonConstants.KEY_TRACK_INFO;
 import static androidx.media2.test.common.CommonConstants.KEY_VIDEO_SIZE;
 import static androidx.media2.test.common.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
@@ -133,7 +133,7 @@ public class RemoteMediaSession {
         playerBundle.putInt(KEY_BUFFERING_STATE, buffState);
         playerBundle.putLong(KEY_CURRENT_POSITION, pos);
         playerBundle.putLong(KEY_BUFFERED_POSITION, buffPos);
-        playerBundle.putFloat(KEY_SPEED, speed);
+        playerBundle.putFloat(KEY_PLAYBACK_SPEED, speed);
         if (attr != null) {
             playerBundle.putParcelable(KEY_AUDIO_ATTRIBUTES, MediaParcelUtils.toParcelable(attr));
         }
@@ -180,7 +180,7 @@ public class RemoteMediaSession {
             bundle.putParcelable(KEY_MEDIA_ITEM, MediaParcelUtils.toParcelable(currentItem));
         }
         if (metadata != null) {
-            ParcelUtils.putVersionedParcelable(bundle, KEY_METADATA, metadata);
+            ParcelUtils.putVersionedParcelable(bundle, KEY_PLAYLIST_METADATA, metadata);
         }
         return bundle;
     }
@@ -407,22 +407,22 @@ public class RemoteMediaSession {
          * Service app will automatically create a playlist of size {@param size},
          * and sets the list to the player.
          *
-         * Each item's media ID will be {@link TestUtils#getMediaIdInDummyList(int)}.
+         * Each item's media ID will be {@link TestUtils#getMediaIdInFakeList(int)}.
          */
-        public void createAndSetDummyPlaylist(int size) {
+        public void createAndSetFakePlaylist(int size) {
             try {
-                mBinder.createAndSetDummyPlaylist(mSessionId, size);
+                mBinder.createAndSetFakePlaylist(mSessionId, size);
             } catch (RemoteException ex) {
-                Log.e(TAG, "Failed to call createAndSetDummyPlaylist()");
+                Log.e(TAG, "Failed to call createAndSetFakePlaylist()");
             }
         }
 
-        public void setPlaylistWithDummyItem(List<MediaItem> playlist) {
+        public void setPlaylistWithFakeItem(List<MediaItem> playlist) {
             try {
-                mBinder.setPlaylistWithDummyItem(
+                mBinder.setPlaylistWithFakeItem(
                         mSessionId, MediaTestUtils.convertToParcelImplList(playlist));
             } catch (RemoteException ex) {
-                Log.e(TAG, "Failed to call setPlaylistWithDummyItem()");
+                Log.e(TAG, "Failed to call setPlaylistWithFakeItem()");
             }
         }
 

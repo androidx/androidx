@@ -16,22 +16,21 @@
 
 package androidx.camera.core;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.media.Image;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.nio.ByteBuffer;
 
-/** An image proxy which has an analogous interface as {@link android.media.Image}. */
+/** An image proxy which has a similar interface as {@link android.media.Image}. */
 public interface ImageProxy extends AutoCloseable {
     /**
      * Closes the underlying {@link android.media.Image}.
      *
-     * <p>If obtained from an {@link ImageAnalysis.Analyzer} the image will be closed on return
-     * from the {@link ImageAnalysis.Analyzer} function.
-     *
-     * <p>@see {@link android.media.Image#close()}.
+     * @see android.media.Image#close()
      */
     @Override
     void close();
@@ -39,57 +38,46 @@ public interface ImageProxy extends AutoCloseable {
     /**
      * Returns the crop rectangle.
      *
-     * <p>@see {@link android.media.Image#getCropRect()}.
+     * @see android.media.Image#getCropRect()
      */
+    @NonNull
     Rect getCropRect();
 
     /**
      * Sets the crop rectangle.
      *
-     * <p>@see {@link android.media.Image#setCropRect(Rect)}.
+     * @see android.media.Image#setCropRect(Rect)
      */
-    void setCropRect(Rect rect);
+    void setCropRect(@Nullable Rect rect);
 
     /**
      * Returns the image format.
      *
-     * <p>@see {@link android.media.Image#getFormat()}.
+     * @see android.media.Image#getFormat()
      */
     int getFormat();
 
     /**
      * Returns the image height.
      *
-     * <p>@see {@link android.media.Image#getHeight()}.
+     * @see android.media.Image#getHeight()
      */
     int getHeight();
 
     /**
      * Returns the image width.
      *
-     * <p>@see {@link android.media.Image#getWidth()}.
+     * @see android.media.Image#getWidth()
      */
     int getWidth();
 
     /**
-     * Returns the timestamp.
-     *
-     * <p>@see {@link android.media.Image#getTimestamp()}.
-     */
-    long getTimestamp();
-
-    /**
-     * Sets the timestamp.
-     *
-     * <p>@see {@link android.media.Image#setTimestamp(long)}.
-     */
-    void setTimestamp(long timestamp);
-
-    /**
      * Returns the array of planes.
      *
-     * <p>@see {@link android.media.Image#getPlanes()}.
+     * @see android.media.Image#getPlanes()
      */
+    @NonNull
+    @SuppressLint("ArrayReturn")
     PlaneProxy[] getPlanes();
 
     /** A plane proxy which has an analogous interface as {@link android.media.Image.Plane}. */
@@ -97,34 +85,28 @@ public interface ImageProxy extends AutoCloseable {
         /**
          * Returns the row stride.
          *
-         * <p>@see {@link android.media.Image.Plane#getRowStride()}.
+         * @see android.media.Image.Plane#getRowStride()
          */
         int getRowStride();
 
         /**
          * Returns the pixel stride.
          *
-         * <p>@see {@link android.media.Image.Plane#getPixelStride()}.
+         * @see android.media.Image.Plane#getPixelStride()
          */
         int getPixelStride();
 
         /**
          * Returns the pixels buffer.
          *
-         * <p>@see {@link android.media.Image.Plane#getBuffer()}.
+         * @see android.media.Image.Plane#getBuffer()
          */
+        @NonNull
         ByteBuffer getBuffer();
     }
 
-    // TODO(b/123902197): HardwareBuffer access is provided on higher API levels. Wrap
-    // getHardwareBuffer() once we figure out how to provide compatibility with lower API levels.
-
-    /**
-     * Returns the {@link ImageInfo}.
-     *
-     * <p> Will be null if there is no associated additional metadata.
-     */
-    @Nullable
+    /** Returns the {@link ImageInfo}. */
+    @NonNull
     ImageInfo getImageInfo();
 
     /**
@@ -138,10 +120,12 @@ public interface ImageProxy extends AutoCloseable {
      * the ImageProxy, which happens, for example, on return from the {@link ImageAnalysis.Analyzer}
      * function.  Destroying the {@link ImageAnalysis} will close the underlying
      * {@link android.media.ImageReader}.  So an {@link Image} obtained with this method will behave
-     * as such @see {@link android.media.Image#close()}.
+     * as such.
      *
      * @return the android image.
+     * @see android.media.Image#close()
      */
     @Nullable
+    @ExperimentalGetImage
     Image getImage();
 }

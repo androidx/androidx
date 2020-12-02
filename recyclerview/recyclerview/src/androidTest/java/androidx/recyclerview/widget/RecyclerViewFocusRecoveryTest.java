@@ -152,7 +152,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         setupBasic(true);
         FocusViewHolder fvh = cast(focusVh(4));
 
-        assertThat("test sanity", fvh, notNullValue());
+        assertThat("Assumption check", fvh, notNullValue());
         assertThat("RV should have focus", mRecyclerView.hasFocus(), is(true));
 
         assertThat("RV should pass the focus down to its children",
@@ -187,7 +187,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         setupBasic(true);
         FocusViewHolder fvh = cast(focusVh(3));
 
-        assertThat("test sanity", fvh, notNullValue());
+        assertThat("Assumption check", fvh, notNullValue());
         assertThat("RV should have focus", mRecyclerView.hasFocus(), is(true));
 
         assertThat("RV should pass the focus down to its children",
@@ -213,7 +213,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         setupBasic(true);
         FocusViewHolder fvh = cast(focusVh(0));
 
-        assertThat("test sanity", fvh, notNullValue());
+        assertThat("Assumption check", fvh, notNullValue());
         assertThat("RV should have focus", mRecyclerView.hasFocus(), is(true));
 
         assertThat("RV should pass the focus down to its children",
@@ -276,7 +276,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         setupBasic(true);
         FocusViewHolder fvh = cast(focusVh(6));
 
-        assertThat("test sanity", fvh, notNullValue());
+        assertThat("Assumption check", fvh, notNullValue());
         assertThat("RV should have focus", mRecyclerView.hasFocus(), is(true));
 
         assertThat("RV should pass the focus down to its children",
@@ -467,7 +467,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
                                     focusedChildIndexWhenRecoveryEnabled)) :
                     cast(mRecyclerView.findViewHolderForAdapterPosition(0)));
 
-            assertThat("test sanity", fvh, notNullValue());
+            assertThat("Assumption check", fvh, notNullValue());
             assertThat("RV's first child should be focusable", fvh.getViewToFocus().isFocusable(),
                     is(true));
             String msg = " when descendant focusability is FOCUS_AFTER_DESCENDANTS";
@@ -497,7 +497,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
             assertFocus(newVh, false);
             return;
         }
-        assertThat("test sanity", newVh, notNullValue());
+        assertThat("Assumption check", newVh, notNullValue());
         if (!typeChanged && mDisableAnimation) {
             assertThat(oldVh, sameInstance(newVh));
         } else {
@@ -538,7 +538,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
 
         RecyclerView.ViewHolder newVh = mRecyclerView.findViewHolderForAdapterPosition(3);
         assertFocusTransition(oldVh, newVh, true);
-        assertThat("test sanity", oldVh.getItemViewType(), not(newVh.getItemViewType()));
+        assertThat("Assumption check", oldVh.getItemViewType(), not(newVh.getItemViewType()));
     }
 
     @Test
@@ -636,7 +636,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
     public void testDoNotRecoverViaPositionOnNewDataSet(
             final RecyclerViewLayoutTest.AdapterRunnable runnable) throws Throwable {
         setupBasic(false);
-        assertThat("test sanity", mAdapter.hasStableIds(), is(false));
+        assertThat("Assumption check", mAdapter.hasStableIds(), is(false));
         focusVh(4);
         mLayoutManager.expectLayouts(1);
         mActivityRule.runOnUiThread(new Runnable() {
@@ -694,9 +694,9 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
     @NonNull
     private RecyclerView.ViewHolder focusVh(int pos) throws Throwable {
         final RecyclerView.ViewHolder oldVh = mRecyclerView.findViewHolderForAdapterPosition(pos);
-        assertThat("test sanity", oldVh, notNullValue());
+        assertThat("Assumption check", oldVh, notNullValue());
         requestFocus(oldVh);
-        assertFocus("test sanity", oldVh, true);
+        assertFocus("Assumption check", oldVh, true);
         getInstrumentation().waitForIdleSync();
         return oldVh;
     }

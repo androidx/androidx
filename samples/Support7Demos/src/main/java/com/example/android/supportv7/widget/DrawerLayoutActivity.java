@@ -36,8 +36,8 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.example.android.supportv7.LoremIpsum;
 import com.example.android.supportv7.R;
-import com.example.android.supportv7.Shakespeare;
 
 /**
  * This example illustrates a common usage of the DrawerLayout widget combined with Toolbar
@@ -107,7 +107,7 @@ public class DrawerLayoutActivity extends AppCompatActivity {
         mDrawerLayout.setDrawerTitle(GravityCompat.START, getString(R.string.drawer_title));
 
         mStartDrawer.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
-                Shakespeare.TITLES));
+                LoremIpsum.TITLES));
         mStartDrawer.setOnItemClickListener(new DrawerItemClickListener());
 
         // Find the toolbar in our layout and set it as the support action bar on the activity.
@@ -252,8 +252,8 @@ public class DrawerLayoutActivity extends AppCompatActivity {
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            mContent.setText(Shakespeare.DIALOGUE[position]);
-            mToolbar.setTitle(Shakespeare.TITLES[position]);
+            mContent.setText(LoremIpsum.DIALOGUE[position]);
+            mToolbar.setTitle(LoremIpsum.TITLES[position]);
             mDrawerLayout.closeDrawer(mStartDrawer);
         }
     }

@@ -42,9 +42,13 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.google.common.truth.Truth;
+
 import org.hamcrest.MatcherAssert;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -492,11 +496,47 @@ public class MigrationTest {
                 .fallbackToDestructiveMigrationOnDowngrade()
                 .addMigrations(MIGRATION_MAX_LATEST)
                 .build();
-        // Check that two dummy values are present, confirming the database migration was successful
-        long dummyRowsCount = db.getOpenHelper().getReadableDatabase().compileStatement(
-                "SELECT count(*) FROM Dummy").simpleQueryForLong();
-        assertThat(dummyRowsCount, is(2L));
+        // Check that two values are present, confirming the database migration was successful
+        long rowsCount = db.getOpenHelper().getReadableDatabase().compileStatement(
+                "SELECT count(*) FROM NoOp").simpleQueryForLong();
+        assertThat(rowsCount, is(2L));
         db.close();
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 23)
+    public void missingAddedIndex() throws IOException {
+        SupportSQLiteDatabase database = helper.createDatabase(TEST_DB, 11);
+        database.close();
+        Context targetContext = ApplicationProvider.getApplicationContext();
+        MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
+                .addMigrations(new EmptyMigration(11, 12))
+                .build();
+        try {
+            db.dao().loadAllEntity1s();
+            Assert.fail("expected a missing migration exception");
+        } catch (IllegalStateException ex) {
+            Truth.assertThat(ex).hasMessageThat().contains(
+                    "Migration didn't properly handle"
+            );
+        } finally {
+            db.close();
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 23)
+    public void missingAddedIndex_viaMigrationTesting() throws IOException {
+        SupportSQLiteDatabase database = helper.createDatabase(TEST_DB, 11);
+        database.close();
+        try {
+            helper.runMigrationsAndValidate(TEST_DB, 12, false, new EmptyMigration(11, 12));
+            Assert.fail("expected a missing migration exception");
+        } catch (IllegalStateException ex) {
+            Truth.assertThat(ex).hasMessageThat().contains(
+                    "Migration didn't properly handle"
+            );
+        }
     }
 
     private void testFailure(int startVersion, int endVersion) throws IOException {
@@ -609,12 +649,20 @@ public class MigrationTest {
         }
     };
 
+    private static final Migration MIGRATION_11_12 = new Migration(11, 12) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_Entity1_addedInV10` "
+                    + "ON `Entity1` (`addedInV10`)");
+        }
+    };
+
     /**
      * Downgrade migration from {@link MigrationDb#MAX_VERSION} to
      * {@link MigrationDb#LATEST_VERSION} that uses the schema file and re-creates the tables such
      * that the post-migration validation passes.
      *
-     * Additionally, it adds a table named Dummy with two rows to be able to distinguish this
+     * Additionally, it adds a table named NoOp with two rows to be able to distinguish this
      * migration from a destructive migration.
      *
      * This migration allows us to keep creating new schemas for newer tests without updating the
@@ -640,16 +688,16 @@ public class MigrationTest {
                 throw new RuntimeException(e);
             }
 
-            database.execSQL("CREATE TABLE IF NOT EXISTS `Dummy` (`id` INTEGER NOT NULL,"
+            database.execSQL("CREATE TABLE IF NOT EXISTS `NoOp` (`id` INTEGER NOT NULL,"
                     + " PRIMARY KEY(`id`))");
-            database.execSQL("INSERT INTO `Dummy` (`id`) VALUES (1)");
-            database.execSQL("INSERT INTO `Dummy` (`id`) VALUES (2)");
+            database.execSQL("INSERT INTO `NoOp` (`id`) VALUES (1)");
+            database.execSQL("INSERT INTO `NoOp` (`id`) VALUES (2)");
         }
     };
 
     private static final Migration[] ALL_MIGRATIONS = new Migration[]{MIGRATION_1_2,
             MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7,
-            MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11};
+            MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12};
 
     static final class EmptyMigration extends Migration {
         EmptyMigration(int startVersion, int endVersion) {

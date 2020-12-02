@@ -43,21 +43,30 @@ abstract class UpdateApiTask : DefaultTask() {
     @get:Internal // outputs are declared in getTaskOutputs()
     abstract val outputApiLocations: ListProperty<ApiLocation>
 
-    /** Whether to update restricted API files too */
     @get:Input
-    var updateRestrictedAPIs = false
+    var forceUpdate: Boolean = false
 
     @InputFiles
     fun getTaskInputs(): List<File>? {
-        return inputApiLocation.get().files()
+        val inputApi = inputApiLocation.get()
+        return listOf(
+            inputApi.publicApiFile,
+            inputApi.restrictedApiFile,
+            inputApi.experimentalApiFile,
+            inputApi.removedApiFile
+        )
     }
 
     @OutputFiles
     fun getTaskOutputs(): List<File> {
-        if (updateRestrictedAPIs) {
-            return outputApiLocations.get().flatMap { it.files() }
+        return outputApiLocations.get().flatMap { outputApiLocation ->
+            listOf(
+                outputApiLocation.publicApiFile,
+                outputApiLocation.restrictedApiFile,
+                outputApiLocation.experimentalApiFile,
+                outputApiLocation.removedApiFile
+            )
         }
-        return outputApiLocations.get().flatMap { it.nonRestrictedFiles() }
     }
 
     @TaskAction
@@ -67,52 +76,74 @@ abstract class UpdateApiTask : DefaultTask() {
             val version = outputApi.version()
             if (version != null && version.isFinalApi() &&
                 outputApi.publicApiFile.exists() &&
-                !project.hasProperty("force")) {
+                !forceUpdate
+            ) {
                 permitOverwriting = false
             }
         }
         for (outputApi in outputApiLocations.get()) {
             val inputApi = inputApiLocation.get()
             copy(
-                inputApi.publicApiFile,
-                outputApi.publicApiFile,
-                permitOverwriting,
-                project.logger
+                source = inputApi.publicApiFile,
+                dest = outputApi.publicApiFile,
+                permitOverwriting = permitOverwriting,
+                logger = logger
             )
             copy(
-                inputApi.experimentalApiFile,
-                outputApi.experimentalApiFile,
-                true,
-                project.logger
+                source = inputApi.removedApiFile,
+                dest = outputApi.removedApiFile,
+                permitOverwriting = permitOverwriting,
+                logger = logger
             )
-            if (updateRestrictedAPIs) {
-                copy(
-                    inputApi.restrictedApiFile,
-                    outputApi.restrictedApiFile,
-                    permitOverwriting,
-                    project.logger
-                )
-            }
+            copy(
+                source = inputApi.experimentalApiFile,
+                dest = outputApi.experimentalApiFile,
+                // Experimental APIs are never locked down,
+                // so it's always okay to overwrite them.
+                permitOverwriting = true,
+                logger = logger
+            )
+            copy(
+                source = inputApi.restrictedApiFile,
+                dest = outputApi.restrictedApiFile,
+                permitOverwriting = permitOverwriting,
+                logger = logger
+            )
         }
     }
+}
 
-    fun copy(source: File, dest: File, permitOverwriting: Boolean, logger: Logger) {
-        val overwriting = (dest.exists() && source.readText() != dest.readText())
-        val changing = overwriting || !dest.exists()
-        if (changing) {
-            if (overwriting && !permitOverwriting) {
-                val message = "Modifying the API definition for a previously released artifact " +
-                        "having a final API version (version not ending in '-alpha') is not " +
-                        "allowed.\n\n" +
-                        "Previously declared definition is $dest\n" +
-                        "Current generated   definition is $source\n\n" +
-                        "Did you mean to increment the library version first?\n\n" +
-                        "If you have reason to overwrite the API files for the previous release " +
-                        "anyway, you can run `./gradlew updateApi -Pforce` to ignore this message"
-                throw GradleException(message)
-            }
+fun copy(
+    source: File,
+    dest: File,
+    permitOverwriting: Boolean,
+    logger: Logger
+) {
+    val sourceText = if (source.exists()) {
+        source.readText()
+    } else {
+        ""
+    }
+    val overwriting = (dest.exists() && sourceText != dest.readText())
+    val changing = overwriting || (dest.exists() != source.exists())
+    if (changing) {
+        if (overwriting && !permitOverwriting) {
+            val message = "Modifying the API definition for a previously released artifact " +
+                "having a final API version (version not ending in '-alpha') is not " +
+                "allowed.\n\n" +
+                "Previously declared definition is $dest\n" +
+                "Current generated   definition is $source\n\n" +
+                "Did you mean to increment the library version first?\n\n" +
+                "If you have reason to overwrite the API files for the previous release " +
+                "anyway, you can run `./gradlew updateApi -Pforce` to ignore this message"
+            throw GradleException(message)
+        }
+        if (source.exists()) {
             Files.copy(source, dest)
             logger.lifecycle("Copied $source to $dest")
+        } else {
+            dest.delete()
+            logger.lifecycle("Deleted $dest because $source does not exist")
         }
     }
 }

@@ -16,23 +16,19 @@
 
 package androidx.media2.widget;
 
-import static android.content.Context.KEYGUARD_SERVICE;
-
 import static org.junit.Assert.assertTrue;
 
-import android.app.Activity;
-import android.app.Instrumentation;
-import android.app.KeyguardManager;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
+import android.text.TextUtils;
 import android.view.View;
-import android.view.WindowManager;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
@@ -42,8 +38,6 @@ import androidx.media2.session.MediaController;
 import androidx.media2.session.MediaSession;
 import androidx.media2.widget.test.R;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 
@@ -60,7 +54,8 @@ public class MediaWidgetTestBase extends MediaTestBase {
     static final String PLAYER_TYPE_MEDIA_PLAYER = "MediaPlayer";
 
     // Expected success time
-    static final int WAIT_TIME_MS = 1000;
+    // Increased timeout to pass on old devices (ex. Nexus4 API 17)
+    static final int WAIT_TIME_MS = 2000;
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
@@ -81,33 +76,8 @@ public class MediaWidgetTestBase extends MediaTestBase {
         mSessionCallbackExecutor = Executors.newFixedThreadPool(1);
     }
 
-    static <T extends Activity> void setKeepScreenOn(ActivityTestRule<T> activityRule)
-            throws Throwable {
-        final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
-        final Activity activity = activityRule.getActivity();
-        activityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (Build.VERSION.SDK_INT >= 27) {
-                    activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                    activity.setTurnScreenOn(true);
-                    activity.setShowWhenLocked(true);
-                    KeyguardManager keyguardManager = (KeyguardManager)
-                            instrumentation.getTargetContext().getSystemService(KEYGUARD_SERVICE);
-                    keyguardManager.requestDismissKeyguard(activity, null);
-                } else {
-                    activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                            | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                            | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                            | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
-                }
-            }
-        });
-        instrumentation.waitForIdleSync();
-    }
-
     static void checkAttachedToWindow(View view) throws Exception {
-        if (!view.isAttachedToWindow()) {
+        if (!ViewCompat.isAttachedToWindow(view)) {
             final CountDownLatch latch = new CountDownLatch(1);
             View.OnAttachStateChangeListener listener = new View.OnAttachStateChangeListener() {
                 @Override
@@ -124,9 +94,7 @@ public class MediaWidgetTestBase extends MediaTestBase {
     }
 
     MediaItem createTestMediaItem() {
-        Uri testVideoUri = Uri.parse(
-                "android.resource://" + mContext.getPackageName() + "/"
-                        + R.raw.testvideo_with_2_subtitle_tracks);
+        Uri testVideoUri = getResourceUri(R.raw.testvideo_with_2_subtitle_tracks);
         return createTestMediaItem(testVideoUri);
     }
 
@@ -145,21 +113,21 @@ public class MediaWidgetTestBase extends MediaTestBase {
 
     List<MediaItem> createTestPlaylist() {
         List<MediaItem> list = new ArrayList<>();
-        list.add(createTestMediaItem(Uri.parse("android.resource://" + mContext.getPackageName()
-                + "/" + R.raw.test_file_scheme_video)));
-        list.add(createTestMediaItem(Uri.parse("android.resource://" + mContext.getPackageName()
-                + "/" + R.raw.test_music)));
-        list.add(createTestMediaItem(Uri.parse("android.resource://" + mContext.getPackageName()
-                + "/" + R.raw.testvideo_with_2_subtitle_tracks)));
+        list.add(createTestMediaItem(getResourceUri(R.raw.test_file_scheme_video), "id_1"));
+        list.add(createTestMediaItem(getResourceUri(R.raw.test_music), "id_2"));
+        list.add(createTestMediaItem(getResourceUri(R.raw.testvideo_with_2_subtitle_tracks),
+                "id_3"));
         return list;
+    }
+
+    Uri getResourceUri(@IdRes int resId) {
+        return Uri.parse("android.resource://" + mContext.getPackageName() + "/" + resId);
     }
 
     // TODO(b/138091975) Do not ignore returned Futures if feasible.
     @SuppressWarnings("FutureReturnValueIgnored")
     PlayerWrapper createPlayerWrapperOfController(@NonNull PlayerWrapper.PlayerCallback callback,
             @Nullable MediaItem item, @Nullable List<MediaItem> playlist) {
-        prepareLooper();
-
         SessionPlayer player = new MediaPlayer(mContext);
         MediaSession session = new MediaSession.Builder(mContext, player)
                 .setId(UUID.randomUUID().toString())
@@ -238,15 +206,17 @@ public class MediaWidgetTestBase extends MediaTestBase {
         }
     }
 
-    class DefaultPlayerCallback extends PlayerWrapper.PlayerCallback {
+    static class DefaultPlayerCallback extends PlayerWrapper.PlayerCallback {
         volatile CountDownLatch mItemLatch = new CountDownLatch(1);
         CountDownLatch mPausedLatch = new CountDownLatch(1);
         CountDownLatch mPlayingLatch = new CountDownLatch(1);
+        String mPrevId = "placeholderId";
 
         @Override
         void onCurrentMediaItemChanged(@NonNull PlayerWrapper player,
                 @Nullable MediaItem item) {
-            if (item != null) {
+            if (item != null && !TextUtils.equals(mPrevId, item.getMediaId())) {
+                mPrevId = item.getMediaId();
                 mItemLatch.countDown();
             }
         }

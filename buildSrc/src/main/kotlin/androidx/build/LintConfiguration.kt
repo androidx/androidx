@@ -16,33 +16,67 @@
 
 package androidx.build
 
+import androidx.build.dependencyTracker.AffectedModuleDetector
 import androidx.build.gradle.getByType
 import com.android.build.gradle.internal.dsl.LintOptions
 import org.gradle.api.Project
 import java.io.File
 
 /**
- * Setting this property means that lint will fail for UnknownNullness issues.
+ * Setting this property means that lint will update lint-baseline.xml if it exists.
  */
-private const val CHECK_UNKNOWN_NULLNESS = "checkUnknownNullness"
+private const val UPDATE_LINT_BASELINE = "updateLintBaseline"
+
+/**
+ * Property used by Lint to continue creating baselines without failing lint, normally set by:
+ * -Dlint.baselines.continue=true from command line.
+ */
+private const val LINT_BASELINE_CONTINUE = "lint.baselines.continue"
 
 fun Project.configureNonAndroidProjectForLint(extension: AndroidXExtension) {
     apply(mapOf("plugin" to "com.android.lint"))
 
-    // Create fake variant tasks since that is what is invoked on CI and by developers.
+    // Create fake variant tasks since that is what is invoked by developers.
     val lintTask = tasks.named("lint")
+    lintTask.configure { task ->
+        AffectedModuleDetector.configureTaskGuard(task)
+    }
     tasks.register("lintDebug") {
         it.dependsOn(lintTask)
+        it.enabled = false
     }
     tasks.register("lintRelease") {
         it.dependsOn(lintTask)
+        it.enabled = false
     }
+    addToBuildOnServer(lintTask)
 
     val lintOptions = extensions.getByType<LintOptions>()
     configureLint(lintOptions, extension)
 }
 
+fun Project.configureAndroidProjectForLint(lintOptions: LintOptions, extension: AndroidXExtension) {
+    configureLint(lintOptions, extension)
+    tasks.named("lint").configure { task ->
+        // We already run lintDebug, we don't need to run lint which lints the release variant
+        task.enabled = false
+    }
+    afterEvaluate {
+        tasks.named("lintDebug").configure { task ->
+            AffectedModuleDetector.configureTaskGuard(task)
+        }
+    }
+}
+
 fun Project.configureLint(lintOptions: LintOptions, extension: AndroidXExtension) {
+    project.dependencies.add(
+        "lintChecks",
+        project.rootProject.project(":lint-checks")
+    )
+
+    // If -PupdateLintBaseline was set we should update the baseline if it exists
+    val updateLintBaseline = hasProperty(UPDATE_LINT_BASELINE)
+
     // Lint is configured entirely in afterEvaluate so that individual projects cannot easily
     // disable individual checks in the DSL for any reason. That being said, when rolling out a new
     // check as fatal, it can be beneficial to set it to fatal above this comment. This allows you
@@ -57,7 +91,6 @@ fun Project.configureLint(lintOptions: LintOptions, extension: AndroidXExtension
             isCheckReleaseBuilds = false
 
             // Write output directly to the console (and nowhere else).
-            textOutput("stderr")
             textReport = true
             htmlReport = false
 
@@ -68,80 +101,83 @@ fun Project.configureLint(lintOptions: LintOptions, extension: AndroidXExtension
 
             fatal("VisibleForTests")
 
-            // If -PcheckUnknownNullness was set we should fail on UnknownNullness warnings
-            val checkUnknownNullness = hasProperty(CHECK_UNKNOWN_NULLNESS)
+            // Disable dependency checks that suggest to change them. We want libraries to be
+            // intentional with their dependency version bumps.
+            disable("KtxExtensionAvailable")
+            disable("GradleDependency")
 
-            if (extension.compilationTarget != CompilationTarget.HOST) {
-                // Ignore other errors since we are only interested in nullness here
-                if (checkUnknownNullness) {
-                    fatal("UnknownNullness")
+            // Disable a check that's only relevant for real apps. For our test apps we're not
+            // concerned with drawables potentially being a little bit blurry
+            disable("IconMissingDensityFolder")
+
+            // Disable until it works for our projects, b/171986505
+            disable("JavaPluginLanguageLevel")
+
+            if (extension.type.compilationTarget != CompilationTarget.HOST) {
+                fatal("Assert")
+                fatal("NewApi")
+                fatal("ObsoleteSdkInt")
+                fatal("NoHardKeywords")
+                fatal("UnusedResources")
+                fatal("KotlinPropertyAccess")
+                fatal("LambdaLast")
+                fatal("UnknownNullness")
+
+                // Only override if not set explicitly.
+                // Some Kotlin projects may wish to disable this.
+                if (
+                    severityOverrides!!["SyntheticAccessor"] == null &&
+                    extension.type != LibraryType.SAMPLES
+                ) {
+                    fatal("SyntheticAccessor")
+                }
+
+                // Only check for missing translations in finalized (beta and later) modules.
+                if (extension.mavenVersion?.isFinalApi() == true) {
+                    fatal("MissingTranslation")
                 } else {
-                    fatal("NewApi")
-                    fatal("ObsoleteSdkInt")
-                    fatal("NoHardKeywords")
-                    fatal("UnusedResources")
-                    fatal("KotlinPropertyAccess")
-                    fatal("LambdaLast")
-                    fatal("UnknownNullness")
-
-                    // suppress warnings more specifically than issue-wide severity (regexes)
-                    // Currently suppresses warnings from baseline files working as intended
-                    lintConfig = project.rootProject.file("buildSrc/lint.xml")
-
-                    // Only override if not set explicitly.
-                    // Some Kotlin projects may wish to disable this.
-                    if (lintOptions.severityOverrides["SyntheticAccessor"] == null) {
-                        fatal("SyntheticAccessor")
-                    }
-
-                    if (extension.mavenVersion?.isFinalApi() == true) {
-                        fatal("MissingTranslation")
-                    } else {
-                        disable("MissingTranslation")
-                    }
+                    disable("MissingTranslation")
                 }
             }
 
-            // Baseline file for all legacy lint warnings.
-            val baselineFile = lintBaseline
+            // If the project has not overridden the lint config, set the default one.
+            if (lintConfig == null) {
+                // suppress warnings more specifically than issue-wide severity (regexes)
+                // Currently suppresses warnings from baseline files working as intended
+                lintConfig = project.rootProject.file("buildSrc/lint.xml")
+            }
 
-            val lintDebugTask = tasks.named("lintDebug")
-
-            if (checkUnknownNullness) {
-                lintDebugTask.configure {
-                    it.doFirst {
-                        logger.warn(
-                            "-PcheckUnknownNullness set - checking UnknownNullness lint warnings."
-                        )
-                    }
-                }
-            } else if (baselineFile.exists()) {
-                // Number of currently ignored UnknownNullness errors
-                val count = baselineFile.readText().split("UnknownNullness").size - 1
-                if (count > 0) {
+            // Teams shouldn't be able to generate new baseline files or add new violations to
+            // existing files; they should only be able to burn down existing violations. That's
+            // hard to enforce, though, so we'll just prevent them from creating new ones.
+            //
+            // If you are working on enabling a new check -- and ONLY if you are working on a new
+            // check, then you may need to comment out this line  so that you can suppress all
+            // the new failures.
+            if (lintBaseline.exists()) {
+                if (updateLintBaseline) {
+                    // Continue generating baselines regardless of errors
+                    isAbortOnError = false
+                    // Avoid printing every single lint error to the terminal
+                    textReport = false
+                    val lintDebugTask = tasks.named("lintDebug")
                     lintDebugTask.configure {
-                        it.doLast {
-                            logger.warn(getIgnoreNullnessError(count))
+                        it.doFirst {
+                            lintBaseline.delete()
                         }
                     }
+                    val lintTask = tasks.named("lint")
+                    lintTask.configure {
+                        it.doFirst {
+                            lintBaseline.delete()
+                        }
+                    }
+                    System.setProperty(LINT_BASELINE_CONTINUE, "true")
                 }
-                baseline(baselineFile)
+                baseline(lintBaseline)
             }
         }
     }
 }
 
 val Project.lintBaseline get() = File(projectDir, "/lint-baseline.xml")
-
-private fun Project.getIgnoreNullnessError(count: Int): String = (
-        "\n${pluralizeMessage(count)} currently whitelisted in " +
-                "$projectDir/lint-baseline.xml - these warnings should ideally be fixed before " +
-                "this library moves to a stable release. Run " +
-                "'./gradlew $name:lintDebug -PcheckUnknownNullness' to fail lint on these warnings."
-        )
-
-private fun pluralizeMessage(count: Int) = if (count > 1) {
-    "$count UnknownNullness issues are"
-} else {
-    " UnknownNullness issue is"
-}

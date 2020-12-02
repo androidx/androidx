@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
 
     <issue
         id="AppCompatResource"
@@ -35,25 +35,36 @@
     </issue>
 
     <issue
-        id="PrivateResource"
-        message="The resource `@attr/actionBarSize` is marked as private in com.google.android.material:material"
-        errorLine1="        android:layout_height=&quot;?attr/actionBarSize&quot;"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~">
+        id="NonConstantResourceId"
+        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
+        errorLine1="            case R.id.action_load:"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/activity_demo.xml"
-            line="30"
-            column="32"/>
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
+            line="88"
+            column="18"/>
     </issue>
 
     <issue
-        id="PrivateResource"
-        message="The resource `@attr/colorPrimary` is marked as private in com.google.android.material:material"
-        errorLine1="        android:background=&quot;?attr/colorPrimary&quot;"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~">
+        id="NonConstantResourceId"
+        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
+        errorLine1="            case R.id.action_previous:"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/activity_demo.xml"
-            line="31"
-            column="29"/>
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
+            line="91"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NonConstantResourceId"
+        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
+        errorLine1="            case R.id.action_next:"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
+            line="94"
+            column="18"/>
     </issue>
 
     <issue
@@ -68,14 +79,91 @@
     </issue>
 
     <issue
-        id="GoogleAppIndexingWarning"
-        message="App is not indexable by Google Search; consider adding at least one Activity with an ACTION-VIEW intent filter. See issue explanation for more details."
-        errorLine1="    &lt;application"
-        errorLine2="    ^">
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Adapter` requires synthetic accessor"
+        errorLine1="        mAdapter = new Adapter(mPager, PAGE_SIZE);"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/AndroidManifest.xml"
-            line="20"
-            column="5"/>
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
+            line="61"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `reset` of class `Adapter` requires synthetic accessor"
+        errorLine1="        mAdapter.reset(UnpagedDemoDataProvider.URI);"
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
+            line="112"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mCurrentPage` of class `ContentPagerDemoActivity` requires synthetic accessor"
+        errorLine1="            mCurrentPage = page;"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
+            line="170"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mCurrentPage` of class `ContentPagerDemoActivity` requires synthetic accessor"
+        errorLine1="            int offset = mCurrentPage * mPageSize;"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
+            line="171"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `Holder` requires synthetic accessor"
+        errorLine1="            return new Holder(new TextView(ContentPagerDemoActivity.this));"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
+            line="177"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mCurrentPage` of class `ContentPagerDemoActivity` requires synthetic accessor"
+        errorLine1="                    mCurrentPage,"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
+            line="189"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `msg` of class `ContentPagerDemoActivity` requires synthetic accessor"
+        errorLine1="                msg(&quot;Content query returned a null cursor: &quot; + query.getUri());"
+        errorLine2="                ~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
+            line="203"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mCurrentPage` of class `ContentPagerDemoActivity` requires synthetic accessor"
+        errorLine1="            mCurrentPage = query.getOffset() / mPageSize;"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
+            line="206"
+            column="13"/>
     </issue>
 
     <issue
@@ -104,7 +192,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
-            line="185"
+            line="183"
             column="37"/>
     </issue>
 
@@ -115,8 +203,239 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
-            line="185"
+            line="183"
             column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
+            line="55"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onCreateOptionsMenu(Menu menu) {"
+        errorLine2="                                       ~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
+            line="77"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
+            line="85"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Cursor query(Uri uri, String[] projection, String selection,"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
+            line="46"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Cursor query(Uri uri, String[] projection, String selection,"
+        errorLine2="                        ~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
+            line="46"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Cursor query(Uri uri, String[] projection, String selection,"
+        errorLine2="                                 ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
+            line="46"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Cursor query(Uri uri, String[] projection, String selection,"
+        errorLine2="                                                      ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
+            line="46"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String[] selectionArgs, String sortOrder) {"
+        errorLine2="            ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
+            line="47"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String[] selectionArgs, String sortOrder) {"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
+            line="47"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int delete(Uri uri, String selection, String[] selectionArgs) {"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
+            line="62"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int delete(Uri uri, String selection, String[] selectionArgs) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
+            line="62"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int delete(Uri uri, String selection, String[] selectionArgs) {"
+        errorLine2="                                                 ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
+            line="62"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getType(Uri uri) {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
+            line="67"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getType(Uri uri) {"
+        errorLine2="                          ~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
+            line="67"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Uri insert(Uri uri, ContentValues values) {"
+        errorLine2="           ~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
+            line="72"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Uri insert(Uri uri, ContentValues values) {"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
+            line="72"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Uri insert(Uri uri, ContentValues values) {"
+        errorLine2="                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
+            line="72"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int update(Uri uri, ContentValues values, String selection,"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
+            line="77"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int update(Uri uri, ContentValues values, String selection,"
+        errorLine2="                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
+            line="77"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int update(Uri uri, ContentValues values, String selection,"
+        errorLine2="                                                     ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
+            line="77"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String[] selectionArgs) {"
+        errorLine2="            ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
+            line="78"
+            column="13"/>
     </issue>
 
 </issues>

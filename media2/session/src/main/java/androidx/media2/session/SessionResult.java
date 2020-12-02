@@ -43,7 +43,7 @@ import java.lang.annotation.RetentionPolicy;
  * Result class to be used with {@link ListenableFuture} for asynchronous calls between
  * {@link MediaSession} and {@link MediaController}.
  */
-@VersionedParcelize
+@VersionedParcelize(isCustom = true)
 public class SessionResult extends CustomVersionedParcelable implements RemoteResult {
     /**
      * Result code representing that the command is successfully completed.
@@ -85,10 +85,14 @@ public class SessionResult extends CustomVersionedParcelable implements RemoteRe
     long mCompletionTime;
     @ParcelField(3)
     Bundle mCustomCommandResult;
+    // Parceled via mParcelableItem.
     @NonParcelField
     MediaItem mItem;
+    // For parceling mItem. Should be only used by onPreParceling() and onPostParceling().
     @ParcelField(4)
     MediaItem mParcelableItem;
+
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
 
     /**
      * Constructor to be used by {@link MediaSession.SessionCallback#onCustomCommand(
@@ -217,8 +221,15 @@ public class SessionResult extends CustomVersionedParcelable implements RemoteRe
      */
     @RestrictTo(LIBRARY)
     @Override
+    @SuppressWarnings("SynchronizeOnNonFinalField") // mItem is effectively final.
     public void onPreParceling(boolean isStream) {
-        mParcelableItem = MediaUtils.upcastForPreparceling(mItem);
+        if (mItem != null) {
+            synchronized (mItem) {
+                if (mParcelableItem == null) {
+                    mParcelableItem = MediaUtils.upcastForPreparceling(mItem);
+                }
+            }
+        }
     }
 
     /**
@@ -228,6 +239,5 @@ public class SessionResult extends CustomVersionedParcelable implements RemoteRe
     @Override
     public void onPostParceling() {
         mItem = mParcelableItem;
-        mParcelableItem = null;
     }
 }

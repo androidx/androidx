@@ -16,8 +16,8 @@
 
 package androidx.paging
 
-import androidx.paging.PagedSource.LoadResult.Error
-import androidx.paging.PagedSource.LoadResult.Page
+import androidx.paging.PagingSource.LoadResult.Error
+import androidx.paging.PagingSource.LoadResult.Page
 import androidx.testutils.DirectDispatcher
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
@@ -26,9 +26,9 @@ private class FakeSource<Value : Any>(
     private val leadingNulls: Int,
     private val trailingNulls: Int,
     private val data: List<Value>
-) : PagedSource<Any, Value>() {
+) : PagingSource<Any, Value>() {
     override suspend fun load(params: LoadParams<Any>): LoadResult<Any, Value> {
-        if (params.loadType == LoadType.REFRESH) {
+        if (params is LoadParams.Refresh) {
             return Page(
                 data = data,
                 prevKey = null,
@@ -44,7 +44,7 @@ private class FakeSource<Value : Any>(
     }
 }
 
-@Suppress("TestFunctionName")
+@Suppress("TestFunctionName", "DEPRECATION")
 fun StringPagedList(
     leadingNulls: Int,
     trailingNulls: Int,
@@ -58,7 +58,7 @@ fun StringPagedList(
             itemsBefore = leadingNulls,
             itemsAfter = trailingNulls
         ),
-        pagedSource = FakeSource(leadingNulls, trailingNulls, items.toList()),
+        pagingSource = FakeSource(leadingNulls, trailingNulls, items.toList()),
         coroutineScope = GlobalScope,
         notifyDispatcher = DirectDispatcher,
         fetchDispatcher = DirectDispatcher,

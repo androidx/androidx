@@ -67,8 +67,12 @@ import java.util.ArrayList;
  *
  * {@sample frameworks/support/samples/Support4Demos/src/main/res/layout/fragment_pager_list.xml
  *      complete}
+ *
+ * @deprecated Switch to {@link androidx.viewpager2.widget.ViewPager2} and use
+ * {@link androidx.viewpager2.adapter.FragmentStateAdapter} instead.
  */
 @SuppressWarnings("deprecation")
+@Deprecated
 public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     private static final String TAG = "FragmentStatePagerAdapt";
     private static final boolean DEBUG = false;
@@ -105,6 +109,7 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     private ArrayList<Fragment.SavedState> mSavedState = new ArrayList<>();
     private ArrayList<Fragment> mFragments = new ArrayList<>();
     private Fragment mCurrentPrimaryItem = null;
+    private boolean mExecutingFinishUpdate;
 
     /**
      * Constructor for {@link FragmentStatePagerAdapter} that sets the fragment manager for the
@@ -258,13 +263,18 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     @Override
     public void finishUpdate(@NonNull ViewGroup container) {
         if (mCurTransaction != null) {
-            try {
-                mCurTransaction.commitNowAllowingStateLoss();
-            } catch (IllegalStateException e) {
-                // Workaround for Robolectric running measure/layout
-                // calls inline rather than allowing them to be posted
-                // as they would on a real device.
-                mCurTransaction.commitAllowingStateLoss();
+            // We drop any transactions that attempt to be committed
+            // from a re-entrant call to finishUpdate(). We need to
+            // do this as a workaround for Robolectric running measure/layout
+            // calls inline rather than allowing them to be posted
+            // as they would on a real device.
+            if (!mExecutingFinishUpdate) {
+                try {
+                    mExecutingFinishUpdate = true;
+                    mCurTransaction.commitNowAllowingStateLoss();
+                } finally {
+                    mExecutingFinishUpdate = false;
+                }
             }
             mCurTransaction = null;
         }

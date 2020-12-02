@@ -34,8 +34,9 @@ interface IRemoteMediaController {
     void seekTo(String controllerId, long pos);
     void setPlaybackSpeed(String controllerId, float speed);
     void setPlaylist(String controllerId, in List<String> list, in ParcelImpl metadata);
-    void createAndSetDummyPlaylist(String controllerId, int size, in ParcelImpl metadata);
+    void createAndSetFakePlaylist(String controllerId, int size, in ParcelImpl metadata);
     void setMediaItem(String controllerId, in String mediaId);
+    void setMediaUri(String controllerId,  in Uri uri, in Bundle extras);
     void updatePlaylistMetadata(String controllerId, in ParcelImpl metadata);
     void addPlaylistItem(String controllerId, int index, String mediaId);
     void removePlaylistItem(String controllerId, int index);
@@ -53,12 +54,6 @@ interface IRemoteMediaController {
     void rewind(String controllerId);
     void skipForward(String controllerId);
     void skipBackward(String controllerId);
-    void playFromMediaId(String controllerId, String mediaId, in Bundle extras);
-    void playFromSearch(String controllerId, String query, in Bundle extras);
-    void playFromUri(String controllerId, in Uri uri, in Bundle extras);
-    void prepareFromMediaId(String controllerId, String mediaId, in Bundle extras);
-    void prepareFromSearch(String controllerId, String query, in Bundle extras);
-    void prepareFromUri(String controllerId, in Uri uri, in Bundle extras);
     void setRating(String controllerId, String mediaId, in ParcelImpl rating);
     void close(String controllerId);
 

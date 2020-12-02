@@ -18,15 +18,11 @@ package androidx.camera.core.impl.utils;
 
 import android.os.Looper;
 
-import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 
 /**
  * Helpers for {@link Thread}s.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class Threads {
 
     // Prevent instantiation.

@@ -35,7 +35,7 @@ class XmlResourcesTransformerTest {
         testRewriteToTheSame(
             givenAndExpectedXml =
                 "<android.support.v7.preference.Preference>\n" +
-                "</android.support.v7.preference.Preference>",
+                    "</android.support.v7.preference.Preference>",
             prefixes = setOf("android/support/v7/"),
             map = mapOf(),
             errorsExpected = true
@@ -46,10 +46,10 @@ class XmlResourcesTransformerTest {
         testRewrite(
             givenXml =
                 "<android.support.v7.preference.Preference>\n" +
-                "</android.support.v7.preference.Preference>",
+                    "</android.support.v7.preference.Preference>",
             expectedXml =
                 "<android.test.pref.Preference>\n" +
-                "</android.test.pref.Preference>",
+                    "</android.test.pref.Preference>",
             prefixes = setOf("android/support/v14/"),
             typesMap = mapOf(
                 "android/support/v7/preference/Preference" to "android/test/pref/Preference"
@@ -61,7 +61,7 @@ class XmlResourcesTransformerTest {
         testRewriteToTheSame(
             givenAndExpectedXml =
                 "<my.android.support.v7.preference.Preference>\n" +
-                "</my.android.support.v7.preference.Preference>",
+                    "</my.android.support.v7.preference.Preference>",
             prefixes = setOf("android/support/v7/"),
             map = mapOf(
                 "android/support/v7/preference/Preference" to "android/test/pref/Preference"
@@ -73,7 +73,7 @@ class XmlResourcesTransformerTest {
         testRewriteToTheSame(
             givenAndExpectedXml =
                 "<android.support.v7.preference.Preference>\n" +
-                "</android.support.v7.preference.Preference>",
+                    "</android.support.v7.preference.Preference>",
             prefixes = setOf("android/support/"),
             map = mapOf(
                 "android/support2/v7/preference/Preference" to "android/test/pref/Preference"
@@ -99,10 +99,10 @@ class XmlResourcesTransformerTest {
         testRewrite(
             givenXml =
                 "<android.support.v7.preference.Preference \n" +
-                "    someAttribute=\"android.support.v7.preference.Preference\"/>",
+                    "    someAttribute=\"android.support.v7.preference.Preference\"/>",
             expectedXml =
                 "<android.test.pref.Preference \n" +
-                "    someAttribute=\"android.test.pref.Preference\"/>",
+                    "    someAttribute=\"android.test.pref.Preference\"/>",
             prefixes = setOf("android/support/"),
             typesMap = mapOf(
                 "android/support/v7/preference/Preference" to "android/test/pref/Preference"
@@ -114,10 +114,10 @@ class XmlResourcesTransformerTest {
         testRewrite(
             givenXml =
                 "<android.support.v7.preference.Preference>\n" +
-                "</android.support.v7.preference.Preference>",
+                    "</android.support.v7.preference.Preference>",
             expectedXml =
                 "<android.test.pref.Preference>\n" +
-                "</android.test.pref.Preference>",
+                    "</android.test.pref.Preference>",
             prefixes = setOf("android/support/"),
             typesMap = mapOf(
                 "android/support/v7/preference/Preference" to "android/test/pref/Preference"
@@ -166,10 +166,10 @@ class XmlResourcesTransformerTest {
         testRewrite(
             givenXml =
                 "<android.support.v7.preference.Preference>\n" +
-                "</android.support.v7.preference.Preference>",
+                    "</android.support.v7.preference.Preference>",
             expectedXml =
                 "<android.support.v7.preference.Preference>\n" +
-                "</android.support.v7.preference.Preference>",
+                    "</android.support.v7.preference.Preference>",
             prefixes = setOf("android/support/"),
             typesMap = mapOf(
                 "android/support/v7/preference/Preference"
@@ -182,34 +182,35 @@ class XmlResourcesTransformerTest {
         testRewrite(
             givenXml =
                 "<android.support.v7.preference.Preference>\n" +
-                "  <android.support.v14.preference.DialogPreference" +
-                "      someAttribute=\"someValue\"/>\n" +
-                "  <android.support.v14.preference.DialogPreference" +
-                "      someAttribute=\"someValue2\"/>\n" +
-                "  <!-- This one should be ignored --> \n" +
-                "  <android.support.v21.preference.DialogPreference" +
-                "      someAttribute=\"someValue2\"/>\n" +
-                "</android.support.v7.preference.Preference>\n" +
-                "\n" +
-                "<android.support.v7.preference.ListPreference/>",
+                    "  <android.support.v14.preference.DialogPreference" +
+                    "      someAttribute=\"someValue\"/>\n" +
+                    "  <android.support.v14.preference.DialogPreference" +
+                    "      someAttribute=\"someValue2\"/>\n" +
+                    "  <!-- This one should be ignored --> \n" +
+                    "  <android.support.v21.preference.DialogPreference" +
+                    "      someAttribute=\"someValue2\"/>\n" +
+                    "</android.support.v7.preference.Preference>\n" +
+                    "\n" +
+                    "<android.support.v7.preference.ListPreference/>",
             expectedXml =
                 "<android.test.pref.Preference>\n" +
-                "  <android.test14.pref.DialogPreference" +
-                "      someAttribute=\"someValue\"/>\n" +
-                "  <android.test14.pref.DialogPreference" +
-                "      someAttribute=\"someValue2\"/>\n" +
-                "  <!-- This one should be ignored --> \n" +
-                "  <android.support.v21.preference.DialogPreference" +
-                "      someAttribute=\"someValue2\"/>\n" +
-                "</android.test.pref.Preference>\n" +
-                "\n" +
-                "<android.test.pref.ListPref/>",
+                    "  <android.test14.pref.DialogPreference" +
+                    "      someAttribute=\"someValue\"/>\n" +
+                    "  <android.test14.pref.DialogPreference" +
+                    "      someAttribute=\"someValue2\"/>\n" +
+                    "  <!-- This one should be ignored --> \n" +
+                    "  <android.support.v21.preference.DialogPreference" +
+                    "      someAttribute=\"someValue2\"/>\n" +
+                    "</android.test.pref.Preference>\n" +
+                    "\n" +
+                    "<android.test.pref.ListPref/>",
             prefixes = setOf(
                 "android/support/v7/",
                 "android/support/v14/"
             ),
             rulesMap = RewriteRulesMap(
-                RewriteRule(from = "android/support/v21/(.*)", to = "ignore")),
+                RewriteRule(from = "android/support/v21/(.*)", to = "ignore")
+            ),
             typesMap = mapOf(
                 "android/support/v7/preference/ListPreference"
                     to "android/test/pref/ListPref",
@@ -221,27 +222,114 @@ class XmlResourcesTransformerTest {
         )
     }
 
+    @Test fun link_withoutSuffix_shouldRewrite() {
+        testRewrite(
+            givenXml =
+                "<!-- Comment {@link android.support.Test} -->\n" +
+                    "<attr name=\"someAttribute\">",
+            expectedXml =
+                "<!-- Comment {@link androidx.Test} -->\n" +
+                    "<attr name=\"someAttribute\">",
+            prefixes = setOf("android/support/"),
+            typesMap = mapOf(
+                "android/support/Test"
+                    to "androidx/Test"
+            )
+        )
+    }
+
+    @Test fun link_withInnerClass_shouldRewrite() {
+        testRewrite(
+            givenXml =
+                "<!-- Comment {@link android.support.Test\$R#get(Context, int)} -->\n" +
+                    "<attr name=\"someAttribute\">",
+            expectedXml =
+                "<!-- Comment {@link androidx.Test\$R#get(Context, int)} -->\n" +
+                    "<attr name=\"someAttribute\">",
+            prefixes = setOf("android/support/"),
+            typesMap = mapOf(
+                "android/support/Test"
+                    to "androidx/Test"
+            )
+        )
+    }
+
+    @Test fun link_shouldRewrite() {
+        testRewrite(
+            givenXml =
+                "<!-- Comment {@link android.support.Test#get(Context, int)} -->\n" +
+                    "<attr name=\"someAttribute\">",
+            expectedXml =
+                "<!-- Comment {@link androidx.Test#get(Context, int)} -->\n" +
+                    "<attr name=\"someAttribute\">",
+            prefixes = setOf("android/support/"),
+            typesMap = mapOf(
+                "android/support/Test"
+                    to "androidx/Test"
+            )
+        )
+    }
+
+    @Test fun link_lineBreak_shouldRewrite() {
+        testRewrite(
+            givenXml =
+                "<!-- Comment {@link \n" +
+                    "android.support.Test#get(Context, int)} -->\n" +
+                    "<attr name=\"someAttribute\">",
+            expectedXml =
+                "<!-- Comment {@link \n" +
+                    "androidx.Test#get(Context, int)} -->\n" +
+                    "<attr name=\"someAttribute\">",
+            prefixes = setOf("android/support/"),
+            typesMap = mapOf(
+                "android/support/Test"
+                    to "androidx/Test"
+            )
+        )
+    }
+
+    @Test fun link_lineBreak2_shouldRewrite() {
+        testRewrite(
+            givenXml =
+                "<!-- Comment {@link android.support.Test#get(Context, int)" +
+                    "} -->\n" +
+                    "<attr name=\"someAttribute\">",
+            expectedXml =
+                "<!-- Comment {@link androidx.Test#get(Context, int)" +
+                    "} -->\n" +
+                    "<attr name=\"someAttribute\">",
+            prefixes = setOf("android/support/"),
+            typesMap = mapOf(
+                "android/support/Test"
+                    to "androidx/Test"
+            )
+        )
+    }
+
     @Test fun manifestFile_packageRewrite() {
         testRewrite(
             givenXml =
                 "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                "          package=\"android.support.v7.preference\">\n" +
-                "    <uses-sdk android:minSdkVersion=\"14\"/>\n" +
-                "</manifest>",
+                    "          package=\"android.support.v7.preference\">\n" +
+                    "    <uses-sdk android:minSdkVersion=\"14\"/>\n" +
+                    "</manifest>",
             expectedXml =
                 "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                "          package=\"androidx.preference\">\n" +
-                "    <uses-sdk android:minSdkVersion=\"14\"/>\n" +
-                "</manifest>",
+                    "          package=\"androidx.preference\">\n" +
+                    "    <uses-sdk android:minSdkVersion=\"14\"/>\n" +
+                    "</manifest>",
             prefixes = setOf(
                 "android/support"
             ),
             typesMap = mapOf(),
-            packageMap = PackageMap(listOf(
-                PackageMap.PackageRule(
-                    from = "android/support/v7/preference",
-                    to = "androidx/preference")
-            )),
+            packageMap = PackageMap(
+                listOf(
+                    PackageMap.PackageRule(
+                        from = "android/support/v7/preference",
+                        to = "androidx/preference"
+                    )
+                )
+            ),
             rewritingSupportLib = true
         )
     }
@@ -250,23 +338,26 @@ class XmlResourcesTransformerTest {
         testRewrite(
             givenXml =
                 "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                "          package=\"android.support.v7.preference\">\n" +
-                "    <uses-sdk android:minSdkVersion=\"14\"/>\n" +
-                "</manifest>",
+                    "          package=\"android.support.v7.preference\">\n" +
+                    "    <uses-sdk android:minSdkVersion=\"14\"/>\n" +
+                    "</manifest>",
             expectedXml =
                 "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                "          package=\"androidx.preference\">\n" +
-                "    <uses-sdk android:minSdkVersion=\"14\"/>\n" +
-                "</manifest>",
+                    "          package=\"androidx.preference\">\n" +
+                    "    <uses-sdk android:minSdkVersion=\"14\"/>\n" +
+                    "</manifest>",
             prefixes = setOf(
                 "android/something/else"
             ),
             typesMap = mapOf(),
-            packageMap = PackageMap(listOf(
-                PackageMap.PackageRule(
-                    from = "android/support/v7/preference",
-                    to = "androidx/preference")
-            )),
+            packageMap = PackageMap(
+                listOf(
+                    PackageMap.PackageRule(
+                        from = "android/support/v7/preference",
+                        to = "androidx/preference"
+                    )
+                )
+            ),
             rewritingSupportLib = true
         )
     }
@@ -275,12 +366,12 @@ class XmlResourcesTransformerTest {
         testRewrite(
             givenXml =
                 "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                "          package=\"androidx.test\">\n" +
-                "</manifest>",
+                    "          package=\"androidx.test\">\n" +
+                    "</manifest>",
             expectedXml =
                 "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                "          package=\"androidx.test\">\n" +
-                "</manifest>",
+                    "          package=\"androidx.test\">\n" +
+                    "</manifest>",
             prefixes = setOf(
                 "android/support/"
             ),
@@ -296,16 +387,16 @@ class XmlResourcesTransformerTest {
         testRewrite(
             givenXml =
                 "<provider\n" +
-                "  android:authorities=\"support.Something\"\n" +
-                "  android:name=\"support.Something\">\n" +
-                "  <meta-data android:name=\"support.Something\">\n" +
-                "</provider>",
+                    "  android:authorities=\"support.Something\"\n" +
+                    "  android:name=\"support.Something\">\n" +
+                    "  <meta-data android:name=\"support.Something\">\n" +
+                    "</provider>",
             expectedXml =
                 "<provider\n" +
-                "  android:authorities=\"test.Something\"\n" +
-                "  android:name=\"test.Something\">\n" +
-                "  <meta-data android:name=\"test.Something\">\n" +
-                "</provider>",
+                    "  android:authorities=\"test.Something\"\n" +
+                    "  android:name=\"test.Something\">\n" +
+                    "  <meta-data android:name=\"test.Something\">\n" +
+                    "</provider>",
             prefixes = setOf("support/"),
             typesMap = mapOf(
                 "support/Something" to "test/Something"
@@ -317,16 +408,16 @@ class XmlResourcesTransformerTest {
         testRewrite(
             givenXml =
                 "<activity android:name=\"some\" android:configChanges=\"orientation\">\n" +
-                "  <intent-filter>\n" +
-                "    <action android:name=\"support.Something\" />\n" +
-                "  </intent-filter>\n" +
-                "</activity>",
+                    "  <intent-filter>\n" +
+                    "    <action android:name=\"support.Something\" />\n" +
+                    "  </intent-filter>\n" +
+                    "</activity>",
             expectedXml =
                 "<activity android:name=\"some\" android:configChanges=\"orientation\">\n" +
-                "  <intent-filter>\n" +
-                "    <action android:name=\"test.Something\" />\n" +
-                "  </intent-filter>\n" +
-                "</activity>",
+                    "  <intent-filter>\n" +
+                    "    <action android:name=\"test.Something\" />\n" +
+                    "  </intent-filter>\n" +
+                    "</activity>",
             prefixes = setOf("support/"),
             typesMap = mapOf(
                 "support/Something" to "test/Something"
@@ -338,12 +429,12 @@ class XmlResourcesTransformerTest {
         testRewrite(
             givenXml =
                 "<style name=\"AppCompat\" parent=\"Platform.AppCompat\">\n" +
-                "  <item name=\"viewInflaterClass\">support.Something</item>\n" +
-                "</style>",
+                    "  <item name=\"viewInflaterClass\">support.Something</item>\n" +
+                    "</style>",
             expectedXml =
                 "<style name=\"AppCompat\" parent=\"Platform.AppCompat\">\n" +
-                "  <item name=\"viewInflaterClass\">test.Something</item>\n" +
-                "</style>",
+                    "  <item name=\"viewInflaterClass\">test.Something</item>\n" +
+                    "</style>",
             prefixes = setOf("support/"),
             typesMap = mapOf(
                 "support/Something" to "test/Something"
@@ -355,18 +446,18 @@ class XmlResourcesTransformerTest {
         testRewrite(
             givenXml =
                 "<transition\n" +
-                "    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                "    xmlns:lb=\"http://schemas.android.com/apk/res-auto\"\n" +
-                "    class=\"support.Something\"\n" +
-                "    lb:lb_slideEdge=\"top\" >\n" +
-                "</transition>",
+                    "    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                    "    xmlns:lb=\"http://schemas.android.com/apk/res-auto\"\n" +
+                    "    class=\"support.Something\"\n" +
+                    "    lb:lb_slideEdge=\"top\" >\n" +
+                    "</transition>",
             expectedXml =
                 "<transition\n" +
-                "    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                "    xmlns:lb=\"http://schemas.android.com/apk/res-auto\"\n" +
-                "    class=\"test.Something\"\n" +
-                "    lb:lb_slideEdge=\"top\" >\n" +
-                "</transition>",
+                    "    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                    "    xmlns:lb=\"http://schemas.android.com/apk/res-auto\"\n" +
+                    "    class=\"test.Something\"\n" +
+                    "    lb:lb_slideEdge=\"top\" >\n" +
+                    "</transition>",
             prefixes = setOf("support/"),
             typesMap = mapOf(
                 "support/Something" to "test/Something"
@@ -378,32 +469,32 @@ class XmlResourcesTransformerTest {
         testRewriteToTheSame(
             givenAndExpectedXml =
                 "<LinearLayout\n" +
-                "    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                "    android:layout_width=\"match_parent\"\n" +
-                "    android:layout_height=\"wrap_content\"\n" +
-                "    android:paddingStart=\"16dp\"\n" +
-                "    android:paddingEnd=\"16dp\"\n" +
-                "    android:orientation=\"vertical\">\n" +
-                "\n" +
-                "    <TextView\n" +
-                "        android:id=\"@+id/text2\"\n" +
-                "        android:layout_width=\"match_parent\"\n" +
-                "        android:layout_height=\"wrap_content\"\n" +
-                "        android:paddingTop=\"8dp\"\n" +
-                "        android:paddingStart=\"8dp\"\n" +
-                "        android:textAppearance=\"?android:attr/textAppearanceMedium\"\n" +
-                "        android:text=\"@string/abc_slice_permission_text_1\" />\n" +
-                "\n" +
-                "    <TextView\n" +
-                "        android:id=\"@+id/text1\"\n" +
-                "        android:layout_width=\"match_parent\"\n" +
-                "        android:layout_height=\"wrap_content\"\n" +
-                "        android:paddingStart=\"8dp\"\n" +
-                "        android:textAppearance=\"?android:attr/textAppearanceMedium\"\n" +
-                "        android:paddingBottom=\"16dp\"\n" +
-                "        android:text=\"@string/abc_slice_permission_text_2\" />\n" +
-                "\n" +
-                "</LinearLayout>",
+                    "    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                    "    android:layout_width=\"match_parent\"\n" +
+                    "    android:layout_height=\"wrap_content\"\n" +
+                    "    android:paddingStart=\"16dp\"\n" +
+                    "    android:paddingEnd=\"16dp\"\n" +
+                    "    android:orientation=\"vertical\">\n" +
+                    "\n" +
+                    "    <TextView\n" +
+                    "        android:id=\"@+id/text2\"\n" +
+                    "        android:layout_width=\"match_parent\"\n" +
+                    "        android:layout_height=\"wrap_content\"\n" +
+                    "        android:paddingTop=\"8dp\"\n" +
+                    "        android:paddingStart=\"8dp\"\n" +
+                    "        android:textAppearance=\"?android:attr/textAppearanceMedium\"\n" +
+                    "        android:text=\"@string/abc_slice_permission_text_1\" />\n" +
+                    "\n" +
+                    "    <TextView\n" +
+                    "        android:id=\"@+id/text1\"\n" +
+                    "        android:layout_width=\"match_parent\"\n" +
+                    "        android:layout_height=\"wrap_content\"\n" +
+                    "        android:paddingStart=\"8dp\"\n" +
+                    "        android:textAppearance=\"?android:attr/textAppearanceMedium\"\n" +
+                    "        android:paddingBottom=\"16dp\"\n" +
+                    "        android:text=\"@string/abc_slice_permission_text_2\" />\n" +
+                    "\n" +
+                    "</LinearLayout>",
             prefixes = setOf("support/"),
             map = mapOf()
         )
@@ -413,32 +504,32 @@ class XmlResourcesTransformerTest {
         testRewriteToTheSame(
             givenAndExpectedXml =
                 "<LinearLayout\n" +
-                "    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
-                "    android:layout_width=\"match_parent\"\n" +
-                "    android:layout_height=\"wrap_content\"\n" +
-                "    android:paddingStart=\"16dp\"\n" +
-                "    android:paddingEnd=\"16dp\"\n" +
-                "    android:orientation=\"vertical\">\n" +
-                "\n" +
-                "    <TextView\n" +
-                "        android:id=\"@+id/text2\"\n" +
-                "        android:layout_width=\"match_parent\"\n" +
-                "        android:layout_height=\"wrap_content\"\n" +
-                "        android:paddingTop=\"8dp\"\n" +
-                "        android:paddingStart=\"8dp\"\n" +
-                "        android:textAppearance=\"?android:attr/textAppearanceMedium\"\n" +
-                "        android:text=\"@string/abc_slice_permission_text_1\" />\n" +
-                "\n" +
-                "    <TextView\n" +
-                "        android:id=\"@+id/text1\"\n" +
-                "        android:layout_width=\"match_parent\"\n" +
-                "        android:layout_height=\"wrap_content\"\n" +
-                "        android:paddingStart=\"8dp\"\n" +
-                "        android:textAppearance=\"?android:attr/textAppearanceMedium\"\n" +
-                "        android:paddingBottom=\"16dp\"\n" +
-                "        android:text=\"@string/abc_slice_permission_text_2\" />\n" +
-                "\n" +
-                "</LinearLayout>",
+                    "    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                    "    android:layout_width=\"match_parent\"\n" +
+                    "    android:layout_height=\"wrap_content\"\n" +
+                    "    android:paddingStart=\"16dp\"\n" +
+                    "    android:paddingEnd=\"16dp\"\n" +
+                    "    android:orientation=\"vertical\">\n" +
+                    "\n" +
+                    "    <TextView\n" +
+                    "        android:id=\"@+id/text2\"\n" +
+                    "        android:layout_width=\"match_parent\"\n" +
+                    "        android:layout_height=\"wrap_content\"\n" +
+                    "        android:paddingTop=\"8dp\"\n" +
+                    "        android:paddingStart=\"8dp\"\n" +
+                    "        android:textAppearance=\"?android:attr/textAppearanceMedium\"\n" +
+                    "        android:text=\"@string/abc_slice_permission_text_1\" />\n" +
+                    "\n" +
+                    "    <TextView\n" +
+                    "        android:id=\"@+id/text1\"\n" +
+                    "        android:layout_width=\"match_parent\"\n" +
+                    "        android:layout_height=\"wrap_content\"\n" +
+                    "        android:paddingStart=\"8dp\"\n" +
+                    "        android:textAppearance=\"?android:attr/textAppearanceMedium\"\n" +
+                    "        android:paddingBottom=\"16dp\"\n" +
+                    "        android:text=\"@string/abc_slice_permission_text_2\" />\n" +
+                    "\n" +
+                    "</LinearLayout>",
             prefixes = setOf("support/"),
             rewritingSupportLib = true,
             map = mapOf()
@@ -474,11 +565,11 @@ class XmlResourcesTransformerTest {
     ) {
         val given =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-            "$givenXml\n"
+                "$givenXml\n"
 
         val expected =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-            "$expectedXml\n"
+                "$expectedXml\n"
 
         val typeMap = TypesMap(typesMap.map { JavaType(it.key) to JavaType(it.value) }.toMap())
         val config = Config.fromOptional(
@@ -490,7 +581,8 @@ class XmlResourcesTransformerTest {
         val context = TransformationContext(
             config,
             rewritingSupportLib = rewritingSupportLib,
-            useFallbackIfTypeIsMissing = false)
+            useFallbackIfTypeIsMissing = false
+        )
         val processor = XmlResourcesTransformer(context)
         val fileName = Paths.get("random.xml")
         val file = ArchiveFile(fileName, given.toByteArray())

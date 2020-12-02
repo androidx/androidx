@@ -30,8 +30,8 @@ final class PlaylistItem {
     private final String mSessionId;
     private final String mItemId;
     private final Uri mUri;
-    private final String mTitle;
     private final String mMime;
+    private final String mTitle;
     private final PendingIntent mUpdateReceiver;
     // changeable states
     private int mPlaybackState = MediaItemStatus.PLAYBACK_STATE_PENDING;
@@ -39,6 +39,21 @@ final class PlaylistItem {
     private long mContentDuration;
     private long mTimestamp;
     private String mRemoteItemId;
+
+    PlaylistItem(PlaylistItem item) {
+        mSessionId = item.mSessionId;
+        mItemId = item.mItemId;
+        mTitle = item.mTitle;
+        mUri = item.mUri;
+        mMime = item.mMime;
+        mUpdateReceiver = null;
+
+        mPlaybackState = item.mPlaybackState;
+        mContentPosition = item.mContentPosition;
+        mContentDuration = item.mContentDuration;
+        mTimestamp = item.mTimestamp;
+        mRemoteItemId = item.mRemoteItemId;
+    }
 
     public PlaylistItem(String qid, String iid, String title, Uri uri, String mime,
             PendingIntent pi) {
@@ -89,6 +104,10 @@ final class PlaylistItem {
 
     public Uri getUri() {
         return mUri;
+    }
+
+    public String getMime() {
+        return mMime;
     }
 
     public PendingIntent getUpdateReceiver() {

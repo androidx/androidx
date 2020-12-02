@@ -42,6 +42,8 @@
     <dimen name="abc_slice_row_active_input_height">120dp</dimen>
     <!-- Size of range area in a row to fit a slider or progress bar -->
     <dimen name="abc_slice_row_range_height">48dp</dimen>
+    <!-- Size of row view when range is inline -->
+    <dimen name="abc_slice_row_range_inline_height">60dp</dimen>
     <!-- Size of text area of row view with two lines of text and then a range element -->
     <dimen name="abc_slice_row_range_multi_text_height">56dp</dimen>
     <!-- Size of text area row with one line of text and then a range element-->

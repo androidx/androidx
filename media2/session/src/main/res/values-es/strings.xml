@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="default_notification_channel_name" msgid="6743534657295236036">"Está sonando"</string>
+    <string name="default_notification_channel_name" msgid="6743534657295236036">"Reproduciendo"</string>
     <string name="play_button_content_description" msgid="6034272287948142298">"Reproducir"</string>
     <string name="pause_button_content_description" msgid="4221330012095125431">"Pausar"</string>
     <string name="skip_to_previous_item_button_content_description" msgid="7233771088610629683">"Saltar al elemento anterior"</string>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"ફિંગરપ્રિન્ટના સેન્સરને સ્પર્શ કરો"</string>
+    <string name="fingerprint_not_recognized" msgid="3873359464293253009">"ઓળખાયેલ નથી"</string>
+    <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"ફિંગરપ્રિન્ટ હાર્ડવેર ઉપલબ્ધ નથી."</string>
+    <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"કોઈ ફિંગરપ્રિન્ટની નોંધણી કરવામાં આવી નથી."</string>
+    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"આ ડિવાઇસમાં કોઈ ફિંગરપ્રિન્ટ સેન્સર નથી"</string>
+    <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"ફિંગરપ્રિન્ટ ચકાસવાની પ્રક્રિયા વપરાશકર્તાએ રદ કરી."</string>
+    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"ખૂબ વધારે પ્રયત્નો કર્યા. કૃપા કરીને પછીથી ફરી પ્રયાસ કરો."</string>
+    <string name="default_error_msg" msgid="4776854077120974966">"અજાણી ભૂલ"</string>
+    <string name="generic_error_user_canceled" msgid="7309881387583143581">"વપરાશકર્તાએ પ્રમાણીકરણ રદ કર્યું."</string>
+    <string name="confirm_device_credential_password" msgid="5912733858573823945">"પાસવર્ડનો ઉપયોગ કરો"</string>
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"કોઈ પિન, પૅટર્ન અથવા પાસવર્ડ સેટ કરેલો નથી."</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"આ ડિવાઇસ પિન, પૅટર્ન અથવા પાસવર્ડને સપોર્ટ કરતું નથી."</string>
+</resources>

@@ -20,7 +20,6 @@ import androidx.fragment.app.test.FragmentTestActivity
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.runOnUiThreadRethrow
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
@@ -32,8 +31,9 @@ import org.junit.runner.RunWith
 @MediumTest
 class UserVisibleHintTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = ActivityTestRule(FragmentTestActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
 
     @UiThreadTest
     @Test

@@ -1,5 +1,104 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" version="3.5.0-beta04">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" version="4.2.0-alpha15">
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/collection/LruCache.java"
+            line="284"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/collection/LruCache.java"
+            line="293"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/collection/LruCache.java"
+            line="302"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/collection/LruCache.java"
+            line="310"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/collection/LruCache.java"
+            line="318"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/collection/LruCache.java"
+            line="325"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/collection/LruCache.java"
+            line="332"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/collection/LruCache.java"
+            line="339"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override public synchronized final String toString() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/collection/LruCache.java"
+            line="347"
+            column="5"/>
+    </issue>
 
     <issue
         id="UnknownNullness"
@@ -8,51 +107,18 @@
         errorLine2="                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/collection/ArrayMap.java"
-            line="70"
+            line="76"
             column="21"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void putAll(Map&lt;? extends K, ? extends V> map) {"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public E valueAt(int index) {"
+        errorLine2="           ~">
         <location
-            file="src/main/java/androidx/collection/ArrayMap.java"
-            line="141"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Set&lt;Entry&lt;K, V>> entrySet() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/collection/ArrayMap.java"
-            line="181"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Set&lt;K> keySet() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/collection/ArrayMap.java"
-            line="193"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Collection&lt;V> values() {"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/collection/ArrayMap.java"
-            line="205"
+            file="src/main/java/androidx/collection/ArraySet.java"
+            line="383"
             column="12"/>
     </issue>
 
@@ -63,18 +129,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/collection/ArraySet.java"
-            line="446"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Iterator&lt;E> iterator() {"
-        errorLine2="           ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/collection/ArraySet.java"
-            line="693"
+            line="506"
             column="12"/>
     </issue>
 
@@ -85,7 +140,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/androidx/collection/CircularArray.java"
-            line="83"
+            line="85"
             column="26"/>
     </issue>
 
@@ -96,7 +151,7 @@
         errorLine2="                        ~">
         <location
             file="src/main/java/androidx/collection/CircularArray.java"
-            line="95"
+            line="97"
             column="25"/>
     </issue>
 
@@ -107,7 +162,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/collection/CircularArray.java"
-            line="108"
+            line="110"
             column="12"/>
     </issue>
 
@@ -118,7 +173,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/collection/CircularArray.java"
-            line="123"
+            line="125"
             column="12"/>
     </issue>
 
@@ -129,7 +184,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/collection/CircularArray.java"
-            line="214"
+            line="216"
             column="12"/>
     </issue>
 
@@ -140,7 +195,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/collection/CircularArray.java"
-            line="226"
+            line="228"
             column="12"/>
     </issue>
 
@@ -151,7 +206,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/collection/CircularArray.java"
-            line="239"
+            line="241"
             column="12"/>
     </issue>
 
@@ -206,7 +261,7 @@
         errorLine2="                               ~">
         <location
             file="src/main/java/androidx/collection/LongSparseArray.java"
-            line="184"
+            line="185"
             column="32"/>
     </issue>
 
@@ -217,7 +272,7 @@
         errorLine2="                                     ~">
         <location
             file="src/main/java/androidx/collection/LongSparseArray.java"
-            line="202"
+            line="203"
             column="38"/>
     </issue>
 
@@ -228,7 +283,7 @@
         errorLine2="                                                 ~">
         <location
             file="src/main/java/androidx/collection/LongSparseArray.java"
-            line="202"
+            line="203"
             column="50"/>
     </issue>
 
@@ -239,7 +294,7 @@
         errorLine2="                              ~">
         <location
             file="src/main/java/androidx/collection/LongSparseArray.java"
-            line="247"
+            line="248"
             column="31"/>
     </issue>
 
@@ -250,7 +305,7 @@
         errorLine2="                                   ~">
         <location
             file="src/main/java/androidx/collection/LongSparseArray.java"
-            line="314"
+            line="315"
             column="36"/>
     </issue>
 
@@ -261,7 +316,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/collection/LongSparseArray.java"
-            line="372"
+            line="373"
             column="12"/>
     </issue>
 
@@ -272,7 +327,7 @@
         errorLine2="                                      ~">
         <location
             file="src/main/java/androidx/collection/LongSparseArray.java"
-            line="385"
+            line="386"
             column="39"/>
     </issue>
 
@@ -283,7 +338,7 @@
         errorLine2="                            ~">
         <location
             file="src/main/java/androidx/collection/LongSparseArray.java"
-            line="414"
+            line="415"
             column="29"/>
     </issue>
 
@@ -294,7 +349,7 @@
         errorLine2="                                 ~">
         <location
             file="src/main/java/androidx/collection/LongSparseArray.java"
-            line="432"
+            line="433"
             column="34"/>
     </issue>
 
@@ -305,7 +360,7 @@
         errorLine2="                                 ~">
         <location
             file="src/main/java/androidx/collection/LongSparseArray.java"
-            line="455"
+            line="456"
             column="34"/>
     </issue>
 
@@ -360,7 +415,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="379"
+            line="380"
             column="12"/>
     </issue>
 
@@ -371,7 +426,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="379"
+            line="380"
             column="27"/>
     </issue>
 
@@ -382,7 +437,7 @@
         errorLine2="                                      ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="379"
+            line="380"
             column="39"/>
     </issue>
 
@@ -393,7 +448,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="389"
+            line="391"
             column="12"/>
     </issue>
 
@@ -404,7 +459,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="398"
+            line="401"
             column="12"/>
     </issue>
 
@@ -415,7 +470,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="408"
+            line="412"
             column="12"/>
     </issue>
 
@@ -426,7 +481,7 @@
         errorLine2="                                   ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="408"
+            line="412"
             column="36"/>
     </issue>
 
@@ -437,7 +492,7 @@
         errorLine2="                 ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="431"
+            line="436"
             column="18"/>
     </issue>
 
@@ -448,7 +503,7 @@
         errorLine2="                        ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="431"
+            line="436"
             column="25"/>
     </issue>
 
@@ -459,7 +514,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="522"
+            line="527"
             column="26"/>
     </issue>
 
@@ -470,7 +525,7 @@
         errorLine2="                                ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="522"
+            line="527"
             column="33"/>
     </issue>
 
@@ -481,7 +536,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="537"
+            line="542"
             column="21"/>
     </issue>
 
@@ -492,7 +547,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="552"
+            line="557"
             column="27"/>
     </issue>
 
@@ -503,7 +558,7 @@
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="552"
+            line="557"
             column="39"/>
     </issue>
 
@@ -514,7 +569,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="569"
+            line="575"
             column="12"/>
     </issue>
 
@@ -525,7 +580,7 @@
         errorLine2="                     ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="636"
+            line="638"
             column="22"/>
     </issue>
 
@@ -536,7 +591,7 @@
         errorLine2="                            ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="636"
+            line="638"
             column="29"/>
     </issue>
 
@@ -547,7 +602,7 @@
         errorLine2="                           ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="652"
+            line="654"
             column="28"/>
     </issue>
 
@@ -558,7 +613,7 @@
         errorLine2="                                  ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="652"
+            line="654"
             column="35"/>
     </issue>
 
@@ -569,7 +624,7 @@
         errorLine2="                                              ~">
         <location
             file="src/main/java/androidx/collection/SimpleArrayMap.java"
-            line="652"
+            line="654"
             column="47"/>
     </issue>
 
@@ -624,7 +679,7 @@
         errorLine2="                              ~">
         <location
             file="src/main/java/androidx/collection/SparseArrayCompat.java"
-            line="197"
+            line="198"
             column="31"/>
     </issue>
 
@@ -635,7 +690,7 @@
         errorLine2="                                    ~">
         <location
             file="src/main/java/androidx/collection/SparseArrayCompat.java"
-            line="215"
+            line="216"
             column="37"/>
     </issue>
 
@@ -646,7 +701,7 @@
         errorLine2="                                                ~">
         <location
             file="src/main/java/androidx/collection/SparseArrayCompat.java"
-            line="215"
+            line="216"
             column="49"/>
     </issue>
 
@@ -657,7 +712,7 @@
         errorLine2="                             ~">
         <location
             file="src/main/java/androidx/collection/SparseArrayCompat.java"
-            line="260"
+            line="261"
             column="30"/>
     </issue>
 
@@ -668,7 +723,7 @@
         errorLine2="                                  ~">
         <location
             file="src/main/java/androidx/collection/SparseArrayCompat.java"
-            line="327"
+            line="328"
             column="35"/>
     </issue>
 
@@ -679,7 +734,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/collection/SparseArrayCompat.java"
-            line="374"
+            line="375"
             column="12"/>
     </issue>
 
@@ -690,7 +745,7 @@
         errorLine2="                                      ~">
         <location
             file="src/main/java/androidx/collection/SparseArrayCompat.java"
-            line="387"
+            line="388"
             column="39"/>
     </issue>
 
@@ -701,7 +756,7 @@
         errorLine2="                            ~">
         <location
             file="src/main/java/androidx/collection/SparseArrayCompat.java"
-            line="418"
+            line="419"
             column="29"/>
     </issue>
 
@@ -712,7 +767,7 @@
         errorLine2="                                 ~">
         <location
             file="src/main/java/androidx/collection/SparseArrayCompat.java"
-            line="436"
+            line="437"
             column="34"/>
     </issue>
 
@@ -723,7 +778,7 @@
         errorLine2="                                ~">
         <location
             file="src/main/java/androidx/collection/SparseArrayCompat.java"
-            line="459"
+            line="460"
             column="33"/>
     </issue>
 

@@ -22,6 +22,7 @@ import static java.lang.annotation.ElementType.PACKAGE;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -32,6 +33,7 @@ import java.lang.annotation.Target;
  * expresses that this is a requirement on the caller, rather than being used to "suppress" warnings
  * within the method that exceed the {@code minSdkVersion}.
  */
+@Documented
 @Retention(CLASS)
 @Target({TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE})
 public @interface RequiresApi {

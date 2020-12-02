@@ -23,6 +23,7 @@ import androidx.room.TypeConverters;
 import androidx.room.integration.testapp.dao.BlobEntityDao;
 import androidx.room.integration.testapp.dao.FunnyNamedDao;
 import androidx.room.integration.testapp.dao.LibraryItemDao;
+import androidx.room.integration.testapp.dao.PagingSourceOnlyUserDao;
 import androidx.room.integration.testapp.dao.PetCoupleDao;
 import androidx.room.integration.testapp.dao.PetDao;
 import androidx.room.integration.testapp.dao.ProductDao;
@@ -65,6 +66,7 @@ import java.util.UUID;
 @TypeConverters(TestDatabase.Converters.class)
 public abstract class TestDatabase extends RoomDatabase {
     public abstract UserDao getUserDao();
+    public abstract PagingSourceOnlyUserDao getPagingSourceOnlyUserDao();
     public abstract PetDao getPetDao();
     public abstract UserPetDao getUserPetDao();
     public abstract SchoolDao getSchoolDao();

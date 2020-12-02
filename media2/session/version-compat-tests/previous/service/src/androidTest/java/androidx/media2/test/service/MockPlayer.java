@@ -581,7 +581,7 @@ public class MockPlayer extends SessionPlayer {
     }
 
     public void notifyVideoSizeChanged(@NonNull final VideoSize videoSize) {
-        final MediaItem dummyItem = new MediaItem.Builder().build();
+        MediaItem fakeItem = new MediaItem.Builder().build();
 
         List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
         for (Pair<PlayerCallback, Executor> pair : callbacks) {
@@ -589,7 +589,7 @@ public class MockPlayer extends SessionPlayer {
             pair.second.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onVideoSizeChangedInternal(MockPlayer.this, dummyItem, videoSize);
+                    callback.onVideoSizeChangedInternal(MockPlayer.this, fakeItem, videoSize);
                 }
             });
         }

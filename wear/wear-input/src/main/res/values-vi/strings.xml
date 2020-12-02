@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="buttons_round_top_center" msgid="5559087816427379703">"Trên cùng"</string>
+    <string name="buttons_round_top_right" msgid="4871780374047139328">"Trên cùng bên phải"</string>
+    <string name="buttons_round_center_right" msgid="1509579668330531551">"Ở giữa bên phải"</string>
+    <string name="buttons_round_bottom_right" msgid="2377403938095293895">"Dưới cùng bên phải"</string>
+    <string name="buttons_round_bottom_center" msgid="7330585893633364324">"Dưới cùng"</string>
+    <string name="buttons_round_bottom_left" msgid="2128239325315047486">"Dưới cùng bên trái"</string>
+    <string name="buttons_round_center_left" msgid="4851687456301428363">"Ở giữa bên trái"</string>
+    <string name="buttons_round_top_left" msgid="6011962751086201079">"Trên cùng bên trái"</string>
+    <string name="buttons_round_top_right_upper" msgid="5489914740902966147">"Trên cùng bên phải, phía trên"</string>
+    <string name="buttons_round_top_right_lower" msgid="49744844591556337">"Trên cùng bên phải, phía dưới"</string>
+    <string name="buttons_round_bottom_right_upper" msgid="3762205785832512542">"Dưới cùng bên phải, phía trên"</string>
+    <string name="buttons_round_bottom_right_lower" msgid="6450671993962362349">"Dưới cùng bên phải, phía dưới"</string>
+    <string name="buttons_round_bottom_left_lower" msgid="8840562761052904241">"Dưới cùng bên trái, phía dưới"</string>
+    <string name="buttons_round_bottom_left_upper" msgid="5824161271890322696">"Dưới cùng bên trái, phía trên"</string>
+    <string name="buttons_round_top_left_lower" msgid="4749025344320804614">"Trên cùng bên trái, phía dưới"</string>
+    <string name="buttons_round_top_left_upper" msgid="2546930425604677415">"Trên cùng bên trái, phía trên"</string>
+    <string name="buttons_rect_left_top" msgid="5658240954637179416">"Trên cùng, bên trái"</string>
+    <string name="buttons_rect_left_center" msgid="2090348335774325845">"Ở giữa bên trái"</string>
+    <string name="buttons_rect_left_bottom" msgid="2890382227404669440">"Dưới cùng, bên trái"</string>
+    <string name="buttons_rect_right_top" msgid="8781047384037217975">"Trên cùng, bên phải"</string>
+    <string name="buttons_rect_right_center" msgid="9046922334870476704">"Ở giữa bên phải"</string>
+    <string name="buttons_rect_right_bottom" msgid="231110280868923853">"Dưới cùng, bên phải"</string>
+    <string name="buttons_rect_top_left" msgid="7572206729575579647">"Trên cùng bên trái"</string>
+    <string name="buttons_rect_top_center" msgid="79705740801041383">"Trên cùng"</string>
+    <string name="buttons_rect_top_right" msgid="942888900599091776">"Trên cùng bên phải"</string>
+    <string name="buttons_rect_bottom_left" msgid="1900303277997254019">"Dưới cùng bên trái"</string>
+    <string name="buttons_rect_bottom_center" msgid="7032918537319714491">"Dưới cùng"</string>
+    <string name="buttons_rect_bottom_right" msgid="5128261908141175352">"Dưới cùng bên phải"</string>
+</resources>

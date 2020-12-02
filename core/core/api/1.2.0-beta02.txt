@@ -1130,7 +1130,7 @@ package androidx.core.graphics.drawable {
     method public static android.graphics.drawable.Drawable! wrap(android.graphics.drawable.Drawable);
   }
 
-  public class IconCompat extends androidx.versionedparcelable.CustomVersionedParcelable {
+  public class IconCompat implements androidx.versionedparcelable.VersionedParcelable {
     method public static androidx.core.graphics.drawable.IconCompat? createFromBundle(android.os.Bundle);
     method @RequiresApi(23) public static androidx.core.graphics.drawable.IconCompat? createFromIcon(android.content.Context, android.graphics.drawable.Icon);
     method public static androidx.core.graphics.drawable.IconCompat! createWithAdaptiveBitmap(android.graphics.Bitmap!);
@@ -1144,6 +1144,8 @@ package androidx.core.graphics.drawable {
     method public int getType();
     method public android.net.Uri getUri();
     method public android.graphics.drawable.Drawable! loadDrawable(android.content.Context!);
+    method public void onPostParceling();
+    method public void onPreParceling(boolean);
     method public androidx.core.graphics.drawable.IconCompat! setTint(@ColorInt int);
     method public androidx.core.graphics.drawable.IconCompat! setTintList(android.content.res.ColorStateList!);
     method public androidx.core.graphics.drawable.IconCompat! setTintMode(android.graphics.PorterDuff.Mode!);
@@ -1306,7 +1308,7 @@ package androidx.core.os {
   }
 
   public final class EnvironmentCompat {
-    method public static String! getStorageState(java.io.File);
+    method public static String getStorageState(java.io.File);
     field public static final String MEDIA_UNKNOWN = "unknown";
   }
 
@@ -3044,9 +3046,9 @@ package androidx.core.widget {
     method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?);
     method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, @DrawableRes int, @DrawableRes int, @DrawableRes int, @DrawableRes int);
     method public static void setCustomSelectionActionModeCallback(android.widget.TextView, android.view.ActionMode.Callback);
-    method public static void setFirstBaselineToTopHeight(android.widget.TextView, @Px @IntRange(from=0) int);
-    method public static void setLastBaselineToBottomHeight(android.widget.TextView, @Px @IntRange(from=0) int);
-    method public static void setLineHeight(android.widget.TextView, @Px @IntRange(from=0) int);
+    method public static void setFirstBaselineToTopHeight(android.widget.TextView, @IntRange(from=0) @Px int);
+    method public static void setLastBaselineToBottomHeight(android.widget.TextView, @IntRange(from=0) @Px int);
+    method public static void setLineHeight(android.widget.TextView, @IntRange(from=0) @Px int);
     method public static void setPrecomputedText(android.widget.TextView, androidx.core.text.PrecomputedTextCompat);
     method public static void setTextAppearance(android.widget.TextView, @StyleRes int);
     method public static void setTextMetricsParams(android.widget.TextView, androidx.core.text.PrecomputedTextCompat.Params);

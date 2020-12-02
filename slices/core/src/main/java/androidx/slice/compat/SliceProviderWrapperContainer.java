@@ -35,10 +35,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.remotecallback.CallbackHandlerRegistry;
-import androidx.remotecallback.ProviderRelayReceiver;
 import androidx.slice.SliceConvert;
-import androidx.slice.SliceProviderWithCallbacks;
 
 import java.util.Collection;
 import java.util.Set;
@@ -116,13 +113,11 @@ public class SliceProviderWrapperContainer {
                     }
                 }
             }
-            // Since calls get routed through here on API 28+, need to check
-            // for callbacks happening here too.
-            if (ProviderRelayReceiver.METHOD_PROVIDER_CALLBACK.equals(method)
-                    && (mSliceProvider instanceof SliceProviderWithCallbacks)) {
-                CallbackHandlerRegistry.sInstance.invokeCallback(getContext(),
-                        (SliceProviderWithCallbacks) mSliceProvider, extras);
-                return null;
+            // Since calls get routed through here on API 28+, need to delegate to
+            // SliceProviderWithCallback if the method is remote callback.
+            // Note that we use string instead of constant to prevent unnecessary dependency.
+            if ("androidx.remotecallback.method.PROVIDER_CALLBACK".equals(method)) {
+                return mSliceProvider.call(method, arg, extras);
             }
             return super.call(method, arg, extras);
         }

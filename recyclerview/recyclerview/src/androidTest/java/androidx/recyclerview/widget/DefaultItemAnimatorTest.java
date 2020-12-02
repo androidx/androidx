@@ -51,7 +51,7 @@ public class DefaultItemAnimatorTest extends BaseRecyclerViewInstrumentationTest
 
     DefaultItemAnimator mAnimator;
     Adapter mAdapter;
-    ViewGroup mDummyParent;
+    ViewGroup mParent;
     List<RecyclerView.ViewHolder> mExpectedItems = new ArrayList<RecyclerView.ViewHolder>();
 
     Set<RecyclerView.ViewHolder> mRemoveFinished = new HashSet<RecyclerView.ViewHolder>();
@@ -110,7 +110,7 @@ public class DefaultItemAnimatorTest extends BaseRecyclerViewInstrumentationTest
             }
         };
         mAdapter = new Adapter(20);
-        mDummyParent = getActivity().getContainer();
+        mParent = getActivity().getContainer();
     }
 
     @Override
@@ -376,12 +376,12 @@ public class DefaultItemAnimatorTest extends BaseRecyclerViewInstrumentationTest
     }
 
     private ViewHolder createViewHolder(final int pos) throws Throwable {
-        final ViewHolder vh = mAdapter.createViewHolder(mDummyParent, 1);
+        final ViewHolder vh = mAdapter.createViewHolder(mParent, 1);
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mAdapter.bindViewHolder(vh, pos);
-                mDummyParent.addView(vh.itemView);
+                mParent.addView(vh.itemView);
             }
         });
 

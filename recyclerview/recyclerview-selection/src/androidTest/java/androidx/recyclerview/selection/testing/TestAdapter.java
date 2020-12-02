@@ -20,6 +20,8 @@ import static org.junit.Assert.assertTrue;
 
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
@@ -40,7 +42,12 @@ public class TestAdapter<K> extends Adapter<TestHolder> {
     }
 
     public TestAdapter(List<K> items) {
+        this(items, false);
+    }
+
+    public TestAdapter(List<K> items, boolean hasStableIds) {
         mItems.addAll(items);
+        setHasStableIds(hasStableIds);
         mAdapterObserver = new RecyclerView.AdapterDataObserver() {
 
             @Override
@@ -75,13 +82,15 @@ public class TestAdapter<K> extends Adapter<TestHolder> {
     }
 
     @Override
-    public TestHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new TestHolder(parent);
+    public @NonNull TestHolder onCreateViewHolder(@NonNull ViewGroup view, int viewType) {
+        return new TestHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(TestHolder holder, int position) {
-        throw new UnsupportedOperationException();
+    public void onBindViewHolder(@NonNull TestHolder holder, int position) {
+        // Ignore calls to this method which is called when bindViewHolder
+        // is called. Some tests depend on bindViewHolder setting up position
+        // and id information in ViewHolders.
     }
 
     @Override
@@ -104,6 +113,16 @@ public class TestAdapter<K> extends Adapter<TestHolder> {
         return mItems.get(position);
     }
 
+    public boolean removeItem(K key) {
+        int position = getPosition(key);
+        if (position == RecyclerView.NO_POSITION) {
+            return false;
+        }
+
+        @Nullable K removed = mItems.remove(position);
+        notifyItemRemoved(position);
+        return removed != null;
+    }
 
     public void resetSelectionNotifications() {
         mNotifiedOfSelection.clear();
@@ -113,11 +132,18 @@ public class TestAdapter<K> extends Adapter<TestHolder> {
         assertTrue(mNotifiedOfSelection.contains(position));
     }
 
-    public static List<String> createItemList(int num) {
+    /*
+     * Returns a reference to internal item list. Obvi for test only.
+     */
+    public List<K> getItems() {
+        return mItems;
+    }
+
+    public static TestAdapter<String> createStringAdapter(int num) {
         List<String> items = new ArrayList<>(num);
         for (int i = 0; i < num; ++i) {
             items.add(Integer.toString(i));
         }
-        return items;
+        return new TestAdapter<>(items);
     }
 }

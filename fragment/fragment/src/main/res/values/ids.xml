@@ -17,5 +17,6 @@
 
 <resources>
         <item type="id" name="fragment_container_view_tag" />
+        <item type="id" name="special_effects_controller_view_tag" />
         <item type="id" name="visible_removing_fragment_view_tag" />
 </resources>

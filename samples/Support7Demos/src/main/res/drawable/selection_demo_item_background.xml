@@ -16,6 +16,6 @@
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_activated="true">
-        <color android:color="#220000FF"></color>
+        <color android:color="#2200FF00"></color>
     </item>
 </selector>

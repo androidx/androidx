@@ -20,9 +20,11 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
@@ -31,6 +33,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
@@ -43,7 +46,9 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.ViewTreeObserver;
+import android.view.Window;
 import android.view.WindowInsets;
+import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
@@ -83,6 +88,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Helper for accessing features in {@link View}.
  */
+@SuppressLint("PrivateConstructorForUtilityClass") // deprecated non-private constructor
 public class ViewCompat {
     private static final String TAG = "ViewCompat";
 
@@ -490,6 +496,31 @@ public class ViewCompat {
     }
 
     /**
+     * Stores debugging information about attributes. This should be called in a constructor by
+     * every custom {@link View} that uses a custom styleable. If the custom view does not call it,
+     * then the custom attributes used by this view will not be visible in layout inspection tools.
+     *
+     * No-op before API 29.
+     *
+     *  @param context Context under which this view is created.
+     * @param styleable A reference to styleable array R.styleable.Foo
+     * @param attrs AttributeSet used to construct this view.
+     * @param t Resolved {@link TypedArray} returned by a call to
+     *        {@link android.content.res.Resources#obtainAttributes(AttributeSet, int[])}.
+     * @param defStyleAttr Default style attribute passed into the view constructor.
+     * @param defStyleRes Default style resource passed into the view constructor.
+     */
+    public static void saveAttributeDataForStyleable(@NonNull View view,
+            @SuppressLint("ContextFirst") @NonNull Context context, @NonNull int[] styleable,
+            @Nullable AttributeSet attrs, @NonNull TypedArray t, int defStyleAttr,
+            int defStyleRes) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            Api29Impl.saveAttributeDataForStyleable(
+                    view, context, styleable, attrs, t, defStyleAttr, defStyleRes);
+        }
+    }
+
+    /**
      * Check if this view can be scrolled horizontally in a certain direction.
      *
      * @param view The View against which to invoke the method.
@@ -636,6 +667,7 @@ public class ViewCompat {
      * <li>{@link AccessibilityNodeInfoCompat#setPackageName(CharSequence)},</li>
      * <li>{@link AccessibilityNodeInfoCompat#setClassName(CharSequence)},</li>
      * <li>{@link AccessibilityNodeInfoCompat#setContentDescription(CharSequence)},</li>
+     * <li>{@link AccessibilityNodeInfoCompat#setStateDescription(CharSequence)},</li>
      * <li>{@link AccessibilityNodeInfoCompat#setEnabled(boolean)},</li>
      * <li>{@link AccessibilityNodeInfoCompat#setClickable(boolean)},</li>
      * <li>{@link AccessibilityNodeInfoCompat#setFocusable(boolean)},</li>
@@ -1318,6 +1350,43 @@ public class ViewCompat {
         }
         return actions;
     }
+
+    /**
+     * Sets the state description of this node.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param stateDescription the state description of this node.
+     *
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    @UiThread
+    public static void setStateDescription(@NonNull View view,
+            @Nullable CharSequence stateDescription) {
+        if (Build.VERSION.SDK_INT >= 19) {
+            stateDescriptionProperty().set(view, stateDescription);
+        }
+    }
+
+    /**
+     * Returns the {@link View}'s state description.
+     * <p>
+     * <strong>Note:</strong> Do not override this method, as it will have no
+     * effect on the state description presented to accessibility services.
+     * You must call {@link #setStateDescription(View, CharSequence)} to modify the
+     * state description.
+     *
+     * @return the state description
+     * @see #setStateDescription(View, CharSequence)
+     */
+    @UiThread
+    public static final @Nullable CharSequence getStateDescription(@NonNull View view) {
+        return stateDescriptionProperty().get(view);
+    }
+
 
     /**
      * Allow accessibility services to find and activate clickable spans in the application.
@@ -2432,7 +2501,7 @@ public class ViewCompat {
      * window insets to this view. This will only take effect on devices with API 21 or above.
      */
     public static void setOnApplyWindowInsetsListener(@NonNull View v,
-            final OnApplyWindowInsetsListener listener) {
+            final @Nullable OnApplyWindowInsetsListener listener) {
         if (Build.VERSION.SDK_INT >= 21) {
             if (listener == null) {
                 v.setOnApplyWindowInsetsListener(null);
@@ -2443,7 +2512,7 @@ public class ViewCompat {
                 @Override
                 public WindowInsets onApplyWindowInsets(View view, WindowInsets insets) {
                     WindowInsetsCompat compatInsets = WindowInsetsCompat
-                            .toWindowInsetsCompat(insets);
+                            .toWindowInsetsCompat(insets, view);
                     compatInsets = listener.onApplyWindowInsets(view, compatInsets);
                     return compatInsets.toWindowInsets();
                 }
@@ -2463,15 +2532,18 @@ public class ViewCompat {
      * @param insets Insets to apply
      * @return The supplied insets with any applied insets consumed
      */
+    @NonNull
     public static WindowInsetsCompat onApplyWindowInsets(@NonNull View view,
-            WindowInsetsCompat insets) {
+            @NonNull WindowInsetsCompat insets) {
         if (Build.VERSION.SDK_INT >= 21) {
-            WindowInsets unwrapped = insets.toWindowInsets();
-            WindowInsets result = view.onApplyWindowInsets(unwrapped);
-            if (!result.equals(unwrapped)) {
-                unwrapped = new WindowInsets(result);
+            final WindowInsets unwrapped = insets.toWindowInsets();
+            if (unwrapped != null) {
+                WindowInsets result = view.onApplyWindowInsets(unwrapped);
+                if (!result.equals(unwrapped)) {
+                    // If the value changed, return a newly wrapped instance
+                    return WindowInsetsCompat.toWindowInsetsCompat(result, view);
+                }
             }
-            return WindowInsetsCompat.toWindowInsetsCompat(unwrapped);
         }
         return insets;
     }
@@ -2488,15 +2560,18 @@ public class ViewCompat {
      * @param insets Insets to apply
      * @return The provided insets minus the insets that were consumed
      */
+    @NonNull
     public static WindowInsetsCompat dispatchApplyWindowInsets(@NonNull View view,
-            WindowInsetsCompat insets) {
+            @NonNull WindowInsetsCompat insets) {
         if (Build.VERSION.SDK_INT >= 21) {
-            WindowInsets unwrapped = insets.toWindowInsets();
-            WindowInsets result = view.dispatchApplyWindowInsets(unwrapped);
-            if (!result.equals(unwrapped)) {
-                unwrapped = new WindowInsets(result);
+            final WindowInsets unwrapped = insets.toWindowInsets();
+            if (unwrapped != null) {
+                final WindowInsets result = view.dispatchApplyWindowInsets(unwrapped);
+                if (!result.equals(unwrapped)) {
+                    // If the value changed, return a newly wrapped instance
+                    return WindowInsetsCompat.toWindowInsetsCompat(result, view);
+                }
             }
-            return WindowInsetsCompat.toWindowInsetsCompat(unwrapped);
         }
         return insets;
     }
@@ -2533,6 +2608,63 @@ public class ViewCompat {
             return view.getSystemGestureExclusionRects();
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * Provide original {@link WindowInsetsCompat} that are dispatched to the view hierarchy.
+     * The insets are only available if the view is attached.
+     * <p>
+     * On devices running API 22 and below, this method always returns null.
+     *
+     * @return WindowInsetsCompat from the top of the view hierarchy or null if View is detached
+     */
+    @Nullable
+    public static WindowInsetsCompat getRootWindowInsets(@NonNull View view) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            return Api23Impl.getRootWindowInsets(view);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Compute insets that should be consumed by this view and the ones that should propagate
+     * to those under it.
+     *
+     * @param insets Insets currently being processed by this View, likely received as a parameter
+     *           to {@link View#onApplyWindowInsets(WindowInsets)}.
+     * @param outLocalInsets A Rect that will receive the insets that should be consumed
+     *                       by this view
+     * @return Insets that should be passed along to views under this one
+     */
+    @NonNull
+    public static WindowInsetsCompat computeSystemWindowInsets(@NonNull View view,
+            @NonNull WindowInsetsCompat insets, @NonNull Rect outLocalInsets) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            return Api21Impl.computeSystemWindowInsets(view, insets, outLocalInsets);
+        }
+        return insets;
+    }
+
+    /**
+     * Retrieves a {@link WindowInsetsControllerCompat} of the window this view is attached to.
+     *
+     * @return A {@link WindowInsetsControllerCompat} or {@code null} if the view is neither
+     * attached to a window nor a view tree with a decor.
+     * @see WindowCompat#getInsetsController(Window, View)
+     */
+    @Nullable
+    public static WindowInsetsControllerCompat getWindowInsetsController(@NonNull View view) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            return Api30Impl.getWindowInsetsController(view);
+        } else {
+            Context context = view.getContext();
+            if (context instanceof Activity) {
+                Window window = ((Activity) context).getWindow();
+                return window != null ? WindowCompat.getInsetsController(window, view) : null;
+            }
+            return null;
+        }
     }
 
     /**
@@ -3466,6 +3598,7 @@ public class ViewCompat {
      * @return The logical display, or null if the view is not currently attached to a window.
      */
     @Nullable
+    @SuppressWarnings("deprecation") /* getDefaultDisplay */
     public static Display getDisplay(@NonNull View view) {
         if (Build.VERSION.SDK_INT >= 17) {
             return view.getDisplay();
@@ -3700,21 +3833,18 @@ public class ViewCompat {
         }
     }
 
-    /**
-     * Adds a listener which will receive unhandled {@link KeyEvent}s. This must be called on the
-     * UI thread.
-     *
-     * @param listener a receiver of unhandled {@link KeyEvent}s.
-     * @see #removeOnUnhandledKeyEventListener
-     */
-    @SuppressWarnings("unchecked")
-    public static void addOnUnhandledKeyEventListener(@NonNull View v,
-            final @NonNull OnUnhandledKeyEventListenerCompat listener) {
-        if (Build.VERSION.SDK_INT >= 28) {
+    @RequiresApi(28)
+    static class CompatImplApi28 {
+        private CompatImplApi28() {
+        }
+
+        @SuppressWarnings("unchecked")
+        static void addOnUnhandledKeyEventListener(@NonNull View v,
+                final @NonNull OnUnhandledKeyEventListenerCompat listener) {
             SimpleArrayMap<OnUnhandledKeyEventListenerCompat, View.OnUnhandledKeyEventListener>
                     viewListeners = (SimpleArrayMap<OnUnhandledKeyEventListenerCompat,
-                            View.OnUnhandledKeyEventListener>)
-                            v.getTag(R.id.tag_unhandled_key_listeners);
+                    View.OnUnhandledKeyEventListener>)
+                    v.getTag(R.id.tag_unhandled_key_listeners);
             if (viewListeners == null) {
                 viewListeners = new SimpleArrayMap<>();
                 v.setTag(R.id.tag_unhandled_key_listeners, viewListeners);
@@ -3729,6 +3859,37 @@ public class ViewCompat {
 
             viewListeners.put(listener, fwListener);
             v.addOnUnhandledKeyEventListener(fwListener);
+        }
+
+        @SuppressWarnings("unchecked")
+        static void removeOnUnhandledKeyEventListener(@NonNull View v,
+                @NonNull OnUnhandledKeyEventListenerCompat listener) {
+            SimpleArrayMap<OnUnhandledKeyEventListenerCompat, View.OnUnhandledKeyEventListener>
+                    viewListeners = (SimpleArrayMap<OnUnhandledKeyEventListenerCompat,
+                    View.OnUnhandledKeyEventListener>)
+                    v.getTag(R.id.tag_unhandled_key_listeners);
+            if (viewListeners == null) {
+                return;
+            }
+            View.OnUnhandledKeyEventListener fwListener = viewListeners.get(listener);
+            if (fwListener != null) {
+                v.removeOnUnhandledKeyEventListener(fwListener);
+            }
+        }
+    }
+
+    /**
+     * Adds a listener which will receive unhandled {@link KeyEvent}s. This must be called on the
+     * UI thread.
+     *
+     * @param listener a receiver of unhandled {@link KeyEvent}s.
+     * @see #removeOnUnhandledKeyEventListener
+     */
+    @SuppressWarnings("unchecked")
+    public static void addOnUnhandledKeyEventListener(@NonNull View v,
+            final @NonNull OnUnhandledKeyEventListenerCompat listener) {
+        if (Build.VERSION.SDK_INT >= 28) {
+            CompatImplApi28.addOnUnhandledKeyEventListener(v, listener);
             return;
         }
         ArrayList<OnUnhandledKeyEventListenerCompat> viewListeners =
@@ -3755,17 +3916,7 @@ public class ViewCompat {
     public static void removeOnUnhandledKeyEventListener(@NonNull View v,
             @NonNull OnUnhandledKeyEventListenerCompat listener) {
         if (Build.VERSION.SDK_INT >= 28) {
-            SimpleArrayMap<OnUnhandledKeyEventListenerCompat, View.OnUnhandledKeyEventListener>
-                    viewListeners = (SimpleArrayMap<OnUnhandledKeyEventListenerCompat,
-                            View.OnUnhandledKeyEventListener>)
-                            v.getTag(R.id.tag_unhandled_key_listeners);
-            if (viewListeners == null) {
-                return;
-            }
-            View.OnUnhandledKeyEventListener fwListener = viewListeners.get(listener);
-            if (fwListener != null) {
-                v.removeOnUnhandledKeyEventListener(fwListener);
-            }
+            CompatImplApi28.removeOnUnhandledKeyEventListener(v, listener);
             return;
         }
         ArrayList<OnUnhandledKeyEventListenerCompat> viewListeners =
@@ -3779,7 +3930,12 @@ public class ViewCompat {
         }
     }
 
-    protected ViewCompat() {}
+    /**
+     * @deprecated This is a utility class and it shouldn't be instantiated.
+     */
+    @Deprecated
+    protected ViewCompat() {
+    }
 
     /**
      * Interface definition for a callback to be invoked when a hardware key event hasn't
@@ -3949,6 +4105,29 @@ public class ViewCompat {
         };
     }
 
+    private static AccessibilityViewProperty<CharSequence> stateDescriptionProperty() {
+        return new AccessibilityViewProperty<CharSequence>(R.id.tag_state_description,
+                CharSequence.class, AccessibilityEvent.CONTENT_CHANGE_TYPE_STATE_DESCRIPTION, 30) {
+
+            @RequiresApi(30)
+            @Override
+            CharSequence frameworkGet(View view) {
+                return view.getStateDescription();
+            }
+
+            @RequiresApi(30)
+            @Override
+            void frameworkSet(View view, CharSequence value) {
+                view.setStateDescription(value);
+            }
+
+            @Override
+            boolean shouldUpdate(CharSequence oldValue, CharSequence newValue) {
+                return !TextUtils.equals(oldValue, newValue);
+            }
+        };
+    }
+
     /**
      * Gets whether this view is a heading for accessibility purposes.
      *
@@ -4024,6 +4203,7 @@ public class ViewCompat {
             mType = type;
             mContentChangeType = contentChangeType;
             mFrameworkMinimumSdk = frameworkMinimumSdk;
+
         }
 
         void set(View view, T value) {
@@ -4035,8 +4215,7 @@ public class ViewCompat {
                 // If we're here, we're guaranteed to be on v19+ (see the logic in
                 // extrasAvailable), so we can call notifyViewAccessibilityStateChangedIfNeeded
                 // which requires 19.
-                notifyViewAccessibilityStateChangedIfNeeded(view,
-                        AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED);
+                notifyViewAccessibilityStateChangedIfNeeded(view, mContentChangeType);
             }
         }
 
@@ -4081,16 +4260,31 @@ public class ViewCompat {
         if (!accessibilityManager.isEnabled()) {
             return;
         }
-        boolean isAccessibilityPane = getAccessibilityPaneTitle(view) != null;
+        boolean isVisibleAccessibilityPane = getAccessibilityPaneTitle(view) != null
+                && view.getVisibility() == View.VISIBLE;
         // If this is a live region or accessibilityPane, we should send a subtree change event
         // from this view immediately. Otherwise, we can let it propagate up.
         if ((getAccessibilityLiveRegion(view) != ACCESSIBILITY_LIVE_REGION_NONE)
-                || (isAccessibilityPane && view.getVisibility() == View.VISIBLE)) {
+                || isVisibleAccessibilityPane) {
             final AccessibilityEvent event = AccessibilityEvent.obtain();
-            event.setEventType(isAccessibilityPane ? AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
+            event.setEventType(isVisibleAccessibilityPane
+                    ? AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
                     : AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
             event.setContentChangeTypes(changeType);
+            if (isVisibleAccessibilityPane) {
+                event.getText().add(getAccessibilityPaneTitle(view));
+                setViewImportanceForAccessibilityIfNeeded(view);
+            }
             view.sendAccessibilityEventUnchecked(event);
+        } else if (changeType == AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_DISAPPEARED) {
+            final AccessibilityEvent event = AccessibilityEvent.obtain();
+            view.onInitializeAccessibilityEvent(event);
+            event.setEventType(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+            event.setContentChangeTypes(changeType);
+            event.setSource(view);
+            view.onPopulateAccessibilityEvent(event);
+            event.getText().add(getAccessibilityPaneTitle(view));
+            accessibilityManager.sendAccessibilityEvent(event);
         } else if (view.getParent() != null) {
             try {
                 view.getParent().notifySubtreeAccessibilityStateChanged(view, view, changeType);
@@ -4098,6 +4292,25 @@ public class ViewCompat {
                 Log.e(TAG, view.getParent().getClass().getSimpleName()
                         + " does not fully implement ViewParent", e);
             }
+        }
+    }
+
+    private static void setViewImportanceForAccessibilityIfNeeded(View view) {
+        if (ViewCompat.getImportantForAccessibility(view)
+                == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
+            ViewCompat.setImportantForAccessibility(view,
+                    ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        }
+        // Check parent mode to ensure we're not hidden.
+        ViewParent parent = view.getParent();
+        while (parent instanceof View) {
+            if (ViewCompat.getImportantForAccessibility((View) parent)
+                    == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS) {
+                ViewCompat.setImportantForAccessibility(view,
+                        ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
+                break;
+            }
+            parent = parent.getParent();
         }
     }
 
@@ -4111,8 +4324,10 @@ public class ViewCompat {
         @RequiresApi(19)
         @Override
         public void onGlobalLayout() {
-            for (Map.Entry<View, Boolean> entry : mPanesToVisible.entrySet()) {
-                checkPaneVisibility(entry.getKey(), entry.getValue());
+            if (Build.VERSION.SDK_INT < 28) {
+                for (Map.Entry<View, Boolean> entry : mPanesToVisible.entrySet()) {
+                    checkPaneVisibility(entry.getKey(), entry.getValue());
+                }
             }
         }
 
@@ -4148,10 +4363,10 @@ public class ViewCompat {
         private void checkPaneVisibility(View pane, boolean oldVisibility) {
             boolean newVisibility = pane.getVisibility() == View.VISIBLE;
             if (oldVisibility != newVisibility) {
-                if (newVisibility) {
-                    notifyViewAccessibilityStateChangedIfNeeded(pane,
-                            AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED);
-                }
+                int contentChangeType = newVisibility
+                        ? AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED
+                        : AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_DISAPPEARED;
+                notifyViewAccessibilityStateChangedIfNeeded(pane, contentChangeType);
                 mPanesToVisible.put(pane, newVisibility);
             }
         }
@@ -4349,6 +4564,74 @@ public class ViewCompat {
                     }
                 }
             }
+        }
+    }
+
+    @RequiresApi(21)
+    private static class Api21Impl {
+        private Api21Impl() {
+            // private
+        }
+
+        static WindowInsetsCompat computeSystemWindowInsets(@NonNull View v,
+                @NonNull WindowInsetsCompat insets, @NonNull Rect outLocalInsets) {
+            WindowInsets platformInsets = insets.toWindowInsets();
+            if (platformInsets != null) {
+                return WindowInsetsCompat.toWindowInsetsCompat(
+                        v.computeSystemWindowInsets(platformInsets, outLocalInsets), v);
+            } else {
+                outLocalInsets.setEmpty();
+                return insets;
+            }
+        }
+    }
+
+    @RequiresApi(23)
+    private static class Api23Impl {
+        private Api23Impl() {
+            // privatex
+        }
+
+        @Nullable
+        public static WindowInsetsCompat getRootWindowInsets(@NonNull View v) {
+            final WindowInsets wi = v.getRootWindowInsets();
+            if (wi == null) return null;
+
+            final WindowInsetsCompat insets = WindowInsetsCompat.toWindowInsetsCompat(wi);
+            // This looks strange, but the WindowInsetsCompat instance still needs to know about
+            // what the root window insets, and the root view visible bounds are
+            insets.setRootWindowInsets(insets);
+            insets.copyRootViewBounds(v.getRootView());
+            return insets;
+        }
+    }
+
+    @RequiresApi(29)
+    private static class Api29Impl {
+        private Api29Impl() {
+            // private
+        }
+
+        static void saveAttributeDataForStyleable(@NonNull View view,
+                @NonNull Context context, @NonNull int[] styleable, @Nullable AttributeSet attrs,
+                @NonNull TypedArray t, int defStyleAttr, int defStyleRes) {
+            view.saveAttributeDataForStyleable(
+                    context, styleable, attrs, t, defStyleAttr, defStyleRes);
+        }
+    }
+
+    @RequiresApi(30)
+    private static class Api30Impl {
+        private Api30Impl() {
+            // privatex
+        }
+
+        @Nullable
+        public static WindowInsetsControllerCompat getWindowInsetsController(@NonNull View view) {
+            WindowInsetsController windowInsetsController = view.getWindowInsetsController();
+            return windowInsetsController != null
+                    ? WindowInsetsControllerCompat.toWindowInsetsControllerCompat(
+                    windowInsetsController) : null;
         }
     }
 }

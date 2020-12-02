@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
 
     <issue
         id="CanvasSize"
@@ -41,7 +41,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/animation/SpringActivity.java"
-            line="117"
+            line="116"
             column="31"/>
     </issue>
 
@@ -52,8 +52,19 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/animation/SpringActivity.java"
-            line="139"
+            line="138"
             column="31"/>
+    </issue>
+
+    <issue
+        id="QueryPermissionsNeeded"
+        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this \&#xA;method; see https://g.co/dev/packagevisibility for details"
+        errorLine1="        List&lt;ResolveInfo> list = pm.queryIntentActivities(mainIntent, 0);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
+            line="65"
+            column="37"/>
     </issue>
 
     <issue
@@ -101,6 +112,259 @@
     </issue>
 
     <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/activity_chained_springs.xml"
+            line="17"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mDampingRatio` of class `MainActivity` requires synthetic accessor"
+        errorLine1="                    anim1X.getSpring().setStiffness(mStiffness).setDampingRatio(mDampingRatio);"
+        errorLine2="                                                                                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"
+            line="87"
+            column="81"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mStiffness` of class `MainActivity` requires synthetic accessor"
+        errorLine1="                    anim1X.getSpring().setStiffness(mStiffness).setDampingRatio(mDampingRatio);"
+        errorLine2="                                                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"
+            line="87"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mDampingRatio` of class `MainActivity` requires synthetic accessor"
+        errorLine1="                    anim1Y.getSpring().setStiffness(mStiffness).setDampingRatio(mDampingRatio);"
+        errorLine2="                                                                                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"
+            line="88"
+            column="81"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mStiffness` of class `MainActivity` requires synthetic accessor"
+        errorLine1="                    anim1Y.getSpring().setStiffness(mStiffness).setDampingRatio(mDampingRatio);"
+        errorLine2="                                                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"
+            line="88"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mDampingRatio` of class `MainActivity` requires synthetic accessor"
+        errorLine1="                    anim2X.getSpring().setStiffness(mStiffness).setDampingRatio(mDampingRatio);"
+        errorLine2="                                                                                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"
+            line="89"
+            column="81"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mStiffness` of class `MainActivity` requires synthetic accessor"
+        errorLine1="                    anim2X.getSpring().setStiffness(mStiffness).setDampingRatio(mDampingRatio);"
+        errorLine2="                                                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"
+            line="89"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mDampingRatio` of class `MainActivity` requires synthetic accessor"
+        errorLine1="                    anim2Y.getSpring().setStiffness(mStiffness).setDampingRatio(mDampingRatio);"
+        errorLine2="                                                                                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"
+            line="90"
+            column="81"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mStiffness` of class `MainActivity` requires synthetic accessor"
+        errorLine1="                    anim2Y.getSpring().setStiffness(mStiffness).setDampingRatio(mDampingRatio);"
+        errorLine2="                                                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"
+            line="90"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mDampingRatio` of class `MainActivity` requires synthetic accessor"
+        errorLine1="                    mDampingRatio = i / 80.0f;"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"
+            line="126"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mDampingRatio` of class `MainActivity` requires synthetic accessor"
+        errorLine1="                    mDampingRatio = (float) Math.exp((i - 90) / 10.0);"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"
+            line="128"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mDampingRatio` of class `MainActivity` requires synthetic accessor"
+        errorLine1="                    mDampingRatio = 1;"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"
+            line="130"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mDampingRatio` of class `MainActivity` requires synthetic accessor"
+        errorLine1="                drTxt.setText(String.format(&quot;%.4f&quot;, (float) mDampingRatio));"
+        errorLine2="                                                            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"
+            line="132"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mStiffness` of class `MainActivity` requires synthetic accessor"
+        errorLine1="                mStiffness = stiffness;"
+        errorLine2="                ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"
+            line="153"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mSpringView` of class `SpringActivity` requires synthetic accessor"
+        errorLine1="                mSpringView.setMassHeight(img.getY());"
+        errorLine2="                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
+            line="54"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mSpringView` of class `SpringActivity` requires synthetic accessor"
+        errorLine1="                    mSpringView.setMassHeight(img.getY());"
+        errorLine2="                    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
+            line="86"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mDampingRatio` of class `SpringActivity` requires synthetic accessor"
+        errorLine1="                    anim.getSpring().setDampingRatio(mDampingRatio).setStiffness(mStiffness);"
+        errorLine2="                                                     ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
+            line="92"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mStiffness` of class `SpringActivity` requires synthetic accessor"
+        errorLine1="                    anim.getSpring().setDampingRatio(mDampingRatio).setStiffness(mStiffness);"
+        errorLine2="                                                                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
+            line="92"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mDampingRatio` of class `SpringActivity` requires synthetic accessor"
+        errorLine1="                    mDampingRatio = i / 80.0f;"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
+            line="110"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mDampingRatio` of class `SpringActivity` requires synthetic accessor"
+        errorLine1="                    mDampingRatio = (float) Math.exp((i - 90) / 10.0);"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
+            line="112"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mDampingRatio` of class `SpringActivity` requires synthetic accessor"
+        errorLine1="                    mDampingRatio = 1;"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
+            line="114"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mDampingRatio` of class `SpringActivity` requires synthetic accessor"
+        errorLine1="                drTxt.setText(String.format(&quot;%.4f&quot;, (float) mDampingRatio));"
+        errorLine2="                                                            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
+            line="116"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mStiffness` of class `SpringActivity` requires synthetic accessor"
+        errorLine1="                mStiffness = stiffness;"
+        errorLine2="                ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
+            line="137"
+            column="17"/>
+    </issue>
+
+    <issue
         id="UselessParent"
         message="This `FrameLayout` layout or its `RelativeLayout` parent is possibly useless"
         errorLine1="    &lt;FrameLayout"
@@ -109,24 +373,6 @@
             file="src/main/res/layout/activity_main.xml"
             line="30"
             column="6"/>
-    </issue>
-
-    <issue
-        id="IconMissingDensityFolder"
-        message="Missing density variation folders in `src/main/res`: drawable-xhdpi, drawable-xxhdpi">
-        <location
-            file="src/main/res"/>
-    </issue>
-
-    <issue
-        id="GoogleAppIndexingWarning"
-        message="App is not indexable by Google Search; consider adding at least one Activity with an ACTION-VIEW intent filter. See issue explanation for more details."
-        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
-        errorLine2="    ^">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="19"
-            column="5"/>
     </issue>
 
     <issue
@@ -147,7 +393,7 @@
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/animation/SpringActivity.java"
-            line="63"
+            line="62"
             column="28"/>
     </issue>
 
@@ -237,6 +483,204 @@
             file="src/main/res/layout/activity_main.xml"
             line="89"
             column="21"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
+            line="42"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
+            line="58"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
+            line="58"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
+        errorLine2="              ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
+            line="124"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
+            line="124"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
+            line="124"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Intent browseIntent(String path) {"
+        errorLine2="              ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
+            line="130"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Intent browseIntent(String path) {"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
+            line="130"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
+            line="137"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
+        errorLine2="                                                           ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
+            line="137"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
+        errorLine2="                                                                        ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
+            line="137"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onListItemClick(ListView l, View v, int position, long id) {"
+        errorLine2="                                   ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
+            line="146"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onListItemClick(ListView l, View v, int position, long id) {"
+        errorLine2="                                               ~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
+            line="146"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"
+            line="38"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
+            line="40"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SpringView(Context context, AttributeSet attrs) {"
+        errorLine2="                      ~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/SpringView.java"
+            line="32"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SpringView(Context context, AttributeSet attrs) {"
+        errorLine2="                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/SpringView.java"
+            line="32"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onDraw(Canvas canvas) {"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/SpringView.java"
+            line="50"
+            column="24"/>
     </issue>
 
 </issues>

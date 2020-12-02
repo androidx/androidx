@@ -29,11 +29,9 @@ final class ImageReaderFormatRecommender {
 
     /** Chooses a combination which is compatible for the current device. */
     static FormatCombo chooseCombo() {
-        if (ImageReaderProxys.inSharedReaderWhitelist(DeviceProperties.create())) {
-            return FormatCombo.create(ImageFormat.YUV_420_888, ImageFormat.YUV_420_888);
-        } else {
-            return FormatCombo.create(ImageFormat.JPEG, ImageFormat.YUV_420_888);
-        }
+        // TODO(b/128944206): Currently we don't support shared image readers, so we only need to
+        //  return this single combination. Revisit when shared image readers are reintroduced.
+        return FormatCombo.create(ImageFormat.JPEG, ImageFormat.YUV_420_888);
     }
 
     /** Container for a combination of {@link ImageReader} formats. */

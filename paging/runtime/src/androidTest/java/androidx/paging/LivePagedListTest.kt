@@ -17,15 +17,16 @@
 package androidx.paging
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import kotlinx.coroutines.Dispatchers
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 @SmallTest
 class LivePagedListTest {
     @JvmField
@@ -51,23 +52,25 @@ class LivePagedListTest {
     }
 
     @Test
-    fun toLiveData_pagedSourceConfig() {
+    fun toLiveData_pagingSourceConfig() {
         @Suppress("DEPRECATION")
-        val livePagedList = pagedSourceFactory.toLiveData(config)
+        val livePagedList = pagingSourceFactory.toLiveData(config)
         livePagedList.observeForever {}
         assertNotNull(livePagedList.value)
         assertEquals(config, livePagedList.value!!.config)
     }
 
     @Test
-    fun toLiveData_pagedSourcePageSize() {
-        val livePagedList = pagedSourceFactory.toLiveData(24)
+    fun toLiveData_pagingSourcePageSize() {
+        @Suppress("DEPRECATION")
+        val livePagedList = pagingSourceFactory.toLiveData(24)
         livePagedList.observeForever {}
         assertNotNull(livePagedList.value)
         assertEquals(24, livePagedList.value!!.config.pageSize)
     }
 
     companion object {
+        @Suppress("DEPRECATION")
         private val dataSource = object : PositionalDataSource<String>() {
             override fun loadInitial(
                 params: LoadInitialParams,
@@ -75,19 +78,16 @@ class LivePagedListTest {
             ) {
             }
 
-            override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {
-            }
+            override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {}
         }
 
         private val dataSourceFactory = object : DataSource.Factory<Int, String>() {
-            override fun create(): DataSource<Int, String> {
-                return dataSource
-            }
+            override fun create(): DataSource<Int, String> = dataSource
         }
 
-        private val pagedSource = LegacyPagedSource(dataSource)
-
-        private val pagedSourceFactory = { pagedSource }
+        private val pagingSourceFactory = dataSourceFactory.asPagingSourceFactory(
+            fetchDispatcher = Dispatchers.Main
+        )
 
         private val config = Config(10)
     }

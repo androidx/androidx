@@ -16,7 +16,8 @@
 
 package androidx.benchmark
 
-import java.util.ArrayList
+import android.os.Bundle
+import androidx.annotation.RestrictTo
 import kotlin.Double.Companion.NaN
 import kotlin.math.pow
 import kotlin.math.roundToLong
@@ -25,17 +26,16 @@ import kotlin.math.roundToLong
  * Provides statistics such as mean, median, min, max, and percentiles, given a list of input
  * values.
  */
-internal class Stats(data: List<Long>) {
-    val median: Long
-    val min: Long
-    val max: Long
-    val percentile90: Long
-    val percentile95: Long
-    val mean: Double = data.average()
-    val standardDeviation: Double
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class Stats(data: LongArray, public val name: String) {
+    public val median: Long
+    public val min: Long
+    public val max: Long
+    public val mean: Double = data.average()
+    public val standardDeviation: Double
 
     init {
-        val values = ArrayList(data).sorted()
+        val values = data.sorted()
         val size = values.size
         if (size < 1) {
             throw IllegalArgumentException("At least one result is necessary.")
@@ -44,8 +44,6 @@ internal class Stats(data: List<Long>) {
         min = values.first()
         max = values.last()
         median = getPercentile(values, 50)
-        percentile90 = getPercentile(values, 90)
-        percentile95 = getPercentile(values, 95)
         standardDeviation = if (size == 1) {
             NaN
         } else {
@@ -54,7 +52,38 @@ internal class Stats(data: List<Long>) {
         }
     }
 
-    companion object {
+    internal fun getSummary(): String {
+        return "Stats for $name: median $median, min $min, max $max, mean $mean, " +
+            "standardDeviation: $standardDeviation"
+    }
+
+    public fun putInBundle(status: Bundle, prefix: String) {
+        if (name == "timeNs") {
+            // compatibility naming scheme.
+            // should be removed, once we timeNs_min has been in dashboard for several weeks
+            status.putLong("${prefix}min", min)
+            status.putLong("${prefix}median", median)
+            status.putLong("${prefix}standardDeviation", standardDeviation.toLong())
+        }
+
+        // format string for
+        val bundleName = name.toOutputMetricName()
+
+        status.putLong("${prefix}${bundleName}_min", min)
+        status.putLong("${prefix}${bundleName}_median", median)
+        status.putLong("${prefix}${bundleName}_stddev", standardDeviation.toLong())
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return (other is Stats && other.hashCode() == this.hashCode())
+    }
+
+    override fun hashCode(): Int {
+        return min.hashCode() + max.hashCode() + median.hashCode() + standardDeviation.hashCode() +
+            mean.hashCode()
+    }
+
+    internal companion object {
         internal fun lerp(a: Long, b: Long, ratio: Double): Long {
             return (a * (1 - ratio) + b * (ratio)).roundToLong()
         }

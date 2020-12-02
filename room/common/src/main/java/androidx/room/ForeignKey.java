@@ -19,6 +19,7 @@ import androidx.annotation.IntDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Declares a foreign key on another {@link Entity}.
@@ -45,6 +46,7 @@ import java.lang.annotation.RetentionPolicy;
  * Please refer to the SQLite <a href="https://sqlite.org/foreignkeys.html">foreign keys</a>
  * documentation for details.
  */
+@Target({})
 @Retention(RetentionPolicy.CLASS)
 public @interface ForeignKey {
     /**

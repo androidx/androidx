@@ -1,5 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="        return String.format(&quot;%08d&quot;, index);"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/test/common/TestUtils.java"
+            line="99"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.media2.test.common.TestUtils is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="            return Objects.equals(a, b);"
+        errorLine2="                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/test/common/TestUtils.java"
+            line="77"
+            column="28"/>
+    </issue>
 
     <issue
         id="UnknownNullness"
@@ -103,7 +125,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static String getMediaIdInDummyList(int index) {"
+        errorLine1="    public static String getMediaIdInFakeList(int index) {"
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/media2/test/common/TestUtils.java"

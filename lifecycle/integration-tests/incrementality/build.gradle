@@ -14,21 +14,12 @@
  * limitations under the License.
  */
 
+import androidx.build.SdkResourceGenerator
+
 import static androidx.build.dependencies.DependenciesKt.*
-import androidx.build.SupportConfig
 
 plugins {
     id("kotlin")
-}
-
-def generatedResources = "$buildDir/generated/resources"
-def prebuiltsRoot = SupportConfig.getPrebuiltsRootPath(project)
-def debugKeystore = "${SupportConfig.getKeystore(project)}"
-def agpVersion = SupportConfig.getAGPVersion(project)
-def supportRepo = SupportConfig.getSupportRepoPath(project)
-
-sourceSets {
-    test.resources.srcDirs += generatedResources
 }
 
 dependencies {
@@ -38,32 +29,10 @@ dependencies {
     testImplementation gradleTestKit()
 }
 
-task generateSdkResource() {
-    inputs.property("prebuiltsRoot", prebuiltsRoot)
-    inputs.property("compileSdkVersion", SupportConfig.TARGET_SDK_VERSION)
-    inputs.property("buildToolsVersion", SupportConfig.BUILD_TOOLS_VERSION)
-    inputs.property("minSdkVersion", SupportConfig.DEFAULT_MIN_SDK_VERSION)
-    inputs.property("debugKeystore", debugKeystore)
-    inputs.property("supportRepo", supportRepo)
-    outputs.dir(generatedResources)
-    doLast {
-        def gradleVersion = gradle.getGradleVersion()
-        new File(generatedResources, "sdk.prop").withWriter('UTF-8') { writer ->
-            writer.write("prebuiltsRepo=$prebuiltsRoot\n")
-            writer.write("compileSdkVersion=$SupportConfig.TARGET_SDK_VERSION\n")
-            writer.write("buildToolsVersion=$SupportConfig.BUILD_TOOLS_VERSION\n")
-            writer.write("minSdkVersion=$SupportConfig.DEFAULT_MIN_SDK_VERSION\n")
-            writer.write("debugKeystore=$debugKeystore\n")
-            writer.write("agpVersion=$agpVersion\n")
-            writer.write("gradleVersion=$gradleVersion\n")
-            writer.write("supportRepo=$supportRepo\n")
-        }
-    }
-}
-
-tasks.findByName("compileTestKotlin").dependsOn(generateSdkResource)
+SdkResourceGenerator.generateForHostTest(project)
 
 // lifecycle-common and annotation are the dependencies of lifecycle-compiler
-tasks.findByPath("test").dependsOn(tasks.findByPath(":lifecycle:lifecycle-compiler:uploadArchives"),
-        tasks.findByPath(":lifecycle:lifecycle-common:uploadArchives"),
-        tasks.findByPath(":annotation:annotation:uploadArchives"))
+tasks.findByPath("test").dependsOn(tasks.findByPath(":lifecycle:lifecycle-compiler:publish"),
+        tasks.findByPath(":lifecycle:lifecycle-common:publish"),
+        tasks.findByPath(":lifecycle:lifecycle-runtime:publish"),
+        tasks.findByPath(":annotation:annotation:publish"))

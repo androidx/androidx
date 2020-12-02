@@ -1,0 +1,26 @@
+// Signature format: 4.0
+package androidx.core.appdigest {
+
+  public final class Checksum {
+    method public java.security.cert.Certificate? getInstallerCertificate() throws java.security.cert.CertificateException;
+    method public String? getInstallerPackageName();
+    method public String? getSplitName();
+    method public int getType();
+    method public byte[] getValue();
+    field public static final int TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256 = 32; // 0x20
+    field public static final int TYPE_PARTIAL_MERKLE_ROOT_1M_SHA512 = 64; // 0x40
+    field @Deprecated public static final int TYPE_WHOLE_MD5 = 2; // 0x2
+    field public static final int TYPE_WHOLE_MERKLE_ROOT_4K_SHA256 = 1; // 0x1
+    field @Deprecated public static final int TYPE_WHOLE_SHA1 = 4; // 0x4
+    field @Deprecated public static final int TYPE_WHOLE_SHA256 = 8; // 0x8
+    field @Deprecated public static final int TYPE_WHOLE_SHA512 = 16; // 0x10
+  }
+
+  public final class Checksums {
+    method public static com.google.common.util.concurrent.ListenableFuture<androidx.core.appdigest.Checksum![]!> getChecksums(android.content.Context, String, boolean, int, java.util.List<java.security.cert.Certificate!>, java.util.concurrent.Executor) throws java.security.cert.CertificateEncodingException, android.content.pm.PackageManager.NameNotFoundException;
+    field public static final java.util.List<java.security.cert.Certificate!> TRUST_ALL;
+    field public static final java.util.List<java.security.cert.Certificate!> TRUST_NONE;
+  }
+
+}
+

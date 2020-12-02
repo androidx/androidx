@@ -37,7 +37,9 @@
             android:gravity="start|center_vertical"
             android:orientation="horizontal"
             android:paddingEnd="12dp"
-            android:paddingRight="12dp"/>
+            android:paddingRight="12dp"
+            android:paddingStart="0dp"
+            android:paddingLeft="0dp"/>
 
         <LinearLayout
             android:id="@android:id/content"
@@ -55,6 +57,7 @@
                 android:maxLines="1"/>
 
             <LinearLayout
+                android:id="@+id/subcontent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -65,7 +68,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:ellipsize="end"
-                    android:maxLines="1" />
+                    android:maxLines="1"/>
 
                 <TextView
                     android:id="@+id/last_updated"
@@ -97,6 +100,8 @@
             android:layout_height="wrap_content"
             android:paddingStart="8dp"
             android:paddingLeft="8dp"
+            android:paddingEnd="0dp"
+            android:paddingRight="0dp"
             android:gravity="end|center_vertical"
             android:orientation="horizontal"
             android:visibility="gone"/>

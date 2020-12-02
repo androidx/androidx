@@ -37,7 +37,7 @@ class AnnotationRetentionPolicyTest {
             val retentionPolicy = it.getAnnotation(java.lang.annotation.Retention::class.java).value
             assert(retentionPolicy == RetentionPolicy.CLASS) {
                 "Expected ${it.name} annotation to have retention policy CLASS" +
-                        " but it is $retentionPolicy"
+                    " but it is $retentionPolicy"
             }
         }
     }

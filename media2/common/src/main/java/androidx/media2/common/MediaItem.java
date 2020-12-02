@@ -86,6 +86,8 @@ public class MediaItem extends CustomVersionedParcelable {
     @ParcelField(3)
     long mEndPositionMs = POSITION_UNKNOWN;
 
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
     @GuardedBy("mLock")
     @NonParcelField
     private final List<Pair<OnMetadataChangedListener, Executor>> mListeners = new ArrayList<>();
@@ -153,9 +155,12 @@ public class MediaItem extends CustomVersionedParcelable {
     public void setMetadata(@Nullable MediaMetadata metadata) {
         List<Pair<OnMetadataChangedListener, Executor>> listeners = new ArrayList<>();
         synchronized (mLock) {
+            if (mMetadata == metadata) {
+                return;
+            }
             if (mMetadata != null && metadata != null
                     && !TextUtils.equals(getMediaId(), metadata.getMediaId())) {
-                Log.d(TAG, "MediaItem's media ID shouldn't be changed");
+                Log.w(TAG, "MediaItem's media ID shouldn't be changed");
                 return;
             }
             mMetadata = metadata;
@@ -167,7 +172,7 @@ public class MediaItem extends CustomVersionedParcelable {
             pair.second.execute(new Runnable() {
                 @Override
                 public void run() {
-                    listener.onMetadataChanged(MediaItem.this);
+                    listener.onMetadataChanged(MediaItem.this, metadata);
                 }
             });
         }
@@ -209,7 +214,6 @@ public class MediaItem extends CustomVersionedParcelable {
      * @return media Id from the session
      * @hide
      */
-    // TODO: Remove
     @RestrictTo(LIBRARY_GROUP)
     @Nullable
     public String getMediaId() {
@@ -330,7 +334,8 @@ public class MediaItem extends CustomVersionedParcelable {
         /**
          * Called when a media item's metadata is changed.
          */
-        void onMetadataChanged(MediaItem item);
+        void onMetadataChanged(@NonNull MediaItem item,
+                @Nullable MediaMetadata metadata);
     }
 
     /**

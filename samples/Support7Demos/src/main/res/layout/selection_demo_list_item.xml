@@ -27,11 +27,10 @@
       xmlns:android="http://schemas.android.com/apk/res/android"
       android:layout_height="match_parent"
       android:layout_width="match_parent"
-      android:background="@drawable/selection_demo_item_background">
+      android:background="#FFFFFFFF">
       <TextView
           android:id="@+id/selector"
           android:textSize="20sp"
-          android:textStyle="bold"
           android:gravity="center"
           android:layout_height="match_parent"
           android:layout_width="40dp"
@@ -41,13 +40,14 @@
       </TextView>
       <TextView
           android:id="@+id/label"
-          android:textSize="20sp"
-          android:textStyle="bold"
+          android:textSize="18sp"
+          android:textColor="@android:color/black"
           android:gravity="center_vertical"
           android:paddingStart="10dp"
           android:paddingEnd="10dp"
           android:layout_height="match_parent"
-          android:layout_width="match_parent">
+          android:layout_width="wrap_content"
+          android:background="@drawable/selection_demo_item">
       </TextView>
   </LinearLayout>
 </LinearLayout>

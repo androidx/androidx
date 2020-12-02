@@ -16,13 +16,18 @@
 
 package androidx.concurrent.futures;
 
+import androidx.annotation.RestrictTo;
+
 import java.util.concurrent.Executor;
 
 /**
  * An {@link Executor} that runs each task in the thread that invokes {@link Executor#execute
  * execute}.
+ *
+ * @hide
  */
-enum DirectExecutor implements Executor {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public enum DirectExecutor implements Executor {
     INSTANCE;
 
     @Override

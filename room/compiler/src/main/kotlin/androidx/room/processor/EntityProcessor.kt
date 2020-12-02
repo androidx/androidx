@@ -20,27 +20,28 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Fts3
 import androidx.room.Fts4
-import androidx.room.ext.AnnotationBox
-import androidx.room.ext.hasAnyOf
+import androidx.room.compiler.processing.XAnnotationBox
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.vo.ForeignKeyAction
 import androidx.room.vo.Index
-import javax.lang.model.element.Name
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.TypeMirror
 
 interface EntityProcessor : EntityOrViewProcessor {
     override fun process(): androidx.room.vo.Entity
 
     companion object {
-        fun extractTableName(element: TypeElement, annotation: Entity): String {
+        fun extractTableName(element: XTypeElement, annotation: Entity): String {
             return if (annotation.tableName == "") {
-                element.simpleName.toString()
+                element.name
             } else {
                 annotation.tableName
             }
         }
 
-        fun extractIndices(annotation: AnnotationBox<Entity>, tableName: String): List<IndexInput> {
+        fun extractIndices(
+            annotation: XAnnotationBox<Entity>,
+            tableName: String
+        ): List<IndexInput> {
             return annotation.getAsAnnotationBoxArray<androidx.room.Index>("indices").map {
                 val indexAnnotation = it.value
                 val nameValue = indexAnnotation.name
@@ -57,23 +58,24 @@ interface EntityProcessor : EntityOrViewProcessor {
             return Index.DEFAULT_PREFIX + tableName + "_" + columnNames.joinToString("_")
         }
 
-        fun extractForeignKeys(annotation: AnnotationBox<Entity>): List<ForeignKeyInput> {
+        fun extractForeignKeys(annotation: XAnnotationBox<Entity>): List<ForeignKeyInput> {
             return annotation.getAsAnnotationBoxArray<ForeignKey>("foreignKeys")
-                    .mapNotNull { annotationBox ->
-                val foreignKey = annotationBox.value
-                val parent = annotationBox.getAsTypeMirror("entity")
-                if (parent != null) {
-                    ForeignKeyInput(
+                .mapNotNull { annotationBox ->
+                    val foreignKey = annotationBox.value
+                    val parent = annotationBox.getAsType("entity")
+                    if (parent != null) {
+                        ForeignKeyInput(
                             parent = parent,
                             parentColumns = foreignKey.parentColumns.asList(),
                             childColumns = foreignKey.childColumns.asList(),
                             onDelete = ForeignKeyAction.fromAnnotationValue(foreignKey.onDelete),
                             onUpdate = ForeignKeyAction.fromAnnotationValue(foreignKey.onUpdate),
-                            deferred = foreignKey.deferred)
-                } else {
-                    null
+                            deferred = foreignKey.deferred
+                        )
+                    } else {
+                        null
+                    }
                 }
-            }
         }
     }
 }
@@ -87,7 +89,7 @@ data class IndexInput(val name: String, val unique: Boolean, val columnNames: Li
  * ForeignKey, before it is processed in the context of a database.
  */
 data class ForeignKeyInput(
-    val parent: TypeMirror,
+    val parent: XType,
     val parentColumns: List<String>,
     val childColumns: List<String>,
     val onDelete: ForeignKeyAction?,
@@ -97,8 +99,8 @@ data class ForeignKeyInput(
 
 fun EntityProcessor(
     context: Context,
-    element: TypeElement,
-    referenceStack: LinkedHashSet<Name> = LinkedHashSet()
+    element: XTypeElement,
+    referenceStack: LinkedHashSet<String> = LinkedHashSet()
 ): EntityProcessor {
     return if (element.hasAnyOf(Fts3::class, Fts4::class)) {
         FtsTableEntityProcessor(context, element, referenceStack)

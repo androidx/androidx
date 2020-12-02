@@ -1,7 +1,6 @@
 // Signature format: 3.0
 package androidx.preference {
 
-
   public class CheckBoxPreference extends androidx.preference.TwoStatePreference {
     ctor public CheckBoxPreference(android.content.Context!, android.util.AttributeSet!, int);
     ctor public CheckBoxPreference(android.content.Context!, android.util.AttributeSet!, int, int);
@@ -509,7 +508,6 @@ package androidx.preference {
   }
 
   public class PreferenceViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.TESTS) public static androidx.preference.PreferenceViewHolder! createInstanceForTests(android.view.View!);
     method public android.view.View! findViewById(@IdRes int);
     method public boolean isDividerAllowedAbove();
     method public boolean isDividerAllowedBelow();
@@ -590,4 +588,13 @@ package androidx.preference {
 
 }
 
+package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) androidx.preference.internal {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class PreferenceImageView extends android.widget.ImageView {
+    ctor public PreferenceImageView(android.content.Context!);
+    ctor public PreferenceImageView(android.content.Context!, android.util.AttributeSet!);
+    ctor public PreferenceImageView(android.content.Context!, android.util.AttributeSet!, int);
+  }
+
+}
 

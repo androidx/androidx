@@ -29,11 +29,6 @@
         <item name="preferenceTheme">@style/CustomPreferenceThemeOverlayLeanback</item>
     </style>
 
-    <style name="CarTheme" parent="Theme.Car.NoActionBar">
-        <item name="preferenceTheme">@style/PreferenceThemeOverlayCar</item>
-        <item name="android:windowBackground">@color/car_card_dark</item>
-    </style>
-
     <style name="CustomPreferenceThemeOverlayLeanback" parent="PreferenceThemeOverlayLeanback">
         <item name="android:colorPrimary">#3F51B5</item>
         <item name="android:colorPrimaryDark">#303F9F</item>

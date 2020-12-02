@@ -1,8 +1,7 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.lifecycle {
 
   public final class ViewModelKt {
-    ctor public ViewModelKt();
     method public static kotlinx.coroutines.CoroutineScope getViewModelScope(androidx.lifecycle.ViewModel);
   }
 
@@ -14,8 +13,11 @@ package androidx.lifecycle {
   }
 
   public final class ViewModelProviderKt {
-    ctor public ViewModelProviderKt();
-    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> VM get(androidx.lifecycle.ViewModelProvider);
+    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> VM! get(androidx.lifecycle.ViewModelProvider);
+  }
+
+  public final class ViewTreeViewModelKt {
+    method public static androidx.lifecycle.ViewModelStoreOwner? findViewTreeViewModelStoreOwner(android.view.View);
   }
 
 }

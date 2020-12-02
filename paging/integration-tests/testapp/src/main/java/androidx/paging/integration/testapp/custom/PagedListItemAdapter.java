@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView;
 /**
  * Sample PagedList item Adapter, which uses a AsyncPagedListDiffer.
  */
+@SuppressWarnings("deprecation")
 class PagedListItemAdapter extends PagedListAdapter<Item, RecyclerView.ViewHolder> {
 
     PagedListItemAdapter() {
@@ -50,10 +51,10 @@ class PagedListItemAdapter extends PagedListAdapter<Item, RecyclerView.ViewHolde
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Item item = getItem(position);
         if (item != null) {
-            ((TextView) (holder.itemView)).setText(item.text);
+            ((TextView) holder.itemView).setText(item.text);
             holder.itemView.setBackgroundColor(item.bgColor);
         } else {
-            ((TextView) (holder.itemView)).setText(R.string.loading);
+            ((TextView) holder.itemView).setText(R.string.loading);
             holder.itemView.setBackgroundColor(Color.TRANSPARENT);
         }
     }

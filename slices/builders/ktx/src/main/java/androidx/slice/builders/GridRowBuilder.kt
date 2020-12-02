@@ -35,10 +35,10 @@ class CellBuilderDsl : GridRowBuilder.CellBuilder()
  * @see GridRowBuilder.addCell
  */
 inline fun GridRowBuilderDsl.cell(buildCell: CellBuilderDsl.() -> Unit) =
-        addCell(CellBuilderDsl().apply { buildCell() })
+    addCell(CellBuilderDsl().apply { buildCell() })
 
 /**
  * @see GridRowBuilder.setSeeMoreCell
  */
 inline fun GridRowBuilderDsl.seeMoreCell(buildCell: CellBuilderDsl.() -> Unit) =
-        setSeeMoreCell(CellBuilderDsl().apply { buildCell() })
+    setSeeMoreCell(CellBuilderDsl().apply { buildCell() })

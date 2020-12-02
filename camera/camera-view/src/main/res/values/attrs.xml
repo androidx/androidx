@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2019 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2019 The Android Open Source Project
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,11 +13,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
+    <attr name="scaleType" format="enum">
+        <enum name="fillStart" value="0" />
+        <enum name="fillCenter" value="1" />
+        <enum name="fillEnd" value="2" />
+        <enum name="fitStart" value="3" />
+        <enum name="fitCenter" value="4" />
+        <enum name="fitEnd" value="5" />
+    </attr>
+    <attr name="implementationMode" format="enum">
+        <enum name="performance" value="0" />
+        <enum name="compatible" value="1" />
+    </attr>
     <declare-styleable name="CameraView">
-        <attr name="scaleType" format="enum">
-            <enum name="centerCrop" value="0" />
-            <enum name="centerInside" value="1" />
-        </attr>
+        <attr name="scaleType" />
         <attr name="lensFacing" format="enum">
             <enum name="none" value="0" />
             <enum name="front" value="1" />
@@ -37,4 +45,10 @@ limitations under the License.
 
         <attr name="pinchToZoomEnabled" format="boolean" />
     </declare-styleable>
+
+    <declare-styleable name="PreviewView">
+        <attr name="scaleType" />
+        <attr name="implementationMode" />
+    </declare-styleable>
 </resources>
+

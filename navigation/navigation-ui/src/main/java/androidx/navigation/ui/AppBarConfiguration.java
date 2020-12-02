@@ -22,6 +22,7 @@ import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.customview.widget.Openable;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavGraph;
 
@@ -54,15 +55,15 @@ public final class AppBarConfiguration {
     @NonNull
     private final Set<Integer> mTopLevelDestinations;
     @Nullable
-    private final DrawerLayout mDrawerLayout;
+    private final Openable mOpenableLayout;
     @Nullable
     private final OnNavigateUpListener mFallbackOnNavigateUpListener;
 
     private AppBarConfiguration(@NonNull Set<Integer> topLevelDestinations,
-            @Nullable DrawerLayout drawerLayout,
+            @Nullable Openable openableLayout,
             @Nullable OnNavigateUpListener fallbackOnNavigateUpListener) {
         mTopLevelDestinations = topLevelDestinations;
-        mDrawerLayout = drawerLayout;
+        mOpenableLayout = openableLayout;
         mFallbackOnNavigateUpListener = fallbackOnNavigateUpListener;
     }
 
@@ -78,13 +79,28 @@ public final class AppBarConfiguration {
     }
 
     /**
+     * The {@link Openable} layout indicating that the Navigation button should be displayed as
+     * a drawer symbol when it is not being shown as an Up button.
+     * @return The Openable layout that should be toggled from the Navigation button
+     */
+    @Nullable
+    public Openable getOpenableLayout() {
+        return mOpenableLayout;
+    }
+
+    /**
      * The {@link DrawerLayout} indicating that the Navigation button should be displayed as
      * a drawer symbol when it is not being shown as an Up button.
      * @return The DrawerLayout that should be toggled from the Navigation button
+     * @deprecated Use {@link #getOpenableLayout()}.
      */
+    @Deprecated
     @Nullable
     public DrawerLayout getDrawerLayout() {
-        return mDrawerLayout;
+        if (mOpenableLayout instanceof DrawerLayout) {
+            return (DrawerLayout) mOpenableLayout;
+        }
+        return null;
     }
 
     /**
@@ -106,7 +122,7 @@ public final class AppBarConfiguration {
         private final Set<Integer> mTopLevelDestinations = new HashSet<>();
 
         @Nullable
-        private DrawerLayout mDrawerLayout;
+        private Openable mOpenableLayout;
 
         @Nullable
         private OnNavigateUpListener mFallbackOnNavigateUpListener;
@@ -173,10 +189,25 @@ public final class AppBarConfiguration {
          * Up button.
          * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button
          * @return this {@link Builder}
+         * @deprecated Use {@link #setOpenableLayout(Openable)}.
          */
+        @Deprecated
         @NonNull
         public Builder setDrawerLayout(@Nullable DrawerLayout drawerLayout) {
-            mDrawerLayout = drawerLayout;
+            mOpenableLayout = drawerLayout;
+            return this;
+        }
+
+        /**
+         * Display the Navigation button as a drawer symbol when it is not being shown as an
+         * Up button.
+         * @param openableLayout The Openable layout that should be toggled from the Navigation
+         *                       button
+         * @return this {@link Builder}
+         */
+        @NonNull
+        public Builder setOpenableLayout(@Nullable Openable openableLayout) {
+            mOpenableLayout = openableLayout;
             return this;
         }
 
@@ -206,7 +237,7 @@ public final class AppBarConfiguration {
                                               conflicting with the public AppBarConfiguration.kt */
         @NonNull
         public AppBarConfiguration build() {
-            return new AppBarConfiguration(mTopLevelDestinations, mDrawerLayout,
+            return new AppBarConfiguration(mTopLevelDestinations, mOpenableLayout,
                     mFallbackOnNavigateUpListener);
         }
     }

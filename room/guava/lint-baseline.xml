@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class null is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="                        cancellationSignal.cancel();"
+        errorLine2="                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/guava/GuavaRoom.java"
+            line="125"
+            column="44"/>
+    </issue>
 
     <issue
         id="LambdaLast"
@@ -26,11 +37,11 @@
     <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 3, &quot;callable&quot;, in androidx.room.guava.GuavaRoom.createListenableFuture) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            final boolean releaseQuery) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            final @Nullable CancellationSignal cancellationSignal) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="89"
+            line="106"
             column="13"/>
     </issue>
 
@@ -118,7 +129,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="84"
+            line="85"
             column="23"/>
     </issue>
 
@@ -129,7 +140,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="85"
+            line="86"
             column="19"/>
     </issue>
 
@@ -140,7 +151,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="87"
+            line="88"
             column="19"/>
     </issue>
 
@@ -151,73 +162,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="88"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static &lt;T> ListenableFuture&lt;T> createListenableFuture("
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="129"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            final RoomDatabase roomDatabase,"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="130"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            final Callable&lt;T> callable) {"
-        errorLine2="                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="131"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static &lt;T> ListenableFuture&lt;T> createListenableFuture("
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="139"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            final RoomDatabase roomDatabase,"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="140"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            final Callable&lt;T> callable) {"
-        errorLine2="                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="142"
+            line="89"
             column="19"/>
     </issue>
 

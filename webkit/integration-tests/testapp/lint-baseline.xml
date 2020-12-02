@@ -1,59 +1,169 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
 
     <issue
-        id="Assert"
-        message="Assertions are unreliable in Dalvik and unimplemented in ART. Use `BuildConfig.DEBUG` conditional checks instead."
-        errorLine1="                assert view == mWebView;"
-        errorLine2="                ~~~~~~">
+        id="ScopedStorage"
+        message="WRITE_EXTERNAL_STORAGE no longer provides write access when targeting Android 10, unless you use `requestLegacyExternalStorage`"
+        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot; />"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="217"
-            column="17"/>
+            file="src/main/AndroidManifest.xml"
+            line="23"
+            column="36"/>
     </issue>
 
     <issue
-        id="InflateParams"
-        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
-        errorLine1="                    .inflate(R.layout.fragment_renderer_terminated, null);"
-        errorLine2="                                                                    ~~~~">
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        synchronized void unblock() {"
+        errorLine2="        ^">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="154"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        synchronized void beginBlocking() {"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="160"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        @JavascriptInterface"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="166"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.AssetLoaderAjaxActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                mUriIdlingResource.beginLoad(request.getUrl().toString());"
+        errorLine2="                                                     ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
+            line="57"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.AssetLoaderAjaxActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            WebResourceResponse response = mAssetLoader.shouldInterceptRequest(request.getUrl());"
+        errorLine2="                                                                                       ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
+            line="59"
+            column="88"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.AssetLoaderAjaxActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                mUriIdlingResource.endLoad(request.getUrl().toString());"
+        errorLine2="                                                   ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
+            line="61"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.AssetLoaderInternalStorageActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            return mAssetLoader.shouldInterceptRequest(request.getUrl());"
+        errorLine2="                                                               ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderInternalStorageActivity.java"
+            line="64"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.AssetLoaderSimpleActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            return mAssetLoader.shouldInterceptRequest(request.getUrl());"
+        errorLine2="                                                               ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderSimpleActivity.java"
+            line="49"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.CustomInterstitialActivity.CustomInterstitialWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            myIntent.putExtra(PopupInterstitialActivity.THREAT_URL, request.getUrl().toString());"
+        errorLine2="                                                                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/CustomInterstitialActivity.java"
             line="104"
-            column="69"/>
+            column="77"/>
     </issue>
 
     <issue
-        id="InflateParams"
-        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
-        errorLine1="                    .inflate(R.layout.fragment_renderer_unresponsive, null);"
-        errorLine2="                                                                      ~~~~">
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.DocumentStartJavaScriptActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            return mAssetLoader.shouldInterceptRequest(request.getUrl());"
+        errorLine2="                                                               ~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="130"
-            column="71"/>
+            file="src/main/java/com/example/androidx/webkit/DocumentStartJavaScriptActivity.java"
+            line="70"
+            column="64"/>
     </issue>
 
     <issue
-        id="RestrictedApi"
-        message="WebViewFeature.MULTI_PROCESS_QUERY can only be accessed from within the same library group (groupId=androidx.webkit)"
-        errorLine1="        if (WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROCESS_QUERY)) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~">
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.ErrorLoggingWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            logErrors(request.getUrl().toString(), error.getErrorCode());"
+        errorLine2="                              ~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/webkit/MultiProcessEnabledActivity.java"
-            line="37"
-            column="62"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="WebViewCompat.isMultiProcessEnabled can only be called from within the same library group (groupId=androidx.webkit)"
-        errorLine1="            if (WebViewCompat.isMultiProcessEnabled()) {"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/MultiProcessEnabledActivity.java"
-            line="38"
+            file="src/main/java/com/example/androidx/webkit/ErrorLoggingWebViewClient.java"
+            line="47"
             column="31"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.MenuListView is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/MenuListView.java"
+            line="48"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.WebMessageListenerActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            return mAssetLoader.shouldInterceptRequest(request.getUrl());"
+        errorLine2="                                                               ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/WebMessageListenerActivity.java"
+            line="78"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.WebMessageListenerMaliciousWebsiteActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                WebResourceResponse response = loader.shouldInterceptRequest(request.getUrl());"
+        errorLine2="                                                                                     ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/WebMessageListenerMaliciousWebsiteActivity.java"
+            line="69"
+            column="86"/>
     </issue>
 
     <issue
@@ -79,36 +189,36 @@
     </issue>
 
     <issue
-        id="SetJavaScriptEnabled"
-        message="Using `setJavaScriptEnabled` can introduce XSS vulnerabilities into your application, review carefully."
-        errorLine1="        webViewSettings.setJavaScriptEnabled(true);"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteLayoutParam"
+        message="Invalid layout param in a `LinearLayout`: `layout_centerVertical`"
+        errorLine1="        android:layout_centerVertical=&quot;true&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
-            line="86"
+            file="src/main/res/layout/activity_document_start_javascript.xml"
+            line="42"
             column="9"/>
     </issue>
 
     <issue
-        id="SetJavaScriptEnabled"
-        message="Using `setJavaScriptEnabled` can introduce XSS vulnerabilities into your application, review carefully."
-        errorLine1="        mWebView.getSettings().setJavaScriptEnabled(true); // in case site needs JS to render"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteLayoutParam"
+        message="Invalid layout param in a `LinearLayout`: `layout_centerVertical`"
+        errorLine1="            android:layout_centerVertical=&quot;true&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/webkit/LoudInterstitialActivity.java"
-            line="49"
-            column="9"/>
+            file="src/main/res/layout/activity_web_message_listener.xml"
+            line="46"
+            column="13"/>
     </issue>
 
     <issue
-        id="SetJavaScriptEnabled"
-        message="Using `setJavaScriptEnabled` can introduce XSS vulnerabilities into your application, review carefully."
-        errorLine1="        mWebView.getSettings().setJavaScriptEnabled(true);"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteLayoutParam"
+        message="Invalid layout param in a `LinearLayout`: `layout_alignBottom`"
+        errorLine1="            android:layout_alignBottom=&quot;@+id/button1&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="229"
-            column="9"/>
+            file="src/main/res/layout/activity_web_message_listener.xml"
+            line="52"
+            column="13"/>
     </issue>
 
     <issue
@@ -118,19 +228,8 @@
         errorLine2="        ^">
         <location
             file="src/main/java/com/example/androidx/webkit/AssetLoaderInternalStorageActivity.java"
-            line="92"
+            line="96"
             column="9"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This `AsyncTask` class should be static or leaks might occur (com.example.androidx.webkit.AssetLoaderInternalStorageActivity.WriteFileTask)"
-        errorLine1="    private class WriteFileTask extends AsyncTask&lt;Void, Void, Void> {"
-        errorLine2="                  ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/AssetLoaderInternalStorageActivity.java"
-            line="116"
-            column="19"/>
     </issue>
 
     <issue
@@ -150,8 +249,30 @@
         errorLine1="    android:background=&quot;@color/colorBackground&quot;>"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
+            file="src/main/res/layout/activity_allowlist.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@color/colorBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="    android:background=&quot;@color/colorBackground&quot;>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
             file="src/main/res/layout/activity_custom_interstitial.xml"
             line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `#FF0` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="    android:background=&quot;#FF0&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_document_start_javascript.xml"
+            line="20"
             column="5"/>
     </issue>
 
@@ -162,7 +283,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/activity_force_dark.xml"
-            line="23"
+            line="22"
             column="5"/>
     </issue>
 
@@ -256,13 +377,519 @@
 
     <issue
         id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/colorBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;@color/colorBackground&quot;>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Possible overdraw: Root element paints background `#FF0` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
+        errorLine1="    android:background=&quot;#FF0&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/activity_whitelist.xml"
-            line="26"
+            file="src/main/res/layout/activity_web_message_listener.xml"
+            line="20"
             column="5"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `allowlistSafeBrowsingTestSite` of class `AllowlistActivity` requires synthetic accessor"
+        errorLine1="                    allowlistSafeBrowsingTestSite(null);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AllowlistActivity.java"
+            line="63"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `clearAllowlist` of class `AllowlistActivity` requires synthetic accessor"
+        errorLine1="                    clearAllowlist();"
+        errorLine2="                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AllowlistActivity.java"
+            line="65"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mAllowlistWebView` of class `AllowlistActivity` requires synthetic accessor"
+        errorLine1="                mAllowlistWebView.loadUrl(SafeBrowsingHelpers.TEST_SAFE_BROWSING_SITE);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AllowlistActivity.java"
+            line="83"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mUriIdlingResource` of class `AssetLoaderAjaxActivity` requires synthetic accessor"
+        errorLine1="            if (mUriIdlingResource != null) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
+            line="56"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mUriIdlingResource` of class `AssetLoaderAjaxActivity` requires synthetic accessor"
+        errorLine1="                mUriIdlingResource.beginLoad(request.getUrl().toString());"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
+            line="57"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mAssetLoader` of class `AssetLoaderAjaxActivity` requires synthetic accessor"
+        errorLine1="            WebResourceResponse response = mAssetLoader.shouldInterceptRequest(request.getUrl());"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
+            line="59"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mUriIdlingResource` of class `AssetLoaderAjaxActivity` requires synthetic accessor"
+        errorLine1="            if (mUriIdlingResource != null) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
+            line="60"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mUriIdlingResource` of class `AssetLoaderAjaxActivity` requires synthetic accessor"
+        errorLine1="                mUriIdlingResource.endLoad(request.getUrl().toString());"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
+            line="61"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mUriIdlingResource` of class `AssetLoaderAjaxActivity` requires synthetic accessor"
+        errorLine1="            if (mUriIdlingResource != null) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
+            line="69"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mUriIdlingResource` of class `AssetLoaderAjaxActivity` requires synthetic accessor"
+        errorLine1="                mUriIdlingResource.beginLoad(request);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
+            line="70"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mAssetLoader` of class `AssetLoaderAjaxActivity` requires synthetic accessor"
+        errorLine1="            WebResourceResponse response = mAssetLoader.shouldInterceptRequest(Uri.parse(request));"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
+            line="72"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mUriIdlingResource` of class `AssetLoaderAjaxActivity` requires synthetic accessor"
+        errorLine1="            if (mUriIdlingResource != null) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
+            line="73"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mUriIdlingResource` of class `AssetLoaderAjaxActivity` requires synthetic accessor"
+        errorLine1="                mUriIdlingResource.endLoad(request);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
+            line="74"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` member of class `MyWebViewClient` requires synthetic accessor"
+        errorLine1="        mWebView.setWebViewClient(new MyWebViewClient());"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderAjaxActivity.java"
+            line="109"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mAssetLoader` of class `AssetLoaderInternalStorageActivity` requires synthetic accessor"
+        errorLine1="            return mAssetLoader.shouldInterceptRequest(request.getUrl());"
+        errorLine2="                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderInternalStorageActivity.java"
+            line="64"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mAssetLoader` of class `AssetLoaderInternalStorageActivity` requires synthetic accessor"
+        errorLine1="            return mAssetLoader.shouldInterceptRequest(Uri.parse(request));"
+        errorLine2="                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderInternalStorageActivity.java"
+            line="70"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` member of class `MyWebViewClient` requires synthetic accessor"
+        errorLine1="        mWebView.setWebViewClient(new MyWebViewClient());"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderInternalStorageActivity.java"
+            line="84"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mWebView` of class `AssetLoaderInternalStorageActivity` requires synthetic accessor"
+        errorLine1="                mWebView.loadUrl(path.toString());"
+        errorLine2="                ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderInternalStorageActivity.java"
+            line="106"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mAssetLoader` of class `AssetLoaderSimpleActivity` requires synthetic accessor"
+        errorLine1="            return mAssetLoader.shouldInterceptRequest(request.getUrl());"
+        errorLine2="                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderSimpleActivity.java"
+            line="49"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mAssetLoader` of class `AssetLoaderSimpleActivity` requires synthetic accessor"
+        errorLine1="            return mAssetLoader.shouldInterceptRequest(Uri.parse(request));"
+        errorLine2="                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderSimpleActivity.java"
+            line="55"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` member of class `MyWebViewClient` requires synthetic accessor"
+        errorLine1="        mWebView.setWebViewClient(new MyWebViewClient());"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AssetLoaderSimpleActivity.java"
+            line="71"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mDarkStrategySpinner` of class `ForceDarkStrategyActivity` requires synthetic accessor"
+        errorLine1="                switch (mDarkStrategySpinner.getSelectedItemPosition()) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/ForceDarkStrategyActivity.java"
+            line="148"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mDarkThemeWebView` of class `ForceDarkStrategyActivity` requires synthetic accessor"
+        errorLine1="                WebSettingsCompat.setForceDarkStrategy(mDarkThemeWebView.getSettings(),"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/ForceDarkStrategyActivity.java"
+            line="158"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mNoDarkThemeWebView` of class `ForceDarkStrategyActivity` requires synthetic accessor"
+        errorLine1="                WebSettingsCompat.setForceDarkStrategy(mNoDarkThemeWebView.getSettings(),"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/ForceDarkStrategyActivity.java"
+            line="160"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mContext` of class `MenuListView` requires synthetic accessor"
+        errorLine1="                featureArrayAdapter.getItem(position).start(mContext);"
+        errorLine2="                                                            ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/MenuListView.java"
+            line="91"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `recreateWebView` of class `RendererTerminationActivity` requires synthetic accessor"
+        errorLine1="                            ((RendererTerminationActivity) getActivity())"
+        errorLine2="                            ^">
+        <location
+            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="110"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `terminateWebViewRenderer` of class `RendererTerminationActivity` requires synthetic accessor"
+        errorLine1="                            ((RendererTerminationActivity) getActivity())"
+        errorLine2="                            ^">
+        <location
+            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="136"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `updateButtonState` of class `RendererTerminationActivity` requires synthetic accessor"
+        errorLine1="            updateButtonState(false);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="151"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `updateButtonState` of class `RendererTerminationActivity` requires synthetic accessor"
+        errorLine1="            updateButtonState(false);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="157"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mWebView` of class `RendererTerminationActivity` requires synthetic accessor"
+        errorLine1="            mWebView.evaluateJavascript(&quot;__blocker__.block();&quot;, null);"
+        errorLine2="            ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="162"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `updateButtonState` of class `RendererTerminationActivity` requires synthetic accessor"
+        errorLine1="            updateButtonState(true);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="163"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mWebView` of class `RendererTerminationActivity` requires synthetic accessor"
+        errorLine1="                mWebView.destroy();"
+        errorLine2="                ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="216"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mBlocker` of class `RendererTerminationActivity` requires synthetic accessor"
+        errorLine1="                mBlocker.unblock();"
+        errorLine2="                ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="217"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mStatus` of class `RendererTerminationActivity` requires synthetic accessor"
+        errorLine1="                mStatus.setText(&quot;terminated&quot;);"
+        errorLine2="                ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="222"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mStatus` of class `RendererTerminationActivity` requires synthetic accessor"
+        errorLine1="                    mStatus.setText(&quot;unresponsive&quot;);"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="242"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mStatus` of class `RendererTerminationActivity` requires synthetic accessor"
+        errorLine1="                    mStatus.setText(&quot;responsive&quot;);"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="252"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `setupLayout` of class `SafeBrowsingActivity` requires synthetic accessor"
+        errorLine1="                                setupLayout();"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/SafeBrowsingActivity.java"
+            line="48"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `showSafeBrowsingRequirementsInBrowser` of class `SafeBrowsingActivity` requires synthetic accessor"
+        errorLine1="                                    showSafeBrowsingRequirementsInBrowser();"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/SafeBrowsingActivity.java"
+            line="54"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mInfo` of class `TracingControllerActivity` requires synthetic accessor"
+        errorLine1="                                mInfo.setVisibility(View.VISIBLE);"
+        errorLine2="                                ~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/TracingControllerActivity.java"
+            line="96"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mButton` of class `TracingControllerActivity` requires synthetic accessor"
+        errorLine1="                                mButton.setVisibility(View.GONE);"
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/TracingControllerActivity.java"
+            line="97"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mInfo` of class `TracingControllerActivity` requires synthetic accessor"
+        errorLine1="                                mInfo.setText("
+        errorLine2="                                ~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/TracingControllerActivity.java"
+            line="98"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mLogPath` of class `TracingControllerActivity` requires synthetic accessor"
+        errorLine1="                                        getString(R.string.tracing_controller_log_path, mLogPath));"
+        errorLine2="                                                                                        ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/TracingControllerActivity.java"
+            line="99"
+            column="89"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `verifyJSON` of class `TracingControllerActivity` requires synthetic accessor"
+        errorLine1="                                    verifyJSON();"
+        errorLine2="                                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/TracingControllerActivity.java"
+            line="101"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mInfo` of class `TracingControllerActivity` requires synthetic accessor"
+        errorLine1="                                    mInfo.setText(R.string.tracing_controller_invalid_log);"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/TracingControllerActivity.java"
+            line="103"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `createNativeTitle` of class `WebMessageListenerActivity` requires synthetic accessor"
+        errorLine1="                        createNativeTitle(), &quot;\n&quot;, &quot;&quot; + mCounter + &quot; messages received.&quot;));"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/WebMessageListenerActivity.java"
+            line="155"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` member of class `AvailableInAllowedOriginsFrameMessageListener` requires synthetic accessor"
+        errorLine1="                new AvailableInAllowedOriginsFrameMessageListener());"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/WebMessageListenerMaliciousWebsiteActivity.java"
+            line="160"
+            column="17"/>
     </issue>
 
     <issue
@@ -293,8 +920,8 @@
         errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/activity_force_dark.xml"
-            line="27"
+            file="src/main/res/layout/activity_document_start_javascript.xml"
+            line="25"
             column="9"/>
     </issue>
 
@@ -304,9 +931,42 @@
         errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/activity_force_dark.xml"
-            line="37"
+            file="src/main/res/layout/activity_document_start_javascript.xml"
+            line="31"
             column="9"/>
+    </issue>
+
+    <issue
+        id="RedundantNamespace"
+        message="This namespace declaration is redundant"
+        errorLine1="    &lt;WebView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_force_dark.xml"
+            line="25"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="RedundantNamespace"
+        message="This namespace declaration is redundant"
+        errorLine1="    &lt;WebView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_force_dark.xml"
+            line="35"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="RedundantNamespace"
+        message="This namespace declaration is redundant"
+        errorLine1="    &lt;WebView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_force_dark.xml"
+            line="45"
+            column="14"/>
     </issue>
 
     <issue
@@ -315,8 +975,8 @@
         errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/activity_force_dark.xml"
-            line="47"
+            file="src/main/res/layout/activity_js_java_interaction.xml"
+            line="23"
             column="9"/>
     </issue>
 
@@ -343,6 +1003,61 @@
     </issue>
 
     <issue
+        id="RedundantNamespace"
+        message="This namespace declaration is redundant"
+        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_web_message_listener.xml"
+            line="24"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RedundantNamespace"
+        message="This namespace declaration is redundant"
+        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_web_message_listener.xml"
+            line="30"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RedundantNamespace"
+        message="This namespace declaration is redundant"
+        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_web_message_listener.xml"
+            line="36"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RedundantNamespace"
+        message="This namespace declaration is redundant"
+        errorLine1="        xmlns:tools=&quot;http://schemas.android.com/tools&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_web_message_listener.xml"
+            line="37"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RedundantNamespace"
+        message="This namespace declaration is redundant"
+        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_web_message_listener_malicious_website.xml"
+            line="22"
+            column="9"/>
+    </issue>
+
+    <issue
         id="UnusedNamespace"
         message="Unused namespace declaration xmlns:android; already declared on the root element"
         errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
@@ -359,8 +1074,8 @@
         errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/activity_force_dark.xml"
-            line="27"
+            file="src/main/res/layout/activity_document_start_javascript.xml"
+            line="25"
             column="9"/>
     </issue>
 
@@ -370,7 +1085,84 @@
         errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
+            file="src/main/res/layout/activity_document_start_javascript.xml"
+            line="31"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedNamespace"
+        message="Unused namespace declaration xmlns:android; already declared on the root element"
+        errorLine1="    &lt;WebView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
             file="src/main/res/layout/activity_force_dark.xml"
+            line="25"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="UnusedNamespace"
+        message="Unused namespace declaration xmlns:android; already declared on the root element"
+        errorLine1="    &lt;WebView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_force_dark.xml"
+            line="35"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="UnusedNamespace"
+        message="Unused namespace declaration xmlns:android; already declared on the root element"
+        errorLine1="    &lt;WebView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_force_dark.xml"
+            line="45"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="UnusedNamespace"
+        message="Unused namespace declaration xmlns:android; already declared on the root element"
+        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_web_message_listener.xml"
+            line="24"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedNamespace"
+        message="Unused namespace declaration xmlns:android; already declared on the root element"
+        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_web_message_listener.xml"
+            line="30"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedNamespace"
+        message="Unused namespace declaration xmlns:android; already declared on the root element"
+        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_web_message_listener.xml"
+            line="36"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedNamespace"
+        message="Unused namespace declaration xmlns:tools; already declared on the root element"
+        errorLine1="        xmlns:tools=&quot;http://schemas.android.com/tools&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_web_message_listener.xml"
             line="37"
             column="9"/>
     </issue>
@@ -381,8 +1173,8 @@
         errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/activity_force_dark.xml"
-            line="47"
+            file="src/main/res/layout/activity_web_message_listener_malicious_website.xml"
+            line="22"
             column="9"/>
     </issue>
 
@@ -442,6 +1234,28 @@
     </issue>
 
     <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button"
+        errorLine2="         ~~~~~~">
+        <location
+            file="src/main/res/layout/activity_web_message_listener.xml"
+            line="42"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button"
+        errorLine2="         ~~~~~~">
+        <location
+            file="src/main/res/layout/activity_web_message_listener.xml"
+            line="48"
+            column="10"/>
+    </issue>
+
+    <issue
         id="Autofill"
         message="Missing `autofillHints` attribute"
         errorLine1="    &lt;EditText"
@@ -481,7 +1295,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="224"
+            line="222"
             column="33"/>
     </issue>
 
@@ -492,7 +1306,7 @@
         errorLine2="                        ~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="235"
+            line="233"
             column="25"/>
     </issue>
 
@@ -503,7 +1317,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="244"
+            line="242"
             column="37"/>
     </issue>
 
@@ -514,8 +1328,19 @@
         errorLine2="                                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="254"
+            line="252"
             column="37"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Reply via ReplyProxy&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Reply via ReplyProxy&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_document_start_javascript.xml"
+            line="43"
+            column="9"/>
     </issue>
 
     <issue
@@ -552,6 +1377,28 @@
     </issue>
 
     <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Reply via ReplyProxy&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Reply via ReplyProxy&quot; />"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_web_message_listener.xml"
+            line="47"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Reply via Port&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Reply via Port&quot; />"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_web_message_listener.xml"
+            line="53"
+            column="13"/>
+    </issue>
+
+    <issue
         id="RtlHardcoded"
         message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
         errorLine1="        android:gravity=&quot;left&quot;"
@@ -571,6 +1418,380 @@
             file="src/main/res/layout/activity_renderer_termination.xml"
             line="75"
             column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/AllowlistActivity.java"
+            line="46"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/CustomInterstitialActivity.java"
+            line="45"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onActivityResult(int requestCode, int resultCode, Intent data) {"
+        errorLine2="                                                                     ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/CustomInterstitialActivity.java"
+            line="65"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/FullscreenActivity.java"
+            line="98"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/GiantInterstitialActivity.java"
+            line="40"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/InvisibleActivity.java"
+            line="42"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/LoudInterstitialActivity.java"
+            line="44"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/MediumInterstitialActivity.java"
+            line="50"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public MenuListView(Context context) {"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/MenuListView.java"
+            line="34"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public MenuListView(Context context, AttributeSet attrs) {"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/MenuListView.java"
+            line="38"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public MenuListView(Context context, AttributeSet attrs) {"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/MenuListView.java"
+            line="38"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public MenuListView(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/MenuListView.java"
+            line="42"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public MenuListView(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/MenuListView.java"
+            line="42"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public MenuListView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/MenuListView.java"
+            line="47"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public MenuListView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/MenuListView.java"
+            line="47"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public MenuItem(String name, Intent intentToLaunch) {"
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/MenuListView.java"
+            line="59"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public MenuItem(String name, Intent intentToLaunch) {"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/MenuListView.java"
+            line="59"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void start(Context activityContext) {"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/MenuListView.java"
+            line="76"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setItems(MenuItem[] items) {"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/MenuListView.java"
+            line="84"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/MultiProcessEnabledActivity.java"
+            line="31"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/PerWebViewEnableActivity.java"
+            line="35"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/PopupInterstitialActivity.java"
+            line="51"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Proxy(int port, ProxyRequestCallback callback) {"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/Proxy.java"
+            line="60"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public static RendererTerminatedDialogFragment newInstance() {"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="95"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Dialog onCreateDialog(Bundle savedInstanceState) {"
+        errorLine2="               ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="102"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Dialog onCreateDialog(Bundle savedInstanceState) {"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="102"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public static RendererUnresponsiveDialogFragment newInstance() {"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="121"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Dialog onCreateDialog(Bundle savedInstanceState) {"
+        errorLine2="               ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="128"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Dialog onCreateDialog(Bundle savedInstanceState) {"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
+            line="128"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/SmallInterstitialActivity.java"
+            line="34"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/UnattachedActivity.java"
+            line="40"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void appendWebViewVersionToTitle(Activity activity) {"
+        errorLine2="                                                   ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/WebkitHelpers.java"
+            line="35"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static TextView showMessageInActivity(Activity activity,"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/WebkitHelpers.java"
+            line="57"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static TextView showMessageInActivity(Activity activity,"
+        errorLine2="                                                 ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/webkit/WebkitHelpers.java"
+            line="57"
+            column="50"/>
     </issue>
 
 </issues>

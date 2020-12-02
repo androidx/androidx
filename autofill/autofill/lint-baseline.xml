@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+
+    <issue
+        id="InflateParams"
+        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
+        errorLine1="                (ViewGroup) inflater.inflate(R.layout.autofill_inline_suggestion, null);"
+        errorLine2="                                                                                  ~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="264"
+            column="83"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Style is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="            singleIconChipView.setLayoutDirection(getLayoutDirection());"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="374"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Style is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="            chipView.setLayoutDirection(getLayoutDirection());"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="408"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="            for (SliceItem sliceItem : slice.getItems()) {"
+        errorLine2="                                             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="679"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                        mTitle = sliceItem.getText().toString();"
+        errorLine2="                                           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="686"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                        mSubtitle = sliceItem.getText().toString();"
+        errorLine2="                                              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="689"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                        mStartIcon = sliceItem.getIcon();"
+        errorLine2="                                               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="692"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                        mEndIcon = sliceItem.getIcon();"
+        errorLine2="                                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="695"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                        mAttributionIntent = sliceItem.getAction();"
+        errorLine2="                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="698"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                        mContentDescription = sliceItem.getText();"
+        errorLine2="                                                        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="701"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="            switch (sliceItem.getFormat()) {"
+        errorLine2="                              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="773"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                    if (sliceItem.getIcon() == null) {"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="775"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                    if (sliceItem.getHints().contains(HINT_INLINE_START_ICON)) {"
+        errorLine2="                                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="778"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                    } else if (sliceItem.getHints().contains(HINT_INLINE_END_ICON)) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="780"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                    if (TextUtils.isEmpty(sliceItem.getText())) {"
+        errorLine2="                                                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="785"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                    if (sliceItem.getHints().contains(HINT_INLINE_TITLE)) {"
+        errorLine2="                                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="788"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                    } else if (sliceItem.getHints().contains(HINT_INLINE_SUBTITLE)) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="790"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                    } else if (sliceItem.getHints().contains(HINT_INLINE_CONTENT_DESCRIPTION)) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="792"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                    if (sliceItem.getAction() != null &amp;&amp; sliceItem.getHints().contains("
+        errorLine2="                                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="797"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                    if (sliceItem.getAction() != null &amp;&amp; sliceItem.getHints().contains("
+        errorLine2="                                                                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="797"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                    mSliceBuilder.addIcon(mStartIcon, null,"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="930"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                    mSliceBuilder.addText(mTitle, null,"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="934"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                    mSliceBuilder.addText(mSubtitle, null,"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="938"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                    mSliceBuilder.addIcon(mEndIcon, null,"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="942"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                    mSliceBuilder.addAction(mAttributionIntent, new Slice.Builder("
+        errorLine2="                                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="946"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                    mSliceBuilder.addAction(mAttributionIntent, new Slice.Builder("
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="946"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                                    mSliceBuilder).addHints("
+        errorLine2="                                                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="947"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                            Collections.singletonList(HINT_INLINE_ATTRIBUTION_INTENT)).build(),"
+        errorLine2="                                                                                       ~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="948"
+            column="88"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                    mSliceBuilder.addText(mContentDescription, null,"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="952"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                    mSliceBuilder.addHints(mHints);"
+        errorLine2="                                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="956"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                return new Content(mSliceBuilder.build());"
+        errorLine2="                                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/v1/InlineSuggestionUi.java"
+            line="958"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.common.SlicedContent.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="            mSliceBuilder = new Slice.Builder(INLINE_SLICE_URI, new SliceSpec(version, 1));"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/common/SlicedContent.java"
+            line="107"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.autofill.inline.common.SlicedContent.Builder is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="            mSliceBuilder = new Slice.Builder(INLINE_SLICE_URI, new SliceSpec(version, 1));"
+        errorLine2="                                                                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/autofill/inline/common/SlicedContent.java"
+            line="107"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/autofill_inline_suggestion.xml"
+            line="25"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/autofill_inline_suggestion.xml"
+            line="50"
+            column="6"/>
+    </issue>
+
+</issues>

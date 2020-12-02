@@ -17,6 +17,9 @@
 package androidx.room.vo
 
 import androidx.room.parser.FtsVersion
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XTypeElement
 import mockElementAndType
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -24,9 +27,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
-import javax.lang.model.element.Element
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
 
 @RunWith(JUnit4::class)
 class FtsEntityTest {
@@ -39,43 +39,50 @@ class FtsEntityTest {
         val dontIndexMe1Field = createField("dontIndexMe1")
         val dontIndexMe2Field = createField("dontIndexMe2")
         val entity = FtsEntity(
-                element = mock(TypeElement::class.java),
-                tableName = "Mail",
-                type = mock(DeclaredType::class.java),
-                fields = listOf(primaryKeyField, bodyField, languageIdField, dontIndexMe1Field,
-                        dontIndexMe2Field),
-                embeddedFields = emptyList(),
-                primaryKey = PrimaryKey(
-                        declaredIn = mock(Element::class.java),
-                        fields = Fields(primaryKeyField),
-                        autoGenerateId = true),
-                constructor = null,
-                shadowTableName = "Mail_context",
-                ftsVersion = FtsVersion.FTS4,
-                ftsOptions = FtsOptions(
-                        tokenizer = androidx.room.FtsOptions.TOKENIZER_PORTER,
-                        tokenizerArgs = emptyList(),
-                        contentEntity = null,
-                        languageIdColumnName = "lid",
-                        matchInfo = androidx.room.FtsOptions.MatchInfo.FTS3,
-                        notIndexedColumns = listOf("dontIndexMe1", "dontIndexMe2"),
-                        prefixSizes = listOf(2, 4),
-                        preferredOrder = androidx.room.FtsOptions.Order.DESC))
+            element = mock(XTypeElement::class.java),
+            tableName = "Mail",
+            type = mock(XDeclaredType::class.java),
+            fields = listOf(
+                primaryKeyField, bodyField, languageIdField, dontIndexMe1Field,
+                dontIndexMe2Field
+            ),
+            embeddedFields = emptyList(),
+            primaryKey = PrimaryKey(
+                declaredIn = mock(XElement::class.java),
+                fields = Fields(primaryKeyField),
+                autoGenerateId = true
+            ),
+            constructor = null,
+            shadowTableName = "Mail_context",
+            ftsVersion = FtsVersion.FTS4,
+            ftsOptions = FtsOptions(
+                tokenizer = androidx.room.FtsOptions.TOKENIZER_PORTER,
+                tokenizerArgs = emptyList(),
+                contentEntity = null,
+                languageIdColumnName = "lid",
+                matchInfo = androidx.room.FtsOptions.MatchInfo.FTS3,
+                notIndexedColumns = listOf("dontIndexMe1", "dontIndexMe2"),
+                prefixSizes = listOf(2, 4),
+                preferredOrder = androidx.room.FtsOptions.Order.DESC
+            )
+        )
 
-        assertThat(entity.createTableQuery,
-                `is`("CREATE VIRTUAL TABLE IF NOT EXISTS `Mail` USING FTS4(" +
-                        "`body` TEXT, " +
-                        "`dontIndexMe1` TEXT, " +
-                        "`dontIndexMe2` TEXT, " +
-                        "tokenize=porter, " +
-                        "languageid=`lid`, " +
-                        "matchinfo=fts3, " +
-                        "notindexed=`dontIndexMe1`, " +
-                        "notindexed=`dontIndexMe2`, " +
-                        "prefix=`2,4`, " +
-                        "order=DESC" +
-                        ")"
-                )
+        assertThat(
+            entity.createTableQuery,
+            `is`(
+                "CREATE VIRTUAL TABLE IF NOT EXISTS `Mail` USING FTS4(" +
+                    "`body` TEXT, " +
+                    "`dontIndexMe1` TEXT, " +
+                    "`dontIndexMe2` TEXT, " +
+                    "tokenize=porter, " +
+                    "languageid=`lid`, " +
+                    "matchinfo=fts3, " +
+                    "notindexed=`dontIndexMe1`, " +
+                    "notindexed=`dontIndexMe2`, " +
+                    "prefix=`2,4`, " +
+                    "order=DESC" +
+                    ")"
+            )
         )
     }
 
@@ -84,15 +91,16 @@ class FtsEntityTest {
         val primaryKeyField = createField("rowid")
         val bodyField = createField("body")
         val entity = FtsEntity(
-            element = mock(TypeElement::class.java),
+            element = mock(XTypeElement::class.java),
             tableName = "Mail",
-            type = mock(DeclaredType::class.java),
+            type = mock(XDeclaredType::class.java),
             fields = listOf(primaryKeyField, bodyField),
             embeddedFields = emptyList(),
             primaryKey = PrimaryKey(
-                declaredIn = mock(Element::class.java),
+                declaredIn = mock(XElement::class.java),
                 fields = Fields(primaryKeyField),
-                autoGenerateId = true),
+                autoGenerateId = true
+            ),
             constructor = null,
             shadowTableName = "Mail_context",
             ftsVersion = FtsVersion.FTS4,
@@ -104,10 +112,14 @@ class FtsEntityTest {
                 matchInfo = androidx.room.FtsOptions.MatchInfo.FTS4,
                 notIndexedColumns = emptyList(),
                 prefixSizes = emptyList(),
-                preferredOrder = androidx.room.FtsOptions.Order.ASC))
+                preferredOrder = androidx.room.FtsOptions.Order.ASC
+            )
+        )
 
-        assertThat(entity.createTableQuery,
-            `is`("CREATE VIRTUAL TABLE IF NOT EXISTS `Mail` USING FTS4(" +
+        assertThat(
+            entity.createTableQuery,
+            `is`(
+                "CREATE VIRTUAL TABLE IF NOT EXISTS `Mail` USING FTS4(" +
                     "`body` TEXT, " +
                     "tokenize=simple `tokenchars=.=` `separators=X`" +
                     ")"
@@ -120,15 +132,16 @@ class FtsEntityTest {
         val primaryKeyField = createField("rowid")
         val bodyField = createField("body")
         val entity = FtsEntity(
-            element = mock(TypeElement::class.java),
+            element = mock(XTypeElement::class.java),
             tableName = "Mail",
-            type = mock(DeclaredType::class.java),
+            type = mock(XDeclaredType::class.java),
             fields = listOf(primaryKeyField, bodyField),
             embeddedFields = emptyList(),
             primaryKey = PrimaryKey(
-                declaredIn = mock(Element::class.java),
+                declaredIn = mock(XElement::class.java),
                 fields = Fields(primaryKeyField),
-                autoGenerateId = true),
+                autoGenerateId = true
+            ),
             constructor = null,
             shadowTableName = "Mail_context",
             ftsVersion = FtsVersion.FTS4,
@@ -140,10 +153,14 @@ class FtsEntityTest {
                 matchInfo = androidx.room.FtsOptions.MatchInfo.FTS4,
                 notIndexedColumns = emptyList(),
                 prefixSizes = emptyList(),
-                preferredOrder = androidx.room.FtsOptions.Order.ASC))
+                preferredOrder = androidx.room.FtsOptions.Order.ASC
+            )
+        )
 
-        assertThat(entity.createTableQuery,
-            `is`("CREATE VIRTUAL TABLE IF NOT EXISTS `Mail` USING FTS4(" +
+        assertThat(
+            entity.createTableQuery,
+            `is`(
+                "CREATE VIRTUAL TABLE IF NOT EXISTS `Mail` USING FTS4(" +
                     "`body` TEXT" +
                     ")"
             )
@@ -155,15 +172,16 @@ class FtsEntityTest {
         val primaryKeyField = createField("rowid")
         val bodyField = createField("body")
         val entity = FtsEntity(
-            element = mock(TypeElement::class.java),
+            element = mock(XTypeElement::class.java),
             tableName = "Mail",
-            type = mock(DeclaredType::class.java),
+            type = mock(XDeclaredType::class.java),
             fields = listOf(primaryKeyField, bodyField),
             embeddedFields = emptyList(),
             primaryKey = PrimaryKey(
-                declaredIn = mock(Element::class.java),
+                declaredIn = mock(XElement::class.java),
                 fields = Fields(primaryKeyField),
-                autoGenerateId = true),
+                autoGenerateId = true
+            ),
             constructor = null,
             shadowTableName = "Mail_context",
             ftsVersion = FtsVersion.FTS4,
@@ -175,10 +193,14 @@ class FtsEntityTest {
                 matchInfo = androidx.room.FtsOptions.MatchInfo.FTS4,
                 notIndexedColumns = emptyList(),
                 prefixSizes = emptyList(),
-                preferredOrder = androidx.room.FtsOptions.Order.ASC))
+                preferredOrder = androidx.room.FtsOptions.Order.ASC
+            )
+        )
 
-        assertThat(entity.createTableQuery,
-            `is`("CREATE VIRTUAL TABLE IF NOT EXISTS `Mail` USING FTS4(" +
+        assertThat(
+            entity.createTableQuery,
+            `is`(
+                "CREATE VIRTUAL TABLE IF NOT EXISTS `Mail` USING FTS4(" +
                     "`body` TEXT, " +
                     "tokenize=porter `tokenchars=.=` `separators=X`" +
                     ")"
@@ -191,15 +213,16 @@ class FtsEntityTest {
         val primaryKeyField = createField("rowid")
         val bodyField = createField("body")
         val entity = FtsEntity(
-            element = mock(TypeElement::class.java),
+            element = mock(XTypeElement::class.java),
             tableName = "Mail",
-            type = mock(DeclaredType::class.java),
+            type = mock(XDeclaredType::class.java),
             fields = listOf(primaryKeyField, bodyField),
             embeddedFields = emptyList(),
             primaryKey = PrimaryKey(
-                declaredIn = mock(Element::class.java),
+                declaredIn = mock(XElement::class.java),
                 fields = Fields(primaryKeyField),
-                autoGenerateId = true),
+                autoGenerateId = true
+            ),
             constructor = null,
             shadowTableName = "Mail_context",
             ftsVersion = FtsVersion.FTS4,
@@ -211,10 +234,14 @@ class FtsEntityTest {
                 matchInfo = androidx.room.FtsOptions.MatchInfo.FTS4,
                 notIndexedColumns = emptyList(),
                 prefixSizes = emptyList(),
-                preferredOrder = androidx.room.FtsOptions.Order.ASC))
+                preferredOrder = androidx.room.FtsOptions.Order.ASC
+            )
+        )
 
-        assertThat(entity.createTableQuery,
-            `is`("CREATE VIRTUAL TABLE IF NOT EXISTS `Mail` USING FTS4(" +
+        assertThat(
+            entity.createTableQuery,
+            `is`(
+                "CREATE VIRTUAL TABLE IF NOT EXISTS `Mail` USING FTS4(" +
                     "`body` TEXT, " +
                     "tokenize=porter" +
                     ")"
@@ -225,11 +252,12 @@ class FtsEntityTest {
     fun createField(name: String): Field {
         val (element, type) = mockElementAndType()
         return Field(
-                element = element,
-                name = name,
-                type = type,
-                affinity = null,
-                collate = null,
-                columnName = name)
+            element = element,
+            name = name,
+            type = type,
+            affinity = null,
+            collate = null,
+            columnName = name
+        )
     }
 }

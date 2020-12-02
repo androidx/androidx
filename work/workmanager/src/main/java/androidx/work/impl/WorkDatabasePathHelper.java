@@ -47,26 +47,11 @@ public class WorkDatabasePathHelper {
     private static final String[] DATABASE_EXTRA_FILES = new String[]{"-journal", "-shm", "-wal"};
 
     /**
-     * @param context The application {@link Context}
-     * @return The database path before migration to the no-backup directory.
+     * @return The name of the database.
      */
     @NonNull
-    public static File getDefaultDatabasePath(@NonNull Context context) {
-        return context.getDatabasePath(WORK_DATABASE_NAME);
-    }
-
-    /**
-     * @param context The application {@link Context}
-     * @return The the migrated database path.
-     */
-    @NonNull
-    public static File getDatabasePath(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            // No notion of a backup directory exists.
-            return getDefaultDatabasePath(context);
-        } else {
-            return getNoBackupPath(context, WORK_DATABASE_NAME);
-        }
+    public static String getWorkDatabaseName() {
+        return WORK_DATABASE_NAME;
     }
 
     /**
@@ -120,6 +105,31 @@ public class WorkDatabasePathHelper {
             }
         }
         return paths;
+    }
+
+    /**
+     * @param context The application {@link Context}
+     * @return The database path before migration to the no-backup directory.
+     */
+    @NonNull
+    @VisibleForTesting
+    public static File getDefaultDatabasePath(@NonNull Context context) {
+        return context.getDatabasePath(WORK_DATABASE_NAME);
+    }
+
+    /**
+     * @param context The application {@link Context}
+     * @return The the migrated database path.
+     */
+    @NonNull
+    @VisibleForTesting
+    public static File getDatabasePath(@NonNull Context context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            // No notion of a backup directory exists.
+            return getDefaultDatabasePath(context);
+        } else {
+            return getNoBackupPath(context, WORK_DATABASE_NAME);
+        }
     }
 
     /**

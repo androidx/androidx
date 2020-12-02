@@ -29,6 +29,8 @@ import android.util.Xml;
 
 import androidx.annotation.NavigationRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.navigation.common.R;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -43,7 +45,12 @@ public final class NavInflater {
     private static final String TAG_DEEP_LINK = "deepLink";
     private static final String TAG_ACTION = "action";
     private static final String TAG_INCLUDE = "include";
-    static final String APPLICATION_ID_PLACEHOLDER = "${applicationId}";
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String APPLICATION_ID_PLACEHOLDER = "${applicationId}";
 
     private static final ThreadLocal<TypedValue> sTmpValue = new ThreadLocal<>();
 
@@ -124,8 +131,10 @@ public final class NavInflater {
             } else if (TAG_ACTION.equals(name)) {
                 inflateAction(res, dest, attrs, parser, graphResId);
             } else if (TAG_INCLUDE.equals(name) && dest instanceof NavGraph) {
-                final TypedArray a = res.obtainAttributes(attrs, R.styleable.NavInclude);
-                final int id = a.getResourceId(R.styleable.NavInclude_graph, 0);
+                final TypedArray a = res.obtainAttributes(
+                        attrs, androidx.navigation.R.styleable.NavInclude);
+                final int id = a.getResourceId(
+                        androidx.navigation.R.styleable.NavInclude_graph, 0);
                 ((NavGraph) dest).addDestination(inflate(id));
                 a.recycle();
             } else if (dest instanceof NavGraph) {
@@ -266,15 +275,29 @@ public final class NavInflater {
     }
 
     private void inflateDeepLink(@NonNull Resources res, @NonNull NavDestination dest,
-            @NonNull AttributeSet attrs) {
+            @NonNull AttributeSet attrs) throws XmlPullParserException {
         final TypedArray a = res.obtainAttributes(attrs, R.styleable.NavDeepLink);
         String uri = a.getString(R.styleable.NavDeepLink_uri);
-        if (TextUtils.isEmpty(uri)) {
-            throw new IllegalArgumentException("Every <" + TAG_DEEP_LINK
-                    + "> must include an app:uri");
+        String action = a.getString(R.styleable.NavDeepLink_action);
+        String mimeType = a.getString(R.styleable.NavDeepLink_mimeType);
+        if (TextUtils.isEmpty(uri) && TextUtils.isEmpty(action) && TextUtils.isEmpty(mimeType)) {
+            throw new XmlPullParserException("Every <" + TAG_DEEP_LINK
+                    + "> must include at least one of app:uri, app:action, or app:mimeType");
         }
-        uri = uri.replace(APPLICATION_ID_PLACEHOLDER, mContext.getPackageName());
-        dest.addDeepLink(uri);
+        NavDeepLink.Builder builder = new NavDeepLink.Builder();
+        if (uri != null) {
+            builder.setUriPattern(uri.replace(APPLICATION_ID_PLACEHOLDER,
+                    mContext.getPackageName()));
+        }
+        if (!TextUtils.isEmpty(action)) {
+            builder.setAction(action.replace(APPLICATION_ID_PLACEHOLDER,
+                    mContext.getPackageName()));
+        }
+        if (mimeType != null) {
+            builder.setMimeType(mimeType.replace(APPLICATION_ID_PLACEHOLDER,
+                    mContext.getPackageName()));
+        }
+        dest.addDeepLink(builder.build());
         a.recycle();
     }
 

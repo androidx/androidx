@@ -1,0 +1,90 @@
+// Signature format: 4.0
+package androidx.wear.watchface.complications.rendering {
+
+  public final class ComplicationDrawable extends android.graphics.drawable.Drawable {
+    ctor public ComplicationDrawable();
+    ctor public ComplicationDrawable(android.content.Context);
+    ctor public ComplicationDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable);
+    method public void draw(android.graphics.Canvas);
+    method public androidx.wear.watchface.complications.rendering.ComplicationStyle getActiveStyle();
+    method public androidx.wear.watchface.complications.rendering.ComplicationStyle getAmbientStyle();
+    method public android.support.wearable.complications.ComplicationData? getComplicationData();
+    method public android.content.Context? getContext();
+    method public long getCurrentTimeMillis();
+    method public static androidx.wear.watchface.complications.rendering.ComplicationDrawable? getDrawable(android.content.Context, int);
+    method public long getHighlightDuration();
+    method @Deprecated public int getOpacity();
+    method public boolean isBurnInProtectionOn();
+    method public boolean isHighlighted();
+    method public boolean isInAmbientMode();
+    method public boolean isLowBitAmbient();
+    method public boolean isRangedValueProgressHidden();
+    method public boolean onTap(@Px int, @Px int);
+    method public void setAlpha(int);
+    method public void setBurnInProtection(boolean);
+    method public void setColorFilter(android.graphics.ColorFilter?);
+    method public void setComplicationData(android.support.wearable.complications.ComplicationData?);
+    method public void setContext(android.content.Context);
+    method public void setCurrentTimeMillis(long);
+    method public void setHighlightDuration(@IntRange(from=0) long);
+    method public void setHighlighted(boolean);
+    method public void setInAmbientMode(boolean);
+    method public void setLowBitAmbient(boolean);
+    method public void setNoDataText(CharSequence?);
+    method public void setRangedValueProgressHidden(boolean);
+  }
+
+  public class ComplicationStyle {
+    ctor public ComplicationStyle();
+    ctor public ComplicationStyle(androidx.wear.watchface.complications.rendering.ComplicationStyle);
+    method @ColorInt public int getBackgroundColor();
+    method public android.graphics.drawable.Drawable? getBackgroundDrawable();
+    method @ColorInt public int getBorderColor();
+    method @Px public int getBorderDashGap();
+    method @Px public int getBorderDashWidth();
+    method @Px public int getBorderRadius();
+    method @androidx.wear.watchface.complications.rendering.ComplicationStyle.BorderStyle public int getBorderStyle();
+    method @Px public int getBorderWidth();
+    method @ColorInt public int getHighlightColor();
+    method @ColorInt public int getIconColor();
+    method public android.graphics.ColorFilter? getImageColorFilter();
+    method @ColorInt public int getRangedValuePrimaryColor();
+    method @Px public int getRangedValueRingWidth();
+    method @ColorInt public int getRangedValueSecondaryColor();
+    method @ColorInt public int getTextColor();
+    method @Px public int getTextSize();
+    method public android.graphics.Typeface? getTextTypeface();
+    method @ColorInt public int getTitleColor();
+    method @Px public int getTitleSize();
+    method public android.graphics.Typeface? getTitleTypeface();
+    method public void setBackgroundColor(@ColorInt int);
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable?);
+    method public void setBorderColor(@ColorInt int);
+    method public void setBorderDashGap(@Px int);
+    method public void setBorderDashWidth(@Px int);
+    method public void setBorderRadius(@Px int);
+    method public void setBorderStyle(@androidx.wear.watchface.complications.rendering.ComplicationStyle.BorderStyle int);
+    method public void setBorderWidth(@Px int);
+    method public void setHighlightColor(@ColorInt int);
+    method public void setIconColor(@ColorInt int);
+    method public void setImageColorFilter(android.graphics.ColorFilter?);
+    method public void setRangedValuePrimaryColor(@ColorInt int);
+    method public void setRangedValueRingWidth(@Px int);
+    method public void setRangedValueSecondaryColor(@ColorInt int);
+    method public void setTextColor(@ColorInt int);
+    method public void setTextSize(@Px int);
+    method public void setTextTypeface(android.graphics.Typeface);
+    method public void setTitleColor(@ColorInt int);
+    method public void setTitleSize(@Px int);
+    method public void setTitleTypeface(android.graphics.Typeface);
+    field @Px public static final int BORDER_RADIUS_DEFAULT = 2147483647; // 0x7fffffff
+    field public static final int BORDER_STYLE_DASHED = 2; // 0x2
+    field public static final int BORDER_STYLE_NONE = 0; // 0x0
+    field public static final int BORDER_STYLE_SOLID = 1; // 0x1
+  }
+
+  @IntDef({androidx.wear.watchface.complications.rendering.ComplicationStyle.BORDER_STYLE_NONE, androidx.wear.watchface.complications.rendering.ComplicationStyle.BORDER_STYLE_SOLID, androidx.wear.watchface.complications.rendering.ComplicationStyle.BORDER_STYLE_DASHED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ComplicationStyle.BorderStyle {
+  }
+
+}
+

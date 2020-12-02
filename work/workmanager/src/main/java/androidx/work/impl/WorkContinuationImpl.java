@@ -106,7 +106,7 @@ public class WorkContinuationImpl extends WorkContinuation {
         return mParents;
     }
 
-    WorkContinuationImpl(
+    public WorkContinuationImpl(
             @NonNull WorkManagerImpl workManagerImpl,
             @NonNull List<? extends WorkRequest> work) {
         this(
@@ -117,17 +117,17 @@ public class WorkContinuationImpl extends WorkContinuation {
                 null);
     }
 
-    WorkContinuationImpl(
+    public WorkContinuationImpl(
             @NonNull WorkManagerImpl workManagerImpl,
-            String name,
-            ExistingWorkPolicy existingWorkPolicy,
+            @Nullable String name,
+            @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<? extends WorkRequest> work) {
         this(workManagerImpl, name, existingWorkPolicy, work, null);
     }
 
-    WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
-            String name,
-            ExistingWorkPolicy existingWorkPolicy,
+    public WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
+            @Nullable String name,
+            @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<? extends WorkRequest> work,
             @Nullable List<WorkContinuationImpl> parents) {
         mWorkManagerImpl = workManagerImpl;
@@ -151,11 +151,15 @@ public class WorkContinuationImpl extends WorkContinuation {
 
     @Override
     public @NonNull WorkContinuation then(@NonNull List<OneTimeWorkRequest> work) {
-        return new WorkContinuationImpl(mWorkManagerImpl,
-                mName,
-                ExistingWorkPolicy.KEEP,
-                work,
-                Collections.singletonList(this));
+        if (work.isEmpty()) {
+            return this;
+        } else {
+            return new WorkContinuationImpl(mWorkManagerImpl,
+                    mName,
+                    ExistingWorkPolicy.KEEP,
+                    work,
+                    Collections.singletonList(this));
+        }
     }
 
     @Override
@@ -267,6 +271,7 @@ public class WorkContinuationImpl extends WorkContinuation {
      *
      * @hide
      */
+    @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static Set<String> prerequisitesFor(WorkContinuationImpl continuation) {
         Set<String> preRequisites = new HashSet<>();

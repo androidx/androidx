@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="watchface_style_attrs">
+        <attr name="primary_color" format="color"/>
+        <attr name="secondary_color" format="color"/>
+        <attr name="background_color" format="color"/>
+        <attr name="outer_element_color" format="color"/>
+        <attr name="active" format="reference"/>
+        <attr name="ambient" format="reference"/>
+        <attr name="complication" format="reference" />
+    </declare-styleable>
+
+    <style name="ambient_style">
+        <item name="primary_color">@color/white</item>
+        <item name="secondary_color">@color/white_50</item>
+        <item name="background_color">@color/black</item>
+        <item name="outer_element_color">@color/white_30</item>
+    </style>
+
+    <!-- Red style -->
+    <style name="red_style">
+        <item name="active">@style/red_style_active</item>
+        <item name="ambient">@style/red_style_ambient</item>
+        <item name="complication">@drawable/complication_red_style</item>
+    </style>
+
+    <style name="red_style_active">
+        <item name="primary_color">@color/white</item>
+        <item name="secondary_color">@color/maroon</item>
+        <item name="background_color">@color/dark_gray</item>
+        <item name="outer_element_color">@color/maroon_50</item>
+    </style>
+
+    <style name="red_style_ambient" parent="ambient_style">
+    </style>
+    <!-- End of red style -->
+
+    <!-- Green style -->
+    <style name="green_style">
+        <item name="active">@style/green_style_active</item>
+        <item name="ambient">@style/green_style_ambient</item>
+        <item name="complication">@drawable/complication_green_style</item>
+    </style>
+
+    <style name="green_style_active">
+        <item name="primary_color">@color/light_green</item>
+        <item name="secondary_color">@color/dark_green</item>
+        <item name="background_color">@color/dark_gray</item>
+        <item name="outer_element_color">@color/light_green</item>
+    </style>
+
+    <style name="green_style_ambient" parent="ambient_style">
+    </style>
+    <!-- End of green style -->
+
+    <!-- Blue style -->
+    <style name="blue_style">
+        <item name="active">@style/blue_style_active</item>
+        <item name="ambient">@style/blue_style_ambient</item>
+        <item name="complication">@drawable/complication_blue_style</item>
+    </style>
+
+    <style name="blue_style_active">
+        <item name="primary_color">@color/light_blue</item>
+        <item name="secondary_color">@color/dark_blue</item>
+        <item name="background_color">@color/dark_gray</item>
+        <item name="outer_element_color">@color/light_blue</item>
+    </style>
+
+    <style name="blue_style_ambient" parent="ambient_style">
+    </style>
+    <!-- End of blue style -->
+
+    <!-- White style -->
+    <style name="white_style">
+        <item name="active">@style/white_style_active</item>
+        <item name="ambient">@style/white_style_ambient</item>
+        <item name="complication">@drawable/complication_white_style</item>
+    </style>
+
+    <style name="white_style_active">
+        <item name="primary_color">@color/white_70</item>
+        <item name="secondary_color">@color/white_50</item>
+        <item name="background_color">@color/white_10</item>
+        <item name="outer_element_color">@color/white_70</item>
+    </style>
+
+    <style name="white_style_ambient" parent="ambient_style">
+    </style>
+    <!-- End of  green style -->
+
+</resources>

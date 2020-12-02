@@ -222,4 +222,10 @@ public class PersonTest {
         Person person = new Person.Builder().setImportant(TEST_IS_IMPORTANT).build();
         assertEquals(TEST_IS_IMPORTANT, person.isImportant());
     }
+
+    @Test
+    public void resolveToLegacyUri() {
+        Person person = new Person.Builder().setUri(TEST_URI).build();
+        assertEquals(TEST_URI, person.resolveToLegacyUri());
+    }
 }

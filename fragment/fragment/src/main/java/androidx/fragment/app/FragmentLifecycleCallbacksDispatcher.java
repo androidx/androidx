@@ -87,13 +87,13 @@ class FragmentLifecycleCallbacksDispatcher {
         }
     }
 
-    void dispatchOnFragmentPreAttached(@NonNull Fragment f, @NonNull Context context,
-            boolean onlyRecursive) {
+    void dispatchOnFragmentPreAttached(@NonNull Fragment f, boolean onlyRecursive) {
+        Context context = mFragmentManager.getHost().getContext();
         Fragment parent = mFragmentManager.getParent();
         if (parent != null) {
             FragmentManager parentManager = parent.getParentFragmentManager();
             parentManager.getLifecycleCallbacksDispatcher()
-                    .dispatchOnFragmentPreAttached(f, context, true);
+                    .dispatchOnFragmentPreAttached(f, true);
         }
         for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
             if (!onlyRecursive || holder.mRecursive) {
@@ -102,13 +102,13 @@ class FragmentLifecycleCallbacksDispatcher {
         }
     }
 
-    void dispatchOnFragmentAttached(@NonNull Fragment f, @NonNull Context context,
-            boolean onlyRecursive) {
+    void dispatchOnFragmentAttached(@NonNull Fragment f, boolean onlyRecursive) {
+        Context context = mFragmentManager.getHost().getContext();
         Fragment parent = mFragmentManager.getParent();
         if (parent != null) {
             FragmentManager parentManager = parent.getParentFragmentManager();
             parentManager.getLifecycleCallbacksDispatcher()
-                    .dispatchOnFragmentAttached(f, context, true);
+                    .dispatchOnFragmentAttached(f, true);
         }
         for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
             if (!onlyRecursive || holder.mRecursive) {
@@ -149,6 +149,7 @@ class FragmentLifecycleCallbacksDispatcher {
         }
     }
 
+    @SuppressWarnings("deprecation")
     void dispatchOnFragmentActivityCreated(@NonNull Fragment f,
             @Nullable Bundle savedInstanceState, boolean onlyRecursive) {
         Fragment parent = mFragmentManager.getParent();

@@ -1,0 +1,18 @@
+# This file is a list of regexes of innocuous messages that might appear in stdout/stderr
+# Messages that are expected to appear in a build should be exempted in messages.ignore instead, because that file is subject to garbage collection whereas this one is not
+# Before adding a suppression to this file, please attempt to suppress the output inside the generating tool instead.
+# > Task :sqlite:integration-tests:inspection-room-testapp:kaptDebugAndroidTestKotlin
+ZipFile closed
+# > Task :room:integration-tests:room-testapp:runErrorProne
+java\.util\.zip\.ZipException\: ZipFile closed
+# > Task :compose:internal-lint-checks:lint
+Classpath entry points to a non\-existent location\: \$OUT_DIR\/ui\/compose\/internal\-lint\-checks\/build\/classes\/kotlin\/main
+# > Task :compose:animation:animation-core:testDebugUnitTest
+androidx\.compose\.animation\.core\.AnimationClockTest \> testSubscriptionDuringFrameCallback FAILED
+kotlin\.UninitializedPropertyAccessException at AnimationClockTest\.kt\:[0-9]+
+There were failing tests\. See the report at\: file\:\/\/\$OUT_DIR\/ui\/compose\/animation\/animation\-core\/build\/reports\/tests\/testDebugUnitTest\/index\.html
+# > Task :room:integration-tests:room-testapp-autovalue:compileDebugAndroidTestJavaWithJavac
+Stream closed
+# > Task :compose:compiler:compiler-hosted:integration-tests:testDebugUnitTest
+# If a test fails, we don't want the build to fail, we want to pass the test output to the tests server and for the tests server to report the failure
+[0-9]+ tests .*failed.*

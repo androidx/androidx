@@ -31,7 +31,7 @@ internal val methodMap = ArrayMap<KClass<out NavArgs>, Method>()
  * [argumentProducer] is a lambda that will be called during initialization to provide
  * arguments to construct an [Args] instance via reflection.
  */
-class NavArgsLazy<Args : NavArgs>(
+public class NavArgsLazy<Args : NavArgs>(
     private val navArgsClass: KClass<Args>,
     private val argumentProducer: () -> Bundle
 ) : Lazy<Args> {
@@ -55,5 +55,5 @@ class NavArgsLazy<Args : NavArgs>(
             return args
         }
 
-    override fun isInitialized() = cached != null
+    override fun isInitialized(): Boolean = cached != null
 }

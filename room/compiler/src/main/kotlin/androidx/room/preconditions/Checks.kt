@@ -16,12 +16,11 @@
 
 package androidx.room.preconditions
 
-import androidx.room.ext.hasAnnotation
 import androidx.room.log.RLog
+import androidx.room.compiler.processing.XElement
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
-import javax.lang.model.element.Element
 import kotlin.reflect.KClass
 
 /**
@@ -33,7 +32,7 @@ import kotlin.reflect.KClass
  */
 class Checks(private val logger: RLog) {
 
-    fun check(predicate: Boolean, element: Element, errorMsg: String, vararg args: Any): Boolean {
+    fun check(predicate: Boolean, element: XElement, errorMsg: String, vararg args: Any): Boolean {
         if (!predicate) {
             logger.e(element, errorMsg, args)
         }
@@ -41,7 +40,7 @@ class Checks(private val logger: RLog) {
     }
 
     fun hasAnnotation(
-        element: Element,
+        element: XElement,
         annotation: KClass<out Annotation>,
         errorMsg: String,
         vararg args: Any
@@ -56,7 +55,7 @@ class Checks(private val logger: RLog) {
 
     fun notUnbound(
         typeName: TypeName,
-        element: Element,
+        element: XElement,
         errorMsg: String,
         vararg args: Any
     ): Boolean {
@@ -64,13 +63,13 @@ class Checks(private val logger: RLog) {
         val failed = check(typeName !is TypeVariableName, element, errorMsg, args)
         if (typeName is ParameterizedTypeName) {
             val nestedFailure = typeName.typeArguments
-                    .any { notUnbound(it, element, errorMsg, args) }
+                .any { notUnbound(it, element, errorMsg, args) }
             return !(failed || nestedFailure)
         }
         return !failed
     }
 
-    fun notBlank(value: String?, element: Element, msg: String, vararg args: Any): Boolean {
+    fun notBlank(value: String?, element: XElement, msg: String, vararg args: Any): Boolean {
         return check(value != null && value.isNotBlank(), element, msg, args)
     }
 }

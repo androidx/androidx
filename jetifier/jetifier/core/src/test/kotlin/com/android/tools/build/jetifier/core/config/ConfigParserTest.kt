@@ -25,43 +25,43 @@ class ConfigParserTest {
     @Test fun parseConfig_validInput() {
         val confStr =
             "{\n" +
-            "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
-            "    reversedRestrictToPackagePrefixes: [\"androidx/\"],\n" +
-            "    # Sample comment \n" +
-            "    rules: [\n" +
-            "        {\n" +
-            "            from: \"android/support/v14/preferences/(.*)\",\n" +
-            "            to: \"android/jetpack/prefs/main/{0}\"\n" +
-            "        },\n" +
-            "        {\n" +
-            "            from: \"android/support/v14/preferences/(.*)\",\n" +
-            "            to: \"android/jetpack/prefs/main/{0}\",\n" +
-            "            fieldSelectors: [\"dialog_(.*)\"]\n" +
-            "        }\n" +
-            "    ],\n" +
-            "    packageMap: [\n" +
-            "        {\n" +
-            "            \"from\": \"from/package\",\n" +
-            "            \"to\": \"to/package\"\n" +
-            "        }\n" +
-            "    ],\n" +
-            "    pomRules: [\n" +
-            "        {\n" +
-            "            from: {groupId: \"g\", artifactId: \"a\", version: \"1.0\"},\n" +
-            "            to: {groupId: \"g\", artifactId: \"a\", version: \"2.0\"} \n" +
-            "        }\n" +
-            "    ],\n" +
-            "    versions: {\n" +
-            "        \"latestReleased\": {\n" +
-            "            \"something\": \"1.0.0\"\n" +
-            "        }\n" +
-            "    }," +
-            "    proGuardMap: {\n" +
-            "       rules: {\n" +
-            "           \"android/support/**\": [\"androidx/**\"]\n" +
-            "       }\n" +
-            "    }" +
-            "}"
+                "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
+                "    reversedRestrictToPackagePrefixes: [\"androidx/\"],\n" +
+                "    # Sample comment \n" +
+                "    rules: [\n" +
+                "        {\n" +
+                "            from: \"android/support/v14/preferences/(.*)\",\n" +
+                "            to: \"android/jetpack/prefs/main/{0}\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "            from: \"android/support/v14/preferences/(.*)\",\n" +
+                "            to: \"android/jetpack/prefs/main/{0}\",\n" +
+                "            fieldSelectors: [\"dialog_(.*)\"]\n" +
+                "        }\n" +
+                "    ],\n" +
+                "    packageMap: [\n" +
+                "        {\n" +
+                "            \"from\": \"from/package\",\n" +
+                "            \"to\": \"to/package\"\n" +
+                "        }\n" +
+                "    ],\n" +
+                "    pomRules: [\n" +
+                "        {\n" +
+                "            from: {groupId: \"g\", artifactId: \"a\", version: \"1.0\"},\n" +
+                "            to: {groupId: \"g\", artifactId: \"a\", version: \"2.0\"} \n" +
+                "        }\n" +
+                "    ],\n" +
+                "    versions: {\n" +
+                "        \"latestReleased\": {\n" +
+                "            \"something\": \"1.0.0\"\n" +
+                "        }\n" +
+                "    }," +
+                "    proGuardMap: {\n" +
+                "       rules: {\n" +
+                "           \"android/support/**\": [\"androidx/**\"]\n" +
+                "       }\n" +
+                "    }" +
+                "}"
 
         val config = ConfigParser.parseFromString(confStr)
         val jsonConfig = config!!.toJson()
@@ -88,16 +88,16 @@ class ConfigParserTest {
     fun parseConfig_pomMissingGroup_shouldFail() {
         val confStr =
             "{\n" +
-            "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
-            "    rules: [],\n" +
-            "    packageMap: [],\n" +
-            "    pomRules: [\n" +
-            "        {\n" +
-            "            from: {artifactId: \"a\", version: \"1.0\"},\n" +
-            "            to: {artifactId: \"a\", groupId: \"g\", version: \"1.0\"}\n" +
-            "        }\n" +
-            "    ]\n" +
-            "}"
+                "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
+                "    rules: [],\n" +
+                "    packageMap: [],\n" +
+                "    pomRules: [\n" +
+                "        {\n" +
+                "            from: {artifactId: \"a\", version: \"1.0\"},\n" +
+                "            to: {artifactId: \"a\", groupId: \"g\", version: \"1.0\"}\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}"
         ConfigParser.parseFromString(confStr)
     }
 
@@ -105,16 +105,16 @@ class ConfigParserTest {
     fun parseConfig_pomMissingArtifact_shouldFail() {
         val confStr =
             "{\n" +
-            "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
-            "    rules: [],\n" +
-            "    packageMap: [],\n" +
-            "    pomRules: [\n" +
-            "        {\n" +
-            "            from: {groupId: \"g\", version: \"1.0\"},\n" +
-            "            to: {artifactId: \"a\", groupId: \"g\", version: \"1.0\"}\n" +
-            "        }\n" +
-            "    ]\n" +
-            "}"
+                "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
+                "    rules: [],\n" +
+                "    packageMap: [],\n" +
+                "    pomRules: [\n" +
+                "        {\n" +
+                "            from: {groupId: \"g\", version: \"1.0\"},\n" +
+                "            to: {artifactId: \"a\", groupId: \"g\", version: \"1.0\"}\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}"
         ConfigParser.parseFromString(confStr)
     }
 
@@ -122,16 +122,16 @@ class ConfigParserTest {
     fun parseConfig_pomMissingVersion_shouldFail() {
         val confStr =
             "{\n" +
-            "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
-            "    rules: [],\n" +
-            "    packageMap: [],\n" +
-            "    pomRules: [\n" +
-            "        {\n" +
-            "            from: {artifactId: \"a\", groupId: \"g\"},\n" +
-            "            to: {artifactId: \"a\", groupId: \"g\"}\n" +
-            "        }\n" +
-            "    ]\n" +
-            "}"
+                "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
+                "    rules: [],\n" +
+                "    packageMap: [],\n" +
+                "    pomRules: [\n" +
+                "        {\n" +
+                "            from: {artifactId: \"a\", groupId: \"g\"},\n" +
+                "            to: {artifactId: \"a\", groupId: \"g\"}\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}"
         ConfigParser.parseFromString(confStr)
     }
 
@@ -139,20 +139,20 @@ class ConfigParserTest {
     fun parseConfig_duplicity_shouldFail() {
         val confStr =
             "{\n" +
-            "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
-            "    rules: [],\n" +
-            "    packageMap: [],\n" +
-            "    pomRules: [\n" +
-            "        {\n" +
-            "            from: {artifactId: \"a\", groupId: \"g\", version: \"1.0\"},\n" +
-            "            to: {artifactId: \"b\", groupId: \"g\", version: \"1.0\"}\n" +
-            "        },\n" +
-            "        {\n" +
-            "            from: {artifactId: \"a\", groupId: \"g\", version: \"2.0\"},\n" +
-            "            to: {artifactId: \"c\", groupId: \"g\", version: \"1.0\"}\n" +
-            "        }\n" +
-            "    ]\n" +
-            "}"
+                "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
+                "    rules: [],\n" +
+                "    packageMap: [],\n" +
+                "    pomRules: [\n" +
+                "        {\n" +
+                "            from: {artifactId: \"a\", groupId: \"g\", version: \"1.0\"},\n" +
+                "            to: {artifactId: \"b\", groupId: \"g\", version: \"1.0\"}\n" +
+                "        },\n" +
+                "        {\n" +
+                "            from: {artifactId: \"a\", groupId: \"g\", version: \"2.0\"},\n" +
+                "            to: {artifactId: \"c\", groupId: \"g\", version: \"1.0\"}\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}"
         ConfigParser.parseFromString(confStr)
     }
 }

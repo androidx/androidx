@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
+
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -25,19 +28,11 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-android {
-    buildTypes {
-        debug {
-            testCoverageEnabled = false // Breaks Kotlin compiler.
-        }
-    }
-}
-
 dependencies {
     api(project(":lifecycle:lifecycle-runtime"))
     api(KOTLIN_STDLIB)
     api(KOTLIN_COROUTINES_ANDROID)
-    implementation("androidx.annotation:annotation:1.0.0")
+    api("androidx.annotation:annotation:1.0.0")
 
     testImplementation(JUNIT)
     testImplementation(TRUTH)
@@ -59,4 +54,11 @@ androidx {
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2019"
     description = "Kotlin extensions for 'lifecycle' artifact"
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
 }

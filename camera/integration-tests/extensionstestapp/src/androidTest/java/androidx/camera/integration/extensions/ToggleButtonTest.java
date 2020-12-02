@@ -28,6 +28,7 @@ import android.content.Intent;
 
 import androidx.camera.integration.extensions.idlingresource.WaitForViewToShow;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CoreAppTestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingRegistry;
@@ -37,12 +38,12 @@ import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
-import androidx.test.uiautomator.UiDevice;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 /**
@@ -52,7 +53,6 @@ import org.junit.runner.RunWith;
 @LargeTest
 public final class ToggleButtonTest {
 
-    private static final int DISMISS_LOCK_SCREEN_CODE = 82;
     private static final String BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.extensions";
 
     @Rule
@@ -60,8 +60,7 @@ public final class ToggleButtonTest {
             new ActivityTestRule<>(CameraExtensionsActivity.class, true, false);
 
     @Rule
-    public GrantPermissionRule mCameraPermissionRule =
-            GrantPermissionRule.grant(android.Manifest.permission.CAMERA);
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
     @Rule
     public GrantPermissionRule mStoragePermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -76,16 +75,12 @@ public final class ToggleButtonTest {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws CoreAppTestUtil.ForegroundOccupiedError {
         assumeTrue(CameraUtil.deviceHasCamera());
 
-        // In case the lock screen on top, the action to dismiss it.
-        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressKeyCode(
-                DISMISS_LOCK_SCREEN_CODE);
-
-        // Close system dialogs first to avoid interrupt.
-        ApplicationProvider.getApplicationContext().sendBroadcast(
-                new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window before start the test.
+        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation());
 
         Intent intent = ApplicationProvider.getApplicationContext().getPackageManager()
                 .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE);
@@ -100,29 +95,19 @@ public final class ToggleButtonTest {
 
     @Test
     public void testSwitchAllExtensionsAndTakePicture() throws InterruptedException {
-
         // To switch all extensions.
         for (int i = 0; i < CameraExtensionsActivity.ImageCaptureType.values().length; i++) {
+            // Wait for the take picture button show.
+            waitFor(new WaitForViewToShow(R.id.Picture));
 
-            if (mActivityRule.getActivity().getCurrentImageCaptureType()
-                    != CameraExtensionsActivity.ImageCaptureType.IMAGE_CAPTURE_TYPE_NONE) {
-                // Wait for the take picture button show.
-                waitFor(new WaitForViewToShow(R.id.Picture));
+            // Issue take picture.
+            onView(withId(R.id.Picture)).perform(click());
 
-                // The takePicture() might not work (more detail please see b/136724593,
-                // workaround this issue by wait for a while.
-                // TODO remove the sleep workaround after b/136724593 was fixed.
-                Thread.sleep(1000);
+            // Wait for the take picture success callback.
+            waitFor(mActivityRule.getActivity().mTakePictureIdlingResource);
 
-                // Issue take picture.
-                onView(withId(R.id.Picture)).perform(click());
-
-                // Wait for the take picture success callback.
-                waitFor(mActivityRule.getActivity().mTakePictureIdlingResource);
-
-                assertNotNull(mActivityRule.getActivity().getImageCapture());
-                assertNotNull(mActivityRule.getActivity().getPreview());
-            }
+            assertNotNull(mActivityRule.getActivity().getImageCapture());
+            assertNotNull(mActivityRule.getActivity().getPreview());
 
             // Switch to the next extension effect.
             onView(withId(R.id.PhotoToggle)).perform(click());

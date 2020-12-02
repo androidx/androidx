@@ -16,7 +16,7 @@
 
 package androidx.transition;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -28,9 +28,11 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.testutils.AnimationDurationScaleRule;
 import androidx.transition.test.R;
 
 import org.junit.Before;
+import org.junit.Rule;
 
 import java.util.ArrayList;
 
@@ -41,6 +43,10 @@ public abstract class BaseTransitionTest extends BaseTest {
     Transition mTransition;
     Transition.TransitionListener mListener;
     float mAnimatedValue;
+
+    @Rule
+    public final AnimationDurationScaleRule mAnimationDurationScaleRule =
+            AnimationDurationScaleRule.createForAllTests(1f);
 
     @Before
     public void setUp() {

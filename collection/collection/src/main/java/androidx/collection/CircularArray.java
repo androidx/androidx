@@ -26,6 +26,7 @@ public final class CircularArray<E> {
     private int mTail;
     private int mCapacityBitmask;
 
+    @SuppressWarnings("unchecked")
     private void doubleCapacity() {
         int n = mElements.length;
         int r = n - mHead;
@@ -55,6 +56,7 @@ public final class CircularArray<E> {
      *
      * @param minCapacity the minimum capacity, between 1 and 2^30 inclusive
      */
+    @SuppressWarnings("unchecked")
     public CircularArray(int minCapacity) {
         if (minCapacity < 1) {
             throw new IllegalArgumentException("capacity must be >= 1");

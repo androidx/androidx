@@ -21,9 +21,7 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Preconditions;
-import androidx.versionedparcelable.NonParcelField;
 import androidx.versionedparcelable.ParcelUtils;
-import androidx.versionedparcelable.VersionedParcelize;
 
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -43,24 +41,10 @@ import java.util.Map;
  *
  * @see MediaItem
  */
-@VersionedParcelize(isCustom = true)
 public class UriMediaItem extends MediaItem {
-    @NonParcelField
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    Uri mUri;
-    @NonParcelField
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    Map<String, String> mUriHeader;
-    @NonParcelField
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    List<HttpCookie> mUriCookies;
-
-    /**
-     * Used for VersionedParcelable
-     */
-    UriMediaItem() {
-        // no-op
-    }
+    private final Uri mUri;
+    private final Map<String, String> mUriHeader;
+    private final List<HttpCookie> mUriCookies;
 
     UriMediaItem(Builder builder) {
         super(builder);

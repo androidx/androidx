@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
 
     <issue
         id="UnusedAttribute"
@@ -43,6 +43,94 @@
             file="src/main/res/menu/basic_usage.xml"
             line="22"
             column="13"/>
+    </issue>
+
+    <issue
+        id="NonConstantResourceId"
+        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
+        errorLine1="                    case R.id.fit_xy:"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
+            line="56"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NonConstantResourceId"
+        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
+        errorLine1="                    case R.id.center:"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
+            line="59"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NonConstantResourceId"
+        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
+        errorLine1="                    case R.id.center_crop:"
+        errorLine2="                         ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
+            line="62"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NonConstantResourceId"
+        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
+        errorLine1="                    case R.id.fit_start:"
+        errorLine2="                         ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
+            line="65"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NonConstantResourceId"
+        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
+        errorLine1="                    case R.id.fit_end:"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
+            line="68"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NonConstantResourceId"
+        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
+        errorLine1="                    case R.id.matrix:"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
+            line="71"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NonConstantResourceId"
+        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
+        errorLine1="            case R.id.action_toggle:"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/SceneUsageBase.java"
+            line="63"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="QueryPermissionsNeeded"
+        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this \&#xA;method; see https://g.co/dev/packagevisibility for details"
+        errorLine1="        List&lt;ResolveInfo> list = pm.queryIntentActivities(mainIntent, 0);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
+            line="62"
+            column="37"/>
     </issue>
 
     <issue
@@ -111,6 +199,325 @@
             file="src/main/res/drawable-xxhdpi/ic_android.png"/>
         <location
             file="src/main/res/drawable-xxxhdpi/ic_android.png"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mRoot` of class `ArcMotionUsage` requires synthetic accessor"
+        errorLine1="                TransitionManager.beginDelayedTransition(mRoot, mTransition);"
+        errorLine2="                                                         ~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ArcMotionUsage.java"
+            line="58"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mTransition` of class `ArcMotionUsage` requires synthetic accessor"
+        errorLine1="                TransitionManager.beginDelayedTransition(mRoot, mTransition);"
+        errorLine2="                                                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ArcMotionUsage.java"
+            line="58"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mTarget` of class `ArcMotionUsage` requires synthetic accessor"
+        errorLine1="                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mTarget.getLayoutParams();"
+        errorLine2="                                                                         ~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ArcMotionUsage.java"
+            line="59"
+            column="74"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mTarget` of class `ArcMotionUsage` requires synthetic accessor"
+        errorLine1="                mTarget.setLayoutParams(lp);"
+        errorLine2="                ~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ArcMotionUsage.java"
+            line="65"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `toggle` of class `BeginDelayedUsage` requires synthetic accessor"
+        errorLine1="                toggle();"
+        errorLine2="                ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/BeginDelayedUsage.java"
+            line="46"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `TRANSITION` of class `ChangeImageTransformUsage` requires synthetic accessor"
+        errorLine1="                TransitionManager.beginDelayedTransition(mRoot, TRANSITION);"
+        errorLine2="                                                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
+            line="54"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mRoot` of class `ChangeImageTransformUsage` requires synthetic accessor"
+        errorLine1="                TransitionManager.beginDelayedTransition(mRoot, TRANSITION);"
+        errorLine2="                                                         ~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
+            line="54"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mPhoto` of class `ChangeImageTransformUsage` requires synthetic accessor"
+        errorLine1="                        mPhoto.setScaleType(ImageView.ScaleType.FIT_XY);"
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
+            line="57"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mPhoto` of class `ChangeImageTransformUsage` requires synthetic accessor"
+        errorLine1="                        mPhoto.setScaleType(ImageView.ScaleType.CENTER);"
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
+            line="60"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mPhoto` of class `ChangeImageTransformUsage` requires synthetic accessor"
+        errorLine1="                        mPhoto.setScaleType(ImageView.ScaleType.CENTER_CROP);"
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
+            line="63"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mPhoto` of class `ChangeImageTransformUsage` requires synthetic accessor"
+        errorLine1="                        mPhoto.setScaleType(ImageView.ScaleType.FIT_START);"
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
+            line="66"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mPhoto` of class `ChangeImageTransformUsage` requires synthetic accessor"
+        errorLine1="                        mPhoto.setScaleType(ImageView.ScaleType.FIT_END);"
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
+            line="69"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mPhoto` of class `ChangeImageTransformUsage` requires synthetic accessor"
+        errorLine1="                        mPhoto.setScaleType(ImageView.ScaleType.MATRIX);"
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
+            line="72"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mPhoto` of class `ChangeImageTransformUsage` requires synthetic accessor"
+        errorLine1="                        mPhoto.setImageMatrix(matrix);"
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
+            line="76"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mChangeTransform` of class `ChangeTransformUsage` requires synthetic accessor"
+        errorLine1="                TransitionManager.beginDelayedTransition(mRoot, mChangeTransform);"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeTransformUsage.java"
+            line="59"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mRoot` of class `ChangeTransformUsage` requires synthetic accessor"
+        errorLine1="                TransitionManager.beginDelayedTransition(mRoot, mChangeTransform);"
+        errorLine2="                                                         ~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeTransformUsage.java"
+            line="59"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mExplode` of class `ExplodeUsage` requires synthetic accessor"
+        errorLine1="                TransitionManager.beginDelayedTransition(mRoot, mExplode);"
+        errorLine2="                                                                ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"
+            line="69"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mRoot` of class `ExplodeUsage` requires synthetic accessor"
+        errorLine1="                TransitionManager.beginDelayedTransition(mRoot, mExplode);"
+        errorLine2="                                                         ~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"
+            line="69"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mViews` of class `ExplodeUsage` requires synthetic accessor"
+        errorLine1="                int vis = mViews.get(0).getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE;"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"
+            line="70"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mViews` of class `ExplodeUsage` requires synthetic accessor"
+        errorLine1="                for (View view : mViews) {"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"
+            line="71"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `SHARED_TRANSITION` of class `FragmentTransitionUsage` requires synthetic accessor"
+        errorLine1="            setSharedElementEnterTransition(SHARED_TRANSITION);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
+            line="93"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `SHARED_TRANSITION` of class `FragmentTransitionUsage` requires synthetic accessor"
+        errorLine1="            setSharedElementReturnTransition(SHARED_TRANSITION);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
+            line="94"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `NON_SHARED_TRANSITION` of class `FragmentTransitionUsage` requires synthetic accessor"
+        errorLine1="            setExitTransition(NON_SHARED_TRANSITION);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
+            line="95"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `NON_SHARED_TRANSITION` of class `FragmentTransitionUsage` requires synthetic accessor"
+        errorLine1="            setEnterTransition(NON_SHARED_TRANSITION);"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
+            line="96"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `NON_SHARED_TRANSITION` of class `FragmentTransitionUsage` requires synthetic accessor"
+        errorLine1="            setReenterTransition(NON_SHARED_TRANSITION);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
+            line="97"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `NON_SHARED_TRANSITION` of class `FragmentTransitionUsage` requires synthetic accessor"
+        errorLine1="            setReturnTransition(NON_SHARED_TRANSITION);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
+            line="98"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mRecyclerView` of class `RecyclerViewUsage` requires synthetic accessor"
+        errorLine1="                TransitionManager.beginDelayedTransition(mRecyclerView,"
+        errorLine2="                                                         ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/RecyclerViewUsage.java"
+            line="74"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `addImageView` of class `ReparentImageUsage` requires synthetic accessor"
+        errorLine1="                    addImageView(mOuterFrame, ImageView.ScaleType.CENTER_CROP, mPhotoSize);"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ReparentImageUsage.java"
+            line="64"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `addImageView` of class `ReparentImageUsage` requires synthetic accessor"
+        errorLine1="                    addImageView(mInnerFrame, ImageView.ScaleType.FIT_XY,"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ReparentImageUsage.java"
+            line="67"
+            column="21"/>
     </issue>
 
     <issue
@@ -208,17 +615,6 @@
     </issue>
 
     <issue
-        id="GoogleAppIndexingWarning"
-        message="App is not indexable by Google Search; consider adding at least one Activity with an ACTION-VIEW intent filter. See issue explanation for more details."
-        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
-        errorLine2="    ^">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="24"
-            column="5"/>
-    </issue>
-
-    <issue
         id="HardcodedText"
         message="Hardcoded string &quot;Photo&quot;, should use `@string` resource"
         errorLine1="        android:contentDescription=&quot;Photo&quot;"
@@ -227,6 +623,314 @@
             file="src/main/res/layout/clip_bounds.xml"
             line="34"
             column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ArcMotionUsage.java"
+            line="47"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/BeginDelayedUsage.java"
+            line="39"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeClipBoundsUsage.java"
+            line="49"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
+            line="47"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ChangeTransformUsage.java"
+            line="48"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/CustomUsage.java"
+            line="37"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"
+            line="50"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
+            line="61"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,"
+        errorLine2="                                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
+            line="112"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {"
+        errorLine2="                                  ~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
+            line="118"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,"
+        errorLine2="                                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
+            line="141"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {"
+        errorLine2="                                  ~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
+            line="147"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/RecyclerViewUsage.java"
+            line="46"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/ReparentImageUsage.java"
+            line="47"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/widget/SidePropagationUsage.java"
+            line="48"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
+            line="39"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
+            line="55"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
+            line="55"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
+        errorLine2="              ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
+            line="120"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
+            line="120"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
+            line="120"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Intent browseIntent(String path) {"
+        errorLine2="              ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
+            line="126"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Intent browseIntent(String path) {"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
+            line="126"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
+            line="133"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
+        errorLine2="                                                           ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
+            line="133"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
+        errorLine2="                                                                        ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
+            line="133"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onListItemClick(ListView l, View v, int position, long id) {"
+        errorLine2="                                   ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
+            line="142"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onListItemClick(ListView l, View v, int position, long id) {"
+        errorLine2="                                               ~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
+            line="142"
+            column="48"/>
     </issue>
 
 </issues>

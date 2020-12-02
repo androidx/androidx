@@ -79,8 +79,8 @@ class MediaSessionServiceLegacyStub extends MediaBrowserServiceCompat {
     }
 
     ControllerInfo createControllerInfo(RemoteUserInfo info) {
-        return new ControllerInfo(info, mManager.isTrustedForMediaControl(info), null,
-                null /* connectionHints */);
+        return new ControllerInfo(info, MediaUtils.VERSION_UNKNOWN,
+                mManager.isTrustedForMediaControl(info), null, null /* connectionHints */);
     }
 
     ConnectedControllersManager<RemoteUserInfo> getConnectedControllersManager() {

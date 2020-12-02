@@ -19,11 +19,12 @@ package androidx.navigation
 import androidx.navigation.test.R
 import android.content.Context
 import android.os.Bundle
-import androidx.navigation.testing.TestNavigator
-import androidx.navigation.testing.test
+import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import androidx.testutils.TestNavigator
+import androidx.testutils.test
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -78,6 +79,7 @@ class NavDeepLinkBuilderTest {
         assertEquals("Expected one Intent", 1, taskStackBuilder.intentCount)
     }
 
+    @UiThreadTest
     @Test
     fun fromNavController() {
         val navController = NavController(targetContext).apply {
@@ -146,6 +148,27 @@ class NavDeepLinkBuilderTest {
         args.putString("test", "test2")
         val secondPendingIntent = deepLinkBuilder.createPendingIntent()
         assertWithMessage("PendingIntents with different arguments should be different")
+            .that(firstPendingIntent)
+            .isNotEqualTo(secondPendingIntent)
+    }
+
+    @Test
+    fun pendingIntentNotEqualsWithDifferentDestinationArgs() {
+        val deepLinkBuilder = NavDeepLinkBuilder(targetContext)
+
+        deepLinkBuilder.setGraph(R.navigation.nav_simple)
+        val args = Bundle().apply {
+            putString("test", "test")
+        }
+        deepLinkBuilder.setDestination(R.id.second_test, args)
+        val firstPendingIntent = deepLinkBuilder.createPendingIntent()
+
+        // Change the args but not the destination
+        args.putString("test", "test2")
+        val secondPendingIntent = deepLinkBuilder.createPendingIntent()
+        assertWithMessage(
+            "PendingIntents with different destination arguments should be different"
+        )
             .that(firstPendingIntent)
             .isNotEqualTo(secondPendingIntent)
     }

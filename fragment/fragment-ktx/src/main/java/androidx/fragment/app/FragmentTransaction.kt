@@ -36,11 +36,11 @@ import androidx.annotation.IdRes
  *
  * @return Returns the same [FragmentTransaction] instance.
  */
-inline fun <reified F : Fragment> FragmentTransaction.add(
+public inline fun <reified F : Fragment> FragmentTransaction.add(
     @IdRes containerViewId: Int,
     tag: String? = null,
     args: Bundle? = null
-) = add(containerViewId, F::class.java, args, tag)
+): FragmentTransaction = add(containerViewId, F::class.java, args, tag)
 
 /**
  * Add a fragment to the associated [FragmentManager] without
@@ -55,10 +55,10 @@ inline fun <reified F : Fragment> FragmentTransaction.add(
  *
  * @return Returns the same [FragmentTransaction] instance.
  */
-inline fun <reified F : Fragment> FragmentTransaction.add(
+public inline fun <reified F : Fragment> FragmentTransaction.add(
     tag: String,
     args: Bundle? = null
-) = add(F::class.java, args, tag)
+): FragmentTransaction = add(F::class.java, args, tag)
 
 /**
  * Replace an existing fragment that was added to a container.  This is
@@ -77,8 +77,8 @@ inline fun <reified F : Fragment> FragmentTransaction.add(
  *
  * @return Returns the same [FragmentTransaction] instance.
  */
-inline fun <reified F : Fragment> FragmentTransaction.replace(
+public inline fun <reified F : Fragment> FragmentTransaction.replace(
     @IdRes containerViewId: Int,
     tag: String? = null,
     args: Bundle? = null
-) = replace(containerViewId, F::class.java, args, tag)
+): FragmentTransaction = replace(containerViewId, F::class.java, args, tag)

@@ -20,34 +20,30 @@ import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.ShortcutQueryParameter
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import isInt
-import isKotlinUnit
-import isVoid
-import isVoidObject
-import javax.lang.model.type.TypeMirror
 
 /**
  * Class that knows how to generate a delete or update method body.
  */
-class DeleteOrUpdateMethodAdapter private constructor(private val returnType: TypeMirror) {
+class DeleteOrUpdateMethodAdapter private constructor(private val returnType: XType) {
     companion object {
-        fun create(returnType: TypeMirror): DeleteOrUpdateMethodAdapter? {
+        fun create(returnType: XType): DeleteOrUpdateMethodAdapter? {
             if (isDeleteOrUpdateValid(returnType)) {
                 return DeleteOrUpdateMethodAdapter(returnType)
             }
             return null
         }
 
-        private fun isDeleteOrUpdateValid(returnType: TypeMirror): Boolean {
+        private fun isDeleteOrUpdateValid(returnType: XType): Boolean {
             return returnType.isVoid() ||
-                    returnType.isInt() ||
-                    returnType.isVoidObject() ||
-                    returnType.isKotlinUnit()
+                returnType.isInt() ||
+                returnType.isVoidObject() ||
+                returnType.isKotlinUnit()
         }
     }
 
@@ -70,9 +66,11 @@ class DeleteOrUpdateMethodAdapter private constructor(private val returnType: Ty
             beginControlFlow("try").apply {
                 parameters.forEach { param ->
                     val adapter = adapters[param.name]?.first
-                    addStatement("$L$N.$L($L)",
-                            if (resultVar == null) "" else "$resultVar +=",
-                            adapter, param.handleMethodName(), param.name)
+                    addStatement(
+                        "$L$N.$L($L)",
+                        if (resultVar == null) "" else "$resultVar +=",
+                        adapter, param.handleMethodName(), param.name
+                    )
                 }
                 addStatement("$N.setTransactionSuccessful()", dbField)
                 if (resultVar != null) {
@@ -90,13 +88,15 @@ class DeleteOrUpdateMethodAdapter private constructor(private val returnType: Ty
         }
     }
 
-    private fun hasResultValue(returnType: TypeMirror): Boolean {
-        return !(returnType.isVoid() ||
+    private fun hasResultValue(returnType: XType): Boolean {
+        return !(
+            returnType.isVoid() ||
                 returnType.isVoidObject() ||
-                returnType.isKotlinUnit())
+                returnType.isKotlinUnit()
+            )
     }
 
-    private fun hasNullReturn(returnType: TypeMirror) = returnType.isVoidObject()
+    private fun hasNullReturn(returnType: XType) = returnType.isVoidObject()
 
-    private fun hasUnitReturn(returnType: TypeMirror) = returnType.isKotlinUnit()
+    private fun hasUnitReturn(returnType: XType) = returnType.isKotlinUnit()
 }

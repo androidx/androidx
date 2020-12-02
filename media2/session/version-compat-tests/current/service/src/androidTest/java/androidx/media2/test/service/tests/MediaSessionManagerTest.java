@@ -24,14 +24,12 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.ComponentName;
 import android.content.Context;
-import android.os.Build;
 
 import androidx.media2.session.MediaSessionManager;
 import androidx.media2.session.SessionToken;
 import androidx.media2.test.service.MockMediaBrowserServiceCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -43,7 +41,6 @@ import java.util.Set;
 /**
  * Tests {@link MediaSessionManagerTest}.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class MediaSessionManagerTest extends MediaTestBase {
@@ -58,8 +55,7 @@ public class MediaSessionManagerTest extends MediaTestBase {
     }
 
     @Test
-    public void testGetSessionServiceTokens() {
-        prepareLooper();
+    public void getSessionServiceTokens() {
         boolean hasMockBrowserServiceCompat = false;
         boolean hasMockSessionService2 = false;
         boolean hasMockLibraryService2 = false;

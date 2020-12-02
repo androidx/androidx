@@ -100,16 +100,22 @@ class Camera2PreviewSessionStateCallback(
         try {
             when (testConfig.focusMode) {
                 FocusMode.AUTO -> {
-                    params.captureRequestBuilder?.set(CaptureRequest.CONTROL_AF_MODE,
-                        CaptureRequest.CONTROL_AF_MODE_AUTO)
+                    params.captureRequestBuilder?.set(
+                        CaptureRequest.CONTROL_AF_MODE,
+                        CaptureRequest.CONTROL_AF_MODE_AUTO
+                    )
                 }
                 FocusMode.CONTINUOUS -> {
-                    params.captureRequestBuilder?.set(CaptureRequest.CONTROL_AF_MODE,
-                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+                    params.captureRequestBuilder?.set(
+                        CaptureRequest.CONTROL_AF_MODE,
+                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+                    )
                 }
                 FocusMode.FIXED -> {
-                    params.captureRequestBuilder?.set(CaptureRequest.CONTROL_AF_MODE,
-                        CaptureRequest.CONTROL_AF_MODE_AUTO)
+                    params.captureRequestBuilder?.set(
+                        CaptureRequest.CONTROL_AF_MODE,
+                        CaptureRequest.CONTROL_AF_MODE_AUTO
+                    )
                 }
             }
 
@@ -120,14 +126,18 @@ class Camera2PreviewSessionStateCallback(
             params.state = CameraState.PREVIEW_RUNNING
 
             // Request that the camera preview begins
-            cameraCaptureSession.setRepeatingRequest(params.captureRequestBuilder?.build()!!,
-                params.camera2CaptureSessionCallback, params.backgroundHandler)
+            cameraCaptureSession.setRepeatingRequest(
+                params.captureRequestBuilder?.build()!!,
+                params.camera2CaptureSessionCallback, params.backgroundHandler
+            )
         } catch (e: CameraAccessException) {
             MainActivity.logd("Create Capture Session error: " + params.id)
             e.printStackTrace()
         } catch (e: IllegalStateException) {
-            MainActivity.logd("createCameraPreviewSession onConfigured, IllegalStateException," +
-                " aborting: " + e)
+            MainActivity.logd(
+                "createCameraPreviewSession onConfigured, IllegalStateException," +
+                    " aborting: " + e
+            )
         }
     }
 
@@ -150,7 +160,7 @@ class Camera2PreviewSessionStateCallback(
         params.timer.previewCloseEnd = System.currentTimeMillis()
         params.isPreviewing = false
 
-        /** If legacy HAL, create a dummy preview session before closing the device */
+        /** If legacy HAL, create a no-op preview session before closing the device */
         if ((Build.VERSION.SDK_INT > Build.VERSION_CODES.M) && (params.isLegacy)) {
             closeDeviceWithWorkaround(params)
         } else {
@@ -161,7 +171,7 @@ class Camera2PreviewSessionStateCallback(
     }
 
     /**
-     * Before closing the device, create a dummy preview session to workaround a bug where an
+     * Before closing the device, create a no-op preview session to workaround a bug where an
      * ImageReader can stay active after a device close. For example on Pixel 1 with Android 8.0.0
      * during a SWITCH_CAMERA test.
      */
@@ -171,6 +181,7 @@ class Camera2PreviewSessionStateCallback(
 
         val surface = Surface(surfaceTexture)
         try {
+            @Suppress("DEPRECATION")
             params.device?.createCaptureSession(
                 Arrays.asList(surface),
                 object : CameraCaptureSession.StateCallback() {
@@ -180,13 +191,15 @@ class Camera2PreviewSessionStateCallback(
                     override fun onConfigureFailed(session: CameraCaptureSession) {
                         session.close()
                     }
-                    /** Dummy preview session created and closed, now proceed to close camera */
+                    /** No-op preview session created and closed, now proceed to close camera */
                     override fun onClosed(session: CameraCaptureSession) {
                         surfaceTexture.release()
                         params.timer.cameraCloseStart = System.currentTimeMillis()
                         params.device?.close()
                     }
-                }, null)
+                },
+                null
+            )
         } catch (e: CameraAccessException) {
             MainActivity.logd("createCameraPreviewSession CameraAccessException: " + e.message)
             e.printStackTrace()

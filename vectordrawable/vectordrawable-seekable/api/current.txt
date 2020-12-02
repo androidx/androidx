@@ -1,0 +1,35 @@
+// Signature format: 4.0
+package androidx.vectordrawable.graphics.drawable {
+
+  public class SeekableAnimatedVectorDrawable extends android.graphics.drawable.Drawable implements android.graphics.drawable.Animatable {
+    method public void clearAnimationCallbacks();
+    method public static androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable? create(android.content.Context, @DrawableRes int);
+    method public static androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable createFromXmlInner(android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme?) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public void draw(android.graphics.Canvas);
+    method @IntRange(from=0) public long getCurrentPlayTime();
+    method @Deprecated public int getOpacity();
+    method public long getTotalDuration();
+    method public boolean isPaused();
+    method public boolean isRunning();
+    method public void pause();
+    method public void registerAnimationCallback(androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable.AnimationCallback);
+    method public void resume();
+    method public void setAlpha(@IntRange(from=0, to=255) int);
+    method public void setColorFilter(android.graphics.ColorFilter?);
+    method public void setCurrentPlayTime(@IntRange(from=0) long);
+    method public void start();
+    method public void stop();
+    method public boolean unregisterAnimationCallback(androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable.AnimationCallback);
+  }
+
+  public abstract static class SeekableAnimatedVectorDrawable.AnimationCallback {
+    ctor public SeekableAnimatedVectorDrawable.AnimationCallback();
+    method public void onAnimationEnd(androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable);
+    method public void onAnimationPause(androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable);
+    method public void onAnimationResume(androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable);
+    method public void onAnimationStart(androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable);
+    method public void onAnimationUpdate(androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable);
+  }
+
+}
+

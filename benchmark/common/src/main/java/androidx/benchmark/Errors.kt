@@ -45,7 +45,7 @@ internal object Errors {
     private const val TAG = "Benchmark"
 
     val PREFIX: String
-    val UNSUPPRESSED_WARNING_MESSAGE: String?
+    private val UNSUPPRESSED_WARNING_MESSAGE: String?
     private var warningString: String? = null
 
     /**
@@ -65,13 +65,13 @@ internal object Errors {
     }
 
     val isEmulator = Build.FINGERPRINT.startsWith("generic") ||
-            Build.FINGERPRINT.startsWith("unknown") ||
-            Build.MODEL.contains("google_sdk") ||
-            Build.MODEL.contains("Emulator") ||
-            Build.MODEL.contains("Android SDK built for x86") ||
-            Build.MANUFACTURER.contains("Genymotion") ||
-            Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic") ||
-            "google_sdk" == Build.PRODUCT
+        Build.FINGERPRINT.startsWith("unknown") ||
+        Build.MODEL.contains("google_sdk") ||
+        Build.MODEL.contains("Emulator") ||
+        Build.MODEL.contains("Android SDK built for x86") ||
+        Build.MANUFACTURER.contains("Genymotion") ||
+        Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic") ||
+        "google_sdk" == Build.PRODUCT
 
     private val isDeviceRooted =
         arrayOf(
@@ -87,12 +87,19 @@ internal object Errors {
             "/su/bin/su"
         ).any { File(it).exists() }
 
+    /**
+     * Note: initialization may not occur before entering BenchmarkState code, since we assert
+     * state (like activity presence) that only happens during benchmark run. For this reason, be
+     * _very_ careful about where this object is accessed.
+     */
     init {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val appInfo = context.applicationInfo
         var warningPrefix = ""
         var warningString = ""
-        if (appInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0) {
+        if (Arguments.profiler?.requiresDebuggable != true &&
+            (appInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0)
+        ) {
             warningPrefix += "DEBUGGABLE_"
             warningString += """
                 |WARNING: Debuggable Benchmark
@@ -172,6 +179,33 @@ internal object Errors {
                 |            = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
             """.trimMarginWrapNewlines()
         }
+        if (Arguments.profiler == MethodSamplingSimpleperf) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                warningPrefix += "SIMPLEPERF_"
+                warningString += """
+                    |ERROR: Cannot use Simpleperf on this device's API level (${Build.VERSION.SDK_INT})
+                    |    Simpleperf prior to API 28 (P) requires AOT compilation, and isn't 
+                    |    currently supported by the benchmark library.
+                """.trimMarginWrapNewlines()
+            } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P && !isDeviceRooted) {
+                warningPrefix += "SIMPLEPERF_"
+                warningString += """
+                    |ERROR: Cannot use Simpleperf on this device's API level (${Build.VERSION.SDK_INT})
+                    |    without root. Simpleperf on API 28 (P) can only be used on a rooted device,
+                    |    or when the APK is debuggable. Debuggable performance measurements should
+                    |    be avoided, due to measurement inaccuracy.
+                """.trimMarginWrapNewlines()
+            } else if (
+                Build.VERSION.SDK_INT >= 29 && !context.applicationInfo.isProfileableByShell
+            ) {
+                warningPrefix += "SIMPLEPERF_"
+                warningString += """
+                    |ERROR: Apk must be profileable to use simpleperf.
+                    |    ensure you put <profileable android:shell="true"/> within the
+                    |    <application ...> tag of your benchmark module
+                """.trimMarginWrapNewlines()
+            }
+        }
 
         val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
         val batteryPercent = context.registerReceiver(null, filter)?.run {
@@ -190,6 +224,14 @@ internal object Errors {
             """.trimMarginWrapNewlines()
         }
 
+        if (Arguments.profiler != null) {
+            val profilerName = Arguments.profiler.javaClass.simpleName
+            warningPrefix += "PROFILED_"
+            warningString += """
+                |WARNING: Using profiler=$profilerName, results will be affected.
+            """.trimMarginWrapNewlines()
+        }
+
         PREFIX = warningPrefix
         if (warningString.isNotEmpty()) {
             this.warningString = warningString
@@ -200,7 +242,11 @@ internal object Errors {
             .split('_')
             .filter { it.isNotEmpty() }
             .toSet()
-        val unsuppressedWarningSet = warningSet - Arguments.suppressedErrors
+
+        val alwaysSuppressed = setOf("PROFILED")
+        val neverSuppressed = setOf("SIMPLEPERF")
+        val suppressedWarnings = Arguments.suppressedErrors + alwaysSuppressed - neverSuppressed
+        val unsuppressedWarningSet = warningSet - suppressedWarnings
         UNSUPPRESSED_WARNING_MESSAGE = if (unsuppressedWarningSet.isNotEmpty()) {
             """
                 |ERRORS (not suppressed): ${unsuppressedWarningSet.toDisplayString()}
@@ -214,12 +260,30 @@ internal object Errors {
                 |    defaultConfig {
                 |        // Enable measuring on an emulator, or devices with low battery
                 |        testInstrumentationRunnerArgument
-                |                'androidx.benchmark.suppressErrors', 'EMULATOR,LOW_BATTERY'
+                |                'androidx.benchmark.suppressErrors', 'EMULATOR,LOW-BATTERY'
                 |    }
                 |}
             """.trimMargin()
         } else {
             null
+        }
+    }
+
+    /**
+     * We don't throw immediately when the error is detected, since this will result in an error
+     * deeply buried in a stack of intializer errors. Instead, they're deferred until this method
+     * call.
+     */
+    fun throwIfError() {
+        // Note - we ignore configuration errors in dry run mode, since we don't care about
+        // measurement accuracy, and we want to support e.g. running on emulators, -eng builds, and
+        // unlocked devices in presubmit.
+        if (!Arguments.dryRunMode && UNSUPPRESSED_WARNING_MESSAGE != null) {
+            throw AssertionError(UNSUPPRESSED_WARNING_MESSAGE)
+        }
+
+        if (Arguments.error != null) {
+            throw AssertionError(Arguments.error)
         }
     }
 }

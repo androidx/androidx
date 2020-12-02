@@ -172,7 +172,7 @@ public class ChangeBounds extends Transition {
 
     @SuppressLint("RestrictedApi") // remove once core lib would be released with the new
     // LIBRARY_GROUP_PREFIX restriction. tracking in b/127286008
-    public ChangeBounds(Context context, AttributeSet attrs) {
+    public ChangeBounds(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
 
         TypedArray a = context.obtainStyledAttributes(attrs, Styleable.CHANGE_BOUNDS);
@@ -182,7 +182,7 @@ public class ChangeBounds extends Transition {
         setResizeClip(resizeClip);
     }
 
-    @Nullable
+    @NonNull
     @Override
     public String[] getTransitionProperties() {
         return sTransitionProperties;

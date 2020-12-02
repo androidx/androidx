@@ -16,8 +16,6 @@
 
 package androidx.slice.widget;
 
-import static android.app.slice.Slice.HINT_LARGE;
-import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
@@ -29,9 +27,7 @@ import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
-import static androidx.slice.core.SliceHints.ICON_IMAGE;
 import static androidx.slice.core.SliceHints.LARGE_IMAGE;
-import static androidx.slice.core.SliceHints.SMALL_IMAGE;
 import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
 import static androidx.slice.widget.SliceViewUtil.resolveLayoutDirection;
 
@@ -50,6 +46,7 @@ import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
+import androidx.slice.SliceUtils;
 import androidx.slice.core.SliceAction;
 import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
@@ -151,14 +148,13 @@ public class SliceContent {
             // Can't make something from nothing
             return null;
         }
-        SliceItem actionItem = null;
         SliceItem iconItem = null;
         SliceItem labelItem = null;
         int imageMode = UNKNOWN_IMAGE;
 
         // Prefer something properly hinted
         String[] hints = new String[]{HINT_TITLE, HINT_SHORTCUT};
-        actionItem =  SliceQuery.find(mSliceItem, FORMAT_ACTION, hints, null);
+        SliceItem actionItem =  SliceQuery.find(mSliceItem, FORMAT_ACTION, hints, null);
         if (actionItem != null) {
             iconItem = SliceQuery.find(actionItem, FORMAT_IMAGE, HINT_TITLE, null);
             labelItem = SliceQuery.find(actionItem, FORMAT_TEXT, (String) null, null);
@@ -186,9 +182,7 @@ public class SliceContent {
 
         // Fill in anything we don't have with app data
         if (iconItem != null) {
-            imageMode = iconItem.hasHint(HINT_NO_TINT)
-                    ? iconItem.hasHint(HINT_LARGE) ? LARGE_IMAGE : SMALL_IMAGE
-                    : ICON_IMAGE;
+            imageMode = SliceUtils.parseImageMode(iconItem);
         }
         if (context != null) {
             return fallBackToAppData(context, labelItem, iconItem, imageMode, actionItem);

@@ -1,6 +1,5 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.preference {
-
 
   public class CheckBoxPreference extends androidx.preference.TwoStatePreference {
     ctor public CheckBoxPreference(android.content.Context!, android.util.AttributeSet!, int);
@@ -452,7 +451,7 @@ package androidx.preference {
     method public androidx.preference.PreferenceManager.PreferenceComparisonCallback! getPreferenceComparisonCallback();
     method public androidx.preference.PreferenceDataStore? getPreferenceDataStore();
     method public androidx.preference.PreferenceScreen! getPreferenceScreen();
-    method public android.content.SharedPreferences! getSharedPreferences();
+    method public android.content.SharedPreferences? getSharedPreferences();
     method public int getSharedPreferencesMode();
     method public String! getSharedPreferencesName();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.preference.PreferenceScreen! inflateFromResource(android.content.Context!, int, androidx.preference.PreferenceScreen!);
@@ -509,7 +508,6 @@ package androidx.preference {
   }
 
   public class PreferenceViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.TESTS) public static androidx.preference.PreferenceViewHolder! createInstanceForTests(android.view.View!);
     method public android.view.View! findViewById(@IdRes int);
     method public boolean isDividerAllowedAbove();
     method public boolean isDividerAllowedBelow();
@@ -590,4 +588,13 @@ package androidx.preference {
 
 }
 
+package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) androidx.preference.internal {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class PreferenceImageView extends android.widget.ImageView {
+    ctor public PreferenceImageView(android.content.Context!);
+    ctor public PreferenceImageView(android.content.Context!, android.util.AttributeSet!);
+    ctor public PreferenceImageView(android.content.Context!, android.util.AttributeSet!, int);
+  }
+
+}
 

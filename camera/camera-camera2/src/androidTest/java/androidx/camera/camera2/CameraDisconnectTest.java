@@ -17,16 +17,19 @@
 package androidx.camera.camera2;
 
 
-import static org.junit.Assume.assumeNotNull;
-import static org.junit.Assume.assumeTrue;
+import static androidx.camera.testing.CoreAppTestUtil.ForegroundOccupiedError;
+import static androidx.camera.testing.CoreAppTestUtil.assumeCanTestCameraDisconnect;
+import static androidx.camera.testing.CoreAppTestUtil.assumeCompatibleDevice;
+import static androidx.camera.testing.CoreAppTestUtil.prepareDeviceUI;
 
-import android.app.Instrumentation;
+import static org.junit.Assume.assumeNotNull;
+
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 
 import androidx.camera.core.CameraX;
 import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.activity.Camera2TestActivity;
 import androidx.camera.testing.activity.CameraXTestActivity;
 import androidx.test.core.app.ApplicationProvider;
@@ -35,28 +38,28 @@ import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.rule.GrantPermissionRule;
-import androidx.test.uiautomator.UiDevice;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class CameraDisconnectTest {
 
-    private static final int DISMISS_LOCK_SCREEN_CODE = 82;
-
     @Rule
-    public GrantPermissionRule mCameraPermissionRule =
-            GrantPermissionRule.grant(android.Manifest.permission.CAMERA);
+    public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
+
     @Rule
     public ActivityTestRule<CameraXTestActivity> mCameraXTestActivityRule =
             new ActivityTestRule<>(CameraXTestActivity.class, true, false);
@@ -64,44 +67,36 @@ public class CameraDisconnectTest {
     public ActivityTestRule<Camera2TestActivity> mCamera2ActivityRule =
             new ActivityTestRule<>(Camera2TestActivity.class, true, false);
 
-    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private CameraXTestActivity mCameraXTestActivity;
 
     @Before
-    public void setUp() {
-        assumeTrue(CameraUtil.deviceHasCamera());
-        CoreAppTestUtil.assumeCompatibleDevice();
+    public void setUp() throws ForegroundOccupiedError {
+        assumeCompatibleDevice();
 
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.init(context, Camera2AppConfig.create(context));
+        CameraX.initialize(context, Camera2Config.defaultConfig());
 
-        // In case the lock screen on top, the action to dismiss it.
-        UiDevice.getInstance(mInstrumentation).pressKeyCode(DISMISS_LOCK_SCREEN_CODE);
-
-        // Close system dialogs first to avoid interrupt.
-        ApplicationProvider.getApplicationContext().sendBroadcast(
-                new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window before start the test.
+        prepareDeviceUI(InstrumentationRegistry.getInstrumentation());
 
         mCameraXTestActivityRule.launchActivity(new Intent());
         mCameraXTestActivity = mCameraXTestActivityRule.getActivity();
     }
 
     @After
-    public void tearDown() throws ExecutionException, InterruptedException {
+    public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
         mCameraXTestActivityRule.finishActivity();
         mCamera2ActivityRule.finishActivity();
 
-        // Actively unbind all use cases to avoid lifecycle callback later to stop/clear use case
-        // after deinit() is complete.
-        mInstrumentation.runOnMainSync(CameraX::unbindAll);
-
-        CameraX.deinit().get();
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M) // Known issue, checkout b/147393563.
     public void testDisconnect_launchCamera2App() {
-        // TODO(b/141656413): Remove after the issue fixed.
-        CoreAppTestUtil.assumeCanTestCameraDisconnect();
+        // Specific compatibility check for the test.
+        assumeCanTestCameraDisconnect();
 
         waitFor(mCameraXTestActivity.mPreviewReady);
         String cameraId = mCameraXTestActivity.mCameraId;

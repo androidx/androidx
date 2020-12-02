@@ -16,6 +16,7 @@
 
 package androidx.media2.session;
 
+import static androidx.media2.common.BaseResult.RESULT_ERROR_PERMISSION_DENIED;
 import static androidx.media2.common.BaseResult.RESULT_ERROR_UNKNOWN;
 import static androidx.media2.session.MediaUtils.DIRECT_EXECUTOR;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_CUSTOM;
@@ -82,7 +83,7 @@ class MediaSessionStub extends IMediaSession.Stub {
 
     static {
         SessionCommandGroup group = new SessionCommandGroup.Builder()
-                .addAllPlayerCommands(COMMAND_VERSION_CURRENT, /* includeHidden= */ false)
+                .addAllPlayerCommands(COMMAND_VERSION_CURRENT)
                 .addAllVolumeCommands(COMMAND_VERSION_CURRENT)
                 .build();
         Set<SessionCommand> commands = group.getCommands();
@@ -190,6 +191,7 @@ class MediaSessionStub extends IMediaSession.Stub {
                                 Log.d(TAG, "Command (" + sessionCommand + ") from "
                                         + controller + " isn't allowed.");
                             }
+                            sendSessionResult(controller, seq, RESULT_ERROR_PERMISSION_DENIED);
                             return;
                         }
                         commandForOnCommandRequest = sCommandsForOnCommandRequest.get(
@@ -201,6 +203,7 @@ class MediaSessionStub extends IMediaSession.Stub {
                                 Log.d(TAG, "Command (" + commandCode + ") from "
                                         + controller + " isn't allowed.");
                             }
+                            sendSessionResult(controller, seq, RESULT_ERROR_PERMISSION_DENIED);
                             return;
                         }
                         commandForOnCommandRequest = sCommandsForOnCommandRequest.get(
@@ -315,11 +318,12 @@ class MediaSessionStub extends IMediaSession.Stub {
         dispatchSessionTaskInternal(caller, seq, null, commandCode, task);
     }
 
-    void connect(final IMediaController caller, final String callingPackage, final int pid,
-            final int uid, @Nullable Bundle connectionHints) {
+    void connect(final IMediaController caller, final int controllerVersion,
+            final String callingPackage, final int pid, final int uid,
+            @Nullable Bundle connectionHints) {
         MediaSessionManager.RemoteUserInfo remoteUserInfo =
                 new MediaSessionManager.RemoteUserInfo(callingPackage, pid, uid);
-        final ControllerInfo controllerInfo = new ControllerInfo(remoteUserInfo,
+        final ControllerInfo controllerInfo = new ControllerInfo(remoteUserInfo, controllerVersion,
                 mSessionManager.isTrustedForMediaControl(remoteUserInfo),
                 new Controller2Cb(caller), connectionHints);
         mSessionImpl.getCallbackExecutor().execute(new Runnable() {
@@ -433,7 +437,8 @@ class MediaSessionStub extends IMediaSession.Stub {
         // If it's the case, use PID from the ConnectionRequest.
         final int pid = (callingPid != 0) ? callingPid : request.getPid();
         try {
-            connect(caller, request.getPackageName(), pid, uid, request.getConnectionHints());
+            connect(caller, request.getVersion(), request.getPackageName(), pid, uid,
+                    request.getConnectionHints());
         } finally {
             Binder.restoreCallingIdentity(token);
         }
@@ -486,7 +491,6 @@ class MediaSessionStub extends IMediaSession.Stub {
                         if (sessionCompat != null) {
                             sessionCompat.getController().setVolumeTo(value, flags);
                         }
-                        // TODO: Handle remote player case
                         return SessionResult.RESULT_SUCCESS;
                     }
                 });
@@ -506,7 +510,6 @@ class MediaSessionStub extends IMediaSession.Stub {
                         if (sessionCompat != null) {
                             sessionCompat.getController().adjustVolume(direction, flags);
                         }
-                        // TODO: Handle remote player case
                         return SessionResult.RESULT_SUCCESS;
                     }
                 });
@@ -654,130 +657,6 @@ class MediaSessionStub extends IMediaSession.Stub {
     }
 
     @Override
-    public void prepareFromUri(final IMediaController caller, int seq, final Uri uri,
-            final Bundle extras) {
-        if (caller == null) {
-            return;
-        }
-        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_URI,
-                new SessionCallbackTask<Integer>() {
-                    @Override
-                    public Integer run(ControllerInfo controller) {
-                        if (uri == null) {
-                            Log.w(TAG, "prepareFromUri(): Ignoring null uri from " + controller);
-                            return RESULT_ERROR_BAD_VALUE;
-                        }
-                        return mSessionImpl.getCallback().onPrepareFromUri(
-                                mSessionImpl.getInstance(), controller, uri, extras);
-                    }
-                });
-    }
-
-    @Override
-    public void prepareFromSearch(final IMediaController caller, int seq, final String query,
-            final Bundle extras) {
-        if (caller == null) {
-            return;
-        }
-        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH,
-                new SessionCallbackTask<Integer>() {
-                    @Override
-                    public Integer run(ControllerInfo controller) {
-                        if (TextUtils.isEmpty(query)) {
-                            Log.w(TAG, "prepareFromSearch(): Ignoring empty query from "
-                                    + controller);
-                            return RESULT_ERROR_BAD_VALUE;
-                        }
-                        return mSessionImpl.getCallback().onPrepareFromSearch(
-                                mSessionImpl.getInstance(), controller, query, extras);
-                    }
-                });
-    }
-
-    @Override
-    public void prepareFromMediaId(final IMediaController caller, int seq, final String mediaId,
-            final Bundle extras) {
-        if (caller == null) {
-            return;
-        }
-        dispatchSessionTask(caller, seq,
-                SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID,
-                new SessionCallbackTask<Integer>() {
-                    @Override
-                    public Integer run(ControllerInfo controller) {
-                        if (TextUtils.isEmpty(mediaId)) {
-                            Log.w(TAG, "prepareFromMediaId(): Ignoring empty mediaId from "
-                                    + controller);
-                            return RESULT_ERROR_BAD_VALUE;
-                        }
-                        return mSessionImpl.getCallback().onPrepareFromMediaId(
-                                mSessionImpl.getInstance(), controller, mediaId, extras);
-                    }
-                });
-    }
-
-    @Override
-    public void playFromUri(final IMediaController caller, int seq, final Uri uri,
-            final Bundle extras) {
-        if (caller == null) {
-            return;
-        }
-        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_URI,
-                new SessionCallbackTask<Integer>() {
-                    @Override
-                    public Integer run(ControllerInfo controller) {
-                        if (uri == null) {
-                            Log.w(TAG, "playFromUri(): Ignoring null uri from " + controller);
-                            return RESULT_ERROR_BAD_VALUE;
-                        }
-                        return mSessionImpl.getCallback().onPlayFromUri(
-                                mSessionImpl.getInstance(), controller, uri, extras);
-                    }
-                });
-    }
-
-    @Override
-    public void playFromSearch(final IMediaController caller, int seq, final String query,
-            final Bundle extras) {
-        if (caller == null) {
-            return;
-        }
-        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH,
-                new SessionCallbackTask<Integer>() {
-                    @Override
-                    public Integer run(ControllerInfo controller) {
-                        if (TextUtils.isEmpty(query)) {
-                            Log.w(TAG, "playFromSearch(): Ignoring empty query from " + controller);
-                            return RESULT_ERROR_BAD_VALUE;
-                        }
-                        return mSessionImpl.getCallback().onPlayFromSearch(
-                                mSessionImpl.getInstance(), controller, query, extras);
-                    }
-                });
-    }
-
-    @Override
-    public void playFromMediaId(final IMediaController caller, int seq, final String mediaId,
-            final Bundle extras) {
-        if (caller == null) {
-            return;
-        }
-        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID,
-                new SessionCallbackTask<Integer>() {
-                    @Override
-                    public Integer run(ControllerInfo controller) {
-                        if (TextUtils.isEmpty(mediaId)) {
-                            Log.w(TAG, "playFromMediaId(): Ignoring empty mediaId from "
-                                    + controller);
-                            return RESULT_ERROR_BAD_VALUE;
-                        }
-                        return mSessionImpl.getCallback().onPlayFromMediaId(
-                                mSessionImpl.getInstance(), controller, mediaId, extras);
-                    }
-                });
-    }
-
-    @Override
     public void setRating(final IMediaController caller, int seq, final String mediaId,
             final ParcelImpl ratingParcelable) {
         if (caller == null || ratingParcelable == null) {
@@ -862,6 +741,26 @@ class MediaSessionStub extends IMediaSession.Stub {
                             return PlayerResult.createFuture(RESULT_ERROR_BAD_VALUE);
                         }
                         return mSessionImpl.setMediaItem(item);
+                    }
+                });
+    }
+
+    @Override
+    public void setMediaUri(final IMediaController caller, int seq, final Uri uri,
+            final Bundle extras) {
+        if (caller == null) {
+            return;
+        }
+        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI,
+                new SessionCallbackTask<Integer>() {
+                    @Override
+                    public Integer run(ControllerInfo controller) {
+                        if (uri == null) {
+                            Log.w(TAG, "setMediaUri(): Ignoring null uri from " + controller);
+                            return RESULT_ERROR_BAD_VALUE;
+                        }
+                        return mSessionImpl.getCallback().onSetMediaUri(
+                                mSessionImpl.getInstance(), controller, uri, extras);
                     }
                 });
     }
@@ -1434,10 +1333,10 @@ class MediaSessionStub extends IMediaSession.Stub {
         @Override
         void onVideoSizeChanged(int seq, @NonNull VideoSize videoSize) throws RemoteException {
             ParcelImpl videoSizeParcel = MediaParcelUtils.toParcelable(videoSize);
-            // dummyItem is used instead of 'null' to keep backward compatibility with 1.0.0.
+            // A fake item is used instead of 'null' to keep backward compatibility with 1.0.0.
             // In 1.0.0, MediaControllerStub filters out the corresponding call if the item is null.
-            final MediaItem dummyItem = new MediaItem.Builder().build();
-            mIControllerCallback.onVideoSizeChanged(seq, MediaParcelUtils.toParcelable(dummyItem),
+            MediaItem fakeItem = new MediaItem.Builder().build();
+            mIControllerCallback.onVideoSizeChanged(seq, MediaParcelUtils.toParcelable(fakeItem),
                     videoSizeParcel);
         }
 

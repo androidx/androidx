@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.lifecycle {
 
   public abstract class Lifecycle {
@@ -9,6 +9,11 @@ package androidx.lifecycle {
   }
 
   public enum Lifecycle.Event {
+    method public static androidx.lifecycle.Lifecycle.Event? downFrom(androidx.lifecycle.Lifecycle.State);
+    method public static androidx.lifecycle.Lifecycle.Event? downTo(androidx.lifecycle.Lifecycle.State);
+    method public androidx.lifecycle.Lifecycle.State getTargetState();
+    method public static androidx.lifecycle.Lifecycle.Event? upFrom(androidx.lifecycle.Lifecycle.State);
+    method public static androidx.lifecycle.Lifecycle.Event? upTo(androidx.lifecycle.Lifecycle.State);
     enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_ANY;
     enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_CREATE;
     enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_DESTROY;

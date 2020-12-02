@@ -56,6 +56,7 @@ class ContentValuesTest {
         assertThrows<IllegalArgumentException> {
             contentValuesOf("nope" to AtomicInteger(1))
         }.hasMessageThat().isEqualTo(
-            "Illegal value type java.util.concurrent.atomic.AtomicInteger for key \"nope\"")
+            "Illegal value type java.util.concurrent.atomic.AtomicInteger for key \"nope\""
+        )
     }
 }

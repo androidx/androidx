@@ -19,12 +19,9 @@ package androidx.fragment.lint
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
-import java.util.Properties
 
 @RunWith(JUnit4::class)
 class FragmentTagDetectorTest : LintDetectorTest() {
@@ -33,20 +30,12 @@ class FragmentTagDetectorTest : LintDetectorTest() {
 
     override fun getIssues(): MutableList<Issue> = mutableListOf(FragmentTagDetector.ISSUE)
 
-    private var sdkDir: File? = null
-
-    @Before
-    fun setup() {
-        val stream = FragmentTagDetectorTest::class.java.classLoader.getResourceAsStream("sdk.prop")
-        val properties = Properties()
-        properties.load(stream)
-        sdkDir = File(properties["sdk.dir"] as String)
-    }
-
     @Test
     fun expectPass() {
         lint().files(
-            xml("res/layout/layout.xml", """
+            xml(
+                "res/layout/layout.xml",
+                """
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
@@ -56,8 +45,9 @@ class FragmentTagDetectorTest : LintDetectorTest() {
               android:layout_width="match_parent"
               android:layout_height="match_parent" />
 </FrameLayout>
-            """))
-            .sdkHome(sdkDir)
+            """
+            )
+        )
             .run()
             .expectClean()
     }
@@ -65,7 +55,9 @@ class FragmentTagDetectorTest : LintDetectorTest() {
     @Test
     fun expectFail() {
         lint().files(
-            xml("res/layout/layout.xml", """
+            xml(
+                "res/layout/layout.xml",
+                """
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
@@ -74,21 +66,26 @@ class FragmentTagDetectorTest : LintDetectorTest() {
               android:layout_width="match_parent"
               android:layout_height="match_parent" />
 </FrameLayout>
-            """))
-            .sdkHome(sdkDir)
+            """
+            )
+        )
             .run()
-            .expect("""
+            .expect(
+                """
 res/layout/layout.xml:5: Warning: Replace the <fragment> tag with FragmentContainerView. [FragmentTagUsage]
     <fragment android:name="androidx.fragment.app.Test'$'InflatedFragment"
      ~~~~~~~~
 0 errors, 1 warnings
-            """)
+            """
+            )
     }
 
     @Test
     fun expectFix() {
         lint().files(
-            xml("res/layout/layout.xml", """
+            xml(
+                "res/layout/layout.xml",
+                """
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
@@ -97,16 +94,23 @@ res/layout/layout.xml:5: Warning: Replace the <fragment> tag with FragmentContai
               android:layout_width="match_parent"
               android:layout_height="match_parent" />
 </FrameLayout>
-            """))
-            .sdkHome(sdkDir)
+            """
+            )
+        )
             .run()
-            .expect("""
+            .expect(
+                """
 res/layout/layout.xml:5: Warning: Replace the <fragment> tag with FragmentContainerView. [FragmentTagUsage]
     <fragment android:name="androidx.fragment.app.Test'$'InflatedFragment"
      ~~~~~~~~
 0 errors, 1 warnings
-            """)
-            .checkFix(null, xml("res/layout/layout.xml", """
+            """
+            )
+            .checkFix(
+                null,
+                xml(
+                    "res/layout/layout.xml",
+                    """
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
@@ -115,6 +119,8 @@ res/layout/layout.xml:5: Warning: Replace the <fragment> tag with FragmentContai
               android:layout_width="match_parent"
               android:layout_height="match_parent" />
 </FrameLayout>
-            """))
+            """
+                )
+            )
     }
 }

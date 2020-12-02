@@ -17,17 +17,19 @@
 package androidx.camera.testing.fakes;
 
 import android.graphics.ImageFormat;
-import android.os.Handler;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.ImageReaderProxy;
+import androidx.camera.core.impl.ImageReaderProxy;
+import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
@@ -43,17 +45,27 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
     private int mHeight = 100;
     private int mImageFormat = ImageFormat.JPEG;
     private final int mMaxImages;
+
     private Surface mSurface;
+
+    @Nullable
     private Executor mExecutor;
+
+    private boolean mIsClosed = false;
 
     // Queue of all futures for ImageProxys which have not yet been closed.
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    BlockingQueue<ListenableFuture<Void>> mImageProxyBlockingQueue;
+            BlockingQueue<ListenableFuture<Void>> mImageProxyBlockingQueue;
 
     // Queue of ImageProxys which have not yet been acquired.
     private BlockingQueue<ImageProxy> mImageProxyAcquisitionQueue;
 
+    // List of all ImageProxy which have been acquired. Close them all once the ImageReader is
+    // closed
+    private List<ImageProxy> mOutboundImageProxy = new ArrayList<>();
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @Nullable
     ImageReaderProxy.OnImageAvailableListener mListener;
 
     /**
@@ -67,20 +79,39 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
         mImageProxyAcquisitionQueue = new LinkedBlockingQueue<>(maxImages);
     }
 
+    /**
+     * Create a new {@link FakeImageReaderProxy} instance.
+     *
+     * @param maxImages The maximum number of images that can be acquired at once
+     */
+    @NonNull
+    public static FakeImageReaderProxy newInstance(int width, int height, int format,
+            int maxImages, long usage) {
+        FakeImageReaderProxy fakeImageReaderProxy = new FakeImageReaderProxy(maxImages);
+        fakeImageReaderProxy.mWidth = width;
+        fakeImageReaderProxy.mHeight = height;
+        fakeImageReaderProxy.setImageFormat(format);
+        return fakeImageReaderProxy;
+    }
+
     @Override
     public ImageProxy acquireLatestImage() {
-        ImageProxy imageProxy;
+        ImageProxy imageProxy = null;
 
         try {
             // Remove and close all ImageProxy aside from last one
             do {
+                if (imageProxy != null) {
+                    imageProxy.close();
+                }
                 imageProxy = mImageProxyAcquisitionQueue.remove();
-                imageProxy.close();
             } while (mImageProxyAcquisitionQueue.size() > 1);
         } catch (NoSuchElementException e) {
             throw new IllegalStateException(
                     "Unable to acquire latest image from empty FakeImageReader");
         }
+
+        mOutboundImageProxy.add(imageProxy);
 
         return imageProxy;
     }
@@ -101,7 +132,10 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
 
     @Override
     public void close() {
-
+        for (ImageProxy imageProxy : mOutboundImageProxy) {
+            imageProxy.close();
+        }
+        mIsClosed = true;
     }
 
     @Override
@@ -124,17 +158,10 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
         return mMaxImages;
     }
 
-    @Override
     @Nullable
+    @Override
     public Surface getSurface() {
         return mSurface;
-    }
-
-    @Override
-    public void setOnImageAvailableListener(
-            @NonNull final ImageReaderProxy.OnImageAvailableListener listener,
-            @Nullable Handler handler) {
-        setOnImageAvailableListener(mListener, CameraXExecutors.newHandlerExecutor(handler));
     }
 
     @Override
@@ -144,8 +171,22 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
         mExecutor = executor;
     }
 
+    @Override
+    public void clearOnImageAvailableListener() {
+        mListener = null;
+        mExecutor = null;
+    }
+
     public void setSurface(Surface surface) {
         mSurface = surface;
+    }
+
+    public void setImageFormat(int imageFormat) {
+        mImageFormat = imageFormat;
+    }
+
+    public boolean isClosed() {
+        return mIsClosed;
     }
 
     /**
@@ -155,17 +196,13 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
      * ImageProxy have been triggered without a {@link #acquireLatestImage()} or {@link
      * #acquireNextImage()} being called.
      */
-    public void triggerImageAvailable(Object tag, long timestamp) throws InterruptedException {
-        FakeImageProxy fakeImageProxy = generateFakeImageProxy(tag, timestamp);
+    public void triggerImageAvailable(@NonNull TagBundle tagBundle,
+            long timestamp) throws InterruptedException {
+        FakeImageProxy fakeImageProxy = generateFakeImageProxy(tagBundle, timestamp);
 
         final ListenableFuture<Void> future = fakeImageProxy.getCloseFuture();
         mImageProxyBlockingQueue.put(future);
-        future.addListener(new Runnable() {
-            @Override
-            public void run() {
-                mImageProxyBlockingQueue.remove(future);
-            }
-            },
+        future.addListener(() -> mImageProxyBlockingQueue.remove(future),
                 CameraXExecutors.directExecutor()
         );
 
@@ -185,19 +222,13 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
      * @return true if able to trigger the OnImageAvailableListener. Otherwise will return false if
      * it fails to trigger the callback after the timeout period.
      */
-    public boolean triggerImageAvailable(@Nullable Object tag, long timestamp, long timeout,
+    public boolean triggerImageAvailable(@NonNull TagBundle tagBundle, long timestamp, long timeout,
             @NonNull TimeUnit timeUnit) throws InterruptedException {
-        FakeImageProxy fakeImageProxy = generateFakeImageProxy(tag, timestamp);
+        FakeImageProxy fakeImageProxy = generateFakeImageProxy(tagBundle, timestamp);
 
         final ListenableFuture<Void> future = fakeImageProxy.getCloseFuture();
         if (mImageProxyBlockingQueue.offer(future, timeout, timeUnit)) {
-
-            future.addListener(new Runnable() {
-                @Override
-                public void run() {
-                    mImageProxyBlockingQueue.remove(future);
-                }
-                },
+            future.addListener(() -> mImageProxyBlockingQueue.remove(future),
                     CameraXExecutors.directExecutor()
             );
 
@@ -211,33 +242,23 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
         return false;
     }
 
-    private FakeImageProxy generateFakeImageProxy(Object tag, long timestamp) {
-        FakeImageProxy fakeImageProxy = new FakeImageProxy();
+    private FakeImageProxy generateFakeImageProxy(TagBundle tagBundle, long timestamp) {
+        FakeImageInfo fakeImageInfo = new FakeImageInfo();
+        fakeImageInfo.setTag(tagBundle);
+        fakeImageInfo.setTimestamp(timestamp);
+
+        FakeImageProxy fakeImageProxy = new FakeImageProxy(fakeImageInfo);
         fakeImageProxy.setFormat(mImageFormat);
         fakeImageProxy.setHeight(mHeight);
         fakeImageProxy.setWidth(mWidth);
-        fakeImageProxy.setTimestamp(timestamp);
-
-        if (tag != null) {
-            FakeImageInfo fakeImageInfo = new FakeImageInfo();
-            fakeImageInfo.setTag(tag);
-            fakeImageInfo.setTimestamp(timestamp);
-            fakeImageProxy.setImageInfo(fakeImageInfo);
-        }
 
         return fakeImageProxy;
     }
 
     private void triggerImageAvailableListener() {
         if (mListener != null) {
-            Runnable listenerRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    mListener.onImageAvailable(FakeImageReaderProxy.this);
-                }
-            };
             if (mExecutor != null) {
-                mExecutor.execute(listenerRunnable);
+                mExecutor.execute(() -> mListener.onImageAvailable(FakeImageReaderProxy.this));
             } else {
                 mListener.onImageAvailable(FakeImageReaderProxy.this);
             }

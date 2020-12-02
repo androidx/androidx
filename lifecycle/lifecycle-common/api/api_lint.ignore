@@ -3,7 +3,3 @@ CallbackName: androidx.lifecycle.LifecycleEventObserver:
     Class should be named LifecycleEventCallback
 CallbackName: androidx.lifecycle.LifecycleObserver:
     Class should be named LifecycleCallback
-
-
-MissingNullability: androidx.lifecycle.OnLifecycleEvent#value():
-    Missing nullability on method `value` return

@@ -1,0 +1,43 @@
+// Baseline format: 1.0
+ArrayReturn: androidx.webkit.WebMessageCompat#WebMessageCompat(String, androidx.webkit.WebMessagePortCompat[]) parameter #1:
+    Method parameter should be Collection<WebMessagePortCompat> (or subclass) instead of raw array; was `androidx.webkit.WebMessagePortCompat[]`
+ArrayReturn: androidx.webkit.WebMessageCompat#getPorts():
+    Method should return Collection<WebMessagePortCompat> (or subclass) instead of raw array; was `androidx.webkit.WebMessagePortCompat[]`
+ArrayReturn: androidx.webkit.WebViewCompat#createWebMessageChannel(android.webkit.WebView):
+    Method should return Collection<WebMessagePortCompat> (or subclass) instead of raw array; was `androidx.webkit.WebMessagePortCompat[]`
+
+
+BuilderSetStyle: androidx.webkit.ProxyConfig.Builder#bypassSimpleHostnames():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.webkit.ProxyConfig.Builder.bypassSimpleHostnames()
+BuilderSetStyle: androidx.webkit.ProxyConfig.Builder#removeImplicitRules():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.webkit.ProxyConfig.Builder.removeImplicitRules()
+
+
+IntentName: androidx.webkit.WebViewFeature#DISABLED_ACTION_MODE_MENU_ITEMS:
+    Intent action constant name must be ACTION_FOO: DISABLED_ACTION_MODE_MENU_ITEMS
+
+
+MissingGetterMatchingBuilder: androidx.webkit.ProxyConfig.Builder#addDirect():
+    androidx.webkit.ProxyConfig does not declare a `getDirects()` method matching method androidx.webkit.ProxyConfig.Builder.addDirect()
+MissingGetterMatchingBuilder: androidx.webkit.ProxyConfig.Builder#addDirect(String):
+    androidx.webkit.ProxyConfig does not declare a `getDirects()` method matching method androidx.webkit.ProxyConfig.Builder.addDirect(String)
+MissingGetterMatchingBuilder: androidx.webkit.TracingConfig.Builder#addCategories(int...):
+    androidx.webkit.TracingConfig does not declare a `getCategoriess()` method matching method androidx.webkit.TracingConfig.Builder.addCategories(int...)
+MissingGetterMatchingBuilder: androidx.webkit.TracingConfig.Builder#addCategories(java.lang.String...):
+    androidx.webkit.TracingConfig does not declare a `getCategoriess()` method matching method androidx.webkit.TracingConfig.Builder.addCategories(java.lang.String...)
+MissingGetterMatchingBuilder: androidx.webkit.TracingConfig.Builder#addCategories(java.util.Collection<java.lang.String>):
+    androidx.webkit.TracingConfig does not declare a `getCategoriess()` method matching method androidx.webkit.TracingConfig.Builder.addCategories(java.util.Collection<java.lang.String>)
+MissingGetterMatchingBuilder: androidx.webkit.WebViewAssetLoader.Builder#addPathHandler(String, androidx.webkit.WebViewAssetLoader.PathHandler):
+    androidx.webkit.WebViewAssetLoader does not declare a `getPathHandlers()` method matching method androidx.webkit.WebViewAssetLoader.Builder.addPathHandler(String,androidx.webkit.WebViewAssetLoader.PathHandler)
+MissingGetterMatchingBuilder: androidx.webkit.WebViewAssetLoader.Builder#setDomain(String):
+    androidx.webkit.WebViewAssetLoader does not declare a `getDomain()` method matching method androidx.webkit.WebViewAssetLoader.Builder.setDomain(String)
+MissingGetterMatchingBuilder: androidx.webkit.WebViewAssetLoader.Builder#setHttpAllowed(boolean):
+    androidx.webkit.WebViewAssetLoader does not declare a `isHttpAllowed()` method matching method androidx.webkit.WebViewAssetLoader.Builder.setHttpAllowed(boolean)
+
+
+StaticFinalBuilder: androidx.webkit.TracingConfig.Builder:
+    Builder must be final: androidx.webkit.TracingConfig.Builder
+
+
+StreamFiles: androidx.webkit.WebViewAssetLoader.InternalStoragePathHandler#InternalStoragePathHandler(android.content.Context, java.io.File):
+    Methods accepting `File` should also accept `FileDescriptor` or streams: constructor androidx.webkit.WebViewAssetLoader.InternalStoragePathHandler(android.content.Context,java.io.File)

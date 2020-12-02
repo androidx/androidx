@@ -18,9 +18,14 @@ package androidx.room.util;
 
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
+
+import java.util.Arrays;
 
 /**
  * Cursor utilities for Room
@@ -84,11 +89,15 @@ public class CursorUtil {
      * @return The index of the column, or -1 if not found.
      */
     public static int getColumnIndex(@NonNull Cursor c, @NonNull String name) {
-        final int index = c.getColumnIndex(name);
+        int index = c.getColumnIndex(name);
         if (index >= 0) {
             return index;
         }
-        return c.getColumnIndex("`" + name + "`");
+        index = c.getColumnIndex("`" + name + "`");
+        if (index >= 0) {
+            return index;
+        }
+        return findColumnIndexBySuffix(c, name);
     }
 
     /**
@@ -101,11 +110,56 @@ public class CursorUtil {
      * @throws IllegalArgumentException if the column does not exist.
      */
     public static int getColumnIndexOrThrow(@NonNull Cursor c, @NonNull String name) {
-        final int index = c.getColumnIndex(name);
+        final int index = getColumnIndex(c, name);
         if (index >= 0) {
             return index;
         }
-        return c.getColumnIndexOrThrow("`" + name + "`");
+        String availableColumns = "";
+        try {
+            availableColumns = Arrays.toString(c.getColumnNames());
+        } catch (Exception e) {
+            Log.d("RoomCursorUtil", "Cannot collect column names for debug purposes", e);
+        }
+        throw new IllegalArgumentException("column '" + name
+                + "' does not exist. Available columns: " + availableColumns);
+    }
+
+    /**
+     * Finds a column by name by appending `.` in front of it and checking by suffix match.
+     * Also checks for the version wrapped with `` (backticks).
+     * workaround for b/157261134 for API levels 25 and below
+     *
+     * e.g. "foo" will match "any.foo" and "`any.foo`"
+     */
+    private static int findColumnIndexBySuffix(@NonNull Cursor cursor, @NonNull String name) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
+            // we need this workaround only on APIs < 26. So just return not found on newer APIs
+            return -1;
+        }
+        if (name.length() == 0) {
+            return -1;
+        }
+        final String[] columnNames = cursor.getColumnNames();
+        return findColumnIndexBySuffix(columnNames, name);
+    }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    static int findColumnIndexBySuffix(String[] columnNames, String name) {
+        String dotSuffix = "." + name;
+        String backtickSuffix = "." + name + "`";
+        for (int index = 0; index < columnNames.length; index++) {
+            String columnName = columnNames[index];
+            // do not check if column name is not long enough. 1 char for table name, 1 char for '.'
+            if (columnName.length() >= name.length() + 2) {
+                if (columnName.endsWith(dotSuffix)) {
+                    return index;
+                } else if (columnName.charAt(0) == '`'
+                        && columnName.endsWith(backtickSuffix)) {
+                    return index;
+                }
+            }
+        }
+        return -1;
     }
 
     private CursorUtil() {

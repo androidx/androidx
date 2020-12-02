@@ -141,12 +141,12 @@ public final class HtmlCompat {
      * Invokes {@link Html#fromHtml(String, int)} on API 24 and newer, otherwise {@code flags} are
      * ignored and {@link Html#fromHtml(String)} is used.
      */
+    @SuppressWarnings("deprecation")
     @NonNull
     public static Spanned fromHtml(@NonNull String source, @FromHtmlFlags int flags) {
         if (Build.VERSION.SDK_INT >= 24) {
             return Html.fromHtml(source, flags);
         }
-        //noinspection deprecation
         return Html.fromHtml(source);
     }
 
@@ -155,13 +155,13 @@ public final class HtmlCompat {
      * otherwise {@code flags} are ignored and
      * {@link Html#fromHtml(String, ImageGetter, TagHandler)} is used.
      */
+    @SuppressWarnings("deprecation")
     @NonNull
     public static Spanned fromHtml(@NonNull String source, @FromHtmlFlags int flags,
             @Nullable ImageGetter imageGetter, @Nullable TagHandler tagHandler) {
         if (Build.VERSION.SDK_INT >= 24) {
             return Html.fromHtml(source, flags, imageGetter, tagHandler);
         }
-        //noinspection deprecation
         return Html.fromHtml(source, imageGetter, tagHandler);
     }
 
@@ -169,12 +169,12 @@ public final class HtmlCompat {
      * Invokes {@link Html#toHtml(Spanned, int)} on API 24 or newer, otherwise {@code options} are
      * ignored and {@link Html#toHtml(Spanned)} is used.
      */
+    @SuppressWarnings("deprecation")
     @NonNull
     public static String toHtml(@NonNull Spanned text, @ToHtmlOptions int options) {
         if (Build.VERSION.SDK_INT >= 24) {
             return Html.toHtml(text, options);
         }
-        //noinspection deprecation
         return Html.toHtml(text);
     }
 

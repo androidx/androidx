@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
@@ -123,7 +122,8 @@ public class BackgroundHelper {
         }
     }
 
-    class LoadBitmapTaskBase extends AsyncTask<Request, Object, Request> {
+    @SuppressWarnings("deprecation") /* AsyncTask */
+    class LoadBitmapTaskBase extends android.os.AsyncTask<Request, Object, Request> {
         @Override
         protected Request doInBackground(Request... params) {
             boolean cancelled = isCancelled();

@@ -43,12 +43,16 @@ import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.session.MediaController;
 import androidx.media2.session.SessionCommandGroup;
+import androidx.media2.session.SessionResult;
 import androidx.media2.session.SessionToken;
 import androidx.media2.widget.MediaControlView;
 import androidx.media2.widget.VideoView;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.Locale;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Test application for VideoView/MediaControlView
@@ -173,120 +177,13 @@ public class VideoPlayerActivity extends FragmentActivity {
             } else {
                 mSpeed += 0.1f;
             }
-            mMediaController.setPlaybackSpeed(mSpeed);
-            Toast.makeText(this,
-                    "speed rate: " + String.format(Locale.US, "%.2f", mSpeed),
+            final String speedString = String.format(Locale.US, "%.2f", mSpeed);
+            showErrorDialogIfFailed(mMediaController.setPlaybackSpeed(mSpeed),
+                    "failed to adjust speed rate to " + speedString);
+            Toast.makeText(this, "speed rate: " + speedString,
                     Toast.LENGTH_SHORT).show();
         }
         return super.onTouchEvent(ev);
-    }
-
-    private void showErrorDialog(String errorMessage) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Playback error")
-                .setMessage(errorMessage)
-                .setCancelable(false)
-                .setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                finish();
-                            }
-                        }).show();
-    }
-
-    class ControllerCallback extends MediaController.ControllerCallback {
-        @Override
-        public void onPlaybackSpeedChanged(
-                @NonNull MediaController controller, float speed) {
-            mSpeed = speed;
-        }
-
-        @Override
-        public void onConnected(@NonNull MediaController controller,
-                @NonNull SessionCommandGroup allowedCommands) {
-            MediaItem currentItem = controller.getCurrentMediaItem();
-            // Return if current media item exists and it is the same as the one that is selected
-            // to play.
-            if (currentItem != null
-                    && TextUtils.equals(currentItem.getMediaId(), mUri.toString())
-                    && controller.getPlayerState() != SessionPlayer.PLAYER_STATE_IDLE
-                    && controller.getPlayerState() != SessionPlayer.PLAYER_STATE_ERROR) {
-                return;
-            }
-
-            controller.setMediaItem(mUri.toString());
-            controller.prepare();
-        }
-    }
-
-    class FullScreenListener implements MediaControlView.OnFullScreenListener {
-        private int mPrevWidth;
-        private int mPrevHeight;
-        private int mPrevLeft;
-        private int mPrevTop;
-
-        @Override
-        public void onFullScreen(@NonNull View view, boolean fullScreen) {
-            // TODO: Remove bottom controls after adding back button functionality.
-            ViewGroup.MarginLayoutParams params =
-                    (ViewGroup.MarginLayoutParams) mVideoView.getLayoutParams();
-            if (fullScreen) {
-                mPrevWidth = params.width;
-                mPrevHeight = params.height;
-                mPrevLeft = params.leftMargin;
-                mPrevTop = params.topMargin;
-
-                // Remove notification bar
-                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-                params.width = ViewGroup.LayoutParams.MATCH_PARENT;
-                params.height = ViewGroup.LayoutParams.MATCH_PARENT;
-                params.leftMargin = 0;
-                params.topMargin = 0;
-                mVideoView.setLayoutParams(params);
-            } else {
-                // Restore notification bar
-                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-                params.width = mPrevWidth;
-                params.height = mPrevHeight;
-                params.leftMargin = mPrevLeft;
-                params.topMargin = mPrevTop;
-                mVideoView.setLayoutParams(params);
-            }
-            mVideoView.requestLayout();
-        }
-    }
-
-    // To intercept touch event when transformable is checked
-    static class MyVideoView extends VideoView {
-        private boolean mTransformable;
-
-        public MyVideoView(Context context) {
-            super(context);
-        }
-
-        public MyVideoView(Context context, AttributeSet attrs) {
-            super(context, attrs);
-        }
-
-        public MyVideoView(Context context, AttributeSet attrs, int defStyle) {
-            super(context, attrs, defStyle);
-        }
-
-        void setTransformable(boolean transformable) {
-            mTransformable = transformable;
-        }
-
-        @Override
-        public boolean onInterceptTouchEvent(MotionEvent ev) {
-            if (!mTransformable) {
-                return super.onInterceptTouchEvent(ev);
-            }
-            return true;
-        }
     }
 
     @Override
@@ -384,5 +281,128 @@ public class VideoPlayerActivity extends FragmentActivity {
             return "TextureView";
         }
         return "Unknown";
+    }
+
+    private void showErrorDialog(String errorMessage) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Playback error")
+                .setMessage(errorMessage)
+                .setCancelable(false)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                finish();
+                            }
+                        }).show();
+    }
+
+    private void showErrorDialogIfFailed(ListenableFuture<SessionResult> result,
+            String errorMessage) {
+        result.addListener(() -> {
+            try {
+                SessionResult sessionResult = result.get(0, TimeUnit.MILLISECONDS);
+                if (sessionResult.getResultCode() != SessionResult.RESULT_SUCCESS) {
+                    showErrorDialog(errorMessage);
+                }
+            } catch (Exception e) {
+                showErrorDialog(errorMessage);
+            }
+        }, ContextCompat.getMainExecutor(this));
+    }
+
+    class ControllerCallback extends MediaController.ControllerCallback {
+        @Override
+        public void onPlaybackSpeedChanged(
+                @NonNull MediaController controller, float speed) {
+            mSpeed = speed;
+        }
+
+        @Override
+        public void onConnected(@NonNull MediaController controller,
+                @NonNull SessionCommandGroup allowedCommands) {
+            MediaItem currentItem = controller.getCurrentMediaItem();
+            // Return if current media item exists and it is the same as the one that is selected
+            // to play.
+            if (currentItem != null
+                    && TextUtils.equals(currentItem.getMediaId(), mUri.toString())
+                    && controller.getPlayerState() != SessionPlayer.PLAYER_STATE_IDLE
+                    && controller.getPlayerState() != SessionPlayer.PLAYER_STATE_ERROR) {
+                return;
+            }
+
+            showErrorDialogIfFailed(controller.setMediaItem(mUri.toString()),
+                    "failed to set " + mUri);
+            showErrorDialogIfFailed(controller.prepare(), "failed to prepare " + mUri);
+        }
+    }
+
+    class FullScreenListener implements MediaControlView.OnFullScreenListener {
+        private int mPrevWidth;
+        private int mPrevHeight;
+        private int mPrevLeft;
+        private int mPrevTop;
+
+        @Override
+        public void onFullScreen(@NonNull View view, boolean fullScreen) {
+            // TODO: Remove bottom controls after adding back button functionality.
+            ViewGroup.MarginLayoutParams params =
+                    (ViewGroup.MarginLayoutParams) mVideoView.getLayoutParams();
+            if (fullScreen) {
+                mPrevWidth = params.width;
+                mPrevHeight = params.height;
+                mPrevLeft = params.leftMargin;
+                mPrevTop = params.topMargin;
+
+                // Remove notification bar
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+                params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+                params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                params.leftMargin = 0;
+                params.topMargin = 0;
+                mVideoView.setLayoutParams(params);
+            } else {
+                // Restore notification bar
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+                params.width = mPrevWidth;
+                params.height = mPrevHeight;
+                params.leftMargin = mPrevLeft;
+                params.topMargin = mPrevTop;
+                mVideoView.setLayoutParams(params);
+            }
+            mVideoView.requestLayout();
+        }
+    }
+
+    // To intercept touch event when transformable is checked
+    static class MyVideoView extends VideoView {
+        private boolean mTransformable;
+
+        public MyVideoView(Context context) {
+            super(context);
+        }
+
+        public MyVideoView(Context context, AttributeSet attrs) {
+            super(context, attrs);
+        }
+
+        public MyVideoView(Context context, AttributeSet attrs, int defStyle) {
+            super(context, attrs, defStyle);
+        }
+
+        void setTransformable(boolean transformable) {
+            mTransformable = transformable;
+        }
+
+        @Override
+        public boolean onInterceptTouchEvent(MotionEvent ev) {
+            if (!mTransformable) {
+                return super.onInterceptTouchEvent(ev);
+            }
+            return true;
+        }
     }
 }

@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.navigation {
 
   public final class ActionOnlyNavDirections implements androidx.navigation.NavDirections {
@@ -39,11 +39,44 @@ package androidx.navigation {
     method public androidx.navigation.NavArgument.Builder setType(androidx.navigation.NavType<?>);
   }
 
+  public final class NavDeepLink {
+    method public String? getAction();
+    method public String? getMimeType();
+    method public String? getUriPattern();
+  }
+
+  public static final class NavDeepLink.Builder {
+    method public androidx.navigation.NavDeepLink build();
+    method public static androidx.navigation.NavDeepLink.Builder fromAction(String);
+    method public static androidx.navigation.NavDeepLink.Builder fromMimeType(String);
+    method public static androidx.navigation.NavDeepLink.Builder fromUriPattern(String);
+    method public androidx.navigation.NavDeepLink.Builder setAction(String);
+    method public androidx.navigation.NavDeepLink.Builder setMimeType(String);
+    method public androidx.navigation.NavDeepLink.Builder setUriPattern(String);
+  }
+
+  public class NavDeepLinkRequest {
+    method public String? getAction();
+    method public String? getMimeType();
+    method public android.net.Uri? getUri();
+  }
+
+  public static final class NavDeepLinkRequest.Builder {
+    method public androidx.navigation.NavDeepLinkRequest build();
+    method public static androidx.navigation.NavDeepLinkRequest.Builder fromAction(String);
+    method public static androidx.navigation.NavDeepLinkRequest.Builder fromMimeType(String);
+    method public static androidx.navigation.NavDeepLinkRequest.Builder fromUri(android.net.Uri);
+    method public androidx.navigation.NavDeepLinkRequest.Builder setAction(String);
+    method public androidx.navigation.NavDeepLinkRequest.Builder setMimeType(String);
+    method public androidx.navigation.NavDeepLinkRequest.Builder setUri(android.net.Uri);
+  }
+
   public class NavDestination {
     ctor public NavDestination(androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>);
     ctor public NavDestination(String);
     method public final void addArgument(String, androidx.navigation.NavArgument);
     method public final void addDeepLink(String);
+    method public final void addDeepLink(androidx.navigation.NavDeepLink);
     method public final androidx.navigation.NavAction? getAction(@IdRes int);
     method public final java.util.Map<java.lang.String!,androidx.navigation.NavArgument!> getArguments();
     method @IdRes public final int getId();
@@ -51,6 +84,7 @@ package androidx.navigation {
     method public final String getNavigatorName();
     method public final androidx.navigation.NavGraph? getParent();
     method public boolean hasDeepLink(android.net.Uri);
+    method public boolean hasDeepLink(androidx.navigation.NavDeepLinkRequest);
     method @CallSuper public void onInflate(android.content.Context, android.util.AttributeSet);
     method protected static <C> Class<? extends C> parseClassFromName(android.content.Context, String, Class<? extends C>);
     method public final void putAction(@IdRes int, @IdRes int);

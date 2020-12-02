@@ -1,0 +1,27 @@
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+dependencies {
+    api("androidx.annotation:annotation:1.1.0")
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 21
+    }
+}
+
+androidx {
+    name = "Android Support Recommendation"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.RECOMMENDATION
+    inceptionYear = "2015"
+    description = "Android Support Recommendation"
+    failOnDeprecationWarnings = false
+}

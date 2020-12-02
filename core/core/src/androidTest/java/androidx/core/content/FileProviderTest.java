@@ -54,10 +54,12 @@ import java.io.OutputStream;
 @RunWith(AndroidJUnit4.class)
 public class FileProviderTest {
     private static final String TEST_AUTHORITY = "moocow";
+    private static final String ADDITIONAL_AUTHORITY = "additional.authority";
 
     private static final String TEST_FILE = "file.test";
     private static final byte[] TEST_DATA = new byte[] { (byte) 0xf0, 0x00, 0x0d };
     private static final byte[] TEST_DATA_ALT = new byte[] { (byte) 0x33, 0x66 };
+    private static final String TEST_FILE_DISPLAY_NAME = "Test Display Name";
 
     private ContentResolver mResolver;
     private Context mContext;
@@ -256,9 +258,32 @@ public class FileProviderTest {
     }
 
     @Test
+    public void testQueryDisplayName() throws Exception {
+        final File file = new File(mContext.getFilesDir(), TEST_FILE);
+        final Uri uri = stageFileAndGetUri(file, TEST_DATA, TEST_AUTHORITY, TEST_FILE_DISPLAY_NAME);
+
+        Cursor cursor = mResolver.query(uri, null, null, null, null);
+        try {
+            cursor.moveToFirst();
+            assertEquals(TEST_FILE_DISPLAY_NAME,
+                    cursor.getString(cursor.getColumnIndex(DISPLAY_NAME)));
+        } finally {
+            cursor.close();
+        }
+    }
+
+    @Test
     public void testReadFile() throws Exception {
         final File file = new File(mContext.getFilesDir(), TEST_FILE);
         final Uri uri = stageFileAndGetUri(file, TEST_DATA);
+
+        assertContentsEquals(TEST_DATA, uri);
+    }
+
+    @Test
+    public void testReadFileWithCustomDisplayName() throws Exception {
+        final File file = new File(mContext.getFilesDir(), TEST_FILE);
+        final Uri uri = stageFileAndGetUri(file, TEST_DATA, TEST_AUTHORITY, TEST_FILE_DISPLAY_NAME);
 
         assertContentsEquals(TEST_DATA, uri);
     }
@@ -365,6 +390,14 @@ public class FileProviderTest {
     }
 
     @Test
+    public void testAdditionalAuthority() throws Exception {
+        final File file = new File(mContext.getFilesDir(), TEST_FILE);
+        final Uri uri = stageFileAndGetUri(file, TEST_DATA, ADDITIONAL_AUTHORITY);
+        assertEquals("content://additional.authority/test_files/file.test", uri.toString());
+        assertContentsEquals(TEST_DATA, uri);
+    }
+
+    @Test
     public void testNonExistentAuthority() {
         File file = buildPath(mContext.getFilesDir(), "file.test");
         try {
@@ -386,6 +419,15 @@ public class FileProviderTest {
     }
 
     private Uri stageFileAndGetUri(File file, byte[] data) throws Exception {
+        return stageFileAndGetUri(file, data, TEST_AUTHORITY, null);
+    }
+
+    private Uri stageFileAndGetUri(File file, byte[] data, String authority) throws Exception {
+        return stageFileAndGetUri(file, data, authority, null);
+    }
+
+    private Uri stageFileAndGetUri(File file, byte[] data, String authority, String displayName)
+            throws Exception {
         if (data != null) {
             final FileOutputStream out = new FileOutputStream(file);
             try {
@@ -396,7 +438,11 @@ public class FileProviderTest {
         } else {
             file.delete();
         }
-        return FileProvider.getUriForFile(mContext, TEST_AUTHORITY, file);
+
+        if (displayName != null) {
+            return FileProvider.getUriForFile(mContext, authority, file, displayName);
+        }
+        return FileProvider.getUriForFile(mContext, authority, file);
     }
 
     private static File buildPath(File base, String... segments) {

@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -170,6 +171,7 @@ public class RendererTerminationActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void blockWebViewRenderer(int durationMs) {
         mBlocker.beginBlocking();
         new Handler().postDelayed(this::unblockWebViewRenderer, durationMs);
@@ -198,6 +200,7 @@ public class RendererTerminationActivity extends AppCompatActivity {
                 WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE));
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private void recreateWebView() {
         FrameLayout layout = (FrameLayout) mWebView.getParent();
         LayoutParams params = mWebView.getLayoutParams();
@@ -210,7 +213,6 @@ public class RendererTerminationActivity extends AppCompatActivity {
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
-                assert view == mWebView;
                 mWebView.destroy();
                 mBlocker.unblock();
 

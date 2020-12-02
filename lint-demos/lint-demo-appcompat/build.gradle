@@ -1,0 +1,25 @@
+import static androidx.build.dependencies.DependenciesKt.KOTLIN_STDLIB
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+    id("kotlin-android")
+}
+
+dependencies {
+    implementation(project(":appcompat:appcompat"))
+    implementation(project(":core:core"))
+    api(KOTLIN_STDLIB)
+}
+
+android {
+    defaultConfig {
+        vectorDrawables.useSupportLibrary = true
+        minSdkVersion=14
+    }
+    lintOptions {
+        disable "WrongThread"
+        // TODO: Enable lint after appcompat:1.1.0 release or use lint-baseline.xml instead.
+        abortOnError false
+    }
+}

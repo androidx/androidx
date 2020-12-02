@@ -16,13 +16,12 @@
 
 package androidx.build.java
 
-import androidx.build.androidJarFile
+import androidx.build.doclava.androidJarFile
 import androidx.build.multiplatformExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.SourceKind
 import org.gradle.api.Project
-import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.SourceSet
 import java.io.File
@@ -46,13 +45,11 @@ data class JavaCompileInputs(
             variant: BaseVariant,
             project: Project
         ): JavaCompileInputs {
-            val sourceCollection = project.files(getSourcePaths(variant, project))
-            sourceCollection.builtBy(variant.javaCompileProvider)
-            val dependencyClasspath = variant.compileConfiguration.incoming.artifactView { config ->
-                config.attributes { container ->
-                    container.attribute(Attribute.of("artifactType", String::class.java), "jar")
-                }
-            }.artifacts.artifactFiles
+            val sourceCollection = getSourceCollection(variant, project)
+
+            val dependencyClasspath = variant.getCompileClasspath(null).filter {
+                it.exists()
+            }
 
             return JavaCompileInputs(
                 sourceCollection,
@@ -78,19 +75,33 @@ data class JavaCompileInputs(
             return JavaCompileInputs(sourceCollection, dependencyClasspath, bootClasspath)
         }
 
-        private fun getSourcePaths(variant: BaseVariant, project: Project): Collection<File> {
+        private fun getSourceCollection(variant: BaseVariant, project: Project): FileCollection {
             // If the project has the kotlin-multiplatform plugin, we want to return a combined
             // collection of all the source files inside '*main' source sets. I.e, given a module
             // with a common and Android source set, this will look inside commonMain and
             // androidMain.
-            return project.multiplatformExtension?.run {
+            val taskDependencies = mutableListOf<Any>(variant.javaCompileProvider)
+            val sourceFiles = project.multiplatformExtension?.run {
                 sourceSets
                     .filter { it.name.contains("main", ignoreCase = true) }
+                    // TODO(igotti): come up with better filtering for non-Android sources.
+                    .filterNot { it.name == "desktopMain" }
                     .flatMap { it.kotlin.sourceDirectories }
                     .also { require(it.isNotEmpty()) }
             } ?: variant
                 .getSourceFolders(SourceKind.JAVA)
-                .map { folder -> folder.dir }
+                .map { folder ->
+                    for (builtBy in folder.builtBy) {
+                        taskDependencies.add(builtBy)
+                    }
+                    folder.dir
+                }
+
+            val sourceCollection = project.files(sourceFiles)
+            for (dep in taskDependencies) {
+                sourceCollection.builtBy(dep)
+            }
+            return sourceCollection
         }
     }
 }

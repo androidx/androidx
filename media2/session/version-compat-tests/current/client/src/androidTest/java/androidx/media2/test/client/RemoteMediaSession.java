@@ -24,10 +24,10 @@ import static androidx.media2.test.common.CommonConstants.KEY_CURRENT_POSITION;
 import static androidx.media2.test.common.CommonConstants.KEY_CURRENT_VOLUME;
 import static androidx.media2.test.common.CommonConstants.KEY_MAX_VOLUME;
 import static androidx.media2.test.common.CommonConstants.KEY_MEDIA_ITEM;
-import static androidx.media2.test.common.CommonConstants.KEY_METADATA;
+import static androidx.media2.test.common.CommonConstants.KEY_PLAYBACK_SPEED;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST;
-import static androidx.media2.test.common.CommonConstants.KEY_SPEED;
+import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST_METADATA;
 import static androidx.media2.test.common.CommonConstants.KEY_TRACK_INFO;
 import static androidx.media2.test.common.CommonConstants.KEY_VIDEO_SIZE;
 import static androidx.media2.test.common.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
@@ -42,6 +42,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Parcelable;
 import android.os.RemoteException;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
@@ -58,7 +59,7 @@ import androidx.media2.common.SubtitleData;
 import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSession.CommandButton;
-import androidx.media2.session.MediaSession.ControllerInfo;
+import androidx.media2.session.RemoteSessionPlayer;
 import androidx.media2.session.SessionCommand;
 import androidx.media2.session.SessionCommandGroup;
 import androidx.media2.session.SessionToken;
@@ -119,85 +120,6 @@ public class RemoteMediaSession {
         return mRemotePlayer;
     }
 
-    /**
-     * Create a {@link Bundle} which represents a configuration of local
-     * {@link SessionPlayer} in order to create a new mock player in the service app.
-     * <p>
-     * The returned value can be used in {@link #updatePlayer(Bundle)}.
-     */
-    public static Bundle createMockPlayerConnectorConfig(
-            int state, int buffState, long pos, long buffPos, float speed,
-            @Nullable AudioAttributesCompat attr) {
-        Bundle playerBundle = new Bundle();
-        playerBundle.putInt(KEY_PLAYER_STATE, state);
-        playerBundle.putInt(KEY_BUFFERING_STATE, buffState);
-        playerBundle.putLong(KEY_CURRENT_POSITION, pos);
-        playerBundle.putLong(KEY_BUFFERED_POSITION, buffPos);
-        playerBundle.putFloat(KEY_SPEED, speed);
-        if (attr != null) {
-            playerBundle.putParcelable(KEY_AUDIO_ATTRIBUTES, MediaParcelUtils.toParcelable(attr));
-        }
-        return playerBundle;
-    }
-
-    /**
-     * Create a {@link Bundle} which represents a configuration of remote
-     * {@link SessionPlayer} in order to create a new mock player in the service app.
-     * <p>
-     * The returned value can be used in {@link #updatePlayer(Bundle)}.
-     */
-    public static Bundle createMockPlayerConnectorConfig(
-            int volumeControlType, int maxVolume, int currentVolume,
-            @Nullable AudioAttributesCompat attr) {
-        Bundle playerBundle = new Bundle();
-        playerBundle.putInt(KEY_VOLUME_CONTROL_TYPE, volumeControlType);
-        playerBundle.putInt(KEY_MAX_VOLUME, maxVolume);
-        playerBundle.putInt(KEY_CURRENT_VOLUME, currentVolume);
-        if (attr != null) {
-            playerBundle.putParcelable(KEY_AUDIO_ATTRIBUTES, MediaParcelUtils.toParcelable(attr));
-        }
-        return playerBundle;
-    }
-
-    /**
-     * Create a {@link Bundle} which represents a configuration of {@link SessionPlayer}
-     * in order to create a new mock playlist agent in the service app.
-     * <p>
-     * The returned value can be used in {@link #updatePlayer(Bundle)}.
-     */
-    public static Bundle createMockPlayerConnectorConfig(
-            int state, int buffState, long pos, long buffPos, float speed,
-            @Nullable AudioAttributesCompat attr, @Nullable List<MediaItem> playlist,
-            @Nullable MediaItem currentItem, @Nullable MediaMetadata metadata) {
-        Bundle bundle = createMockPlayerConnectorConfig(state, buffState, pos, buffPos, speed,
-                attr);
-        if (playlist != null) {
-            ParcelImplListSlice listSlice = new ParcelImplListSlice(
-                    MediaTestUtils.convertToParcelImplList(playlist));
-            bundle.putParcelable(KEY_PLAYLIST, listSlice);
-        }
-        if (currentItem != null) {
-            bundle.putParcelable(KEY_MEDIA_ITEM, MediaParcelUtils.toParcelable(currentItem));
-        }
-        if (metadata != null) {
-            ParcelUtils.putVersionedParcelable(bundle, KEY_METADATA, metadata);
-        }
-        return bundle;
-    }
-
-    public static Bundle createMockPlayerConnectorConfigForVideoSize(@NonNull VideoSize videoSize) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(KEY_VIDEO_SIZE, MediaParcelUtils.toParcelable(videoSize));
-        return bundle;
-    }
-
-    public static Bundle createMockPlayerConnectorConfigForTrackInfo(
-            @NonNull List<SessionPlayer.TrackInfo> trackInfos) {
-        Bundle bundle = new Bundle();
-        ParcelUtils.putVersionedParcelableList(bundle, KEY_TRACK_INFO, trackInfos);
-        return bundle;
-    }
-
     ////////////////////////////////////////////////////////////////////////////////
     // MediaSession methods
     ////////////////////////////////////////////////////////////////////////////////
@@ -255,10 +177,8 @@ public class RemoteMediaSession {
         }
     }
 
-    public void sendCustomCommand(@NonNull ControllerInfo controller,
-            @NonNull SessionCommand command, @Nullable Bundle args) {
+    public void sendCustomCommand(@NonNull SessionCommand command, @Nullable Bundle args) {
         try {
-            // TODO: ControllerInfo should be handled.
             mBinder.sendCustomCommand(
                     mSessionId, null, MediaParcelUtils.toParcelable(command), args);
         } catch (RemoteException ex) {
@@ -274,10 +194,8 @@ public class RemoteMediaSession {
         }
     }
 
-    public void setAllowedCommands(@NonNull ControllerInfo controller,
-            @NonNull SessionCommandGroup commands) {
+    public void setAllowedCommands(@NonNull SessionCommandGroup commands) {
         try {
-            // TODO: ControllerInfo should be handled.
             mBinder.setAllowedCommands(mSessionId, null,
                     MediaParcelUtils.toParcelable(commands));
         } catch (RemoteException ex) {
@@ -285,14 +203,12 @@ public class RemoteMediaSession {
         }
     }
 
-    public void setCustomLayout(@NonNull ControllerInfo controller,
-            @NonNull List<CommandButton> layout) {
+    public void setCustomLayout(@NonNull List<CommandButton> layout) {
         try {
             List<ParcelImpl> parcelList = new ArrayList<>();
             for (CommandButton btn : layout) {
                 parcelList.add(MediaParcelUtils.toParcelable(btn));
             }
-            // TODO: ControllerInfo should be handled.
             mBinder.setCustomLayout(mSessionId, null, parcelList);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call setCustomLayout()");
@@ -403,26 +319,35 @@ public class RemoteMediaSession {
             }
         }
 
+        public void setCurrentMediaItemMetadata(MediaMetadata metadata) {
+            try {
+                mBinder.setCurrentMediaItemMetadata(
+                        mSessionId, MediaParcelUtils.toParcelable(metadata));
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Failed to call setCurrentMediaItemMetadata()");
+            }
+        }
+
         /**
          * Service app will automatically create a playlist of size {@param size},
          * and sets the list to the player.
          *
-         * Each item's media ID will be {@link TestUtils#getMediaIdInDummyList(int)}.
+         * Each item's media ID will be {@link TestUtils#getMediaIdInFakeList(int)}.
          */
-        public void createAndSetDummyPlaylist(int size) {
+        public void createAndSetFakePlaylist(int size) {
             try {
-                mBinder.createAndSetDummyPlaylist(mSessionId, size);
+                mBinder.createAndSetFakePlaylist(mSessionId, size);
             } catch (RemoteException ex) {
-                Log.e(TAG, "Failed to call createAndSetDummyPlaylist()");
+                Log.e(TAG, "Failed to call createAndSetFakePlaylist()");
             }
         }
 
-        public void setPlaylistWithDummyItem(List<MediaItem> playlist) {
+        public void setPlaylistWithFakeItem(List<MediaItem> playlist) {
             try {
-                mBinder.setPlaylistWithDummyItem(
+                mBinder.setPlaylistWithFakeItem(
                         mSessionId, MediaTestUtils.convertToParcelImplList(playlist));
             } catch (RemoteException ex) {
-                Log.e(TAG, "Failed to call setPlaylistWithDummyItem()");
+                Log.e(TAG, "Failed to call setPlaylistWithFakeItem()");
             }
         }
 
@@ -557,6 +482,10 @@ public class RemoteMediaSession {
                 Log.e(TAG, "Failed to call notifySubtitleData");
             }
         }
+
+        public void notifyVolumeChanged(int volume) throws RemoteException {
+            mBinder.notifyVolumeChanged(mSessionId, volume);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -625,6 +554,101 @@ public class RemoteMediaSession {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.d(TAG, "Disconnected from the service.");
+        }
+    }
+
+    /**
+     * Builder to build a {@link Bundle} which represents a configuration of {@link SessionPlayer}
+     * in order to create a new mock player in the service app. The bundle can be passed to
+     * {@link #updatePlayer(Bundle)}.
+     */
+    public static final class MockPlayerConfigBuilder {
+
+        private final Bundle mBundle;
+
+        public MockPlayerConfigBuilder() {
+            mBundle = new Bundle();
+        }
+
+        public MockPlayerConfigBuilder setPlayerState(@SessionPlayer.PlayerState int state) {
+            mBundle.putInt(KEY_PLAYER_STATE, state);
+            return this;
+        }
+
+        public MockPlayerConfigBuilder setBufferingState(@SessionPlayer.BuffState int buffState) {
+            mBundle.putInt(KEY_BUFFERING_STATE, buffState);
+            return this;
+        }
+
+        public MockPlayerConfigBuilder setCurrentPosition(long pos) {
+            mBundle.putLong(KEY_CURRENT_POSITION, pos);
+            return this;
+        }
+
+        public MockPlayerConfigBuilder setBufferedPosition(long buffPos) {
+            mBundle.putLong(KEY_BUFFERED_POSITION, buffPos);
+            return this;
+        }
+
+        public MockPlayerConfigBuilder setPlaybackSpeed(float speed) {
+            mBundle.putFloat(KEY_PLAYBACK_SPEED, speed);
+            return this;
+        }
+
+        public MockPlayerConfigBuilder setAudioAttributes(
+                @Nullable AudioAttributesCompat audioAttributes) {
+            Parcelable parcelable = MediaParcelUtils.toParcelable(audioAttributes);
+            mBundle.putParcelable(KEY_AUDIO_ATTRIBUTES, parcelable);
+            return this;
+        }
+
+        public MockPlayerConfigBuilder setPlaylist(@NonNull List<MediaItem> playlist) {
+            ParcelImplListSlice listSlice = new ParcelImplListSlice(
+                    MediaTestUtils.convertToParcelImplList(playlist));
+            mBundle.putParcelable(KEY_PLAYLIST, listSlice);
+            return this;
+        }
+
+        public MockPlayerConfigBuilder setPlaylistMetadata(@Nullable MediaMetadata metadata) {
+            ParcelUtils.putVersionedParcelable(mBundle, KEY_PLAYLIST_METADATA, metadata);
+            return this;
+        }
+
+        public MockPlayerConfigBuilder setCurrentMediaItem(@Nullable MediaItem item) {
+            Parcelable parcelable = MediaParcelUtils.toParcelable(item);
+            mBundle.putParcelable(KEY_MEDIA_ITEM, parcelable);
+            return this;
+        }
+
+        public MockPlayerConfigBuilder setVideoSize(@NonNull VideoSize videoSize) {
+            Parcelable parcelable = MediaParcelUtils.toParcelable(videoSize);
+            mBundle.putParcelable(KEY_VIDEO_SIZE, parcelable);
+            return this;
+        }
+
+        public MockPlayerConfigBuilder setTrackInfo(@NonNull List<SessionPlayer.TrackInfo> tracks) {
+            ParcelUtils.putVersionedParcelableList(mBundle, KEY_TRACK_INFO, tracks);
+            return this;
+        }
+
+        public MockPlayerConfigBuilder setVolumeControlType(
+                @RemoteSessionPlayer.VolumeControlType int volumeControlType) {
+            mBundle.putInt(KEY_VOLUME_CONTROL_TYPE, volumeControlType);
+            return this;
+        }
+
+        public MockPlayerConfigBuilder setMaxVolume(int maxVolume) {
+            mBundle.putInt(KEY_MAX_VOLUME, maxVolume);
+            return this;
+        }
+
+        public MockPlayerConfigBuilder setCurrentVolume(int currentVolume) {
+            mBundle.putInt(KEY_CURRENT_VOLUME, currentVolume);
+            return this;
+        }
+
+        public Bundle build() {
+            return mBundle;
         }
     }
 }

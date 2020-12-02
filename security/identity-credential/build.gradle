@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
+import androidx.build.RunApiTasks
+
+import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -26,18 +28,27 @@ plugins {
 }
 
 dependencies {
+    implementation("androidx.annotation:annotation:1.1.0")
+    implementation("co.nstant.in:cbor:0.8")
+    implementation(project(":biometric:biometric"))
 
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(MOCKITO_CORE)
 }
 
 android {
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 24
     }
 }
 
 androidx {
     name = "AndroidX Security"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
     mavenVersion = LibraryVersions.SECURITY_IDENTITY_CREDENTIAL
     mavenGroup = LibraryGroups.SECURITY
     inceptionYear = "2019"

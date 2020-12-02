@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"လက်ဗွေအာရုံခံကိရိယာကို တို့ပါ"</string>
+    <string name="fingerprint_not_recognized" msgid="3873359464293253009">"မသိ"</string>
+    <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"လက်ဗွေစက်ပစ္စည်း မရနိုင်ပါ။"</string>
+    <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"မည်သည့် လက်ဗွေကိုမျှ ထည့်သွင်းမထားပါ။"</string>
+    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"ဤစက်ပစ္စည်းတွင် လက်ဗွေအာရုံခံကိရိယာ မရှိပါ"</string>
+    <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"လက်ဗွေဖြင့် အထောက်အထားစိစစ်ခြင်းကို အသုံးပြုသူက ပယ်ဖျက်ထားသည်။"</string>
+    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"အကြိမ်များစွာ စမ်းပြီးပါပြီ။ နောက်မှ ထပ်စမ်းကြည့်ပါ။"</string>
+    <string name="default_error_msg" msgid="4776854077120974966">"အမျိုးအမည်မသိ အမှား"</string>
+    <string name="generic_error_user_canceled" msgid="7309881387583143581">"အသုံးပြုသူက အထောက်အထားစိစစ်ခြင်းကို ပယ်ဖျက်ထားသည်။"</string>
+    <string name="confirm_device_credential_password" msgid="5912733858573823945">"စကားဝှက်သုံးရန်"</string>
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"ပင်နံပါတ်၊ လော့ခ်ပုံစံ သို့မဟုတ် စကားဝှက် သတ်မှတ်မထားပါ။"</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"ဤစက်သည် ပင်နံပါတ်၊ ပုံစံ သို့မဟုတ် စကားဝှက်ကို မပံ့ပိုးပါ။"</string>
+</resources>

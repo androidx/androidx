@@ -41,13 +41,17 @@
         <activity android:name="androidx.fragment.app.test.ViewModelActivity" />
         <activity android:name="androidx.fragment.app.ActivityLeakActivity"/>
         <activity android:name="androidx.fragment.app.ContentViewActivity"/>
+        <activity android:name="androidx.fragment.app.ContainerViewActivity"/>
         <activity android:name="androidx.fragment.app.OnBackPressedFragmentActivity"/>
         <activity android:name="androidx.fragment.app.OnResumeTestActivity" />
+        <activity android:name="androidx.fragment.app.FragmentArchLifecycleActivity" />
         <activity android:name="androidx.fragment.app.FragmentSavedStateActivity" />
         <activity android:name="androidx.fragment.app.FragmentFinishEarlyTestActivity" />
         <activity android:name="androidx.fragment.app.SimpleContainerActivity" />
         <activity android:name="androidx.fragment.app.DialogActivity"
                   android:theme="@style/DialogTheme"/>
+        <activity android:name="androidx.fragment.app.TestAppCompatActivity"
+                  android:theme="@style/Theme.AppCompat.Light" />
     </application>
 
 </manifest>

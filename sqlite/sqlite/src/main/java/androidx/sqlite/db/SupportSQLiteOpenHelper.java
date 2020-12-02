@@ -20,6 +20,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
@@ -317,11 +318,27 @@ public interface SupportSQLiteOpenHelper extends Closeable {
          */
         @NonNull
         public final SupportSQLiteOpenHelper.Callback callback;
+        /**
+         * If {@code true} the database will be stored in the no-backup directory.
+         */
+        public final boolean useNoBackupDirectory;
 
-        Configuration(@NonNull Context context, @Nullable String name, @NonNull Callback callback) {
+        Configuration(
+                @NonNull Context context,
+                @Nullable String name,
+                @NonNull Callback callback) {
+            this(context, name, callback, false);
+        }
+
+        Configuration(
+                @NonNull Context context,
+                @Nullable String name,
+                @NonNull Callback callback,
+                boolean useNoBackupDirectory) {
             this.context = context;
             this.name = name;
             this.callback = callback;
+            this.useNoBackupDirectory = useNoBackupDirectory;
         }
 
         /**
@@ -341,7 +358,19 @@ public interface SupportSQLiteOpenHelper extends Closeable {
             Context mContext;
             String mName;
             SupportSQLiteOpenHelper.Callback mCallback;
+            boolean mUseNoBackupDirectory;
 
+            /**
+             * <p>
+             * Throws an {@link IllegalArgumentException} if the {@link Callback} is {@code null}.
+             * <p>
+             * Throws an {@link IllegalArgumentException} if the {@link Context} is {@code null}.
+             * <p>
+             * Throws an {@link IllegalArgumentException} if the {@link String} database
+             * name is {@code null}. {@see Context#getNoBackupFilesDir()}
+             *
+             * @return The {@link Configuration} instance
+             */
             @NonNull
             public Configuration build() {
                 if (mCallback == null) {
@@ -352,7 +381,12 @@ public interface SupportSQLiteOpenHelper extends Closeable {
                     throw new IllegalArgumentException("Must set a non-null context to create"
                             + " the configuration.");
                 }
-                return new Configuration(mContext, mName, mCallback);
+                if (mUseNoBackupDirectory && TextUtils.isEmpty(mName)) {
+                    throw new IllegalArgumentException(
+                            "Must set a non-null database name to a configuration that uses the "
+                                    + "no backup directory.");
+                }
+                return new Configuration(mContext, mName, mCallback, mUseNoBackupDirectory);
             }
 
             Builder(@NonNull Context context) {
@@ -376,6 +410,18 @@ public interface SupportSQLiteOpenHelper extends Closeable {
             @NonNull
             public Builder callback(@NonNull Callback callback) {
                 mCallback = callback;
+                return this;
+            }
+
+            /**
+             * Sets whether to use a no backup directory or not.
+             * @param useNoBackupDirectory If {@code true} the database file will be stored in the
+             *                             no-backup directory.
+             * @return this
+             */
+            @NonNull
+            public Builder noBackupDirectory(boolean useNoBackupDirectory) {
+                mUseNoBackupDirectory = useNoBackupDirectory;
                 return this;
             }
         }

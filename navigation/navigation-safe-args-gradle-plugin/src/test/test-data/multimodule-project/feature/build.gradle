@@ -15,7 +15,7 @@
  */
 
 plugins {
-    id('com.android.feature')
+    id('com.android.dynamic-feature')
     id('androidx.navigation.safeargs')
 }
 

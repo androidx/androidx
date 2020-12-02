@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"আঙ্গুলের ছাপের সেন্সর টাচ করুন"</string>
+    <string name="fingerprint_not_recognized" msgid="3873359464293253009">"শনাক্ত করা যায়নি"</string>
+    <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"আঙ্গুলের ছাপ নেওয়ার হার্ডওয়্যার উপলভ্য নয়।"</string>
+    <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"কোনও আঙ্গুলের ছাপ নথিভুক্ত নেই।"</string>
+    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"এই ডিভাইসে আঙ্গুলের ছাপ নেওয়ার সেন্সর নেই"</string>
+    <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"ব্যবহারকারী আঙ্গুলের ছাপ নেওয়ার অপারেশনটি বাতিল করেছেন।"</string>
+    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"অনেকবার চেষ্টা করেছেন। পরে আবার চেষ্টা করুন।"</string>
+    <string name="default_error_msg" msgid="4776854077120974966">"অজানা সমস্যা"</string>
+    <string name="generic_error_user_canceled" msgid="7309881387583143581">"যাচাইকরণ প্রক্রিয়াটি ব্যবহারকারী বাতিল করেছেন।"</string>
+    <string name="confirm_device_credential_password" msgid="5912733858573823945">"পাসওয়ার্ড ব্যবহার করুন"</string>
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"পিন, প্যাটার্ন অথবা পাসওয়ার্ড সেট করা নেই।"</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"এই ডিভাইসে পিন, প্যাটার্ন বা পাসওয়ার্ড ব্যবহার করা যাবে না।"</string>
+</resources>

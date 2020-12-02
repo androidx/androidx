@@ -1,0 +1,19 @@
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Title of activity for configuring watchface complications, for accessibility. [CHAR LIMIT=80] -->
+    <string name="complication_config">Configure Watchface Complications</string>
+    <!-- Title of activity for configuring watchface complications, for accessibility. [CHAR LIMIT=80] -->
+    <string name="watchface_settings">Configure Watchface Settings</string>
+    <!-- Title of activity for configuring watchface styles, for accessibility. [CHAR LIMIT=80] -->
+    <string name="style_config">Configure Watchface Styles</string>
+
+    <!-- String to display on the background image setting item when there is no background image
+     provider. [CHAR LIMIT=30] -->
+    <string name="none_background_image_provider">None</string>
+    <!-- Label for a settings entry that allows the data shown on the watch face (in "complications")
+     to be customized. [CHAR LIMIT=30] -->
+    <string name="settings_complications">Data</string>
+    <!-- Label for a settings entry that allows the watch face background image to be customized. [CHAR LIMIT=30] -->
+    <string name="settings_background_image">Background image</string>
+    <!-- Label for a settings entry that allows the watch face style to be customized. [CHAR LIMIT=30] -->
+    <string name="settings_styles">Styles</string>
+</resources>

@@ -63,7 +63,8 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                 returns(NAV_DIRECTION_CLASSNAME)
                 addParameters(parameters)
                 if (action.args.isEmpty()) {
-                    addStatement("return %T(%L)",
+                    addStatement(
+                        "return %T(%L)",
                         ACTION_ONLY_NAV_DIRECTION_CLASSNAME, action.id.accessor()
                     )
                 } else {
@@ -84,7 +85,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
             val parentCompanionTypeSpec = parentTypeSpec.typeSpecs.first { it.isCompanion }
             parentCompanionTypeSpec.funSpecs.filter { function ->
                 actionsFunSpec.none { it.name == function.name } && // de-dupe local actions
-                        parentActionsFunSpec.none { it.name == function.name } // de-dupe parent actions
+                    parentActionsFunSpec.none { it.name == function.name } // de-dupe parent actions
             }.forEach { functionSpec ->
                 val params = functionSpec.parameters.joinToString(", ") { param -> param.name }
                 val methodSpec = FunSpec.builder(functionSpec.name)
@@ -105,9 +106,10 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                     .addModifiers(KModifier.PRIVATE)
                     .build()
             )
-            .addTypes(actionTypes
-                .filter { (action, _) -> action.args.isNotEmpty() }
-                .map { (_, type) -> type }
+            .addTypes(
+                actionTypes
+                    .filter { (action, _) -> action.args.isNotEmpty() }
+                    .map { (_, type) -> type }
             )
             .addType(
                 TypeSpec.companionObjectBuilder()
@@ -146,16 +148,18 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
         }.build()
 
         val constructorFunSpec = FunSpec.constructorBuilder()
-            .addParameters(action.args.map { arg ->
-                ParameterSpec.builder(
-                    name = arg.sanitizedName,
-                    type = arg.type.typeName().copy(nullable = arg.isNullable)
-                ).apply {
-                    arg.defaultValue?.let {
-                        defaultValue(it.write())
-                    }
-                }.build()
-            })
+            .addParameters(
+                action.args.map { arg ->
+                    ParameterSpec.builder(
+                        name = arg.sanitizedName,
+                        type = arg.type.typeName().copy(nullable = arg.isNullable)
+                    ).apply {
+                        arg.defaultValue?.let {
+                            defaultValue(it.write())
+                        }
+                    }.build()
+                }
+            )
             .build()
 
         return if (action.args.isEmpty()) {
@@ -164,12 +168,14 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
             TypeSpec.classBuilder(className)
                 .addModifiers(KModifier.DATA)
                 .primaryConstructor(constructorFunSpec)
-                .addProperties(action.args.map { arg ->
-                    PropertySpec.builder(
-                        arg.sanitizedName,
-                        arg.type.typeName().copy(nullable = arg.isNullable)
-                    ).initializer(arg.sanitizedName).build()
-                })
+                .addProperties(
+                    action.args.map { arg ->
+                        PropertySpec.builder(
+                            arg.sanitizedName,
+                            arg.type.typeName().copy(nullable = arg.isNullable)
+                        ).initializer(arg.sanitizedName).build()
+                    }
+                )
         }.addSuperinterface(NAV_DIRECTION_CLASSNAME)
             .addModifiers(KModifier.PRIVATE)
             .addFunction(getActionIdFunSpec)
@@ -183,12 +189,14 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
         val className = ClassName(destName.packageName(), "${destName.simpleName()}Args")
 
         val constructorFunSpec = FunSpec.constructorBuilder()
-            .addParameters(destination.args.map { arg ->
-                ParameterSpec.builder(
-                    name = arg.sanitizedName,
-                    type = arg.type.typeName().copy(nullable = arg.isNullable)
-                ).apply { arg.defaultValue?.let { defaultValue(it.write()) } }.build()
-            })
+            .addParameters(
+                destination.args.map { arg ->
+                    ParameterSpec.builder(
+                        name = arg.sanitizedName,
+                        type = arg.type.typeName().copy(nullable = arg.isNullable)
+                    ).apply { arg.defaultValue?.let { defaultValue(it.write()) } }.build()
+                }
+            )
             .build()
 
         val toBundleFunSpec = FunSpec.builder("toBundle").apply {
@@ -236,7 +244,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                             "throw·%T(%S)",
                             IllegalArgumentException::class.asTypeName(),
                             "Argument \"${arg.name}\" is marked as non-null but was passed a " +
-                                    "null value."
+                                "null value."
                         )
                     }
                     endControlFlow()
@@ -250,25 +258,27 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                         "throw·%T(%S)",
                         IllegalArgumentException::class.asTypeName(),
                         "Required argument \"${arg.name}\" is missing and does not have an " +
-                                "android:defaultValue"
+                            "android:defaultValue"
                     )
                 }
                 endControlFlow()
                 return@map tempVal
             }
-            addStatement("return %T(${tempVariables.joinToString(", ") { it }})", className)
+            addStatement("return·%T(${tempVariables.joinToString(", ") { it }})", className)
         }.build()
 
         val typeSpec = TypeSpec.classBuilder(className)
             .addSuperinterface(NAV_ARGS_CLASSNAME)
             .addModifiers(KModifier.DATA)
             .primaryConstructor(constructorFunSpec)
-            .addProperties(destination.args.map { arg ->
-                PropertySpec.builder(
-                    arg.sanitizedName,
-                    arg.type.typeName().copy(nullable = arg.isNullable)
-                ).initializer(arg.sanitizedName).build()
-            })
+            .addProperties(
+                destination.args.map { arg ->
+                    PropertySpec.builder(
+                        arg.sanitizedName,
+                        arg.type.typeName().copy(nullable = arg.isNullable)
+                    ).initializer(arg.sanitizedName).build()
+                }
+            )
             .addFunction(toBundleFunSpec)
             .addType(
                 TypeSpec.companionObjectBuilder()

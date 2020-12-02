@@ -20,12 +20,9 @@ package androidx.media2.test.service.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import android.os.Build;
-
 import androidx.media2.session.SessionCommand;
 import androidx.media2.session.SessionCommandGroup;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Ignore;
@@ -43,7 +40,6 @@ import java.util.Set;
 /**
  * Tests {@link SessionCommand} and {@link SessionCommandGroup}.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class SessionCommandTest {
@@ -62,7 +58,7 @@ public class SessionCommandTest {
      * Test possible typos in naming
      */
     @Test
-    public void testCodes_name() {
+    public void codes_name() {
         List<Field> fields = getSessionCommandsFields("");
         for (int i = 0; i < fields.size(); i++) {
             String name = fields.get(i).getName();
@@ -87,7 +83,7 @@ public class SessionCommandTest {
      * Tests possible code duplications in values
      */
     @Test
-    public void testCodes_valueDuplication() throws IllegalAccessException {
+    public void codes_valueDuplication() throws IllegalAccessException {
         List<Field> fields = getSessionCommandsFields(PREFIX_COMMAND_CODE);
         Set<Integer> values = new HashSet<>();
         for (int i = 0; i < fields.size(); i++) {
@@ -101,7 +97,7 @@ public class SessionCommandTest {
      */
     @Test
     @Ignore
-    public void testCodes_valueContinuous() throws IllegalAccessException {
+    public void codes_valueContinuous() throws IllegalAccessException {
         for (int i = 0; i < PREFIX_COMMAND_CODES.size(); i++) {
             List<Field> fields = getSessionCommandsFields(PREFIX_COMMAND_CODES.get(i));
             List<Integer> values = new ArrayList<>();

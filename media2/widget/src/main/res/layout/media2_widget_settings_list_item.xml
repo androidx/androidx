@@ -48,6 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingStart="2dp"
+                android:paddingLeft="2dp"
                 android:textColor="@color/media2_widget_white"
                 android:textSize="@dimen/media2_widget_settings_main_text_size"/>
 
@@ -56,6 +57,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingStart="2dp"
+                android:paddingLeft="2dp"
                 android:textColor="@color/media2_widget_white_opacity_70"
                 android:textSize="@dimen/media2_widget_settings_sub_text_size"/>
         </LinearLayout>

@@ -154,6 +154,7 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
             return false;
         }
 
+        @SuppressWarnings("deprecation")
         public void add(Drawable drawable) {
             assertNotDisposed();
             if (mDrawables == null) {
@@ -168,6 +169,7 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
             }
         }
 
+        @SuppressWarnings("deprecation")
         public void remove(Drawable drawable) {
             if (mDrawables != null) {
                 mDrawables.remove(drawable);
@@ -229,6 +231,7 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
             }
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         public void invalidateDrawable(@NonNull Drawable drawable) {
             invalidate(drawable.getBounds());
@@ -279,7 +282,7 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         protected ViewParent invalidateChildInParentFast(int left, int top, Rect dirty) {
-            if (mHostView instanceof ViewGroup && sInvalidateChildInParentFastMethod != null) {
+            if (mHostView != null && sInvalidateChildInParentFastMethod != null) {
                 try {
                     int[] offset = new int[2];
                     getOffset(offset);
@@ -298,14 +301,14 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
         public ViewParent invalidateChildInParent(int[] location, Rect dirty) {
             if (mHostView != null) {
                 dirty.offset(location[0], location[1]);
-                if (mHostView instanceof ViewGroup) {
+                if (mHostView != null) {
                     location[0] = 0;
                     location[1] = 0;
                     int[] offset = new int[2];
                     getOffset(offset);
                     dirty.offset(offset[0], offset[1]);
                     return super.invalidateChildInParent(location, dirty);
-//                    return ((ViewGroup) mHostView).invalidateChildInParent(location, dirty);
+//                    return mHostView.invalidateChildInParent(location, dirty);
                 } else {
                     invalidate(dirty);
                 }

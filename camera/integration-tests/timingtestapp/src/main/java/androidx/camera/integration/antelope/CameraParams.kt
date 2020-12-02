@@ -24,18 +24,17 @@ import android.media.ImageReader
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Size
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.Preview
 import androidx.camera.integration.antelope.MainActivity.Companion.FIXED_FOCUS_DISTANCE
 import androidx.camera.integration.antelope.MainActivity.Companion.INVALID_FOCAL_LENGTH
 import androidx.camera.integration.antelope.MainActivity.Companion.NO_APERTURE
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureConfig
-import androidx.camera.core.PreviewConfig
 import androidx.camera.integration.antelope.cameracontrollers.Camera2CaptureSessionCallback
 import androidx.camera.integration.antelope.cameracontrollers.Camera2DeviceStateCallback
 import androidx.camera.integration.antelope.cameracontrollers.CameraState
+import androidx.camera.integration.antelope.cameracontrollers.CameraXCaptureSessionCallback
 import androidx.camera.integration.antelope.cameracontrollers.CameraXDeviceStateCallback
 import androidx.camera.integration.antelope.cameracontrollers.CameraXPreviewSessionStateCallback
-import androidx.camera.integration.antelope.cameracontrollers.CameraXCaptureSessionCallback
 
 /**
  * CameraParams contains a list of device characteristics for a given camera device.
@@ -104,15 +103,12 @@ class CameraParams {
     internal var cameraXDeviceStateCallback: CameraXDeviceStateCallback? = null
     internal var cameraXPreviewSessionStateCallback: CameraXPreviewSessionStateCallback? = null
     internal var cameraXCaptureSessionCallback: CameraXCaptureSessionCallback? = null
-    internal var cameraXPreviewConfig: PreviewConfig =
-        PreviewConfig.Builder().build()
-    internal var cameraXCaptureConfig: ImageCaptureConfig =
-        ImageCaptureConfig.Builder().build()
+    internal var cameraXPreviewBuilder: Preview.Builder = Preview.Builder()
+    internal var cameraXCaptureBuilder: ImageCapture.Builder = ImageCapture.Builder()
 
     // Custom lifecycle for CameraX API
     internal var cameraXLifecycle: CustomLifecycle = CustomLifecycle()
-    internal var cameraXImageCaptureUseCase: ImageCapture =
-        ImageCapture(ImageCaptureConfig.Builder().build())
+    internal var cameraXImageCaptureUseCase: ImageCapture = ImageCapture.Builder().build()
 
     // Testing variables
     internal var timer: CameraTimer = CameraTimer()

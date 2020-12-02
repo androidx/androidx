@@ -22,9 +22,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.PersistableBundle;
+import android.os.UserHandle;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -33,10 +35,13 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.app.Person;
+import androidx.core.content.LocusIdCompat;
 import androidx.core.graphics.drawable.IconCompat;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -46,11 +51,12 @@ public class ShortcutInfoCompat {
 
     private static final String EXTRA_PERSON_COUNT = "extraPersonCount";
     private static final String EXTRA_PERSON_ = "extraPerson_";
+    private static final String EXTRA_LOCUS_ID = "extraLocusId";
     private static final String EXTRA_LONG_LIVED = "extraLongLived";
 
     Context mContext;
     String mId;
-
+    String mPackageName;
     Intent[] mIntents;
     ComponentName mActivity;
 
@@ -64,10 +70,26 @@ public class ShortcutInfoCompat {
     Person[] mPersons;
     Set<String> mCategories;
 
+    @Nullable
+    LocusIdCompat mLocusId;
     // TODO: Support |auto| when the value of mIsLongLived is not set
     boolean mIsLongLived;
 
     int mRank;
+
+    PersistableBundle mExtras;
+
+    // Read-Only fields
+    long mLastChangedTimestamp;
+    UserHandle mUser;
+    boolean mIsCached;
+    boolean mIsDynamic;
+    boolean mIsPinned;
+    boolean mIsDeclaredInManifest;
+    boolean mIsImmutable;
+    boolean mIsEnabled = true;
+    boolean mHasKeyFieldsOnly;
+    int mDisabledReason;
 
     ShortcutInfoCompat() { }
 
@@ -80,7 +102,7 @@ public class ShortcutInfoCompat {
                 .setShortLabel(mLabel)
                 .setIntents(mIntents);
         if (mIcon != null) {
-            builder.setIcon(mIcon.toIcon());
+            builder.setIcon(mIcon.toIcon(mContext));
         }
         if (!TextUtils.isEmpty(mLongLabel)) {
             builder.setLongLabel(mLongLabel);
@@ -95,7 +117,9 @@ public class ShortcutInfoCompat {
             builder.setCategories(mCategories);
         }
         builder.setRank(mRank);
-
+        if (mExtras != null) {
+            builder.setExtras(mExtras);
+        }
         if (Build.VERSION.SDK_INT >= 29) {
             if (mPersons != null && mPersons.length > 0) {
                 android.app.Person[] persons = new android.app.Person[mPersons.length];
@@ -103,6 +127,9 @@ public class ShortcutInfoCompat {
                     persons[i] = mPersons[i].toAndroidPerson();
                 }
                 builder.setPersons(persons);
+            }
+            if (mLocusId != null) {
+                builder.setLocusId(mLocusId.toLocusId());
             }
             builder.setLongLived(mIsLongLived);
         } else {
@@ -120,16 +147,21 @@ public class ShortcutInfoCompat {
     @RequiresApi(22)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     private PersistableBundle buildLegacyExtrasBundle() {
-        PersistableBundle bundle = new PersistableBundle();
+        if (mExtras == null) {
+            mExtras = new PersistableBundle();
+        }
         if (mPersons != null && mPersons.length > 0) {
-            bundle.putInt(EXTRA_PERSON_COUNT, mPersons.length);
+            mExtras.putInt(EXTRA_PERSON_COUNT, mPersons.length);
             for (int i = 0; i < mPersons.length; i++) {
-                bundle.putPersistableBundle(EXTRA_PERSON_ + (i + 1),
+                mExtras.putPersistableBundle(EXTRA_PERSON_ + (i + 1),
                         mPersons[i].toPersistableBundle());
             }
         }
-        bundle.putBoolean(EXTRA_LONG_LIVED, mIsLongLived);
-        return bundle;
+        if (mLocusId != null) {
+            mExtras.putString(EXTRA_LOCUS_ID, mLocusId.getId());
+        }
+        mExtras.putBoolean(EXTRA_LONG_LIVED, mIsLongLived);
+        return mExtras;
     }
 
     Intent addToIntent(Intent outIntent) {
@@ -165,6 +197,14 @@ public class ShortcutInfoCompat {
     @NonNull
     public String getId() {
         return mId;
+    }
+
+    /**
+     * Return the package name of the publisher app.
+     */
+    @NonNull
+    public String getPackage() {
+        return mPackageName;
     }
 
     /**
@@ -213,6 +253,13 @@ public class ShortcutInfoCompat {
     }
 
     /**
+     * Returns why a shortcut has been disabled.
+     */
+    public int getDisabledReason() {
+        return mDisabledReason;
+    }
+
+    /**
      * Returns the intent that is executed when the user selects this shortcut.
      * If setIntents() was used, then return the last intent in the array.
      *
@@ -241,6 +288,18 @@ public class ShortcutInfoCompat {
     @Nullable
     public Set<String> getCategories() {
         return mCategories;
+    }
+
+    /**
+     * Gets the {@link LocusIdCompat} associated with this shortcut.
+     *
+     * <p>Used by the device's intelligence services to correlate objects (such as
+     * {@link androidx.core.app.NotificationCompat} and
+     * {@link android.view.contentcapture.ContentCaptureContext}) that are correlated.
+     */
+    @Nullable
+    public LocusIdCompat getLocusId() {
+        return mLocusId;
     }
 
     /**
@@ -287,11 +346,141 @@ public class ShortcutInfoCompat {
     @RequiresApi(25)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @VisibleForTesting
-    static boolean getLongLivedFromExtra(@NonNull PersistableBundle bundle) {
+    static boolean getLongLivedFromExtra(@Nullable PersistableBundle bundle) {
         if (bundle == null || !bundle.containsKey(EXTRA_LONG_LIVED)) {
             return false;
         }
         return bundle.getBoolean(EXTRA_LONG_LIVED);
+    }
+
+    /**
+     * @hide
+     */
+    @RequiresApi(25)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    static List<ShortcutInfoCompat> fromShortcuts(@NonNull final Context context,
+            @NonNull final List<ShortcutInfo> shortcuts) {
+        final List<ShortcutInfoCompat> results = new ArrayList<>(shortcuts.size());
+        for (ShortcutInfo s : shortcuts) {
+            results.add(new ShortcutInfoCompat.Builder(context, s).build());
+        }
+        return results;
+    }
+
+    @Nullable
+    public PersistableBundle getExtras() {
+        return mExtras;
+    }
+
+    /**
+     * {@link UserHandle} on which the publisher created this shortcut.
+     */
+    @Nullable
+    public UserHandle getUserHandle() {
+        return mUser;
+    }
+
+    /**
+     * Last time when any of the fields was updated.
+     */
+    public long getLastChangedTimestamp() {
+        return mLastChangedTimestamp;
+    }
+
+    /** Return whether a shortcut is cached. */
+    public boolean isCached() {
+        return mIsCached;
+    }
+
+    /** Return whether a shortcut is dynamic. */
+    public boolean isDynamic() {
+        return mIsDynamic;
+    }
+
+    /** Return whether a shortcut is pinned. */
+    public boolean isPinned() {
+        return mIsPinned;
+    }
+
+    /**
+     * Return whether a shortcut is static; that is, whether a shortcut is
+     * published from AndroidManifest.xml.  If {@code true}, the shortcut is
+     * also {@link #isImmutable()}.
+     *
+     * <p>When an app is upgraded and a shortcut is no longer published from AndroidManifest.xml,
+     * this will be set to {@code false}.  If the shortcut is not pinned, then it'll disappear.
+     * However, if it's pinned, it will still be visible, {@link #isEnabled()} will be
+     * {@code false} and {@link #isEnabled()} will be {@code true}.
+     */
+    public boolean isDeclaredInManifest() {
+        return mIsDeclaredInManifest;
+    }
+
+    /**
+     * Return if a shortcut is immutable, in which case it cannot be modified with any of
+     * {@link ShortcutManagerCompat} APIs.
+     *
+     * <p>All static shortcuts are immutable.  When a static shortcut is pinned and is then
+     * disabled because it doesn't appear in AndroidManifest.xml for a newer version of the
+     * app, {@link #isDeclaredInManifest} returns {@code false}, but the shortcut is still
+     * immutable.
+     *
+     * <p>All shortcuts originally published via the {@link ShortcutManager} APIs
+     * are all mutable.
+     */
+    public boolean isImmutable() {
+        return mIsImmutable;
+    }
+
+    /**
+     * Returns {@code false} if a shortcut is disabled with
+     * {@link ShortcutManagerCompat#disableShortcuts}.
+     */
+    public boolean isEnabled() {
+        return mIsEnabled;
+    }
+
+    /**
+     * Return whether a shortcut only contains "key" information only or not.  If true, only the
+     * following fields are available.
+     * <ul>
+     *     <li>{@link #getId()}
+     *     <li>{@link #getPackage()}
+     *     <li>{@link #getActivity()}
+     *     <li>{@link #getLastChangedTimestamp()}
+     *     <li>{@link #isDynamic()}
+     *     <li>{@link #isPinned()}
+     *     <li>{@link #isDeclaredInManifest()}
+     *     <li>{@link #isImmutable()}
+     *     <li>{@link #isEnabled()}
+     *     <li>{@link #getUserHandle()}
+     * </ul>
+     */
+    public boolean hasKeyFieldsOnly() {
+        return mHasKeyFieldsOnly;
+    }
+
+    @RequiresApi(25)
+    @Nullable
+    static LocusIdCompat getLocusId(@NonNull final ShortcutInfo shortcutInfo) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            if (shortcutInfo.getLocusId() == null) return null;
+            return LocusIdCompat.toLocusIdCompat(shortcutInfo.getLocusId());
+        } else {
+            return getLocusIdFromExtra(shortcutInfo.getExtras());
+        }
+    }
+
+    /**
+     * @hide
+     */
+    @RequiresApi(25)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Nullable
+    private static LocusIdCompat getLocusIdFromExtra(@Nullable PersistableBundle bundle) {
+        if (bundle == null) return null;
+        final String locusId = bundle.getString(EXTRA_LOCUS_ID);
+        return locusId == null ? null : new LocusIdCompat(locusId);
     }
 
     /**
@@ -300,6 +489,7 @@ public class ShortcutInfoCompat {
     public static class Builder {
 
         private final ShortcutInfoCompat mInfo;
+        private boolean mIsConversation;
 
         public Builder(@NonNull Context context, @NonNull String id) {
             mInfo = new ShortcutInfoCompat();
@@ -315,20 +505,35 @@ public class ShortcutInfoCompat {
             mInfo = new ShortcutInfoCompat();
             mInfo.mContext = shortcutInfo.mContext;
             mInfo.mId = shortcutInfo.mId;
+            mInfo.mPackageName = shortcutInfo.mPackageName;
             mInfo.mIntents = Arrays.copyOf(shortcutInfo.mIntents, shortcutInfo.mIntents.length);
             mInfo.mActivity = shortcutInfo.mActivity;
             mInfo.mLabel = shortcutInfo.mLabel;
             mInfo.mLongLabel = shortcutInfo.mLongLabel;
             mInfo.mDisabledMessage = shortcutInfo.mDisabledMessage;
+            mInfo.mDisabledReason = shortcutInfo.mDisabledReason;
             mInfo.mIcon = shortcutInfo.mIcon;
             mInfo.mIsAlwaysBadged = shortcutInfo.mIsAlwaysBadged;
+            mInfo.mUser = shortcutInfo.mUser;
+            mInfo.mLastChangedTimestamp = shortcutInfo.mLastChangedTimestamp;
+            mInfo.mIsCached = shortcutInfo.mIsCached;
+            mInfo.mIsDynamic = shortcutInfo.mIsDynamic;
+            mInfo.mIsPinned = shortcutInfo.mIsPinned;
+            mInfo.mIsDeclaredInManifest = shortcutInfo.mIsDeclaredInManifest;
+            mInfo.mIsImmutable = shortcutInfo.mIsImmutable;
+            mInfo.mIsEnabled = shortcutInfo.mIsEnabled;
+            mInfo.mLocusId = shortcutInfo.mLocusId;
             mInfo.mIsLongLived = shortcutInfo.mIsLongLived;
+            mInfo.mHasKeyFieldsOnly = shortcutInfo.mHasKeyFieldsOnly;
             mInfo.mRank = shortcutInfo.mRank;
             if (shortcutInfo.mPersons != null) {
                 mInfo.mPersons = Arrays.copyOf(shortcutInfo.mPersons, shortcutInfo.mPersons.length);
             }
             if (shortcutInfo.mCategories != null) {
                 mInfo.mCategories = new HashSet<>(shortcutInfo.mCategories);
+            }
+            if (shortcutInfo.mExtras != null) {
+                mInfo.mExtras = shortcutInfo.mExtras;
             }
         }
 
@@ -341,15 +546,36 @@ public class ShortcutInfoCompat {
             mInfo = new ShortcutInfoCompat();
             mInfo.mContext = context;
             mInfo.mId = shortcutInfo.getId();
+            mInfo.mPackageName = shortcutInfo.getPackage();
             Intent[] intents = shortcutInfo.getIntents();
             mInfo.mIntents = Arrays.copyOf(intents, intents.length);
             mInfo.mActivity = shortcutInfo.getActivity();
             mInfo.mLabel = shortcutInfo.getShortLabel();
             mInfo.mLongLabel = shortcutInfo.getLongLabel();
             mInfo.mDisabledMessage = shortcutInfo.getDisabledMessage();
+            if (Build.VERSION.SDK_INT >= 28) {
+                mInfo.mDisabledReason = shortcutInfo.getDisabledReason();
+            } else {
+                mInfo.mDisabledReason = shortcutInfo.isEnabled()
+                        ? ShortcutInfo.DISABLED_REASON_NOT_DISABLED
+                        : ShortcutInfo.DISABLED_REASON_UNKNOWN;
+            }
             mInfo.mCategories = shortcutInfo.getCategories();
             mInfo.mPersons = ShortcutInfoCompat.getPersonsFromExtra(shortcutInfo.getExtras());
+            mInfo.mUser = shortcutInfo.getUserHandle();
+            mInfo.mLastChangedTimestamp = shortcutInfo.getLastChangedTimestamp();
+            if (Build.VERSION.SDK_INT >= 30) {
+                mInfo.mIsCached = shortcutInfo.isCached();
+            }
+            mInfo.mIsDynamic = shortcutInfo.isDynamic();
+            mInfo.mIsPinned = shortcutInfo.isPinned();
+            mInfo.mIsDeclaredInManifest = shortcutInfo.isDeclaredInManifest();
+            mInfo.mIsImmutable = shortcutInfo.isImmutable();
+            mInfo.mIsEnabled = shortcutInfo.isEnabled();
+            mInfo.mHasKeyFieldsOnly = shortcutInfo.hasKeyFieldsOnly();
+            mInfo.mLocusId = ShortcutInfoCompat.getLocusId(shortcutInfo);
             mInfo.mRank = shortcutInfo.getRank();
+            mInfo.mExtras = shortcutInfo.getExtras();
         }
 
         /**
@@ -429,6 +655,36 @@ public class ShortcutInfoCompat {
         }
 
         /**
+         * Sets the {@link LocusIdCompat} associated with this shortcut.
+         *
+         * <p>This method should be called when the {@link LocusIdCompat} is used in other places
+         * (such as {@link androidx.core.app.NotificationCompat} and
+         * {@link android.view.contentcapture.ContentCaptureContext}) so the device's intelligence
+         * services can correlate them.
+         */
+        @NonNull
+        public Builder setLocusId(@Nullable final LocusIdCompat locusId) {
+            mInfo.mLocusId = locusId;
+            return this;
+        }
+
+        /**
+         * Sets the corresponding fields indicating this shortcut is aimed for conversation.
+         *
+         * <p>
+         * If the shortcut is not associated with a {@link LocusIdCompat}, a {@link LocusIdCompat}
+         * based on {@link ShortcutInfoCompat#getId()} will be added upon {@link #build()}
+         * <p>
+         * Additionally, the shortcut will be long-lived.
+         * @see #setLongLived(boolean)
+         */
+        @NonNull
+        public Builder setIsConversation() {
+            mIsConversation = true;
+            return this;
+        }
+
+        /**
          * Sets the target activity. A shortcut will be shown along with this activity's icon
          * on the launcher.
          *
@@ -482,8 +738,13 @@ public class ShortcutInfoCompat {
         }
 
         /**
-         * Sets categories for a shortcut. Launcher apps may use this information to categorize
-         * shortcuts.
+         * Sets categories for a shortcut.
+         * <ul>
+         * <li>Launcher apps may use this information to categorize shortcuts
+         * <li> Used by the system to associate a published Sharing Shortcut with supported
+         * mimeTypes. Required for published Sharing Shortcuts with a matching category
+         * declared in share targets, defined in the app's manifest linked shortcuts xml file.
+         * </ul>         
          *
          * @see ShortcutInfo#getCategories()
          */
@@ -527,6 +788,20 @@ public class ShortcutInfoCompat {
         }
 
         /**
+         * Extras that the app can set for any purpose.
+         *
+         * <p>Apps can store arbitrary shortcut metadata in extras and retrieve the
+         * metadata later using {@link ShortcutInfo#getExtras()}.
+         *
+         * @see ShortcutInfo#getExtras
+         */
+        @NonNull
+        public Builder setExtras(@NonNull PersistableBundle extras) {
+            mInfo.mExtras = extras;
+            return this;
+        }
+
+        /**
          * Creates a {@link ShortcutInfoCompat} instance.
          */
         @NonNull
@@ -537,6 +812,12 @@ public class ShortcutInfoCompat {
             }
             if (mInfo.mIntents == null || mInfo.mIntents.length == 0) {
                 throw new IllegalArgumentException("Shortcut must have an intent");
+            }
+            if (mIsConversation) {
+                if (mInfo.mLocusId == null) {
+                    mInfo.mLocusId = new LocusIdCompat(mInfo.mId);
+                }
+                mInfo.mIsLongLived = true;
             }
             return mInfo;
         }

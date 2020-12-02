@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.lifecycle {
 
   public class AndroidViewModel extends androidx.lifecycle.ViewModel {
@@ -44,6 +44,11 @@ package androidx.lifecycle {
 
   public interface ViewModelStoreOwner {
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
+  }
+
+  public class ViewTreeViewModelStoreOwner {
+    method public static androidx.lifecycle.ViewModelStoreOwner? get(android.view.View);
+    method public static void set(android.view.View, androidx.lifecycle.ViewModelStoreOwner?);
   }
 
 }

@@ -26,7 +26,8 @@ data class JavaType(val fullName: String) {
     init {
         if (fullName.contains('.')) {
             throw IllegalArgumentException(
-                "The type does not support '.' as package separator! Received '$fullName'.")
+                "The type does not support '.' as package separator! Received '$fullName'."
+            )
         }
     }
 
@@ -36,7 +37,8 @@ data class JavaType(val fullName: String) {
             if (fullName.contains("/")) {
                 throw IllegalArgumentException(
                     "Type containing '/' cannot be passed to the factory expecting dot " +
-                    "separators! Received '$fullName'.")
+                        "separators! Received '$fullName'."
+                )
             }
 
             return JavaType(fullName.replace('.', '/'))

@@ -22,15 +22,14 @@ import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-import android.Manifest;
 import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.Camera2AppConfig;
-import androidx.camera.core.AppConfig;
+import androidx.camera.camera2.Camera2Config;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
@@ -42,12 +41,12 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -68,8 +67,9 @@ import java.util.concurrent.atomic.AtomicReference;
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 public final class ExtensionsErrorListenerTest {
     @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA);
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+
+    private final Context mContext = ApplicationProvider.getApplicationContext();
 
     @Parameterized.Parameters
     public static Collection<Object[]> getParameters() {
@@ -77,7 +77,8 @@ public final class ExtensionsErrorListenerTest {
     }
 
     private EffectMode mEffectMode;
-    private LensFacing mLensFacing;
+    @CameraSelector.LensFacing
+    private int mLensFacing;
     private CountDownLatch mLatch;
 
     final AtomicReference<ExtensionsErrorCode> mErrorCode = new AtomicReference<>();
@@ -89,7 +90,8 @@ public final class ExtensionsErrorListenerTest {
         }
     };
 
-    public ExtensionsErrorListenerTest(EffectMode effectMode, LensFacing lensFacing) {
+    public ExtensionsErrorListenerTest(EffectMode effectMode,
+            @CameraSelector.LensFacing int lensFacing) {
         mEffectMode = effectMode;
         mLensFacing = lensFacing;
     }
@@ -98,21 +100,20 @@ public final class ExtensionsErrorListenerTest {
     public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
         assumeTrue(CameraUtil.deviceHasCamera());
 
-        Context context = ApplicationProvider.getApplicationContext();
-        AppConfig appConfig = Camera2AppConfig.create(context);
-        CameraX.init(context, appConfig);
+        CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
+        CameraX.initialize(mContext, cameraXConfig).get();
 
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
-        assumeTrue(ExtensionsTestUtil.initExtensions());
+        assumeTrue(ExtensionsTestUtil.initExtensions(mContext));
         assumeTrue(ExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing));
 
         mLatch = new CountDownLatch(1);
     }
 
     @After
-    public void tearDown() throws ExecutionException, InterruptedException {
-        // Wait for CameraX to finish deinitializing before the next test.
-        CameraX.deinit().get();
+    public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        ExtensionsManager.deinit().get();
     }
 
     @Test

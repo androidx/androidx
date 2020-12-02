@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"ಫಿಂಗರ್‌ಪ್ರಿಂಟ್ ಸೆನ್ಸರ್‌‌ ಅನ್ನು ಸ್ಪರ್ಶಿಸಿ"</string>
+    <string name="fingerprint_not_recognized" msgid="3873359464293253009">"ಗುರುತಿಸಲಾಗಿಲ್ಲ"</string>
+    <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"ಫಿಂಗರ್‌ಪ್ರಿಂಟ್ ಹಾರ್ಡ್‌ವೇರ್‌ ಲಭ್ಯವಿಲ್ಲ."</string>
+    <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"ಯಾವುದೇ ಫಿಂಗರ್‌ಪ್ರಿಂಟ್‌ ಅನ್ನು ನೋಂದಣಿ ಮಾಡಿಲ್ಲ."</string>
+    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"ಈ ಸಾಧನವು ಫಿಂಗರ್‌ಪ್ರಿಂಟ್‌ ಸೆನ್ಸರ್ ಅನ್ನು ಹೊಂದಿಲ್ಲ"</string>
+    <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"ಬಳಕೆದಾರರು ಫಿಂಗರ್‌ಪ್ರಿಂಟ್ ಕಾರ್ಯಾಚರಣೆಯನ್ನು ರದ್ದುಪಡಿಸಿದ್ದಾರೆ."</string>
+    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"ಹಲವು ಬಾರಿ ಪ್ರಯತ್ನಿಸಿರುವಿರಿ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."</string>
+    <string name="default_error_msg" msgid="4776854077120974966">"ಅಪರಿಚಿತ ದೋಷ"</string>
+    <string name="generic_error_user_canceled" msgid="7309881387583143581">"ಬಳಕೆದಾರರು ದೃಢೀಕರಣವನ್ನು ರದ್ದುಗೊಳಿಸಿದ್ದಾರೆ."</string>
+    <string name="confirm_device_credential_password" msgid="5912733858573823945">"ಪಾಸ್‌ವರ್ಡ್ ಬಳಸಿ"</string>
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"ಯಾವುದೇ ಪಿನ್, ಪ್ಯಾಟರ್ನ್ ಅಥವಾ ಪಾಸ್‌ವರ್ಡ್ ಅನ್ನು ಹೊಂದಿಸಿಲ್ಲ."</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"ಈ ಸಾಧನವು ಪಿನ್, ಪ್ಯಾಟರ್ನ್ ಅಥವಾ ಪಾಸ್‌ವರ್ಡ್ ಅನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ."</string>
+</resources>

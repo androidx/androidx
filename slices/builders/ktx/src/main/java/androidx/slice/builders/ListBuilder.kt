@@ -159,4 +159,4 @@ fun toggleSliceAction(
     title: CharSequence,
     isChecked: Boolean
 ) = icon?.let { SliceAction(pendingIntent, it, title, isChecked) }
-        ?: SliceAction(pendingIntent, title, isChecked)
+    ?: SliceAction(pendingIntent, title, isChecked)

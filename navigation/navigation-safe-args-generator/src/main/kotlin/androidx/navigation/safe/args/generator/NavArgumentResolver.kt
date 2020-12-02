@@ -43,16 +43,18 @@ fun resolveArguments(rootDestination: Destination): Destination {
 }
 
 private fun mergeArguments(args1: List<Argument>, args2: List<Argument>) =
-        args2.fold(args1) { result, arg ->
-            val duplicate = result.find { it.name == arg.name }
-            if (duplicate != null) {
-                if (duplicate.type != arg.type) {
-                    // TODO: needs context to print better exception
-                    throw IllegalArgumentException("Incompatible types ${duplicate.type} and " +
-                            "${arg.type} of argument ${arg.name}")
-                }
-                result
-            } else {
-                result + arg
+    args2.fold(args1) { result, arg ->
+        val duplicate = result.find { it.name == arg.name }
+        if (duplicate != null) {
+            if (duplicate.type != arg.type) {
+                // TODO: needs context to print better exception
+                throw IllegalArgumentException(
+                    "Incompatible types ${duplicate.type} and " +
+                        "${arg.type} of argument ${arg.name}"
+                )
             }
+            result
+        } else {
+            result + arg
         }
+    }

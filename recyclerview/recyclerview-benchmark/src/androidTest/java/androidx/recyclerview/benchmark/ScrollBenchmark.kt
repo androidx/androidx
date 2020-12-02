@@ -26,14 +26,13 @@ import androidx.recyclerview.benchmark.test.R
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
+import androidx.test.filters.LargeTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@MediumTest // label medium temporarily (b/140773023), to reorder in CI
+@LargeTest
 @RunWith(AndroidJUnit4::class)
 class ScrollBenchmark {
 
@@ -45,8 +44,9 @@ class ScrollBenchmark {
     @get:Rule
     val benchmarkRule = BenchmarkRule()
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(RecyclerViewActivity::class.java)
+    val activityRule = androidx.test.rule.ActivityTestRule(RecyclerViewActivity::class.java)
 
     @Before
     fun setup() {
@@ -133,7 +133,8 @@ private class TrivialAdapter : RecyclerView.Adapter<TrivialViewHolder>() {
 
     var inflater: (ViewGroup) -> View = {
         LayoutInflater.from(it.context).inflate(
-            R.layout.item_view, it, false)
+            R.layout.item_view, it, false
+        )
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrivialViewHolder {

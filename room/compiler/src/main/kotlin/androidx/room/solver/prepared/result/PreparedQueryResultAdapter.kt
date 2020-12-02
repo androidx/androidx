@@ -20,29 +20,23 @@ import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
-import androidx.room.ext.typeName
 import androidx.room.parser.QueryType
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import com.squareup.javapoet.FieldSpec
-import isInt
-import isKotlinUnit
-import isLong
-import isVoid
-import isVoidObject
-import javax.lang.model.type.TypeMirror
 
 /**
  * An adapter for [PreparedQueryResultBinder] that executes queries with INSERT, UPDATE or DELETE
  * statements.
  */
 class PreparedQueryResultAdapter(
-    private val returnType: TypeMirror,
+    private val returnType: XType,
     private val queryType: QueryType
 ) {
     companion object {
         fun create(
-            returnType: TypeMirror,
+            returnType: XType,
             queryType: QueryType
         ) = if (isValidReturnType(returnType, queryType)) {
             PreparedQueryResultAdapter(returnType, queryType)
@@ -50,7 +44,7 @@ class PreparedQueryResultAdapter(
             null
         }
 
-        private fun isValidReturnType(returnType: TypeMirror, queryType: QueryType): Boolean {
+        private fun isValidReturnType(returnType: XType, queryType: QueryType): Boolean {
             if (returnType.isVoid() || returnType.isVoidObject() || returnType.isKotlinUnit()) {
                 return true
             } else {
@@ -89,7 +83,7 @@ class PreparedQueryResultAdapter(
                     val resultVar = scope.getTmpVar("_result")
                     addStatement(
                         "final $L $L = $L.$L()",
-                        returnType.typeName(), resultVar, stmtQueryVal, stmtMethod
+                        returnType.typeName, resultVar, stmtQueryVal, stmtMethod
                     )
                     addStatement("$N.setTransactionSuccessful()", dbField)
                     addStatement("return $L", resultVar)

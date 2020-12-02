@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 
 import android.graphics.ImageFormat;
 
+import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -75,6 +76,7 @@ public final class ImageProxyDownsamplerTest {
             }
 
             @Override
+            @NonNull
             public ByteBuffer getBuffer() {
                 return mBuffer;
             }

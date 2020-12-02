@@ -22,7 +22,6 @@ import static androidx.core.util.Preconditions.checkState;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -37,6 +36,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -48,10 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * The idea is to create a (null-filled) List and register a listener with
  * each component future to fill out the value in the List when that future
  * completes.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ListFuture<V> implements ListenableFuture<List<V>> {
     @Nullable
     List<? extends ListenableFuture<? extends V>> mFutures;
@@ -201,7 +198,12 @@ class ListFuture<V> implements ListenableFuture<List<V>> {
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        // TODO: Consider to cancel the mFutures in the list.
+        if (mFutures != null) {
+            for (ListenableFuture<? extends V> f : mFutures) {
+                f.cancel(mayInterruptIfRunning);
+            }
+        }
+
         return mResult.cancel(mayInterruptIfRunning);
     }
 
@@ -226,8 +228,9 @@ class ListFuture<V> implements ListenableFuture<List<V>> {
     }
 
     @Override
-    public List<V> get(long timeout, @NonNull TimeUnit unit) {
-        throw new RuntimeException("Not supported.");
+    public List<V> get(long timeout, @NonNull TimeUnit unit)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        return mResult.get(timeout, unit);
     }
 
     /**

@@ -24,6 +24,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.SliceItem;
@@ -51,6 +52,7 @@ public abstract class SliceChildView extends FrameLayout {
     protected int mInsetBottom;
     protected SliceActionView.SliceActionLoadingListener mLoadingListener;
     protected SliceStyle mSliceStyle;
+    protected RowStyle mRowStyle;
     protected SliceViewPolicy mViewPolicy;
 
     public SliceChildView(@NonNull Context context) {
@@ -169,14 +171,19 @@ public abstract class SliceChildView extends FrameLayout {
     /**
      * Sets the style information for this view.
      */
-    public void setStyle(SliceStyle styles) {
+    public void setStyle(SliceStyle styles, @NonNull RowStyle rowStyle) {
         mSliceStyle = styles;
+        mRowStyle = rowStyle;
     }
 
     /**
      * Sets the policy information for this view.
      */
-    public void setPolicy(SliceViewPolicy policy) {
+    public void setPolicy(@Nullable SliceViewPolicy policy) {
         mViewPolicy = policy;
+    }
+
+    public int getHiddenItemCount() {
+        return 0;
     }
 }

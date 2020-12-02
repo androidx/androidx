@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2017 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,35 +14,41 @@
   ~ limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          package="androidx.work.integration.testapp">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="androidx.work.integration.testapp">
 
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-
-<application
+    <application
         android:name=".TestApplication"
         android:allowBackup="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
-    <activity android:name=".sherlockholmes.AnalyzeSherlockHolmesActivity" />
-    <activity android:name="androidx.work.integration.testapp.MainActivity"
-        android:windowSoftInputMode="stateHidden">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN"/>
+        <activity android:name=".sherlockholmes.AnalyzeSherlockHolmesActivity" />
+        <activity
+            android:name="androidx.work.integration.testapp.MainActivity"
+            android:windowSoftInputMode="stateHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-            <category android:name="android.intent.category.LAUNCHER"/>
-        </intent-filter>
-    </activity>
-    <activity android:name=".imageprocessing.ImageProcessingActivity" />
-    <activity android:name=".RetryActivity">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN"/>
-        </intent-filter>
-    </activity>
-    <provider
-        android:name="androidx.work.impl.WorkManagerInitializer"
-        android:authorities="${applicationId}.workmanager-init"
-        tools:node="remove"/>
-</application>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".imageprocessing.ImageProcessingActivity" />
+        <activity android:name=".RetryActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
 
+        <provider
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:authorities="${applicationId}.workmanager-init"
+            tools:node="remove" />
+
+        <service
+            android:name=".RemoteService"
+            android:exported="false"
+            android:process=":remote" />
+    </application>
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 </manifest>

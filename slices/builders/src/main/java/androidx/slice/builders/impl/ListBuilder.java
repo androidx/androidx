@@ -19,8 +19,10 @@ package androidx.slice.builders.impl;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.PendingIntent;
+import android.os.PersistableBundle;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -28,6 +30,7 @@ import androidx.slice.builders.GridRowBuilder;
 import androidx.slice.builders.ListBuilder.HeaderBuilder;
 import androidx.slice.builders.ListBuilder.InputRangeBuilder;
 import androidx.slice.builders.ListBuilder.RangeBuilder;
+import androidx.slice.builders.ListBuilder.RatingBuilder;
 import androidx.slice.builders.ListBuilder.RowBuilder;
 import androidx.slice.builders.SelectionBuilder;
 import androidx.slice.builders.SliceAction;
@@ -45,11 +48,12 @@ public interface ListBuilder {
     /**
      * Add a row to list builder.
      */
-    void addRow(RowBuilder impl);
+    void addRow(@NonNull RowBuilder impl);
+
     /**
      * Add a grid row to the list builder.
      */
-    void addGridRow(GridRowBuilder impl);
+    void addGridRow(@NonNull GridRowBuilder impl);
 
     /**
      * Adds a header to this template.
@@ -57,28 +61,33 @@ public interface ListBuilder {
      * The header should contain a title that is representative of the content in this slice along
      * with an intent that links to the app activity associated with this content.
      */
-    void setHeader(HeaderBuilder impl);
+    void setHeader(@NonNull HeaderBuilder impl);
 
     /**
      * Adds an action to this template. Actions added with this method are grouped together and
      * may be shown on the template in large or small formats.
      */
-    void addAction(SliceAction action);
+    void addAction(@NonNull SliceAction action);
+
+    /**
+     * Add an star rating row to the list builder.
+     */
+    void addRating(@NonNull RatingBuilder builder);
 
     /**
      * Add an input range row to the list builder.
      */
-    void addInputRange(InputRangeBuilder builder);
+    void addInputRange(@NonNull InputRangeBuilder builder);
 
     /**
      * Add a range row to the list builder.
      */
-    void addRange(RangeBuilder builder);
+    void addRange(@NonNull RangeBuilder builder);
 
     /**
      * Add a selection row to the list builder.
      */
-    void addSelection(SelectionBuilder builder);
+    void addSelection(@NonNull SelectionBuilder builder);
 
     /**
      * If all content in a slice cannot be shown, the row added here will be displayed where the
@@ -89,7 +98,7 @@ public interface ListBuilder {
      * a row or action has been previously added.
      * </p>
      */
-    void setSeeMoreRow(RowBuilder builder);
+    void setSeeMoreRow(@NonNull RowBuilder builder);
 
     /**
      * If all content in a slice cannot be shown, a "see more" affordance will be displayed where
@@ -100,7 +109,7 @@ public interface ListBuilder {
      * a row or action has been previously added.
      * </p>
      */
-    void setSeeMoreAction(PendingIntent intent);
+    void setSeeMoreAction(@NonNull PendingIntent intent);
 
     /**
      * Sets the color to tint items displayed by this template (e.g. icons).
@@ -110,7 +119,7 @@ public interface ListBuilder {
     /**
      * Sets keywords to associate with this slice.
      */
-    void setKeywords(Set<String> keywords);
+    void setKeywords(@NonNull Set<String> keywords);
 
     /**
      * Sets the time-to-live for this slice, i.e. how long the data contained in the slice
@@ -140,5 +149,13 @@ public interface ListBuilder {
      * Sets the desired layout direction for the content in this slice.
      */
     void setLayoutDirection(int layoutDirection);
+
+    /**
+     * Sets additional information to be passed to the host of the slice.
+     *
+     * @param extras The Bundle of extras to add to this slice.
+     */
+    @RequiresApi(21)
+    void setHostExtras(@NonNull PersistableBundle extras);
 }
 

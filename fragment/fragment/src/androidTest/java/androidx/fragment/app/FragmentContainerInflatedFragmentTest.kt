@@ -48,6 +48,29 @@ class FragmentContainerInflatedFragmentTest {
     }
 
     @Test
+    fun testContentViewWithInflatedFragmentWithClass() {
+        // The StrictViewFragment runs the appropriate checks to make sure
+        // we're moving through the states appropriately
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                setContentView(R.layout.inflated_fragment_container_view_with_class)
+                supportFragmentManager
+            }
+            val fragment = fm.findFragmentByTag("fragment1")
+            assertThat(fragment).isNotNull()
+        }
+    }
+
+    @Test
+    fun testGetInflatedFragmentInActivityOnCreate() {
+        with(ActivityScenario.launch(ContainerViewActivity::class.java)) {
+            val foundFragment = withActivity { foundFragment }
+
+            assertThat(foundFragment).isTrue()
+        }
+    }
+
+    @Test
     fun testContentViewWithNoID() {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity {
@@ -85,6 +108,31 @@ class FragmentContainerInflatedFragmentTest {
     fun addInflatedFragmentToGrandParentChildFragmentManager() {
         with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val grandParent = InflatedParentFragment()
+            withActivity {
+                supportFragmentManager.beginTransaction()
+                    .add(R.id.fragmentContainer, grandParent)
+                    .commitNow()
+            }
+
+            val parent = StrictViewFragment(R.layout.fragment_container_view)
+
+            withActivity {
+                grandParent.childFragmentManager
+                    .beginTransaction()
+                    .add(R.id.fragment_container_view, parent)
+                    .commitNow()
+            }
+
+            val grandChild = grandParent.childFragmentManager.findFragmentByTag("fragment1")
+
+            assertThat(grandChild).isNotNull()
+        }
+    }
+
+    @Test
+    fun addInflatedFragmentContainerWithClassToGrandParentChildFragmentManager() {
+        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+            val grandParent = InflatedParentFragmentContainerWithClass()
             withActivity {
                 supportFragmentManager.beginTransaction()
                     .add(R.id.fragmentContainer, grandParent)
@@ -160,7 +208,27 @@ class FragmentContainerInflatedFragmentTest {
 
 class SimpleContainerActivity : FragmentActivity(R.layout.simple_container)
 
+class ContainerViewActivity : FragmentActivity(R.layout.inflated_fragment_container_view) {
+    var foundFragment = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        foundFragment = (
+            supportFragmentManager.findFragmentById(
+                R.id
+                    .fragment_container_view
+            )
+            ) != null
+    }
+}
+
 class InflatedParentFragment : StrictViewFragment(R.layout.inflated_fragment_container_view)
+
+class InflatedParentFragmentContainerWithClass : StrictViewFragment(
+    R.layout
+        .inflated_fragment_container_view
+)
 
 class InflatedFragment() : StrictViewFragment() {
     var name: String? = null
@@ -170,8 +238,10 @@ class InflatedFragment() : StrictViewFragment() {
         attrs: AttributeSet,
         savedInstanceState: Bundle?
     ) {
-        val a = context.obtainStyledAttributes(attrs,
-            androidx.fragment.R.styleable.FragmentContainerView)
+        val a = context.obtainStyledAttributes(
+            attrs,
+            androidx.fragment.R.styleable.FragmentContainerView
+        )
         name = a.getString(androidx.fragment.R.styleable.FragmentContainerView_android_name)
         a.recycle()
     }

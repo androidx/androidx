@@ -29,6 +29,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.net.ConnectivityManagerCompat;
 import androidx.work.Logger;
 import androidx.work.impl.constraints.NetworkState;
@@ -86,12 +87,14 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
             try {
                 Logger.get().debug(TAG, "Registering network callback");
                 mConnectivityManager.registerDefaultNetworkCallback(mNetworkCallback);
-            } catch (IllegalArgumentException e) {
-                // This seems to be happening on NVIDIA Shield K1 Tablets.  Catching the
-                // exception since and moving on.  See b/136569342.
+            } catch (IllegalArgumentException | SecurityException e) {
+                // Catching the exceptions since and moving on - this tracker is only used for
+                // GreedyScheduler and there is nothing to be done about device-specific bugs.
+                // IllegalStateException: Happening on NVIDIA Shield K1 Tablets.  See b/136569342.
+                // SecurityException: Happening on Solone W1450.  See b/153246136.
                 Logger.get().error(
                         TAG,
-                        "Received exception while unregistering network callback",
+                        "Received exception while registering network callback",
                         e);
             }
         } else {
@@ -107,9 +110,11 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
             try {
                 Logger.get().debug(TAG, "Unregistering network callback");
                 mConnectivityManager.unregisterNetworkCallback(mNetworkCallback);
-            } catch (IllegalArgumentException e) {
-                // This seems to be happening on NVIDIA Shield Tablets a lot.  Catching the
-                // exception since it's not fatal and moving on.  See b/119484416.
+            } catch (IllegalArgumentException | SecurityException e) {
+                // Catching the exceptions since and moving on - this tracker is only used for
+                // GreedyScheduler and there is nothing to be done about device-specific bugs.
+                // IllegalStateException: Happening on NVIDIA Shield K1 Tablets.  See b/136569342.
+                // SecurityException: Happening on Solone W1450.  See b/153246136.
                 Logger.get().error(
                         TAG,
                         "Received exception while unregistering network callback",
@@ -137,14 +142,21 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
         return new NetworkState(isConnected, isValidated, isMetered, isNotRoaming);
     }
 
-    private boolean isActiveNetworkValidated() {
+    @VisibleForTesting
+    boolean isActiveNetworkValidated() {
         if (Build.VERSION.SDK_INT < 23) {
             return false; // NET_CAPABILITY_VALIDATED not available until API 23. Used on API 26+.
         }
-        Network network = mConnectivityManager.getActiveNetwork();
-        NetworkCapabilities capabilities = mConnectivityManager.getNetworkCapabilities(network);
-        return capabilities != null
-                && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+        try {
+            Network network = mConnectivityManager.getActiveNetwork();
+            NetworkCapabilities capabilities = mConnectivityManager.getNetworkCapabilities(network);
+            return capabilities != null
+                    && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+        } catch (SecurityException exception) {
+            // b/163342798
+            Logger.get().error(TAG, "Unable to validate active network", exception);
+            return false;
+        }
     }
 
     @RequiresApi(24)

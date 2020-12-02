@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="buttons_round_top_center" msgid="5559087816427379703">"Επάνω"</string>
+    <string name="buttons_round_top_right" msgid="4871780374047139328">"Επάνω δεξιά"</string>
+    <string name="buttons_round_center_right" msgid="1509579668330531551">"Κέντρο δεξιά"</string>
+    <string name="buttons_round_bottom_right" msgid="2377403938095293895">"Κάτω δεξιά"</string>
+    <string name="buttons_round_bottom_center" msgid="7330585893633364324">"Κάτω"</string>
+    <string name="buttons_round_bottom_left" msgid="2128239325315047486">"Κάτω αριστερά"</string>
+    <string name="buttons_round_center_left" msgid="4851687456301428363">"Κέντρο αριστερά"</string>
+    <string name="buttons_round_top_left" msgid="6011962751086201079">"Επάνω αριστερά"</string>
+    <string name="buttons_round_top_right_upper" msgid="5489914740902966147">"Επάνω δεξιά, ψηλά"</string>
+    <string name="buttons_round_top_right_lower" msgid="49744844591556337">"Επάνω δεξιά, χαμηλά"</string>
+    <string name="buttons_round_bottom_right_upper" msgid="3762205785832512542">"Κάτω δεξιά, ψηλά"</string>
+    <string name="buttons_round_bottom_right_lower" msgid="6450671993962362349">"Κάτω δεξιά, χαμηλά"</string>
+    <string name="buttons_round_bottom_left_lower" msgid="8840562761052904241">"Κάτω αριστερά, χαμηλά"</string>
+    <string name="buttons_round_bottom_left_upper" msgid="5824161271890322696">"Κάτω αριστερά, ψηλά"</string>
+    <string name="buttons_round_top_left_lower" msgid="4749025344320804614">"Επάνω αριστερά, χαμηλά"</string>
+    <string name="buttons_round_top_left_upper" msgid="2546930425604677415">"Επάνω αριστερά, ψηλά"</string>
+    <string name="buttons_rect_left_top" msgid="5658240954637179416">"Επάνω, αριστερή πλευρά"</string>
+    <string name="buttons_rect_left_center" msgid="2090348335774325845">"Κέντρο αριστερά"</string>
+    <string name="buttons_rect_left_bottom" msgid="2890382227404669440">"Κάτω, αριστερή πλευρά"</string>
+    <string name="buttons_rect_right_top" msgid="8781047384037217975">"Επάνω, δεξιά πλευρά"</string>
+    <string name="buttons_rect_right_center" msgid="9046922334870476704">"Κέντρο δεξιά"</string>
+    <string name="buttons_rect_right_bottom" msgid="231110280868923853">"Κάτω, δεξιά πλευρά"</string>
+    <string name="buttons_rect_top_left" msgid="7572206729575579647">"Επάνω αριστερά"</string>
+    <string name="buttons_rect_top_center" msgid="79705740801041383">"Επάνω"</string>
+    <string name="buttons_rect_top_right" msgid="942888900599091776">"Επάνω δεξιά"</string>
+    <string name="buttons_rect_bottom_left" msgid="1900303277997254019">"Κάτω αριστερά"</string>
+    <string name="buttons_rect_bottom_center" msgid="7032918537319714491">"Κάτω"</string>
+    <string name="buttons_rect_bottom_right" msgid="5128261908141175352">"Κάτω δεξιά"</string>
+</resources>

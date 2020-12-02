@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -83,7 +84,6 @@ public class InvalidationTracker {
             + " WHERE " + INVALIDATED_COLUMN_NAME + " = 1;";
 
     @NonNull
-    @VisibleForTesting
     final HashMap<String, Integer> mTableIdLookup;
     final String[] mTableNames;
 
@@ -250,6 +250,9 @@ public class InvalidationTracker {
      * <p>
      * If one of the tables in the Observer does not exist in the database, this method throws an
      * {@link IllegalArgumentException}.
+     * <p>
+     * This method should be called on a background/worker thread as it performs database
+     * operations.
      *
      * @param observer The observer which listens the database for changes.
      */
@@ -306,6 +309,15 @@ public class InvalidationTracker {
         return tables.toArray(new String[tables.size()]);
     }
 
+    private static void beginTransactionInternal(SupportSQLiteDatabase database) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
+                && database.isWriteAheadLoggingEnabled()) {
+            database.beginTransactionNonExclusive();
+        } else {
+            database.beginTransaction();
+        }
+    }
+
     /**
      * Adds an observer but keeps a weak reference back to it.
      * <p>
@@ -323,6 +335,9 @@ public class InvalidationTracker {
 
     /**
      * Removes the observer from the observers list.
+     * <p>
+     * This method should be called on a background/worker thread as it performs database
+     * operations.
      *
      * @param observer The observer to remove.
      */
@@ -361,8 +376,8 @@ public class InvalidationTracker {
         public void run() {
             final Lock closeLock = mDatabase.getCloseLock();
             Set<Integer> invalidatedTableIds = null;
+            closeLock.lock();
             try {
-                closeLock.lock();
 
                 if (!ensureInitialization()) {
                     return;
@@ -384,7 +399,7 @@ public class InvalidationTracker {
                     // This transaction has to be on the underlying DB rather than the RoomDatabase
                     // in order to avoid a recursive loop after endTransaction.
                     SupportSQLiteDatabase db = mDatabase.getOpenHelper().getWritableDatabase();
-                    db.beginTransaction();
+                    db.beginTransactionNonExclusive();
                     try {
                         invalidatedTableIds = checkUpdatedTable();
                         db.setTransactionSuccessful();
@@ -496,7 +511,7 @@ public class InvalidationTracker {
                         return;
                     }
                     final int limit = tablesToSync.length;
-                    database.beginTransaction();
+                    beginTransactionInternal(database);
                     try {
                         for (int tableId = 0; tableId < limit; tableId++) {
                             switch (tablesToSync[tableId]) {

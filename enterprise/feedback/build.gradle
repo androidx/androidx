@@ -10,8 +10,6 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.0.1")
     api(AUTO_VALUE_ANNOTATIONS)
-    implementation(FLOGGER)
-    implementation(FLOGGER_SYSTEM_BACKEND)
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)
     annotationProcessor(AUTO_VALUE)
@@ -29,7 +27,6 @@ android {
 androidx {
     name = "Enterprise Feedback"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.ENTERPRISE
     mavenGroup = LibraryGroups.ENTERPRISE
     inceptionYear = "2019"
     description = "A channel to enable communication between an app and an EMM (enterprise " +

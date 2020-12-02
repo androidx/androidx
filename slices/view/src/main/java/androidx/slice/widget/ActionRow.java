@@ -63,12 +63,10 @@ public class ActionRow extends FrameLayout {
     private final int mSize;
     private final int mIconPadding;
     private final LinearLayout mActionsGroup;
-    private final boolean mFullActions;
     private int mColor = Color.BLACK;
 
     public ActionRow(Context context, boolean fullActions) {
         super(context);
-        mFullActions = fullActions;
         mSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 48,
                 context.getResources().getDisplayMetrics());
         mIconPadding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 12,

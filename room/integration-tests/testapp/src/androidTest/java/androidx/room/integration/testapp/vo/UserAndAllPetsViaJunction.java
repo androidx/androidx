@@ -19,9 +19,11 @@ package androidx.room.integration.testapp.vo;
 import androidx.room.Embedded;
 import androidx.room.Junction;
 import androidx.room.Relation;
+import androidx.room.RoomWarnings;
 
 import java.util.List;
 
+@SuppressWarnings(RoomWarnings.MISSING_INDEX_ON_JUNCTION)
 public class UserAndAllPetsViaJunction {
     @Embedded
     public User user;

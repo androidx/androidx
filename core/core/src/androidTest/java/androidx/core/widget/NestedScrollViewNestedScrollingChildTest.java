@@ -346,7 +346,7 @@ public class NestedScrollViewNestedScrollingChildTest {
         SimpleGestureGeneratorKt
                 .dispatchTouchEvents(mNestedScrollView, firstDownTime, motionEventData);
 
-        // Sanity check that onStopNestedScroll has not yet been called of type TYPE_NON_TOUCH.
+        // Check that onStopNestedScroll has not yet been called with the type TYPE_NON_TOUCH.
         verify(mParentSpy, never())
                 .onStopNestedScroll(mNestedScrollView, ViewCompat.TYPE_NON_TOUCH);
 

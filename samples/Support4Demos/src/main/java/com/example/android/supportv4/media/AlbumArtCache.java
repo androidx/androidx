@@ -17,7 +17,6 @@
 package com.example.android.supportv4.media;
 
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import androidx.collection.LruCache;
@@ -59,7 +58,7 @@ public final class AlbumArtCache {
         // Holds no more than MAX_ALBUM_ART_CACHE_SIZE bytes, bounded by maxmemory/4 and
         // Integer.MAX_VALUE:
         int maxSize = Math.min(MAX_ALBUM_ART_CACHE_SIZE,
-            (int) (Math.min(Integer.MAX_VALUE, Runtime.getRuntime().maxMemory()/4)));
+                (int) Math.min(Integer.MAX_VALUE, Runtime.getRuntime().maxMemory() / 4));
         mCache = new LruCache<String, Bitmap[]>(maxSize) {
             @Override
             protected int sizeOf(String key, Bitmap[] value) {
@@ -79,6 +78,7 @@ public final class AlbumArtCache {
         return result == null ? null : result[ICON_BITMAP_INDEX];
     }
 
+    @SuppressWarnings("deprecation") /* AsyncTask */
     public void fetch(final String artUrl, final FetchListener listener) {
         // WARNING: for the sake of simplicity, simultaneous multi-thread fetch requests
         // are not handled properly: they may cause redundant costly operations, like HTTP
@@ -92,7 +92,7 @@ public final class AlbumArtCache {
         }
         Log.d(TAG, "getOrFetch: starting asynctask to fetch " + artUrl);
 
-        new AsyncTask<Void, Void, Bitmap[]>() {
+        new android.os.AsyncTask<Void, Void, Bitmap[]>() {
             @Override
             protected Bitmap[] doInBackground(Void... objects) {
                 Bitmap[] bitmaps;

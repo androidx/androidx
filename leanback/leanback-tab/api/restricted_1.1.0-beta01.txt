@@ -1,0 +1,18 @@
+// Signature format: 4.0
+package androidx.leanback.tab {
+
+  public class LeanbackTabLayout extends com.google.android.material.tabs.TabLayout {
+    ctor public LeanbackTabLayout(android.content.Context);
+    ctor public LeanbackTabLayout(android.content.Context, android.util.AttributeSet);
+    ctor public LeanbackTabLayout(android.content.Context, android.util.AttributeSet, int);
+  }
+
+  public class LeanbackViewPager extends androidx.viewpager.widget.ViewPager {
+    ctor public LeanbackViewPager(android.content.Context);
+    ctor public LeanbackViewPager(android.content.Context, android.util.AttributeSet?);
+    method public void setKeyEventsEnabled(boolean);
+    method public void setTouchEnabled(boolean);
+  }
+
+}
+

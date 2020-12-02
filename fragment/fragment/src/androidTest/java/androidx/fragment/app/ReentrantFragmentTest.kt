@@ -21,7 +21,6 @@ import android.os.Parcelable
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.lifecycle.ViewModelStore
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Rule
@@ -50,67 +49,77 @@ class ReentrantFragmentTest(
         }
     }
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(EmptyFragmentTestActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
 
     // Make sure that executing transactions during activity lifecycle events
     // is properly prevented.
     @Test
     fun preventReentrantCalls() {
-        activityRule.runOnUiThread(Runnable {
-            val viewModelStore = ViewModelStore()
-            val fc1 = activityRule.startupFragmentController(viewModelStore)
+        activityRule.runOnUiThread(
+            Runnable {
+                val viewModelStore = ViewModelStore()
+                val fc1 = activityRule.startupFragmentController(viewModelStore)
 
-            val fm1 = fc1.supportFragmentManager
+                val fm1 = fc1.supportFragmentManager
 
-            val reentrantFragment = ReentrantFragment.create(fromState, toState)
+                val reentrantFragment = ReentrantFragment.create(fromState, toState)
 
-            fm1.beginTransaction().add(reentrantFragment, "reentrant").commit()
-            try {
-                fm1.executePendingTransactions()
-            } catch (e: IllegalStateException) {
-                fail("An exception shouldn't happen when initially adding the fragment")
-            }
-
-            // Now shut down the fragment controller. When fromState > toState, this should
-            // result in an exception
-            val savedState: Parcelable?
-            try {
-                fc1.dispatchPause()
-                savedState = fc1.saveAllState()
-                fc1.dispatchStop()
-                fc1.dispatchDestroy()
-                if (fromState > toState) {
-                    fail("Expected IllegalStateException when moving from " +
-                            "$fromState to $toState")
+                fm1.beginTransaction().add(reentrantFragment, "reentrant").commit()
+                try {
+                    fm1.executePendingTransactions()
+                } catch (e: IllegalStateException) {
+                    fail("An exception shouldn't happen when initially adding the fragment")
                 }
-            } catch (e: IllegalStateException) {
-                if (fromState < toState) {
-                    fail("Unexpected IllegalStateException when moving from " +
-                            "$fromState to $toState")
+
+                // Now shut down the fragment controller. When fromState > toState, this should
+                // result in an exception
+                val savedState: Parcelable?
+                try {
+                    fc1.dispatchPause()
+                    savedState = fc1.saveAllState()
+                    fc1.dispatchStop()
+                    fc1.dispatchDestroy()
+                    if (fromState > toState) {
+                        fail(
+                            "Expected IllegalStateException when moving from " +
+                                "$fromState to $toState"
+                        )
+                    }
+                } catch (e: IllegalStateException) {
+                    if (fromState < toState) {
+                        fail(
+                            "Unexpected IllegalStateException when moving from " +
+                                "$fromState to $toState"
+                        )
+                    }
+                    assertThat(e)
+                        .hasMessageThat()
+                        .contains("FragmentManager is already executing transactions")
+                    return@Runnable // test passed!
                 }
-                assertThat(e)
-                    .hasMessageThat().contains("FragmentManager is already executing transactions")
-                return@Runnable // test passed!
-            }
 
-            // now restore from saved state. This will be reached when
-            // fromState < toState. We want to catch the fragment while it
-            // is being restored as the fragment controller state is being brought up.
+                // now restore from saved state. This will be reached when
+                // fromState < toState. We want to catch the fragment while it
+                // is being restored as the fragment controller state is being brought up.
 
-            try {
-                activityRule.startupFragmentController(
-                    viewModelStore,
-                    savedState
-                )
-                fail("Expected IllegalStateException when moving from " +
-                        "$fromState to $toState")
-            } catch (e: IllegalStateException) {
-                assertThat(e)
-                    .hasMessageThat()
-                    .contains("FragmentManager is already executing transactions")
+                try {
+                    activityRule.startupFragmentController(
+                        viewModelStore,
+                        savedState
+                    )
+                    fail(
+                        "Expected IllegalStateException when moving from " +
+                            "$fromState to $toState"
+                    )
+                } catch (e: IllegalStateException) {
+                    assertThat(e)
+                        .hasMessageThat()
+                        .contains("FragmentManager is already executing transactions")
+                }
             }
-        })
+        )
     }
 }
 

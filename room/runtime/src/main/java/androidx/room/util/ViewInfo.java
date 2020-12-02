@@ -31,7 +31,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class ViewInfo {
+public final class ViewInfo {
 
     /**
      * The view name
@@ -51,7 +51,7 @@ public class ViewInfo {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof ViewInfo)) return false;
         ViewInfo viewInfo = (ViewInfo) o;
         return (name != null ? name.equals(viewInfo.name) : viewInfo.name == null)
                 && (sql != null ? sql.equals(viewInfo.sql) : viewInfo.sql == null);

@@ -1,0 +1,21 @@
+// Signature format: 4.0
+package androidx.datastore.rxjava2 {
+
+  public final class RxDataStore {
+    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <T> io.reactivex.Flowable<T> data(androidx.datastore.core.DataStore<T>);
+    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <T> io.reactivex.Single<T> updateDataAsync(androidx.datastore.core.DataStore<T>, io.reactivex.functions.Function<T,io.reactivex.Single<T>> transform);
+  }
+
+  public final class RxDataStoreBuilder<T> {
+    ctor public RxDataStoreBuilder();
+    method public androidx.datastore.rxjava2.RxDataStoreBuilder<T> addDataMigration(androidx.datastore.core.DataMigration<T> dataMigration);
+    method public androidx.datastore.core.DataStore<T> build();
+    method public androidx.datastore.rxjava2.RxDataStoreBuilder<T> setCorruptionHandler(androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T> corruptionHandler);
+    method public androidx.datastore.rxjava2.RxDataStoreBuilder<T> setFileName(android.content.Context context, String fileName);
+    method public androidx.datastore.rxjava2.RxDataStoreBuilder<T> setFileProducer(java.util.concurrent.Callable<java.io.File> produceFile);
+    method public androidx.datastore.rxjava2.RxDataStoreBuilder<T> setIoScheduler(io.reactivex.Scheduler ioScheduler);
+    method public androidx.datastore.rxjava2.RxDataStoreBuilder<T> setSerializer(androidx.datastore.core.Serializer<T> serializer);
+  }
+
+}
+

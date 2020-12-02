@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,145 +16,44 @@
 
 package androidx.paging
 
-import androidx.paging.PagedSource.LoadParams
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.flow.Flow
 
-internal class Pager<K : Any, V : Any>(
-    private val pagedListScope: CoroutineScope,
-    val config: PagedList.Config,
-    val source: PagedSource<K, V>,
-    private val notifyDispatcher: CoroutineDispatcher,
-    private val fetchDispatcher: CoroutineDispatcher,
-    val pageConsumer: PageConsumer<V>,
-    private val keyProvider: KeyProvider<K>
+/**
+ * Primary entry point into Paging; constructor for a reactive stream of [PagingData].
+ *
+ * Each [PagingData] represents a snapshot of the backing paginated data. Updates to the backing
+ * dataset should be represented by a new instance of [PagingData].
+ *
+ * [PagingSource.invalidate] and calls to [AsyncPagingDataDiffer.refresh] or
+ * [PagingDataAdapter.refresh] will notify [Pager] that the backing dataset has been updated and a
+ * new [PagingData] / [PagingSource] pair will be generated to represent an updated snapshot.
+ *
+ * [PagingData] can be transformed to alter data as it loads, and presented in a `RecyclerView` via
+ * `AsyncPagingDataDiffer` or `PagingDataAdapter`.
+ *
+ * LiveData support is available as an extension property provided by the
+ * `androidx.paging:paging-runtime` artifact.
+ *
+ * RxJava support is available as extension properties provided by the
+ * `androidx.paging:paging-rxjava2` artifact.
+ */
+class Pager<Key : Any, Value : Any>
+@JvmOverloads constructor(
+    config: PagingConfig,
+    initialKey: Key? = null,
+    @OptIn(ExperimentalPagingApi::class)
+    remoteMediator: RemoteMediator<Key, Value>? = null,
+    pagingSourceFactory: () -> PagingSource<Key, Value>
 ) {
-    private val detached = AtomicBoolean(false)
-
-    var loadStateManager = object : PagedList.LoadStateManager() {
-        override fun onStateChanged(type: LoadType, state: LoadState) {
-            pageConsumer.onStateChanged(type, state)
-        }
-    }
-
-    val isDetached
-        get() = detached.get()
-
-    private fun scheduleLoad(type: LoadType, params: LoadParams<K>) {
-        // Listen on the BG thread if the paged source is invalid, since it can be expensive.
-        pagedListScope.launch(fetchDispatcher) {
-            val value = source.load(params)
-
-            // if invalid, drop result on the floor
-            if (source.invalid) {
-                detach()
-                return@launch
-            }
-
-            // Source has been verified to be valid after producing data, so sent data to UI
-            launch(notifyDispatcher) {
-                when (value) {
-                    is PagedSource.LoadResult.Page -> onLoadSuccess(type, value)
-                    is PagedSource.LoadResult.Error -> onLoadError(type, value.throwable)
-                }
-            }
-        }
-    }
-
-    private fun onLoadSuccess(type: LoadType, value: PagedSource.LoadResult.Page<K, V>) {
-        if (isDetached) return // abort!
-
-        if (pageConsumer.onPageResult(type, value)) {
-            when (type) {
-                LoadType.START -> schedulePrepend()
-                LoadType.END -> scheduleAppend()
-                else -> throw IllegalStateException("Can only fetch more during append/prepend")
-            }
-        } else {
-            if (value.data.isEmpty()) {
-                loadStateManager.setState(type, LoadState.Done)
-            } else {
-                loadStateManager.setState(type, LoadState.Idle)
-            }
-        }
-    }
-
-    private fun onLoadError(type: LoadType, throwable: Throwable) {
-        if (isDetached) return // abort!
-
-        val state = LoadState.Error(throwable)
-        loadStateManager.setState(type, state)
-    }
-
-    fun trySchedulePrepend() {
-        if (loadStateManager.startState is LoadState.Idle) schedulePrepend()
-    }
-
-    fun tryScheduleAppend() {
-        if (loadStateManager.endState is LoadState.Idle) scheduleAppend()
-    }
-
-    private fun schedulePrepend() {
-        val key = keyProvider.prevKey
-        if (key == null) {
-            onLoadSuccess(LoadType.START, PagedSource.LoadResult.Page.empty())
-            return
-        }
-
-        loadStateManager.setState(LoadType.START, LoadState.Loading)
-
-        val loadParams = LoadParams<K>(
-            LoadType.START,
-            key,
-            config.pageSize,
-            config.enablePlaceholders,
-            config.pageSize
-        )
-        scheduleLoad(LoadType.START, loadParams)
-    }
-
-    private fun scheduleAppend() {
-        val key = keyProvider.nextKey
-        if (key == null) {
-            onLoadSuccess(LoadType.END, PagedSource.LoadResult.Page.empty())
-            return
-        }
-
-        loadStateManager.setState(LoadType.END, LoadState.Loading)
-        val loadParams = LoadParams(
-            LoadType.END,
-            key,
-            config.pageSize,
-            config.enablePlaceholders,
-            config.pageSize
-        )
-        scheduleLoad(LoadType.END, loadParams)
-    }
-
-    fun retry() {
-        loadStateManager.startState.run {
-            if (this is LoadState.Error) schedulePrepend()
-        }
-        loadStateManager.endState.run {
-            if (this is LoadState.Error) scheduleAppend()
-        }
-    }
-
-    fun detach() = detached.set(true)
-
-    internal interface PageConsumer<V : Any> {
-        /**
-         * @return `true` if we need to fetch more
-         */
-        fun onPageResult(type: LoadType, page: PagedSource.LoadResult.Page<*, V>): Boolean
-
-        fun onStateChanged(type: LoadType, state: LoadState)
-    }
-
-    internal interface KeyProvider<K : Any> {
-        val prevKey: K?
-        val nextKey: K?
-    }
+    /**
+     * A cold [Flow] of [PagingData], which emits new instances of [PagingData] once they become
+     * invalidated by [PagingSource.invalidate] or calls to [AsyncPagingDataDiffer.refresh] or
+     * [PagingDataAdapter.refresh].
+     */
+    val flow: Flow<PagingData<Value>> = PageFetcher(
+        pagingSourceFactory,
+        initialKey,
+        config,
+        remoteMediator
+    ).flow
 }

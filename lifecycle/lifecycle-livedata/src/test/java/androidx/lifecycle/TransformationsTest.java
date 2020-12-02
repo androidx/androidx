@@ -19,17 +19,17 @@ package androidx.lifecycle;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import androidx.annotation.Nullable;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.util.Function;
+import androidx.lifecycle.testing.TestLifecycleOwner;
 import androidx.lifecycle.util.InstantTaskExecutor;
 
 import org.junit.Before;
@@ -37,11 +37,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import kotlinx.coroutines.test.TestCoroutineDispatcher;
+
 @SuppressWarnings("unchecked")
 @RunWith(JUnit4.class)
 public class TransformationsTest {
 
-    private LifecycleOwner mOwner;
+    private TestLifecycleOwner mOwner;
 
     @Before
     public void swapExecutorDelegate() {
@@ -50,11 +52,8 @@ public class TransformationsTest {
 
     @Before
     public void setup() {
-        mOwner = mock(LifecycleOwner.class);
-        LifecycleRegistry registry = new LifecycleRegistry(mOwner);
-        when(mOwner.getLifecycle()).thenReturn(registry);
-        registry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
-        registry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        mOwner = new TestLifecycleOwner(Lifecycle.State.STARTED,
+                new TestCoroutineDispatcher());
     }
 
     @Test

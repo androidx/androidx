@@ -16,28 +16,27 @@
 
 package androidx.security.crypto;
 
-import static androidx.security.crypto.MasterKeys.KEYSTORE_PATH_URI;
+import static androidx.security.crypto.MasterKey.KEYSTORE_PATH_URI;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.ArraySet;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.ArraySet;
 
 import com.google.crypto.tink.Aead;
 import com.google.crypto.tink.DeterministicAead;
+import com.google.crypto.tink.KeyTemplate;
 import com.google.crypto.tink.KeysetHandle;
-import com.google.crypto.tink.aead.AeadFactory;
-import com.google.crypto.tink.aead.AeadKeyTemplates;
-import com.google.crypto.tink.config.TinkConfig;
-import com.google.crypto.tink.daead.DeterministicAeadFactory;
-import com.google.crypto.tink.daead.DeterministicAeadKeyTemplates;
+import com.google.crypto.tink.aead.AeadConfig;
+import com.google.crypto.tink.aead.AesGcmKeyManager;
+import com.google.crypto.tink.daead.AesSivKeyManager;
+import com.google.crypto.tink.daead.DeterministicAeadConfig;
 import com.google.crypto.tink.integration.android.AndroidKeysetManager;
-import com.google.crypto.tink.proto.KeyTemplate;
 import com.google.crypto.tink.subtle.Base64;
 
 import java.io.IOException;
@@ -102,11 +101,42 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
     /**
      * Opens an instance of encrypted SharedPreferences
      *
-     * @param fileName The name of the file to open; can not contain path separators.
+     * @param fileName                  The name of the file to open; can not contain path
+     *                                  separators.
+     * @param masterKey                 The master key to use.
+     * @param prefKeyEncryptionScheme   The scheme to use for encrypting keys.
+     * @param prefValueEncryptionScheme The scheme to use for encrypting values.
      * @return The SharedPreferences instance that encrypts all data.
      * @throws GeneralSecurityException when a bad master key or keyset has been attempted
      * @throws IOException              when fileName can not be used
      */
+    @NonNull
+    public static SharedPreferences create(@NonNull Context context,
+            @NonNull String fileName,
+            @NonNull MasterKey masterKey,
+            @NonNull PrefKeyEncryptionScheme prefKeyEncryptionScheme,
+            @NonNull PrefValueEncryptionScheme prefValueEncryptionScheme)
+            throws GeneralSecurityException, IOException {
+        return create(fileName, masterKey.getKeyAlias(), context,
+                prefKeyEncryptionScheme, prefValueEncryptionScheme);
+    }
+
+    /**
+     * Opens an instance of encrypted SharedPreferences
+     *
+     * @param fileName                  The name of the file to open; can not contain path
+     *                                  separators.
+     * @param masterKeyAlias            The alias of the master key to use.
+     * @param context                   The context to use to open the preferences file.
+     * @param prefKeyEncryptionScheme   The scheme to use for encrypting keys.
+     * @param prefValueEncryptionScheme The scheme to use for encrypting values.
+     * @return The SharedPreferences instance that encrypts all data.
+     * @throws GeneralSecurityException when a bad master key or keyset has been attempted
+     * @throws IOException              when fileName can not be used
+     * @deprecated Use {@link #create(Context, String, MasterKey,
+     * PrefKeyEncryptionScheme, PrefValueEncryptionScheme)} instead.
+     */
+    @Deprecated
     @NonNull
     public static SharedPreferences create(@NonNull String fileName,
             @NonNull String masterKeyAlias,
@@ -114,24 +144,27 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
             @NonNull PrefKeyEncryptionScheme prefKeyEncryptionScheme,
             @NonNull PrefValueEncryptionScheme prefValueEncryptionScheme)
             throws GeneralSecurityException, IOException {
-        TinkConfig.register();
+        DeterministicAeadConfig.register();
+        AeadConfig.register();
 
+        final Context applicationContext = context.getApplicationContext();
         KeysetHandle daeadKeysetHandle = new AndroidKeysetManager.Builder()
                 .withKeyTemplate(prefKeyEncryptionScheme.getKeyTemplate())
-                .withSharedPref(context, KEY_KEYSET_ALIAS, fileName)
+                .withSharedPref(applicationContext, KEY_KEYSET_ALIAS, fileName)
                 .withMasterKeyUri(KEYSTORE_PATH_URI + masterKeyAlias)
                 .build().getKeysetHandle();
         KeysetHandle aeadKeysetHandle = new AndroidKeysetManager.Builder()
                 .withKeyTemplate(prefValueEncryptionScheme.getKeyTemplate())
-                .withSharedPref(context, VALUE_KEYSET_ALIAS, fileName)
+                .withSharedPref(applicationContext, VALUE_KEYSET_ALIAS, fileName)
                 .withMasterKeyUri(KEYSTORE_PATH_URI + masterKeyAlias)
                 .build().getKeysetHandle();
 
-        DeterministicAead daead = DeterministicAeadFactory.getPrimitive(daeadKeysetHandle);
-        Aead aead = AeadFactory.getPrimitive(aeadKeysetHandle);
+        DeterministicAead daead = daeadKeysetHandle.getPrimitive(DeterministicAead.class);
+        Aead aead = aeadKeysetHandle.getPrimitive(Aead.class);
 
         return new EncryptedSharedPreferences(fileName, masterKeyAlias,
-                context.getSharedPreferences(fileName, Context.MODE_PRIVATE), aead, daead);
+                applicationContext.getSharedPreferences(fileName, Context.MODE_PRIVATE), aead,
+                daead);
     }
 
     /**
@@ -143,11 +176,11 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
          *
          * For more information please see the Tink documentation:
          *
-         * {@link DeterministicAeadKeyTemplates}.AES256_SIV
+         * <a href="https://google.github.io/tink/javadoc/tink/1.4.0/com/google/crypto/tink/daead/AesSivKeyManager.html">AesSivKeyManager</a>.aes256SivTemplate()
          */
-        AES256_SIV(DeterministicAeadKeyTemplates.AES256_SIV);
+        AES256_SIV(AesSivKeyManager.aes256SivTemplate());
 
-        private KeyTemplate mDeterministicAeadKeyTemplate;
+        private final KeyTemplate mDeterministicAeadKeyTemplate;
 
         PrefKeyEncryptionScheme(KeyTemplate keyTemplate) {
             mDeterministicAeadKeyTemplate = keyTemplate;
@@ -167,11 +200,11 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
          *
          * For more information please see the Tink documentation:
          *
-         * {@link AeadKeyTemplates}.AES256_GCM
+         * <a href="https://google.github.io/tink/javadoc/tink/1.4.0/com/google/crypto/tink/aead/AesGcmKeyManager.html">AesGcmKeyManager</a>.aes256GcmTemplate()
          */
-        AES256_GCM(AeadKeyTemplates.AES256_GCM);
+        AES256_GCM(AesGcmKeyManager.aes256GcmTemplate());
 
-        private KeyTemplate mAeadKeyTemplate;
+        private final KeyTemplate mAeadKeyTemplate;
 
         PrefValueEncryptionScheme(KeyTemplate keyTemplates) {
             mAeadKeyTemplate = keyTemplates;
@@ -301,16 +334,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
 
         @Override
         public boolean commit() {
-            // Call "clear" first as per the documentation, remove all keys that haven't
-            // been modified in this editor.
-            if (mClearRequested.getAndSet(false)) {
-                for (String key : mEncryptedSharedPreferences.getAll().keySet()) {
-                    if (!mKeysChanged.contains(key)
-                            && !mEncryptedSharedPreferences.isReservedKey(key)) {
-                        mEditor.remove(mEncryptedSharedPreferences.encryptKey(key));
-                    }
-                }
-            }
+            clearKeysIfNeeded();
             try {
                 return mEditor.commit();
             } finally {
@@ -321,8 +345,23 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
 
         @Override
         public void apply() {
+            clearKeysIfNeeded();
             mEditor.apply();
             notifyListeners();
+            mKeysChanged.clear();
+        }
+
+        private void clearKeysIfNeeded() {
+            // Call "clear" first as per the documentation, remove all keys that haven't
+            // been modified in this editor.
+            if (mClearRequested.getAndSet(false)) {
+                for (String key : mEncryptedSharedPreferences.getAll().keySet()) {
+                    if (!mKeysChanged.contains(key)
+                            && !mEncryptedSharedPreferences.isReservedKey(key)) {
+                        mEditor.remove(mEncryptedSharedPreferences.encryptKey(key));
+                    }
+                }
+            }
         }
 
         private void putEncryptedObject(String key, byte[] value) {
@@ -451,7 +490,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
         FLOAT(4),
         BOOLEAN(5);
 
-        int mId;
+        private final int mId;
 
         EncryptedType(int id) {
             mId = id;

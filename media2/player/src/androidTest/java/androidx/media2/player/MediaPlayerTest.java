@@ -53,7 +53,7 @@ import androidx.media2.player.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -67,8 +67,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -82,6 +84,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     private static final float FLOAT_TOLERANCE = .0001f;
     private static final int INVALID_SHUFFLE_MODE = -1000;
     private static final int INVALID_REPEAT_MODE = -1000;
+    private static final String TEST_PLAYLIST_GENRE = "GENRE_TEST";
 
     private Object mPlayerCbArg1;
     private Object mPlayerCbArg2;
@@ -109,9 +112,8 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Ignore("Test disabled due to flakiness, see b/138474897")
-    public void testPlayAudioOnce() throws Exception {
+    public void playAudioOnce() throws Exception {
         assertTrue(loadResource(R.raw.testmp3_2));
         AudioAttributesCompat attributes = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_MUSIC)
@@ -137,8 +139,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlayAudio() throws Exception {
+    public void playAudio() throws Exception {
         final int resid = R.raw.testmp3_2;
         final int mp3Duration = 34909;
         final int tolerance = 100;
@@ -186,8 +187,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlayVideo() throws Exception {
+    public void playVideo() throws Exception {
         if (!loadResource(R.raw.testvideo)) {
             fail();
         }
@@ -301,8 +301,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlayVideoWithUri() throws Exception {
+    public void playVideoWithUri() throws Exception {
         if (!loadResourceWithUri(R.raw.testvideo)) {
             fail();
         }
@@ -364,8 +363,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testGetDuration() throws Exception {
+    public void getDuration() throws Exception {
         if (!loadResource(R.raw.testvideo)) {
             fail();
         }
@@ -387,24 +385,21 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testGetCurrentPosition() throws Exception {
+    public void getCurrentPosition() throws Exception {
         assertEquals(MediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
         assertEquals(MediaPlayer.UNKNOWN_TIME, mPlayer.getCurrentPosition());
     }
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testGetBufferedPosition() throws Exception {
+    public void getBufferedPosition() throws Exception {
         assertEquals(MediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
         assertEquals(MediaPlayer.UNKNOWN_TIME, mPlayer.getBufferedPosition());
     }
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testGetPlaybackSpeed() throws Exception {
+    public void getPlaybackSpeed() throws Exception {
         assertEquals(MediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
         try {
             mPlayer.getPlaybackSpeed();
@@ -415,8 +410,8 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlaybackRate() throws Exception {
+    @Ignore("May be flaky if emulator runs slowly")
+    public void playbackRate() throws Exception {
         final int toleranceMs = 1000;
         if (!loadResource(R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz)) {
             fail();
@@ -451,10 +446,12 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
                     MediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
 
             long playedMediaDurationMs = mPlayer.getCurrentPosition();
-            int diff = Math.abs((int) (playedMediaDurationMs / playbackRate) - playTime);
+            long expectedPosition = (long) (playTime * playbackRate);
+            int diff = (int) Math.abs(playedMediaDurationMs - expectedPosition);
             if (diff > toleranceMs) {
                 fail("Media player had error in playback rate " + playbackRate
-                        + ", play time is " + playTime + " vs expected " + playedMediaDurationMs);
+                        + ". expected position after playing " + playTime
+                        + " was " + expectedPosition + ", but actually " + playedMediaDurationMs);
             }
             assertFutureSuccess(playFuture);
             assertFutureSuccess(mPlayer.pause());
@@ -468,8 +465,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testSeekModes() throws Exception {
+    public void seekModes() throws Exception {
         // This clip has 2 I frames at 66687us and 4299687us.
         if (!loadResource(
                 R.raw.bbb_s1_320x240_mp4_h264_mp2_800kbps_30fps_aac_lc_5ch_240kbps_44100hz)) {
@@ -541,8 +537,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testGetTimestamp() throws Exception {
+    public void getTimestamp() throws Exception {
         final int toleranceUs = 100000;
         final float playbackRate = 1.0f;
         if (!loadResource(R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz)) {
@@ -645,8 +640,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testDeselectTrackForSubtitleTracks() throws Throwable {
+    public void deselectTrackForSubtitleTracks() throws Throwable {
         if (!loadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             fail();
         }
@@ -708,8 +702,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testChangeSubtitleTrack() throws Throwable {
+    public void changeSubtitleTrack() throws Throwable {
         if (!loadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             fail();
         }
@@ -766,8 +759,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testGetTracksForVideoWithSubtitleTracks() throws Throwable {
+    public void getTracksForVideoWithSubtitleTracks() throws Throwable {
         if (!loadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             fail();
         }
@@ -802,13 +794,17 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         readTracks();
         assertEquals(2, mSubtitleTrackInfos.size());
 
+        // Test isSelectable
+        assertFalse(mVideoTrackInfos.get(0).isSelectable());
+        assertTrue(mSubtitleTrackInfos.get(0).isSelectable());
+        assertTrue(mSubtitleTrackInfos.get(1).isSelectable());
+
         mPlayer.reset();
     }
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testGetTracksForVideoWithoutSubtitleTracks() throws Throwable {
+    public void getTracksForVideoWithoutSubtitleTracks() throws Throwable {
         if (!loadResource(R.raw.testvideo)) {
             fail();
         }
@@ -840,6 +836,10 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         assertEquals(1, mAudioTrackInfos.size());
         assertEquals(0, mSubtitleTrackInfos.size());
 
+        // Test isSelectable
+        assertFalse(mVideoTrackInfos.get(0).isSelectable());
+        assertTrue(mAudioTrackInfos.get(0).isSelectable());
+
         // Test getSelectedTrack
         assertEquals(mVideoTrackInfos.get(0),
                 mPlayer.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_VIDEO));
@@ -851,8 +851,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testMediaTimeDiscontinuity() throws Exception {
+    public void mediaTimeDiscontinuity() throws Exception {
         if (!loadResource(
                 R.raw.bbb_s1_320x240_mp4_h264_mp2_800kbps_30fps_aac_lc_5ch_240kbps_44100hz)) {
             return; // skip
@@ -911,8 +910,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlaybackFromDataSourceCallback() throws Exception {
+    public void playbackFromDataSourceCallback() throws Exception {
         final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         final int duration = 10000;
 
@@ -956,8 +954,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testNullMedia2DataSourceIsRejected() throws Exception {
+    public void nullMedia2DataSourceIsRejected() throws Exception {
         try {
             assertNotNull(mPlayer.setMediaItem(null));
             fail();
@@ -968,8 +965,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testMedia2DataSourceIsClosedOnReset() throws Exception {
+    public void media2DataSourceIsClosedOnReset() throws Exception {
         TestDataSourceCallback dataSource = new TestDataSourceCallback(new byte[0]);
         assertFutureSuccess(mPlayer.setMediaItem(
                 new CallbackMediaItem.Builder(dataSource).build()));
@@ -979,8 +975,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlaybackFailsIfMedia2DataSourceThrows() throws Exception {
+    public void playbackFailsIfMedia2DataSourceThrows() throws Exception {
         final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
 
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
@@ -1009,8 +1004,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPreservePlaybackProperties() throws Exception {
+    public void preservePlaybackProperties() throws Exception {
         final int resid1 = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         final long start1 = 6000;
         final long end1 = 7000;
@@ -1073,8 +1067,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testDefaultPlaybackParams() throws Exception {
+    public void defaultPlaybackParams() throws Exception {
         if (!loadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             fail();
         }
@@ -1091,8 +1084,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testSkipUnnecessarySeek() throws Exception {
+    public void skipUnnecessarySeek() throws Exception {
         final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         final TestDataSourceCallback source =
                 TestDataSourceCallback.fromAssetFd(mResources.openRawResourceFd(resid));
@@ -1153,8 +1145,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlayerStates() throws Throwable {
+    public void playerStates() throws Throwable {
         if (!loadResource(R.raw.testvideo)) {
             fail();
         }
@@ -1191,8 +1182,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlayerCallback() throws Throwable {
+    public void playerCallback() throws Throwable {
         final int mp4Duration = 8484;
         if (!loadResource(R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz)) {
             return; // skip;
@@ -1270,8 +1260,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testSetPlaybackSpeedWithIllegalArguments() throws Throwable {
+    public void setPlaybackSpeedWithIllegalArguments() throws Throwable {
         // Zero is not allowed.
         assertFutureStateEquals(mPlayer.setPlaybackSpeed(0.0f), RESULT_ERROR_BAD_VALUE);
 
@@ -1281,8 +1270,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testClose() throws Exception {
+    public void close() throws Exception {
         assertTrue(loadResource(R.raw.testmp3_2));
         AudioAttributesCompat attributes = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_MUSIC)
@@ -1301,8 +1289,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testReset() throws Exception {
+    public void reset() throws Exception {
         assertTrue(loadResource(R.raw.testmp3_2));
         AudioAttributesCompat attributes = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_MUSIC)
@@ -1317,8 +1304,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testCancelPendingCommands() throws Exception {
+    public void cancelPendingCommands() throws Exception {
         final Monitor readRequested = new Monitor();
         final Monitor readAllowed = new Monitor();
         DataSourceCallback dataSource = new DataSourceCallback() {
@@ -1386,8 +1372,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testSetAndGetShuffleMode() throws Exception {
+    public void setAndGetShuffleMode() throws Exception {
         final TestUtils.Monitor onShuffleModeChangedMonitor = new TestUtils.Monitor();
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
@@ -1434,8 +1419,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testSetAndGetRepeatMode() throws Exception {
+    public void setAndGetRepeatMode() throws Exception {
         final TestUtils.Monitor onRepeatModeChangedMonitor = new TestUtils.Monitor();
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
@@ -1481,8 +1465,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testSetPlaylist() throws Exception {
+    public void setPlaylist() throws Exception {
         List<MediaItem> playlist = createPlaylist(10);
         TestUtils.Monitor onCurrentMediaItemChangedMonitor = new TestUtils.Monitor();
         mPlayer.registerPlayerCallback(mExecutor,
@@ -1510,8 +1493,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testSetFileMediaItem() throws Exception {
+    public void setFileMediaItem() throws Exception {
         MediaItem closedItem = createMediaItem();
         ((FileMediaItem) closedItem).close();
         try {
@@ -1554,8 +1536,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlaylistModification() throws Exception {
+    public void playlistModification() throws Exception {
         final TestUtils.Monitor playlistChangeMonitor = new TestUtils.Monitor();
         mPlayer.registerPlayerCallback(mExecutor, new SessionPlayer.PlayerCallback() {
             public void onPlaylistChanged(@NonNull SessionPlayer player,
@@ -1615,8 +1596,38 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testSkipToPlaylistItems() throws Exception {
+    public void setPlaylistAndRemoveAll_playerShouldMoveIdleState() throws Exception {
+        List<MediaItem> playlist = new ArrayList<>();
+        playlist.add(createMediaItem(R.raw.number1));
+
+        final TestUtils.Monitor onPlayerStateChangedCalled = new TestUtils.Monitor();
+        final AtomicInteger playerState = new AtomicInteger();
+
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
+            @Override
+            public void onPlayerStateChanged(@NonNull SessionPlayer player, int state) {
+                playerState.set(state);
+                onPlayerStateChangedCalled.signal();
+            }
+        };
+
+        mPlayer.registerPlayerCallback(mExecutor, callback);
+
+        assertNotNull(mPlayer.setPlaylist(playlist, null));
+        assertNotNull(mPlayer.prepare());
+        do {
+            assertTrue(onPlayerStateChangedCalled.waitForSignal(1000));
+        } while (playerState.get() != MediaPlayer.PLAYER_STATE_PAUSED);
+
+        mPlayer.removePlaylistItem(0);
+        do {
+            assertTrue(onPlayerStateChangedCalled.waitForSignal(1000));
+        } while (playerState.get() != MediaPlayer.PLAYER_STATE_IDLE);
+    }
+
+    @Test
+    @MediumTest
+    public void skipToPlaylistItems() throws Exception {
         int listSize = 5;
         List<MediaItem> playlist = createPlaylist(listSize);
         TestUtils.Monitor onCurrentMediaItemChangedMonitor = new TestUtils.Monitor();
@@ -1638,8 +1649,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testSkipToNextItems() throws Exception {
+    public void skipToNextItems() throws Exception {
         int listSize = 5;
         List<MediaItem> playlist = createPlaylist(listSize);
         TestUtils.Monitor onCurrentMediaItemChangedMonitor = new TestUtils.Monitor();
@@ -1666,8 +1676,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testSkipToPreviousItems() throws Exception {
+    public void skipToPreviousItems() throws Exception {
         int listSize = 5;
         List<MediaItem> playlist = createPlaylist(listSize);
         TestUtils.Monitor onCurrentMediaItemChangedMonitor = new TestUtils.Monitor();
@@ -1697,8 +1706,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testSkipToNextPreviousItemsWithRepeatMode() throws Exception {
+    public void skipToNextPreviousItemsWithRepeatMode() throws Exception {
         int listSize = 5;
         List<MediaItem> playlist = createPlaylist(listSize);
         TestUtils.Monitor onCurrentMediaItemChangedMonitor = new TestUtils.Monitor();
@@ -1724,8 +1732,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlaylistAfterSkipToNextItem() throws Exception {
+    public void playlistAfterSkipToNextItem() throws Exception {
         int listSize = 2;
         List<MediaItem> playlist = createPlaylist(listSize);
         TestUtils.Monitor onCurrentMediaItemChangedMonitor = new TestUtils.Monitor();
@@ -1756,8 +1763,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlaylistAfterSkipToPreviousItem() throws Exception {
+    public void playlistAfterSkipToPreviousItem() throws Exception {
         int listSize = 2;
         List<MediaItem> playlist = createPlaylist(listSize);
         TestUtils.Monitor onCurrentMediaItemChangedMonitor = new TestUtils.Monitor();
@@ -1783,8 +1789,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testCurrentMediaItemChangedCalledAfterSetMediaItem() throws Exception {
+    public void currentMediaItemChangedCalledAfterSetMediaItem() throws Exception {
         final int currentIdx = -1;
         MediaItem item1 = createMediaItem();
         MediaItem item2 = createMediaItem();
@@ -1810,8 +1815,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testCurrentMediaItemChangedCalledAfterSetPlaylist() throws Exception {
+    public void currentMediaItemChangedCalledAfterSetPlaylist() throws Exception {
         int listSize = 2;
         List<MediaItem> playlist = createPlaylist(listSize);
 
@@ -1825,8 +1829,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testCurrentMediaItemChangedAndPlaybackCompletedWhilePlayingPlaylist()
+    public void currentMediaItemChangedAndPlaybackCompletedWhilePlayingPlaylist()
             throws Exception {
         List<MediaItem> playlist = new ArrayList<>();
         playlist.add(createMediaItem(R.raw.number1));
@@ -1864,8 +1867,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testRepeatAll() throws Exception {
+    public void repeatAll() throws Exception {
         List<MediaItem> playlist = new ArrayList<>();
         playlist.add(createMediaItem(R.raw.number1));
         playlist.add(createMediaItem(R.raw.number2));
@@ -1905,6 +1907,145 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
                 onCurrentMediaItemChangedMonitor.waitForCountedSignals(
                         waitForCurrentMediaChangeCount, LARGE_TEST_WAIT_TIME_MS));
         assertEquals(0, onPlaybackCompletedMonitor.getNumSignal());
+    }
+
+    @Ignore("Test disabled due to flakiness, see b/144876689")
+    @Test
+    @LargeTest
+    public void onVideoSizeChanged() throws Exception {
+        List<MediaItem> playlist = new ArrayList<>();
+        playlist.add(createMediaItem(R.raw.testvideo));
+        playlist.add(createMediaItem(R.raw.testmp3));
+        playlist.add(createMediaItem(R.raw.testvideo_with_2_subtitle_tracks));
+
+        VideoSize sizeFor1stItem = new VideoSize(352, 288);
+        VideoSize sizeFor2ndItem = new VideoSize(0, 0);
+        VideoSize sizeFor3rdItem = new VideoSize(160, 90);
+
+        CountDownLatch latchFor1stItem = new CountDownLatch(1);
+        CountDownLatch latchFor2ndItem = new CountDownLatch(1);
+        CountDownLatch latchFor3rdItem = new CountDownLatch(1);
+
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
+            @Override
+            public void onVideoSizeChanged(@NonNull SessionPlayer player,
+                    @NonNull androidx.media2.common.VideoSize size) {
+                if (latchFor1stItem.getCount() > 0) {
+                    assertEquals(sizeFor1stItem, size);
+                    latchFor1stItem.countDown();
+                } else if (latchFor2ndItem.getCount() > 0) {
+                    assertEquals(sizeFor2ndItem, size);
+                    latchFor2ndItem.countDown();
+                } else if (latchFor3rdItem.getCount() > 0) {
+                    assertEquals(sizeFor3rdItem, size);
+                    latchFor3rdItem.countDown();
+                }
+            }
+        };
+        mPlayer.registerPlayerCallback(mExecutor, callback);
+
+        assertNotNull(mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface()));
+        assertNotNull(mPlayer.setPlaylist(playlist, null));
+        assertNotNull(mPlayer.prepare());
+        assertNotNull(mPlayer.play());
+
+        assertTrue(latchFor1stItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertNotNull(mPlayer.skipToNextPlaylistItem());
+        assertTrue(latchFor2ndItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertNotNull(mPlayer.skipToNextPlaylistItem());
+        assertTrue(latchFor3rdItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Ignore("Test disabled due to flakiness, see b/144972397")
+    @Test
+    @LargeTest
+    public void seekToEndOfMediaItem() throws Exception {
+        List<MediaItem> playlist = new ArrayList<>();
+        playlist.add(createMediaItem(R.raw.testmp3));
+        playlist.add(createMediaItem(R.raw.testmp3));
+        playlist.add(createMediaItem(R.raw.testmp3));
+
+        List<CountDownLatch> latches = new ArrayList<>();
+        for (int i = 0; i < playlist.size(); i++) {
+            latches.add(new CountDownLatch(1));
+        }
+
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
+            @Override
+            public void onCurrentMediaItemChanged(@NonNull SessionPlayer player,
+                    @NonNull MediaItem item) {
+                for (int i = 0; i < playlist.size(); i++) {
+                    if (playlist.get(i) == item) {
+                        latches.get(i).countDown();
+                        break;
+                    }
+                }
+            }
+        };
+        mPlayer.registerPlayerCallback(mExecutor, callback);
+
+        assertNotNull(mPlayer.setPlaylist(playlist, null));
+        assertNotNull(mPlayer.prepare());
+        assertFutureSuccess(mPlayer.play());
+
+        for (int i = 0; i < playlist.size(); i++) {
+            assertTrue("onCurrentMediaItemChanged is not called for item i=" + i,
+                    latches.get(i).await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            if (i + 1 < playlist.size()) {
+                long duration = mPlayer.getDuration();
+                assertNotEquals(SessionPlayer.UNKNOWN_TIME, duration);
+                assertFutureSuccess(mPlayer.seekTo(duration));
+            }
+        }
+    }
+
+    @Test
+    @SmallTest
+    public void onPlaylistChangedCalledAfterSetMediaItem() throws Exception {
+        List<MediaItem> playlist = createPlaylist(3);
+        MediaMetadata playlistMetadata = new MediaMetadata.Builder()
+                .putText(MediaMetadata.METADATA_KEY_GENRE, TEST_PLAYLIST_GENRE)
+                .build();
+        int listSize = playlist.size();
+
+        TestUtils.Monitor onPlaylistChangedMonitor = new TestUtils.Monitor();
+        mPlayer.registerPlayerCallback(mExecutor, new MediaPlayer.PlayerCallback() {
+            public void onPlaylistChanged(SessionPlayer player, List<MediaItem> list,
+                    MediaMetadata metadata) {
+                switch (onPlaylistChangedMonitor.getNumSignal()) {
+                    case 0:
+                        assertEquals(listSize, list.size());
+                        for (int i = 0; i < listSize; i++) {
+                            assertEquals(playlist.get(i), list.get(i));
+                        }
+                        assertEquals(TEST_PLAYLIST_GENRE,
+                                metadata.getText(MediaMetadata.METADATA_KEY_GENRE));
+                        break;
+                    case 1:
+                        assertNull(list);
+                        assertNull(metadata);
+                        break;
+                }
+                onPlaylistChangedMonitor.signal();
+            }
+        });
+
+        assertFutureSuccess(mPlayer.setPlaylist(playlist, playlistMetadata));
+        assertEquals(1, onPlaylistChangedMonitor.waitForCountedSignals(1, WAIT_TIME_MS));
+        List<MediaItem> playerPlaylist = mPlayer.getPlaylist();
+        assertEquals(listSize, playerPlaylist.size());
+        for (int i = 0; i < listSize; i++) {
+            assertEquals(playlist.get(i), playerPlaylist.get(i));
+        }
+        assertEquals(TEST_PLAYLIST_GENRE,
+                mPlayer.getPlaylistMetadata().getText(MediaMetadata.METADATA_KEY_GENRE));
+        assertEquals(playlist.get(0), mPlayer.getCurrentMediaItem());
+
+        assertFutureSuccess(mPlayer.setMediaItem(playlist.get(0)));
+        assertEquals(2, onPlaylistChangedMonitor.waitForCountedSignals(2, WAIT_TIME_MS));
+        assertNull(mPlayer.getPlaylist());
+        assertNull(mPlayer.getPlaylistMetadata());
+        assertEquals(playlist.get(0), mPlayer.getCurrentMediaItem());
     }
 
     private MediaItem createMediaItem() throws Exception {

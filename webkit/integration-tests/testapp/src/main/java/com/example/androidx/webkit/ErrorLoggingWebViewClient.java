@@ -49,6 +49,7 @@ class ErrorLoggingWebViewClient extends WebViewClientCompat {
     }
 
     @Override
+    @SuppressWarnings("deprecation") // use the old one for compatibility with all API levels.
     public void onReceivedError(WebView view, int errorCode, String description,
             String failingUrl) {
         logErrors(failingUrl, errorCode);

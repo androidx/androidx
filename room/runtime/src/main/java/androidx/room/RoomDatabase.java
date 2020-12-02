@@ -42,7 +42,9 @@ import androidx.sqlite.db.SupportSQLiteStatement;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,7 +53,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -89,8 +90,9 @@ public abstract class RoomDatabase {
     boolean mWriteAheadLoggingEnabled;
 
     /**
-     * @deprecated Will be hidden in the next release.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Nullable
     @Deprecated
     protected List<Callback> mCallbacks;
@@ -127,8 +129,8 @@ public abstract class RoomDatabase {
         return mSuspendingTransactionId;
     }
 
-
-    private final Map<String, Object> mBackingFieldMap = new ConcurrentHashMap<>();
+    private final Map<String, Object> mBackingFieldMap =
+            Collections.synchronizedMap(new HashMap<>());
 
     /**
      * Gets the map for storing extension properties of Kotlin type.
@@ -140,6 +142,23 @@ public abstract class RoomDatabase {
         return mBackingFieldMap;
     }
 
+    // Updated later to an unmodifiable map when init is called.
+    private final Map<Class<?>, Object> mTypeConverters;
+
+
+    /**
+     * Gets the instance of the given Type Converter.
+     *
+     * @param klass The Type Converter class.
+     * @param <T> The type of the expected Type Converter subclass.
+     * @return An instance of T if it is provided in the builder.
+     */
+    @SuppressWarnings("unchecked")
+    @Nullable
+    public <T> T getTypeConverter(@NonNull Class<T> klass) {
+        return (T) mTypeConverters.get(klass);
+    }
+
     /**
      * Creates a RoomDatabase.
      * <p>
@@ -149,6 +168,7 @@ public abstract class RoomDatabase {
      */
     public RoomDatabase() {
         mInvalidationTracker = createInvalidationTracker();
+        mTypeConverters = new HashMap<>();
     }
 
     /**
@@ -176,6 +196,45 @@ public abstract class RoomDatabase {
         if (configuration.multiInstanceInvalidation) {
             mInvalidationTracker.startMultiInstanceInvalidation(configuration.context,
                     configuration.name);
+        }
+
+        Map<Class<?>, List<Class<?>>> requiredFactories = getRequiredTypeConverters();
+        // indices for each converter on whether it is used or not so that we can throw an exception
+        // if developer provides an unused converter. It is not necessarily an error but likely
+        // to be because why would developer add a converter if it won't be used?
+        BitSet used = new BitSet();
+        for (Map.Entry<Class<?>, List<Class<?>>> entry : requiredFactories.entrySet()) {
+            Class<?> daoName = entry.getKey();
+            for (Class<?> converter : entry.getValue()) {
+                int foundIndex = -1;
+                // traverse provided converters in reverse so that newer one overrides
+                for (int providedIndex = configuration.typeConverters.size() - 1;
+                        providedIndex >= 0; providedIndex--) {
+                    Object provided = configuration.typeConverters.get(providedIndex);
+                    if (converter.isAssignableFrom(provided.getClass())) {
+                        foundIndex = providedIndex;
+                        used.set(foundIndex);
+                        break;
+                    }
+                }
+                if (foundIndex < 0) {
+                    throw new IllegalArgumentException(
+                            "A required type converter (" + converter + ") for"
+                                    + " " + daoName.getCanonicalName()
+                                    + " is missing in the database configuration.");
+                }
+                mTypeConverters.put(converter, configuration.typeConverters.get(foundIndex));
+            }
+        }
+        // now, make sure all provided factories are used
+        for (int providedIndex = configuration.typeConverters.size() - 1;
+                providedIndex >= 0; providedIndex--) {
+            if (!used.get(providedIndex)) {
+                Object converter = configuration.typeConverters.get(providedIndex);
+                throw new IllegalArgumentException("Unexpected type converter " + converter + ". "
+                        + "Annotate TypeConverter class with @ProvidedTypeConverter annotation "
+                        + "or remove this converter from the builder.");
+            }
         }
     }
 
@@ -211,6 +270,21 @@ public abstract class RoomDatabase {
     protected abstract InvalidationTracker createInvalidationTracker();
 
     /**
+     * Returns a Map of String -> List&lt;Class&gt; where each entry has the `key` as the DAO name
+     * and `value` as the list of type converter classes that are necessary for the database to
+     * function.
+     * <p>
+     * This is implemented by the generated code.
+     *
+     * @return Creates a map that will include all required type converters for this database.
+     */
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    protected Map<Class<?>, List<Class<?>>> getRequiredTypeConverters() {
+        return Collections.emptyMap();
+    }
+
+    /**
      * Deletes all rows from all the tables that are registered to this database as
      * {@link Database#entities()}.
      * <p>
@@ -241,8 +315,8 @@ public abstract class RoomDatabase {
     public void close() {
         if (isOpen()) {
             final Lock closeLock = mCloseLock.writeLock();
+            closeLock.lock();
             try {
-                closeLock.lock();
                 mInvalidationTracker.stopMultiInstanceInvalidation();
                 mOpenHelper.close();
             } finally {
@@ -351,7 +425,12 @@ public abstract class RoomDatabase {
         assertNotMainThread();
         SupportSQLiteDatabase database = mOpenHelper.getWritableDatabase();
         mInvalidationTracker.syncTriggers(database);
-        database.beginTransaction();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
+                && database.isWriteAheadLoggingEnabled()) {
+            database.beginTransactionNonExclusive();
+        } else {
+            database.beginTransaction();
+        }
     }
 
     /**
@@ -540,6 +619,8 @@ public abstract class RoomDatabase {
         private final String mName;
         private final Context mContext;
         private ArrayList<Callback> mCallbacks;
+        private PrepackagedDatabaseCallback mPrepackagedDatabaseCallback;
+        private List<Object> mTypeConverters;
 
         /** The Executor used to run database queries. This should be background-threaded. */
         private Executor mQueryExecutor;
@@ -565,6 +646,7 @@ public abstract class RoomDatabase {
 
         private String mCopyFromAssetPath;
         private File mCopyFromFile;
+        private Callable<InputStream> mCopyFromInputStream;
 
         Builder(@NonNull Context context, @NonNull Class<T> klass, @Nullable String name) {
             mContext = context;
@@ -602,6 +684,37 @@ public abstract class RoomDatabase {
         }
 
         /**
+         * Configures Room to create and open the database using a pre-packaged database located in
+         * the application 'assets/' folder.
+         * <p>
+         * Room does not open the pre-packaged database, instead it copies it into the internal
+         * app database folder and then opens it. The pre-packaged database file must be located in
+         * the "assets/" folder of your application. For example, the path for a file located in
+         * "assets/databases/products.db" would be "databases/products.db".
+         * <p>
+         * The pre-packaged database schema will be validated. It might be best to create your
+         * pre-packaged database schema utilizing the exported schema files generated when
+         * {@link Database#exportSchema()} is enabled.
+         * <p>
+         * This method is not supported for an in memory database {@link Builder}.
+         *
+         * @param databaseFilePath The file path within the 'assets/' directory of where the
+         *                         database file is located.
+         * @param callback The pre-packaged callback.
+         *
+         * @return This {@link Builder} instance.
+         */
+        @NonNull
+        @SuppressLint("BuilderSetStyle") // To keep naming consistency.
+        public Builder<T> createFromAsset(
+                @NonNull String databaseFilePath,
+                @NonNull PrepackagedDatabaseCallback callback) {
+            mPrepackagedDatabaseCallback = callback;
+            mCopyFromAssetPath = databaseFilePath;
+            return this;
+        }
+
+        /**
          * Configures Room to create and open the database using a pre-packaged database file.
          * <p>
          * Room does not open the pre-packaged database, instead it copies it into the internal
@@ -612,6 +725,9 @@ public abstract class RoomDatabase {
          * pre-packaged database schema utilizing the exported schema files generated when
          * {@link Database#exportSchema()} is enabled.
          * <p>
+         * The {@link Callback#onOpen(SupportSQLiteDatabase)} method can be used as an indicator
+         * that the pre-packaged database was successfully opened by Room and can be cleaned up.
+         * <p>
          * This method is not supported for an in memory database {@link Builder}.
          *
          * @param databaseFile The database file.
@@ -621,6 +737,108 @@ public abstract class RoomDatabase {
         @NonNull
         public Builder<T> createFromFile(@NonNull File databaseFile) {
             mCopyFromFile = databaseFile;
+            return this;
+        }
+
+        /**
+         * Configures Room to create and open the database using a pre-packaged database file.
+         * <p>
+         * Room does not open the pre-packaged database, instead it copies it into the internal
+         * app database folder and then opens it. The given file must be accessible and the right
+         * permissions must be granted for Room to copy the file.
+         * <p>
+         * The pre-packaged database schema will be validated. It might be best to create your
+         * pre-packaged database schema utilizing the exported schema files generated when
+         * {@link Database#exportSchema()} is enabled.
+         * <p>
+         * The {@link Callback#onOpen(SupportSQLiteDatabase)} method can be used as an indicator
+         * that the pre-packaged database was successfully opened by Room and can be cleaned up.
+         * <p>
+         * This method is not supported for an in memory database {@link Builder}.
+         *
+         * @param databaseFile The database file.
+         * @param callback The pre-packaged callback.
+         *
+         * @return This {@link Builder} instance.
+         */
+        @NonNull
+        @SuppressLint({"BuilderSetStyle", "StreamFiles"}) // To keep naming consistency.
+        public Builder<T> createFromFile(
+                @NonNull File databaseFile,
+                @NonNull PrepackagedDatabaseCallback callback) {
+            mPrepackagedDatabaseCallback = callback;
+            mCopyFromFile = databaseFile;
+            return this;
+        }
+
+        /**
+         * Configures Room to create and open the database using a pre-packaged database via an
+         * {@link InputStream}.
+         * <p>
+         * This is useful for processing compressed database files. Room does not open the
+         * pre-packaged database, instead it copies it into the internal app database folder, and
+         * then open it. The {@link InputStream} will be closed once Room is done consuming it.
+         * <p>
+         * The pre-packaged database schema will be validated. It might be best to create your
+         * pre-packaged database schema utilizing the exported schema files generated when
+         * {@link Database#exportSchema()} is enabled.
+         * <p>
+         * The {@link Callback#onOpen(SupportSQLiteDatabase)} method can be used as an indicator
+         * that the pre-packaged database was successfully opened by Room and can be cleaned up.
+         * <p>
+         * This method is not supported for an in memory database {@link Builder}.
+         *
+         * @param inputStreamCallable A callable that returns an InputStream from which to copy
+         *                            the database. The callable will be invoked in a thread from
+         *                            the Executor set via {@link #setQueryExecutor(Executor)}. The
+         *                            callable is only invoked if Room needs to create and open the
+         *                            database from the pre-package database, usually the first time
+         *                            it is created or during a destructive migration.
+         *
+         * @return This {@link Builder} instance.
+         */
+        @NonNull
+        @SuppressLint("BuilderSetStyle") // To keep naming consistency.
+        public Builder<T> createFromInputStream(
+                @NonNull Callable<InputStream> inputStreamCallable) {
+            mCopyFromInputStream = inputStreamCallable;
+            return this;
+        }
+
+        /**
+         * Configures Room to create and open the database using a pre-packaged database via an
+         * {@link InputStream}.
+         * <p>
+         * This is useful for processing compressed database files. Room does not open the
+         * pre-packaged database, instead it copies it into the internal app database folder, and
+         * then open it. The {@link InputStream} will be closed once Room is done consuming it.
+         * <p>
+         * The pre-packaged database schema will be validated. It might be best to create your
+         * pre-packaged database schema utilizing the exported schema files generated when
+         * {@link Database#exportSchema()} is enabled.
+         * <p>
+         * The {@link Callback#onOpen(SupportSQLiteDatabase)} method can be used as an indicator
+         * that the pre-packaged database was successfully opened by Room and can be cleaned up.
+         * <p>
+         * This method is not supported for an in memory database {@link Builder}.
+         *
+         * @param inputStreamCallable A callable that returns an InputStream from which to copy
+         *                            the database. The callable will be invoked in a thread from
+         *                            the Executor set via {@link #setQueryExecutor(Executor)}. The
+         *                            callable is only invoked if Room needs to create and open the
+         *                            database from the pre-package database, usually the first time
+         *                            it is created or during a destructive migration.
+         * @param callback The pre-packaged callback.
+         *
+         * @return This {@link Builder} instance.
+         */
+        @NonNull
+        @SuppressLint({"BuilderSetStyle", "LambdaLast"}) // To keep naming consistency.
+        public Builder<T> createFromInputStream(
+                @NonNull Callable<InputStream> inputStreamCallable,
+                @NonNull PrepackagedDatabaseCallback callback) {
+            mPrepackagedDatabaseCallback = callback;
+            mCopyFromInputStream = inputStreamCallable;
             return this;
         }
 
@@ -874,6 +1092,22 @@ public abstract class RoomDatabase {
         }
 
         /**
+         * Adds a type converter instance to this database.
+         *
+         * @param typeConverter The converter. It must be an instance of a class annotated with
+         * {@link ProvidedTypeConverter} otherwise Room will throw an exception.
+         * @return This {@link Builder} instance.
+         */
+        @NonNull
+        public Builder<T> addTypeConverter(@NonNull Object typeConverter) {
+            if (mTypeConverters == null) {
+                mTypeConverters = new ArrayList<>();
+            }
+            mTypeConverters.add(typeConverter);
+            return this;
+        }
+
+        /**
          * Creates the databases and initializes it.
          * <p>
          * By default, all RoomDatabases use in memory storage for TEMP tables and enables recursive
@@ -919,18 +1153,25 @@ public abstract class RoomDatabase {
                 mFactory = new FrameworkSQLiteOpenHelperFactory();
             }
 
-            if (mCopyFromAssetPath != null || mCopyFromFile != null) {
+            if (mCopyFromAssetPath != null
+                    || mCopyFromFile != null
+                    || mCopyFromInputStream != null) {
                 if (mName == null) {
                     throw new IllegalArgumentException("Cannot create from asset or file for an "
                             + "in-memory database.");
                 }
-                if (mCopyFromAssetPath != null && mCopyFromFile != null) {
-                    throw new IllegalArgumentException("Both createFromAsset() and "
-                            + "createFromFile() was called on this Builder but the database can "
-                            + "only be created using one of the two configurations.");
+
+                final int copyConfigurations = (mCopyFromAssetPath == null ? 0 : 1) +
+                        (mCopyFromFile == null ? 0 : 1) +
+                        (mCopyFromInputStream == null ? 0 : 1);
+                if (copyConfigurations != 1) {
+                    throw new IllegalArgumentException("More than one of createFromAsset(), "
+                            + "createFromInputStream(), and createFromFile() were called on this "
+                            + "Builder, but the database can only be created using one of the "
+                            + "three configurations.");
                 }
                 mFactory = new SQLiteCopyOpenHelperFactory(mCopyFromAssetPath, mCopyFromFile,
-                        mFactory);
+                        mCopyFromInputStream, mFactory);
             }
             DatabaseConfiguration configuration =
                     new DatabaseConfiguration(
@@ -948,7 +1189,10 @@ public abstract class RoomDatabase {
                             mAllowDestructiveMigrationOnDowngrade,
                             mMigrationsNotRequiredFrom,
                             mCopyFromAssetPath,
-                            mCopyFromFile);
+                            mCopyFromFile,
+                            mCopyFromInputStream,
+                            mPrepackagedDatabaseCallback,
+                            mTypeConverters);
             T db = Room.getGeneratedImplementation(mDatabaseClass, DB_IMPL_SUFFIX);
             db.init(configuration);
             return db;
@@ -1079,6 +1323,26 @@ public abstract class RoomDatabase {
          * @param db The database.
          */
         public void onDestructiveMigration(@NonNull SupportSQLiteDatabase db){
+        }
+    }
+
+    /**
+     * Callback for {@link Builder#createFromAsset(String)}, {@link Builder#createFromFile(File)}
+     * and {@link Builder#createFromInputStream(Callable)}
+     * <p>
+     * This callback will be invoked after the pre-package DB is copied but before Room had
+     * a chance to open it and therefore before the {@link RoomDatabase.Callback} methods are
+     * invoked. This callback can be useful for updating the pre-package DB schema to satisfy
+     * Room's schema validation.
+     */
+    public abstract static class PrepackagedDatabaseCallback {
+
+        /**
+         * Called when the pre-packaged database has been copied.
+         *
+         * @param db The database.
+         */
+        public void onOpenPrepackagedDatabase(@NonNull SupportSQLiteDatabase db) {
         }
     }
 }

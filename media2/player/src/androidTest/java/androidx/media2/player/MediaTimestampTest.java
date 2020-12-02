@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
 public class MediaTimestampTest extends MediaTestBase {
 
     @Test
-    public void testConstructor() {
+    public void constructor() {
         MediaTimestamp timestamp = new MediaTimestamp(123, 456, 0.25f);
         assertEquals(123, timestamp.getAnchorMediaTimeUs());
         assertEquals(456, timestamp.getAnchorSystemNanoTime());
@@ -43,7 +43,7 @@ public class MediaTimestampTest extends MediaTestBase {
     }
 
     @Test
-    public void testVoidConstructor() {
+    public void voidConstructor() {
         MediaTimestamp timestamp = new MediaTimestamp();
         assertEquals(0, timestamp.getAnchorMediaTimeUs());
         assertEquals(0, timestamp.getAnchorSystemNanoTime());
@@ -52,7 +52,7 @@ public class MediaTimestampTest extends MediaTestBase {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-    public void testTimestampUnknown() {
+    public void timestampUnknown() {
         assertEquals(android.media.MediaTimestamp.TIMESTAMP_UNKNOWN.getAnchorMediaTimeUs(),
                 MediaTimestamp.TIMESTAMP_UNKNOWN.getAnchorMediaTimeUs());
         assertEquals(android.media.MediaTimestamp.TIMESTAMP_UNKNOWN.getAnchorSytemNanoTime(),

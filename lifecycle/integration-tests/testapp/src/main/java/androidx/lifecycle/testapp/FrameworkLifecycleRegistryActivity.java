@@ -22,7 +22,6 @@ import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.core.util.Pair;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.LifecycleRegistryOwner;
@@ -30,6 +29,8 @@ import androidx.lifecycle.LifecycleRegistryOwner;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+
+import kotlin.Pair;
 
 /**
  * LifecycleRegistryOwner that extends framework activity.

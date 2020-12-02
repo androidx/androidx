@@ -16,9 +16,11 @@
 
 package androidx.slice.widget;
 
+import static android.app.slice.Slice.EXTRA_RANGE_VALUE;
 import static android.app.slice.Slice.HINT_LARGE;
 import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_TITLE;
+import static android.app.slice.Slice.SUBTYPE_MILLIS;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_LONG;
@@ -28,10 +30,19 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 import static androidx.slice.core.SliceHints.LARGE_IMAGE;
+import static androidx.slice.core.SliceHints.SUBTYPE_DATE_PICKER;
+import static androidx.slice.core.SliceHints.SUBTYPE_TIME_PICKER;
+import static androidx.slice.widget.EventInfo.ACTION_TYPE_DATE_PICK;
+import static androidx.slice.widget.EventInfo.ACTION_TYPE_TIME_PICK;
+import static androidx.slice.widget.EventInfo.ROW_TYPE_DATE_PICK;
+import static androidx.slice.widget.EventInfo.ROW_TYPE_TIME_PICK;
 import static androidx.slice.widget.SliceView.MODE_SMALL;
 
+import android.app.DatePickerDialog;
 import android.app.PendingIntent;
+import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -45,20 +56,26 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.DatePicker;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.slice.CornerDrawable;
 import androidx.slice.SliceItem;
+import androidx.slice.core.SliceHints;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -85,20 +102,22 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     private int mRowIndex;
     private int mRowCount;
 
-    private int mLargeImageHeight;
-    private int mSmallImageSize;
-    private int mSmallImageMinWidth;
-    private int mIconSize;
-    private int mGutter;
-    private int mTextPadding;
+    private final int mLargeImageHeight;
+    private final int mSmallImageSize;
+    private final int mSmallImageMinWidth;
+    private final int mIconSize;
+    private final int mGutter;
+    private final int mTextPadding;
 
     private GridContent mGridContent;
-    private LinearLayout mViewContainer;
-    private View mForeground;
+    private final LinearLayout mViewContainer;
+    private final View mForeground;
     int mMaxCells = -1;
-    private int[] mLoc = new int[2];
+    private final int[] mLoc = new int[2];
 
     boolean mMaxCellUpdateScheduled;
+
+    private int mHiddenItemCount;
 
     public GridRowView(Context context) {
         this(context, null);
@@ -250,10 +269,12 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         }
         int maxCells = mMaxCells;
         boolean hasSeeMore = mGridContent.getSeeMoreItem() != null;
+        mHiddenItemCount = 0;
         for (int i = 0; i < cells.size(); i++) {
             if (mViewContainer.getChildCount() >= maxCells) {
+                mHiddenItemCount = cells.size() - maxCells;
                 if (hasSeeMore) {
-                    addSeeMoreCount(cells.size() - maxCells);
+                    addSeeMoreCount(mHiddenItemCount);
                 }
                 break;
             }
@@ -293,9 +314,9 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
 
             // Update text appearance
             TextView moreText = seeMoreView.findViewById(R.id.text_see_more);
-            if (mSliceStyle != null) {
+            if (mSliceStyle != null && mRowStyle != null) {
                 moreText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mSliceStyle.getGridTitleSize());
-                moreText.setTextColor(mSliceStyle.getTitleColor());
+                moreText.setTextColor(mRowStyle.getTitleColor());
             }
         }
         mViewContainer.addView(seeMoreView, new LinearLayout.LayoutParams(0, MATCH_PARENT, 1));
@@ -322,6 +343,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
 
         ArrayList<SliceItem> cellItems = cell.getCellItems();
         SliceItem contentIntentItem = cell.getContentIntent();
+        SliceItem pickerItem = cell.getPicker();
 
         int textCount = 0;
         int imageCount = 0;
@@ -356,17 +378,27 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
                 if (textItems != null && !textItems.contains(item)) {
                     continue;
                 }
-                if (addItem(item, mTintColor, cellContainer, padding, isSingleItem)) {
+                if (addTextItem(item, cellContainer, padding)) {
                     prevItem = item;
                     textCount++;
                     added = true;
                 }
             } else if (imageCount < MAX_CELL_IMAGES && FORMAT_IMAGE.equals(item.getFormat())) {
-                if (addItem(item, mTintColor, cellContainer, 0, isSingleItem)) {
+                if (addImageItem(item, cell.getOverlayItem(), mTintColor, cellContainer,
+                        isSingleItem)) {
                     prevItem = item;
                     imageCount++;
                     added = true;
                 }
+            }
+        }
+        if (pickerItem != null) {
+            if (SUBTYPE_DATE_PICKER.equals(pickerItem.getSubType())) {
+                added = addPickerItem(pickerItem, cellContainer, determinePadding(prevItem),
+                        /*isDatePicker=*/ true);
+            } else if (SUBTYPE_TIME_PICKER.equals(pickerItem.getSubType())) {
+                added = addPickerItem(pickerItem, cellContainer, determinePadding(prevItem),
+                        /*isDatePicker=*/ false);
             }
         }
         if (added) {
@@ -395,60 +427,237 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * Adds simple items to a container. Simple items include icons, text, and timestamps.
+     * Adds simple text based items to a container. Simple text items include text and
+     * timestamps.
      *
-     * @param item item to add to the container.
+     * @param item      item to add to the container.
      * @param container the container to add to.
-     * @param padding the padding to apply to the item.
-     * @param isSingle whether this is the only item in the cell or not.
-     *
+     * @param padding   the padding to apply to the item.
      * @return Whether an item was added.
      */
-    private boolean addItem(SliceItem item, int color, ViewGroup container, int padding,
-            boolean isSingle) {
+    private boolean addTextItem(SliceItem item, ViewGroup container, int padding) {
         final String format = item.getFormat();
-        View addedView = null;
-        if (FORMAT_TEXT.equals(format) || FORMAT_LONG.equals(format)) {
-            boolean isTitle = SliceQuery.hasAnyHints(item, HINT_LARGE, HINT_TITLE);
-            TextView tv = (TextView) LayoutInflater.from(getContext()).inflate(isTitle
-                    ? TITLE_TEXT_LAYOUT : TEXT_LAYOUT, null);
-            if (mSliceStyle != null) {
-                tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, isTitle
-                        ? mSliceStyle.getGridTitleSize() : mSliceStyle.getGridSubtitleSize());
-                tv.setTextColor(isTitle
-                        ? mSliceStyle.getTitleColor() : mSliceStyle.getSubtitleColor());
-            }
-            CharSequence text = FORMAT_LONG.equals(format)
-                    ? SliceViewUtil.getTimestampString(getContext(), item.getLong())
-                    : item.getSanitizedText();
-            tv.setText(text);
-            container.addView(tv);
-            tv.setPadding(0, padding, 0, 0);
-            addedView = tv;
-        } else if (FORMAT_IMAGE.equals(format) && item.getIcon() != null) {
-            Drawable d = item.getIcon().loadDrawable(getContext());
-            if (d != null) {
-                ImageView iv = new ImageView(getContext());
-                iv.setImageDrawable(d);
-                LinearLayout.LayoutParams lp;
-                if (item.hasHint(HINT_LARGE)) {
-                    iv.setScaleType(ScaleType.CENTER_CROP);
-                    int height = isSingle ? MATCH_PARENT : mLargeImageHeight;
-                    lp = new LinearLayout.LayoutParams(MATCH_PARENT, height);
+        if (!FORMAT_TEXT.equals(format) && !FORMAT_LONG.equals(format)) {
+            return false;
+        }
+        boolean isTitle = SliceQuery.hasAnyHints(item, HINT_LARGE, HINT_TITLE);
+        TextView tv = (TextView) LayoutInflater.from(getContext()).inflate(isTitle
+                ? TITLE_TEXT_LAYOUT : TEXT_LAYOUT, null);
+        if (mSliceStyle != null && mRowStyle != null) {
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, isTitle
+                    ? mSliceStyle.getGridTitleSize() : mSliceStyle.getGridSubtitleSize());
+            tv.setTextColor(isTitle
+                    ? mRowStyle.getTitleColor() : mRowStyle.getSubtitleColor());
+        }
+        CharSequence text = FORMAT_LONG.equals(format)
+                ? SliceViewUtil.getTimestampString(getContext(), item.getLong())
+                : item.getSanitizedText();
+        tv.setText(text);
+        container.addView(tv);
+        tv.setPadding(0, padding, 0, 0);
+        return true;
+    }
+
+    /**
+     * Adds simple image based item to a container.
+     *
+     * @param item        item to add to the container.
+     * @param overlayItem overlaid text to add to the image.
+     * @param container   the container to add to.
+     * @param isSingle    whether this is the only item in the cell or not.
+     * @return Whether an item was added.
+     */
+    private boolean addImageItem(SliceItem item, SliceItem overlayItem, int color,
+            ViewGroup container, boolean isSingle) {
+        final String format = item.getFormat();
+        final boolean hasRoundedImage =
+                mSliceStyle != null && mSliceStyle.getApplyCornerRadiusToLargeImages();
+        if (!FORMAT_IMAGE.equals(format) || item.getIcon() == null) {
+            return false;
+        }
+        Drawable d = item.getIcon().loadDrawable(getContext());
+        if (d == null) {
+            return false;
+        }
+        ImageView iv = new ImageView(getContext());
+        if (hasRoundedImage) {
+            CornerDrawable cd = new CornerDrawable(d, mSliceStyle.getImageCornerRadius());
+            iv.setImageDrawable(cd);
+        } else {
+            iv.setImageDrawable(d);
+        }
+        LinearLayout.LayoutParams lp;
+        if (item.hasHint(SliceHints.HINT_RAW)) {
+            iv.setScaleType(ScaleType.CENTER_INSIDE);
+            lp = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+        } else if (item.hasHint(HINT_LARGE)) {
+            iv.setScaleType(hasRoundedImage ? ScaleType.FIT_XY : ScaleType.CENTER_CROP);
+            int height = isSingle ? MATCH_PARENT : mLargeImageHeight;
+            lp = new LinearLayout.LayoutParams(MATCH_PARENT, height);
+        } else {
+            boolean isIcon = !item.hasHint(HINT_NO_TINT);
+            int size = !isIcon ? mSmallImageSize : mIconSize;
+            iv.setScaleType(isIcon ? ScaleType.CENTER_INSIDE : ScaleType.CENTER_CROP);
+            lp = new LinearLayout.LayoutParams(size, size);
+        }
+        if (color != -1 && !item.hasHint(HINT_NO_TINT)) {
+            iv.setColorFilter(color);
+        }
+        // don't add an overlay on see more
+        if (overlayItem == null || mViewContainer.getChildCount() == mMaxCells - 1) {
+            container.addView(iv, lp);
+            return true;
+        }
+        // add overlay on top of the ImageView
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        TextView overlayText;
+        ViewGroup overlayView;
+        overlayView = (FrameLayout) inflater.inflate(R.layout.abc_slice_grid_text_overlay_image,
+                container, false);
+        overlayView.addView(iv, 0, new LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
+        overlayText = overlayView.findViewById(R.id.text_overlay);
+        overlayText.setText(overlayItem.getText());
+        container.addView(overlayView, lp);
+        return true;
+    }
+
+    /**
+     * Adds date or time picker to a container.
+     *
+     * @param pickerItem item to add to the container.
+     * @param container      the container to add to.
+     * @param padding        the padding to apply to the item.
+     * @param isDatePicker   if true, it is a date picker, otherwise is a time picker.
+     * @return Whether an item was added.
+     */
+    private boolean addPickerItem(SliceItem pickerItem, ViewGroup container, int padding,
+            boolean isDatePicker) {
+        SliceItem dateTimeItem = SliceQuery.findSubtype(pickerItem, FORMAT_LONG,
+                SUBTYPE_MILLIS);
+        if (dateTimeItem == null) {
+            return false;
+        }
+        long dateTimeMillis = dateTimeItem.getLong();
+
+        TextView tv = (TextView) LayoutInflater.from(getContext()).inflate(TITLE_TEXT_LAYOUT, null);
+        if (mSliceStyle != null) {
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, mSliceStyle.getGridTitleSize());
+            tv.setTextColor(mSliceStyle.getTitleColor());
+        }
+
+        Date date = new Date(dateTimeMillis);
+        SliceItem titleItem = SliceQuery.find(pickerItem, FORMAT_TEXT, HINT_TITLE,
+                /*nonHints=*/null);
+        if (titleItem != null) {
+            tv.setText(titleItem.getText());
+        }
+
+        int rowIndex = mRowIndex;
+
+        container.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                if (isDatePicker) {
+                    DatePickerDialog dialog = new DatePickerDialog(
+                            getContext(),
+                            R.style.DialogTheme,
+                            new DateSetListener(pickerItem, rowIndex),
+                            cal.get(Calendar.YEAR),
+                            cal.get(Calendar.MONTH),
+                            cal.get(Calendar.DAY_OF_MONTH));
+                    dialog.show();
                 } else {
-                    boolean isIcon = !item.hasHint(HINT_NO_TINT);
-                    int size = isIcon ? mIconSize : mSmallImageSize;
-                    iv.setScaleType(isIcon ? ScaleType.CENTER_INSIDE : ScaleType.CENTER_CROP);
-                    lp = new LinearLayout.LayoutParams(size, size);
+                    TimePickerDialog dialog = new TimePickerDialog(
+                            getContext(),
+                            R.style.DialogTheme,
+                            new TimeSetListener(pickerItem, rowIndex),
+                            cal.get(Calendar.HOUR_OF_DAY),
+                            cal.get(Calendar.MINUTE),
+                            false);
+                    dialog.show();
                 }
-                if (color != -1 && !item.hasHint(HINT_NO_TINT)) {
-                    iv.setColorFilter(color);
+            }
+        });
+        container.setClickable(true);
+
+        int backgroundAttr = android.R.attr.selectableItemBackground;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            backgroundAttr = android.R.attr.selectableItemBackgroundBorderless;
+        }
+        container.setBackground(SliceViewUtil.getDrawable(getContext(), backgroundAttr));
+        container.addView(tv);
+        tv.setPadding(0, padding, 0, 0);
+        return true;
+    }
+
+    private class DateSetListener implements DatePickerDialog.OnDateSetListener {
+        private final SliceItem mActionItem;
+        private final int mRowIndex;
+
+        DateSetListener(SliceItem datePickerItem, int mRowIndex) {
+            this.mActionItem = datePickerItem;
+            this.mRowIndex = mRowIndex;
+        }
+
+        @Override
+        public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+            Calendar c = Calendar.getInstance();
+            c.set(year, month, day);
+            Date date = c.getTime();
+
+
+            if (mActionItem != null) {
+                try {
+                    mActionItem.fireAction(getContext(),
+                            new Intent().addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+                                    .putExtra(EXTRA_RANGE_VALUE, date.getTime()));
+                    if (mObserver != null) {
+                        EventInfo info = new EventInfo(getMode(), ACTION_TYPE_DATE_PICK,
+                                ROW_TYPE_DATE_PICK,
+                                mRowIndex);
+                        mObserver.onSliceAction(info, mActionItem);
+                    }
+                } catch (PendingIntent.CanceledException e) {
+                    Log.e(TAG, "PendingIntent for slice cannot be sent", e);
                 }
-                container.addView(iv, lp);
-                addedView = iv;
             }
         }
-        return addedView != null;
+    }
+
+    private class TimeSetListener implements TimePickerDialog.OnTimeSetListener {
+        private final SliceItem mActionItem;
+        private final int mRowIndex;
+
+        TimeSetListener(SliceItem timePickerItem, int mRowIndex) {
+            this.mActionItem = timePickerItem;
+            this.mRowIndex = mRowIndex;
+        }
+
+        @Override
+        public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+            Calendar c = Calendar.getInstance();
+            Date time = c.getTime();
+            time.setHours(hour);
+            time.setMinutes(minute);
+
+            if (mActionItem != null) {
+                try {
+                    mActionItem.fireAction(getContext(),
+                            new Intent().addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+                                    .putExtra(EXTRA_RANGE_VALUE, time.getTime()));
+                    if (mObserver != null) {
+                        EventInfo info = new EventInfo(getMode(), ACTION_TYPE_TIME_PICK,
+                                ROW_TYPE_TIME_PICK,
+                                mRowIndex);
+                        mObserver.onSliceAction(info, mActionItem);
+                    }
+                } catch (PendingIntent.CanceledException e) {
+                    Log.e(TAG, "PendingIntent for slice cannot be sent", e);
+                }
+            }
+        }
     }
 
     private int determinePadding(SliceItem prevItem) {
@@ -542,7 +751,12 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         makeEntireGridClickable(false);
     }
 
-    private ViewTreeObserver.OnPreDrawListener mMaxCellsUpdater =
+    @Override
+    public int getHiddenItemCount() {
+        return mHiddenItemCount;
+    }
+
+    private final ViewTreeObserver.OnPreDrawListener mMaxCellsUpdater =
             new ViewTreeObserver.OnPreDrawListener() {
                 @Override
                 public boolean onPreDraw() {

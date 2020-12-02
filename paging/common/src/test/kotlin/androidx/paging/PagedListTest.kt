@@ -18,9 +18,7 @@ package androidx.paging
 
 import androidx.paging.ContiguousPagedListTest.Companion.EXCEPTION
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.PagedList.Builder
-import androidx.paging.PagedList.LoadStateManager
-import androidx.paging.futures.DirectDispatcher
+import androidx.testutils.TestDispatcher
 import androidx.testutils.TestExecutor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
@@ -30,6 +28,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
 class PagedListTest {
@@ -37,10 +36,10 @@ class PagedListTest {
         private val ITEMS = List(100) { "$it" }
         private val config = Config(10)
 
-        private val pagedSource = object : PagedSource<Int, String>() {
+        private val pagingSource = object : PagingSource<Int, String>() {
             override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> =
-                when (params.loadType) {
-                    REFRESH -> LoadResult.Page(
+                when (params) {
+                    is LoadParams.Refresh -> LoadResult.Page(
                         data = listOf("a"),
                         prevKey = null,
                         nextKey = null
@@ -55,7 +54,7 @@ class PagedListTest {
     @Test
     fun createLegacy() {
         @Suppress("DEPRECATION")
-        val pagedList = Builder(ListDataSource(ITEMS), 100)
+        val pagedList = PagedList.Builder(TestPositionalDataSource(ITEMS), 100)
             .setNotifyExecutor(TestExecutor())
             .setFetchExecutor(TestExecutor())
             .build()
@@ -66,14 +65,15 @@ class PagedListTest {
     @Test
     fun createNoInitialPageThrow() {
         runBlocking {
-            val pagedSource = object : PagedSource<Int, String>() {
+            val pagingSource = object : PagingSource<Int, String>() {
                 override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
                     throw IllegalStateException()
                 }
             }
             assertFailsWith<IllegalStateException> {
+                @Suppress("DEPRECATION")
                 PagedList.create(
-                    pagedSource,
+                    pagingSource,
                     null,
                     testCoroutineScope,
                     DirectDispatcher,
@@ -90,7 +90,7 @@ class PagedListTest {
     fun createNoInitialPageError() {
         runBlocking {
             val exception = IllegalStateException()
-            val pagedSource = object : PagedSource<Int, String>() {
+            val pagingSource = object : PagingSource<Int, String>() {
                 override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
                     return LoadResult.Error(exception)
                 }
@@ -99,8 +99,9 @@ class PagedListTest {
             // create doesn't differentiate between throw vs error runnable, which is why
             // PagedList.Builder without the initial page is deprecated
             assertFailsWith<IllegalStateException> {
+                @Suppress("DEPRECATION")
                 PagedList.create(
-                    pagedSource,
+                    pagingSource,
                     null,
                     testCoroutineScope,
                     DirectDispatcher,
@@ -115,28 +116,30 @@ class PagedListTest {
 
     @Test
     fun defaults() = runBlocking {
-        val initialPage = pagedSource.load(
-            PagedSource.LoadParams(
-                REFRESH,
+        val initialPage = pagingSource.load(
+            PagingSource.LoadParams.Refresh(
                 key = null,
                 loadSize = 10,
                 placeholdersEnabled = false,
-                pageSize = 10
             )
-        ) as PagedSource.LoadResult.Page
-        val pagedList = Builder(pagedSource, initialPage, config)
+        ) as PagingSource.LoadResult.Page
+
+        @Suppress("DEPRECATION")
+        val pagedList = PagedList.Builder(pagingSource, initialPage, config)
             .setNotifyDispatcher(DirectDispatcher)
             .setFetchDispatcher(DirectDispatcher)
             .build()
 
-        assertEquals(pagedSource, pagedList.pagedSource)
+        assertEquals(pagingSource, pagedList.pagingSource)
         assertEquals(config, pagedList.config)
     }
 
     @Test
     fun setState_Error() {
         var onStateChangeCalls = 0
-        val loadStateManager = object : LoadStateManager() {
+
+        @Suppress("DEPRECATION")
+        val loadStateManager = object : PagedList.LoadStateManager() {
             override fun onStateChanged(type: LoadType, state: LoadState) {
                 onStateChangeCalls++
             }
@@ -146,5 +149,37 @@ class PagedListTest {
         loadStateManager.setState(REFRESH, LoadState.Error(EXCEPTION))
 
         assertEquals(1, onStateChangeCalls)
+    }
+
+    @Test
+    fun dispatchStateChange_dispatchesOnNotifyDispatcher() {
+        val notifyDispatcher = TestDispatcher()
+
+        @Suppress("DEPRECATION")
+        val pagedList = object : PagedList<String>(
+            pagingSource,
+            testCoroutineScope,
+            notifyDispatcher,
+            PagedStorage(),
+            config
+        ) {
+            override val lastKey: Any? = null
+
+            override val isDetached: Boolean = true
+
+            override fun dispatchCurrentLoadState(callback: (LoadType, LoadState) -> Unit) {}
+
+            override fun loadAroundInternal(index: Int) {}
+
+            override fun detach() {}
+        }
+
+        assertTrue { notifyDispatcher.queue.isEmpty() }
+
+        pagedList.dispatchStateChangeAsync(REFRESH, LoadState.Loading)
+        assertEquals(1, notifyDispatcher.queue.size)
+
+        pagedList.dispatchStateChangeAsync(REFRESH, LoadState.NotLoading.Incomplete)
+        assertEquals(2, notifyDispatcher.queue.size)
     }
 }

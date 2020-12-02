@@ -22,6 +22,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.RawQuery
+import androidx.room.RoomWarnings
 import androidx.room.Transaction
 import androidx.room.TypeConverters
 import androidx.room.Update
@@ -241,9 +242,11 @@ interface BooksDao {
     @Update
     suspend fun updateBookWithResultSuspend(book: Book): Int
 
-    @Query("""SELECT * FROM book WHERE
+    @Query(
+        """SELECT * FROM book WHERE
             bookId IN(:bookIds)
-            order by bookId DESC""")
+            order by bookId DESC"""
+    )
     fun getBooksMultiLineQuery(bookIds: List<String>): List<Book>
 
     @Query("SELECT * FROM book WHERE bookId = :bookId")
@@ -273,31 +276,47 @@ interface BooksDao {
     @Query("SELECT * FROM book WHERE bookId = :bookId")
     fun getBookMaybe(bookId: String): Maybe<Book>
 
-    @Query("SELECT * FROM book INNER JOIN publisher " +
-            "ON book.bookPublisherId = publisher.publisherId ")
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query(
+        "SELECT * FROM book INNER JOIN publisher " +
+            "ON book.bookPublisherId = publisher.publisherId "
+    )
     fun getBooksWithPublisher(): List<BookWithPublisher>
 
-    @Query("SELECT * FROM book INNER JOIN publisher " +
-            "ON book.bookPublisherId = publisher.publisherId ")
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query(
+        "SELECT * FROM book INNER JOIN publisher " +
+            "ON book.bookPublisherId = publisher.publisherId "
+    )
     fun getBooksWithPublisherLiveData(): LiveData<List<BookWithPublisher>>
 
-    @Query("SELECT * FROM book INNER JOIN publisher " +
-            "ON book.bookPublisherId = publisher.publisherId ")
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query(
+        "SELECT * FROM book INNER JOIN publisher " +
+            "ON book.bookPublisherId = publisher.publisherId "
+    )
     fun getBooksWithPublisherFlowable(): Flowable<List<BookWithPublisher>>
 
-    @Query("SELECT * FROM book INNER JOIN publisher " +
-            "ON book.bookPublisherId = publisher.publisherId ")
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query(
+        "SELECT * FROM book INNER JOIN publisher " +
+            "ON book.bookPublisherId = publisher.publisherId "
+    )
     fun getBooksWithPublisherListenableFuture(): ListenableFuture<List<BookWithPublisher>>
 
+    @Transaction
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     fun getPublisherWithBooks(publisherId: String): PublisherWithBooks
 
+    @Transaction
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     fun getPublisherWithBookSales(publisherId: String): PublisherWithBookSales
 
+    @Transaction
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     fun getPublisherWithBooksLiveData(publisherId: String): LiveData<PublisherWithBooks>
 
+    @Transaction
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     fun getPublisherWithBooksFlowable(publisherId: String): Flowable<PublisherWithBooks>
 
@@ -309,6 +328,7 @@ interface BooksDao {
     fun findByLanguages(langs: Set<Lang>): List<Book>
 
     // see: b/78199923 just a compilation test to ensure we can generate proper code.
+    @Transaction
     @Query("SELECT * FROM book WHERE bookId = :bookId")
     fun getWithJavaEntities(bookId: String): BookWithJavaEntity
 
@@ -391,4 +411,26 @@ interface BooksDao {
 
     @Query("SELECT * FROM book WHERE bookId = :id")
     fun getOneBooksFlow(id: String): Flow<Book?>
+
+    fun addAndRemovePublisher(thePublisher: Publisher) {
+        addPublishers(thePublisher)
+        deletePublishers(thePublisher)
+    }
+
+    fun concreteFunction() = ""
+
+    fun concreteVoidFunction() {
+    }
+
+    fun concreteUnitFunction() {
+    }
+
+    fun concreteFunctionWithParams(num: Int, text: String) = "$num - $text"
+
+    suspend fun concreteSuspendFunction() = ""
+
+    suspend fun concreteVoidSuspendFunction() {
+    }
+
+    suspend fun concreteSuspendFunctionWithParams(num: Int, text: String) = "$num - $text"
 }

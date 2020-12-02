@@ -27,7 +27,7 @@ abstract class QueryResultAdapter(val rowAdapter: RowAdapter?) {
 
     // indicates whether the cursor should be copied before converting
     open fun shouldCopyCursor() = rowAdapter is PojoRowAdapter &&
-            rowAdapter.relationCollectors.isNotEmpty()
+        rowAdapter.relationCollectors.isNotEmpty()
 
     fun accessedTableNames(): List<String> {
         return (rowAdapter as? PojoRowAdapter)?.relationTableNames() ?: emptyList()

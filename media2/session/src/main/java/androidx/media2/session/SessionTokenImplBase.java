@@ -48,6 +48,8 @@ final class SessionTokenImplBase implements SessionToken.SessionTokenImpl {
     @ParcelField(7)
     Bundle mExtras;
 
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
     /**
      * Constructor for the token. You can only create token for session service or library service
      * to use by {@link MediaController} or {@link MediaBrowser}.

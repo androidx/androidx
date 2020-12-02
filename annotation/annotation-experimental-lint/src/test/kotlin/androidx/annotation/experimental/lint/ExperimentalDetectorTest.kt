@@ -26,17 +26,17 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@Suppress("UnstableApiUsage")
 @RunWith(JUnit4::class)
 class ExperimentalDetectorTest {
 
     private fun check(vararg testFiles: TestFile): TestLintResult {
         return lint()
             .files(
-                EXPERIMENTAL_JAVA,
-                USE_EXPERIMENTAL_JAVA,
+                ANDROIDX_EXPERIMENTAL_KT,
+                ANDROIDX_USE_EXPERIMENTAL_KT,
                 *testFiles
             )
-            .allowMissingSdk(true)
             .issues(*ExperimentalDetector.ISSUES.toTypedArray())
             .run()
     }
@@ -44,23 +44,33 @@ class ExperimentalDetectorTest {
     @Test
     fun useJavaExperimentalFromJava() {
         val input = arrayOf(
-            javaSample("sample.DateProvider"),
-            javaSample("sample.ExperimentalDateTime"),
-            javaSample("sample.UseJavaExperimentalFromJava")
+            javaSample("sample.experimental.DateProvider"),
+            javaSample("sample.experimental.ExperimentalDateTime"),
+            javaSample("sample.experimental.ExperimentalLocation"),
+            javaSample("sample.experimental.LocationProvider"),
+            javaSample("sample.experimental.UseJavaExperimentalFromJava")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/UseJavaExperimentalFromJava.java:27: Error: This declaration is experimental and its usage should be marked with
-'@sample.ExperimentalDateTime' or '@UseExperimental(markerClass = sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
+src/sample/experimental/UseJavaExperimentalFromJava.java:25: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.ExperimentalDateTime' or '@OptIn(markerClass = sample.experimental.ExperimentalDateTime.class)' [UnsafeOptInUsageError]
         DateProvider dateProvider = new DateProvider();
                                     ~~~~~~~~~~~~~~~~~~
-src/sample/UseJavaExperimentalFromJava.java:28: Error: This declaration is experimental and its usage should be marked with
-'@sample.ExperimentalDateTime' or '@UseExperimental(markerClass = sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
+src/sample/experimental/UseJavaExperimentalFromJava.java:26: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.ExperimentalDateTime' or '@OptIn(markerClass = sample.experimental.ExperimentalDateTime.class)' [UnsafeOptInUsageError]
         return dateProvider.getDate();
                             ~~~~~~~
-2 errors, 0 warnings
-    """.trimIndent()
+src/sample/experimental/UseJavaExperimentalFromJava.java:53: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.ExperimentalLocation' or '@OptIn(markerClass = sample.experimental.ExperimentalLocation.class)' [UnsafeOptInUsageError]
+        LocationProvider locationProvider = new LocationProvider();
+                                            ~~~~~~~~~~~~~~~~~~~~~~
+src/sample/experimental/UseJavaExperimentalFromJava.java:54: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.ExperimentalLocation' or '@OptIn(markerClass = sample.experimental.ExperimentalLocation.class)' [UnsafeOptInUsageError]
+        return dateProvider.getDate() + locationProvider.getLocation();
+                                                         ~~~~~~~~~~~
+4 errors, 0 warnings
+        """.trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
@@ -69,22 +79,32 @@ src/sample/UseJavaExperimentalFromJava.java:28: Error: This declaration is exper
     @Test
     fun useJavaExperimentalFromKt() {
         val input = arrayOf(
-            javaSample("sample.DateProvider"),
-            javaSample("sample.ExperimentalDateTime"),
-            ktSample("sample.UseJavaExperimentalFromKt")
+            javaSample("sample.experimental.DateProvider"),
+            javaSample("sample.experimental.ExperimentalDateTime"),
+            javaSample("sample.experimental.ExperimentalLocation"),
+            javaSample("sample.experimental.LocationProvider"),
+            ktSample("sample.experimental.UseJavaExperimentalFromKt")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/UseJavaExperimentalFromKt.kt:27: Error: This declaration is experimental and its usage should be marked with
-'@sample.ExperimentalDateTime' or '@UseExperimental(markerClass = sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
+src/sample/experimental/UseJavaExperimentalFromKt.kt:29: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.ExperimentalDateTime' or '@OptIn(markerClass = sample.experimental.ExperimentalDateTime.class)' [UnsafeOptInUsageError]
         val dateProvider = DateProvider()
                            ~~~~~~~~~~~~
-src/sample/UseJavaExperimentalFromKt.kt:28: Error: This declaration is experimental and its usage should be marked with
-'@sample.ExperimentalDateTime' or '@UseExperimental(markerClass = sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
+src/sample/experimental/UseJavaExperimentalFromKt.kt:30: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.ExperimentalDateTime' or '@OptIn(markerClass = sample.experimental.ExperimentalDateTime.class)' [UnsafeOptInUsageError]
         return dateProvider.date
                             ~~~~
-2 errors, 0 warnings
+src/sample/experimental/UseJavaExperimentalFromKt.kt:57: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.ExperimentalLocation' or '@OptIn(markerClass = sample.experimental.ExperimentalLocation.class)' [UnsafeOptInUsageError]
+        val locationProvider = LocationProvider()
+                               ~~~~~~~~~~~~~~~~
+src/sample/experimental/UseJavaExperimentalFromKt.kt:58: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.ExperimentalLocation' or '@OptIn(markerClass = sample.experimental.ExperimentalLocation.class)' [UnsafeOptInUsageError]
+        return dateProvider.date + locationProvider.location
+                                                    ~~~~~~~~
+4 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -95,22 +115,50 @@ src/sample/UseJavaExperimentalFromKt.kt:28: Error: This declaration is experimen
     fun useKtExperimentalFromJava() {
         val input = arrayOf(
             EXPERIMENTAL_KT,
-            ktSample("sample.DateProviderKt"),
-            ktSample("sample.ExperimentalDateTimeKt"),
-            javaSample("sample.UseKtExperimentalFromJava")
+            ktSample("sample.experimental.DateProviderKt"),
+            ktSample("sample.experimental.TimeProviderKt"),
+            ktSample("sample.experimental.ExperimentalDateTimeKt"),
+            ktSample("sample.experimental.ExperimentalLocationKt"),
+            ktSample("sample.experimental.LocationProviderKt"),
+            javaSample("sample.experimental.ExperimentalDateTime"),
+            javaSample("sample.experimental.UseKtExperimentalFromJava")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/UseKtExperimentalFromJava.java:27: Error: This declaration is experimental and its usage should be marked with
-'@sample.ExperimentalDateTimeKt' or '@UseExperimental(markerClass = sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
-        DateProviderKt dateProvider = new DateProviderKt();
-                                      ~~~~~~~~~~~~~~~~~~~~
-src/sample/UseKtExperimentalFromJava.java:28: Error: This declaration is experimental and its usage should be marked with
-'@sample.ExperimentalDateTimeKt' or '@UseExperimental(markerClass = sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
+src/sample/experimental/UseKtExperimentalFromJava.java:25: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.ExperimentalDateTimeKt' or '@OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class)' [UnsafeOptInUsageError]
+        sample.experimental.DateProviderKt dateProvider = new sample.experimental.DateProviderKt();
+                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/sample/experimental/UseKtExperimentalFromJava.java:26: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.ExperimentalDateTimeKt' or '@OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class)' [UnsafeOptInUsageError]
         return dateProvider.getDate();
                             ~~~~~~~
-2 errors, 0 warnings
+src/sample/experimental/UseKtExperimentalFromJava.java:54: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.ExperimentalLocationKt' or '@OptIn(markerClass = sample.experimental.ExperimentalLocationKt.class)' [UnsafeOptInUsageError]
+        LocationProviderKt locationProvider = new LocationProviderKt();
+                                              ~~~~~~~~~~~~~~~~~~~~~~~~
+src/sample/experimental/UseKtExperimentalFromJava.java:55: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.ExperimentalLocationKt' or '@OptIn(markerClass = sample.experimental.ExperimentalLocationKt.class)' [UnsafeOptInUsageError]
+        return dateProvider.getDate() + locationProvider.getLocation();
+                                                         ~~~~~~~~~~~
+src/sample/experimental/UseKtExperimentalFromJava.java:88: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.ExperimentalDateTimeKt' or '@OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class)' [UnsafeOptInUsageError]
+        TimeProviderKt.getTimeStatically();
+                       ~~~~~~~~~~~~~~~~~
+src/sample/experimental/UseKtExperimentalFromJava.java:89: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.ExperimentalDateTimeKt' or '@OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class)' [UnsafeOptInUsageError]
+        TimeProviderKt.Companion.getTimeStatically();
+                                 ~~~~~~~~~~~~~~~~~
+src/sample/experimental/UseKtExperimentalFromJava.java:96: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.ExperimentalDateTimeKt' or '@OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class)' [UnsafeOptInUsageError]
+        new TimeProviderKt().getTime();
+                             ~~~~~~~
+src/sample/experimental/UseKtExperimentalFromJava.java:97: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.ExperimentalDateTime' or '@OptIn(markerClass = sample.experimental.ExperimentalDateTime.class)' [UnsafeOptInUsageError]
+        new TimeProviderKt().getTimeJava();
+                             ~~~~~~~~~~~
+8 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -121,27 +169,27 @@ src/sample/UseKtExperimentalFromJava.java:28: Error: This declaration is experim
     fun useJavaPackageFromJava() {
         val input = arrayOf(
             SAMPLE_FOO_PACKAGE_INFO,
-            javaSample("sample.foo.Bar"),
-            javaSample("sample.foo.ExperimentalPackage"),
-            javaSample("sample.UseJavaPackageFromJava")
+            javaSample("sample.experimental.foo.Bar"),
+            javaSample("sample.experimental.foo.ExperimentalPackage"),
+            javaSample("sample.experimental.UseJavaPackageFromJava")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/UseJavaPackageFromJava.java:30: Error: This declaration is experimental and its usage should be marked with
-'@sample.foo.ExperimentalPackage' or '@UseExperimental(markerClass = sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
+src/sample/experimental/UseJavaPackageFromJava.java:28: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.foo.ExperimentalPackage' or '@OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class)' [UnsafeOptInUsageError]
         Bar bar = new Bar();
                   ~~~~~~~~~
-src/sample/UseJavaPackageFromJava.java:31: Error: This declaration is experimental and its usage should be marked with
-'@sample.foo.ExperimentalPackage' or '@UseExperimental(markerClass = sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
+src/sample/experimental/UseJavaPackageFromJava.java:29: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.foo.ExperimentalPackage' or '@OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class)' [UnsafeOptInUsageError]
         bar.baz();
             ~~~
-src/sample/UseJavaPackageFromJava.java:54: Error: This declaration is experimental and its usage should be marked with
-'@sample.foo.ExperimentalPackage' or '@UseExperimental(markerClass = sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
+src/sample/experimental/UseJavaPackageFromJava.java:52: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.foo.ExperimentalPackage' or '@OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class)' [UnsafeOptInUsageError]
         callPackageExperimental();
         ~~~~~~~~~~~~~~~~~~~~~~~
 3 errors, 0 warnings
-    """.trimIndent()
+        """.trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
@@ -151,27 +199,27 @@ src/sample/UseJavaPackageFromJava.java:54: Error: This declaration is experiment
     fun useJavaPackageFromKt() {
         val input = arrayOf(
             SAMPLE_FOO_PACKAGE_INFO,
-            javaSample("sample.foo.Bar"),
-            javaSample("sample.foo.ExperimentalPackage"),
-            ktSample("sample.UseJavaPackageFromKt")
+            javaSample("sample.experimental.foo.Bar"),
+            javaSample("sample.experimental.foo.ExperimentalPackage"),
+            ktSample("sample.experimental.UseJavaPackageFromKt")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/UseJavaPackageFromKt.kt:30: Error: This declaration is experimental and its usage should be marked with
-'@sample.foo.ExperimentalPackage' or '@UseExperimental(markerClass = sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
+src/sample/experimental/UseJavaPackageFromKt.kt:32: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.foo.ExperimentalPackage' or '@OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class)' [UnsafeOptInUsageError]
         val bar = Bar()
                   ~~~
-src/sample/UseJavaPackageFromKt.kt:31: Error: This declaration is experimental and its usage should be marked with
-'@sample.foo.ExperimentalPackage' or '@UseExperimental(markerClass = sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
+src/sample/experimental/UseJavaPackageFromKt.kt:33: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.foo.ExperimentalPackage' or '@OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class)' [UnsafeOptInUsageError]
         bar.baz()
             ~~~
-src/sample/UseJavaPackageFromKt.kt:54: Error: This declaration is experimental and its usage should be marked with
-'@sample.foo.ExperimentalPackage' or '@UseExperimental(markerClass = sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
+src/sample/experimental/UseJavaPackageFromKt.kt:56: Error: This declaration is opt-in and its usage should be marked with
+'@sample.experimental.foo.ExperimentalPackage' or '@OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class)' [UnsafeOptInUsageError]
         callPackageExperimental()
         ~~~~~~~~~~~~~~~~~~~~~~~
 3 errors, 0 warnings
-    """.trimIndent()
+        """.trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
@@ -194,57 +242,63 @@ src/sample/UseJavaPackageFromKt.kt:54: Error: This declaration is experimental a
     /* ktlint-disable max-line-length */
     companion object {
         /**
-         * [TestFile] containing Experimental.java from the experimental annotation library.
+         * [TestFile] containing Experimental.kt from the experimental annotation library.
          *
          * This is a workaround for IntelliJ failing to recognize source files if they are also
          * included as resources.
          */
-        val EXPERIMENTAL_JAVA: TestFile = java("""
+        val ANDROIDX_EXPERIMENTAL_KT: TestFile = kotlin(
+            """
             package androidx.annotation.experimental;
 
-            import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
-            import static java.lang.annotation.RetentionPolicy.CLASS;
+            import kotlin.annotation.Retention
+            import kotlin.annotation.Target
 
-            import java.lang.annotation.Retention;
-            import java.lang.annotation.Target;
-
-            @Retention(CLASS)
-            @Target({ANNOTATION_TYPE})
-            public @interface Experimental {
-                enum Level {
+            @Retention(AnnotationRetention.BINARY)
+            @Target(AnnotationTarget.ANNOTATION_CLASS)
+            annotation class Experimental(
+                val level: Level = Level.ERROR
+            ) {
+                enum class Level {
                     WARNING,
-                    ERROR,
+                    ERROR
                 }
-
-                Level level() default Level.ERROR;
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         /**
-         * [TestFile] containing UseExperimental.java from the experimental annotation library.
+         * [TestFile] containing UseExperimental.kt from the experimental annotation library.
          *
          * This is a workaround for IntelliJ failing to recognize source files if they are also
          * included as resources.
          */
-        val USE_EXPERIMENTAL_JAVA: TestFile = java("""
+        val ANDROIDX_USE_EXPERIMENTAL_KT: TestFile = kotlin(
+            """
             package androidx.annotation.experimental;
 
-            import static java.lang.annotation.ElementType.CONSTRUCTOR;
-            import static java.lang.annotation.ElementType.FIELD;
-            import static java.lang.annotation.ElementType.METHOD;
-            import static java.lang.annotation.ElementType.PACKAGE;
-            import static java.lang.annotation.ElementType.TYPE;
-            import static java.lang.annotation.RetentionPolicy.CLASS;
+            import kotlin.annotation.Retention
+            import kotlin.annotation.Target
+            import kotlin.reflect.KClass
 
-            import java.lang.annotation.Retention;
-            import java.lang.annotation.Target;
-
-            @Retention(CLASS)
-            @Target({TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE})
-            public @interface UseExperimental {
-                Class<?> markerClass();
-            }
-        """.trimIndent())
+            @Retention(AnnotationRetention.BINARY)
+            @Target(
+                AnnotationTarget.CLASS,
+                AnnotationTarget.PROPERTY,
+                AnnotationTarget.LOCAL_VARIABLE,
+                AnnotationTarget.VALUE_PARAMETER,
+                AnnotationTarget.CONSTRUCTOR,
+                AnnotationTarget.FUNCTION,
+                AnnotationTarget.PROPERTY_GETTER,
+                AnnotationTarget.PROPERTY_SETTER,
+                AnnotationTarget.FILE,
+                AnnotationTarget.TYPEALIAS
+            )
+            annotation class UseExperimental(
+                vararg val markerClass: KClass<out Annotation>
+            )
+            """.trimIndent()
+        )
 
         /**
          * [TestFile] containing Experimental.kt from the Kotlin standard library.
@@ -252,7 +306,8 @@ src/sample/UseJavaPackageFromKt.kt:54: Error: This declaration is experimental a
          * This is a workaround for the Kotlin standard library used by the Lint test harness not
          * including the Experimental annotation by default.
          */
-        val EXPERIMENTAL_KT: TestFile = kotlin("""
+        val EXPERIMENTAL_KT: TestFile = kotlin(
+            """
             package kotlin
 
             import kotlin.annotation.AnnotationRetention.BINARY
@@ -289,24 +344,27 @@ src/sample/UseJavaPackageFromKt.kt:54: Error: This declaration is experimental a
             internal annotation class WasExperimental(
                 vararg val markerClass: KClass<out Annotation>
             )
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         /**
-         * [TestFile] containing the package-level annotation for the sample.foo package.
+         * [TestFile] containing the package-level annotation for the sample.experimental.foo package.
          *
          * This is a workaround for b/136184987 where package-level annotations cannot be loaded
          * from source code. This is generated from a single-class JAR using toBase64gzip(File).
+         *
+         * To re-generate this:
+         * 1. ./gradlew :annotation:annotation-experimental-lint-integration-tests:assemble
+         * 2. mkdir -p temp/sample/experimental/foo/
+         * 3. cp ../../out/androidx/annotation/annotation-experimental-lint-integration-tests/build/intermediates/javac/debug/classes/sample/experimental/foo/package-info.class temp/sample/experimental/foo/
+         * 4. jar -c -f sample.experimental.foo.package-info.jar -C temp . | openssl base64 < sample.experimental.foo.package-info.jar | tr -d '\n' | pbcopy
+         * 5. rm -rf temp sample.experimental.foo.package-info.jar
+         * 6. Paste here
          */
-        val SAMPLE_FOO_PACKAGE_INFO: TestFile = base64gzip("libs/sample.foo.package-info.jar", "" +
-                "H4sIAAAAAAAAAAvwZmYRYWDg4GBgYFBkYGguSJ4HZB0EYlkGQYbixNyCnFT9" +
-                "tPx8/YLE5OzE9FTdzLy0fL3knMTi4tAQXgZ2BiTg22vI1+Qg4pIe6Lh2y8VD" +
-                "x7hfmJWFic2aMSPjCwv3zwlHn+o3tlaYcfM/WNijwRt8RuSz0ed/NvEMZhKs" +
-                "HEw8rMfMo0UFZbcoNmauW7TbK2Op5bbXIVe9EgrX3njZ0xfzOqi9rezMNc3l" +
-                "utOZTgev3HRnQs/aqb/d/VybNwU/u6SXy/pMdtFufYOfth6LLSY+N1h64iwD" +
-                "I/9amy//7h1f4Lk/s+YBdwCKT3+yX33NA2QJgNwN9Kmva4ijrqefm35iXl5+" +
-                "SWJJZn6ebmpFQWpRZm5qXklijm5OZl4J0PMlqelFENmS1OKS4vii1JzUxOJU" +
-                "vez8EqCK+Nz8lNKcVIyQSU5ISEgD4pakOoYAb0YmEQZcYc7JgAoIxAArxB50" +
-                "M1F9h2zmK5AIdf0KdwMrG4hmAsIbQLqIEcQDAGCtt2pgAgAA")
+        val SAMPLE_FOO_PACKAGE_INFO: TestFile = base64gzip(
+            "libs/sample.experimental.foo.package-info.jar",
+            "UEsDBBQACAgIAGhi/VAAAAAAAAAAAAAAAAAJAAQATUVUQS1JTkYv/soAAAMAUEsHCAAAAAACAAAAAAAAAFBLAwQUAAgICABoYv1QAAAAAAAAAAAAAAAAFAAAAE1FVEEtSU5GL01BTklGRVNULk1G803My0xLLS7RDUstKs7Mz7NSMNQz4OVyLkpNLElN0XWqBAoARfRMFDT8ixKTc1IVnPOLCvKLEkuAijV5uXi5AFBLBwiVBramQAAAAEIAAABQSwMECgAACAAAE2L9UAAAAAAAAAAAAAAAAAcAAABzYW1wbGUvUEsDBAoAAAgAABNi/VAAAAAAAAAAAAAAAAAUAAAAc2FtcGxlL2V4cGVyaW1lbnRhbC9QSwMECgAACAAAGWL9UAAAAAAAAAAAAAAAABgAAABzYW1wbGUvZXhwZXJpbWVudGFsL2Zvby9QSwMEFAAICAgAGWL9UAAAAAAAAAAAAAAAACoAAABzYW1wbGUvZXhwZXJpbWVudGFsL2Zvby9wYWNrYWdlLWluZm8uY2xhc3N1Tb0OgkAY6/kD6qSLi6sr3uLm5KCJiYlGn+AgH+Tw+I7AQXw2Bx/AhzKiLCx2aJO2aV/vxxPAGmMfvo+RwORqqyKivTYkMMtVdFMJBZpju0pVrQQWl4qdzujAtS51aGjLbJ1y2nIpEBxLleWGJN1zKpoaO2VkbK3cdYxzO7sRWP6rd58Fpt9vaRQn8hSmFLk5INBDix76Px5g2KjXJB7wAVBLBwjUtjrHoQAAANsAAABQSwECFAAUAAgICABoYv1QAAAAAAIAAAAAAAAACQAEAAAAAAAAAAAAAAAAAAAATUVUQS1JTkYv/soAAFBLAQIUABQACAgIAGhi/VCVBramQAAAAEIAAAAUAAAAAAAAAAAAAAAAAD0AAABNRVRBLUlORi9NQU5JRkVTVC5NRlBLAQIKAAoAAAgAABNi/VAAAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAAAL8AAABzYW1wbGUvUEsBAgoACgAACAAAE2L9UAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAAAA5AAAAHNhbXBsZS9leHBlcmltZW50YWwvUEsBAgoACgAACAAAGWL9UAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAFgEAAHNhbXBsZS9leHBlcmltZW50YWwvZm9vL1BLAQIUABQACAgIABli/VDUtjrHoQAAANsAAAAqAAAAAAAAAAAAAAAAAEwBAABzYW1wbGUvZXhwZXJpbWVudGFsL2Zvby9wYWNrYWdlLWluZm8uY2xhc3NQSwUGAAAAAAYABgCSAQAARQIAAAAA"
+        )
     }
     /* ktlint-enable max-line-length */
 }

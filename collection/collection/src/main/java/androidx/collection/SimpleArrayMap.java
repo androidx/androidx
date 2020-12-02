@@ -376,6 +376,7 @@ public class SimpleArrayMap<K, V> {
      * @return Returns the value associated with the given key,
      * or {@code defaultValue} if there is no mapping for the key.
      */
+    @SuppressWarnings("unchecked")
     public V getOrDefault(Object key, V defaultValue) {
         final int index = indexOfKey(key);
         return index >= 0 ? (V) mArray[(index << 1) + 1] : defaultValue;
@@ -386,6 +387,7 @@ public class SimpleArrayMap<K, V> {
      * @param index The desired index, must be between 0 and {@link #size()}-1.
      * @return Returns the key stored at the given index.
      */
+    @SuppressWarnings("unchecked")
     public K keyAt(int index) {
         return (K)mArray[index << 1];
     }
@@ -395,6 +397,7 @@ public class SimpleArrayMap<K, V> {
      * @param index The desired index, must be between 0 and {@link #size()}-1.
      * @return Returns the value stored at the given index.
      */
+    @SuppressWarnings("unchecked")
     public V valueAt(int index) {
         return (V)mArray[(index << 1) + 1];
     }
@@ -405,6 +408,7 @@ public class SimpleArrayMap<K, V> {
      * @param value The new value to store at this index.
      * @return Returns the previous value at the given index.
      */
+    @SuppressWarnings("unchecked")
     public V setValueAt(int index, V value) {
         index = (index << 1) + 1;
         V old = (V)mArray[index];
@@ -428,6 +432,7 @@ public class SimpleArrayMap<K, V> {
      * was no such key.
      */
     @Nullable
+    @SuppressWarnings("unchecked")
     public V put(K key, V value) {
         final int osize = mSize;
         final int hash;
@@ -566,20 +571,17 @@ public class SimpleArrayMap<K, V> {
      * @param index The desired index, must be between 0 and {@link #size()}-1.
      * @return Returns the value that was stored at this index.
      */
+    @SuppressWarnings("unchecked")
     public V removeAt(int index) {
         final Object old = mArray[(index << 1) + 1];
         final int osize = mSize;
-        final int nsize;
         if (osize <= 1) {
             // Now empty.
             if (DEBUG) System.out.println(TAG + " remove: shrink from " + mHashes.length + " to 0");
-            freeArrays(mHashes, mArray, osize);
-            mHashes = ContainerHelpers.EMPTY_INTS;
-            mArray = ContainerHelpers.EMPTY_OBJECTS;
-            nsize = 0;
+            clear();
         } else {
-            nsize = osize - 1;
-            if (mHashes.length > (BASE_SIZE*2) && mSize < mHashes.length/3) {
+            final int nsize = osize - 1;
+            if (mHashes.length > (BASE_SIZE*2) && osize < mHashes.length/3) {
                 // Shrunk enough to reduce size of arrays.  We don't allow it to
                 // shrink smaller than (BASE_SIZE*2) to avoid flapping between
                 // that and BASE_SIZE.
@@ -618,11 +620,11 @@ public class SimpleArrayMap<K, V> {
                 mArray[nsize << 1] = null;
                 mArray[(nsize << 1) + 1] = null;
             }
+            if (CONCURRENT_MODIFICATION_EXCEPTIONS && osize != mSize) {
+                throw new ConcurrentModificationException();
+            }
+            mSize = nsize;
         }
-        if (CONCURRENT_MODIFICATION_EXCEPTIONS && osize != mSize) {
-            throw new ConcurrentModificationException();
-        }
-        mSize = nsize;
         return (V)old;
     }
 
@@ -681,13 +683,33 @@ public class SimpleArrayMap<K, V> {
         if (this == object) {
             return true;
         }
-        if (object instanceof SimpleArrayMap) {
-            SimpleArrayMap<?, ?> map = (SimpleArrayMap<?, ?>) object;
-            if (size() != map.size()) {
-                return false;
-            }
+        try {
+            if (object instanceof SimpleArrayMap) {
+                SimpleArrayMap<?, ?> map = (SimpleArrayMap<?, ?>) object;
+                if (size() != map.size()) {
+                    return false;
+                }
 
-            try {
+                for (int i=0; i<mSize; i++) {
+                    K key = keyAt(i);
+                    V mine = valueAt(i);
+                    // TODO use index-based ops for this
+                    Object theirs = map.get(key);
+                    if (mine == null) {
+                        if (theirs != null || !map.containsKey(key)) {
+                            return false;
+                        }
+                    } else if (!mine.equals(theirs)) {
+                        return false;
+                    }
+                }
+                return true;
+            } else if (object instanceof Map) {
+                Map<?, ?> map = (Map<?, ?>) object;
+                if (size() != map.size()) {
+                    return false;
+                }
+
                 for (int i=0; i<mSize; i++) {
                     K key = keyAt(i);
                     V mine = valueAt(i);
@@ -700,37 +722,10 @@ public class SimpleArrayMap<K, V> {
                         return false;
                     }
                 }
-            } catch (NullPointerException ignored) {
-                return false;
-            } catch (ClassCastException ignored) {
-                return false;
+                return true;
             }
-            return true;
-        } else if (object instanceof Map) {
-            Map<?, ?> map = (Map<?, ?>) object;
-            if (size() != map.size()) {
-                return false;
-            }
-
-            try {
-                for (int i=0; i<mSize; i++) {
-                    K key = keyAt(i);
-                    V mine = valueAt(i);
-                    Object theirs = map.get(key);
-                    if (mine == null) {
-                        if (theirs != null || !map.containsKey(key)) {
-                            return false;
-                        }
-                    } else if (!mine.equals(theirs)) {
-                        return false;
-                    }
-                }
-            } catch (NullPointerException ignored) {
-                return false;
-            } catch (ClassCastException ignored) {
-                return false;
-            }
-            return true;
+        } catch (NullPointerException ignored) {
+        } catch (ClassCastException ignored) {
         }
         return false;
     }

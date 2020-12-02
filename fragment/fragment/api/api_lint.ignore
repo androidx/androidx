@@ -27,18 +27,10 @@ MissingNullability: androidx.fragment.app.Fragment#startIntentSenderForResult(an
     Missing nullability on parameter `intent` in method `startIntentSenderForResult`
 MissingNullability: androidx.fragment.app.FragmentActivity#onNewIntent(android.content.Intent) parameter #0:
     Missing nullability on parameter `intent` in method `onNewIntent`
-MissingNullability: androidx.fragment.app.FragmentActivity#startActivityForResult(android.content.Intent, int) parameter #0:
-    Missing nullability on parameter `intent` in method `startActivityForResult`
-MissingNullability: androidx.fragment.app.FragmentActivity#startActivityForResult(android.content.Intent, int, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `intent` in method `startActivityForResult`
 MissingNullability: androidx.fragment.app.FragmentActivity#startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int) parameter #1:
     Missing nullability on parameter `intent` in method `startActivityFromFragment`
 MissingNullability: androidx.fragment.app.FragmentActivity#startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int, android.os.Bundle) parameter #1:
     Missing nullability on parameter `intent` in method `startActivityFromFragment`
-MissingNullability: androidx.fragment.app.FragmentActivity#startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent, int, int, int) parameter #0:
-    Missing nullability on parameter `intent` in method `startIntentSenderForResult`
-MissingNullability: androidx.fragment.app.FragmentActivity#startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `intent` in method `startIntentSenderForResult`
 MissingNullability: androidx.fragment.app.FragmentActivity#startIntentSenderFromFragment(androidx.fragment.app.Fragment, android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) parameter #1:
     Missing nullability on parameter `intent` in method `startIntentSenderFromFragment`
 MissingNullability: androidx.fragment.app.FragmentController#getActiveFragments(java.util.List<androidx.fragment.app.Fragment>) parameter #0:
@@ -55,21 +47,21 @@ MissingNullability: androidx.fragment.app.FragmentTabHost#onRestoreInstanceState
     Missing nullability on parameter `state` in method `onRestoreInstanceState`
 
 
-NoClone: androidx.fragment.app.Fragment#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.fragment.app.Fragment.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
-NoClone: androidx.fragment.app.FragmentActivity#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.fragment.app.FragmentActivity.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
-NoClone: androidx.fragment.app.FragmentController#dumpLoaders(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.fragment.app.FragmentController.dumpLoaders(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
-NoClone: androidx.fragment.app.FragmentHostCallback#onDump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.fragment.app.FragmentHostCallback.onDump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
-NoClone: androidx.fragment.app.FragmentManager#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.fragment.app.FragmentManager.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
-
-
 ParcelNotFinal: androidx.fragment.app.Fragment.SavedState:
     Parcelable classes must be final: androidx.fragment.app.Fragment.SavedState is not final
 
 
 SingularCallback: androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks:
     Callback class names should be singular: FragmentLifecycleCallbacks
+
+
+UseParcelFileDescriptor: androidx.fragment.app.Fragment#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.fragment.app.Fragment.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+UseParcelFileDescriptor: androidx.fragment.app.FragmentActivity#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.fragment.app.FragmentActivity.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+UseParcelFileDescriptor: androidx.fragment.app.FragmentController#dumpLoaders(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.fragment.app.FragmentController.dumpLoaders(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+UseParcelFileDescriptor: androidx.fragment.app.FragmentHostCallback#onDump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.fragment.app.FragmentHostCallback.onDump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+UseParcelFileDescriptor: androidx.fragment.app.FragmentManager#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.fragment.app.FragmentManager.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)

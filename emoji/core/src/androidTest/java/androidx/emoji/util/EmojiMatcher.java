@@ -15,7 +15,7 @@
  */
 package androidx.emoji.util;
 
-import static org.mockito.Matchers.argThat;
+import static org.mockito.ArgumentMatchers.argThat;
 
 import android.text.Spanned;
 import android.text.TextUtils;

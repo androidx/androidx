@@ -30,11 +30,11 @@ public final class PackageInfoCompat {
      *
      * @see PackageInfo#getLongVersionCode()
      */
+    @SuppressWarnings("deprecation")
     public static long getLongVersionCode(@NonNull PackageInfo info) {
         if (Build.VERSION.SDK_INT >= 28) {
             return info.getLongVersionCode();
         }
-        //noinspection deprecation
         return info.versionCode;
     }
 

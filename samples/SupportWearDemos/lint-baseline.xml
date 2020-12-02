@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
 
     <issue
         id="WearStandaloneAppFlag"
@@ -10,6 +10,50 @@
             file="src/main/AndroidManifest.xml"
             line="24"
             column="6"/>
+    </issue>
+
+    <issue
+        id="UseSwitchCompatOrMaterialXml"
+        message="Use `SwitchCompat` from AppCompat or `SwitchMaterial` from Material library"
+        errorLine1="    &lt;Switch"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/switch_demo.xml"
+            line="20"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `AppCompatResources.getDrawable()`"
+        errorLine1="        Drawable drawable = getDrawable(R.drawable.app_sample_code);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/AlertDialogDemo.java"
+            line="60"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `AppCompatResources.getDrawable()`"
+        errorLine1="                        getDrawable(android.R.drawable.star_big_off)),"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/WearableDrawersDemo.java"
+            line="49"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UseCompatLoadingForDrawables"
+        message="Use `AppCompatResources.getDrawable()`"
+        errorLine1="                        getDrawable(android.R.drawable.star_big_on)),"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/WearableDrawersDemo.java"
+            line="53"
+            column="25"/>
     </issue>
 
     <issue
@@ -35,21 +79,131 @@
     </issue>
 
     <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/cpl_demo.xml"
+            line="18"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/rd_demo.xml"
+            line="18"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mStateTextView` of class `AmbientModeDemo` requires synthetic accessor"
+        errorLine1="            mStateTextView.setText(&quot;Ambient&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"
+            line="56"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mStateTextView` of class `AmbientModeDemo` requires synthetic accessor"
+        errorLine1="            mStateTextView.setTextColor(Color.WHITE);"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"
+            line="57"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mStateTextView` of class `AmbientModeDemo` requires synthetic accessor"
+        errorLine1="            mStateTextView.getPaint().setAntiAlias(false);"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"
+            line="58"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mStateTextView` of class `AmbientModeDemo` requires synthetic accessor"
+        errorLine1="            mStateTextView.setText(&quot;Interactive&quot;);"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"
+            line="64"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mStateTextView` of class `AmbientModeDemo` requires synthetic accessor"
+        errorLine1="            mStateTextView.setTextColor(Color.GREEN);"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"
+            line="65"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mStateTextView` of class `AmbientModeDemo` requires synthetic accessor"
+        errorLine1="            mStateTextView.getPaint().setAntiAlias(true);"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"
+            line="66"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mData` of class `DemoAdapter` requires synthetic accessor"
+        errorLine1="                    startActivity(mData.get(mKeys[position]));"
+        errorLine2="                                  ~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/MainDemoActivity.java"
+            line="112"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mKeys` of class `DemoAdapter` requires synthetic accessor"
+        errorLine1="                    startActivity(mData.get(mKeys[position]));"
+        errorLine2="                                            ~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/MainDemoActivity.java"
+            line="112"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` member of class `DemoAdapter` requires synthetic accessor"
+        errorLine1="        wrv.setAdapter(new DemoAdapter());"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/SimpleWearableRecyclerViewDemo.java"
+            line="43"
+            column="24"/>
+    </issue>
+
+    <issue
         id="IconLocation"
         message="Found bitmap drawable `res/drawable/app_sample_code.png` in densityless folder">
         <location
             file="src/main/res/drawable/app_sample_code.png"/>
-    </issue>
-
-    <issue
-        id="GoogleAppIndexingWarning"
-        message="App is not indexable by Google Search; consider adding at least one Activity with an ACTION-VIEW intent filter. See issue explanation for more details."
-        errorLine1="    &lt;application android:icon=&quot;@drawable/app_sample_code&quot; android:label=&quot;SupportWearDemos&quot;"
-        errorLine2="    ^">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="24"
-            column="5"/>
     </issue>
 
     <issue
@@ -70,7 +224,7 @@
         errorLine2="                                   ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"
-            line="53"
+            line="56"
             column="36"/>
     </issue>
 
@@ -81,7 +235,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"
-            line="61"
+            line="64"
             column="36"/>
     </issue>
 
@@ -226,6 +380,270 @@
             file="src/main/res/layout/wearable_drawers_scroll_view_demo.xml"
             line="35"
             column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onTimerFinished(CircularProgressLayout layout) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/CircularProgressLayoutDemo.java"
+            line="61"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onClick(View view) {"
+        errorLine2="                        ~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/CircularProgressLayoutDemo.java"
+            line="70"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/ConfirmationOverlayDemo.java"
+            line="33"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public DemoNavDrawerAdapter(NavItem[] navItems) {"
+        errorLine2="                                ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/DemoNavDrawerAdapter.java"
+            line="28"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CharSequence getItemText(int pos) {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/DemoNavDrawerAdapter.java"
+            line="33"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Drawable getItemDrawable(int pos) {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/DemoNavDrawerAdapter.java"
+            line="38"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
+        errorLine2="           ~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/FrameLayoutFragment.java"
+            line="31"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
+        errorLine2="                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/FrameLayoutFragment.java"
+            line="31"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
+        errorLine2="                                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/FrameLayoutFragment.java"
+            line="31"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Bundle savedInstanceState) {"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/FrameLayoutFragment.java"
+            line="32"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/MainDemoActivity.java"
+            line="42"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public NavItem(Class&lt;? extends Fragment> fragment, String title, Drawable drawable) {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/NavItem.java"
+            line="28"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public NavItem(Class&lt;? extends Fragment> fragment, String title, Drawable drawable) {"
+        errorLine2="                                                       ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/NavItem.java"
+            line="28"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public NavItem(Class&lt;? extends Fragment> fragment, String title, Drawable drawable) {"
+        errorLine2="                                                                     ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/NavItem.java"
+            line="28"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Class&lt;? extends Fragment> getFragment() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/NavItem.java"
+            line="34"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getTitle() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/NavItem.java"
+            line="38"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Drawable getDrawable() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/NavItem.java"
+            line="42"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
+        errorLine2="           ~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/ScrollViewFragment.java"
+            line="31"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
+        errorLine2="                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/ScrollViewFragment.java"
+            line="31"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
+        errorLine2="                                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/ScrollViewFragment.java"
+            line="31"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Bundle savedInstanceState) {"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/ScrollViewFragment.java"
+            line="32"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/SimpleWearableRecyclerViewDemo.java"
+            line="36"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/drawers/WearableDrawersDemo.java"
+            line="42"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/WearableSwitchDemo.java"
+            line="27"
+            column="29"/>
     </issue>
 
 </issues>

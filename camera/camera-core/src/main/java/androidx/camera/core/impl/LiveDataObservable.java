@@ -16,15 +16,11 @@
 
 package androidx.camera.core.impl;
 
-import android.annotation.SuppressLint;
 import android.os.SystemClock;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.Observable;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -49,10 +45,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * used.
  *
  * @param <T> The data type used for
- *            {@link androidx.camera.core.Observable.Observer#onNewData(Object)}.
- * @hide
+ *            {@link Observable.Observer#onNewData(Object)}.
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class LiveDataObservable<T> implements Observable<T> {
 
 
@@ -95,7 +89,6 @@ public final class LiveDataObservable<T> implements Observable<T> {
                     @Override
                     public void run() {
                         Result<T> result = mLiveData.getValue();
-                        Throwable error;
                         if (result == null) {
                             completer.setException(new IllegalStateException(
                                     "Observable has not yet been initialized with a value."));
@@ -113,7 +106,6 @@ public final class LiveDataObservable<T> implements Observable<T> {
         });
     }
 
-    @SuppressLint("LambdaLast") // Remove after https://issuetracker.google.com/135275901
     @Override
     public void addObserver(@NonNull Executor executor, @NonNull Observer<T> observer) {
         synchronized (mObservers) {
@@ -159,7 +151,7 @@ public final class LiveDataObservable<T> implements Observable<T> {
      * A Result can contain either a value or an error, but not both.
      *
      * @param <T> The data type used for
-     *            {@link androidx.camera.core.Observable.Observer#onNewData(Object)}.
+     *            {@link Observable.Observer#onNewData(Object)}.
      */
     public static final class Result<T> {
         @Nullable
@@ -217,6 +209,13 @@ public final class LiveDataObservable<T> implements Observable<T> {
         @Nullable
         public Throwable getError() {
             return mError;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "[Result: <" + (completedSuccessfully() ? "Value: " + mValue :
+                    "Error: " + mError) + ">]";
         }
     }
 

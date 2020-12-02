@@ -1,14 +1,432 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0" client="gradle" variant="debug" version="3.5.0">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
 
     <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.player.MediaPlayer.registerPlayerCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull PlayerCallback callback) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 16): `android.media.AudioManager#AUDIOFOCUS_NONE`"
+        errorLine1="                mCurrentFocusGainType = AudioManager.AUDIOFOCUS_NONE;"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/AudioFocusHandler.java"
+            line="213"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 16): `android.media.AudioManager#AUDIOFOCUS_NONE`"
+        errorLine1="            return mCurrentFocusGainType != AudioManager.AUDIOFOCUS_NONE;"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/AudioFocusHandler.java"
+            line="220"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 16): `android.media.AudioManager#AUDIOFOCUS_NONE`"
+        errorLine1="            mCurrentFocusGainType = AudioManager.AUDIOFOCUS_NONE;"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/AudioFocusHandler.java"
+            line="235"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 16): `android.media.AudioManager#AUDIOFOCUS_NONE`"
+        errorLine1="                return AudioManager.AUDIOFOCUS_NONE;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/AudioFocusHandler.java"
+            line="274"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 16): `android.media.AudioManager#AUDIOFOCUS_NONE`"
+        errorLine1="                    return AudioManager.AUDIOFOCUS_NONE;"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/AudioFocusHandler.java"
+            line="283"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 19 (current min is 16): `android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE`"
+        errorLine1="                    return AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE;"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/AudioFocusHandler.java"
+            line="320"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 16): `android.media.AudioManager#AUDIOFOCUS_NONE`"
+        errorLine1="            return AudioManager.AUDIOFOCUS_NONE;"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/AudioFocusHandler.java"
+            line="332"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 19 (current min is 16): `android.media.MediaFormat#KEY_LANGUAGE`"
+        errorLine1="            mediaFormat.setString(MediaFormat.KEY_LANGUAGE, language);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/TrackSelector.java"
+            line="431"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 19 (current min is 16): `android.media.MediaFormat#KEY_IS_FORCED_SUBTITLE`"
+        errorLine1="            mediaFormat.setInteger(MediaFormat.KEY_IS_FORCED_SUBTITLE,"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/TrackSelector.java"
+            line="432"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 19 (current min is 16): `android.media.MediaFormat#KEY_IS_AUTOSELECT`"
+        errorLine1="            mediaFormat.setInteger(MediaFormat.KEY_IS_AUTOSELECT,"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/TrackSelector.java"
+            line="434"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 19 (current min is 16): `android.media.MediaFormat#KEY_IS_DEFAULT`"
+        errorLine1="            mediaFormat.setInteger(MediaFormat.KEY_IS_DEFAULT,"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/TrackSelector.java"
+            line="436"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/media2/player/TextRenderer.java"
+            line="132"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/media2/player/TextRenderer.java"
+            line="137"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    /** Clears any previous selection. */"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/media2/player/TextRenderer.java"
+            line="224"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    /** Selects the specified track type/channel for extraction and rendering. */"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/media2/player/TextRenderer.java"
+            line="229"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            return (FileDescriptor) method.invoke(object, fileDescriptor);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"
+            line="100"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            method.invoke(object, fileDescriptor, position, /* whence= */ SEEK_SET);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"
+            line="125"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            return (FileDescriptor) method.invoke(object, fileDescriptor);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"
+            line="150"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media2.player.ExoPlayerWrapper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        PersistableBundle bundle = new PersistableBundle();"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="401"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media2.player.ExoPlayerWrapper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            bundle.putString(MediaPlayer2.MetricsConstants.MIME_TYPE_VIDEO, primaryVideoMimeType);"
+        errorLine2="                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="403"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media2.player.ExoPlayerWrapper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            bundle.putString(MediaPlayer2.MetricsConstants.MIME_TYPE_AUDIO, primaryAudioMimeType);"
+        errorLine2="                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="406"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media2.player.ExoPlayerWrapper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        bundle.putLong(MediaPlayer2.MetricsConstants.DURATION,"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="408"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media2.player.ExoPlayerWrapper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        bundle.putLong(MediaPlayer2.MetricsConstants.PLAYING, playingTimeMs);"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="410"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media2.player.FileDescriptorUtil is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            return Os.dup(fileDescriptor);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"
+            line="84"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media2.player.FileDescriptorUtil is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            Os.lseek(fileDescriptor, position, /* whence= */ OsConstants.SEEK_SET);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"
+            line="109"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media2.player.FileDescriptorUtil is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            Os.close(fileDescriptor);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"
+            line="134"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.media2.player.MediaTimestamp is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="        mMediaTimeUs = timestamp.getAnchorMediaTimeUs();"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/MediaTimestamp.java"
+            line="84"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.media2.player.MediaTimestamp is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="        mNanoTime = timestamp.getAnchorSytemNanoTime();"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/MediaTimestamp.java"
+            line="85"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.media2.player.MediaTimestamp is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="        mClockRate = timestamp.getMediaClockRate();"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/MediaTimestamp.java"
+            line="86"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.media2.player.PlaybackParams is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                return mPlaybackParams.getAudioFallbackMode();"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/PlaybackParams.java"
+            line="115"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.media2.player.PlaybackParams is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                return mPlaybackParams.getPitch();"
+        errorLine2="                                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/PlaybackParams.java"
+            line="130"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.media2.player.PlaybackParams is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                return mPlaybackParams.getSpeed();"
+        errorLine2="                                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/PlaybackParams.java"
+            line="145"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.media2.player.PlaybackParams.Builder is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                mPlaybackParams = new android.media.PlaybackParams();"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/PlaybackParams.java"
+            line="188"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.media2.player.PlaybackParams.Builder is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                mPlaybackParams.setAudioFallbackMode(audioFallbackMode);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/PlaybackParams.java"
+            line="224"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.media2.player.PlaybackParams.Builder is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                mPlaybackParams.setPitch(pitch);"
+        errorLine2="                                ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/PlaybackParams.java"
+            line="246"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.media2.player.PlaybackParams.Builder is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                mPlaybackParams.setSpeed(speed);"
+        errorLine2="                                ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/PlaybackParams.java"
+            line="268"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.media2.player.TimedMetaData is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="        mTimestampUs = timedMetaData.getTimestamp();"
+        errorLine2="                                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/TimedMetaData.java"
+            line="46"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.media2.player.TimedMetaData is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="        mMetaData = timedMetaData.getMetaData();"
+        errorLine2="                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/TimedMetaData.java"
+            line="47"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Switch statement on an `int` with known associated constant missing case `MediaPlayer2.MEDIA_INFO_AUDIO_NOT_PLAYING`, `MediaPlayer2.MEDIA_INFO_AUDIO_RENDERING_START`, `MediaPlayer2.MEDIA_INFO_BAD_INTERLEAVING`, `MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END`, `MediaPlayer2.MEDIA_INFO_DATA_SOURCE_REPEAT`, `MediaPlayer2.MEDIA_INFO_EXTERNAL_METADATA_UPDATE`, `MediaPlayer2.MEDIA_INFO_METADATA_UPDATE`, `MediaPlayer2.MEDIA_INFO_NETWORK_BANDWIDTH`, `MediaPlayer2.MEDIA_INFO_NOT_SEEKABLE`, `MediaPlayer2.MEDIA_INFO_SUBTITLE_TIMED_OUT`, `MediaPlayer2.MEDIA_INFO_UNKNOWN`, `MediaPlayer2.MEDIA_INFO_UNSUPPORTED_SUBTITLE`, `MediaPlayer2.MEDIA_INFO_VIDEO_NOT_PLAYING`, `MediaPlayer2.MEDIA_INFO_VIDEO_RENDERING_START`, `MediaPlayer2.MEDIA_INFO_VIDEO_TRACK_LAGGING`"
+        errorLine1="            switch (mp2What) {"
+        errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer.java"
-            line="2411"
+            line="3350"
             column="13"/>
     </issue>
 
@@ -195,7 +613,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer.java"
-            line="1946"
+            line="2174"
             column="12"/>
     </issue>
 
@@ -206,7 +624,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="827"
+            line="824"
             column="17"/>
     </issue>
 
@@ -217,7 +635,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="827"
+            line="824"
             column="34"/>
     </issue>
 
@@ -228,7 +646,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="847"
+            line="844"
             column="17"/>
     </issue>
 
@@ -239,7 +657,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="847"
+            line="844"
             column="34"/>
     </issue>
 
@@ -250,7 +668,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="847"
+            line="844"
             column="50"/>
     </issue>
 
@@ -261,7 +679,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="859"
+            line="856"
             column="17"/>
     </issue>
 
@@ -272,7 +690,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="859"
+            line="856"
             column="34"/>
     </issue>
 
@@ -283,7 +701,7 @@
         errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="870"
+            line="867"
             column="28"/>
     </issue>
 
@@ -294,7 +712,7 @@
         errorLine2="                                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="870"
+            line="867"
             column="45"/>
     </issue>
 
@@ -305,7 +723,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="881"
+            line="878"
             column="17"/>
     </issue>
 
@@ -316,7 +734,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="881"
+            line="878"
             column="34"/>
     </issue>
 
@@ -327,7 +745,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="905"
+            line="902"
             column="17"/>
     </issue>
 
@@ -338,7 +756,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="905"
+            line="902"
             column="34"/>
     </issue>
 
@@ -349,7 +767,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="905"
+            line="902"
             column="50"/>
     </issue>
 
@@ -360,7 +778,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="914"
+            line="911"
             column="43"/>
     </issue>
 
@@ -371,7 +789,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1455"
+            line="1452"
             column="26"/>
     </issue>
 
@@ -382,7 +800,7 @@
         errorLine2="                                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1455"
+            line="1452"
             column="43"/>
     </issue>
 
@@ -393,7 +811,7 @@
         errorLine2="                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1482"
+            line="1479"
             column="31"/>
     </issue>
 
@@ -404,7 +822,7 @@
         errorLine2="                                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1482"
+            line="1479"
             column="48"/>
     </issue>
 
@@ -415,7 +833,7 @@
         errorLine2="                                                               ~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1482"
+            line="1479"
             column="64"/>
     </issue>
 
@@ -426,7 +844,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1493"
+            line="1490"
             column="17"/>
     </issue>
 
@@ -437,7 +855,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1493"
+            line="1490"
             column="34"/>
     </issue>
 
@@ -448,7 +866,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1717"
+            line="1714"
             column="25"/>
     </issue>
 
@@ -459,7 +877,7 @@
         errorLine2="                        ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1724"
+            line="1721"
             column="25"/>
     </issue>
 
@@ -470,7 +888,7 @@
         errorLine2="                                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1732"
+            line="1729"
             column="37"/>
     </issue>
 

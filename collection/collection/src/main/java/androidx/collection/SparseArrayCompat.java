@@ -194,6 +194,7 @@ public class SparseArrayCompat<E> implements Cloneable {
      * @return Returns the previous mapped value or null.
      */
     @Nullable
+    @SuppressWarnings("unchecked")
     public E replace(int key, E value) {
         int index = indexOfKey(key);
         if (index >= 0) {

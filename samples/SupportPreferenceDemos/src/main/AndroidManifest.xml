@@ -20,7 +20,7 @@
     package="com.example.androidx.preference">
 
     <uses-sdk
-        tools:overrideLibrary="androidx.leanback.preference, androidx.leanback, androidx.car"/>
+        tools:overrideLibrary="androidx.leanback.preference, androidx.leanback"/>
 
     <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
     <uses-feature android:name="android.software.leanback" android:required="false"/>
@@ -64,15 +64,5 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name="CarPreferences"
-            android:label="@string/car_preferences"
-            android:theme="@style/CarTheme"
-            android:enabled="@bool/atLeastP">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="com.example.androidx.preference.SAMPLE_CODE"/>
-            </intent-filter>
-        </activity>
     </application>
 </manifest>

@@ -28,7 +28,6 @@ import android.view.MotionEvent;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
@@ -48,12 +47,9 @@ import java.util.Set;
  * the user interacts with items using their pointer (and the band). Selectable items that intersect
  * with the band, both on and off screen, are selected on pointer up.
  *
- * @see SelectionTracker.Builder#withPointerTooltypes(int...) for details on the specific
- *     tooltypes routed to this helper.
- *
  * @param <K> Selection key type. @see {@link StorageStrategy} for supported types.
  */
-class BandSelectionHelper<K> implements OnItemTouchListener {
+class BandSelectionHelper<K> implements OnItemTouchListener, Resettable {
 
     static final String TAG = "BandSelectionHelper";
     static final boolean DEBUG = false;
@@ -143,24 +139,23 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
                 lock);
     }
 
-    @VisibleForTesting
-    boolean isActive() {
-        boolean active = mModel != null;
-        if (DEBUG && active) {
-            mLock.checkStarted();
-        }
-        return active;
+    private boolean isActive() {
+        boolean started = mModel != null;
+        if (DEBUG) mLock.checkStarted(started);
+        return started;
     }
 
     /**
      * Clients must call reset when there are any material changes to the layout of items
      * in RecyclerView.
      */
-    void reset() {
+    @Override
+    public void reset() {
         if (!isActive()) {
+            if (DEBUG) Log.d(TAG, "Ignoring reset request, not active.");
             return;
         }
-
+        if (DEBUG) Log.d(TAG, "Handling reset request.");
         mHost.hideBand();
         if (mModel != null) {
             mModel.stopCapturing();
@@ -171,11 +166,15 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
         mOrigin = null;
 
         mScroller.reset();
-        mLock.stop();
+        // mLock is reset by reset manager.
     }
 
-    @VisibleForTesting
-    boolean shouldStart(@NonNull MotionEvent e) {
+    @Override
+    public boolean isResetRequired() {
+        return isActive();
+    }
+
+    private boolean shouldStart(@NonNull MotionEvent e) {
         // b/30146357 && b/23793622. onInterceptTouchEvent does not dispatch events to onTouchEvent
         // unless the event is != ACTION_DOWN. Thus, we need to actually start band selection when
         // mouse moves.
@@ -185,12 +184,8 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
                 && !isActive();
     }
 
-    @VisibleForTesting
-    boolean shouldStop(@NonNull MotionEvent e) {
-        return isActive()
-                && (MotionEvents.isActionUp(e)
-                || MotionEvents.isActionPointerUp(e)
-                || MotionEvents.isActionCancel(e));
+    private boolean shouldStop(@NonNull MotionEvent e) {
+        return isActive() && MotionEvents.isActionUp(e);
     }
 
     @Override
@@ -215,7 +210,7 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
         }
 
         // We shouldn't get any events in this method when band select is not active,
-        // but it turns some guests show up late to the party.
+        // but it turns out some guests show up late to the party.
         // Probably happening when a re-layout is happening to the ReyclerView (ie. Pull-To-Refresh)
         if (!isActive()) {
             return;
@@ -242,7 +237,9 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
      * Starts band select by adding the drawable to the RecyclerView's overlay.
      */
     private void startBandSelect(@NonNull MotionEvent e) {
-        checkState(!isActive());
+        if (DEBUG) {
+            checkState(!isActive());
+        }
 
         if (!MotionEvents.isCtrlKeyPressed(e)) {
             mSelectionTracker.clearSelection();
@@ -257,6 +254,8 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
         mLock.start();
         mFocusDelegate.clearFocus();
         mOrigin = origin;
+        mCurrentPosition = origin;
+
         // NOTE: Pay heed that resizeBand modifies the y coordinates
         // in onScrolled. Not sure if model expects this. If not
         // it should be defending against this.
@@ -303,7 +302,18 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
         }
 
         mSelectionTracker.mergeProvisionalSelection();
-        reset();
+        mLock.stop();
+
+        mHost.hideBand();
+        if (mModel != null) {
+            mModel.stopCapturing();
+            mModel.onDestroy();
+        }
+
+        mModel = null;
+        mOrigin = null;
+
+        mScroller.reset();
     }
 
     /**
@@ -312,6 +322,22 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
         if (!isActive()) {
+            return;
+        }
+
+        // mOrigin and mCurrentPosition should never be null when onScrolled is called,
+        // but "never say never" increasingly looks like a motto to follow.
+        // For this reason we guard those specific cases and provide a clear
+        // error message in the logs.
+        if (mOrigin == null) {
+            Log.e(TAG, "onScrolled called while mOrigin null.");
+            if (DEBUG) throw new IllegalStateException("mOrigin is null.");
+            return;
+        }
+
+        if (mCurrentPosition == null) {
+            Log.e(TAG, "onScrolled called while mCurrentPosition null.");
+            if (DEBUG) throw new IllegalStateException("mCurrentPosition is null.");
             return;
         }
 
@@ -348,8 +374,6 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
 
         /**
          * Add a listener to be notified on scroll events.
-         *
-         * @param listener
          */
         abstract void addOnScrollListener(@NonNull OnScrollListener listener);
     }

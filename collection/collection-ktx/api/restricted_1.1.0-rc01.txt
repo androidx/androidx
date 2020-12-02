@@ -2,19 +2,16 @@
 package androidx.collection {
 
   public final class ArrayMapKt {
-    ctor public ArrayMapKt();
     method public static inline <K, V> androidx.collection.ArrayMap<K,V> arrayMapOf();
     method public static <K, V> androidx.collection.ArrayMap<K,V> arrayMapOf(kotlin.Pair<? extends K,? extends V>... pairs);
   }
 
   public final class ArraySetKt {
-    ctor public ArraySetKt();
     method public static inline <T> androidx.collection.ArraySet<T> arraySetOf();
     method public static <T> androidx.collection.ArraySet<T> arraySetOf(T?... values);
   }
 
   public final class LongSparseArrayKt {
-    ctor public LongSparseArrayKt();
     method public static inline operator <T> boolean contains(androidx.collection.LongSparseArray<T>, long key);
     method public static inline <T> void forEach(androidx.collection.LongSparseArray<T>, kotlin.jvm.functions.Function2<? super java.lang.Long,? super T,kotlin.Unit> action);
     method public static inline <T> T! getOrDefault(androidx.collection.LongSparseArray<T>, long key, T? defaultValue);
@@ -29,12 +26,10 @@ package androidx.collection {
   }
 
   public final class LruCacheKt {
-    ctor public LruCacheKt();
-    method public static inline <K, V> androidx.collection.LruCache<K,V> lruCache(int maxSize, kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf = { _, _ -> 1 }, kotlin.jvm.functions.Function1<? super K,? extends V> create = { (java.lang.Object)null }, kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V,kotlin.Unit> onEntryRemoved = { _, _, _, _ ->  });
+    method public static inline <K, V> androidx.collection.LruCache<K,V> lruCache(int maxSize, kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf = { _, _ -> return 1 }, kotlin.jvm.functions.Function1<? super K,? extends V> create = { return null as V }, kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V,kotlin.Unit> onEntryRemoved = { _, _, _, _ ->  });
   }
 
   public final class SparseArrayKt {
-    ctor public SparseArrayKt();
     method public static inline operator <T> boolean contains(androidx.collection.SparseArrayCompat<T>, int key);
     method public static inline <T> void forEach(androidx.collection.SparseArrayCompat<T>, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> action);
     method public static inline <T> T! getOrDefault(androidx.collection.SparseArrayCompat<T>, int key, T? defaultValue);

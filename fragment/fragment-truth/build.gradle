@@ -25,14 +25,6 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-android {
-    buildTypes {
-        debug {
-            testCoverageEnabled = false // Breaks Kotlin compiler.
-        }
-    }
-}
-
 dependencies {
     api(project(":fragment:fragment-ktx"))
     api(TRUTH)
@@ -49,7 +41,6 @@ dependencies {
 androidx {
     name = "Fragment Truth Extensions"
     publish = Publish.NONE
-    mavenVersion = LibraryVersions.FRAGMENT
     mavenGroup = LibraryGroups.FRAGMENT
     inceptionYear = "2019"
     description = "Truth extensions for Fragments"

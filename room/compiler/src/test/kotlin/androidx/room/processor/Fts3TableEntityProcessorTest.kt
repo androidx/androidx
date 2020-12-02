@@ -40,13 +40,12 @@ import androidx.room.vo.Field
 import androidx.room.vo.FieldGetter
 import androidx.room.vo.FieldSetter
 import androidx.room.vo.Fields
-import org.hamcrest.CoreMatchers
+import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import javax.lang.model.type.TypeKind
 
 @RunWith(JUnit4::class)
 class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
@@ -55,7 +54,8 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
 
     @Test
     fun simple() {
-        singleEntity("""
+        singleEntity(
+            """
                 @PrimaryKey
                 @ColumnInfo(name = "rowid")
                 private int rowId;
@@ -63,16 +63,22 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public void setRowId(int id) { this.rowId = rowId; }
             """
         ) { entity, invocation ->
-            assertThat(entity.type.toString(), CoreMatchers.`is`("foo.bar.MyEntity"))
-            assertThat(entity.fields.size, CoreMatchers.`is`(1))
+            assertThat(entity.type.toString(), `is`("foo.bar.MyEntity"))
+            assertThat(entity.fields.size, `is`(1))
             val field = entity.fields.first()
-            val intType = invocation.processingEnv.typeUtils.getPrimitiveType(TypeKind.INT)
-            assertThat(field, CoreMatchers.`is`(Field(
-                    element = field.element,
-                    name = "rowId",
-                    type = intType,
-                    columnName = "rowid",
-                    affinity = SQLTypeAffinity.INTEGER)))
+            val intType = invocation.processingEnv.requireType(TypeName.INT)
+            assertThat(
+                field,
+                `is`(
+                    Field(
+                        element = field.element,
+                        name = "rowId",
+                        type = intType,
+                        columnName = "rowid",
+                        affinity = SQLTypeAffinity.INTEGER
+                    )
+                )
+            )
             assertThat(field.setter, `is`(FieldSetter("setRowId", intType, CallType.METHOD)))
             assertThat(field.getter, `is`(FieldGetter("getRowId", intType, CallType.METHOD)))
             assertThat(entity.primaryKey.fields, `is`(Fields(field)))
@@ -83,7 +89,8 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
 
     @Test
     fun omittedRowId() {
-        singleEntity("""
+        singleEntity(
+            """
                 private String content;
                 public String getContent() { return content; }
                 public void setContent(String content) { this.content = content; }
@@ -93,75 +100,72 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
 
     @Test
     fun missingPrimaryKeyAnnotation() {
-        singleEntity("""
+        singleEntity(
+            """
                 @ColumnInfo(name = "rowid")
                 private int rowId;
                 public int getRowId(){ return rowId; }
                 public void setRowId(int rowId) { this.rowId = rowId; }
-                """) { _, _ -> }
-                .failsToCompile()
-                .withErrorContaining(ProcessorErrors.MISSING_PRIMARY_KEYS_ANNOTATION_IN_ROW_ID)
+                """
+        ) { _, _ -> }
+            .failsToCompile()
+            .withErrorContaining(ProcessorErrors.MISSING_PRIMARY_KEYS_ANNOTATION_IN_ROW_ID)
     }
 
     @Test
     fun badPrimaryKeyName() {
-        singleEntity("""
+        singleEntity(
+            """
                 @PrimaryKey
                 private int id;
                 public int getId(){ return id; }
                 public void setId(int id) { this.id = id; }
-                """) { _, _ -> }
-                .failsToCompile()
-                .withErrorContaining(ProcessorErrors.INVALID_FTS_ENTITY_PRIMARY_KEY_NAME)
+                """
+        ) { _, _ -> }
+            .failsToCompile()
+            .withErrorContaining(ProcessorErrors.INVALID_FTS_ENTITY_PRIMARY_KEY_NAME)
     }
 
     @Test
     fun badPrimaryKeyAffinity() {
-        singleEntity("""
+        singleEntity(
+            """
                 @PrimaryKey
                 @ColumnInfo(name = "rowid")
                 private String rowId;
                 public String getRowId(){ return rowId; }
                 public void setRowId(String rowId) { this.rowId = rowId; }
-                """) { _, _ -> }
-                .failsToCompile()
-                .withErrorContaining(ProcessorErrors.INVALID_FTS_ENTITY_PRIMARY_KEY_AFFINITY)
+                """
+        ) { _, _ -> }
+            .failsToCompile()
+            .withErrorContaining(ProcessorErrors.INVALID_FTS_ENTITY_PRIMARY_KEY_AFFINITY)
     }
 
     @Test
     fun multiplePrimaryKeys() {
-        singleEntity("""
+        singleEntity(
+            """
                 @PrimaryKey
                 public int oneId;
                 @PrimaryKey
                 public int twoId;
-                """) { _, _ -> }
-                .failsToCompile()
-                .withErrorContaining(ProcessorErrors.TOO_MANY_PRIMARY_KEYS_IN_FTS_ENTITY)
-    }
-
-    @Test
-    fun badForeignKey() {
-        singleEntity("""
-                @PrimaryKey
-                public int rowid;
-                @ForeignKey(entity = MyEntity.class, parentColumns = {}, childColumns = {})
-                public int fkId;
-                """) { _, _ -> }
-                .failsToCompile()
-                .withErrorContaining(ProcessorErrors.INVALID_FOREIGN_KEY_IN_FTS_ENTITY)
+                """
+        ) { _, _ -> }
+            .failsToCompile()
+            .withErrorContaining(ProcessorErrors.TOO_MANY_PRIMARY_KEYS_IN_FTS_ENTITY)
     }
 
     @Test
     fun nonDefaultTokenizer() {
-        singleEntity("""
+        singleEntity(
+            """
                 @PrimaryKey
                 @ColumnInfo(name = "rowid")
                 private int rowId;
                 public int getRowId() { return rowId; }
                 public void setRowId(int id) { this.rowId = rowId; }
                 """,
-                ftsAttributes = hashMapOf("tokenizer" to "FtsOptions.TOKENIZER_PORTER")
+            ftsAttributes = hashMapOf("tokenizer" to "FtsOptions.TOKENIZER_PORTER")
         ) { entity, _ ->
             assertThat(entity.ftsOptions.tokenizer, `is`(FtsOptions.TOKENIZER_PORTER))
         }.compilesWithoutError()
@@ -169,7 +173,8 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
 
     @Test
     fun customTokenizer() {
-        singleEntity("""
+        singleEntity(
+            """
                 @PrimaryKey
                 @ColumnInfo(name = "rowid")
                 private int rowId;

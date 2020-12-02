@@ -34,6 +34,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -89,8 +90,13 @@ public class MockPackageManagerHelper {
                 .thenReturn(resolveInfos);
     }
 
-    private static Intent hasAction(String action) {
-        return argThat(intent -> intent != null && action.equals(intent.getAction()));
+    private static Intent hasAction(final String action) {
+        return argThat(new ArgumentMatcher<Intent>() {
+            @Override
+            public boolean matches(Intent intent) {
+                return intent != null && action.equals(intent.getAction());
+            }
+        });
     }
 
     /**

@@ -27,7 +27,6 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
@@ -40,7 +39,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@ExperimentalCoroutinesApi
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class LifecycleScopeIntegrationTest {
@@ -58,17 +56,21 @@ class LifecycleScopeIntegrationTest {
     @Test
     fun alreadyResumed() = runBlocking {
         rule.scenario.moveToState(RESUMED)
-        assertThat(owner().lifecycleScope.async {
-            true
-        }.await()).isTrue()
+        assertThat(
+            owner().lifecycleScope.async {
+                true
+            }.await()
+        ).isTrue()
     }
 
     @Test
     fun createdState() = runBlocking {
         rule.scenario.moveToState(CREATED)
-        assertThat(owner().lifecycleScope.async {
-            true
-        }.await()).isTrue()
+        assertThat(
+            owner().lifecycleScope.async {
+                true
+            }.await()
+        ).isTrue()
     }
 
     @Test

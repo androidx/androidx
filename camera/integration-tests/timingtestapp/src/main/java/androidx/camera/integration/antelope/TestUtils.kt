@@ -301,30 +301,54 @@ fun testSummaryString(activity: MainActivity, allTestResults: ArrayList<TestResu
 
     val mainCamera = getMainCamera(activity, allTestResults)
 
-    val c2Auto = findTest(allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO)
-    val c2AutoChain = findTest(allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO_CHAIN)
-    val c2Caf = findTest(allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO)
-    val c2CafChain = findTest(allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO_CHAIN)
-    val c2AutoMin = findTest(allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MIN, FocusMode.AUTO, TestType.MULTI_PHOTO)
-    val c2Switch = findTest(allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_SWITCH)
-    val c1Auto = findTest(allTestResults, mainCamera, CameraAPI.CAMERA1,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO)
-    val c1Caf = findTest(allTestResults, mainCamera, CameraAPI.CAMERA1,
-        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO)
-    val c1Switch = findTest(allTestResults, mainCamera, CameraAPI.CAMERA1,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_SWITCH)
-    val cXAuto = findTest(allTestResults, mainCamera, CameraAPI.CAMERAX,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO)
-    val cXCaf = findTest(allTestResults, mainCamera, CameraAPI.CAMERAX,
-        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO)
-    val cXSwitch = findTest(allTestResults, mainCamera, CameraAPI.CAMERAX,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_SWITCH)
+    val c2Auto = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERA2,
+        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO
+    )
+    val c2AutoChain = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERA2,
+        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO_CHAIN
+    )
+    val c2Caf = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERA2,
+        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO
+    )
+    val c2CafChain = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERA2,
+        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO_CHAIN
+    )
+    val c2AutoMin = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERA2,
+        ImageCaptureSize.MIN, FocusMode.AUTO, TestType.MULTI_PHOTO
+    )
+    val c2Switch = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERA2,
+        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_SWITCH
+    )
+    val c1Auto = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERA1,
+        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO
+    )
+    val c1Caf = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERA1,
+        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO
+    )
+    val c1Switch = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERA1,
+        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_SWITCH
+    )
+    val cXAuto = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERAX,
+        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO
+    )
+    val cXCaf = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERAX,
+        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO
+    )
+    val cXSwitch = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERAX,
+        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_SWITCH
+    )
 
     // Header
     val dateFormatter = SimpleDateFormat("d MMM yyyy - kk'h'mm")
@@ -361,9 +385,11 @@ fun testSummaryString(activity: MainActivity, allTestResults: ArrayList<TestResu
         ", Cam1 Open: " + meanOfSumOfTwoArrays(c1Auto.initialization, c1Auto.previewStart) +
         "\nCam2 Close: " + meanOfSumOfTwoArrays(c2Auto.previewClose, c2Auto.cameraClose) +
         ", Cam1 Close: " + meanOfSumOfTwoArrays(c1Auto.previewClose, c1Auto.cameraClose) +
-        "\n∆ Min to Max Size: " + (numericalMean(c2Auto.capture) +
-        numericalMean(c2Auto.imageready) - numericalMean(c2AutoMin.capture) -
-        numericalMean(c2AutoMin.imageready)) +
+        "\n∆ Min to Max Size: " + (
+        numericalMean(c2Auto.capture) +
+            numericalMean(c2Auto.imageready) - numericalMean(c2AutoMin.capture) -
+            numericalMean(c2AutoMin.imageready)
+        ) +
         ", Init->Image saved (Cam2): " + mean(c2Auto.totalNoPreview) +
         "\n"
 
@@ -386,30 +412,54 @@ fun testSummaryCSV(activity: MainActivity, allTestResults: ArrayList<TestResults
 
     val mainCamera = getMainCamera(activity, allTestResults)
 
-    val c2Auto = findTest(allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO)
-    val c2AutoChain = findTest(allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO_CHAIN)
-    val c2Caf = findTest(allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO)
-    val c2CafChain = findTest(allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO_CHAIN)
-    val c2AutoMin = findTest(allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MIN, FocusMode.AUTO, TestType.MULTI_PHOTO)
-    val c2Switch = findTest(allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_SWITCH)
-    val c1Auto = findTest(allTestResults, mainCamera, CameraAPI.CAMERA1,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO)
-    val c1Caf = findTest(allTestResults, mainCamera, CameraAPI.CAMERA1,
-        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO)
-    val c1Switch = findTest(allTestResults, mainCamera, CameraAPI.CAMERA1,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_SWITCH)
-    val cXAuto = findTest(allTestResults, mainCamera, CameraAPI.CAMERAX,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO)
-    val cXCaf = findTest(allTestResults, mainCamera, CameraAPI.CAMERAX,
-        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO)
-    val cXSwitch = findTest(allTestResults, mainCamera, CameraAPI.CAMERAX,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_SWITCH)
+    val c2Auto = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERA2,
+        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO
+    )
+    val c2AutoChain = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERA2,
+        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO_CHAIN
+    )
+    val c2Caf = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERA2,
+        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO
+    )
+    val c2CafChain = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERA2,
+        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO_CHAIN
+    )
+    val c2AutoMin = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERA2,
+        ImageCaptureSize.MIN, FocusMode.AUTO, TestType.MULTI_PHOTO
+    )
+    val c2Switch = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERA2,
+        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_SWITCH
+    )
+    val c1Auto = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERA1,
+        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO
+    )
+    val c1Caf = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERA1,
+        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO
+    )
+    val c1Switch = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERA1,
+        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_SWITCH
+    )
+    val cXAuto = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERAX,
+        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO
+    )
+    val cXCaf = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERAX,
+        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO
+    )
+    val cXSwitch = findTest(
+        allTestResults, mainCamera, CameraAPI.CAMERAX,
+        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_SWITCH
+    )
 
     // Header
     val dateFormatter = SimpleDateFormat("d MMM yyyy - kk'h'mm")
@@ -456,8 +506,10 @@ fun testSummaryCSV(activity: MainActivity, allTestResults: ArrayList<TestResults
         meanOfSumOfTwoArrays(c1Auto.initialization, c1Auto.previewStart)
     output += "," + meanOfSumOfTwoArrays(c2Auto.previewClose, c2Auto.cameraClose) + "," +
         meanOfSumOfTwoArrays(c1Auto.previewClose, c1Auto.cameraClose)
-    output += "," + (numericalMean(c2Auto.capture) + numericalMean(c2Auto.imageready) -
-        numericalMean(c2AutoMin.capture) - numericalMean(c2AutoMin.imageready))
+    output += "," + (
+        numericalMean(c2Auto.capture) + numericalMean(c2Auto.imageready) -
+            numericalMean(c2AutoMin.capture) - numericalMean(c2AutoMin.imageready)
+        )
     output += "," + mean(c2Auto.totalNoPreview) + "\n"
 
     output += "\n"
@@ -482,7 +534,8 @@ fun findTest(
             testResult.cameraAPI == api &&
             testResult.imageCaptureSize == imageCaptureSize &&
             (testResult.focusMode == focusMode || testResult.focusMode == FocusMode.FIXED) &&
-            testResult.testType == testType) {
+            testResult.testType == testType
+        ) {
             return testResult
         }
     }

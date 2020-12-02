@@ -17,17 +17,18 @@
 package androidx.room.solver.binderprovider
 
 import androidx.room.parser.ParsedQuery
+import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.processor.Context
 import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.query.result.InstantQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
-import javax.lang.model.type.DeclaredType
 
 class InstantQueryResultBinderProvider(val context: Context) : QueryResultBinderProvider {
-    override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
         return InstantQueryResultBinder(
-                context.typeAdapterStore.findQueryResultAdapter(declared, query))
+            context.typeAdapterStore.findQueryResultAdapter(declared, query)
+        )
     }
 
-    override fun matches(declared: DeclaredType): Boolean = true
+    override fun matches(declared: XDeclaredType): Boolean = true
 }

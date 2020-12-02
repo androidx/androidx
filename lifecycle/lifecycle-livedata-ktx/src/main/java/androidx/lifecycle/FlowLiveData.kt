@@ -56,6 +56,11 @@ import kotlin.coroutines.EmptyCoroutineContext
  * expected to throw, you can use [catch operator][kotlinx.coroutines.flow.catch] on upstream flow
  * to emit a helpful error object.
  *
+ * The [timeoutInMs] can be changed to fit different use cases better, for example increasing it
+ * will give more time to flow to complete before being canceled and is good for finite flows
+ * that are costly to restart. Otherwise if a flow is cheap to restart decreasing the [timeoutInMs]
+ * value will allow to produce less values that aren't consumed by anything.
+ *
  * @param context The CoroutineContext to collect the upstream flow in. Defaults to
  * [EmptyCoroutineContext] combined with
  * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate]
@@ -63,7 +68,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  * ([LiveData.hasActiveObservers]. Defaults to [DEFAULT_TIMEOUT].
  */
 @JvmOverloads
-fun <T> Flow<T>.asLiveData(
+public fun <T> Flow<T>.asLiveData(
     context: CoroutineContext = EmptyCoroutineContext,
     timeoutInMs: Long = DEFAULT_TIMEOUT
 ): LiveData<T> = liveData(context, timeoutInMs) {
@@ -83,7 +88,7 @@ fun <T> Flow<T>.asLiveData(
  * BackPressure: the returned flow is conflated. There is no mechanism to suspend an emission by
  * LiveData due to a slow collector, so collector always gets the most recent value emitted.
  */
-fun <T> LiveData<T>.asFlow(): Flow<T> = flow {
+public fun <T> LiveData<T>.asFlow(): Flow<T> = flow {
     val channel = Channel<T>(Channel.CONFLATED)
     val observer = Observer<T> {
         channel.offer(it)
@@ -125,6 +130,11 @@ fun <T> LiveData<T>.asFlow(): Flow<T> = flow {
  * expected to throw, you can use [catch operator][kotlinx.coroutines.flow.catch] on upstream flow
  * to emit a helpful error object.
  *
+ * The [timeout] can be changed to fit different use cases better, for example increasing it
+ * will give more time to flow to complete before being canceled and is good for finite flows
+ * that are costly to restart. Otherwise if a flow is cheap to restart decreasing the [timeout]
+ * value will allow to produce less values that aren't consumed by anything.
+ *
  * @param context The CoroutineContext to collect the upstream flow in. Defaults to
  * [EmptyCoroutineContext] combined with
  * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate]
@@ -132,7 +142,7 @@ fun <T> LiveData<T>.asFlow(): Flow<T> = flow {
  * ([LiveData.hasActiveObservers]. Defaults to [DEFAULT_TIMEOUT].
  */
 @RequiresApi(Build.VERSION_CODES.O)
-fun <T> Flow<T>.asLiveData(
+public fun <T> Flow<T>.asLiveData(
     context: CoroutineContext = EmptyCoroutineContext,
     timeout: Duration
 ): LiveData<T> = asLiveData(context, timeout.toMillis())

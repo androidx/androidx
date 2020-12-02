@@ -58,7 +58,10 @@ data class SimpleJavaVersion(val major: Int, val minor: Int, val update: Int? = 
             }
 
             val parts = version.split('.')
-            if (parts.size != 3) {
+
+            // There are valid JDK version strings with more than 3 parts when split by dots.
+            // For example: "11.0.6+10-post-Ubuntu-1ubuntu118.04.1".
+            if (parts.size < 3) {
                 return null
             }
 

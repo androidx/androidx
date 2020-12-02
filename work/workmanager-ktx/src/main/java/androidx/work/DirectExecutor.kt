@@ -25,7 +25,7 @@ import java.util.concurrent.Executor
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-enum class DirectExecutor : Executor {
+public enum class DirectExecutor : Executor {
     INSTANCE;
 
     override fun execute(command: Runnable) {

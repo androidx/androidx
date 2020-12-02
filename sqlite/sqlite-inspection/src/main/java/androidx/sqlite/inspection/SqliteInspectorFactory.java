@@ -18,22 +18,24 @@ package androidx.sqlite.inspection;
 
 import androidx.annotation.NonNull;
 import androidx.inspection.Connection;
+import androidx.inspection.InspectorEnvironment;
 import androidx.inspection.InspectorFactory;
 
 /**
  * Factory for SqliteInspector
  */
 public final class SqliteInspectorFactory extends InspectorFactory<SqliteInspector> {
-
     private static final String SQLITE_INSPECTOR_ID = "androidx.sqlite.inspection";
 
+    @SuppressWarnings("unused") // called by ServiceLoader
     public SqliteInspectorFactory() {
         super(SQLITE_INSPECTOR_ID);
     }
 
     @NonNull
     @Override
-    public SqliteInspector createInspector(@NonNull Connection connection) {
-        return new SqliteInspector(connection);
+    public SqliteInspector createInspector(@NonNull Connection connection,
+            @NonNull InspectorEnvironment environment) {
+        return new SqliteInspector(connection, environment);
     }
 }

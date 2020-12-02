@@ -72,19 +72,22 @@ public class SimpleAppFullLifecycleTest {
             new ActivityTestRule<>(SimpleAppLifecycleTestActivity.class, false, false);
 
     @Before
-    public void setup() {
+    public void setup() throws Throwable {
         // cool down period, so application state will become DESTROYED
         try {
             Thread.sleep(ProcessLifecycleOwner.TIMEOUT_MS * 2);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        SimpleAppLifecycleTestActivity.startProcessObserver();
+        activityTestRule.runOnUiThread(
+                SimpleAppLifecycleTestActivity::startProcessObserver);
     }
 
     @After
-    public void tearDown() {
-        SimpleAppLifecycleTestActivity.stopProcessObserver();
+    public void tearDown() throws Throwable {
+        activityTestRule.runOnUiThread(
+                SimpleAppLifecycleTestActivity::stopProcessObserver
+        );
     }
 
     @Test

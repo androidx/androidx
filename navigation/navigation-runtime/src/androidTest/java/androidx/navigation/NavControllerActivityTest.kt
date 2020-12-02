@@ -20,10 +20,10 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import androidx.navigation.test.R
-import androidx.navigation.testing.TestNavigator
+import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
+import androidx.testutils.TestNavigator
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -35,8 +35,9 @@ import org.mockito.Mockito.spy
 @RunWith(AndroidJUnit4::class)
 class NavControllerActivityTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(NavControllerActivity::class.java)
+    val activityRule = androidx.test.rule.ActivityTestRule(NavControllerActivity::class.java)
 
     private lateinit var navController: NavController
     private lateinit var navigator: TestNavigator
@@ -49,6 +50,7 @@ class NavControllerActivityTest {
         TargetActivity.instances = spy(ArrayList())
     }
 
+    @UiThreadTest
     @Test
     fun testNavigateUpPop() {
         navController.setGraph(R.navigation.nav_simple)
@@ -66,13 +68,16 @@ class NavControllerActivityTest {
             .isEqualTo(1)
     }
 
+    @UiThreadTest
     @Test
     fun testNavigateUp() {
         val activity = activityRule.activity
         navController.setGraph(R.navigation.nav_simple)
-        navController.handleDeepLink(Intent().apply {
-            data = Uri.parse("android-app://androidx.navigation.test/test")
-        })
+        navController.handleDeepLink(
+            Intent().apply {
+                data = Uri.parse("android-app://androidx.navigation.test/test")
+            }
+        )
         assertThat(navController.currentDestination?.id)
             .isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size)
@@ -86,6 +91,7 @@ class NavControllerActivityTest {
             .isTrue()
     }
 
+    @UiThreadTest
     @Test
     fun testActivityDeepLinkHandledOnce() {
         val activity = activityRule.activity

@@ -19,27 +19,67 @@ package androidx.paging
 /**
  * LoadState of a PagedList load - associated with a [LoadType]
  *
- * You can use a [LoadStateListener] to observe [LoadState] of any [LoadType]. For UI
- * purposes (swipe refresh, loading spinner, retry button), this is typically done by
- * registering a callback with the `PagedListAdapter` or `AsyncPagedListDiffer`.
+ * [LoadState] of any [LoadType] may be observed for UI purposes by registering a listener via
+ * [androidx.paging.PagingDataAdapter.addLoadStateListener] or
+ * [androidx.paging.AsyncPagingDataDiffer.addLoadStateListener]
+ *
+ * @param endOfPaginationReached `false` if there is more data to load in the [LoadType] this
+ * [LoadState] is associated with, `true` otherwise. This parameter informs [Pager] if it
+ * should continue to make requests for additional data in this direction or if it should
+ * halt as the end of the dataset has been reached.
  *
  * @see LoadType
  */
-sealed class LoadState {
+sealed class LoadState(
+    val endOfPaginationReached: Boolean
+) {
     /**
-     * Indicates the PagedList is not currently loading, and no error currently observed.
+     * Indicates the [PagingData] is not currently loading, and no error currently observed.
+     *
+     * @param endOfPaginationReached `false` if there is more data to load in the [LoadType] this
+     * [LoadState] is associated with, `true` otherwise. This parameter informs [Pager] if it
+     * should continue to make requests for additional data in this direction or if it should
+     * halt as the end of the dataset has been reached.
      */
-    object Idle : LoadState()
+    class NotLoading(
+        endOfPaginationReached: Boolean
+    ) : LoadState(endOfPaginationReached) {
+        override fun toString(): String {
+            return "NotLoading(endOfPaginationReached=$endOfPaginationReached)"
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return other is NotLoading &&
+                endOfPaginationReached == other.endOfPaginationReached
+        }
+
+        override fun hashCode(): Int {
+            return endOfPaginationReached.hashCode()
+        }
+
+        internal companion object {
+            internal val Complete = NotLoading(endOfPaginationReached = true)
+            internal val Incomplete = NotLoading(endOfPaginationReached = false)
+        }
+    }
 
     /**
      * Loading is in progress.
      */
-    object Loading : LoadState()
+    object Loading : LoadState(false) {
+        override fun toString(): String {
+            return "Loading(endOfPaginationReached=$endOfPaginationReached)"
+        }
 
-    /**
-     * Loading is complete.
-     */
-    object Done : LoadState()
+        override fun equals(other: Any?): Boolean {
+            return other is Loading &&
+                endOfPaginationReached == other.endOfPaginationReached
+        }
+
+        override fun hashCode(): Int {
+            return endOfPaginationReached.hashCode()
+        }
+    }
 
     /**
      * Loading hit an error.
@@ -48,5 +88,21 @@ sealed class LoadState {
      *
      * @see androidx.paging.PagedList.retry
      */
-    data class Error(val error: Throwable) : LoadState()
+    class Error(
+        val error: Throwable
+    ) : LoadState(false) {
+        override fun equals(other: Any?): Boolean {
+            return other is Error &&
+                endOfPaginationReached == other.endOfPaginationReached &&
+                error == other.error
+        }
+
+        override fun hashCode(): Int {
+            return endOfPaginationReached.hashCode() + error.hashCode()
+        }
+
+        override fun toString(): String {
+            return "Error(endOfPaginationReached=$endOfPaginationReached, error=$error)"
+        }
+    }
 }

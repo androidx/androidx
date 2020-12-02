@@ -16,14 +16,20 @@
 
 package com.android.tools.build.jetifier.processor.archive
 
+import com.android.tools.build.jetifier.processor.TimestampsPolicy
 import java.io.IOException
 import java.io.OutputStream
 import java.nio.file.Path
+import java.nio.file.attribute.FileTime
 
 /**
  * Represents a file in the archive that is not an archive.
  */
-class ArchiveFile(relativePath: Path, data: ByteArray) : ArchiveItem {
+class ArchiveFile(
+    relativePath: Path,
+    data: ByteArray,
+    override val lastModifiedTime: FileTime? = null
+) : ArchiveItem {
 
     override var relativePath = relativePath
         private set
@@ -54,7 +60,7 @@ class ArchiveFile(relativePath: Path, data: ByteArray) : ArchiveItem {
     }
 
     @Throws(IOException::class)
-    override fun writeSelfTo(outputStream: OutputStream) {
+    override fun writeSelfTo(outputStream: OutputStream, timestampsPolicy: TimestampsPolicy) {
         outputStream.write(data)
     }
 

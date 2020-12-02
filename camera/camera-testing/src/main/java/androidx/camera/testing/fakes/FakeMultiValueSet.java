@@ -19,7 +19,7 @@ package androidx.camera.testing.fakes;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.MultiValueSet;
+import androidx.camera.core.impl.MultiValueSet;
 
 /**
  * A fake implementation for {@link MultiValueSet}.

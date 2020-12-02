@@ -76,7 +76,6 @@ package androidx.room {
   public abstract class RoomDatabase {
     ctor public RoomDatabase();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void assertNotMainThread();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void assertNotSuspendingTransaction();
     method @Deprecated public void beginTransaction();
     method @WorkerThread public abstract void clearAllTables();
     method public void close();
@@ -248,7 +247,7 @@ package androidx.room.util {
   public static class TableInfo.Column {
     ctor public TableInfo.Column(String!, String!, boolean, int);
     method public boolean isPrimaryKey();
-    field public final int affinity;
+    field @androidx.room.ColumnInfo.SQLiteTypeAffinity public final int affinity;
     field public final String! name;
     field public final boolean notNull;
     field public final int primaryKeyPosition;

@@ -16,7 +16,6 @@
 
 package com.example.android.supportv4;
 
-import android.app.ListActivity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -33,7 +32,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Support4Demos extends ListActivity {
+@SuppressWarnings("deprecation")
+public class Support4Demos extends android.app.ListActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

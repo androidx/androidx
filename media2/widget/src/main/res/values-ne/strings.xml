@@ -45,5 +45,5 @@
     <string name="mcv2_next_button_desc" msgid="4799850472802157220">"अर्को मिडिया"</string>
     <string name="mcv2_rewind_button_desc" msgid="5725552141091554735">"१० सेकेन्ड रिवाइन्ड गर्नुहोस्"</string>
     <string name="mcv2_ffwd_button_desc" msgid="7189466356853482980">"३० सेकेन्ड अघि जानुहोस्"</string>
-    <string name="mcv2_full_screen_button_desc" msgid="6900438429115580036">"पूर्ण स्क्रिन"</string>
+    <string name="mcv2_full_screen_button_desc" msgid="6900438429115580036">"फुल स्क्रिन"</string>
 </resources>

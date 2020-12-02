@@ -36,16 +36,20 @@ class ViewTest {
         Navigation.setViewNavController(view, navController)
 
         val foundNavController = view.findNavController()
-        assertTrue("View should have NavController set",
-                foundNavController == navController)
+        assertTrue(
+            "View should have NavController set",
+            foundNavController == navController
+        )
     }
 
     @Test fun findNavControllerNull() {
         val view = View(ApplicationProvider.getApplicationContext() as android.content.Context)
         try {
             view.findNavController()
-            fail("findNavController should throw IllegalStateException if a NavController" +
-                    " was not set")
+            fail(
+                "findNavController should throw IllegalStateException if a NavController" +
+                    " was not set"
+            )
         } catch (e: IllegalStateException) {
             // Expected
         }

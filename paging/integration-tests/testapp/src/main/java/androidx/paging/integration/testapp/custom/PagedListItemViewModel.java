@@ -23,7 +23,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
-import androidx.paging.PagedSource;
+import androidx.paging.PagingSource;
 
 import kotlin.jvm.functions.Function0;
 
@@ -34,12 +34,12 @@ public class PagedListItemViewModel extends ViewModel {
     private ItemDataSource mDataSource;
     private final Object mDataSourceLock = new Object();
 
-    private final Function0<PagedSource<Integer, Item>> mFactory =
-            new Function0<PagedSource<Integer, Item>>() {
+    private final Function0<PagingSource<Integer, Item>> mFactory =
+            new Function0<PagingSource<Integer, Item>>() {
                 @SuppressLint("SyntheticAccessor")
                 @NonNull
                 @Override
-                public PagedSource<Integer, Item> invoke() {
+                public PagingSource<Integer, Item> invoke() {
                     ItemDataSource newDataSource = new ItemDataSource();
                     synchronized (mDataSourceLock) {
                         mDataSource = newDataSource;
@@ -48,6 +48,7 @@ public class PagedListItemViewModel extends ViewModel {
                 }
             };
 
+    @SuppressWarnings("deprecation")
     private LiveData<PagedList<Item>> mLivePagedList =
             new LivePagedListBuilder<>(mFactory, 10).build();
 

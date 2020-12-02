@@ -18,8 +18,8 @@ package androidx.camera.testing.fakes;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.CaptureConfig;
-import androidx.camera.core.CaptureStage;
+import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.CaptureStage;
 
 /**
  * A fake {@link CaptureStage} where the values can be set.

@@ -100,6 +100,7 @@ public final class GestureDetectorCompat {
         private VelocityTracker mVelocityTracker;
 
         private class GestureHandler extends Handler {
+            @SuppressWarnings("deprecation")
             GestureHandler() {
                 super();
             }

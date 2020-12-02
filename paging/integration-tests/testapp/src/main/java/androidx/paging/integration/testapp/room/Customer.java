@@ -63,7 +63,7 @@ public class Customer {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof Customer)) {
             return false;
         }
 
@@ -87,6 +87,7 @@ public class Customer {
         return result;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Customer{"

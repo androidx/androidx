@@ -18,16 +18,16 @@ package androidx.room.vo
 
 import androidx.room.migration.bundle.BundleUtil
 import androidx.room.migration.bundle.EntityBundle
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XTypeElement
 
 /**
  * A Pojo with a mapping SQLite table.
  */
 open class Entity(
-    element: TypeElement,
+    element: XTypeElement,
     override val tableName: String,
-    type: DeclaredType,
+    type: XDeclaredType,
     fields: List<Field>,
     embeddedFields: List<EmbeddedField>,
     val primaryKey: PrimaryKey,
@@ -55,10 +55,12 @@ open class Entity(
     }
 
     private fun createTableQuery(tableName: String): String {
-        val definitions = (fields.map {
-            val autoIncrement = primaryKey.autoGenerateId && primaryKey.fields.contains(it)
-            it.databaseDefinition(autoIncrement)
-        } + createPrimaryKeyDefinition() + createForeignKeyDefinitions()).filterNotNull()
+        val definitions = (
+            fields.map {
+                val autoIncrement = primaryKey.autoGenerateId && primaryKey.fields.contains(it)
+                it.databaseDefinition(autoIncrement)
+            } + createPrimaryKeyDefinition() + createForeignKeyDefinitions()
+            ).filterNotNull()
         return "CREATE TABLE IF NOT EXISTS `$tableName` (${definitions.joinToString(", ")})"
     }
 
@@ -78,28 +80,32 @@ open class Entity(
     fun shouldBeDeletedAfter(other: Entity): Boolean {
         return foreignKeys.any {
             it.parentTable == other.tableName &&
-                    ((!it.deferred && it.onDelete == ForeignKeyAction.NO_ACTION) ||
-                    it.onDelete == ForeignKeyAction.RESTRICT)
+                (
+                    (!it.deferred && it.onDelete == ForeignKeyAction.NO_ACTION) ||
+                        it.onDelete == ForeignKeyAction.RESTRICT
+                    )
         }
     }
 
     open fun toBundle(): EntityBundle = EntityBundle(
-            tableName,
-            createTableQuery(BundleUtil.TABLE_NAME_PLACEHOLDER),
-            fields.map { it.toBundle() },
-            primaryKey.toBundle(),
-            indices.map { it.toBundle() },
-            foreignKeys.map { it.toBundle() })
+        tableName,
+        createTableQuery(BundleUtil.TABLE_NAME_PLACEHOLDER),
+        fields.map { it.toBundle() },
+        primaryKey.toBundle(),
+        indices.map { it.toBundle() },
+        foreignKeys.map { it.toBundle() }
+    )
 
     fun isUnique(columns: List<String>): Boolean {
         return if (primaryKey.columnNames.size == columns.size &&
-                primaryKey.columnNames.containsAll(columns)) {
+            primaryKey.columnNames.containsAll(columns)
+        ) {
             true
         } else {
             indices.any { index ->
                 index.unique &&
-                        index.fields.size == columns.size &&
-                        index.columnNames.containsAll(columns)
+                    index.fields.size == columns.size &&
+                    index.columnNames.containsAll(columns)
             }
         }
     }

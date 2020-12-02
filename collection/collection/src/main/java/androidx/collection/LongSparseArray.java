@@ -181,6 +181,7 @@ public class LongSparseArray<E> implements Cloneable {
      * @return Returns the previous mapped value or null.
      */
     @Nullable
+    @SuppressWarnings("unchecked")
     public E replace(long key, E value) {
         int index = indexOfKey(key);
         if (index >= 0) {
