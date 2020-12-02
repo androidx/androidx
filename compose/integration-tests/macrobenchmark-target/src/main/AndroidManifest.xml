@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2020 The Android Open Source Project
+  ~ Copyright (C) 2020 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -11,19 +11,19 @@
   ~ distributed under the License is distributed on an "AS IS" BASIS,
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
+  ~ limitations under the License
   -->
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.benchmark.integration.macrobenchmark.target">
+    package="androidx.compose.integration.macrobenchmark.target">
 
     <application
-        android:label="Jetpack Benchmark Macrobenchmark Target"
+        android:label="Jetpack Compose Macrobenchmark Target"
         android:allowBackup="false"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat"
-        tools:ignore="MissingApplicationIcon">
+        android:icon="@mipmap/ic_launcher"
+        tools:ignore="GoogleAppIndexingWarning">
 
         <!--
         Activities need to be exported so the macrobenchmark can discover them
@@ -37,16 +37,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <action android:name="androidx.benchmark.integration.macrobenchmark.target.TRIVIAL_STARTUP_ACTIVITY" />
+                <action android:name="androidx.compose.integration.macrobenchmark.target.TRIVIAL_STARTUP_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
-            android:name=".RecyclerViewActivity"
+            android:name=".LazyColumnActivity"
             android:exported="true">
             <intent-filter>
-                <action android:name="androidx.benchmark.integration.macrobenchmark.target.RECYCLER_VIEW" />
+                <action android:name="androidx.compose.integration.macrobenchmark.target.LAZY_COLUMN_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
