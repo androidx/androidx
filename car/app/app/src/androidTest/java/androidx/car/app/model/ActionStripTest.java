@@ -75,20 +75,6 @@ public class ActionStripTest {
     }
 
     @Test
-    public void clearActions() {
-        Action action1 = Action.BACK;
-        Action action2 = Action.APP_ICON;
-        ActionStrip list =
-                ActionStrip.builder()
-                        .addAction(action1)
-                        .addAction(action2)
-                        .clearActions()
-                        .addAction(action2)
-                        .build();
-        assertThat(list.getActions()).hasSize(1);
-    }
-
-    @Test
     public void getActionOfType() {
         Action action1 = Action.BACK;
         Action action2 = Action.builder().setTitle("Test").setOnClickListener(() -> {
