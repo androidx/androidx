@@ -20,6 +20,7 @@ import android.content.Context;
 import android.text.format.DateUtils;
 
 import androidx.annotation.NonNull;
+import androidx.versionedparcelable.NonParcelField;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
 
@@ -31,19 +32,25 @@ import java.util.Objects;
 @VersionedParcelize
 public class TimerOngoingActivityStatus extends OngoingActivityStatus {
     @ParcelField(value = 1, defaultValue = "0")
-    private long mTimeZeroMillis;
+    long mTimeZeroMillis;
 
     @ParcelField(value = 2, defaultValue = "false")
-    private boolean mCountDown = false;
+    boolean mCountDown = false;
 
     @ParcelField(value = 3, defaultValue = "-1")
-    private long mPausedAtMillis = LONG_DEFAULT;
+    long mPausedAtMillis = LONG_DEFAULT;
 
     @ParcelField(value = 4, defaultValue = "-1")
-    private long mTotalDurationMillis = LONG_DEFAULT;
+    long mTotalDurationMillis = LONG_DEFAULT;
 
+    @NonParcelField
     private final StringBuilder mStringBuilder = new StringBuilder(8);
+
     private static final String NEGATIVE_DURATION_PREFIX = "-";
+
+    // Required by VersionedParcelable
+    TimerOngoingActivityStatus() {
+    }
 
     /**
      * Create a Status representing a timer or stopwatch.

@@ -258,7 +258,7 @@ public final class OngoingActivity {
                         staticIcon,
                         status,
                         touchIntent,
-                        locusId,
+                        locusId == null ? null : locusId.getId(),
                         mOngoingActivityId,
                         category,
                         SystemClock.elapsedRealtime()
