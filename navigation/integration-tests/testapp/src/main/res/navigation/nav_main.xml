@@ -39,14 +39,33 @@
             android:id="@+id/learn_more_about_android"
             app:destination="@+id/android"/>
     </dialog>
-    <fragment android:id="@+id/android"
-              android:label="@string/android"
-              android:name="androidx.navigation.testapp.AndroidFragment">
-        <argument android:name="myarg" android:defaultValue="Android!" />
-        <!-- Handle the 'More information' link on www.example.com -->
-        <deepLink app:uri="www.iana.org/domains/{myarg}"/>
-        <action android:id="@+id/next" app:destination="@+id/first_screen"/>
-    </fragment>
+
+    <navigation android:id="@+id/android"
+        app:startDestination="@id/android_main">
+
+        <fragment android:id="@+id/android_main"
+            android:label="@string/android"
+            android:name="androidx.navigation.testapp.AndroidFragment">
+            <argument android:name="myarg" android:defaultValue="Android!" />
+            <!-- Handle the 'More information' link on www.example.com -->
+            <deepLink app:uri="www.iana.org/domains/{myarg}"/>
+            <action android:id="@+id/to_leaf_2" app:destination="@+id/leaf_home"/>
+        </fragment>
+
+        <navigation android:id="@+id/leaf_home"
+            app:startDestination="@+id/android_leaf">
+            <fragment android:id="@+id/android_leaf"
+                android:label="Leaf"
+                android:name=".LeafFragment">
+                <argument android:name="leafarg" android:defaultValue="Default Leaf Arg" />
+
+                <deepLink app:uri="www.iana.org/domain2/{myarg}/{leafarg}"/>
+                <!-- The parent has a default value for {myarg}. It need not be provided. -->
+                <deepLink app:uri="www.iana.org/domain2/{leafarg}"/>
+            </fragment>
+        </navigation>
+    </navigation>
+
     <fragment android:id="@+id/first_screen"
         android:name="androidx.navigation.testapp.MainFragment"
         android:label="@string/first">

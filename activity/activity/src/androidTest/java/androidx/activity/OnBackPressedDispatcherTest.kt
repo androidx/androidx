@@ -17,11 +17,13 @@
 package androidx.activity
 
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.annotation.UiThreadTest
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
@@ -90,8 +92,10 @@ class OnBackPressedHandlerTest {
             .isEqualTo(0)
 
         onBackPressedCallback.remove()
-        assertWithMessage("Handler should return false when no OnBackPressedCallbacks " +
-                "are registered")
+        assertWithMessage(
+            "Handler should return false when no OnBackPressedCallbacks " +
+                "are registered"
+        )
             .that(dispatcher.hasEnabledCallbacks())
             .isFalse()
         dispatcher.onBackPressed()
@@ -123,8 +127,10 @@ class OnBackPressedHandlerTest {
             .that(onBackPressedCallback.count)
             .isEqualTo(1)
 
-        assertWithMessage("Handler should return false when no OnBackPressedCallbacks " +
-                "are registered")
+        assertWithMessage(
+            "Handler should return false when no OnBackPressedCallbacks " +
+                "are registered"
+        )
             .that(dispatcher.hasEnabledCallbacks())
             .isFalse()
         dispatcher.onBackPressed()
@@ -182,8 +188,10 @@ class OnBackPressedHandlerTest {
         assertWithMessage("Disabled callbacks should not be incremented")
             .that(disabledOnBackPressedCallback.count)
             .isEqualTo(0)
-        assertWithMessage("Previous callbacks should be incremented if more recent callbacks " +
-                "were disabled")
+        assertWithMessage(
+            "Previous callbacks should be incremented if more recent callbacks " +
+                "were disabled"
+        )
             .that(onBackPressedCallback.count)
             .isEqualTo(1)
         assertWithMessage("Fallback count should not be incremented")
@@ -210,8 +218,10 @@ class OnBackPressedHandlerTest {
         assertWithMessage("Most recent callback should be incremented")
             .that(passThroughOnBackPressedCallback.count)
             .isEqualTo(1)
-        assertWithMessage("Previous callbacks should be incremented if more recent callbacks " +
-                "disabled itself and called onBackPressed()")
+        assertWithMessage(
+            "Previous callbacks should be incremented if more recent callbacks " +
+                "disabled itself and called onBackPressed()"
+        )
             .that(onBackPressedCallback.count)
             .isEqualTo(1)
         assertWithMessage("Fallback count should not be incremented")
@@ -224,11 +234,7 @@ class OnBackPressedHandlerTest {
     fun testLifecycleCallback() {
         val onBackPressedCallback = CountingOnBackPressedCallback()
         val lifecycleOnBackPressedCallback = CountingOnBackPressedCallback()
-        val lifecycleOwner = object : LifecycleOwner {
-            val lifecycleRegistry = LifecycleRegistry(this)
-
-            override fun getLifecycle() = lifecycleRegistry
-        }
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
 
         dispatcher.addCallback(onBackPressedCallback)
         dispatcher.addCallback(lifecycleOwner, lifecycleOnBackPressedCallback)
@@ -236,13 +242,15 @@ class OnBackPressedHandlerTest {
         assertWithMessage("Non-started callbacks shouldn't have their count incremented")
             .that(lifecycleOnBackPressedCallback.count)
             .isEqualTo(0)
-        assertWithMessage("Previous callbacks should be incremented if more recent callbacks " +
-                "aren't started")
+        assertWithMessage(
+            "Previous callbacks should be incremented if more recent callbacks " +
+                "aren't started"
+        )
             .that(onBackPressedCallback.count)
             .isEqualTo(1)
 
         // Now start the Lifecycle
-        lifecycleOwner.lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
         dispatcher.onBackPressed()
         assertWithMessage("Once the callbacks is started, the count should increment")
             .that(lifecycleOnBackPressedCallback.count)
@@ -252,24 +260,28 @@ class OnBackPressedHandlerTest {
             .isEqualTo(1)
 
         // Now stop the Lifecycle
-        lifecycleOwner.lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
         dispatcher.onBackPressed()
         assertWithMessage("Non-started callbacks shouldn't have their count incremented")
             .that(lifecycleOnBackPressedCallback.count)
             .isEqualTo(1)
-        assertWithMessage("Previous callbacks should be incremented if more recent callbacks " +
-                "aren't started")
+        assertWithMessage(
+            "Previous callbacks should be incremented if more recent callbacks " +
+                "aren't started"
+        )
             .that(onBackPressedCallback.count)
             .isEqualTo(2)
 
         // Now destroy the Lifecycle
-        lifecycleOwner.lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         dispatcher.onBackPressed()
         assertWithMessage("Non-started callbacks shouldn't have their count incremented")
             .that(lifecycleOnBackPressedCallback.count)
             .isEqualTo(1)
-        assertWithMessage("Previous callbacks should be incremented if more recent callbacks " +
-                "aren't started")
+        assertWithMessage(
+            "Previous callbacks should be incremented if more recent callbacks " +
+                "aren't started"
+        )
             .that(onBackPressedCallback.count)
             .isEqualTo(3)
     }
@@ -283,12 +295,7 @@ class OnBackPressedHandlerTest {
                 remove()
             }
         }
-        val lifecycleOwner = object : LifecycleOwner {
-            val lifecycleRegistry = LifecycleRegistry(this)
-
-            override fun getLifecycle() = lifecycleRegistry
-        }
-        lifecycleOwner.lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        val lifecycleOwner = TestLifecycleOwner()
 
         dispatcher.addCallback(lifecycleOwner, onBackPressedCallback)
         assertWithMessage("Handler should return true once a callback is added")
@@ -299,8 +306,10 @@ class OnBackPressedHandlerTest {
             .that(onBackPressedCallback.count)
             .isEqualTo(1)
 
-        assertWithMessage("Handler should return false when no OnBackPressedCallbacks " +
-                "are registered")
+        assertWithMessage(
+            "Handler should return false when no OnBackPressedCallbacks " +
+                "are registered"
+        )
             .that(dispatcher.hasEnabledCallbacks())
             .isFalse()
         dispatcher.onBackPressed()
@@ -314,13 +323,7 @@ class OnBackPressedHandlerTest {
     @Test
     fun testLifecycleCallbackDestroyed() {
         val onBackPressedCallback = CountingOnBackPressedCallback()
-        val lifecycleOwner = object : LifecycleOwner {
-            val lifecycleRegistry = LifecycleRegistry(this)
-
-            override fun getLifecycle() = lifecycleRegistry
-        }
-        // Start the Lifecycle at CREATED
-        lifecycleOwner.lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.CREATED)
 
         dispatcher.addCallback(lifecycleOwner, onBackPressedCallback)
         assertWithMessage("Non-started callbacks shouldn't appear as an enabled dispatcher")
@@ -328,16 +331,18 @@ class OnBackPressedHandlerTest {
             .isFalse()
 
         // Now destroy the Lifecycle
-        lifecycleOwner.lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         assertWithMessage("Destroyed callbacks shouldn't appear as an enabled dispatcher")
             .that(dispatcher.hasEnabledCallbacks())
             .isFalse()
 
         // Now start the Lifecycle - this wouldn't happen in a real Lifecycle since DESTROYED
         // is terminal but serves as a good test to make sure the Observer is cleaned up
-        lifecycleOwner.lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
-        assertWithMessage("Previously destroyed callbacks shouldn't appear as an enabled " +
-                "dispatcher")
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        assertWithMessage(
+            "Previously destroyed callbacks shouldn't appear as an enabled " +
+                "dispatcher"
+        )
             .that(dispatcher.hasEnabledCallbacks())
             .isFalse()
     }
@@ -346,28 +351,41 @@ class OnBackPressedHandlerTest {
     @Test
     fun testLifecycleCallback_whenDestroyed() {
         val lifecycleOnBackPressedCallback = CountingOnBackPressedCallback()
-        val lifecycleOwner = object : LifecycleOwner {
-            val lifecycleRegistry = LifecycleRegistry(this)
 
-            override fun getLifecycle() = lifecycleRegistry
-        }
-        // Start the Lifecycle as DESTROYED
-        lifecycleOwner.lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.DESTROYED)
 
         dispatcher.addCallback(lifecycleOwner, lifecycleOnBackPressedCallback)
 
-        assertWithMessage("Handler should return false when no OnBackPressedCallbacks " +
-                "are registered")
+        assertWithMessage(
+            "Handler should return false when no OnBackPressedCallbacks " +
+                "are registered"
+        )
             .that(dispatcher.hasEnabledCallbacks())
             .isFalse()
 
         // Now start the Lifecycle - this wouldn't happen in a real Lifecycle since DESTROYED
         // is terminal but serves as a good test to make sure no lingering Observer exists
-        lifecycleOwner.lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
-        assertWithMessage("Previously destroyed callbacks shouldn't appear as an enabled " +
-                "dispatcher")
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        assertWithMessage(
+            "Previously destroyed callbacks shouldn't appear as an enabled " +
+                "dispatcher"
+        )
             .that(dispatcher.hasEnabledCallbacks())
             .isFalse()
+    }
+
+    /**
+     * Test to ensure that manually calling [ComponentActivity.onBackPressed] after
+     * [ComponentActivity.onSaveInstanceState] does not cause an exception.
+     */
+    @LargeTest
+    @Test
+    fun testCallOnBackPressedWhenStopped() {
+        with(ActivityScenario.launch(ContentViewActivity::class.java)) {
+            val realDispatcher = withActivity { onBackPressedDispatcher }
+            moveToState(Lifecycle.State.CREATED)
+            withActivity { realDispatcher.onBackPressed() }
+        }
     }
 }
 

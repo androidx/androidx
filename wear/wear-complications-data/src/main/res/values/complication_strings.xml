@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- A representation of a number of days in the shortest possible way. For example, "3d" for
+         three days. If at all possible, just one character should be used, but this should
+         allow days, hours and minutes to be distinguished (see time_difference_short_hours
+         and time_difference_short_minutes below). The user will understand that the context is
+         an amount of time, so even though "3d" does not normally mean "three days" in English,
+         it is appropriate here. If absolutely necessary, up to four characters may be used.
+         If the space can be omitted then it should be even if a space would usually be included
+         between a number and a unit, but if it is necessary to include a space then one may be used.
+         [CHAR LIMIT=5]-->
+    <plurals name="time_difference_short_days">
+        <item quantity="one"><xliff:g id="number_of_days">%d</xliff:g>d</item>
+        <item quantity="other"><xliff:g id="number_of_days">%d</xliff:g>d</item>
+    </plurals>
+
+    <!-- A representation of a number of hours in the shortest possible way. For example, "3h" for
+         three hours. If at all possible, just one character should be used, but this should
+         allow days, hours and minutes to be distinguished (see time_difference_short_days
+         and time_difference_short_minutes). The user will understand that the context is
+         an amount of time, so even though "3h" does not normally mean "three hours" in English,
+         it is appropriate here. If absolutely necessary, up to four characters may be used.
+         If the space can be omitted then it should be even if a space would usually be included
+         between a number and a unit, but if it is necessary to include a space then one may be used.
+         [CHAR LIMIT=5]-->
+    <plurals name="time_difference_short_hours">
+        <item quantity="one"><xliff:g id="number_of_hours">%d</xliff:g>h</item>
+        <item quantity="other"><xliff:g id="number_of_hours">%d</xliff:g>h</item>
+    </plurals>
+
+    <!-- A representation of a number of minutes in the shortest possible way. For example, "45m" for
+         forty-five minutes. If at all possible, just one character should be used, but this should
+         allow days, hours and minutes to be distinguished (see time_difference_short_days
+         and time_difference_short_hours). The user will understand that the context is
+         an amount of time, so even though "3m" does not normally mean "three minutes" in English,
+         it is appropriate here. If absolutely necessary, up to four characters may be used.
+         If the space can be omitted then it should be even if a space would usually be included
+         between a number and a unit, but if it is necessary to include a space then one may be used.
+         [CHAR LIMIT=5]-->
+    <plurals name="time_difference_short_minutes">
+        <item quantity="one"><xliff:g id="number_of_minutes">%d</xliff:g>m</item>
+        <item quantity="other"><xliff:g id="number_of_minutes">%d</xliff:g>m</item>
+    </plurals>
+
+    <!-- A representation of a number of days and hours in the shortest possible way. For example,
+         "3d 5h" for three days and five hours. In this string, "%1$s" will be replaced by
+         the localised string for time_difference_short_days, and "%2$s" will be replaced by
+         the localised string for time_difference_short_hours, as defined above.
+         [CHAR LIMIT=3]-->
+    <string name="time_difference_short_days_and_hours"><xliff:g id="short_days" example="3d">%1$s</xliff:g>\u0020<xliff:g id="short_hours" example="13h">%2$s</xliff:g></string>
+
+    <!-- A representation of a number of hours and minutes in the shortest possible way. For example,
+         "5h 12m" for five hours and twelve minutes. In this string, "%1$s" will be replaced by
+         the localised string for time_difference_short_hours, and "%2$s" will be replaced by
+         the localised string for time_difference_short_minutes, as defined above.
+         [CHAR LIMIT=3]-->
+    <string name="time_difference_short_hours_and_minutes"><xliff:g id="short_hours" example="13h">%1$s</xliff:g>\u0020<xliff:g id="short_minutes" example="58m">%2$s</xliff:g></string>
+
+    <!-- A representation of a number of days, abbreviated if possible. For example, "3 days" for
+         three days. [CHAR LIMIT=8]-->
+    <plurals name="time_difference_words_days">
+        <item quantity="one"><xliff:g id="number_of_days">%d</xliff:g> day</item>
+        <item quantity="other"><xliff:g id="number_of_days">%d</xliff:g> days</item>
+    </plurals>
+
+    <!-- A representation of a number of hours as a single word, abbreviated if possible. For
+         example, "5 hours" for five hours. [CHAR LIMIT=8]-->
+    <plurals name="time_difference_words_hours">
+        <item quantity="one"><xliff:g id="number_of_hours">%d</xliff:g> hour</item>
+        <item quantity="other"><xliff:g id="number_of_hours">%d</xliff:g> hours</item>
+    </plurals>
+
+    <!-- A representation of a number of minutes as a single word, abbreviated if possible. For
+         example, "12 minutes" for twelve minutes. [CHAR LIMIT=8]-->
+    <plurals name="time_difference_words_minutes">
+        <item quantity="one"><xliff:g id="number_of_minutes">%d</xliff:g> min</item>
+        <item quantity="other"><xliff:g id="number_of_minutes">%d</xliff:g> mins</item>
+    </plurals>
+
+    <!-- A string shown on its own to indicate that something is happening now. For example,
+         it could appear to show that the user's next meeting is already under way.
+         Abbreviation is ok as long as the string is still understandable.
+         [CHAR LIMIT=6] -->
+    <string name="time_difference_now">Now</string>
+
+</resources>

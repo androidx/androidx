@@ -18,12 +18,10 @@ package androidx.media2.session;
 
 import static org.junit.Assert.assertEquals;
 
-import android.os.Build;
 import android.os.Parcel;
 
 import androidx.media2.common.Rating;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;
@@ -34,19 +32,18 @@ import org.junit.runner.RunWith;
 /**
  * Tests {@link Rating} and its subclasses.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class RatingTest extends MediaTestBase {
     @Test
-    public void testUnratedHeartRating() {
+    public void unratedHeartRating() {
         HeartRating rating = new HeartRating();
         assertEquals(false, rating.isRated());
         assertEquals(rating, writeToParcelAndCreateRating(rating));
     }
 
     @Test
-    public void testRatedHeartRating() {
+    public void ratedHeartRating() {
         final boolean hasHeart = true;
         HeartRating rating = new HeartRating(hasHeart);
         assertEquals(true, rating.isRated());
@@ -55,14 +52,14 @@ public class RatingTest extends MediaTestBase {
     }
 
     @Test
-    public void testUnratedPercentageRating() {
+    public void unratedPercentageRating() {
         PercentageRating rating = new PercentageRating();
         assertEquals(false, rating.isRated());
         assertEquals(rating, writeToParcelAndCreateRating(rating));
     }
 
     @Test
-    public void testRatedPercentageRating() {
+    public void ratedPercentageRating() {
         double delta = 0.000001;
         float percentage = 20.5f;
         PercentageRating rating = new PercentageRating(percentage);
@@ -72,14 +69,14 @@ public class RatingTest extends MediaTestBase {
     }
 
     @Test
-    public void testUnratedThumbRating() {
+    public void unratedThumbRating() {
         ThumbRating rating = new ThumbRating();
         assertEquals(false, rating.isRated());
         assertEquals(rating, writeToParcelAndCreateRating(rating));
     }
 
     @Test
-    public void testRatedThumbRating() {
+    public void ratedThumbRating() {
         boolean isThumbUp = true;
         ThumbRating rating = new ThumbRating(isThumbUp);
         assertEquals(true, rating.isRated());
@@ -88,7 +85,7 @@ public class RatingTest extends MediaTestBase {
     }
 
     @Test
-    public void testUnratedStarRating() {
+    public void unratedStarRating() {
         int maxStars = 5;
         StarRating rating = new StarRating(maxStars);
         assertEquals(false, rating.isRated());
@@ -97,7 +94,7 @@ public class RatingTest extends MediaTestBase {
     }
 
     @Test
-    public void testRatedStarRating() {
+    public void ratedStarRating() {
         double delta = 0.000001;
         int maxStars = 5;
         float starRating = 3.1f;
@@ -111,10 +108,13 @@ public class RatingTest extends MediaTestBase {
     private Rating writeToParcelAndCreateRating(Rating rating) {
         ParcelImpl parcelImpl = (ParcelImpl) ParcelUtils.toParcelable(rating);
         Parcel parcel = Parcel.obtain();
-        parcelImpl.writeToParcel(parcel, 0);
-        parcel.setDataPosition(0);
-        ParcelImpl newParcelImpl = ParcelImpl.CREATOR.createFromParcel(parcel);
-        parcel.recycle();
-        return ParcelUtils.fromParcelable(newParcelImpl);
+        try {
+            parcelImpl.writeToParcel(parcel, 0);
+            parcel.setDataPosition(0);
+            ParcelImpl newParcelImpl = ParcelImpl.CREATOR.createFromParcel(parcel);
+            return ParcelUtils.fromParcelable(newParcelImpl);
+        } finally {
+            parcel.recycle();
+        }
     }
 }

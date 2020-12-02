@@ -141,7 +141,8 @@ class ProGuardTypesMapper(private val context: TransformationContext) {
         val newSet = mutableSetOf<String>()
 
         setToMatch.forEach {
-            type -> run {
+            type ->
+            run {
                 if (prefixes.any { type.fullName.startsWith(it) }) {
                     // Type already covered
                     return@run

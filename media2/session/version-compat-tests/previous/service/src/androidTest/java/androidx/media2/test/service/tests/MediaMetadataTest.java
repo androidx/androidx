@@ -26,7 +26,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -43,7 +42,6 @@ import androidx.media2.session.ThumbRating;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;
 
@@ -54,12 +52,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class MediaMetadataTest {
     @Test
-    public void testBuilder() {
+    public void builder() {
         final String title = "title";
         final long discNumber = 10;
         final Rating rating = new ThumbRating(true);
@@ -76,7 +73,7 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void testSetExtra() {
+    public void setExtra() {
         final Bundle extras = new Bundle();
         extras.putString("MediaMetadataTest", "testBuilder");
 
@@ -93,7 +90,7 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void testParcelingWithSmallBitmaps() {
+    public void parcelingWithSmallBitmaps() {
         final int bitmapCount = 100;
         final List<String> keyList = new ArrayList<>(bitmapCount);
         final String bitmapKeyPrefix = "bitmap_";
@@ -117,30 +114,34 @@ public class MediaMetadataTest {
 
         // Bitmaps will not be scaled down since they are small.
         Parcel parcel = Parcel.obtain();
-        parcelImpl.writeToParcel(parcel, 0 /* flags */);
-        parcel.setDataPosition(0);
+        try {
+            parcelImpl.writeToParcel(parcel, 0 /* flags */);
+            parcel.setDataPosition(0);
 
-        MediaMetadata metadataFromParcel =
-                ParcelUtils.fromParcelable(ParcelImpl.CREATOR.createFromParcel(parcel));
+            MediaMetadata metadataFromParcel =
+                    ParcelUtils.fromParcelable(ParcelImpl.CREATOR.createFromParcel(parcel));
 
-        // Check the bitmap list from the metadata.
-        Set<String> keySet = metadataFromParcel.keySet();
-        assertTrue(keySet.containsAll(keyList));
-        assertTrue(keyList.containsAll(keySet));
+            // Check the bitmap list from the metadata.
+            Set<String> keySet = metadataFromParcel.keySet();
+            assertTrue(keySet.containsAll(keyList));
+            assertTrue(keyList.containsAll(keySet));
 
-        for (String key : keySet) {
-            Bitmap bitmap = metadataFromParcel.getBitmap(key);
-            assertNotNull(bitmap);
-            int newWidth = bitmap.getWidth();
-            int newHeight = bitmap.getHeight();
-            // The bitmaps should not have been scaled down.
-            assertEquals(newWidth, originalWidth);
-            assertEquals(newHeight, originalHeight);
+            for (String key : keySet) {
+                Bitmap bitmap = metadataFromParcel.getBitmap(key);
+                assertNotNull(bitmap);
+                int newWidth = bitmap.getWidth();
+                int newHeight = bitmap.getHeight();
+                // The bitmaps should not have been scaled down.
+                assertEquals(newWidth, originalWidth);
+                assertEquals(newHeight, originalHeight);
+            }
+        } finally {
+            parcel.recycle();
         }
     }
 
     @Test
-    public void testParcelingWithLargeBitmaps() {
+    public void parcelingWithLargeBitmaps() {
         final int bitmapCount = 100;
         final List<String> keyList = new ArrayList<>(bitmapCount);
         final String bitmapKeyPrefix = "bitmap_";
@@ -164,30 +165,34 @@ public class MediaMetadataTest {
 
         // Bitmaps will be scaled down when the metadata is written to parcel.
         Parcel parcel = Parcel.obtain();
-        parcelImpl.writeToParcel(parcel, 0 /* flags */);
-        parcel.setDataPosition(0);
+        try {
+            parcelImpl.writeToParcel(parcel, 0 /* flags */);
+            parcel.setDataPosition(0);
 
-        MediaMetadata metadataFromParcel =
-                ParcelUtils.fromParcelable(ParcelImpl.CREATOR.createFromParcel(parcel));
+            MediaMetadata metadataFromParcel =
+                    ParcelUtils.fromParcelable(ParcelImpl.CREATOR.createFromParcel(parcel));
 
-        // Check the bitmap list from the metadata.
-        Set<String> keySet = metadataFromParcel.keySet();
-        assertTrue(keySet.containsAll(keyList));
-        assertTrue(keyList.containsAll(keySet));
+            // Check the bitmap list from the metadata.
+            Set<String> keySet = metadataFromParcel.keySet();
+            assertTrue(keySet.containsAll(keyList));
+            assertTrue(keyList.containsAll(keySet));
 
-        for (String key : keySet) {
-            Bitmap bitmap = metadataFromParcel.getBitmap(key);
-            assertNotNull(bitmap);
-            int newWidth = bitmap.getWidth();
-            int newHeight = bitmap.getHeight();
-            assertTrue("Resulting bitmap (size=" + newWidth + "x" + newHeight + ") was not "
-                            + "scaled down. ",
-                    newWidth < originalWidth && newHeight < originalHeight);
+            for (String key : keySet) {
+                Bitmap bitmap = metadataFromParcel.getBitmap(key);
+                assertNotNull(bitmap);
+                int newWidth = bitmap.getWidth();
+                int newHeight = bitmap.getHeight();
+                assertTrue("Resulting bitmap (size=" + newWidth + "x" + newHeight + ") was not "
+                                + "scaled down. ",
+                        newWidth < originalWidth && newHeight < originalHeight);
+            }
+        } finally {
+            parcel.recycle();
         }
     }
 
     @Test
-    public void testMediaUtils_convertToMediaMetadataCompat() {
+    public void mediaUtils_convertToMediaMetadataCompat() {
         HeartRating testRating = new HeartRating(true);
         long testState = MediaMetadata.STATUS_DOWNLOADING;
         String testCustomKey = "android.media.test";
@@ -209,7 +214,7 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void testMediaUtils_convertToMediaItem() {
+    public void mediaUtils_convertToMediaItem() {
         RatingCompat testRating = RatingCompat.newHeartRating(true);
         long testState = MediaDescriptionCompat.STATUS_DOWNLOADING;
         String testCustomKey = "android.media.test";

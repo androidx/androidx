@@ -81,13 +81,13 @@ import java.util.ArrayList;
  * <p>FragmentContainerView should not be used as a replacement for other ViewGroups (FrameLayout,
  * LinearLayout, etc) outside of Fragment use cases.
  *
- * <p>FragmentContainerView will only allow views to returned by a Fragment's
+ * <p>FragmentContainerView will only allow views returned by a Fragment's
  * {@link Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}. Attempting to add any other
  * view will result in an {@link IllegalStateException}.
  *
  * <p>Layout animations and transitions are disabled for FragmentContainerView for APIs above 17.
  * Otherwise, Animations should be done through
- * {@link FragmentTransaction#setCustomAnimations(int, int, int, int)}. IfanimateLayoutChanges is
+ * {@link FragmentTransaction#setCustomAnimations(int, int, int, int)}. If animateLayoutChanges is
  * set to <code>true</code> or {@link #setLayoutTransition(LayoutTransition)} is called directly an
  * {@link UnsupportedOperationException} will be thrown.
  *
@@ -95,10 +95,6 @@ import java.util.ArrayList;
  * ensures that exiting Fragments do not appear on top of the view.
  */
 public final class FragmentContainerView extends FrameLayout {
-
-    private final String mTag;
-    private final FragmentManager mFragmentManager;
-    private final Fragment mContainerFragment;
 
     private ArrayList<View> mDisappearingFragmentChildren;
 
@@ -110,9 +106,6 @@ public final class FragmentContainerView extends FrameLayout {
 
     public FragmentContainerView(@NonNull Context context) {
         super(context);
-        mTag = null;
-        mFragmentManager = null;
-        mContainerFragment = null;
     }
 
     /**
@@ -120,9 +113,7 @@ public final class FragmentContainerView extends FrameLayout {
      * {@link UnsupportedOperationException}.
      */
     public FragmentContainerView(@NonNull Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        throw new UnsupportedOperationException("FragmentContainerView must be within a "
-                + "FragmentActivity to be instantiated from XML.");
+        this(context, attrs, 0);
     }
 
     /**
@@ -134,20 +125,34 @@ public final class FragmentContainerView extends FrameLayout {
             @Nullable AttributeSet attrs,
             int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        throw new UnsupportedOperationException("FragmentContainerView must be within a "
-                + "FragmentActivity to be instantiated from XML.");
+        if (attrs != null) {
+            String name = attrs.getClassAttribute();
+            String attribute = "class";
+            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FragmentContainerView);
+            if (name == null) {
+                name = a.getString(R.styleable.FragmentContainerView_android_name);
+                attribute = "android:name";
+            }
+            a.recycle();
+            if (name != null && !isInEditMode()) {
+                throw new UnsupportedOperationException("FragmentContainerView must be within "
+                        + "a FragmentActivity to use " + attribute + "=\"" + name + "\"");
+            }
+        }
     }
 
     FragmentContainerView(
             @NonNull Context context,
-            @Nullable AttributeSet attrs,
+            @NonNull AttributeSet attrs,
             @NonNull FragmentManager fm) {
         super(context, attrs);
-        mFragmentManager = fm;
 
+        String name = attrs.getClassAttribute();
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FragmentContainerView);
-        String name = a.getString(R.styleable.FragmentContainerView_android_name);
-        mTag = a.getString(R.styleable.FragmentContainerView_android_tag);
+        if (name == null) {
+            name = a.getString(R.styleable.FragmentContainerView_android_name);
+        }
+        String tag = a.getString(R.styleable.FragmentContainerView_android_tag);
         a.recycle();
 
         int id = getId();
@@ -156,17 +161,19 @@ public final class FragmentContainerView extends FrameLayout {
         // we should add an inflated Fragment to the view.
         if (name != null && existingFragment == null) {
             if (id <= 0) {
-                final String tagMessage = mTag != null
-                        ? " with tag " + mTag
+                final String tagMessage = tag != null
+                        ? " with tag " + tag
                         : "";
                 throw new IllegalStateException("FragmentContainerView must have an android:id to "
                         + "add Fragment " + name + tagMessage);
             }
-            mContainerFragment =
-                    fm.getFragmentFactory().instantiate(getContext().getClassLoader(), name);
-            mContainerFragment.onInflate(getContext(), attrs, null);
-        } else {
-            mContainerFragment = null;
+            Fragment containerFragment =
+                    fm.getFragmentFactory().instantiate(context.getClassLoader(), name);
+            containerFragment.onInflate(context, attrs, null);
+            fm.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(this, containerFragment, tag)
+                    .commitNowAllowingStateLoss();
         }
     }
 
@@ -214,19 +221,6 @@ public final class FragmentContainerView extends FrameLayout {
             child.dispatchApplyWindowInsets(new WindowInsets(insets));
         }
         return insets;
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        // If we inflated a Fragment when this view was created, we should add it to the
-        // FragmentManager.
-        if (mContainerFragment != null) {
-            mFragmentManager.beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(getId(), mContainerFragment, mTag)
-                    .commitNow();
-        }
     }
 
     @Override
@@ -280,7 +274,7 @@ public final class FragmentContainerView extends FrameLayout {
     }
 
     /**
-     * <p>FragmentContainerView will only allow views to returned by a Fragment's
+     * <p>FragmentContainerView will only allow views returned by a Fragment's
      * {@link Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}. Attempting to add any
      *  other view will result in an {@link IllegalStateException}.
      *
@@ -297,7 +291,7 @@ public final class FragmentContainerView extends FrameLayout {
     }
 
     /**
-     * <p>FragmentContainerView will only allow views to returned by a Fragment's
+     * <p>FragmentContainerView will only allow views returned by a Fragment's
      * {@link Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}. Attempting to add any
      *  other view will result in an {@link IllegalStateException}.
      *

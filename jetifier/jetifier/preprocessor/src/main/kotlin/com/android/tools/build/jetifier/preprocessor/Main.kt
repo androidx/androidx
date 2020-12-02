@@ -37,10 +37,12 @@ class Main {
         val OPTION_INPUT_LIBS = createOption("i", "Input libraries paths", multiple = true)
         val OPTION_INPUT_CONFIG = createOption("c", "Input config path")
         val OPTION_OUTPUT_CONFIG = createOption("o", "Output config path")
-        val OPTION_LOG_LEVEL = createOption("l", "Logging level. debug, verbose, default",
-            isRequired = false)
+        val OPTION_LOG_LEVEL = createOption(
+            "l", "Logging level. debug, verbose, default",
+            isRequired = false
+        )
 
-        private fun createOption(
+        internal fun createOption(
             argName: String,
             desc: String,
             isRequired: Boolean = true,

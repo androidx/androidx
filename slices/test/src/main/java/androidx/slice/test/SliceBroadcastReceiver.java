@@ -19,10 +19,12 @@ package androidx.slice.test;
 import static android.app.slice.Slice.EXTRA_RANGE_VALUE;
 import static android.app.slice.Slice.EXTRA_TOGGLE_STATE;
 
+import static androidx.slice.test.SampleSliceProvider.DATE_MILLIS_VALUE;
 import static androidx.slice.test.SampleSliceProvider.EXTRA_ITEM_INDEX;
+import static androidx.slice.test.SampleSliceProvider.STAR_RATING;
+import static androidx.slice.test.SampleSliceProvider.TIME_MILLIS_VALUE;
 import static androidx.slice.test.SampleSliceProvider.getUri;
 import static androidx.slice.test.SampleSliceProvider.sGroceryList;
-import static androidx.slice.test.SampleSliceProvider.sStarRating;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -33,12 +35,14 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
+import java.util.Date;
+
 /**
  * Responds to actions performed on slices and notifies slices of updates in state changes.
  */
 @RequiresApi(19)
 public class SliceBroadcastReceiver extends BroadcastReceiver {
-
+    @SuppressWarnings("deprecation")
     @Override
     public void onReceive(final Context context, Intent i) {
         String action = i.getAction();
@@ -70,9 +74,36 @@ public class SliceBroadcastReceiver extends BroadcastReceiver {
                 break;
             case SampleSliceProvider.ACTION_TOAST_RANGE_VALUE:
                 int range = i.getExtras().getInt(EXTRA_RANGE_VALUE, 0);
-                sStarRating = range;
+                STAR_RATING = range;
                 Toast.makeText(context, "value: " + range, Toast.LENGTH_SHORT).show();
                 context.getContentResolver().notifyChange(getUri("inputrange", context), null);
+                context.getContentResolver().notifyChange(getUri("richinputrange", context), null);
+                context.getContentResolver().notifyChange(getUri("indeterminateprogress3", context),
+                        null);
+                context.getContentResolver().notifyChange(getUri("starrating",
+                        context),
+                        null);
+                break;
+            case SampleSliceProvider.ACTION_TOAST_DATE_VALUE:
+                long dateMillis = i.getExtras().getLong(EXTRA_RANGE_VALUE, 0);
+                DATE_MILLIS_VALUE = dateMillis;
+                Toast.makeText(context, "value: " + new Date(dateMillis),
+                        Toast.LENGTH_SHORT).show();
+                context.getContentResolver().notifyChange(getUri("picker",
+                        context),
+                        null);
+                break;
+            case SampleSliceProvider.ACTION_TOAST_TIME_VALUE:
+                long timeMillis = i.getExtras().getLong(EXTRA_RANGE_VALUE, 0);
+                TIME_MILLIS_VALUE = timeMillis;
+                Toast.makeText(context, "value: " + new Date(timeMillis),
+                        Toast.LENGTH_SHORT).show();
+                context.getContentResolver().notifyChange(getUri("picker",
+                        context),
+                        null);
+                break;
+            case SampleSliceProvider.ACTION_PLAY_TTS:
+                context.getContentResolver().notifyChange(getUri("tts", context), null);
                 break;
         }
     }

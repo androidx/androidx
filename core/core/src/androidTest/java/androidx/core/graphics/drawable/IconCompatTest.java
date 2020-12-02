@@ -32,7 +32,6 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -147,7 +146,8 @@ public class IconCompatTest {
         Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
         bitmap.eraseColor(Color.RED);
         IconCompat compat = IconCompat.createWithBitmap(bitmap);
-        Drawable d = compat.toIcon().loadDrawable(ApplicationProvider.getApplicationContext());
+        final Context context = ApplicationProvider.getApplicationContext();
+        Drawable d = compat.toIcon(context).loadDrawable(context);
         assertTrue(d instanceof BitmapDrawable);
         assertEquals(bitmap, ((BitmapDrawable) d).getBitmap());
     }
@@ -168,14 +168,38 @@ public class IconCompatTest {
     public void testCreateWithAdaptiveBitmap() {
         Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
         bitmap.eraseColor(Color.GREEN);
-        IconCompat compat = IconCompat.createWithAdaptiveBitmap(bitmap);
-        Drawable d = compat.toIcon().loadDrawable(ApplicationProvider.getApplicationContext());
-        if (Build.VERSION.SDK_INT >= 26) {
-            assertTrue(d instanceof AdaptiveIconDrawable);
-        } else {
-            assertTrue(d instanceof BitmapDrawable);
-            Bitmap clipped = ((BitmapDrawable) d).getBitmap();
-            verifyClippedCircle(clipped, Color.GREEN, clipped.getWidth());
+        verifyAdaptiveIconCompat(IconCompat.createWithAdaptiveBitmap(bitmap), Color.GREEN);
+    }
+
+    @Test
+    public void testFileIconCompatAdaptiveBitmap() throws IOException {
+        File file = new File(mContext.getFilesDir(), "testimage.jpg");
+        Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
+        bitmap.eraseColor(Color.GRAY);
+        try {
+            writeSampleImage(bitmap, file);
+            assertTrue(file.exists());
+            final IconCompat compat =
+                    IconCompat.createWithAdaptiveBitmapContentUri(Uri.fromFile(file));
+            verifyIconCompatValidity(compat);
+        } finally {
+            file.delete();
+        }
+    }
+
+    @Test
+    public void testCreateWithContentUriForAdaptiveBitmap() throws IOException {
+        File file = new File(mContext.getFilesDir(), "testimage.jpg");
+        Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
+        bitmap.eraseColor(Color.GRAY);
+        try {
+            writeSampleImage(bitmap, file);
+            assertTrue(file.exists());
+            final IconCompat compat =
+                    IconCompat.createWithAdaptiveBitmapContentUri(Uri.fromFile(file));
+            verifyAdaptiveIconCompat(compat, Color.GRAY);
+        } finally {
+            file.delete();
         }
     }
 
@@ -196,7 +220,8 @@ public class IconCompatTest {
         }
 
         IconCompat compat = IconCompat.createWithData(resultCopy, 20, bytes.length);
-        Drawable d = compat.toIcon().loadDrawable(ApplicationProvider.getApplicationContext());
+        final Context context = ApplicationProvider.getApplicationContext();
+        Drawable d = compat.toIcon(context).loadDrawable(context);
         assertTrue(d instanceof BitmapDrawable);
         assertTrue(bitmap.sameAs(((BitmapDrawable) d).getBitmap()));
     }
@@ -208,7 +233,7 @@ public class IconCompatTest {
         Drawable original = context.getDrawable(R.drawable.test_drawable_red);
 
         IconCompat compat = IconCompat.createWithResource(context, R.drawable.test_drawable_red);
-        Drawable d = compat.toIcon().loadDrawable(ApplicationProvider.getApplicationContext());
+        Drawable d = compat.toIcon(context).loadDrawable(context);
 
         // Drawables are same classes
         assertEquals(original.getClass(), d.getClass());
@@ -223,6 +248,39 @@ public class IconCompatTest {
 
         // Drawables behave the same
         assertTrue(orgBitmap.sameAs(compatBitmap));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+    public void testCreateWithResource_toFromBundle() {
+        Context context = ApplicationProvider.getApplicationContext();
+        Drawable original = context.getDrawable(R.drawable.test_drawable_red);
+        IconCompat compat = IconCompat.createWithResource(context, R.drawable.test_drawable_red);
+
+        IconCompat recovered = IconCompat.createFromIcon(compat.toIcon(context));
+
+        assertEquals(mContext.getPackageName(), recovered.getResPackage());
+        assertEquals(R.drawable.test_drawable_red, recovered.getResId());
+        assertEquals(original.getClass(), recovered.loadDrawable(context).getClass());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+    public void testCreateWithResource_parcelize() {
+        Context context = ApplicationProvider.getApplicationContext();
+        Drawable original = context.getDrawable(R.drawable.test_drawable_red);
+        IconCompat compat = IconCompat.createWithResource(context, R.drawable.test_drawable_red);
+
+        Parcel parcel = Parcel.obtain();
+        parcel.writeParcelable(ParcelUtils.toParcelable(compat), 0);
+        parcel.setDataPosition(0);
+        IconCompat recovered =
+                ParcelUtils.fromParcelable(parcel.readParcelable(getClass().getClassLoader()));
+        parcel.recycle();
+
+        assertEquals(mContext.getPackageName(), recovered.getResPackage());
+        assertEquals(R.drawable.test_drawable_red, recovered.getResId());
+        assertEquals(original.getClass(), recovered.loadDrawable(context).getClass());
     }
 
     @Test
@@ -275,7 +333,7 @@ public class IconCompatTest {
     public void testBitmapIconCompat_getType() {
         IconCompat icon = IconCompat.createWithBitmap(Bitmap.createBitmap(16, 16,
                 Bitmap.Config.ARGB_8888));
-        assertEquals(Icon.TYPE_BITMAP, icon.getType());
+        assertEquals(IconCompat.TYPE_BITMAP, icon.getType());
     }
 
     @Test
@@ -283,7 +341,7 @@ public class IconCompatTest {
         byte[] data = new byte[4];
         data[0] = data[1] = data[2] = data[3] = (byte) 255;
         IconCompat icon = IconCompat.createWithData(data, 0, 4);
-        assertEquals(Icon.TYPE_DATA, icon.getType());
+        assertEquals(IconCompat.TYPE_DATA, icon.getType());
     }
 
     @Test
@@ -295,11 +353,11 @@ public class IconCompatTest {
             String filePath = file.toURI().getPath();
 
             IconCompat icon = IconCompat.createWithContentUri(Uri.fromFile(file));
-            assertEquals(Icon.TYPE_URI, icon.getType());
+            assertEquals(IconCompat.TYPE_URI, icon.getType());
             assertEquals(filePath, icon.getUri().getPath());
 
             icon = IconCompat.createWithContentUri(file.toURI().toString());
-            assertEquals(Icon.TYPE_URI, icon.getType());
+            assertEquals(IconCompat.TYPE_URI, icon.getType());
             assertEquals(filePath, icon.getUri().getPath());
         } finally {
             file.delete();
@@ -309,7 +367,7 @@ public class IconCompatTest {
     @Test
     public void testResourceIconCompat_getType() {
         IconCompat icon = IconCompat.createWithResource(mContext, R.drawable.bmp_test);
-        assertEquals(Icon.TYPE_RESOURCE, icon.getType());
+        assertEquals(IconCompat.TYPE_RESOURCE, icon.getType());
         assertEquals("androidx.core.test", icon.getResPackage());
         assertEquals(R.drawable.bmp_test, icon.getResId());
     }
@@ -318,7 +376,7 @@ public class IconCompatTest {
     public void testAdaptiveBitmapIconCompat_getType() {
         IconCompat icon = IconCompat.createWithAdaptiveBitmap(Bitmap.createBitmap(16, 16,
                 Bitmap.Config.ARGB_8888));
-        assertEquals(Icon.TYPE_ADAPTIVE_BITMAP, icon.getType());
+        assertEquals(IconCompat.TYPE_ADAPTIVE_BITMAP, icon.getType());
     }
 
     @Test
@@ -334,6 +392,40 @@ public class IconCompatTest {
         source.eraseColor(Color.RED);
         Bitmap result = IconCompat.createWithAdaptiveBitmap(source).getBitmap();
         verifyClippedCircle(result, Color.RED, 100);
+    }
+
+    @Test
+    public void testResourceTypeIcon_oldFormat() {
+        // Before ag/1307777, package name is not in mString1.
+        Bundle bundle = new Bundle();
+        bundle.putInt(IconCompat.EXTRA_TYPE, IconCompat.TYPE_RESOURCE);
+        bundle.putString(IconCompat.EXTRA_OBJ, "androidx.core.test:drawable/test_drawable_green");
+        bundle.putInt(IconCompat.EXTRA_INT1, /*resourceId=*/ 2131165303);
+        bundle.putInt(IconCompat.EXTRA_INT2, /*data length=*/ 0);
+
+        IconCompat icon = IconCompat.createFromBundle(bundle);
+        Drawable actualDrawable = icon.loadDrawable(mContext);
+
+        assertNotNull(actualDrawable);
+        Bitmap actualBitmap = drawDrawableToBitmap(actualDrawable);
+        Drawable expectedDrawable =
+                ContextCompat.getDrawable(mContext, R.drawable.test_drawable_green);
+        Bitmap expectedBitmap = drawDrawableToBitmap(expectedDrawable);
+        assertTrue(actualBitmap.sameAs(expectedBitmap));
+    }
+
+    private static Bitmap drawDrawableToBitmap(Drawable drawable) {
+        Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
+        drawable.setBounds(0, 0, 200, 200);
+        drawable.draw(new Canvas(bitmap));
+        return bitmap;
+    }
+
+    private void writeSampleImage(Bitmap bitmap, File imageFile) throws IOException {
+        try (OutputStream target = new FileOutputStream(imageFile)) {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 0, target);
+            target.flush();
+        }
     }
 
     private void writeSampleImage(File imagefile) throws IOException {
@@ -380,5 +472,17 @@ public class IconCompatTest {
 
         // loading drawable synchronously.
         assertNotNull(icon.loadDrawable(mContext));
+    }
+
+    private void verifyAdaptiveIconCompat(IconCompat compat, int color) {
+        final Context context = ApplicationProvider.getApplicationContext();
+        final Drawable d = compat.loadDrawable(context);
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertTrue(d instanceof AdaptiveIconDrawable);
+        } else {
+            assertTrue(d instanceof BitmapDrawable);
+            final Bitmap clipped = ((BitmapDrawable) d).getBitmap();
+            verifyClippedCircle(clipped, color, clipped.getWidth());
+        }
     }
 }

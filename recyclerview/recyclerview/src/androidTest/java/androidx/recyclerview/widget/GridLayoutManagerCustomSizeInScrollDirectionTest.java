@@ -113,7 +113,7 @@ public class GridLayoutManagerCustomSizeInScrollDirectionTest extends BaseGridLa
         }
         waitForFirstLayout(rv);
 
-        assertTrue("[test sanity] some views should be laid out",
+        assertTrue("[Assumption check] some views should be laid out",
                 mRecyclerView.getChildCount() > 0);
         for (int i = 0; i < mRecyclerView.getChildCount(); i++) {
             View child = mRecyclerView.getChildAt(i);

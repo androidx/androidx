@@ -20,7 +20,6 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.HandlerThread;
-import android.util.ArrayMap;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
@@ -32,15 +31,13 @@ import androidx.test.core.app.ApplicationProvider;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Base class for session test.
- * <p>
- * For all subclasses, all individual tests should begin with the {@link #prepareLooper()}. See
- * {@link #prepareLooper} for details.
  */
 abstract class MediaSessionTestBase extends MediaTestBase {
     static final int TIMEOUT_MS = 1000;
@@ -49,7 +46,7 @@ abstract class MediaSessionTestBase extends MediaTestBase {
     static Executor sHandlerExecutor;
 
     Context mContext;
-    private Map<MediaController, TestBrowserCallback> mControllers = new ArrayMap<>();
+    private Map<MediaController, TestBrowserCallback> mControllers = new HashMap<>();
 
     interface TestControllerCallbackInterface {
         void waitForConnect(boolean expect) throws InterruptedException;
@@ -63,7 +60,6 @@ abstract class MediaSessionTestBase extends MediaTestBase {
             if (sHandler != null) {
                 return;
             }
-            prepareLooper();
             HandlerThread handlerThread = new HandlerThread("MediaSessionTestBase");
             handlerThread.start();
             sHandler = new SyncHandler(handlerThread.getLooper());

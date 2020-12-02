@@ -21,9 +21,8 @@ import static androidx.camera.core.impl.utils.executor.SequentialExecutor.Worker
 import static androidx.camera.core.impl.utils.executor.SequentialExecutor.WorkerRunningState.QUEUING;
 import static androidx.camera.core.impl.utils.executor.SequentialExecutor.WorkerRunningState.RUNNING;
 
-import android.util.Log;
-
 import androidx.annotation.GuardedBy;
+import androidx.camera.core.Logger;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayDeque;
@@ -229,7 +228,7 @@ final class SequentialExecutor implements Executor {
                     try {
                         task.run();
                     } catch (RuntimeException e) {
-                        Log.e(TAG, "Exception while executing runnable " + task, e);
+                        Logger.e(TAG, "Exception while executing runnable " + task, e);
                     }
                 }
             } finally {

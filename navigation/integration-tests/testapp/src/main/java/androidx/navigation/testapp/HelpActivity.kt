@@ -29,9 +29,9 @@ import androidx.appcompat.widget.Toolbar
 import androidx.navigation.ActivityNavigator
 import androidx.navigation.NavController
 import androidx.navigation.createGraph
-import androidx.navigation.testing.TestNavigator
-import androidx.navigation.testing.test
 import androidx.navigation.ui.setupWithNavController
+import androidx.testutils.TestNavigator
+import androidx.testutils.test
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.navigation.NavigationView
 
@@ -84,17 +84,19 @@ class BottomSheetNavigationView : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         val navigationView = requireActivity().layoutInflater
-                .inflate(R.layout.bottom_bar_menu, container, false) as NavigationView
+            .inflate(R.layout.bottom_bar_menu, container, false) as NavigationView
 
         // Add a fake Navigation Graph just to test out the behavior but not
         // actually navigate anywhere
-        navigationView.setupWithNavController(NavController(requireContext()).apply {
-            navigatorProvider.addNavigator(TestNavigator())
-            graph = createGraph(startDestination = R.id.launcher_home) {
-                test(R.id.launcher_home)
-                test(R.id.android)
+        navigationView.setupWithNavController(
+            NavController(requireContext()).apply {
+                navigatorProvider.addNavigator(TestNavigator())
+                graph = createGraph(startDestination = R.id.launcher_home) {
+                    test(R.id.launcher_home)
+                    test(R.id.android)
+                }
             }
-        })
+        )
         return navigationView
     }
 }

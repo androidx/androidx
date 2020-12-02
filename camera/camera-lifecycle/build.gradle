@@ -1,0 +1,68 @@
+/*
+ * Copyright 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryVersions
+import androidx.build.LibraryGroups
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
+}
+
+dependencies {
+    api("androidx.lifecycle:lifecycle-common:2.1.0")
+    api(GUAVA_LISTENABLE_FUTURE)
+    api(project(":camera:camera-core"))
+    implementation("androidx.core:core:1.1.0")
+    implementation(AUTO_VALUE_ANNOTATIONS)
+    annotationProcessor(AUTO_VALUE)
+
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(TRUTH)
+    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
+    androidTestImplementation(project(":annotation:annotation-experimental"))
+    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation(project(":internal-testutils-truth"))
+    androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 21
+    }
+
+    // Use Robolectric 4.+
+    testOptions.unitTests.includeAndroidResources = true
+}
+
+androidx {
+    name = "Jetpack Camera Lifecycle Library"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.CAMERA
+    inceptionYear = "2019"
+    description = "Lifecycle components for the Jetpack Camera Library, a library providing a " +
+            "consistent and reliable camera foundation that enables great camera driven " +
+            "experiences across all of Android."
+}
+

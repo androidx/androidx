@@ -15,6 +15,17 @@ class Issue(object):
     self.issueId = issueId
     self.description = description
 
+class IssueComponent(object):
+  def __init__(self, name):
+    self.name = name
+  def __str__(self):
+    return "Component: '" + self.name + "'"
+  def __repr__(self):
+    return str(self)
+
+components = {}
+components["navigation"] = IssueComponent("Navigation")
+
 class AssigneeRecommendation(object):
   def __init__(self, usernames, justification):
     self.usernames = usernames
@@ -67,7 +78,22 @@ class FileFinder(object):
       self.resultsCache[name] = filePaths
     return self.resultsCache[name]
 
-class InterestingFileFinder(object):
+  def tryToIdentifyFile(self, nameComponent):
+    if len(nameComponent) < 1:
+      return []
+    queries = [nameComponent + ".*", "nameComponent*"]
+    if len(nameComponent) >= 10:
+      # For a sufficiently specific query, allow it to match the middle of a filename too
+      queries.append("*" + nameComponent + ".*")
+    for query in queries:
+      matches = self.findIname(query)
+      if len(matches) > 0 and len(matches) <= 4:
+        # We found a small enough number of matches to have
+        # reasonable confidence in having found the right file
+        return matches
+    return []
+
+class InterestingWordChooser(object):
   def __init__(self):
     return
 
@@ -76,7 +102,7 @@ class InterestingFileFinder(object):
     words = [word for word in words if len(word) >= 4]
     words.sort(key=len, reverse=True)
     return words
-interestingFileFinder = InterestingFileFinder()
+interestingWordChooser = InterestingWordChooser()
 
 class GitLogger(object):
   def __init__(self):
@@ -93,18 +119,17 @@ class LastTouchedBy_Rule(RecommenderRule):
     self.fileFinder = fileFinder
 
   def recommend(self, bug):
-    interestingWords = interestingFileFinder.findInterestingWords(bug.description)
+    interestingWords = interestingWordChooser.findInterestingWords(bug.description)
     for word in interestingWords:
-      for queryString in [word + "*", word + ".*"]:
-        filePaths = self.fileFinder.findIname(queryString)
-        if len(filePaths) > 0 and len(filePaths) <= 4:
-          candidateAuthors = []
-          for path in filePaths:
-            thisAuthor = gitLogger.gitLog1Author(path)
-            if len(candidateAuthors) == 0 or thisAuthor != candidateAuthors[-1]:
-              candidateAuthors.append(thisAuthor)
-          if len(candidateAuthors) == 1:
-             return AssigneeRecommendation(candidateAuthors, "last touched " + os.path.basename(filePaths[0]))
+      filePaths = self.fileFinder.tryToIdentifyFile(word)
+      if len(filePaths) > 0:
+        candidateAuthors = []
+        for path in filePaths:
+          thisAuthor = gitLogger.gitLog1Author(path)
+          if len(candidateAuthors) == 0 or thisAuthor != candidateAuthors[-1]:
+            candidateAuthors.append(thisAuthor)
+        if len(candidateAuthors) == 1:
+           return AssigneeRecommendation(candidateAuthors, "last touched " + os.path.basename(filePaths[0]))
     return None
 
 class OwnersRule(RecommenderRule):
@@ -113,10 +138,10 @@ class OwnersRule(RecommenderRule):
     self.fileFinder = fileFinder
 
   def recommend(self, bug):
-    interestingWords = interestingFileFinder.findInterestingWords(bug.description)
+    interestingWords = interestingWordChooser.findInterestingWords(bug.description)
     for word in interestingWords:
-      for queryString in [word + "*", word + ".*"]:
-        filePaths = self.fileFinder.findIname(queryString)
+      filePaths = self.fileFinder.tryToIdentifyFile(word)
+      if len(filePaths) > 0:
         commonPrefix = os.path.commonprefix(filePaths)
         dirToCheck = commonPrefix
         if len(dirToCheck) < 1:
@@ -148,21 +173,23 @@ class Triager(object):
   def __init__(self, fileFinder):
     self.recommenderRules = self.parseKnownOwners({
       "fragment": ["ilake", "mount", "adamp"],
-      "animation": ["mount", "tianlu"],
+      "animation": ["mount", "tianliu"],
       "transition": ["mount"],
       "theme": ["alanv"],
       "style": ["alanv"],
       "preferences": ["pavlis", "lpf"],
       "ViewPager": ["jgielzak", "jellefresen"],
       "DrawerLayout": ["sjgilbert"],
-      "RecyclerView": ["shepshapard", "yboyar"],
+      "RecyclerView": ["shepshapard", "ryanmentley"],
       "Loaders": ["ilake"],
       "VectorDrawableCompat": ["tianliu"],
       "AppCompat": ["kirillg"],
-      "Design Library": ["dcarlsson"],
-      "android.support.design": ["dcarlsson"],
+      "Design Library": ["material-android-firehose"],
+      "android.support.design": ["material-android-firehose"],
+      "NavigationView": ["material-android-firehose"], # not to be confused with Navigation
       "RenderThread": ["jreck"],
       "VectorDrawable": ["tianliu"],
+      "Vector Drawable": ["tianliu"],
       "drawable": ["alanv"],
       "colorstatelist": ["alanv"],
       "multilocale": ["nona", "mnita"],
@@ -177,7 +204,10 @@ class Triager(object):
       "harfbuzz": ["android-text", "nona", "junkshik"],
       "slice": ["madym"],
       "checkApi": ["jeffrygaston", "aurimas"],
-      "compose": ["chuckj", "jsproch", "lelandr"]
+      "compose": ["chuckj", "jsproch", "lelandr"],
+      "jetifier": ["pavlis", "jeffrygaston"],
+      "navigat": [components["navigation"]], # "navigation", "navigate", etc,
+      "room": ["danysantiago", "sergeyv", "yboyar"]
     })
     self.recommenderRules.append(OwnersRule(fileFinder))
     self.recommenderRules.append(LastTouchedBy_Rule(fileFinder))
@@ -192,7 +222,8 @@ class Triager(object):
 
   def process(self, lines):
     issues = self.parseIssues(lines)
-    outputs = []
+    recognizedTriages = []
+    unrecognizedTriages = []
     print("Analyzing " + str(len(issues)) + " issues")
     for issue in issues:
       print(".")
@@ -203,11 +234,14 @@ class Triager(object):
         if len(usernames) > 2:
           usernames = usernames[:2]
         recommendationText = str(usernames) + " (" + assigneeRecommendation.justification + ")"
-      outputs.append(("(" + issue.issueId + ") " + issue.description.replace("\t", "...."), recommendationText, ))
+        recognizedTriages.append(("(" + issue.issueId + ") " + issue.description.replace("\t", "...."), recommendationText, ))
+      else:
+        unrecognizedTriages.append(("(" + issue.issueId + ") " + issue.description.replace("\t", "...."), recommendationText, ))
     maxColumnWidth = 0
-    for item in outputs:
+    allTriages = recognizedTriages + unrecognizedTriages
+    for item in allTriages:
       maxColumnWidth = max(maxColumnWidth, len(item[0]))
-    for item in outputs:
+    for item in allTriages:
       print(str(item[0]) + (" " * (maxColumnWidth - len(item[0]))) + " -> " + str(item[1]))
 
   def parseIssues(self, lines):
@@ -218,7 +252,7 @@ class Triager(object):
 
     lines = [line.strip() for line in lines]
     fields = [line for line in lines if line != ""]
-    linesPerIssue = 4
+    linesPerIssue = 5
     if len(fields) % linesPerIssue != 0:
       raise Exception("Parse error, number of lines must be divisible by " + str(linesPerIssue) + ", not " + str(len(fields)) + ". Last line: " + fields[-1])
     issues = []
@@ -227,15 +261,20 @@ class Triager(object):
       issueType = fields[1]
 
       middle = fields[2].split("\t")
-      expectedNumTabComponents = 5
+      expectedNumTabComponents = 3
       if len(middle) != expectedNumTabComponents:
         raise Exception("Parse error: wrong number of tabs in " + str(middle) + ", got " + str(len(middle) - 1) + ", expected " + str(expectedNumTabComponents - 1))
       description = middle[0]
       currentAssignee = middle[1]
       status = middle[2]
-      issueId = middle[4]
 
-      when = fields[3]
+      bottom = fields[4]
+      bottomSplit = bottom.split("\t")
+      expectedNumTabComponents = 2
+      if len(bottomSplit) != expectedNumTabComponents:
+        raise Exception("Parse error: wrong number of tabs in " + str(bottomSplit) + ", got " + str(len(bottomSplit)) + ", expected " + str(expectedNumTabComponents - 1))
+      issueId = bottomSplit[0]
+      when = bottomSplit[1]
 
       issues.append(Issue(issueId, description))
       fields = fields[linesPerIssue:]
@@ -260,7 +299,7 @@ class Triager(object):
 def main(args):
   if len(args) != 1:
     usage()
-  fileFinder = FileFinder(os.path.dirname(args[0]))
+  fileFinder = FileFinder(os.path.dirname(os.path.dirname(args[0])))
   print("Reading issues (copy-paste from the hotlist) from stdin")
   lines = sys.stdin.readlines()
   triager = Triager(fileFinder)

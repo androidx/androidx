@@ -59,7 +59,6 @@ import androidx.media2.player.MediaPlayer2.MediaPlayer2State;
 import androidx.media2.player.TestUtils.Monitor;
 import androidx.media2.player.test.R;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,7 +72,6 @@ import java.util.List;
 import java.util.concurrent.Executors;
 
 @RunWith(Parameterized.class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
 public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     private static final String LOG_TAG = "MediaPlayer2StateTest";
 
@@ -85,7 +83,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     // Used for testing case that operation is called before setDataSourceDesc().
     private static final int MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE = 400001;
 
-    private static final MediaItem sDummyDataSource = new CallbackMediaItem.Builder(
+    private static final MediaItem FAKE_DATA_SOURCE = new CallbackMediaItem.Builder(
             new DataSourceCallback() {
                 @Override
                 public int readAt(long position, byte[] buffer, int offset, int size)
@@ -299,7 +297,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     private static final PlayerOperation sSetDataSourceOperation = new PlayerOperation() {
         @Override
         public void doOperation(MediaPlayer2 player) {
-            player.setMediaItem(sDummyDataSource);
+            player.setMediaItem(FAKE_DATA_SOURCE);
         }
 
         @Override
@@ -315,7 +313,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     private static final PlayerOperation sSetNextDataSourceOperation = new PlayerOperation() {
         @Override
         public void doOperation(MediaPlayer2 player) {
-            player.setNextMediaItem(sDummyDataSource);
+            player.setNextMediaItem(FAKE_DATA_SOURCE);
         }
 
         @Override
@@ -331,7 +329,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     private static final PlayerOperation sSetNextDataSourcesOperation = new PlayerOperation() {
         @Override
         public void doOperation(MediaPlayer2 player) {
-            player.setNextMediaItems(Arrays.asList(sDummyDataSource));
+            player.setNextMediaItems(Arrays.asList(FAKE_DATA_SOURCE));
         }
 
         @Override
@@ -1116,7 +1114,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    public void testOperation() throws Exception {
+    public void operation() throws Exception {
         if (!CHECK_INVALID_STATE && !mIsValidOperation) {
             return;
         }

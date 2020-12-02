@@ -22,14 +22,14 @@ import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
-    id("java")
+    id("java-library")
 }
 
 dependencies {
-    compile("androidx.annotation:annotation:1.1.0")
-    compile(GUAVA_LISTENABLE_FUTURE)
-    testCompile(JUNIT)
-    testCompile(TRUTH)
+    api("androidx.annotation:annotation:1.1.0")
+    api(GUAVA_LISTENABLE_FUTURE)
+    testImplementation(JUNIT)
+    testImplementation(TRUTH)
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_7
@@ -38,9 +38,7 @@ targetCompatibility = JavaVersion.VERSION_1_7
 androidx {
     name = "AndroidX Futures"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.FUTURES
     mavenGroup = LibraryGroups.CONCURRENT
     inceptionYear = "2018"
     description = "Androidx implementation of Guava's ListenableFuture"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }

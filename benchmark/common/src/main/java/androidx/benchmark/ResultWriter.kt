@@ -17,9 +17,8 @@
 package androidx.benchmark
 
 import android.os.Build
-import android.os.Environment.DIRECTORY_DOWNLOADS
-import android.os.Environment.getExternalStoragePublicDirectory
 import android.util.JsonWriter
+import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
@@ -38,11 +37,24 @@ internal object ResultWriter {
             val packageName =
                 InstrumentationRegistry.getInstrumentation().targetContext!!.packageName
 
-            @Suppress("DEPRECATION") // Legacy code path for versions of agp older than 3.6
-            val filePath = Arguments.additionalTestOutputDir?.let { File(it) }
-                ?: getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS)
-            val file = File(filePath, "$packageName-benchmarkData.json")
+            val file = File(Arguments.testOutputDir, "$packageName-benchmarkData.json")
+            Log.d(
+                BenchmarkState.TAG,
+                "writing results to ${file.absolutePath}"
+            )
             writeReport(file, reports)
+            InstrumentationResults.reportAdditionalFileToCopy(
+                "results_json",
+                file.absolutePath,
+                // since we keep appending the same file, defer reporting path until end of suite
+                // note: this requires using InstrumentationResultsRunListener
+                reportOnRunEndOnly = true
+            )
+        } else {
+            Log.d(
+                BenchmarkState.TAG,
+                "androidx.benchmark.output.enable not set, not writing results json"
+            )
         }
     }
 
@@ -56,12 +68,13 @@ internal object ResultWriter {
                 } catch (exception: IOException) {
                     throw IOException(
                         """
-                            Failed to create file for benchmark report. Make sure the
-                            instrumentation argument additionalOutputDir is set to a writable
-                            directory on device. If using a version of Android Gradle Plugin that
-                            doesn't support additionalOutputDir, ensure your app's manifest file
-                            enables legacy storage behavior by adding the application attribute:
-                            android:requestLegacyExternalStorage="true"
+                            Failed to create file for benchmark report in:
+                            $parent
+                            Make sure the instrumentation argument additionalTestOutputDir is set
+                            to a writable directory on device. If using a version of Android Gradle
+                            Plugin that doesn't support additionalTestOutputDir, ensure your app's
+                            manifest file enables legacy storage behavior by adding the
+                            application attribute: android:requestLegacyExternalStorage="true"
                         """.trimIndent(),
                         exception
                     )
@@ -109,10 +122,35 @@ internal object ResultWriter {
             .name("params").paramsObject(report)
             .name("className").value(report.className)
             .name("totalRunTimeNs").value(report.totalRunTimeNs)
-            .name("metrics").metricsObject(report)
+            .name("metrics").metricsContainerObject(report.stats, report.data)
             .name("warmupIterations").value(report.warmupIterations)
             .name("repeatIterations").value(report.repeatIterations)
             .name("thermalThrottleSleepSeconds").value(report.thermalThrottleSleepSeconds)
+        return endObject()
+    }
+
+    private fun JsonWriter.statsObject(
+        stats: Stats
+    ): JsonWriter {
+        name("minimum").value(stats.min)
+        name("maximum").value(stats.max)
+        name("median").value(stats.median)
+        return this
+    }
+
+    private fun JsonWriter.metricsContainerObject(
+        stats: List<Stats>,
+        data: List<List<Long>>
+    ): JsonWriter {
+        beginObject()
+        for (i in 0..stats.lastIndex) {
+            name(stats[i].name).beginObject()
+            statsObject(stats[i])
+            name("runs").beginArray()
+            data[i].forEach { value(it) }
+            endArray()
+            endObject()
+        }
         return endObject()
     }
 
@@ -139,22 +177,5 @@ internal object ResultWriter {
             }
         }
         return params
-    }
-
-    private fun JsonWriter.metricsObject(report: BenchmarkState.Report): JsonWriter {
-        beginObject()
-
-        name("timeNs").beginObject()
-            .name("minimum").value(report.stats.min)
-            .name("maximum").value(report.stats.max)
-            .name("median").value(report.stats.median)
-
-        name("runs").beginArray()
-        report.data.forEach { value(it) }
-        endArray()
-
-        endObject() // timeNs
-
-        return endObject()
     }
 }

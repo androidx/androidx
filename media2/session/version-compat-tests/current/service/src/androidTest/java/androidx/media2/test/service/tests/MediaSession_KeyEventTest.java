@@ -54,7 +54,7 @@ import java.util.concurrent.TimeUnit;
  * In order to get the media key events, the player state is set to 'Playing' before every test
  * method.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT) // For AudioManager#dispatchMediaKeyEvent()
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaSession_KeyEventTest extends MediaSessionTestBase {
@@ -76,7 +76,7 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
             // KeyEvent from system service has the package name "android".
             sExpectedControllerPackageName = "android";
         } else {
-            // In API 21+, MediaSessionCompat#getCurrentControllerInfo always returns dummy info.
+            // In API 21+, MediaSessionCompat#getCurrentControllerInfo always returns fake info.
             sExpectedControllerPackageName = LEGACY_CONTROLLER;
         }
     }
@@ -151,40 +151,35 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testPlayKeyEvent() throws Exception {
-        prepareLooper();
+    public void playKeyEvent() throws Exception {
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mPlayCalled);
     }
 
     @Test
-    public void testPauseKeyEvent() throws Exception {
-        prepareLooper();
+    public void pauseKeyEvent() throws Exception {
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PAUSE, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mPauseCalled);
     }
 
     @Test
-    public void testNextKeyEvent() throws Exception {
-        prepareLooper();
+    public void nextKeyEvent() throws Exception {
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_NEXT, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mSkipToNextItemCalled);
     }
 
     @Test
-    public void testPreviousKeyEvent() throws Exception {
-        prepareLooper();
+    public void previousKeyEvent() throws Exception {
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mSkipToPreviousItemCalled);
     }
 
     @Test
-    public void testStopKeyEvent() throws Exception {
-        prepareLooper();
+    public void stopKeyEvent() throws Exception {
         mPlayer = new MockPlayer(2);
         mSession.updatePlayer(mPlayer);
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_STOP, false);
@@ -194,24 +189,21 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testFastForwardKeyEvent() throws Exception {
-        prepareLooper();
+    public void fastForwardKeyEvent() throws Exception {
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_FAST_FORWARD, false);
         assertTrue(mSessionCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mSessionCallback.mFastForwardCalled);
     }
 
     @Test
-    public void testRewindKeyEvent() throws Exception {
-        prepareLooper();
+    public void rewindKeyEvent() throws Exception {
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_REWIND, false);
         assertTrue(mSessionCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mSessionCallback.mRewindCalled);
     }
 
     @Test
-    public void testPlayPauseKeyEvent_play() throws Exception {
-        prepareLooper();
+    public void playPauseKeyEvent_play() throws Exception {
         mPlayer.notifyPlayerStateChanged(SessionPlayer.PLAYER_STATE_PAUSED);
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -219,16 +211,14 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testPlayPauseKeyEvent_pause() throws Exception {
-        prepareLooper();
+    public void playPauseKeyEvent_pause() throws Exception {
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mPauseCalled);
     }
 
     @Test
-    public void testPlayPauseKeyEvent_doubleTapIsTranslatedToSkipToNext() throws Exception {
-        prepareLooper();
+    public void playPauseKeyEvent_doubleTapIsTranslatedToSkipToNext() throws Exception {
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, true);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mSkipToNextItemCalled);

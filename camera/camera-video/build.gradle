@@ -1,0 +1,81 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryVersions
+import androidx.build.LibraryGroups
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
+}
+
+dependencies {
+    api(project(":camera:camera-core"))
+    implementation("androidx.core:core:1.1.0")
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation(AUTO_VALUE_ANNOTATIONS)
+
+    annotationProcessor(AUTO_VALUE)
+
+    testImplementation 'junit:junit:4.12'
+    testImplementation(KOTLIN_STDLIB)
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation(JUNIT)
+    testImplementation(TRUTH)
+    testImplementation(ROBOLECTRIC)
+    testImplementation(MOCKITO_CORE)
+    testImplementation project(":camera:camera-testing"), {
+        exclude group: "androidx.camera", module: "camera-core"
+    }
+
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(TRUTH)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
+    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation(project(":internal-testutils-truth"))
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 21
+    }
+
+    // Use Robolectric 4.+
+    testOptions.unitTests.includeAndroidResources = true
+}
+
+androidx {
+    name = "Jetpack Camera Video Library"
+    publish = Publish.NONE
+    mavenVersion = LibraryVersions.CAMERA_VIDEO
+    mavenGroup = LibraryGroups.CAMERA
+    inceptionYear = "2020"
+    description = "Video components for the Jetpack Camera Library, a library providing a " +
+            "consistent and reliable camera foundation that enables great camera driven " +
+            "experiences across all of Android."
+}
+

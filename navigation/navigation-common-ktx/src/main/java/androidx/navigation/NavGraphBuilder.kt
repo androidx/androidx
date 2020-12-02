@@ -21,27 +21,27 @@ import androidx.annotation.IdRes
 /**
  * Construct a new [NavGraph]
  */
-inline fun NavigatorProvider.navigation(
+public inline fun NavigatorProvider.navigation(
     @IdRes id: Int = 0,
     @IdRes startDestination: Int,
     builder: NavGraphBuilder.() -> Unit
-) = NavGraphBuilder(this, id, startDestination).apply(builder).build()
+): NavGraph = NavGraphBuilder(this, id, startDestination).apply(builder).build()
 
 /**
  * Construct a nested [NavGraph]
  */
-inline fun NavGraphBuilder.navigation(
+public inline fun NavGraphBuilder.navigation(
     @IdRes id: Int,
     @IdRes startDestination: Int,
     builder: NavGraphBuilder.() -> Unit
-) = destination(NavGraphBuilder(provider, id, startDestination).apply(builder))
+): Unit = destination(NavGraphBuilder(provider, id, startDestination).apply(builder))
 
 /**
  * DSL for constructing a new [NavGraph]
  */
 @NavDestinationDsl
-class NavGraphBuilder(
-    val provider: NavigatorProvider,
+public open class NavGraphBuilder(
+    public val provider: NavigatorProvider,
     @IdRes id: Int,
     @IdRes private var startDestination: Int
 ) : NavDestinationBuilder<NavGraph>(provider[NavGraphNavigator::class], id) {
@@ -50,21 +50,21 @@ class NavGraphBuilder(
     /**
      * Build and add a new destination to the [NavGraphBuilder]
      */
-    fun <D : NavDestination> destination(navDestination: NavDestinationBuilder<D>) {
+    public fun <D : NavDestination> destination(navDestination: NavDestinationBuilder<D>) {
         destinations += navDestination.build()
     }
 
     /**
      * Adds this destination to the [NavGraphBuilder]
      */
-    operator fun NavDestination.unaryPlus() {
+    public operator fun NavDestination.unaryPlus() {
         addDestination(this)
     }
 
     /**
      * Add the destination to the [NavGraphBuilder]
      */
-    fun addDestination(destination: NavDestination) {
+    public fun addDestination(destination: NavDestination) {
         destinations += destination
     }
 

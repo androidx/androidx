@@ -19,8 +19,18 @@ package androidx.core.view;
 import static android.os.Build.VERSION.SDK_INT;
 
 import android.graphics.Rect;
+import android.os.Build;
 import android.view.DisplayCutout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.core.graphics.Insets;
+import androidx.core.os.BuildCompat;
+import androidx.core.util.ObjectsCompat;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -44,6 +54,59 @@ public final class DisplayCutoutCompat {
     // TODO(b/73953958): @VisibleForTesting(visibility = PRIVATE)
     public DisplayCutoutCompat(Rect safeInsets, List<Rect> boundingRects) {
         this(SDK_INT >= 28 ? new DisplayCutout(safeInsets, boundingRects) : null);
+    }
+
+    /**
+     * Creates a DisplayCutout instance.
+     *
+     * @param safeInsets the insets from each edge which avoid the display cutout as returned by
+     *                   {@link #getSafeInsetTop()} etc.
+     * @param boundLeft the left bounding rect of the display cutout in pixels. If null is passed,
+     *                  it's treated as an empty rectangle (0,0)-(0,0).
+     * @param boundTop the top bounding rect of the display cutout in pixels. If null is passed,
+     *                  it's treated as an empty rectangle (0,0)-(0,0).
+     * @param boundRight the right bounding rect of the display cutout in pixels. If null is
+     *                  passed, it's treated as an empty rectangle (0,0)-(0,0).
+     * @param boundBottom the bottom bounding rect of the display cutout in pixels. If null is
+     *                   passed, it's treated as an empty rectangle (0,0)-(0,0).
+     * @param waterfallInsets the insets for the curved areas in waterfall display.
+     */
+    public DisplayCutoutCompat(@NonNull Insets safeInsets, @Nullable Rect boundLeft,
+            @Nullable Rect boundTop, @Nullable Rect boundRight, @Nullable Rect boundBottom,
+            @NonNull Insets waterfallInsets) {
+        this(constructDisplayCutout(safeInsets, boundLeft, boundTop, boundRight, boundBottom,
+                waterfallInsets));
+    }
+
+    private static DisplayCutout constructDisplayCutout(@NonNull Insets safeInsets,
+            @Nullable Rect boundLeft, @Nullable Rect boundTop, @Nullable Rect boundRight,
+            @Nullable Rect boundBottom, @NonNull Insets waterfallInsets) {
+        if (BuildCompat.isAtLeastR()) {
+            return new DisplayCutout(safeInsets.toPlatformInsets(), boundLeft,
+                    boundTop, boundRight, boundBottom, waterfallInsets.toPlatformInsets());
+        } else if (SDK_INT >= Build.VERSION_CODES.Q) {
+            return new DisplayCutout(safeInsets.toPlatformInsets(), boundLeft,
+                    boundTop, boundRight, boundBottom);
+        } else if (SDK_INT >= Build.VERSION_CODES.P) {
+            final Rect safeInsetRect = new Rect(safeInsets.left, safeInsets.top, safeInsets.right,
+                    safeInsets.bottom);
+            final ArrayList<Rect> boundingRects = new ArrayList<>();
+            if (boundLeft != null) {
+                boundingRects.add(boundLeft);
+            }
+            if (boundTop != null) {
+                boundingRects.add(boundTop);
+            }
+            if (boundRight != null) {
+                boundingRects.add(boundRight);
+            }
+            if (boundBottom != null) {
+                boundingRects.add(boundBottom);
+            }
+            return new DisplayCutout(safeInsetRect, boundingRects);
+        } else {
+            return null;
+        }
     }
 
     private DisplayCutoutCompat(Object displayCutout) {
@@ -95,11 +158,31 @@ public final class DisplayCutoutCompat {
      *
      * @return a list of bounding {@code Rect}s, one for each display cutout area.
      */
+    @NonNull
     public List<Rect> getBoundingRects() {
         if (SDK_INT >= 28) {
             return ((DisplayCutout) mDisplayCutout).getBoundingRects();
         } else {
-            return null;
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Returns the insets representing the curved areas of a waterfall display.
+     *
+     * A waterfall display has curved areas along the edges of the screen. Apps should be careful
+     * when showing UI and handling touch input in those insets because the curve may impair
+     * legibility and can frequently lead to unintended touch inputs.
+     *
+     * @return the insets for the curved areas of a waterfall display in pixels or {@code
+     * Insets.NONE} if there are no curved areas or they don't overlap with the window.
+     */
+    @NonNull
+    public Insets getWaterfallInsets() {
+        if (BuildCompat.isAtLeastR()) {
+            return Insets.toCompatInsets(((DisplayCutout) mDisplayCutout).getWaterfallInsets());
+        } else {
+            return Insets.NONE;
         }
     }
 
@@ -112,8 +195,7 @@ public final class DisplayCutoutCompat {
             return false;
         }
         DisplayCutoutCompat other = (DisplayCutoutCompat) o;
-        return mDisplayCutout == null ? other.mDisplayCutout == null
-                : mDisplayCutout.equals(other.mDisplayCutout);
+        return ObjectsCompat.equals(mDisplayCutout, other.mDisplayCutout);
     }
 
     @Override
@@ -128,5 +210,10 @@ public final class DisplayCutoutCompat {
 
     static DisplayCutoutCompat wrap(Object displayCutout) {
         return displayCutout == null ? null : new DisplayCutoutCompat(displayCutout);
+    }
+
+    @RequiresApi(api = 28)
+    DisplayCutout unwrap() {
+        return (DisplayCutout) mDisplayCutout;
     }
 }

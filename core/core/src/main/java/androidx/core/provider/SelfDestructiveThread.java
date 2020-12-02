@@ -132,6 +132,7 @@ public class SelfDestructiveThread {
      * Execute the specific callable object on this thread and call the reply callback on the
      * calling thread once it finishes.
      */
+    @SuppressWarnings("deprecation")
     public <T> void postAndReply(final Callable<T> callable, final ReplyCallback<T> reply) {
         final Handler callingHandler = new Handler();
         post(new Runnable() {

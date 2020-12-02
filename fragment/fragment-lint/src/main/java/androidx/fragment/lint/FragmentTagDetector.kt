@@ -39,11 +39,11 @@ class FragmentTagDetector : ResourceXmlDetector() {
         val ISSUE = Issue.create(
             id = "FragmentTagUsage",
             briefDescription = "Use FragmentContainerView instead of the <fragment> tag",
-            explanation = """FragmentContainerView replaces the <fragment> tag as the preferred way
-                | of adding fragments via XML. Unlike the <fragment> tag, FragmentContainerView uses
-                | a normal `FragmentTransaction` under the hood to add the initial fragment,
-                | allowing further FragmentTransaction operations on the FragmentContainerView
-                | and providing a consistent timing for lifecycle events.""",
+            explanation = """FragmentContainerView replaces the <fragment> tag as the preferred \
+                way of adding fragments via XML. Unlike the <fragment> tag, FragmentContainerView \
+                uses a normal `FragmentTransaction` under the hood to add the initial fragment, \
+                allowing further FragmentTransaction operations on the FragmentContainerView \
+                and providing a consistent timing for lifecycle events.""",
             category = Category.CORRECTNESS,
             severity = Severity.WARNING,
             implementation = Implementation(
@@ -52,7 +52,7 @@ class FragmentTagDetector : ResourceXmlDetector() {
             androidSpecific = true
         ).addMoreInfo(
             "https://developer.android.com" +
-                    "/reference/androidx/fragment/app/FragmentContainerView.html"
+                "/reference/androidx/fragment/app/FragmentContainerView.html"
         )
     }
 
@@ -63,11 +63,13 @@ class FragmentTagDetector : ResourceXmlDetector() {
     override fun getApplicableElements(): Collection<String>? = Collections.singleton(VIEW_FRAGMENT)
 
     override fun visitElement(context: XmlContext, element: Element) {
-        context.report(ISSUE, context.getNameLocation(element),
+        context.report(
+            ISSUE, context.getNameLocation(element),
             "Replace the <fragment> tag with FragmentContainerView.",
             LintFix.create()
                 .replace()
                 .text(VIEW_FRAGMENT)
-                .with("androidx.fragment.app.FragmentContainerView").build())
+                .with("androidx.fragment.app.FragmentContainerView").build()
+        )
     }
 }

@@ -17,23 +17,22 @@ package androidx.camera.camera2.impl;
 
 import android.hardware.camera2.CaptureResult;
 
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.CameraCaptureResult;
+import androidx.annotation.Nullable;
+import androidx.camera.camera2.internal.Camera2CameraCaptureResult;
+import androidx.camera.core.impl.CameraCaptureResult;
 
 /**
 * An utility class to convert {@link CameraCaptureResult} to camera2 {@link CaptureResult}.
-*
-* @hide
 */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class Camera2CameraCaptureResultConverter {
     /**
      * Converts {@link CameraCaptureResult} to camera2 {@link CaptureResult}.
      *
      * @return The CaptureResult instance or {@code null} if there is no underlying CaptureResult.
      */
-    public static CaptureResult getCaptureResult(CameraCaptureResult cameraCaptureResult) {
+    @Nullable
+    public static CaptureResult getCaptureResult(
+            @Nullable CameraCaptureResult cameraCaptureResult) {
         if (cameraCaptureResult instanceof Camera2CameraCaptureResult) {
             return ((Camera2CameraCaptureResult) cameraCaptureResult).getCaptureResult();
         } else {

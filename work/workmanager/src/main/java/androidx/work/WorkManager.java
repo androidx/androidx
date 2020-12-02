@@ -16,6 +16,8 @@
 
 package androidx.work;
 
+import android.annotation.SuppressLint;
+import android.app.PendingIntent;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -141,7 +143,9 @@ import java.util.concurrent.TimeUnit;
  * In case it is desirable to rename a class, implement a custom WorkerFactory that instantiates the
  * right ListenableWorker for the old class name.
  * */
-
+// Suppressing Metalava checks for added abstract methods in WorkManager.
+// WorkManager cannot be extended, because the constructor is marked @Restricted
+@SuppressLint("AddedAbstractMethod")
 public abstract class WorkManager {
 
     /**
@@ -191,6 +195,9 @@ public abstract class WorkManager {
      * {@code NullPointerException} in {@link #getInstance(Context)}.
      * </ul></p>
      * <p>
+     * This method throws an {@link IllegalStateException} when attempting to initialize in
+     * direct boot mode.
+     * <p>
      * This method throws an exception if it is called multiple times.
      *
      * @param context A {@link Context} object for configuration purposes. Internally, this class
@@ -204,9 +211,9 @@ public abstract class WorkManager {
     }
 
     /**
-     * Enqueues one or more items for background processing.
+     * Enqueues one item for background processing.
      *
-     * @param workRequest One or more {@link WorkRequest} to enqueue
+     * @param workRequest The {@link WorkRequest} to enqueue
      * @return An {@link Operation} that can be used to determine when the enqueue has completed
      */
     @NonNull
@@ -441,6 +448,15 @@ public abstract class WorkManager {
     public abstract @NonNull Operation cancelAllWork();
 
     /**
+     * Creates a {@link PendingIntent} which can be used to cancel a {@link WorkRequest} with the
+     * given {@code id}.
+     *
+     * @param id      The {@link WorkRequest} id.
+     * @return The {@link PendingIntent} that can be used to cancel the {@link WorkRequest}.
+     */
+    public abstract @NonNull PendingIntent createCancelPendingIntent(@NonNull UUID id);
+
+    /**
      * Prunes all eligible finished work from the internal database.  Eligible work must be finished
      * ({@link WorkInfo.State#SUCCEEDED}, {@link WorkInfo.State#FAILED}, or
      * {@link WorkInfo.State#CANCELLED}), with zero unfinished dependents.
@@ -539,6 +555,28 @@ public abstract class WorkManager {
      */
     public abstract @NonNull ListenableFuture<List<WorkInfo>> getWorkInfosForUniqueWork(
             @NonNull String uniqueWorkName);
+
+    /**
+     * Gets the {@link LiveData} of the {@link List} of {@link WorkInfo} for all work
+     * referenced by the {@link WorkQuery} specification.
+     *
+     * @param workQuery The work query specification
+     * @return A {@link LiveData} of the {@link List} of {@link WorkInfo} for work
+     * referenced by this {@link WorkQuery}.
+     */
+    public abstract @NonNull LiveData<List<WorkInfo>> getWorkInfosLiveData(
+            @NonNull WorkQuery workQuery);
+
+    /**
+     * Gets the {@link ListenableFuture} of the {@link List} of {@link WorkInfo} for all work
+     * referenced by the {@link WorkQuery} specification.
+     *
+     * @param workQuery The work query specification
+     * @return A {@link ListenableFuture} of the {@link List} of {@link WorkInfo} for work
+     * referenced by this {@link WorkQuery}.
+     */
+    public abstract @NonNull ListenableFuture<List<WorkInfo>> getWorkInfos(
+            @NonNull WorkQuery workQuery);
 
     /**
      * @hide

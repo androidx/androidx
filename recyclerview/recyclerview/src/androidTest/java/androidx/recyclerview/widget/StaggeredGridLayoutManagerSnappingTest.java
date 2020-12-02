@@ -102,7 +102,7 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         int scrollDist = mReverseScroll ? -scrollDistance : scrollDistance;
         mLayoutManager.expectIdleState(2);
         smoothScrollBy(scrollDist);
-        mLayoutManager.waitForSnap(10);
+        mLayoutManager.waitForSnap(25);
 
         // Views have not changed
         View viewAfterScroll = findCenterView();
@@ -126,7 +126,7 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         int scrollDist = mReverseScroll ? -scrollDistance : scrollDistance;
         mLayoutManager.expectIdleState(2);
         smoothScrollBy(scrollDist);
-        mLayoutManager.waitForSnap(10);
+        mLayoutManager.waitForSnap(25);
 
         // Views have not changed
         View viewAfterScroll = findCenterView();
@@ -229,7 +229,7 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         SnapHelper snapHelper = new LinearSnapHelper();
         mLayoutManager.expectIdleState(1);
         snapHelper.attachToRecyclerView(mRecyclerView);
-        mLayoutManager.waitForSnap(10);
+        mLayoutManager.waitForSnap(25);
 
         mLayoutManager.expectLayouts(1);
         scrollToPosition(mConfig.mItemCount / 2);
@@ -245,7 +245,8 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
 
         mLayoutManager.expectIdleState(2);
         smoothScrollBy(scrollDist);
-        mLayoutManager.waitForSnap(10);
+        // Very high number to try to reduce flakiness.
+        mLayoutManager.waitForSnap(50);
     }
 
     private int getViewDimension(View view) {

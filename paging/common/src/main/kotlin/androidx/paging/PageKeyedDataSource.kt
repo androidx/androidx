@@ -39,6 +39,13 @@ import kotlin.coroutines.resume
  * @param Key Type of data used to query Value types out of the [DataSource].
  * @param Value Type of items being loaded by the [DataSource].
  */
+@Deprecated(
+    message = "PageKeyedDataSource is deprecated and has been replaced by PagingSource",
+    replaceWith = ReplaceWith(
+        "PagingSource<Key, Value>",
+        "androidx.paging.PagingSource"
+    )
+)
 abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Value>(PAGE_KEYED) {
 
     /**
@@ -181,52 +188,64 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
             )
         )
         params.key == null -> BaseResult.empty()
-        params.type == LoadType.START -> loadBefore(LoadParams(params.key, params.pageSize))
-        params.type == LoadType.END -> loadAfter(LoadParams(params.key, params.pageSize))
+        params.type == LoadType.PREPEND -> loadBefore(LoadParams(params.key, params.pageSize))
+        params.type == LoadType.APPEND -> loadAfter(LoadParams(params.key, params.pageSize))
         else -> throw IllegalArgumentException("Unsupported type " + params.type.toString())
     }
 
     private suspend fun loadInitial(params: LoadInitialParams<Key>) =
         suspendCancellableCoroutine<BaseResult<Value>> { cont ->
-            loadInitial(params, object : LoadInitialCallback<Key, Value>() {
-                override fun onResult(
-                    data: List<Value>,
-                    position: Int,
-                    totalCount: Int,
-                    previousPageKey: Key?,
-                    nextPageKey: Key?
-                ) {
-                    cont.resume(
-                        BaseResult(
-                            data = data,
-                            prevKey = previousPageKey,
-                            nextKey = nextPageKey,
-                            itemsBefore = position,
-                            itemsAfter = totalCount - data.size - position
+            loadInitial(
+                params,
+                object : LoadInitialCallback<Key, Value>() {
+                    override fun onResult(
+                        data: List<Value>,
+                        position: Int,
+                        totalCount: Int,
+                        previousPageKey: Key?,
+                        nextPageKey: Key?
+                    ) {
+                        cont.resume(
+                            BaseResult(
+                                data = data,
+                                prevKey = previousPageKey,
+                                nextKey = nextPageKey,
+                                itemsBefore = position,
+                                itemsAfter = totalCount - data.size - position
+                            )
                         )
-                    )
-                }
+                    }
 
-                override fun onResult(data: List<Value>, previousPageKey: Key?, nextPageKey: Key?) {
-                    cont.resume(BaseResult(data, previousPageKey, nextPageKey))
+                    override fun onResult(
+                        data: List<Value>,
+                        previousPageKey: Key?,
+                        nextPageKey: Key?
+                    ) {
+                        cont.resume(BaseResult(data, previousPageKey, nextPageKey))
+                    }
                 }
-            })
+            )
         }
 
     private suspend fun loadBefore(params: LoadParams<Key>) =
         suspendCancellableCoroutine<BaseResult<Value>> { cont ->
-            loadBefore(params, cont.asCallback(false))
+            loadBefore(params, continuationAsCallback(cont, false))
         }
 
     private suspend fun loadAfter(params: LoadParams<Key>) =
         suspendCancellableCoroutine<BaseResult<Value>> { cont ->
-            loadAfter(params, cont.asCallback(true))
+            loadAfter(params, continuationAsCallback(cont, true))
         }
 
-    private fun CancellableContinuation<BaseResult<Value>>.asCallback(isAppend: Boolean) =
-        object : PageKeyedDataSource.LoadCallback<Key, Value>() {
+    // Possible workaround for b/161464680; issue was reported when built with Kotlin 1.3.71
+    @Suppress("RemoveRedundantQualifierName")
+    private fun continuationAsCallback(
+        continuation: CancellableContinuation<BaseResult<Value>>,
+        isAppend: Boolean
+    ): LoadCallback<Key, Value> {
+        return object : LoadCallback<Key, Value>() {
             override fun onResult(data: List<Value>, adjacentPageKey: Key?) {
-                resume(
+                continuation.resume(
                     BaseResult(
                         data = data,
                         prevKey = if (isAppend) null else adjacentPageKey,
@@ -235,6 +254,7 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
                 )
             }
         }
+    }
 
     /**
      * Load initial data.
@@ -302,19 +322,23 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
     @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
     internal override val supportsPageDropping = false
 
+    @Suppress("DEPRECATION")
     final override fun <ToValue : Any> mapByPage(
         function: Function<List<Value>, List<ToValue>>
     ): PageKeyedDataSource<Key, ToValue> = WrapperPageKeyedDataSource(this, function)
 
+    @Suppress("DEPRECATION")
     final override fun <ToValue : Any> mapByPage(
         function: (List<Value>) -> List<ToValue>
     ): PageKeyedDataSource<Key, ToValue> = mapByPage(Function { function(it) })
 
+    @Suppress("DEPRECATION")
     final override fun <ToValue : Any> map(
         function: Function<Value, ToValue>
     ): PageKeyedDataSource<Key, ToValue> =
         mapByPage(Function { list -> list.map { function.apply(it) } })
 
+    @Suppress("DEPRECATION")
     final override fun <ToValue : Any> map(
         function: (Value) -> ToValue
     ): PageKeyedDataSource<Key, ToValue> = mapByPage(Function { list -> list.map(function) })

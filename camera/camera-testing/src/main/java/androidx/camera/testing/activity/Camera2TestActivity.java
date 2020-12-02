@@ -30,7 +30,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 
@@ -38,6 +37,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.VisibleForTesting;
+import androidx.camera.core.Logger;
 import androidx.camera.testing.R;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
@@ -75,24 +75,24 @@ public class Camera2TestActivity extends Activity {
 
                 @SuppressLint("MissingPermission")
                 @Override
-                public void onSurfaceTextureAvailable(SurfaceTexture texture, int width,
+                public void onSurfaceTextureAvailable(@NonNull SurfaceTexture texture, int width,
                         int height) {
                     openCamera();
                 }
 
                 @Override
-                public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width,
+                public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture texture, int width,
                         int height) {
 
                 }
 
                 @Override
-                public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
+                public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture texture) {
                     return true;
                 }
 
                 @Override
-                public void onSurfaceTextureUpdated(SurfaceTexture texture) {
+                public void onSurfaceTextureUpdated(@NonNull SurfaceTexture texture) {
                     // Wait until surface texture receives enough updates.
                     if (!mPreviewReady.isIdleNow()) {
                         mPreviewReady.decrement();
@@ -105,7 +105,7 @@ public class Camera2TestActivity extends Activity {
 
         @Override
         public void onOpened(@NonNull CameraDevice cameraDevice) {
-            Log.d(TAG, "Camera onOpened: " + cameraDevice);
+            Logger.d(TAG, "Camera onOpened: " + cameraDevice);
             // This method is called when the camera is opened.  We start camera preview here.
             mCameraOpenCloseLock.release();
             mCameraDevice = cameraDevice;
@@ -114,7 +114,7 @@ public class Camera2TestActivity extends Activity {
 
         @Override
         public void onDisconnected(@NonNull CameraDevice cameraDevice) {
-            Log.d(TAG, "Camera onDisconnected: " + cameraDevice);
+            Logger.d(TAG, "Camera onDisconnected: " + cameraDevice);
             mCameraOpenCloseLock.release();
             cameraDevice.close();
             mCameraDevice = null;
@@ -123,7 +123,7 @@ public class Camera2TestActivity extends Activity {
 
         @Override
         public void onError(@NonNull CameraDevice cameraDevice, int error) {
-            Log.d(TAG, "Camera onError: " + cameraDevice);
+            Logger.d(TAG, "Camera onError: " + cameraDevice);
             mCameraOpenCloseLock.release();
             cameraDevice.close();
             mCameraDevice = null;
@@ -149,7 +149,7 @@ public class Camera2TestActivity extends Activity {
             try {
                 cameraIds = manager.getCameraIdList();
             } catch (CameraAccessException e) {
-                Log.d(TAG, "Cannot find default camera id");
+                Logger.d(TAG, "Cannot find default camera id");
             }
             if (cameraIds.length > 0) {
                 mCameraId = cameraIds[0];
@@ -188,10 +188,10 @@ public class Camera2TestActivity extends Activity {
     @RequiresPermission(Manifest.permission.CAMERA)
     void openCamera() {
         if (TextUtils.isEmpty(mCameraId)) {
-            Log.d(TAG, "Cannot open the camera");
+            Logger.d(TAG, "Cannot open the camera");
             return;
         }
-        Log.d(TAG, "Opening camera: " + mCameraId);
+        Logger.d(TAG, "Opening camera: " + mCameraId);
 
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         try {
@@ -230,10 +230,10 @@ public class Camera2TestActivity extends Activity {
     /**
      * Creates a new {@link CameraCaptureSession} for camera preview.
      */
+    @SuppressWarnings("deprecation") /* createCaptureSession */
     void createCameraPreviewSession() {
         try {
             SurfaceTexture texture = mTextureView.getSurfaceTexture();
-            assert texture != null;
 
             // We configure the size of default buffer to be the size of camera preview we want.
             texture.setDefaultBufferSize(mTextureView.getWidth(), mTextureView.getHeight());

@@ -1,48 +1,356 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="4" by="lint 3.0.0">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
 
     <issue
         id="AllowBackup"
         message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
         errorLine1="    &lt;application"
-        errorLine2="    ^">
+        errorLine2="     ~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="19"
-            column="5"/>
+            column="6"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mDatabase` of class `SampleDatabaseService` requires synthetic accessor"
+        errorLine1="            mDatabase.getCustomerDao().insert(customer);"
+        errorLine2="            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/SampleDatabaseService.java"
+            line="58"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mDatabase` of class `SampleDatabaseService` requires synthetic accessor"
+        errorLine1="            final LiveData&lt;List&lt;Customer>> customers = mDatabase.getCustomerDao().all();"
+        errorLine2="                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/SampleDatabaseService.java"
+            line="73"
+            column="56"/>
     </issue>
 
     <issue
         id="MissingApplicationIcon"
         message="Should explicitly set `android:icon`, there is no default"
         errorLine1="    &lt;application"
-        errorLine2="    ^">
+        errorLine2="     ~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="19"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="IgnoreWithoutReason"
+        message="Test is ignored without giving any explanation"
+        errorLine1="    @Ignore"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/MultiInstanceInvalidationTest.java"
+            line="290"
             column="5"/>
     </issue>
 
     <issue
-        id="GoogleAppIndexingWarning"
-        message="App is not indexable by Google Search; consider adding at least one Activity with an ACTION-VIEW intent filter. See issue explanation for more details."
-        errorLine1="    &lt;application"
-        errorLine2="    ^">
+        id="IgnoreWithoutReason"
+        message="Test is ignored without giving any explanation"
+        errorLine1="    @Ignore"
+        errorLine2="    ~~~~~~~">
         <location
-            file="src/main/AndroidManifest.xml"
-            line="19"
+            file="src/androidTest/java/androidx/room/integration/testapp/test/MultiInstanceInvalidationTest.java"
+            line="300"
             column="5"/>
     </issue>
 
     <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="            ((TextView) (holder.itemView)).setText(customer.getId() + &quot; &quot; + customer.getLastName());"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getName() {"
+        errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/android/arch/persistence/room/integration/testapp/PagedListCustomerAdapter.java"
-            line="63"
-            column="52"/>
+            file="src/main/java/androidx/room/integration/testapp/database/Customer.java"
+            line="45"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setName(String name) {"
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/Customer.java"
+            line="49"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getLastName() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/Customer.java"
+            line="53"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setLastName(String lastName) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/Customer.java"
+            line="57"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void insert(Customer customer);"
+        errorLine2="                ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/CustomerDao.java"
+            line="37"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void insertAll(Customer[] customers);"
+        errorLine2="                   ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/CustomerDao.java"
+            line="44"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    LiveData&lt;List&lt;Customer>> all();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/CustomerDao.java"
+            line="56"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Description(int productId, String text) {"
+        errorLine2="                                      ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/Description.java"
+            line="32"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getText() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/Description.java"
+            line="41"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Product(int id, String name) {"
+        errorLine2="                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/Product.java"
+            line="38"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getName() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/Product.java"
+            line="51"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setName(String name) {"
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/Product.java"
+            line="55"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void insert(Product product);"
+        errorLine2="                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/ProductDao.java"
+            line="35"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void addReview(Review review);"
+        errorLine2="                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/ProductDao.java"
+            line="41"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    List&lt;Review> getProductReviews(int productId);"
+        errorLine2="    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/ProductDao.java"
+            line="47"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void addDescription(Description description);"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/ProductFtsDao.java"
+            line="35"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    List&lt;Product> getProductsWithDescription(String query);"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/ProductFtsDao.java"
+            line="42"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    List&lt;Product> getProductsWithDescription(String query);"
+        errorLine2="                                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/ProductFtsDao.java"
+            line="42"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public abstract CustomerDao getCustomerDao();"
+        errorLine2="                    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/SampleDatabase.java"
+            line="31"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public abstract ProductDao getProductDao();"
+        errorLine2="                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/SampleDatabase.java"
+            line="36"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Intent intentFor(Context context, String databaseName) {"
+        errorLine2="                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/SampleDatabaseService.java"
+            line="99"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Intent intentFor(Context context, String databaseName) {"
+        errorLine2="                                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/SampleDatabaseService.java"
+            line="99"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Intent intentFor(Context context, String databaseName) {"
+        errorLine2="                                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/SampleDatabaseService.java"
+            line="99"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public IBinder onBind(Intent intent) {"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/SampleDatabaseService.java"
+            line="107"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onUnbind(Intent intent) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/SampleDatabaseService.java"
+            line="122"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public abstract ProductFtsDao getProductDao();"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/integration/testapp/database/SampleFtsDatabase.java"
+            line="31"
+            column="21"/>
     </issue>
 
 </issues>

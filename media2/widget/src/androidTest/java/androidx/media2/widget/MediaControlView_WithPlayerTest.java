@@ -92,11 +92,9 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
         mMediaControlView = mActivity.findViewById(
                 androidx.media2.widget.test.R.id.mediacontrolview);
 
-        Uri fileSchemeUri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
-                + androidx.media2.widget.test.R.raw.test_file_scheme_video);
+        Uri fileSchemeUri = getResourceUri(
+                androidx.media2.widget.test.R.raw.test_file_scheme_video);
         mFileSchemeMediaItem = createTestMediaItem(fileSchemeUri);
-
-        setKeepScreenOn(mActivityRule);
         checkAttachedToWindow(mMediaControlView);
     }
 
@@ -114,7 +112,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
      * It also tests clicking play button
      */
     @Test
-    public void testSetPlayerOrController_PausedState() throws Throwable {
+    public void setPlayerOrController_PausedState() throws Throwable {
         final CountDownLatch latchForPausedState = new CountDownLatch(1);
         final CountDownLatch latchForPlayingState = new CountDownLatch(1);
         final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
@@ -141,7 +139,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
      * It also tests clicking pause button
      */
     @Test
-    public void testSetPlayerOrController_PlayingState() throws Throwable {
+    public void setPlayerOrController_PlayingState() throws Throwable {
         final CountDownLatch latchForPreparedState = new CountDownLatch(1);
         final CountDownLatch latchForPausedState = new CountDownLatch(1);
         final CountDownLatch latchForPlayingState = new CountDownLatch(1);
@@ -177,7 +175,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testSetPlayerAndController_MultipleTimes() throws Throwable {
+    public void setPlayerAndController_MultipleTimes() throws Throwable {
         DefaultPlayerCallback callback1 = new DefaultPlayerCallback();
         PlayerWrapper wrapper1 = createPlayerWrapper(callback1, mFileSchemeMediaItem, null);
         assertTrue(callback1.mPausedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
@@ -228,7 +226,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testFfwdButtonClick() throws Throwable {
+    public void ffwdButtonClick() throws Throwable {
         final CountDownLatch latchForPausedState = new CountDownLatch(1);
         final CountDownLatch latchForFfwd = new CountDownLatch(1);
         final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
@@ -253,7 +251,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testRewButtonClick() throws Throwable {
+    public void rewButtonClick() throws Throwable {
         final CountDownLatch latchForFfwd = new CountDownLatch(1);
         final CountDownLatch latchForRew = new CountDownLatch(1);
         final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
@@ -294,7 +292,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testPrevNextButtonClick() throws Throwable {
+    public void prevNextButtonClick() throws Throwable {
         DefaultPlayerCallback callback = new DefaultPlayerCallback();
         final List<MediaItem> playlist = createTestPlaylist();
         final PlayerWrapper playerWrapper = createPlayerWrapper(callback, null, playlist);
@@ -330,7 +328,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testSetMetadataForNonMusicFile() throws Throwable {
+    public void setMetadataForNonMusicFile() throws Throwable {
         final String title = "BigBuckBunny";
         final CountDownLatch latch = new CountDownLatch(1);
 
@@ -360,9 +358,8 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testButtonVisibilityForMusicFile() throws Throwable {
-        Uri uri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
-                + androidx.media2.widget.test.R.raw.test_music);
+    public void subtitleButtonVisibilityForMusicFile() throws Throwable {
+        Uri uri = getResourceUri(androidx.media2.widget.test.R.raw.test_music);
         final MediaItem uriMediaItem = createTestMediaItem(uri);
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -383,9 +380,9 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testUpdateAndSelectSubtitleTrack() throws Throwable {
-        Uri uri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
-                + androidx.media2.widget.test.R.raw.testvideo_with_2_subtitle_tracks);
+    public void updateAndSelectSubtitleTrack() throws Throwable {
+        Uri uri = getResourceUri(
+                androidx.media2.widget.test.R.raw.testvideo_with_2_subtitle_tracks);
 
         final String subtitleTrackOffText = mContext.getResources().getString(
                 R.string.MediaControlView_subtitle_off_text);
@@ -460,7 +457,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testAttachViewAndPlayAfterSetPlayerOrController() throws Throwable {
+    public void attachViewAndPlayAfterSetPlayerOrController() throws Throwable {
         final CountDownLatch latchForPausedState = new CountDownLatch(1);
         final CountDownLatch latchForPlayingState = new CountDownLatch(1);
         final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {

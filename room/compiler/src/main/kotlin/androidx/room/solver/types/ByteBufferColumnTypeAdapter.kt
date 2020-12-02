@@ -19,13 +19,13 @@ package androidx.room.solver.types
 import androidx.room.ext.L
 import androidx.room.ext.T
 import androidx.room.parser.SQLTypeAffinity
+import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.TypeName
 import java.nio.ByteBuffer
-import javax.annotation.processing.ProcessingEnvironment
 
-class ByteBufferColumnTypeAdapter(env: ProcessingEnvironment) : ColumnTypeAdapter(
-    out = env.elementUtils.getTypeElement("java.nio.ByteBuffer").asType(),
+class ByteBufferColumnTypeAdapter(env: XProcessingEnv) : ColumnTypeAdapter(
+    out = env.requireType("java.nio.ByteBuffer"),
     typeAffinity = SQLTypeAffinity.BLOB
 ) {
     override fun readFromCursor(
@@ -35,8 +35,10 @@ class ByteBufferColumnTypeAdapter(env: ProcessingEnvironment) : ColumnTypeAdapte
         scope: CodeGenScope
     ) {
         scope.builder()
-            .addStatement("$L = $T.wrap($L.getBlob($L))",
-                outVarName, TypeName.get(ByteBuffer::class.java), cursorVarName, indexVarName)
+            .addStatement(
+                "$L = $T.wrap($L.getBlob($L))",
+                outVarName, TypeName.get(ByteBuffer::class.java), cursorVarName, indexVarName
+            )
     }
 
     override fun bindToStmt(

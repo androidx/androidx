@@ -19,7 +19,7 @@
 
     <application
         android:supportsRtl="true">
-        <activity android:name="androidx.transition.FragmentTestActivity"/>
+        <activity android:name="androidx.transition.FragmentTransitionTestActivity"/>
         <activity
             android:name="androidx.transition.TransitionActivity"/>
     </application>

@@ -3,60 +3,6 @@ ContextFirst: androidx.transition.Scene#getSceneForLayout(android.view.ViewGroup
     Context is distinct, so it must be the first argument (method `getSceneForLayout`)
 
 
-MissingNullability: androidx.transition.ArcMotion#ArcMotion(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `ArcMotion`
-MissingNullability: androidx.transition.ArcMotion#ArcMotion(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `ArcMotion`
-MissingNullability: androidx.transition.ArcMotion#getPath(float, float, float, float):
-    Missing nullability on method `getPath` return
-MissingNullability: androidx.transition.AutoTransition#AutoTransition(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `AutoTransition`
-MissingNullability: androidx.transition.AutoTransition#AutoTransition(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `AutoTransition`
-MissingNullability: androidx.transition.ChangeBounds#ChangeBounds(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `ChangeBounds`
-MissingNullability: androidx.transition.ChangeBounds#ChangeBounds(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `ChangeBounds`
-MissingNullability: androidx.transition.ChangeClipBounds#ChangeClipBounds(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `ChangeClipBounds`
-MissingNullability: androidx.transition.ChangeClipBounds#ChangeClipBounds(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `ChangeClipBounds`
-MissingNullability: androidx.transition.ChangeClipBounds#createAnimator(android.view.ViewGroup, androidx.transition.TransitionValues, androidx.transition.TransitionValues):
-    Missing nullability on method `createAnimator` return
-MissingNullability: androidx.transition.ChangeClipBounds#createAnimator(android.view.ViewGroup, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #1:
-    Missing nullability on parameter `startValues` in method `createAnimator`
-MissingNullability: androidx.transition.ChangeClipBounds#createAnimator(android.view.ViewGroup, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #2:
-    Missing nullability on parameter `endValues` in method `createAnimator`
-MissingNullability: androidx.transition.ChangeClipBounds#getTransitionProperties():
-    Missing nullability on method `getTransitionProperties` return
-MissingNullability: androidx.transition.ChangeImageTransform#ChangeImageTransform(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `ChangeImageTransform`
-MissingNullability: androidx.transition.ChangeImageTransform#ChangeImageTransform(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `ChangeImageTransform`
-MissingNullability: androidx.transition.ChangeImageTransform#createAnimator(android.view.ViewGroup, androidx.transition.TransitionValues, androidx.transition.TransitionValues):
-    Missing nullability on method `createAnimator` return
-MissingNullability: androidx.transition.ChangeImageTransform#createAnimator(android.view.ViewGroup, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #1:
-    Missing nullability on parameter `startValues` in method `createAnimator`
-MissingNullability: androidx.transition.ChangeImageTransform#createAnimator(android.view.ViewGroup, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #2:
-    Missing nullability on parameter `endValues` in method `createAnimator`
-MissingNullability: androidx.transition.ChangeImageTransform#getTransitionProperties():
-    Missing nullability on method `getTransitionProperties` return
-MissingNullability: androidx.transition.ChangeScroll#ChangeScroll(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `ChangeScroll`
-MissingNullability: androidx.transition.ChangeScroll#ChangeScroll(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `ChangeScroll`
-MissingNullability: androidx.transition.ChangeTransform#ChangeTransform(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `ChangeTransform`
-MissingNullability: androidx.transition.ChangeTransform#ChangeTransform(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `ChangeTransform`
-MissingNullability: androidx.transition.ChangeTransform#createAnimator(android.view.ViewGroup, androidx.transition.TransitionValues, androidx.transition.TransitionValues):
-    Missing nullability on method `createAnimator` return
-MissingNullability: androidx.transition.ChangeTransform#createAnimator(android.view.ViewGroup, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #1:
-    Missing nullability on parameter `startValues` in method `createAnimator`
-MissingNullability: androidx.transition.ChangeTransform#createAnimator(android.view.ViewGroup, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #2:
-    Missing nullability on parameter `endValues` in method `createAnimator`
-MissingNullability: androidx.transition.ChangeTransform#getTransitionProperties():
-    Missing nullability on method `getTransitionProperties` return
 MissingNullability: androidx.transition.CircularPropagation#getStartDelay(android.view.ViewGroup, androidx.transition.Transition, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #0:
     Missing nullability on parameter `sceneRoot` in method `getStartDelay`
 MissingNullability: androidx.transition.CircularPropagation#getStartDelay(android.view.ViewGroup, androidx.transition.Transition, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #1:
@@ -65,12 +11,6 @@ MissingNullability: androidx.transition.CircularPropagation#getStartDelay(androi
     Missing nullability on parameter `startValues` in method `getStartDelay`
 MissingNullability: androidx.transition.CircularPropagation#getStartDelay(android.view.ViewGroup, androidx.transition.Transition, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #3:
     Missing nullability on parameter `endValues` in method `getStartDelay`
-MissingNullability: androidx.transition.Explode#Explode(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `Explode`
-MissingNullability: androidx.transition.Explode#Explode(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `Explode`
-MissingNullability: androidx.transition.Explode#onAppear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues):
-    Missing nullability on method `onAppear` return
 MissingNullability: androidx.transition.Explode#onAppear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #0:
     Missing nullability on parameter `sceneRoot` in method `onAppear`
 MissingNullability: androidx.transition.Explode#onAppear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #1:
@@ -79,8 +19,6 @@ MissingNullability: androidx.transition.Explode#onAppear(android.view.ViewGroup,
     Missing nullability on parameter `startValues` in method `onAppear`
 MissingNullability: androidx.transition.Explode#onAppear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #3:
     Missing nullability on parameter `endValues` in method `onAppear`
-MissingNullability: androidx.transition.Explode#onDisappear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues):
-    Missing nullability on method `onDisappear` return
 MissingNullability: androidx.transition.Explode#onDisappear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #0:
     Missing nullability on parameter `sceneRoot` in method `onDisappear`
 MissingNullability: androidx.transition.Explode#onDisappear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #1:
@@ -89,12 +27,6 @@ MissingNullability: androidx.transition.Explode#onDisappear(android.view.ViewGro
     Missing nullability on parameter `startValues` in method `onDisappear`
 MissingNullability: androidx.transition.Explode#onDisappear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #3:
     Missing nullability on parameter `endValues` in method `onDisappear`
-MissingNullability: androidx.transition.Fade#Fade(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `Fade`
-MissingNullability: androidx.transition.Fade#Fade(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `Fade`
-MissingNullability: androidx.transition.Fade#onAppear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues):
-    Missing nullability on method `onAppear` return
 MissingNullability: androidx.transition.Fade#onAppear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #0:
     Missing nullability on parameter `sceneRoot` in method `onAppear`
 MissingNullability: androidx.transition.Fade#onAppear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #1:
@@ -103,8 +35,6 @@ MissingNullability: androidx.transition.Fade#onAppear(android.view.ViewGroup, an
     Missing nullability on parameter `startValues` in method `onAppear`
 MissingNullability: androidx.transition.Fade#onAppear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #3:
     Missing nullability on parameter `endValues` in method `onAppear`
-MissingNullability: androidx.transition.Fade#onDisappear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues):
-    Missing nullability on method `onDisappear` return
 MissingNullability: androidx.transition.Fade#onDisappear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #0:
     Missing nullability on parameter `sceneRoot` in method `onDisappear`
 MissingNullability: androidx.transition.Fade#onDisappear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #1:
@@ -113,20 +43,8 @@ MissingNullability: androidx.transition.Fade#onDisappear(android.view.ViewGroup,
     Missing nullability on parameter `startValues` in method `onDisappear`
 MissingNullability: androidx.transition.Fade#onDisappear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #3:
     Missing nullability on parameter `endValues` in method `onDisappear`
-MissingNullability: androidx.transition.PathMotion#PathMotion(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `PathMotion`
-MissingNullability: androidx.transition.PathMotion#PathMotion(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `PathMotion`
-MissingNullability: androidx.transition.PathMotion#getPath(float, float, float, float):
-    Missing nullability on method `getPath` return
-MissingNullability: androidx.transition.PatternPathMotion#PatternPathMotion(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `PatternPathMotion`
-MissingNullability: androidx.transition.PatternPathMotion#PatternPathMotion(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `PatternPathMotion`
 MissingNullability: androidx.transition.PatternPathMotion#PatternPathMotion(android.graphics.Path) parameter #0:
     Missing nullability on parameter `patternPath` in method `PatternPathMotion`
-MissingNullability: androidx.transition.PatternPathMotion#getPath(float, float, float, float):
-    Missing nullability on method `getPath` return
 MissingNullability: androidx.transition.PatternPathMotion#getPatternPath():
     Missing nullability on method `getPatternPath` return
 MissingNullability: androidx.transition.PatternPathMotion#setPatternPath(android.graphics.Path) parameter #0:
@@ -139,12 +57,6 @@ MissingNullability: androidx.transition.SidePropagation#getStartDelay(android.vi
     Missing nullability on parameter `startValues` in method `getStartDelay`
 MissingNullability: androidx.transition.SidePropagation#getStartDelay(android.view.ViewGroup, androidx.transition.Transition, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #3:
     Missing nullability on parameter `endValues` in method `getStartDelay`
-MissingNullability: androidx.transition.Slide#Slide(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `Slide`
-MissingNullability: androidx.transition.Slide#Slide(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `Slide`
-MissingNullability: androidx.transition.Slide#onAppear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues):
-    Missing nullability on method `onAppear` return
 MissingNullability: androidx.transition.Slide#onAppear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #0:
     Missing nullability on parameter `sceneRoot` in method `onAppear`
 MissingNullability: androidx.transition.Slide#onAppear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #1:
@@ -153,8 +65,6 @@ MissingNullability: androidx.transition.Slide#onAppear(android.view.ViewGroup, a
     Missing nullability on parameter `startValues` in method `onAppear`
 MissingNullability: androidx.transition.Slide#onAppear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #3:
     Missing nullability on parameter `endValues` in method `onAppear`
-MissingNullability: androidx.transition.Slide#onDisappear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues):
-    Missing nullability on method `onDisappear` return
 MissingNullability: androidx.transition.Slide#onDisappear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #0:
     Missing nullability on parameter `sceneRoot` in method `onDisappear`
 MissingNullability: androidx.transition.Slide#onDisappear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #1:
@@ -163,22 +73,12 @@ MissingNullability: androidx.transition.Slide#onDisappear(android.view.ViewGroup
     Missing nullability on parameter `startValues` in method `onDisappear`
 MissingNullability: androidx.transition.Slide#onDisappear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #3:
     Missing nullability on parameter `endValues` in method `onDisappear`
-MissingNullability: androidx.transition.Transition#Transition(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `Transition`
-MissingNullability: androidx.transition.Transition#Transition(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `Transition`
 MissingNullability: androidx.transition.Transition#clone():
     Missing nullability on method `clone` return
 MissingNullability: androidx.transition.Transition#setMatchOrder(int...) parameter #0:
     Missing nullability on parameter `matches` in method `setMatchOrder`
-MissingNullability: androidx.transition.Transition#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.transition.Transition.EpicenterCallback#onGetEpicenter(androidx.transition.Transition):
     Missing nullability on method `onGetEpicenter` return
-MissingNullability: androidx.transition.TransitionInflater#from(android.content.Context):
-    Missing nullability on method `from` return
-MissingNullability: androidx.transition.TransitionInflater#from(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `from`
 MissingNullability: androidx.transition.TransitionInflater#inflateTransition(int):
     Missing nullability on method `inflateTransition` return
 MissingNullability: androidx.transition.TransitionInflater#inflateTransitionManager(int, android.view.ViewGroup):
@@ -199,10 +99,6 @@ MissingNullability: androidx.transition.TransitionPropagation#getStartDelay(andr
     Missing nullability on parameter `startValues` in method `getStartDelay`
 MissingNullability: androidx.transition.TransitionPropagation#getStartDelay(android.view.ViewGroup, androidx.transition.Transition, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #3:
     Missing nullability on parameter `endValues` in method `getStartDelay`
-MissingNullability: androidx.transition.TransitionSet#TransitionSet(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `TransitionSet`
-MissingNullability: androidx.transition.TransitionSet#TransitionSet(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `TransitionSet`
 MissingNullability: androidx.transition.TransitionSet#clone():
     Missing nullability on method `clone` return
 MissingNullability: androidx.transition.TransitionSet#setEpicenterCallback(androidx.transition.Transition.EpicenterCallback) parameter #0:
@@ -211,26 +107,12 @@ MissingNullability: androidx.transition.TransitionSet#setPathMotion(androidx.tra
     Missing nullability on parameter `pathMotion` in method `setPathMotion`
 MissingNullability: androidx.transition.TransitionSet#setPropagation(androidx.transition.TransitionPropagation) parameter #0:
     Missing nullability on parameter `propagation` in method `setPropagation`
-MissingNullability: androidx.transition.TransitionValues#equals(Object) parameter #0:
-    Missing nullability on parameter `other` in method `equals`
-MissingNullability: androidx.transition.TransitionValues#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.transition.TransitionValues#values:
     Missing nullability on field `values` in class `class androidx.transition.TransitionValues`
 MissingNullability: androidx.transition.TransitionValues#view:
     Missing nullability on field `view` in class `class androidx.transition.TransitionValues`
-MissingNullability: androidx.transition.Visibility#Visibility(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `Visibility`
-MissingNullability: androidx.transition.Visibility#Visibility(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `Visibility`
-MissingNullability: androidx.transition.Visibility#isTransitionRequired(androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #0:
-    Missing nullability on parameter `startValues` in method `isTransitionRequired`
-MissingNullability: androidx.transition.Visibility#isTransitionRequired(androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #1:
-    Missing nullability on parameter `newValues` in method `isTransitionRequired`
 MissingNullability: androidx.transition.Visibility#isVisible(androidx.transition.TransitionValues) parameter #0:
     Missing nullability on parameter `values` in method `isVisible`
-MissingNullability: androidx.transition.Visibility#onAppear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues):
-    Missing nullability on method `onAppear` return
 MissingNullability: androidx.transition.Visibility#onAppear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #0:
     Missing nullability on parameter `sceneRoot` in method `onAppear`
 MissingNullability: androidx.transition.Visibility#onAppear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #1:
@@ -239,16 +121,12 @@ MissingNullability: androidx.transition.Visibility#onAppear(android.view.ViewGro
     Missing nullability on parameter `startValues` in method `onAppear`
 MissingNullability: androidx.transition.Visibility#onAppear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #3:
     Missing nullability on parameter `endValues` in method `onAppear`
-MissingNullability: androidx.transition.Visibility#onAppear(android.view.ViewGroup, androidx.transition.TransitionValues, int, androidx.transition.TransitionValues, int):
-    Missing nullability on method `onAppear` return
 MissingNullability: androidx.transition.Visibility#onAppear(android.view.ViewGroup, androidx.transition.TransitionValues, int, androidx.transition.TransitionValues, int) parameter #0:
     Missing nullability on parameter `sceneRoot` in method `onAppear`
 MissingNullability: androidx.transition.Visibility#onAppear(android.view.ViewGroup, androidx.transition.TransitionValues, int, androidx.transition.TransitionValues, int) parameter #1:
     Missing nullability on parameter `startValues` in method `onAppear`
 MissingNullability: androidx.transition.Visibility#onAppear(android.view.ViewGroup, androidx.transition.TransitionValues, int, androidx.transition.TransitionValues, int) parameter #3:
     Missing nullability on parameter `endValues` in method `onAppear`
-MissingNullability: androidx.transition.Visibility#onDisappear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues):
-    Missing nullability on method `onDisappear` return
 MissingNullability: androidx.transition.Visibility#onDisappear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #0:
     Missing nullability on parameter `sceneRoot` in method `onDisappear`
 MissingNullability: androidx.transition.Visibility#onDisappear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #1:
@@ -257,8 +135,6 @@ MissingNullability: androidx.transition.Visibility#onDisappear(android.view.View
     Missing nullability on parameter `startValues` in method `onDisappear`
 MissingNullability: androidx.transition.Visibility#onDisappear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #3:
     Missing nullability on parameter `endValues` in method `onDisappear`
-MissingNullability: androidx.transition.Visibility#onDisappear(android.view.ViewGroup, androidx.transition.TransitionValues, int, androidx.transition.TransitionValues, int):
-    Missing nullability on method `onDisappear` return
 MissingNullability: androidx.transition.Visibility#onDisappear(android.view.ViewGroup, androidx.transition.TransitionValues, int, androidx.transition.TransitionValues, int) parameter #0:
     Missing nullability on parameter `sceneRoot` in method `onDisappear`
 MissingNullability: androidx.transition.Visibility#onDisappear(android.view.ViewGroup, androidx.transition.TransitionValues, int, androidx.transition.TransitionValues, int) parameter #1:
@@ -275,6 +151,10 @@ MissingNullability: androidx.transition.VisibilityPropagation#getViewX(androidx.
     Missing nullability on parameter `values` in method `getViewX`
 MissingNullability: androidx.transition.VisibilityPropagation#getViewY(androidx.transition.TransitionValues) parameter #0:
     Missing nullability on parameter `values` in method `getViewY`
+
+
+MutableBareField: androidx.transition.TransitionValues#view:
+    Bare field view must be marked final, or moved behind accessors if mutable
 
 
 NoClone: androidx.transition.Transition#clone():

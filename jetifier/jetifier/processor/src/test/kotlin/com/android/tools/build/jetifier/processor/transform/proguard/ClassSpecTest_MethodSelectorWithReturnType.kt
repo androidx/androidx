@@ -31,25 +31,25 @@ class ClassSpecTest_MethodSelectorWithReturnType {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  void get*(); \n" +
-                "  void get*(...); \n" +
-                "  void get*(*); \n" +
-                "  void get*(support.Activity); \n" +
-                "  void get?(support.Activity); \n" +
-                "  void get(support.Activity); \n" +
-                "  void *(support.Activity, support.Fragment, keep.Please); \n" +
-                "}"
+                    "  void get*(); \n" +
+                    "  void get*(...); \n" +
+                    "  void get*(*); \n" +
+                    "  void get*(support.Activity); \n" +
+                    "  void get?(support.Activity); \n" +
+                    "  void get(support.Activity); \n" +
+                    "  void *(support.Activity, support.Fragment, keep.Please); \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  void get*(); \n" +
-                "  void get*(...); \n" +
-                "  void get*(*); \n" +
-                "  void get*(test.Activity); \n" +
-                "  void get?(test.Activity); \n" +
-                "  void get(test.Activity); \n" +
-                "  void *(test.Activity, test.Fragment, keep.Please); \n" +
-                "}"
+                    "  void get*(); \n" +
+                    "  void get*(...); \n" +
+                    "  void get*(*); \n" +
+                    "  void get*(test.Activity); \n" +
+                    "  void get?(test.Activity); \n" +
+                    "  void get(test.Activity); \n" +
+                    "  void *(test.Activity, test.Fragment, keep.Please); \n" +
+                    "}"
             )
     }
 
@@ -64,21 +64,21 @@ class ClassSpecTest_MethodSelectorWithReturnType {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  void get(); \n" +
-                "  void get(...); \n" +
-                "  void get(*); \n" +
-                "  void get(support.Activity); \n" +
-                "  void get(support.Activity, support.Fragment, keep.Please); \n" +
-                "}"
+                    "  void get(); \n" +
+                    "  void get(...); \n" +
+                    "  void get(*); \n" +
+                    "  void get(support.Activity); \n" +
+                    "  void get(support.Activity, support.Fragment, keep.Please); \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  void get(); \n" +
-                "  void get(...); \n" +
-                "  void get(*); \n" +
-                "  void get(test.Activity); \n" +
-                "  void get(test.Activity, test.Fragment, keep.Please); \n" +
-                "}"
+                    "  void get(); \n" +
+                    "  void get(...); \n" +
+                    "  void get(*); \n" +
+                    "  void get(test.Activity); \n" +
+                    "  void get(test.Activity, test.Fragment, keep.Please); \n" +
+                    "}"
             )
     }
 
@@ -93,21 +93,21 @@ class ClassSpecTest_MethodSelectorWithReturnType {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  * get(); \n" +
-                "  * get(...); \n" +
-                "  * get(*); \n" +
-                "  * get(support.Activity); \n" +
-                "  * get(support.Activity, support.Fragment, keep.Please); \n" +
-                "}"
+                    "  * get(); \n" +
+                    "  * get(...); \n" +
+                    "  * get(*); \n" +
+                    "  * get(support.Activity); \n" +
+                    "  * get(support.Activity, support.Fragment, keep.Please); \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  * get(); \n" +
-                "  * get(...); \n" +
-                "  * get(*); \n" +
-                "  * get(test.Activity); \n" +
-                "  * get(test.Activity, test.Fragment, keep.Please); \n" +
-                "}"
+                    "  * get(); \n" +
+                    "  * get(...); \n" +
+                    "  * get(*); \n" +
+                    "  * get(test.Activity); \n" +
+                    "  * get(test.Activity, test.Fragment, keep.Please); \n" +
+                    "}"
             )
     }
 
@@ -122,21 +122,21 @@ class ClassSpecTest_MethodSelectorWithReturnType {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  support.Fragment get(); \n" +
-                "  support.Fragment get(...); \n" +
-                "  support.Fragment get(*); \n" +
-                "  support.Fragment get(support.Activity); \n" +
-                "  support.Fragment get(support.Activity, support.Fragment, keep.Please); \n" +
-                "}"
+                    "  support.Fragment get(); \n" +
+                    "  support.Fragment get(...); \n" +
+                    "  support.Fragment get(*); \n" +
+                    "  support.Fragment get(support.Activity); \n" +
+                    "  support.Fragment get(support.Activity, support.Fragment, keep.Please); \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  test.Fragment get(); \n" +
-                "  test.Fragment get(...); \n" +
-                "  test.Fragment get(*); \n" +
-                "  test.Fragment get(test.Activity); \n" +
-                "  test.Fragment get(test.Activity, test.Fragment, keep.Please); \n" +
-                "}"
+                    "  test.Fragment get(); \n" +
+                    "  test.Fragment get(...); \n" +
+                    "  test.Fragment get(*); \n" +
+                    "  test.Fragment get(test.Activity); \n" +
+                    "  test.Fragment get(test.Activity, test.Fragment, keep.Please); \n" +
+                    "}"
             )
     }
 
@@ -151,21 +151,21 @@ class ClassSpecTest_MethodSelectorWithReturnType {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  support.Fragment get*(); \n" +
-                "  support.Fragment get?(...); \n" +
-                "  support.Fragment *(*); \n" +
-                "  support.Fragment *(support.Activity); \n" +
-                "  support.Fragment *(support.Activity, support.Fragment, keep.Please); \n" +
-                "}"
+                    "  support.Fragment get*(); \n" +
+                    "  support.Fragment get?(...); \n" +
+                    "  support.Fragment *(*); \n" +
+                    "  support.Fragment *(support.Activity); \n" +
+                    "  support.Fragment *(support.Activity, support.Fragment, keep.Please); \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  test.Fragment get*(); \n" +
-                "  test.Fragment get?(...); \n" +
-                "  test.Fragment *(*); \n" +
-                "  test.Fragment *(test.Activity); \n" +
-                "  test.Fragment *(test.Activity, test.Fragment, keep.Please); \n" +
-                "}"
+                    "  test.Fragment get*(); \n" +
+                    "  test.Fragment get?(...); \n" +
+                    "  test.Fragment *(*); \n" +
+                    "  test.Fragment *(test.Activity); \n" +
+                    "  test.Fragment *(test.Activity, test.Fragment, keep.Please); \n" +
+                    "}"
             )
     }
 
@@ -180,23 +180,24 @@ class ClassSpecTest_MethodSelectorWithReturnType {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  public support.Fragment get(); \n" +
-                "  public static support.Fragment get(...); \n" +
-                "  !public !static support.Fragment get(*); \n" +
-                "  private support.Fragment get(support.Activity); \n" +
-                "  public abstract support.Fragment get(support.Activity, support.Fragment, " +
-                "keep.Please); \n" +
-                "}"
+                    "  public support.Fragment get(); \n" +
+                    "  public static support.Fragment get(...); \n" +
+                    "  !public !static support.Fragment get(*); \n" +
+                    "  private support.Fragment get(support.Activity); \n" +
+                    "  public abstract support.Fragment get(support.Activity, support.Fragment, " +
+                    "keep.Please); \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  public test.Fragment get(); \n" +
-                "  public static test.Fragment get(...); \n" +
-                "  !public !static test.Fragment get(*); \n" +
-                "  private test.Fragment get(test.Activity); \n" +
-                "  public abstract test.Fragment get(test.Activity, test.Fragment, keep.Please); " +
-                "\n" +
-                "}"
+                    "  public test.Fragment get(); \n" +
+                    "  public static test.Fragment get(...); \n" +
+                    "  !public !static test.Fragment get(*); \n" +
+                    "  private test.Fragment get(test.Activity); \n" +
+                    "  public abstract test.Fragment get(test.Activity, test.Fragment, " +
+                    "keep.Please); " +
+                    "\n" +
+                    "}"
             )
     }
 
@@ -212,23 +213,23 @@ class ClassSpecTest_MethodSelectorWithReturnType {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  @support.Annotation support.Fragment get(); \n" +
-                "  @support.Annotation support.Fragment get(...); \n" +
-                "  @support.Annotation support.Fragment get(*); \n" +
-                "  @keep.Me support.Fragment get(support.Activity); \n" +
-                "  @support.Annotation support.Fragment get(support.Activity, support.Fragment, " +
-                "keep.Please); \n" +
-                "}"
+                    "  @support.Annotation support.Fragment get(); \n" +
+                    "  @support.Annotation support.Fragment get(...); \n" +
+                    "  @support.Annotation support.Fragment get(*); \n" +
+                    "  @keep.Me support.Fragment get(support.Activity); \n" +
+                    "  @support.Annotation support.Fragment get(support.Activity, " +
+                    " support.Fragment, keep.Please); \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  @test.Annotation test.Fragment get(); \n" +
-                "  @test.Annotation test.Fragment get(...); \n" +
-                "  @test.Annotation test.Fragment get(*); \n" +
-                "  @keep.Me test.Fragment get(test.Activity); \n" +
-                "  @test.Annotation test.Fragment get(test.Activity, test.Fragment, keep.Please" +
-                "); \n" +
-                "}"
+                    "  @test.Annotation test.Fragment get(); \n" +
+                    "  @test.Annotation test.Fragment get(...); \n" +
+                    "  @test.Annotation test.Fragment get(*); \n" +
+                    "  @keep.Me test.Fragment get(test.Activity); \n" +
+                    "  @test.Annotation test.Fragment get(test.Activity, test.Fragment, " +
+                    "keep.Please); \n" +
+                    "}"
             )
     }
 
@@ -244,23 +245,23 @@ class ClassSpecTest_MethodSelectorWithReturnType {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  @support.Annotation public support.Fragment get(); \n" +
-                "  @support.Annotation public static support.Fragment get(...); \n" +
-                "  @support.Annotation !public !static support.Fragment get(*); \n" +
-                "  @support.Annotation private support.Fragment get(support.Activity); \n" +
-                "  @support.Annotation public abstract support.Fragment get(support.Activity, " +
-                "support.Fragment,  keep.Please); \n" +
-                "}"
+                    "  @support.Annotation public support.Fragment get(); \n" +
+                    "  @support.Annotation public static support.Fragment get(...); \n" +
+                    "  @support.Annotation !public !static support.Fragment get(*); \n" +
+                    "  @support.Annotation private support.Fragment get(support.Activity); \n" +
+                    "  @support.Annotation public abstract support.Fragment " +
+                    "get(support.Activity, support.Fragment, keep.Please); \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  @test.Annotation public test.Fragment get(); \n" +
-                "  @test.Annotation public static test.Fragment get(...); \n" +
-                "  @test.Annotation !public !static test.Fragment get(*); \n" +
-                "  @test.Annotation private test.Fragment get(test.Activity); \n" +
-                "  @test.Annotation public abstract test.Fragment get(test.Activity, " +
-                "test.Fragment, keep.Please); \n" +
-                "}"
+                    "  @test.Annotation public test.Fragment get(); \n" +
+                    "  @test.Annotation public static test.Fragment get(...); \n" +
+                    "  @test.Annotation !public !static test.Fragment get(*); \n" +
+                    "  @test.Annotation private test.Fragment get(test.Activity); \n" +
+                    "  @test.Annotation public abstract test.Fragment get(test.Activity, " +
+                    "test.Fragment, keep.Please); \n" +
+                    "}"
             )
     }
 
@@ -276,15 +277,15 @@ class ClassSpecTest_MethodSelectorWithReturnType {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  @support.Annotation  support.Fragment \t get(support.Activity ,  " +
-                "support.Fragment ,  keep.Please) ; \n" +
-                "}"
+                    "  @support.Annotation  support.Fragment \t get(support.Activity ,  " +
+                    "support.Fragment , keep.Please) ; \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  @test.Annotation  test.Fragment \t get(test.Activity, test.Fragment, " +
-                "keep.Please) ; \n" +
-                "}"
+                    "  @test.Annotation  test.Fragment \t get(test.Activity, test.Fragment, " +
+                    "keep.Please) ; \n" +
+                    "}"
             )
     }
 
@@ -296,22 +297,22 @@ class ClassSpecTest_MethodSelectorWithReturnType {
             .forGivenProGuardMapSet("support.**" to setOf("support.**", "androidx.**"))
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  support.** get(support.**); \n" +
-                "}"
+                    "  support.** get(support.**); \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  support.** get(support.**); \n" +
-                "}\n" +
-                "-keep public class * { \n" +
-                "  androidx.** get(support.**); \n" +
-                "}\n" +
-                "-keep public class * { \n" +
-                "  support.** get(androidx.**); \n" +
-                "}\n" +
-                "-keep public class * { \n" +
-                "  androidx.** get(androidx.**); \n" +
-                "}"
+                    "  support.** get(support.**); \n" +
+                    "}\n" +
+                    "-keep public class * { \n" +
+                    "  androidx.** get(support.**); \n" +
+                    "}\n" +
+                    "-keep public class * { \n" +
+                    "  support.** get(androidx.**); \n" +
+                    "}\n" +
+                    "-keep public class * { \n" +
+                    "  androidx.** get(androidx.**); \n" +
+                    "}"
             )
     }
 }

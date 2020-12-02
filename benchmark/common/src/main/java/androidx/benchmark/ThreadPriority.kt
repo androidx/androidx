@@ -22,6 +22,7 @@ import android.util.Log
 import androidx.annotation.GuardedBy
 import androidx.benchmark.BenchmarkState.Companion.TAG
 import java.io.File
+import java.io.IOException
 
 internal object ThreadPriority {
     /**
@@ -44,14 +45,23 @@ internal object ThreadPriority {
     val JIT_INITIAL_PRIORITY: Int
 
     init {
-        if (Build.VERSION.SDK_INT > 21) {
-            // JIT doesn't exist until M
+        if (Build.VERSION.SDK_INT >= 24) {
+            // JIT thread expected to exist on N+ devices
             val tidsToNames = File(TASK_PATH).listFiles()?.associateBy(
                 {
-                    it.name.toInt() // tid
+                    // tid
+                    it.name.toInt()
                 },
                 {
-                    File(it, "comm").readLines().firstOrNull() ?: "" // thread name
+                    // thread name
+                    try {
+                        File(it, "comm").readLines().firstOrNull() ?: ""
+                    } catch (e: IOException) {
+                        // if we fail to read thread name, file may not exist because thread
+                        // died. Expect no error reading Jit thread name, so just name thread
+                        // incorrectly.
+                        "ERROR READING THREAD NAME"
+                    }
                 }
             )
             if (tidsToNames.isNullOrEmpty()) {

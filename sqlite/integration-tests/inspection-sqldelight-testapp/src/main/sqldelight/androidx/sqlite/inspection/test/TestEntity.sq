@@ -1,0 +1,13 @@
+CREATE TABLE TestEntity(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    value TEXT NOT NULL
+);
+
+selectAll:
+SELECT * FROM TestEntity;
+
+insertOrReplace:
+INSERT OR REPLACE INTO TestEntity(
+  value
+)
+VALUES (?);

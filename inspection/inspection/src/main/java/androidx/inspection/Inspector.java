@@ -16,11 +16,17 @@
 
 package androidx.inspection;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
+
+import java.util.concurrent.Executor;
 
 /**
  * Implementation of this class are responsible to handle command from frontend and
  * send back events.
+ * <p>
+ * Inspector's methods are called on single threaded {@link InspectorExecutors#primary()} executor.
  */
 public abstract class Inspector {
 
@@ -53,6 +59,9 @@ public abstract class Inspector {
      */
     public abstract void onReceiveCommand(@NonNull byte[] data, @NonNull CommandCallback callback);
 
+    /**
+     * Returns a connection that allows to send events to Studio.
+     */
     @NonNull
     protected final Connection getConnection() {
         return mConnection;
@@ -67,6 +76,22 @@ public abstract class Inspector {
          *
          * @param response a raw byte array of the response to studio command.
          */
+        // Users don't implement this callback, but call methods on it themselves
+        @SuppressLint("CallbackMethodName")
         void reply(@NonNull byte[] response);
+
+        /**
+         * Handles a signal sent from Studio that this command should be cancelled, if possible.
+         *
+         * @param executor There is no guarantee on which thread the listener will be triggered on,
+         *                 and as an inspector developer, you should be aware of this explicitly.
+         *                 As a result, we require you to pass in a custom executor to provide the
+         *                 flexibility to allow running the cancellation behavior on a different
+         *                 thread. If you don't care about this, use a direct executor instead.
+         * @param runnable the listener to run when command is cancelled.
+         */
+        // Users don't implement this callback, but call methods on it themselves
+        @SuppressLint({"PairedRegistration", "CallbackMethodName"})
+        void addCancellationListener(@NonNull Executor executor, @NonNull Runnable runnable);
     }
 }

@@ -29,7 +29,6 @@ import static org.hamcrest.Matchers.is;
 
 import android.app.Activity;
 
-import androidx.core.util.Pair;
 import androidx.lifecycle.Lifecycle.Event;
 import androidx.lifecycle.testapp.CollectingLifecycleOwner;
 import androidx.lifecycle.testapp.CollectingSupportActivity;
@@ -43,6 +42,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.List;
+
+import kotlin.Pair;
 
 @LargeTest
 @RunWith(Parameterized.class)

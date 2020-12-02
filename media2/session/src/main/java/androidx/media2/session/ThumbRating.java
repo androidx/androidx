@@ -32,6 +32,8 @@ public final class ThumbRating implements Rating {
     @ParcelField(2)
     boolean mThumbUp;
 
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
     /**
      * Creates a unrated ThumbRating instance.
      */

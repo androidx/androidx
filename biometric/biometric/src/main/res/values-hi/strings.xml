@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"फ़िंगरप्रिंट सेंसर को छुएं"</string>
+    <string name="fingerprint_not_recognized" msgid="3873359464293253009">"पहचान नहीं हो पाई"</string>
+    <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"फ़िंगरप्रिंट हार्डवेयर मौजूद नहीं है."</string>
+    <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"कोई फ़िंगरप्रिंट रजिस्टर नहीं किया गया है."</string>
+    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"इस डिवाइस में फ़िंगरप्रिंट सेंसर नहीं है"</string>
+    <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"उपयोगकर्ता ने फिंगरप्रिंट की पुष्टि की कार्रवाई रद्द कर दी है."</string>
+    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"कई बार कोशिश की जा चुकी है. कृपया बाद में फिर से कोशिश करें."</string>
+    <string name="default_error_msg" msgid="4776854077120974966">"अनजान गड़बड़ी"</string>
+    <string name="generic_error_user_canceled" msgid="7309881387583143581">"उपयोगकर्ता ने पुष्टि करने की प्रक्रिया रद्द की."</string>
+    <string name="confirm_device_credential_password" msgid="5912733858573823945">"पासवर्ड का इस्तेमाल करें"</string>
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"पिन, पैटर्न या पासवर्ड सेट नहीं है."</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"इस डिवाइस को पिन, पैटर्न या पासवर्ड की मदद से लॉक/अनलॉक नहीं किया जा सकता."</string>
+</resources>

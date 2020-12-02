@@ -29,7 +29,7 @@ import androidx.annotation.Nullable;
  */
 public class MockAdvertisingIdService extends Service {
 
-    static final String TESTING_AD_ID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+    public static final String TESTING_AD_ID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
 
     private MockAdvertisingIdServiceImpl mAdvertisingIdServiceImpl;
 

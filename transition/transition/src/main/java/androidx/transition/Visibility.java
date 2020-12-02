@@ -102,7 +102,7 @@ public abstract class Visibility extends Transition {
 
     @SuppressLint("RestrictedApi") // remove once core lib would be released with the new
     // LIBRARY_GROUP_PREFIX restriction. tracking in b/127286008
-    public Visibility(Context context, AttributeSet attrs) {
+    public Visibility(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, Styleable.VISIBILITY_TRANSITION);
         @Mode
@@ -277,6 +277,7 @@ public abstract class Visibility extends Transition {
      * overall transition for this scene change. A null value means no animation
      * should be run.
      */
+    @Nullable
     @SuppressWarnings("UnusedParameters")
     public Animator onAppear(ViewGroup sceneRoot, TransitionValues startValues, int startVisibility,
             TransitionValues endValues, int endVisibility) {
@@ -314,6 +315,7 @@ public abstract class Visibility extends Transition {
      * overall transition for this scene change. A null value means no animation
      * should be run.
      */
+    @Nullable
     public Animator onAppear(ViewGroup sceneRoot, View view, TransitionValues startValues,
             TransitionValues endValues) {
         return null;
@@ -334,6 +336,7 @@ public abstract class Visibility extends Transition {
      * overall transition for this scene change. A null value means no animation
      * should be run.
      */
+    @Nullable
     @SuppressWarnings("UnusedParameters")
     public Animator onDisappear(ViewGroup sceneRoot, TransitionValues startValues,
             int startVisibility, TransitionValues endValues, int endVisibility) {
@@ -497,13 +500,15 @@ public abstract class Visibility extends Transition {
      * overall transition for this scene change. A null value means no animation
      * should be run.
      */
+    @Nullable
     public Animator onDisappear(ViewGroup sceneRoot, View view, TransitionValues startValues,
             TransitionValues endValues) {
         return null;
     }
 
     @Override
-    public boolean isTransitionRequired(TransitionValues startValues, TransitionValues newValues) {
+    public boolean isTransitionRequired(@Nullable TransitionValues startValues,
+            @Nullable TransitionValues newValues) {
         if (startValues == null && newValues == null) {
             return false;
         }

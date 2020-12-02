@@ -50,14 +50,14 @@ public class PagerSnapHelper extends SnapHelper {
             @NonNull View targetView) {
         int[] out = new int[2];
         if (layoutManager.canScrollHorizontally()) {
-            out[0] = distanceToCenter(layoutManager, targetView,
+            out[0] = distanceToCenter(targetView,
                     getHorizontalHelper(layoutManager));
         } else {
             out[0] = 0;
         }
 
         if (layoutManager.canScrollVertically()) {
-            out[1] = distanceToCenter(layoutManager, targetView,
+            out[1] = distanceToCenter(targetView,
                     getVerticalHelper(layoutManager));
         } else {
             out[1] = 0;
@@ -102,7 +102,7 @@ public class PagerSnapHelper extends SnapHelper {
             if (child == null) {
                 continue;
             }
-            final int distance = distanceToCenter(layoutManager, child, orientationHelper);
+            final int distance = distanceToCenter(child, orientationHelper);
 
             if (distance <= 0 && distance > distanceBefore) {
                 // Child is before the center and closer then the previous best
@@ -164,8 +164,10 @@ public class PagerSnapHelper extends SnapHelper {
         return false;
     }
 
+    @Nullable
     @Override
-    protected LinearSmoothScroller createSnapScroller(RecyclerView.LayoutManager layoutManager) {
+    protected RecyclerView.SmoothScroller createScroller(
+            @NonNull RecyclerView.LayoutManager layoutManager) {
         if (!(layoutManager instanceof RecyclerView.SmoothScroller.ScrollVectorProvider)) {
             return null;
         }
@@ -194,8 +196,7 @@ public class PagerSnapHelper extends SnapHelper {
         };
     }
 
-    private int distanceToCenter(@NonNull RecyclerView.LayoutManager layoutManager,
-            @NonNull View targetView, OrientationHelper helper) {
+    private int distanceToCenter(@NonNull View targetView, OrientationHelper helper) {
         final int childCenter = helper.getDecoratedStart(targetView)
                 + (helper.getDecoratedMeasurement(targetView) / 2);
         final int containerCenter = helper.getStartAfterPadding() + helper.getTotalSpace() / 2;

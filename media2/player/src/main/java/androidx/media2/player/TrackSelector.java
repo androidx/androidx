@@ -303,7 +303,7 @@ import java.util.List;
                     mappedTrackInfo.getTrackGroups(METADATA_RENDERER_INDEX);
             DefaultTrackSelector.SelectionOverride selectionOverride =
                     new DefaultTrackSelector.SelectionOverride(metadataTrack.mPlayerTrackIndex,
-                            /* tracks= */ 0);
+                            /* tracks...= */ 0);
             mDefaultTrackSelector.setParameters(mDefaultTrackSelector.buildUponParameters()
                     .setRendererDisabled(METADATA_RENDERER_INDEX, /* disabled= */ false)
                     .setSelectionOverride(
@@ -373,7 +373,8 @@ import java.util.List;
         InternalTrackInfo(int playerTrackIndex, int trackInfoType, @Nullable MediaFormat format,
                 int trackId) {
             mPlayerTrackIndex = playerTrackIndex;
-            mExternalTrackInfo = new TrackInfo(trackId, trackInfoType, format);
+            mExternalTrackInfo = new TrackInfo(trackId, trackInfoType, format,
+                    trackInfoType != MEDIA_TRACK_TYPE_VIDEO);
         }
     }
 

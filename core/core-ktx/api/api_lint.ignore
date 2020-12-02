@@ -3,6 +3,14 @@ AcronymName: androidx.core.database.sqlite.SQLiteDatabaseKt:
     Acronyms should not be capitalized in class names: was `SQLiteDatabaseKt`, should this be `SqLiteDatabaseKt`?
 
 
+ArrayReturn: androidx.core.content.res.TypedArrayKt#getTextArrayOrThrow(android.content.res.TypedArray, int):
+    Method should return Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.core.text.SpannableStringBuilderKt#inSpans(android.text.SpannableStringBuilder, Object[], kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit>) parameter #1:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+ArrayReturn: androidx.core.text.SpannedStringKt#getSpans(android.text.Spanned, int, int):
+    Method should return Collection<T> (or subclass) instead of raw array; was `T[]`
+
+
 AutoBoxing: androidx.core.database.CursorKt#getDoubleOrNull(android.database.Cursor, int):
     Must avoid boxed primitives (`java.lang.Double`)
 AutoBoxing: androidx.core.database.CursorKt#getFloatOrNull(android.database.Cursor, int):
@@ -23,10 +31,8 @@ DocumentExceptions: androidx.core.view.ViewGroupKt#iterator(android.view.ViewGro
     Method ViewGroupKt.iterator appears to be throwing java.lang.IndexOutOfBoundsException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 
 
-MissingNullability: androidx.core.graphics.ColorKt#convertTo(android.graphics.Color, android.graphics.ColorSpace):
-    Missing nullability on method `convertTo` return
-MissingNullability: androidx.core.graphics.ColorKt#convertTo(android.graphics.Color, android.graphics.ColorSpace.Named):
-    Missing nullability on method `convertTo` return
+NoByteOrShort: androidx.core.util.HalfKt#toHalf(short) parameter #0:
+    Should avoid odd sized primitives; use `int` instead of `short` in parameter $this$toHalf in androidx.core.util.HalfKt.toHalf(short $this$toHalf)
 
 
 PairedRegistration: androidx.core.animation.AnimatorKt#addListener(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>):
@@ -37,3 +43,7 @@ PairedRegistration: androidx.core.transition.TransitionKt#addListener(android.tr
     Found addListener but not removeListener in androidx.core.transition.TransitionKt
 PairedRegistration: androidx.core.widget.TextViewKt#addTextChangedListener(android.widget.TextView, kotlin.jvm.functions.Function4<? super java.lang.CharSequence,? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit>, kotlin.jvm.functions.Function4<? super java.lang.CharSequence,? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.text.Editable,kotlin.Unit>):
     Found addTextChangedListener but not removeTextChangedListener in androidx.core.widget.TextViewKt
+
+
+StreamFiles: androidx.core.net.UriKt#toUri(java.io.File):
+    Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.core.net.UriKt.toUri(java.io.File)

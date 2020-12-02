@@ -24,39 +24,51 @@ import androidx.room.ext.S
 import androidx.room.ext.T
 import androidx.room.ext.typeName
 import androidx.room.vo.FtsEntity
+import capitalize
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import stripNonJava
+import java.util.Locale
 
 class FtsTableInfoValidationWriter(val entity: FtsEntity) : ValidationWriter() {
     override fun write(dbParam: ParameterSpec, scope: CountingCodeGenScope) {
-        val suffix = entity.tableName.stripNonJava().capitalize()
+        val suffix = entity.tableName.stripNonJava().capitalize(Locale.US)
         val expectedInfoVar = scope.getTmpVar("_info$suffix")
         scope.builder().apply {
             val columnListVar = scope.getTmpVar("_columns$suffix")
-            val columnListType = ParameterizedTypeName.get(HashSet::class.typeName(),
-                    CommonTypeNames.STRING)
+            val columnListType = ParameterizedTypeName.get(
+                HashSet::class.typeName,
+                CommonTypeNames.STRING
+            )
 
-            addStatement("final $T $L = new $T($L)", columnListType, columnListVar,
-                    columnListType, entity.fields.size)
+            addStatement(
+                "final $T $L = new $T($L)", columnListType, columnListVar,
+                columnListType, entity.fields.size
+            )
             entity.nonHiddenFields.forEach {
                 addStatement("$L.add($S)", columnListVar, it.columnName)
             }
 
-            addStatement("final $T $L = new $T($S, $L, $S)",
-                    RoomTypeNames.FTS_TABLE_INFO, expectedInfoVar, RoomTypeNames.FTS_TABLE_INFO,
-                    entity.tableName, columnListVar, entity.createTableQuery)
+            addStatement(
+                "final $T $L = new $T($S, $L, $S)",
+                RoomTypeNames.FTS_TABLE_INFO, expectedInfoVar, RoomTypeNames.FTS_TABLE_INFO,
+                entity.tableName, columnListVar, entity.createTableQuery
+            )
 
             val existingVar = scope.getTmpVar("_existing$suffix")
-            addStatement("final $T $L = $T.read($N, $S)",
-                    RoomTypeNames.FTS_TABLE_INFO, existingVar, RoomTypeNames.FTS_TABLE_INFO,
-                    dbParam, entity.tableName)
+            addStatement(
+                "final $T $L = $T.read($N, $S)",
+                RoomTypeNames.FTS_TABLE_INFO, existingVar, RoomTypeNames.FTS_TABLE_INFO,
+                dbParam, entity.tableName
+            )
 
             beginControlFlow("if (!$L.equals($L))", expectedInfoVar, existingVar).apply {
-                addStatement("return new $T(false, $S + $L + $S + $L)",
-                        RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
-                        "${entity.tableName}(${entity.element.qualifiedName}).\n Expected:\n",
-                        expectedInfoVar, "\n Found:\n", existingVar)
+                addStatement(
+                    "return new $T(false, $S + $L + $S + $L)",
+                    RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
+                    "${entity.tableName}(${entity.element.qualifiedName}).\n Expected:\n",
+                    expectedInfoVar, "\n Found:\n", existingVar
+                )
             }
             endControlFlow()
         }

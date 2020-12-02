@@ -75,11 +75,6 @@
 
     <string name="fragment_nesting_tabs_support">Fragment/Nesting Tabs</string>
 
-    <string name="fragment_retain_instance_support">Fragment/Retain Instance</string>
-    <string name="fragment_retain_instance_msg">Current progress of retained fragment;
-    restarts if fragment is re-created.</string>
-    <string name="restart">Restart</string>
-
     <string name="fragment_receive_result_support">Fragment/Receive Result</string>
 
     <string name="fragment_stack_support">Fragment/Stack</string>
@@ -97,9 +92,12 @@
 
     <string name="fragment_state_pager_support">Fragment/State Pager</string>
 
-    <string name="loader_cursor_support">Loader/Cursor</string>
+    <string name="fragment_view_model_support">Fragment/View Model</string>
+    <string name="fragment_view_model_msg">Current progress of ViewModel;
+    continues even if fragment is re-created.</string>
+    <string name="restart">Restart</string>
 
-    <string name="loader_retained_support">Loader/Retained</string>
+    <string name="loader_cursor_support">Loader/Cursor</string>
 
     <string name="loader_custom_support">Loader/Custom</string>
 
@@ -246,4 +244,8 @@
     <string name="drawable_compat_color_list_tint">Color state list</string>
 
     <string name="commit_content_support">View/Input Method/Commit Content</string>
+
+    <string name="insets_playground">View/WindowInsetsCompat</string>
+    <string name="insets_controller_playground">View/WindowInsetsControllerCompat</string>
+    <string name="insets_none">None yet...</string>
 </resources>

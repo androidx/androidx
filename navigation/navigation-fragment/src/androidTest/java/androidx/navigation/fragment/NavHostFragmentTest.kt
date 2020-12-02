@@ -16,24 +16,40 @@
 
 package androidx.navigation.fragment
 
+import android.os.Bundle
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.test.EmptyFragment
 import androidx.navigation.fragment.test.NavigationActivity
+import androidx.navigation.fragment.test.NavigationActivityWithFragmentTag
+import androidx.navigation.fragment.test.NavigationBaseActivity
 import androidx.navigation.fragment.test.R
 import androidx.test.core.app.ActivityScenario
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @MediumTest
-@RunWith(AndroidJUnit4::class)
-class NavHostFragmentTest {
+@RunWith(Parameterized::class)
+class NavHostFragmentTest(
+    private val activityClass: Class<NavigationBaseActivity>
+) {
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters
+        fun data(): Array<Class<out NavigationBaseActivity>> {
+            return arrayOf(
+                NavigationActivity::class.java,
+                NavigationActivityWithFragmentTag::class.java
+            )
+        }
+    }
 
     @Test
     fun testFindNavControllerXml() {
-        with(ActivityScenario.launch(NavigationActivity::class.java)) {
+        with(ActivityScenario.launch(activityClass)) {
             val navController = withActivity {
                 findNavController(R.id.nav_host)
             }
@@ -51,69 +67,42 @@ class NavHostFragmentTest {
     }
 
     @Test
-    fun testFindNavControllerDynamic() {
-        with(ActivityScenario.launch(EmptyActivity::class.java)) {
+    fun testFindNavControllerRecreate() {
+        with(ActivityScenario.launch(activityClass)) {
             val navController = withActivity {
-                supportFragmentManager.beginTransaction()
-                    .add(R.id.container, NavHostFragment())
-                    .commitNow()
-                findNavController(R.id.container)
+                findNavController(R.id.nav_host)
             }
             assertWithMessage("NavController on the activity's view should be non-null")
                 .that(navController)
                 .isNotNull()
-            val hostRootNavController = withActivity {
-                val navHostFragment = supportFragmentManager.findFragmentById(R.id.container)!!
-                navHostFragment.requireView().findNavController()
+
+            assertWithMessage("NavController graph should be non-null")
+                .that(navController.graph)
+                .isNotNull()
+
+            recreate()
+
+            val restoredNavController = withActivity {
+                findNavController(R.id.nav_host)
             }
-            assertWithMessage("NavController on the host's root view should be non-null")
-                .that(hostRootNavController)
+
+            assertWithMessage("NavController on the activity's view should be non-null")
+                .that(restoredNavController)
+                .isNotNull()
+
+            assertWithMessage("NavController graph should be non-null")
+                .that(restoredNavController.graph)
                 .isNotNull()
         }
     }
+}
 
-    @Test
-    fun testFindNavControllerMultipleDynamic() {
-        with(ActivityScenario.launch(EmptyActivity::class.java)) {
-            val initialNavHostFragment = NavHostFragment()
-            val secondNavHostFragment = NavHostFragment()
-            val navController = withActivity {
-                supportFragmentManager.beginTransaction()
-                    .add(R.id.container, initialNavHostFragment)
-                    .commitNow()
-                supportFragmentManager.beginTransaction()
-                    .add(R.id.container, secondNavHostFragment)
-                    .commitNow()
-                findNavController(R.id.container)
-            }
-            assertWithMessage("NavController on the activity's view should be the last one set")
-                .that(navController)
-                .isSameInstanceAs(secondNavHostFragment.navController)
-
-            assertWithMessage("Initial host's root view controller should be its NavController")
-                .that(initialNavHostFragment.requireView().findNavController())
-                .isSameInstanceAs(initialNavHostFragment.navController)
-            assertWithMessage("Second host's root view controller should be its NavController")
-                .that(secondNavHostFragment.requireView().findNavController())
-                .isSameInstanceAs(secondNavHostFragment.navController)
-        }
-    }
-
-    @Test
-    fun testFindNavControllerDynamicWithoutId() {
-        with(ActivityScenario.launch(EmptyActivity::class.java)) {
-            withActivity {
-                supportFragmentManager.beginTransaction()
-                    .add(NavHostFragment(), "tag")
-                    .commitNow()
-            }
-            val hostRootNavController = withActivity {
-                val navHostFragment = supportFragmentManager.findFragmentByTag("tag")!!
-                navHostFragment.requireView().findNavController()
-            }
-            assertWithMessage("NavController on the host's root view should be non-null")
-                .that(hostRootNavController)
-                .isNotNull()
-        }
+class NavControllerInOnCreateFragment : EmptyFragment() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val navController = NavHostFragment.findNavController(this)
+        assertWithMessage("The NavController's graph should be set")
+            .that(navController.graph)
+            .isNotNull()
     }
 }

@@ -22,6 +22,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,7 +48,7 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
     @Override
     public View onCreateView(@Nullable View parent, @NonNull String name, @NonNull Context context,
             @NonNull AttributeSet attrs) {
-        if ("androidx.fragment.app.FragmentContainerView".equals(name)) {
+        if (FragmentContainerView.class.getName().equals(name)) {
             return new FragmentContainerView(context, attrs, mFragmentManager);
         }
 
@@ -88,11 +89,7 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
             fragment = mFragmentManager.findFragmentById(containerId);
         }
 
-        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-            Log.v(TAG, "onCreateView: id=0x"
-                    + Integer.toHexString(id) + " fname=" + fname
-                    + " existing=" + fragment);
-        }
+        FragmentStateManager fragmentStateManager;
         if (fragment == null) {
             fragment = mFragmentManager.getFragmentFactory().instantiate(
                     context.getClassLoader(), fname);
@@ -102,11 +99,15 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
             fragment.mTag = tag;
             fragment.mInLayout = true;
             fragment.mFragmentManager = mFragmentManager;
-            fragment.mHost = mFragmentManager.mHost;
-            fragment.onInflate(mFragmentManager.mHost.getContext(), attrs,
+            fragment.mHost = mFragmentManager.getHost();
+            fragment.onInflate(mFragmentManager.getHost().getContext(), attrs,
                     fragment.mSavedFragmentState);
+            fragmentStateManager = mFragmentManager.createOrGetFragmentStateManager(fragment);
             mFragmentManager.addFragment(fragment);
-            mFragmentManager.moveToState(fragment);
+            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(FragmentManager.TAG, "Fragment " + fragment + " has been inflated via "
+                        + "the <fragment> tag: id=0x" + Integer.toHexString(id));
+            }
 
         } else if (fragment.mInLayout) {
             // A fragment already exists and it is not one we restored from
@@ -119,21 +120,27 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
             // This fragment was retained from a previous instance; get it
             // going now.
             fragment.mInLayout = true;
-            fragment.mHost = mFragmentManager.mHost;
+            fragment.mFragmentManager = mFragmentManager;
+            fragment.mHost = mFragmentManager.getHost();
             // Give the Fragment the attributes to initialize itself.
-            fragment.onInflate(mFragmentManager.mHost.getContext(), attrs,
+            fragment.onInflate(mFragmentManager.getHost().getContext(), attrs,
                     fragment.mSavedFragmentState);
+            fragmentStateManager = mFragmentManager.createOrGetFragmentStateManager(fragment);
+            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(FragmentManager.TAG, "Retained Fragment " + fragment + " has been "
+                        + "re-attached via the <fragment> tag: id=0x" + Integer.toHexString(id));
+            }
         }
 
-        // If we haven't finished entering the CREATED state ourselves yet,
-        // push the inflated child fragment along. This will ensureInflatedFragmentView
-        // at the right phase of the lifecycle so that we will have mView populated
-        // for compliant fragments below.
-        if (mFragmentManager.mCurState < Fragment.CREATED && fragment.mFromLayout) {
-            mFragmentManager.moveToState(fragment, Fragment.CREATED);
-        } else {
-            mFragmentManager.moveToState(fragment);
-        }
+        // Explicitly set the container for the fragment as we already know
+        // the parent that the fragment will be added to by the LayoutInflater
+        fragment.mContainer = (ViewGroup) parent;
+
+        // The <fragment> tag is the one case where we:
+        // 1) Move the Fragment to CREATED even if the FragmentManager isn't yet CREATED
+        fragmentStateManager.moveToExpectedState();
+        // 2) Create the Fragment's view despite not always moving to ACTIVITY_CREATED
+        fragmentStateManager.ensureInflatedView();
 
         if (fragment.mView == null) {
             throw new IllegalStateException("Fragment " + fname

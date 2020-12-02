@@ -1,0 +1,27 @@
+// Protos for use in tests
+syntax = "proto2";
+
+package androidx.testing;
+
+option java_package = "androidx.testing";
+option java_outer_classname = "TestMessageProto";
+
+message FooProto {
+  optional string text = 1;
+  optional bool boolean = 2;
+  optional int32 integer = 3;
+  optional bytes bytes = 4;
+}
+
+message ExtendableProto {
+  extensions 1000 to max;
+}
+
+message ExtensionProto {
+  extend ExtendableProto {
+    optional ExtensionProto extension = 226219688;
+  }
+
+  optional FooProto foo = 1;
+}
+

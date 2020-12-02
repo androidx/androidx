@@ -17,36 +17,36 @@
 package androidx.room.solver.types
 
 import androidx.room.ext.L
+import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.solver.CodeGenScope
-import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.type.TypeKind.BOOLEAN
-import javax.lang.model.type.TypeKind.INT
+import com.squareup.javapoet.TypeName
 
 /**
  * int to boolean adapter.
  */
 object PrimitiveBooleanToIntConverter {
-    fun create(processingEnvironment: ProcessingEnvironment): List<TypeConverter> {
-        val tBoolean = processingEnvironment.typeUtils.getPrimitiveType(BOOLEAN)
-        val tInt = processingEnvironment.typeUtils.getPrimitiveType(INT)
+    fun create(processingEnvironment: XProcessingEnv): List<TypeConverter> {
+        val tBoolean = processingEnvironment.requireType(TypeName.BOOLEAN)
+        val tInt = processingEnvironment.requireType(TypeName.INT)
         return listOf(
-                object : TypeConverter(tBoolean, tInt) {
-                    override fun convert(
-                        inputVarName: String,
-                        outputVarName: String,
-                        scope: CodeGenScope
-                    ) {
-                        scope.builder().addStatement("$L = $L ? 1 : 0", outputVarName, inputVarName)
-                    }
-                },
-                object : TypeConverter(tInt, tBoolean) {
-                    override fun convert(
-                        inputVarName: String,
-                        outputVarName: String,
-                        scope: CodeGenScope
-                    ) {
-                        scope.builder().addStatement("$L = $L != 0", outputVarName, inputVarName)
-                    }
-                })
+            object : TypeConverter(tBoolean, tInt) {
+                override fun convert(
+                    inputVarName: String,
+                    outputVarName: String,
+                    scope: CodeGenScope
+                ) {
+                    scope.builder().addStatement("$L = $L ? 1 : 0", outputVarName, inputVarName)
+                }
+            },
+            object : TypeConverter(tInt, tBoolean) {
+                override fun convert(
+                    inputVarName: String,
+                    outputVarName: String,
+                    scope: CodeGenScope
+                ) {
+                    scope.builder().addStatement("$L = $L != 0", outputVarName, inputVarName)
+                }
+            }
+        )
     }
 }

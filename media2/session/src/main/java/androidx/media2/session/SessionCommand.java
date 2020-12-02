@@ -17,19 +17,17 @@
 package androidx.media2.session;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.SuppressLint;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.SparseArray;
 import android.view.Surface;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.collection.ArrayMap;
 import androidx.core.util.ObjectsCompat;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.Rating;
@@ -42,6 +40,8 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -65,7 +65,7 @@ public final class SessionCommand implements VersionedParcelable {
     public static final int COMMAND_VERSION_1 = 1;
 
     /**
-     * The first version of session commands. This version is for commands introduced in
+     * The 2nd version of session commands. This version is for commands introduced in
      * AndroidX media2-session 1.1.0.
      * <p>
      * This would be used to specify which commands should be added by
@@ -124,12 +124,7 @@ public final class SessionCommand implements VersionedParcelable {
             COMMAND_CODE_SESSION_REWIND,
             COMMAND_CODE_SESSION_SKIP_FORWARD,
             COMMAND_CODE_SESSION_SKIP_BACKWARD,
-            COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID,
-            COMMAND_CODE_SESSION_PLAY_FROM_SEARCH,
-            COMMAND_CODE_SESSION_PLAY_FROM_URI,
-            COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID,
-            COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH,
-            COMMAND_CODE_SESSION_PREPARE_FROM_URI,
+            COMMAND_CODE_SESSION_SET_MEDIA_URI,
             COMMAND_CODE_SESSION_SET_RATING,
             COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT,
             COMMAND_CODE_LIBRARY_SUBSCRIBE,
@@ -151,9 +146,9 @@ public final class SessionCommand implements VersionedParcelable {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Player commands (i.e. commands to {@link SessionPlayer})
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    static final ArrayMap<Integer, Range> VERSION_PLAYER_BASIC_COMMANDS_MAP = new ArrayMap<>();
-    static final ArrayMap<Integer, Range> VERSION_PLAYER_PLAYLIST_COMMANDS_MAP = new ArrayMap<>();
-    static final ArrayMap<Integer, Range> VERSION_PLAYER_HIDDEN_COMMANDS_MAP = new ArrayMap<>();
+    static final SparseArray<List<Integer>> VERSION_PLAYER_BASIC_COMMANDS_MAP = new SparseArray<>();
+    static final SparseArray<List<Integer>> VERSION_PLAYER_PLAYLIST_COMMANDS_MAP =
+            new SparseArray<>();
 
     /**
      * Command code for {@link MediaController#play()}.
@@ -375,10 +370,7 @@ public final class SessionCommand implements VersionedParcelable {
      * {@link SessionCallback#onCommandRequest(MediaSession, ControllerInfo, SessionCommand)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
     public static final int COMMAND_CODE_PLAYER_SET_SURFACE = 11000;
 
     /**
@@ -389,9 +381,7 @@ public final class SessionCommand implements VersionedParcelable {
      * {@link SessionCallback#onCommandRequest(MediaSession, ControllerInfo, SessionCommand)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_PLAYER_SELECT_TRACK = 11001;
 
     /**
@@ -402,43 +392,53 @@ public final class SessionCommand implements VersionedParcelable {
      * {@link SessionCallback#onCommandRequest(MediaSession, ControllerInfo, SessionCommand)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_PLAYER_DESELECT_TRACK = 11002;
 
     static {
         VERSION_PLAYER_BASIC_COMMANDS_MAP.put(COMMAND_VERSION_1,
-                new Range(COMMAND_CODE_PLAYER_PLAY, COMMAND_CODE_PLAYER_SET_SPEED));
+                Arrays.asList(COMMAND_CODE_PLAYER_PLAY,
+                        COMMAND_CODE_PLAYER_PAUSE,
+                        COMMAND_CODE_PLAYER_PREPARE,
+                        COMMAND_CODE_PLAYER_SEEK_TO,
+                        COMMAND_CODE_PLAYER_SET_SPEED,
+                        COMMAND_CODE_PLAYER_SET_SURFACE,
+                        COMMAND_CODE_PLAYER_SELECT_TRACK,
+                        COMMAND_CODE_PLAYER_DESELECT_TRACK));
     }
 
     static {
         VERSION_PLAYER_PLAYLIST_COMMANDS_MAP.put(COMMAND_VERSION_1,
-                new Range(COMMAND_CODE_PLAYER_GET_PLAYLIST,
+                Arrays.asList(COMMAND_CODE_PLAYER_GET_PLAYLIST,
+                        COMMAND_CODE_PLAYER_SET_PLAYLIST,
+                        COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM,
+                        COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM,
+                        COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM,
+                        COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE,
+                        COMMAND_CODE_PLAYER_SET_REPEAT_MODE,
+                        COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA,
+                        COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
+                        COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
+                        COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM,
+                        COMMAND_CODE_PLAYER_GET_CURRENT_MEDIA_ITEM,
+                        COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA,
                         COMMAND_CODE_PLAYER_SET_MEDIA_ITEM));
         VERSION_PLAYER_PLAYLIST_COMMANDS_MAP.put(COMMAND_VERSION_2,
-                new Range(COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM,
-                        COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM));
-    }
-
-    static {
-        VERSION_PLAYER_HIDDEN_COMMANDS_MAP.put(COMMAND_VERSION_1,
-                new Range(COMMAND_CODE_PLAYER_SET_SURFACE, COMMAND_CODE_PLAYER_DESELECT_TRACK));
+                Collections.singletonList(COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    // Volume commands (i.e. commands to {@link AudioManager} or {@link RouteMediaPlayer})
+    // Volume commands (i.e. commands to {@link AudioManager} or {@link RemoteSessionPlayer})
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    static final ArrayMap<Integer, Range> VERSION_VOLUME_COMMANDS_MAP = new ArrayMap<>();
+    static final SparseArray<List<Integer>> VERSION_VOLUME_COMMANDS_MAP = new SparseArray<>();
 
     /**
      * Command code for {@link MediaController#setVolumeTo(int, int)}.
      * <p>
-     * <p>
      * If the session doesn't reject the request through the
      * {@link SessionCallback#onCommandRequest(MediaSession, ControllerInfo, SessionCommand)},
      * command would adjust the device volume. It would send to the player directly only if it's
-     * remote player. See RouteMediaPlayer for a remote player.
+     * a {@link RemoteSessionPlayer}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
@@ -450,7 +450,7 @@ public final class SessionCommand implements VersionedParcelable {
      * If the session doesn't reject the request through the
      * {@link SessionCallback#onCommandRequest(MediaSession, ControllerInfo, SessionCommand)},
      * command would adjust the device volume. It would send to the player directly only if it's
-     * remote player. See RouteMediaPlayer for a remote player.
+     * a {@link RemoteSessionPlayer}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
@@ -458,14 +458,14 @@ public final class SessionCommand implements VersionedParcelable {
 
     static {
         VERSION_VOLUME_COMMANDS_MAP.put(COMMAND_VERSION_1,
-                new Range(COMMAND_CODE_VOLUME_SET_VOLUME,
+                Arrays.asList(COMMAND_CODE_VOLUME_SET_VOLUME,
                         COMMAND_CODE_VOLUME_ADJUST_VOLUME));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Session commands (i.e. commands to {@link MediaSession#SessionCallback})
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    static final ArrayMap<Integer, Range> VERSION_SESSION_COMMANDS_MAP = new ArrayMap<>();
+    static final SparseArray<List<Integer>> VERSION_SESSION_COMMANDS_MAP = new SparseArray<>();
 
     /**
      * Command code for {@link MediaController#fastForward()}.
@@ -495,59 +495,7 @@ public final class SessionCommand implements VersionedParcelable {
      */
     public static final int COMMAND_CODE_SESSION_SKIP_BACKWARD = 40003;
 
-    /**
-     * Command code for {@link MediaController#playFromMediaId(String, Bundle)}.
-     * <p>
-     * Code version is {@link #COMMAND_VERSION_1}.
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID = 40004;
-
-    /**
-     * Command code for {@link MediaController#playFromSearch(String, Bundle)}.
-     * <p>
-     * Code version is {@link #COMMAND_VERSION_1}.
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int COMMAND_CODE_SESSION_PLAY_FROM_SEARCH = 40005;
-
-    /**
-     * Command code for {@link MediaController#playFromUri(Uri, Bundle)}.
-     * <p>
-     * Code version is {@link #COMMAND_VERSION_1}.
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int COMMAND_CODE_SESSION_PLAY_FROM_URI = 40006;
-
-    /**
-     * Command code for {@link MediaController#prepareFromMediaId(String, Bundle)}.
-     * <p>
-     * Code version is {@link #COMMAND_VERSION_1}.
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID = 40007;
-
-    /**
-     * Command code for {@link MediaController#prepareFromSearch(String, Bundle)}.
-     * <p>
-     * Code version is {@link #COMMAND_VERSION_1}.
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH = 40008;
-
-    /**
-     * Command code for {@link MediaController#prepareFromUri(Uri, Bundle)}.
-     * <p>
-     * Code version is {@link #COMMAND_VERSION_1}.
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int COMMAND_CODE_SESSION_PREPARE_FROM_URI = 40009;
+    // 40004~40009: removed
 
     /**
      * Command code for {@link MediaController#setRating(String, Rating)}.
@@ -556,15 +504,28 @@ public final class SessionCommand implements VersionedParcelable {
      */
     public static final int COMMAND_CODE_SESSION_SET_RATING = 40010;
 
+    /**
+     * Command code for {@link MediaController#setMediaUri}.
+     * <p>
+     * Code version is {@link #COMMAND_VERSION_2}.
+     */
+    public static final int COMMAND_CODE_SESSION_SET_MEDIA_URI = 40011;
+
     static {
         VERSION_SESSION_COMMANDS_MAP.put(COMMAND_VERSION_1,
-                new Range(COMMAND_CODE_SESSION_FAST_FORWARD, COMMAND_CODE_SESSION_SET_RATING));
+                Arrays.asList(COMMAND_CODE_SESSION_FAST_FORWARD,
+                        COMMAND_CODE_SESSION_REWIND,
+                        COMMAND_CODE_SESSION_SKIP_FORWARD,
+                        COMMAND_CODE_SESSION_SKIP_BACKWARD,
+                        COMMAND_CODE_SESSION_SET_RATING));
+        VERSION_SESSION_COMMANDS_MAP.put(COMMAND_VERSION_2,
+                Collections.singletonList(COMMAND_CODE_SESSION_SET_MEDIA_URI));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Session commands (i.e. commands to {@link MediaLibrarySession#MediaLibrarySessionCallback})
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    static final ArrayMap<Integer, Range> VERSION_LIBRARY_COMMANDS_MAP = new ArrayMap<>();
+    static final SparseArray<List<Integer>> VERSION_LIBRARY_COMMANDS_MAP = new SparseArray<>();
 
     /**
      * Command code for {@link MediaBrowser#getLibraryRoot(LibraryParams)}.
@@ -617,7 +578,12 @@ public final class SessionCommand implements VersionedParcelable {
 
     static {
         VERSION_LIBRARY_COMMANDS_MAP.put(COMMAND_VERSION_1,
-                new Range(COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT,
+                Arrays.asList(COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT,
+                        COMMAND_CODE_LIBRARY_SUBSCRIBE,
+                        COMMAND_CODE_LIBRARY_UNSUBSCRIBE,
+                        COMMAND_CODE_LIBRARY_GET_CHILDREN,
+                        COMMAND_CODE_LIBRARY_GET_ITEM,
+                        COMMAND_CODE_LIBRARY_SEARCH,
                         COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT));
     }
 
@@ -628,6 +594,8 @@ public final class SessionCommand implements VersionedParcelable {
     String mCustomAction;
     @ParcelField(3)
     Bundle mCustomExtras;
+
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
 
     /**
      * Used for VersionedParcelable.
@@ -704,15 +672,5 @@ public final class SessionCommand implements VersionedParcelable {
     @Override
     public int hashCode() {
         return ObjectsCompat.hash(mCustomAction, mCommandCode);
-    }
-
-    static final class Range {
-        public final int lower;
-        public final int upper;
-
-        Range(int lower, int upper) {
-            this.lower = lower;
-            this.upper = upper;
-        }
     }
 }

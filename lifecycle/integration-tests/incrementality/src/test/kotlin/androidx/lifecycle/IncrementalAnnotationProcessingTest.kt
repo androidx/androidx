@@ -60,12 +60,12 @@ class IncrementalAnnotationProcessingTest {
     private lateinit var genFooAdapterClass: File
     private lateinit var genBarAdapterClass: File
     private lateinit var projectConnection: ProjectConnection
-    private lateinit var prebuiltsRepo: String
+    private lateinit var prebuiltsRoot: String
     private lateinit var compileSdkVersion: String
     private lateinit var buildToolsVersion: String
     private lateinit var minSdkVersion: String
     private lateinit var debugKeystore: String
-    private lateinit var agpVersion: String
+    private lateinit var agpDependency: String
     private lateinit var gradleVersion: String
     private lateinit var supportRepo: String
 
@@ -219,11 +219,11 @@ class IncrementalAnnotationProcessingTest {
         addFileWithContent("build.gradle", """
             buildscript {
                 repositories {
-                    maven { url "$prebuiltsRepo/androidx/external" }
-                    maven { url "$prebuiltsRepo/androidx/internal" }
+                    maven { url "$prebuiltsRoot/androidx/external" }
+                    maven { url "$prebuiltsRoot/androidx/internal" }
                 }
                 dependencies {
-                    classpath "com.android.tools.build:gradle:$agpVersion"
+                    classpath "$agpDependency"
                 }
             }
 
@@ -231,9 +231,9 @@ class IncrementalAnnotationProcessingTest {
                 repositories {
                     // Provide a maven repo containing necessary artifacts built from tip of tree
                     maven { url "$supportRepo" }
-                    maven { url "$prebuiltsRepo/androidx/external" }
+                    maven { url "$prebuiltsRoot/androidx/external" }
                     maven {
-                        url "$prebuiltsRepo/androidx/internal"
+                        url "$prebuiltsRoot/androidx/internal"
                         // Get artifacts to be tested from provided repo instead of prebuiltsRepo
                         content {
                             excludeModule("androidx.lifecycle", "lifecycle-compiler")
@@ -347,14 +347,14 @@ class IncrementalAnnotationProcessingTest {
         IncrementalAnnotationProcessingTest::class.java.classLoader
             .getResourceAsStream("sdk.prop").use { input ->
                 val properties = Properties().apply { load(input) }
-                prebuiltsRepo = properties.getProperty("prebuiltsRepo")
+                prebuiltsRoot = properties.getProperty("prebuiltsRoot")
                 compileSdkVersion = properties.getProperty("compileSdkVersion")
                 buildToolsVersion = properties.getProperty("buildToolsVersion")
                 minSdkVersion = properties.getProperty("minSdkVersion")
                 debugKeystore = properties.getProperty("debugKeystore")
-                agpVersion = properties.getProperty("agpVersion")
+                agpDependency = properties.getProperty("agpDependency")
                 gradleVersion = properties.getProperty("gradleVersion")
-                supportRepo = properties.getProperty("supportRepo")
+                supportRepo = properties.getProperty("localSupportRepo")
         }
     }
 }

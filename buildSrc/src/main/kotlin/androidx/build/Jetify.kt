@@ -27,6 +27,7 @@ val archivesToDejetify = listOf(
     "m2repository/androidx/activity/**",
     "m2repository/androidx/ads/identifier/**",
     "m2repository/androidx/annotation/**",
+    "m2repository/androidx/autofill/**",
     "m2repository/androidx/appcompat/**",
     "m2repository/androidx/arch/**",
     "m2repository/androidx/arch/core/**",
@@ -38,9 +39,11 @@ val archivesToDejetify = listOf(
     "m2repository/androidx/car/**",
     "m2repository/androidx/cardview/**",
     "m2repository/androidx/collection/collection/**",
+    "m2repository/androidx/collection/collection-ktx/**",
     "m2repository/androidx/contentpager/**",
     "m2repository/androidx/coordinatorlayout/**",
     "m2repository/androidx/core/core/**",
+    "m2repository/androidx/core/core-ktx/**",
     "m2repository/androidx/cursoradapter/**",
     "m2repository/androidx/customview/**",
     "m2repository/androidx/documentfile/**",
@@ -49,6 +52,8 @@ val archivesToDejetify = listOf(
     "m2repository/androidx/emoji/**",
     "m2repository/androidx/exifinterface/**",
     "m2repository/androidx/fragment/fragment/**",
+    "m2repository/androidx/fragment/fragment-ktx/**",
+    "m2repository/androidx/fragment/fragment-testing/**",
     "m2repository/androidx/gridlayout/**",
     "m2repository/androidx/heifwriter/**",
     "m2repository/androidx/interpolator/**",
@@ -88,7 +93,8 @@ val archivesToDejetify = listOf(
     "m2repository/androidx/webkit/**",
     "m2repository/androidx/media2/**",
     "m2repository/androidx/concurrent/**",
-    "m2repository/androidx/sharetarget/**")
+    "m2repository/androidx/sharetarget/**"
+)
 
 fun Project.partiallyDejetifyArchiveTask(archiveFile: Provider<RegularFile>): TaskProvider<Exec>? {
     return findProject(":jetifier-standalone")?.let { standaloneProject ->
@@ -96,9 +102,9 @@ fun Project.partiallyDejetifyArchiveTask(archiveFile: Provider<RegularFile>): Ta
 
         tasks.register("partiallyDejetifyArchive", Exec::class.java) {
             val outputFileName = "${getDistributionDirectory().absolutePath}/" +
-                    "top-of-tree-m2repository-partially-dejetified-${getBuildId()}.zip"
+                "top-of-tree-m2repository-partially-dejetified-${getBuildId()}.zip"
             val jetifierBin = "${standaloneProject.buildDir}/install/jetifier-standalone/bin/" +
-                    "jetifier-standalone"
+                "jetifier-standalone"
             val migrationConfig = "${standaloneProject.projectDir.getParentFile()}/migration.config"
 
             it.dependsOn(stripTask)
@@ -119,12 +125,12 @@ fun Project.partiallyDejetifyArchiveTask(archiveFile: Provider<RegularFile>): Ta
 }
 
 fun Project.stripArchiveForPartialDejetificationTask(archiveFile: Provider<RegularFile>):
-        TaskProvider<Zip> {
-    return tasks.register("stripArchiveForPartialDejetification", Zip::class.java) {
-        it.dependsOn(rootProject.tasks.named(Release.FULL_ARCHIVE_TASK_NAME))
-        it.from(zipTree(archiveFile))
-        it.destinationDirectory.set(rootProject.buildDir)
-        it.archiveFileName.set("stripped_archive_partial.zip")
-        it.include(archivesToDejetify)
+    TaskProvider<Zip> {
+        return tasks.register("stripArchiveForPartialDejetification", Zip::class.java) {
+            it.dependsOn(rootProject.tasks.named(Release.FULL_ARCHIVE_TASK_NAME))
+            it.from(zipTree(archiveFile))
+            it.destinationDirectory.set(rootProject.buildDir)
+            it.archiveFileName.set("stripped_archive_partial.zip")
+            it.include(archivesToDejetify)
+        }
     }
-}

@@ -55,11 +55,23 @@ public class MainThreadCheckTest {
     }
 
     @Test
-    public void testFlowableOnMainThread() {
+    public void testRx2FlowableOnMainThread() {
         final Throwable error = test(false, new Function<TestDatabase, Void>() {
             @Override
             public Void apply(TestDatabase db) {
-                db.getUserDao().flowableUserById(3);
+                db.getUserDao().rx2_flowableUserById(3);
+                return null;
+            }
+        });
+        assertThat(error, nullValue());
+    }
+
+    @Test
+    public void testRx3FlowableOnMainThread() {
+        final Throwable error = test(false, new Function<TestDatabase, Void>() {
+            @Override
+            public Void apply(TestDatabase db) {
+                db.getUserDao().rx3_flowableUserById(3);
                 return null;
             }
         });
@@ -79,11 +91,23 @@ public class MainThreadCheckTest {
     }
 
     @Test
-    public void testObservableOnMainThread() {
+    public void testRx2ObservableOnMainThread() {
         final Throwable error = test(false, new Function<TestDatabase, Void>() {
             @Override
             public Void apply(TestDatabase db) {
-                db.getUserDao().observableUserById(3);
+                db.getUserDao().rx2_observableUserById(3);
+                return null;
+            }
+        });
+        assertThat(error, nullValue());
+    }
+
+    @Test
+    public void testRx3ObservableOnMainThread() {
+        final Throwable error = test(false, new Function<TestDatabase, Void>() {
+            @Override
+            public Void apply(TestDatabase db) {
+                db.getUserDao().rx3_observableUserById(3);
                 return null;
             }
         });

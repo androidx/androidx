@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.webkit.WebViewClient;
@@ -28,6 +27,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.text.HtmlCompat;
 import androidx.webkit.WebViewCompat;
 
 /**
@@ -83,9 +83,11 @@ public class PopupInterstitialActivity extends AppCompatActivity {
 
         TextView privacyPolicyMessage = findViewById(R.id.privacy_policy);
         String privacyPolicyUrl = WebViewCompat.getSafeBrowsingPrivacyPolicyUrl().toString();
-        // Inject the URL into the <a> tag.
-        privacyPolicyMessage.setText(Html.fromHtml(getString(R.string.view_privacy_policy_text,
-                privacyPolicyUrl)));
+        // Inject the URL into the <a> tag. Use FROM_HTML_MODE_LEGACY for consistency across OS
+        // levels (the exact HTML doesn't matter much, so long as it renders).
+        privacyPolicyMessage.setText(HtmlCompat.fromHtml(
+                getString(R.string.view_privacy_policy_text, privacyPolicyUrl),
+                HtmlCompat.FROM_HTML_MODE_LEGACY));
         // Open links with an Intent to the browser.
         privacyPolicyMessage.setMovementMethod(LinkMovementMethod.getInstance());
 

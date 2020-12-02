@@ -31,7 +31,7 @@ dependencies {
     testImplementation(MOCKITO_CORE)
 }
 
-// Used by testCompile in room-compiler
+// Used by testImplementation in room-compiler
 android.libraryVariants.all { variant ->
     def name = variant.name
     def suffix = name.capitalize()
@@ -45,9 +45,7 @@ android.libraryVariants.all { variant ->
 androidx {
     name = "Android DB"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.SQLITE
     mavenGroup = LibraryGroups.SQLITE
     inceptionYear = "2017"
     description = "Android DB"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }

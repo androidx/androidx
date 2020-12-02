@@ -34,6 +34,8 @@
 
         <activity android:name="androidx.core.widget.TextViewTestActivity"/>
 
+        <activity android:name="androidx.core.widget.RichContentReceiverTestActivity"/>
+
         <activity android:name="androidx.core.widget.TestContentViewActivity"/>
 
         <activity android:name="androidx.core.view.VpaActivity"/>
@@ -65,6 +67,7 @@
 
         <activity android:name="androidx.core.app.TestComponentActivity"/>
         <activity android:name="androidx.core.app.TestActivityWithLifecycle"/>
+        <activity android:name="androidx.core.app.ActivityCompatRecreateLifecycleTestActivity"/>
 
         <activity android:name="androidx.core.view.DragStartHelperTestActivity"/>
 
@@ -73,9 +76,17 @@
         <activity android:name="androidx.core.app.FrameMetricsActivity"/>
         <activity android:name="androidx.core.app.FrameMetricsSubActivity"/>
 
+        <activity
+            android:name="androidx.core.view.WindowCompatActivity"
+            android:theme="@android:style/Theme.Light.NoTitleBar" />
+
+        <activity
+            android:name="androidx.core.view.WindowInsetsCompatActivity"
+            android:theme="@android:style/Theme.Light.NoTitleBar" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="moocow"
+            android:authorities="moocow;additional.authority"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

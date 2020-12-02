@@ -17,10 +17,10 @@
 package androidx.room.solver
 
 import androidx.room.parser.ParsedQuery
+import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.solver.query.result.QueryResultBinder
-import javax.lang.model.type.DeclaredType
 
 interface QueryResultBinderProvider {
-    fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder
-    fun matches(declared: DeclaredType): Boolean
+    fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder
+    fun matches(declared: XDeclaredType): Boolean
 }

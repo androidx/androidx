@@ -16,8 +16,7 @@
 
 package androidx.camera.extensions;
 
-import android.util.Log;
-
+import androidx.camera.core.Logger;
 import androidx.camera.extensions.impl.ExtensionVersionImpl;
 
 /**
@@ -37,7 +36,7 @@ abstract class ExtensionVersion {
                 try {
                     sExtensionVersion = new VendorExtenderVersioning();
                 } catch (NoClassDefFoundError e) {
-                    Log.d(TAG, "No versioning extender found. Falling back to default.");
+                    Logger.d(TAG, "No versioning extender found. Falling back to default.");
                     sExtensionVersion = new DefaultExtenderVersioning();
                 }
             }
@@ -75,13 +74,15 @@ abstract class ExtensionVersion {
 
     /** An implementation that calls into the vendor provided implementation. */
     private static class VendorExtenderVersioning extends ExtensionVersion {
-        private ExtensionVersionImpl mImpl;
+        private static ExtensionVersionImpl sImpl;
         private Version mRuntimeVersion;
 
         VendorExtenderVersioning() {
-            mImpl = new ExtensionVersionImpl();
+            if (sImpl == null) {
+                sImpl = new ExtensionVersionImpl();
+            }
 
-            String vendorVersion = mImpl.checkApiVersion(
+            String vendorVersion = sImpl.checkApiVersion(
                     VersionName.getCurrentVersion().toVersionString());
             Version vendorVersionObj = Version.parse(vendorVersion);
             if (vendorVersionObj != null
@@ -90,7 +91,7 @@ abstract class ExtensionVersion {
                 mRuntimeVersion = vendorVersionObj;
             }
 
-            Log.d(TAG, "Selected vendor runtime: " + mRuntimeVersion);
+            Logger.d(TAG, "Selected vendor runtime: " + mRuntimeVersion);
         }
 
         @Override

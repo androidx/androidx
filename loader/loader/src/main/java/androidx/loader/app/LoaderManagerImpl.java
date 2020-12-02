@@ -188,7 +188,7 @@ class LoaderManagerImpl extends LoaderManager {
         }
 
         @Override
-        public void setValue(D value) {
+        public void setValue(@Nullable D value) {
             super.setValue(value);
             // Now that the new data has arrived, we can reset any prior Loader
             if (mPriorLoader != null) {
@@ -215,7 +215,8 @@ class LoaderManagerImpl extends LoaderManager {
         }
 
         @SuppressWarnings("deprecation")
-        public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+        public void dump(@NonNull String prefix, @Nullable FileDescriptor fd,
+                @NonNull PrintWriter writer, @Nullable String[] args) {
             writer.print(prefix); writer.print("mId="); writer.print(mId);
             writer.print(" mArgs="); writer.println(mArgs);
             writer.print(prefix); writer.print("mLoader="); writer.println(mLoader);
@@ -276,7 +277,7 @@ class LoaderManagerImpl extends LoaderManager {
             return mCallback.toString();
         }
 
-        public void dump(String prefix, PrintWriter writer) {
+        public void dump(@NonNull String prefix, @NonNull PrintWriter writer) {
             writer.print(prefix); writer.print("mDeliveredData="); writer.println(
                     mDeliveredData);
         }
@@ -358,7 +359,8 @@ class LoaderManagerImpl extends LoaderManager {
             mLoaders.clear();
         }
 
-        public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+        public void dump(@NonNull String prefix, @Nullable FileDescriptor fd,
+                @NonNull PrintWriter writer, @Nullable String[] args) {
             if (mLoaders.size() > 0) {
                 writer.print(prefix); writer.println("Loaders:");
                 String innerPrefix = prefix + "    ";
@@ -511,7 +513,8 @@ class LoaderManagerImpl extends LoaderManager {
 
     @Deprecated
     @Override
-    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+    public void dump(@NonNull String prefix, @Nullable FileDescriptor fd,
+            @NonNull PrintWriter writer, @Nullable String[] args) {
         mLoaderViewModel.dump(prefix, fd, writer, args);
     }
 

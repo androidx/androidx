@@ -16,8 +16,7 @@
 
 package androidx.paging
 
-import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
-import androidx.paging.futures.DirectDispatcher
+import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import com.nhaarman.mockitokotlin2.capture
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
@@ -32,6 +31,7 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import kotlin.test.assertFailsWith
 
+@Suppress("DEPRECATION")
 @RunWith(JUnit4::class)
 class ItemKeyedDataSourceTest {
 
@@ -286,6 +286,7 @@ class ItemKeyedDataSourceTest {
             }
         }
 
+        @Suppress("DEPRECATION")
         PagedList.Builder(dataSource, 10)
             .setNotifyDispatcher(FailDispatcher())
             .setFetchDispatcher(DirectDispatcher)
@@ -365,31 +366,40 @@ class ItemKeyedDataSourceTest {
             get() = source.isInvalid
 
         override fun loadInitial(params: LoadInitialParams<K>, callback: LoadInitialCallback<B>) {
-            source.loadInitial(params, object : LoadInitialCallback<A>() {
-                override fun onResult(data: List<A>, position: Int, totalCount: Int) {
-                    callback.onResult(convert(data), position, totalCount)
-                }
+            source.loadInitial(
+                params,
+                object : LoadInitialCallback<A>() {
+                    override fun onResult(data: List<A>, position: Int, totalCount: Int) {
+                        callback.onResult(convert(data), position, totalCount)
+                    }
 
-                override fun onResult(data: List<A>) {
-                    callback.onResult(convert(data))
+                    override fun onResult(data: List<A>) {
+                        callback.onResult(convert(data))
+                    }
                 }
-            })
+            )
         }
 
         override fun loadAfter(params: LoadParams<K>, callback: LoadCallback<B>) {
-            source.loadAfter(params, object : LoadCallback<A>() {
-                override fun onResult(data: List<A>) {
-                    callback.onResult(convert(data))
+            source.loadAfter(
+                params,
+                object : LoadCallback<A>() {
+                    override fun onResult(data: List<A>) {
+                        callback.onResult(convert(data))
+                    }
                 }
-            })
+            )
         }
 
         override fun loadBefore(params: LoadParams<K>, callback: LoadCallback<B>) {
-            source.loadBefore(params, object : LoadCallback<A>() {
-                override fun onResult(data: List<A>) {
-                    callback.onResult(convert(data))
+            source.loadBefore(
+                params,
+                object : LoadCallback<A>() {
+                    override fun onResult(data: List<A>) {
+                        callback.onResult(convert(data))
+                    }
                 }
-            })
+            )
         }
 
         protected abstract fun convert(source: List<A>): List<B>

@@ -16,14 +16,13 @@
 
 package androidx.camera.core.impl
 
-import androidx.camera.core.Observable
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.concurrent.futures.await
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import kotlin.coroutines.resume
@@ -61,7 +60,7 @@ class LiveDataObservableTest {
 
     @Test
     fun canSetAndFetchValue_onMainThread() {
-        var fetched: Int? = null
+        var fetched: Int?
         runBlocking(Dispatchers.Main) {
             val observable = LiveDataObservable<Int>().apply {
                 postValue(MAGIC_VALUE)

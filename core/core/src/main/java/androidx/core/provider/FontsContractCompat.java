@@ -534,6 +534,7 @@ public class FontsContractCompat {
     /**
      * Internal method of requestFont for avoiding holding strong refernece of Context.
      */
+    @SuppressWarnings("deprecation")
     private static void requestFontInternal(final @NonNull Context appContext,
             final @NonNull FontRequest request, final @NonNull FontRequestCallback callback,
             final @NonNull Handler handler) {

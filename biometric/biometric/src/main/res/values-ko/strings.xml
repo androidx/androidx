@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"지문 센서를 터치하세요."</string>
+    <string name="fingerprint_not_recognized" msgid="3873359464293253009">"인식할 수 없음"</string>
+    <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"지문 인식 하드웨어를 사용할 수 없습니다."</string>
+    <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"등록된 지문이 없습니다."</string>
+    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"기기에 지문 센서가 없습니다."</string>
+    <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"사용자가 지문 인식 작업을 취소했습니다."</string>
+    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"시도 횟수가 너무 많습니다. 나중에 다시 시도해 주세요."</string>
+    <string name="default_error_msg" msgid="4776854077120974966">"알 수 없는 오류"</string>
+    <string name="generic_error_user_canceled" msgid="7309881387583143581">"사용자가 인증을 취소했습니다."</string>
+    <string name="confirm_device_credential_password" msgid="5912733858573823945">"비밀번호 사용"</string>
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"PIN, 패턴, 비밀번호가 설정되지 않았습니다."</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"PIN, 패턴, 비밀번호를 지원하지 않는 기기입니다."</string>
+</resources>

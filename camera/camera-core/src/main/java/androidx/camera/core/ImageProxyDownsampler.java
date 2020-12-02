@@ -19,6 +19,8 @@ package androidx.camera.core;
 import android.graphics.ImageFormat;
 import android.util.Size;
 
+import androidx.annotation.NonNull;
+
 import java.nio.ByteBuffer;
 
 /** Utility functions for downsampling an {@link ImageProxy}. */
@@ -202,6 +204,7 @@ final class ImageProxyDownsampler {
             }
 
             @Override
+            @NonNull
             public ByteBuffer getBuffer() {
                 return mBuffer;
             }
@@ -242,6 +245,7 @@ final class ImageProxyDownsampler {
         }
 
         @Override
+        @NonNull
         public synchronized PlaneProxy[] getPlanes() {
             return mDownsampledPlanes;
         }

@@ -16,6 +16,7 @@
 
 package androidx.recyclerview.selection.testing;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public final class TestRunnable implements Runnable {
@@ -27,7 +28,11 @@ public final class TestRunnable implements Runnable {
         mRan = true;
     }
 
-    public void assertRan() {
+    public void assertRun() {
         assertTrue(mRan);
+    }
+
+    public void assertNotRun() {
+        assertFalse(mRan);
     }
 }

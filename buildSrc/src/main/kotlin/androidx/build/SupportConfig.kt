@@ -23,7 +23,14 @@ import java.io.File
 object SupportConfig {
     const val DEFAULT_MIN_SDK_VERSION = 14
     const val INSTRUMENTATION_RUNNER = "androidx.test.runner.AndroidJUnitRunner"
-    const val BUILD_TOOLS_VERSION = "28.0.3"
+    const val BUILD_TOOLS_VERSION = "30.0.2"
+    val NDK_VERSION by lazy {
+        // TODO(aurimas) b/173737578 remove when we no longer have divergent versions
+        when (getOperatingSystem()) {
+            OperatingSystem.LINUX -> "21.0.6113669"
+            else -> "21.3.6528147"
+        }
+    }
 
     /**
      * The Android SDK version to use for compilation.
@@ -31,7 +38,7 @@ object SupportConfig {
      * Either an integer value or a pre-release platform code, prefixed with "android-" (ex.
      * "android-28" or "android-Q") as you would see within the SDK's platforms directory.
      */
-    const val COMPILE_SDK_VERSION = "android-29"
+    const val COMPILE_SDK_VERSION = "android-30"
 
     /**
      * The Android SDK version to use for targetSdkVersion meta-data.
@@ -44,39 +51,19 @@ object SupportConfig {
      * order for tests to run on devices running released versions of the Android OS. If this is
      * set to a pre-release version, tests will only be able to run on pre-release devices.
      */
-    const val TARGET_SDK_VERSION = 28
+    const val TARGET_SDK_VERSION = 30
+}
 
-    @JvmStatic
-    fun getKeystore(project: Project): File {
-        val supportRoot = (project.rootProject.property("ext") as ExtraPropertiesExtension)
-                .get("supportRootFolder") as File
-        return File(supportRoot, "development/keystore/debug.keystore")
-    }
+fun Project.getExternalProjectPath(): File {
+    return File(project.getCheckoutRoot(), "external")
+}
 
-    @JvmStatic
-    fun getSupportRoot(project: Project): File {
-        val extension = (project.rootProject.property("ext") as ExtraPropertiesExtension)
-        val file = extension.get("supportRootFolder") as File
-        return file
-    }
+fun Project.getKeystore(): File {
+    return File(project.getSupportRootFolder(), "development/keystore/debug.keystore")
+}
 
-    @JvmStatic
-    fun getPrebuiltsRootPath(project: Project): String {
-        val reposProperties = (project.rootProject.property("ext") as ExtraPropertiesExtension)
-            .get("repos") as Map<*, *>
-        return reposProperties["prebuiltsRoot"].toString()
-    }
-
-    @JvmStatic
-    fun getSupportRepoPath(project: Project): String {
-        return project.getRepositoryDirectory().absolutePath
-    }
-
-    @JvmStatic
-    fun getAGPVersion(project: Project): String {
-        val studioProperties = (project.rootProject.property("ext") as ExtraPropertiesExtension)
-            .let { it.get("build_versions") as Map<*, *> }
-            .let { it["studio"] as Map<*, *> }
-        return studioProperties["agp"].toString()
-    }
+fun Project.getPrebuiltsRoot(): File {
+    val ext = project.rootProject.property("ext") as ExtraPropertiesExtension
+    val reposProperties = ext.get("repos") as Map<*, *>
+    return File(reposProperties["prebuiltsRoot"].toString())
 }

@@ -21,7 +21,6 @@ import androidx.annotation.NonNull;
 /**
  * Stores information about network state.
  */
-
 public class NetworkState {
 
     private boolean mIsConnected;
@@ -78,7 +77,7 @@ public class NetworkState {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof NetworkState)) {
             return false;
         }
         NetworkState other = (NetworkState) o;

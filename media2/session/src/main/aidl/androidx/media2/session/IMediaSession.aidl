@@ -48,19 +48,14 @@ oneway interface IMediaSession {
     void seekTo(IMediaController caller, int seq, long pos) = 11;
     void onCustomCommand(IMediaController caller, int seq, in ParcelImpl sessionCommand,
             in Bundle args) = 12;
-    void prepareFromUri(IMediaController caller, int seq, in Uri uri, in Bundle extras) = 13;
-    void prepareFromSearch(IMediaController caller, int seq, String query, in Bundle extras) = 14;
-    void prepareFromMediaId(IMediaController caller, int seq, String mediaId,
-            in Bundle extras) = 15;
-    void playFromUri(IMediaController caller, int seq, in Uri uri, in Bundle extras) = 16;
-    void playFromSearch(IMediaController caller, int seq, String query, in Bundle extras) = 17;
-    void playFromMediaId(IMediaController caller, int seq, String mediaId, in Bundle extras) = 18;
+    // 13~18: removed
     void setRating(IMediaController caller, int seq, String mediaId, in ParcelImpl rating) = 19;
     void setPlaybackSpeed(IMediaController caller, int seq, float speed) = 20;
 
     void setPlaylist(IMediaController caller, int seq, in List<String> list,
             in ParcelImpl metadata) = 21;
     void setMediaItem(IMediaController caller, int seq, String mediaId) = 22;
+    void setMediaUri(IMediaController caller, int seq, in Uri uri, in Bundle extras) = 44;
     void updatePlaylistMetadata(IMediaController caller, int seq, in ParcelImpl metadata) = 23;
     void addPlaylistItem(IMediaController caller, int seq, int index, String mediaId) = 24;
     void removePlaylistItem(IMediaController caller, int seq, int index) = 25;
@@ -91,5 +86,5 @@ oneway interface IMediaSession {
     void subscribe(IMediaController caller, int seq, String parentId,
             in ParcelImpl libraryParams) = 38;
     void unsubscribe(IMediaController caller, int seq, String parentId) = 39;
-    // Next Id : 44
+    // Next Id : 45
 }

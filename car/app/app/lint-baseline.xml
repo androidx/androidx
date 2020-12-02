@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            enumName = (String) nameMethod.invoke(obj);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/serialization/Bundler.java"
+            line="322"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            Object obj = converter.invoke(null, binder);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/serialization/Bundler.java"
+            line="405"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            return nameMethod.invoke(null, enumName);"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/serialization/Bundler.java"
+            line="483"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ParcelClassLoader"
+        message="Using the default class loader will not work if you are restoring your own classes. Consider using for example `readBundle(getClass().getClassLoader())` instead."
+        errorLine1="                    return new Bundleable(requireNonNull(source.readBundle()));"
+        errorLine2="                                                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/serialization/Bundleable.java"
+            line="78"
+            column="65"/>
+    </issue>
+
+</issues>

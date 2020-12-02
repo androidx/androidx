@@ -25,14 +25,6 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-android {
-    buildTypes {
-        debug {
-            testCoverageEnabled = false // Breaks Kotlin compiler.
-        }
-    }
-}
-
 dependencies {
     api(project(":loader:loader"))
     api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.0.0") {
@@ -41,7 +33,7 @@ dependencies {
     api(KOTLIN_STDLIB)
 
     androidTestImplementation(TRUTH)
-    androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.0.0")
+    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
@@ -54,7 +46,6 @@ dependencies {
 androidx {
     name = "Loader Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.LOADER
     mavenGroup = LibraryGroups.LOADER
     inceptionYear = "2019"
     description = "Kotlin extensions for 'loader' artifact"

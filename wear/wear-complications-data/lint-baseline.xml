@@ -1,0 +1,1038 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="                return formattedDate.toUpperCase();"
+        errorLine2="                                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/wearable/complications/TimeFormatText.java"
+            line="91"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="                return formattedDate.toLowerCase();"
+        errorLine2="                                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/wearable/complications/TimeFormatText.java"
+            line="93"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="SimpleDateFormat"
+        message="To get local formatting use `getDateInstance()`, `getDateTimeInstance()`, or `getTimeInstance()`, or use `new SimpleDateFormat(String template, Locale locale)` with for example `Locale.US` for ASCII dates."
+        errorLine1="        mDateFormat = new SimpleDateFormat(format);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/wearable/complications/TimeFormatText.java"
+            line="72"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="BanTargetApiAnnotation"
+        message="Uses @TargetApi annotation"
+        errorLine1="@TargetApi(Build.VERSION_CODES.N)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/complications/ComplicationHelperActivity.java"
+            line="56"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;cs&quot; (Czech) the following quantities are not relevant: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_days&quot; formatted=&quot;false&quot; msgid=&quot;8500262093840795448&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-cs/complication_strings.xml"
+            line="4"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;in&quot; (Indonesian) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_days&quot; formatted=&quot;false&quot; msgid=&quot;8500262093840795448&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-in/complication_strings.xml"
+            line="4"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;ja&quot; (Japanese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_days&quot; formatted=&quot;false&quot; msgid=&quot;8500262093840795448&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ja/complication_strings.xml"
+            line="4"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;km&quot; (Khmer) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_days&quot; formatted=&quot;false&quot; msgid=&quot;8500262093840795448&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-km/complication_strings.xml"
+            line="4"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;ko&quot; (Korean) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_days&quot; formatted=&quot;false&quot; msgid=&quot;8500262093840795448&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ko/complication_strings.xml"
+            line="4"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;lo&quot; (Lao) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_days&quot; formatted=&quot;false&quot; msgid=&quot;8500262093840795448&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-lo/complication_strings.xml"
+            line="4"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;lt&quot; (Lithuanian) the following quantities are not relevant: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_days&quot; formatted=&quot;false&quot; msgid=&quot;8500262093840795448&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-lt/complication_strings.xml"
+            line="4"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;ms&quot; (Malay) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_days&quot; formatted=&quot;false&quot; msgid=&quot;8500262093840795448&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ms/complication_strings.xml"
+            line="4"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;my&quot; (Burmese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_days&quot; formatted=&quot;false&quot; msgid=&quot;8500262093840795448&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-my/complication_strings.xml"
+            line="4"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;sk&quot; (Slovak) the following quantities are not relevant: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_days&quot; formatted=&quot;false&quot; msgid=&quot;8500262093840795448&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-sk/complication_strings.xml"
+            line="4"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;th&quot; (Thai) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_days&quot; formatted=&quot;false&quot; msgid=&quot;8500262093840795448&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-th/complication_strings.xml"
+            line="4"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;vi&quot; (Vietnamese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_days&quot; formatted=&quot;false&quot; msgid=&quot;8500262093840795448&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-vi/complication_strings.xml"
+            line="4"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_days&quot; formatted=&quot;false&quot; msgid=&quot;8500262093840795448&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-zh-rCN/complication_strings.xml"
+            line="4"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_days&quot; formatted=&quot;false&quot; msgid=&quot;8500262093840795448&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-zh-rHK/complication_strings.xml"
+            line="4"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_days&quot; formatted=&quot;false&quot; msgid=&quot;8500262093840795448&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-zh-rTW/complication_strings.xml"
+            line="4"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;in&quot; (Indonesian) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_hours&quot; formatted=&quot;false&quot; msgid=&quot;3258361256003469346&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-in/complication_strings.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;ja&quot; (Japanese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_hours&quot; formatted=&quot;false&quot; msgid=&quot;3258361256003469346&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ja/complication_strings.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;km&quot; (Khmer) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_hours&quot; formatted=&quot;false&quot; msgid=&quot;3258361256003469346&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-km/complication_strings.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;ko&quot; (Korean) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_hours&quot; formatted=&quot;false&quot; msgid=&quot;3258361256003469346&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ko/complication_strings.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;lo&quot; (Lao) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_hours&quot; formatted=&quot;false&quot; msgid=&quot;3258361256003469346&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-lo/complication_strings.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;ms&quot; (Malay) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_hours&quot; formatted=&quot;false&quot; msgid=&quot;3258361256003469346&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ms/complication_strings.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;my&quot; (Burmese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_hours&quot; formatted=&quot;false&quot; msgid=&quot;3258361256003469346&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-my/complication_strings.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;th&quot; (Thai) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_hours&quot; formatted=&quot;false&quot; msgid=&quot;3258361256003469346&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-th/complication_strings.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;vi&quot; (Vietnamese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_hours&quot; formatted=&quot;false&quot; msgid=&quot;3258361256003469346&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-vi/complication_strings.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_hours&quot; formatted=&quot;false&quot; msgid=&quot;3258361256003469346&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-zh-rCN/complication_strings.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_hours&quot; formatted=&quot;false&quot; msgid=&quot;3258361256003469346&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-zh-rHK/complication_strings.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_hours&quot; formatted=&quot;false&quot; msgid=&quot;3258361256003469346&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-zh-rTW/complication_strings.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;cs&quot; (Czech) the following quantities are not relevant: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_hours&quot; formatted=&quot;false&quot; msgid=&quot;3258361256003469346&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-cs/complication_strings.xml"
+            line="10"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;lt&quot; (Lithuanian) the following quantities are not relevant: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_hours&quot; formatted=&quot;false&quot; msgid=&quot;3258361256003469346&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-lt/complication_strings.xml"
+            line="10"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;sk&quot; (Slovak) the following quantities are not relevant: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_hours&quot; formatted=&quot;false&quot; msgid=&quot;3258361256003469346&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-sk/complication_strings.xml"
+            line="10"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;in&quot; (Indonesian) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_minutes&quot; formatted=&quot;false&quot; msgid=&quot;3812930575997556650&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-in/complication_strings.xml"
+            line="12"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;ja&quot; (Japanese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_minutes&quot; formatted=&quot;false&quot; msgid=&quot;3812930575997556650&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ja/complication_strings.xml"
+            line="12"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;km&quot; (Khmer) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_minutes&quot; formatted=&quot;false&quot; msgid=&quot;3812930575997556650&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-km/complication_strings.xml"
+            line="12"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;ko&quot; (Korean) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_minutes&quot; formatted=&quot;false&quot; msgid=&quot;3812930575997556650&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ko/complication_strings.xml"
+            line="12"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;lo&quot; (Lao) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_minutes&quot; formatted=&quot;false&quot; msgid=&quot;3812930575997556650&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-lo/complication_strings.xml"
+            line="12"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;ms&quot; (Malay) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_minutes&quot; formatted=&quot;false&quot; msgid=&quot;3812930575997556650&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ms/complication_strings.xml"
+            line="12"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;my&quot; (Burmese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_minutes&quot; formatted=&quot;false&quot; msgid=&quot;3812930575997556650&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-my/complication_strings.xml"
+            line="12"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;th&quot; (Thai) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_minutes&quot; formatted=&quot;false&quot; msgid=&quot;3812930575997556650&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-th/complication_strings.xml"
+            line="12"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;vi&quot; (Vietnamese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_minutes&quot; formatted=&quot;false&quot; msgid=&quot;3812930575997556650&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-vi/complication_strings.xml"
+            line="12"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_minutes&quot; formatted=&quot;false&quot; msgid=&quot;3812930575997556650&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-zh-rCN/complication_strings.xml"
+            line="12"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_minutes&quot; formatted=&quot;false&quot; msgid=&quot;3812930575997556650&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-zh-rHK/complication_strings.xml"
+            line="12"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_minutes&quot; formatted=&quot;false&quot; msgid=&quot;3812930575997556650&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-zh-rTW/complication_strings.xml"
+            line="12"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;cs&quot; (Czech) the following quantities are not relevant: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_minutes&quot; formatted=&quot;false&quot; msgid=&quot;3812930575997556650&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-cs/complication_strings.xml"
+            line="16"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;lt&quot; (Lithuanian) the following quantities are not relevant: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_minutes&quot; formatted=&quot;false&quot; msgid=&quot;3812930575997556650&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-lt/complication_strings.xml"
+            line="16"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;sk&quot; (Slovak) the following quantities are not relevant: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_minutes&quot; formatted=&quot;false&quot; msgid=&quot;3812930575997556650&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-sk/complication_strings.xml"
+            line="16"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;in&quot; (Indonesian) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_days&quot; formatted=&quot;false&quot; msgid=&quot;345557497041553025&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-in/complication_strings.xml"
+            line="18"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;ja&quot; (Japanese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_days&quot; formatted=&quot;false&quot; msgid=&quot;345557497041553025&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ja/complication_strings.xml"
+            line="18"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;km&quot; (Khmer) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_days&quot; formatted=&quot;false&quot; msgid=&quot;345557497041553025&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-km/complication_strings.xml"
+            line="18"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;ko&quot; (Korean) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_days&quot; formatted=&quot;false&quot; msgid=&quot;345557497041553025&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ko/complication_strings.xml"
+            line="18"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;lo&quot; (Lao) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_days&quot; formatted=&quot;false&quot; msgid=&quot;345557497041553025&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-lo/complication_strings.xml"
+            line="18"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;ms&quot; (Malay) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_days&quot; formatted=&quot;false&quot; msgid=&quot;345557497041553025&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ms/complication_strings.xml"
+            line="18"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;my&quot; (Burmese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_days&quot; formatted=&quot;false&quot; msgid=&quot;345557497041553025&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-my/complication_strings.xml"
+            line="18"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;th&quot; (Thai) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_days&quot; formatted=&quot;false&quot; msgid=&quot;345557497041553025&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-th/complication_strings.xml"
+            line="18"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;vi&quot; (Vietnamese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_days&quot; formatted=&quot;false&quot; msgid=&quot;345557497041553025&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-vi/complication_strings.xml"
+            line="18"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_days&quot; formatted=&quot;false&quot; msgid=&quot;345557497041553025&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-zh-rCN/complication_strings.xml"
+            line="18"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_days&quot; formatted=&quot;false&quot; msgid=&quot;345557497041553025&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-zh-rHK/complication_strings.xml"
+            line="18"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_days&quot; formatted=&quot;false&quot; msgid=&quot;345557497041553025&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-zh-rTW/complication_strings.xml"
+            line="18"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;in&quot; (Indonesian) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_hours&quot; formatted=&quot;false&quot; msgid=&quot;2990178439049007198&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-in/complication_strings.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;ja&quot; (Japanese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_hours&quot; formatted=&quot;false&quot; msgid=&quot;2990178439049007198&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ja/complication_strings.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;km&quot; (Khmer) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_hours&quot; formatted=&quot;false&quot; msgid=&quot;2990178439049007198&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-km/complication_strings.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;ko&quot; (Korean) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_hours&quot; formatted=&quot;false&quot; msgid=&quot;2990178439049007198&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ko/complication_strings.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;lo&quot; (Lao) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_hours&quot; formatted=&quot;false&quot; msgid=&quot;2990178439049007198&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-lo/complication_strings.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;ms&quot; (Malay) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_hours&quot; formatted=&quot;false&quot; msgid=&quot;2990178439049007198&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ms/complication_strings.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;my&quot; (Burmese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_hours&quot; formatted=&quot;false&quot; msgid=&quot;2990178439049007198&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-my/complication_strings.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;th&quot; (Thai) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_hours&quot; formatted=&quot;false&quot; msgid=&quot;2990178439049007198&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-th/complication_strings.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;vi&quot; (Vietnamese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_hours&quot; formatted=&quot;false&quot; msgid=&quot;2990178439049007198&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-vi/complication_strings.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_hours&quot; formatted=&quot;false&quot; msgid=&quot;2990178439049007198&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-zh-rCN/complication_strings.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_hours&quot; formatted=&quot;false&quot; msgid=&quot;2990178439049007198&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-zh-rHK/complication_strings.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_hours&quot; formatted=&quot;false&quot; msgid=&quot;2990178439049007198&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-zh-rTW/complication_strings.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;cs&quot; (Czech) the following quantities are not relevant: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_days&quot; formatted=&quot;false&quot; msgid=&quot;345557497041553025&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-cs/complication_strings.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;lt&quot; (Lithuanian) the following quantities are not relevant: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_days&quot; formatted=&quot;false&quot; msgid=&quot;345557497041553025&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-lt/complication_strings.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;sk&quot; (Slovak) the following quantities are not relevant: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_days&quot; formatted=&quot;false&quot; msgid=&quot;345557497041553025&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-sk/complication_strings.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;in&quot; (Indonesian) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_minutes&quot; formatted=&quot;false&quot; msgid=&quot;9081188175463984403&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-in/complication_strings.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;ja&quot; (Japanese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_minutes&quot; formatted=&quot;false&quot; msgid=&quot;9081188175463984403&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ja/complication_strings.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;km&quot; (Khmer) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_minutes&quot; formatted=&quot;false&quot; msgid=&quot;9081188175463984403&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-km/complication_strings.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;ko&quot; (Korean) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_minutes&quot; formatted=&quot;false&quot; msgid=&quot;9081188175463984403&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ko/complication_strings.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;lo&quot; (Lao) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_minutes&quot; formatted=&quot;false&quot; msgid=&quot;9081188175463984403&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-lo/complication_strings.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;ms&quot; (Malay) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_minutes&quot; formatted=&quot;false&quot; msgid=&quot;9081188175463984403&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-ms/complication_strings.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;my&quot; (Burmese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_minutes&quot; formatted=&quot;false&quot; msgid=&quot;9081188175463984403&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-my/complication_strings.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;th&quot; (Thai) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_minutes&quot; formatted=&quot;false&quot; msgid=&quot;9081188175463984403&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-th/complication_strings.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;vi&quot; (Vietnamese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_minutes&quot; formatted=&quot;false&quot; msgid=&quot;9081188175463984403&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-vi/complication_strings.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_minutes&quot; formatted=&quot;false&quot; msgid=&quot;9081188175463984403&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-zh-rCN/complication_strings.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_minutes&quot; formatted=&quot;false&quot; msgid=&quot;9081188175463984403&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-zh-rHK/complication_strings.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_minutes&quot; formatted=&quot;false&quot; msgid=&quot;9081188175463984403&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-zh-rTW/complication_strings.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;cs&quot; (Czech) the following quantities are not relevant: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_hours&quot; formatted=&quot;false&quot; msgid=&quot;2990178439049007198&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-cs/complication_strings.xml"
+            line="30"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;lt&quot; (Lithuanian) the following quantities are not relevant: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_hours&quot; formatted=&quot;false&quot; msgid=&quot;2990178439049007198&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-lt/complication_strings.xml"
+            line="30"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;sk&quot; (Slovak) the following quantities are not relevant: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_hours&quot; formatted=&quot;false&quot; msgid=&quot;2990178439049007198&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-sk/complication_strings.xml"
+            line="30"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;cs&quot; (Czech) the following quantities are not relevant: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_minutes&quot; formatted=&quot;false&quot; msgid=&quot;9081188175463984403&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-cs/complication_strings.xml"
+            line="36"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;lt&quot; (Lithuanian) the following quantities are not relevant: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_minutes&quot; formatted=&quot;false&quot; msgid=&quot;9081188175463984403&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-lt/complication_strings.xml"
+            line="36"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedQuantity"
+        message="For language &quot;sk&quot; (Slovak) the following quantities are not relevant: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_minutes&quot; formatted=&quot;false&quot; msgid=&quot;9081188175463984403&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-sk/complication_strings.xml"
+            line="36"
+            column="5"/>
+    </issue>
+
+</issues>

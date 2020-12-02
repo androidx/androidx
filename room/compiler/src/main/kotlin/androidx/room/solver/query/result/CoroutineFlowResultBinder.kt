@@ -22,16 +22,15 @@ import androidx.room.ext.N
 import androidx.room.ext.RoomCoroutinesTypeNames
 import androidx.room.ext.T
 import androidx.room.ext.arrayTypeName
-import androidx.room.ext.typeName
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.FieldSpec
-import javax.lang.model.type.TypeMirror
 
 /**
  * Binds the result of a of a Kotlin Coroutine Flow<T>
  */
 class CoroutineFlowResultBinder(
-    val typeArg: TypeMirror,
+    val typeArg: XType,
     val tableNames: Set<String>,
     adapter: QueryResultAdapter?
 ) : BaseObservableQueryResultBinder(adapter) {
@@ -43,14 +42,15 @@ class CoroutineFlowResultBinder(
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName()) {
+        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
             createRunQueryAndReturnStatements(
                 builder = this,
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
                 dbField = dbField,
                 inTransaction = inTransaction,
                 scope = scope,
-                cancellationSignalVar = "null")
+                cancellationSignalVar = "null"
+            )
         }.apply {
             if (canReleaseQuery) {
                 addMethod(createFinalizeMethod(roomSQLiteQueryVar))
@@ -64,9 +64,10 @@ class CoroutineFlowResultBinder(
                 RoomCoroutinesTypeNames.COROUTINES_ROOM,
                 dbField,
                 if (inTransaction) "true" else "false",
-                String::class.arrayTypeName(),
+                String::class.arrayTypeName,
                 tableNamesList,
-                callableImpl)
+                callableImpl
+            )
         }
     }
 }

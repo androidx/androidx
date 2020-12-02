@@ -19,8 +19,11 @@ package androidx.collection;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
@@ -51,7 +54,9 @@ import java.util.Set;
  * explicit call to set the capacity should turn off this aggressive shrinking behavior.</p>
  */
 public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
-    @Nullable MapCollections<K, V> mCollections;
+    @Nullable EntrySet mEntrySet;
+    @Nullable KeySet mKeySet;
+    @Nullable ValueCollection mValues;
 
     public ArrayMap() {
         super();
@@ -67,60 +72,9 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
     /**
      * Create a new ArrayMap with the mappings from the given ArrayMap.
      */
+    @SuppressWarnings("unchecked")
     public ArrayMap(SimpleArrayMap map) {
         super(map);
-    }
-
-    private MapCollections<K, V> getCollection() {
-        if (mCollections == null) {
-            mCollections = new MapCollections<K, V>() {
-                @Override
-                protected int colGetSize() {
-                    return mSize;
-                }
-
-                @Override
-                protected Object colGetEntry(int index, int offset) {
-                    return mArray[(index<<1) + offset];
-                }
-
-                @Override
-                protected int colIndexOfKey(Object key) {
-                    return indexOfKey(key);
-                }
-
-                @Override
-                protected int colIndexOfValue(Object value) {
-                    return indexOfValue(value);
-                }
-
-                @Override
-                protected Map<K, V> colGetMap() {
-                    return ArrayMap.this;
-                }
-
-                @Override
-                protected void colPut(K key, V value) {
-                    put(key, value);
-                }
-
-                @Override
-                protected V colSetValue(int index, V value) {
-                    return setValueAt(index, value);
-                }
-
-                @Override
-                protected void colRemoveAt(int index) {
-                    removeAt(index);
-                }
-
-                @Override
-                protected void colClear() {
-                    clear();
-                }
-            };
-        }
-        return mCollections;
     }
 
     /**
@@ -130,7 +84,12 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
      * in <var>collection</var>, else returns false.
      */
     public boolean containsAll(@NonNull Collection<?> collection) {
-        return MapCollections.containsAllHelper(this, collection);
+        for (Object o : collection) {
+            if (!containsKey(o)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -138,7 +97,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
      * @param map The map whose contents are to be retrieved.
      */
     @Override
-    public void putAll(Map<? extends K, ? extends V> map) {
+    public void putAll(@NonNull Map<? extends K, ? extends V> map) {
         ensureCapacity(mSize + map.size());
         for (Map.Entry<? extends K, ? extends V> entry : map.entrySet()) {
             put(entry.getKey(), entry.getValue());
@@ -151,7 +110,11 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
      * @return Returns true if any keys were removed from the array map, else false.
      */
     public boolean removeAll(@NonNull Collection<?> collection) {
-        return MapCollections.removeAllHelper(this, collection);
+        int oldSize = mSize;
+        for (Object o : collection) {
+            remove(o);
+        }
+        return oldSize != mSize;
     }
 
     /**
@@ -161,7 +124,13 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
      * @return Returns true if any keys were removed from the array map, else false.
      */
     public boolean retainAll(@NonNull Collection<?> collection) {
-        return MapCollections.retainAllHelper(this, collection);
+        int oldSize = mSize;
+        for (int i = mSize - 1; i >= 0; i--) {
+            if (!collection.contains(keyAt(i))) {
+                removeAt(i);
+            }
+        }
+        return oldSize != mSize;
     }
 
     /**
@@ -177,9 +146,14 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
      * object that exists for the entire iterator, so you can <b>not</b> hold on to it
      * after calling {@link java.util.Iterator#next() Iterator.next}.</p>
      */
+    @NonNull
     @Override
     public Set<Entry<K, V>> entrySet() {
-        return getCollection().getEntrySet();
+        Set<Entry<K, V>> entrySet = mEntrySet;
+        if (entrySet == null) {
+            entrySet = mEntrySet = new EntrySet();
+        }
+        return entrySet;
     }
 
     /**
@@ -189,9 +163,14 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
      * <p><b>Note:</b> this is a fairly inefficient way to access the array contents, it
      * requires generating a number of temporary objects.</p>
      */
+    @NonNull
     @Override
     public Set<K> keySet() {
-        return getCollection().getKeySet();
+        Set<K> keySet = mKeySet;
+        if (keySet == null) {
+            keySet = mKeySet = new KeySet();
+        }
+        return keySet;
     }
 
     /**
@@ -201,8 +180,472 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
      * <p><b>Note:</b> this is a fairly inefficient way to access the array contents, it
      * requires generating a number of temporary objects.</p>
      */
+    @NonNull
     @Override
     public Collection<V> values() {
-        return getCollection().getValues();
+        Collection<V> values = mValues;
+        if (values == null) {
+            values = mValues = new ValueCollection();
+        }
+        return values;
+    }
+
+    final class EntrySet implements Set<Map.Entry<K, V>> {
+        @Override
+        public boolean add(Map.Entry<K, V> object) {
+            // TODO support
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean addAll(Collection<? extends Map.Entry<K, V>> collection) {
+            int oldSize = mSize;
+            for (Map.Entry<K, V> entry : collection) {
+                put(entry.getKey(), entry.getValue());
+            }
+            return oldSize != mSize; // TODO broken heuristic
+        }
+
+        @Override
+        public void clear() {
+            ArrayMap.this.clear();
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            if (!(o instanceof Map.Entry))
+                return false;
+            Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
+            int index = indexOfKey(e.getKey());
+            if (index < 0) {
+                return false;
+            }
+            V foundVal = valueAt(index);
+            return ContainerHelpers.equal(foundVal, e.getValue());
+        }
+
+        @Override
+        public boolean containsAll(Collection<?> collection) {
+            for (Object o : collection) {
+                if (!contains(o)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return ArrayMap.this.isEmpty();
+        }
+
+        @Override
+        public Iterator<Map.Entry<K, V>> iterator() {
+            return new MapIterator();
+        }
+
+        @Override
+        public boolean remove(Object object) {
+            // TODO support
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean removeAll(Collection<?> collection) {
+            // TODO support
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean retainAll(Collection<?> collection) {
+            // TODO support
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int size() {
+            return mSize;
+        }
+
+        @Override
+        public Object[] toArray() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public <T> T[] toArray(T[] array) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            return equalsSetHelper(this, object);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = 0;
+            for (int i=mSize-1; i>=0; i--) {
+                K key = keyAt(i);
+                V value = valueAt(i);
+                result += ( (key == null ? 0 : key.hashCode()) ^
+                        (value == null ? 0 : value.hashCode()) );
+            }
+            return result;
+        }
+    }
+
+    final class KeySet implements Set<K> {
+        @Override
+        public boolean add(K object) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean addAll(Collection<? extends K> collection) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void clear() {
+            ArrayMap.this.clear();
+        }
+
+        @Override
+        public boolean contains(Object object) {
+            return containsKey(object);
+        }
+
+        @Override
+        public boolean containsAll(Collection<?> collection) {
+            return ArrayMap.this.containsAll(collection);
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return ArrayMap.this.isEmpty();
+        }
+
+        @Override
+        public Iterator<K> iterator() {
+            return new KeyIterator();
+        }
+
+        @Override
+        public boolean remove(Object object) {
+            int index = indexOfKey(object);
+            if (index >= 0) {
+                removeAt(index);
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean removeAll(Collection<?> collection) {
+            return ArrayMap.this.removeAll(collection);
+        }
+
+        @Override
+        public boolean retainAll(Collection<?> collection) {
+            return ArrayMap.this.retainAll(collection);
+        }
+
+        @Override
+        public int size() {
+            return mSize;
+        }
+
+        @Override
+        public Object[] toArray() {
+            final int N = mSize;
+            Object[] result = new Object[N];
+            for (int i=0; i<N; i++) {
+                result[i] = keyAt(i);
+            }
+            return result;
+        }
+
+        @Override
+        public <T> T[] toArray(T[] array) {
+            return toArrayHelper(array, 0);
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            return equalsSetHelper(this, object);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = 0;
+            for (int i=mSize-1; i>=0; i--) {
+                K obj = keyAt(i);
+                result += obj == null ? 0 : obj.hashCode();
+            }
+            return result;
+        }
+    }
+
+    final class ValueCollection implements Collection<V> {
+        @Override
+        public boolean add(V object) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean addAll(Collection<? extends V> collection) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void clear() {
+            ArrayMap.this.clear();
+        }
+
+        @Override
+        public boolean contains(Object object) {
+            return indexOfValue(object) >= 0;
+        }
+
+        @Override
+        public boolean containsAll(Collection<?> collection) {
+            for (Object o : collection) {
+                if (!contains(o)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return ArrayMap.this.isEmpty();
+        }
+
+        @Override
+        public Iterator<V> iterator() {
+            return new ValueIterator();
+        }
+
+        @Override
+        public boolean remove(Object object) {
+            int index = indexOfValue(object);
+            if (index >= 0) {
+                removeAt(index);
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean removeAll(Collection<?> collection) {
+            int N = mSize;
+            boolean changed = false;
+            for (int i=0; i<N; i++) {
+                V cur = valueAt(i);
+                if (collection.contains(cur)) {
+                    removeAt(i);
+                    i--;
+                    N--;
+                    changed = true;
+                }
+            }
+            return changed;
+        }
+
+        @Override
+        public boolean retainAll(Collection<?> collection) {
+            int N = mSize;
+            boolean changed = false;
+            for (int i=0; i<N; i++) {
+                V cur = valueAt(i);
+                if (!collection.contains(cur)) {
+                    removeAt(i);
+                    i--;
+                    N--;
+                    changed = true;
+                }
+            }
+            return changed;
+        }
+
+        @Override
+        public int size() {
+            return mSize;
+        }
+
+        @Override
+        public Object[] toArray() {
+            final int N = mSize;
+            Object[] result = new Object[N];
+            for (int i=0; i<N; i++) {
+                result[i] = valueAt(i);
+            }
+            return result;
+        }
+
+        @Override
+        public <T> T[] toArray(T[] array) {
+            return toArrayHelper(array, 1);
+        }
+    }
+
+    final class KeyIterator extends IndexBasedArrayIterator<K> {
+        KeyIterator() {
+            super(ArrayMap.this.mSize);
+        }
+
+        @Override
+        protected K elementAt(int index) {
+            return keyAt(index);
+        }
+
+        @Override
+        protected void removeAt(int index) {
+            ArrayMap.this.removeAt(index);
+        }
+    }
+
+    final class ValueIterator extends IndexBasedArrayIterator<V> {
+        ValueIterator() {
+            super(ArrayMap.this.mSize);
+        }
+
+        @Override
+        protected V elementAt(int index) {
+            return valueAt(index);
+        }
+
+        @Override
+        protected void removeAt(int index) {
+            ArrayMap.this.removeAt(index);
+        }
+    }
+
+    final class MapIterator implements Iterator<Map.Entry<K, V>>, Map.Entry<K, V> {
+        int mEnd;
+        int mIndex;
+        boolean mEntryValid;
+
+        MapIterator() {
+            mEnd = mSize - 1;
+            mIndex = -1;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return mIndex < mEnd;
+        }
+
+        @Override
+        public Map.Entry<K, V> next() {
+            if (!hasNext()) throw new NoSuchElementException();
+            mIndex++;
+            mEntryValid = true;
+            return this;
+        }
+
+        @Override
+        public void remove() {
+            if (!mEntryValid) {
+                throw new IllegalStateException();
+            }
+            removeAt(mIndex);
+            mIndex--;
+            mEnd--;
+            mEntryValid = false;
+        }
+
+        @Override
+        public K getKey() {
+            if (!mEntryValid) {
+                throw new IllegalStateException(
+                        "This container does not support retaining Map.Entry objects");
+            }
+            return keyAt(mIndex);
+        }
+
+        @Override
+        public V getValue() {
+            if (!mEntryValid) {
+                throw new IllegalStateException(
+                        "This container does not support retaining Map.Entry objects");
+            }
+            return valueAt(mIndex);
+        }
+
+        @Override
+        public V setValue(V object) {
+            if (!mEntryValid) {
+                throw new IllegalStateException(
+                        "This container does not support retaining Map.Entry objects");
+            }
+            return setValueAt(mIndex, object);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!mEntryValid) {
+                throw new IllegalStateException(
+                        "This container does not support retaining Map.Entry objects");
+            }
+            if (!(o instanceof Map.Entry)) {
+                return false;
+            }
+            Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
+            return ContainerHelpers.equal(e.getKey(), keyAt(mIndex))
+                    && ContainerHelpers.equal(e.getValue(), valueAt(mIndex));
+        }
+
+        @Override
+        public int hashCode() {
+            if (!mEntryValid) {
+                throw new IllegalStateException(
+                        "This container does not support retaining Map.Entry objects");
+            }
+            K key = keyAt(mIndex);
+            V value = valueAt(mIndex);
+            return (key == null ? 0 : key.hashCode()) ^
+                    (value == null ? 0 : value.hashCode());
+        }
+
+        @Override
+        public String toString() {
+            return getKey() + "=" + getValue();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    <T> T[] toArrayHelper(T[] array, int offset) {
+        final int N  = mSize;
+        if (array.length < N) {
+            @SuppressWarnings("unchecked") T[] newArray
+                    = (T[]) Array.newInstance(array.getClass().getComponentType(), N);
+            array = newArray;
+        }
+        for (int i=0; i<N; i++) {
+            array[i] = (T) mArray[(i<<1)+offset];
+        }
+        if (array.length > N) {
+            array[N] = null;
+        }
+        return array;
+    }
+
+    static <T> boolean equalsSetHelper(Set<T> set, Object object) {
+        if (set == object) {
+            return true;
+        }
+        if (object instanceof Set) {
+            Set<?> s = (Set<?>) object;
+
+            try {
+                return set.size() == s.size() && set.containsAll(s);
+            } catch (NullPointerException ignored) {
+            } catch (ClassCastException ignored) {
+            }
+        }
+        return false;
     }
 }

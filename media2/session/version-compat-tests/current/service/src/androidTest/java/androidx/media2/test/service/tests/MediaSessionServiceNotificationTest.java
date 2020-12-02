@@ -28,7 +28,6 @@ import static androidx.media2.test.common.CommonConstants.MOCK_MEDIA2_SESSION_SE
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.media2.common.MediaItem;
@@ -44,7 +43,6 @@ import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.RemoteMediaController;
 import androidx.media2.test.service.TestServiceRegistry;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
@@ -61,7 +59,6 @@ import java.util.concurrent.CountDownLatch;
  * device and check whether the notification is shown/removed.
  */
 @LargeTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 public class MediaSessionServiceNotificationTest extends MediaSessionTestBase {
     private static final long NOTIFICATION_SHOW_TIME_MS = 15000;
 
@@ -82,8 +79,7 @@ public class MediaSessionServiceNotificationTest extends MediaSessionTestBase {
 
     @Test
     @Ignore("Comment out this line and manually run the test.")
-    public void testNotification() throws InterruptedException {
-        prepareLooper();
+    public void notification() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaLibrarySessionCallback sessionCallback = new MediaLibrarySessionCallback() {
             @Override

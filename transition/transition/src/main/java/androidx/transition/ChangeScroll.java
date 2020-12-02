@@ -43,7 +43,7 @@ public class ChangeScroll extends Transition {
 
     public ChangeScroll() {}
 
-    public ChangeScroll(Context context, AttributeSet attrs) {
+    public ChangeScroll(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
     }
 

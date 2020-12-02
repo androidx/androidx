@@ -16,25 +16,24 @@
 
 package androidx.room.vo
 
-import androidx.room.ext.hasAnyOf
-import androidx.room.ext.typeName
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.TypeName
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier
-import javax.lang.model.type.TypeMirror
 
 /**
  * Generated when we parse a method annotated with TypeConverter.
  */
 data class CustomTypeConverter(
-    val type: TypeMirror,
-    val method: ExecutableElement,
-    val from: TypeMirror,
-    val to: TypeMirror
+    val enclosingClass: XType,
+    val isEnclosingClassKotlinObject: Boolean,
+    val method: XMethodElement,
+    val from: XType,
+    val to: XType,
+    val isProvidedConverter: Boolean
 ) {
-    val typeName: TypeName by lazy { type.typeName() }
-    val fromTypeName: TypeName by lazy { from.typeName() }
-    val toTypeName: TypeName by lazy { to.typeName() }
-    val methodName by lazy { method.simpleName.toString() }
-    val isStatic by lazy { method.hasAnyOf(Modifier.STATIC) }
+    val typeName: TypeName by lazy { enclosingClass.typeName }
+    val fromTypeName: TypeName by lazy { from.typeName }
+    val toTypeName: TypeName by lazy { to.typeName }
+    val methodName by lazy { method.name }
+    val isStatic by lazy { method.isStatic() }
 }

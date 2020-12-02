@@ -61,39 +61,43 @@ public class TypefaceCompatApi29Impl extends TypefaceCompatBaseImpl {
             @NonNull FontsContractCompat.FontInfo[] fonts, int style) {
         FontFamily.Builder familyBuilder = null;
         final ContentResolver resolver = context.getContentResolver();
-        for (FontsContractCompat.FontInfo font : fonts) {
-            try (ParcelFileDescriptor pfd = resolver.openFileDescriptor(font.getUri(), "r",
-                    cancellationSignal)) {
-                if (pfd == null) {
-                    continue;  // keep adding succeeded fonts.
+        try {
+            for (FontsContractCompat.FontInfo font : fonts) {
+                try (ParcelFileDescriptor pfd = resolver.openFileDescriptor(font.getUri(), "r",
+                        cancellationSignal)) {
+                    if (pfd == null) {
+                        continue;  // keep adding succeeded fonts.
+                    }
+                    final Font platformFont = new Font.Builder(pfd)
+                            .setWeight(font.getWeight())
+                            .setSlant(font.isItalic() ? FontStyle.FONT_SLANT_ITALIC
+                                    : FontStyle.FONT_SLANT_UPRIGHT)
+                            .setTtcIndex(font.getTtcIndex())
+                            .build();  // TODO: font variation settings?
+                    if (familyBuilder == null) {
+                        familyBuilder = new FontFamily.Builder(platformFont);
+                    } else {
+                        familyBuilder.addFont(platformFont);
+                    }
+                } catch (IOException e) {
+                    // keep adding succeeded fonts.
                 }
-                final Font platformFont = new Font.Builder(pfd)
-                        .setWeight(font.getWeight())
-                        .setSlant(font.isItalic() ? FontStyle.FONT_SLANT_ITALIC
-                                : FontStyle.FONT_SLANT_UPRIGHT)
-                        .setTtcIndex(font.getTtcIndex())
-                        .build();  // TODO: font variation settings?
-                if (familyBuilder == null) {
-                    familyBuilder = new FontFamily.Builder(platformFont);
-                } else {
-                    familyBuilder.addFont(platformFont);
-                }
-            } catch (IOException e) {
-                // keep adding succeeded fonts.
             }
+            if (familyBuilder == null) {
+                return null;  // No font is added. Give up.
+            }
+            final FontStyle defaultStyle = new FontStyle(
+                    (style & Typeface.BOLD) != 0 ? FontStyle.FONT_WEIGHT_BOLD
+                            : FontStyle.FONT_WEIGHT_NORMAL,
+                    (style & Typeface.ITALIC) != 0 ? FontStyle.FONT_SLANT_ITALIC
+                            : FontStyle.FONT_SLANT_UPRIGHT
+            );
+            return new Typeface.CustomFallbackBuilder(familyBuilder.build())
+                    .setStyle(defaultStyle)
+                    .build();
+        } catch (Exception e) {
+            return null;
         }
-        if (familyBuilder == null) {
-            return null;  // No font is added. Give up.
-        }
-        final FontStyle defaultStyle = new FontStyle(
-                (style & Typeface.BOLD) != 0 ? FontStyle.FONT_WEIGHT_BOLD
-                        : FontStyle.FONT_WEIGHT_NORMAL,
-                (style & Typeface.ITALIC) != 0 ? FontStyle.FONT_SLANT_ITALIC
-                        : FontStyle.FONT_SLANT_UPRIGHT
-        );
-        return new Typeface.CustomFallbackBuilder(familyBuilder.build())
-                .setStyle(defaultStyle)
-                .build();
     }
 
     @Nullable
@@ -101,37 +105,41 @@ public class TypefaceCompatApi29Impl extends TypefaceCompatBaseImpl {
     public Typeface createFromFontFamilyFilesResourceEntry(Context context,
             FontResourcesParserCompat.FontFamilyFilesResourceEntry familyEntry, Resources resources,
             int style) {
-        FontFamily.Builder familyBuilder = null;
-        for (FontResourcesParserCompat.FontFileResourceEntry entry : familyEntry.getEntries()) {
-            try {
-                final Font platformFont = new Font.Builder(resources, entry.getResourceId())
-                        .setWeight(entry.getWeight())
-                        .setSlant(entry.isItalic() ? FontStyle.FONT_SLANT_ITALIC
-                                : FontStyle.FONT_SLANT_UPRIGHT)
-                        .setTtcIndex(entry.getTtcIndex())
-                        .setFontVariationSettings(entry.getVariationSettings())
-                        .build();
-                if (familyBuilder == null) {
-                    familyBuilder = new FontFamily.Builder(platformFont);
-                } else {
-                    familyBuilder.addFont(platformFont);
+        try {
+            FontFamily.Builder familyBuilder = null;
+            for (FontResourcesParserCompat.FontFileResourceEntry entry : familyEntry.getEntries()) {
+                try {
+                    final Font platformFont = new Font.Builder(resources, entry.getResourceId())
+                            .setWeight(entry.getWeight())
+                            .setSlant(entry.isItalic() ? FontStyle.FONT_SLANT_ITALIC
+                                    : FontStyle.FONT_SLANT_UPRIGHT)
+                            .setTtcIndex(entry.getTtcIndex())
+                            .setFontVariationSettings(entry.getVariationSettings())
+                            .build();
+                    if (familyBuilder == null) {
+                        familyBuilder = new FontFamily.Builder(platformFont);
+                    } else {
+                        familyBuilder.addFont(platformFont);
+                    }
+                } catch (IOException e) {
+                    // keep adding succeeded fonts
                 }
-            } catch (IOException e) {
-                // keep adding succeeded fonts
             }
+            if (familyBuilder == null) {
+                return null;  // No font is added. Give up.
+            }
+            final FontStyle defaultStyle = new FontStyle(
+                    (style & Typeface.BOLD) != 0 ? FontStyle.FONT_WEIGHT_BOLD
+                            : FontStyle.FONT_WEIGHT_NORMAL,
+                    (style & Typeface.ITALIC) != 0 ? FontStyle.FONT_SLANT_ITALIC
+                            : FontStyle.FONT_SLANT_UPRIGHT
+            );
+            return new Typeface.CustomFallbackBuilder(familyBuilder.build())
+                    .setStyle(defaultStyle)
+                    .build();
+        } catch (Exception e) {
+            return null;
         }
-        if (familyBuilder == null) {
-            return null;  // No font is added. Give up
-        }
-        final FontStyle defaultStyle = new FontStyle(
-                (style & Typeface.BOLD) != 0 ? FontStyle.FONT_WEIGHT_BOLD
-                        : FontStyle.FONT_WEIGHT_NORMAL,
-                (style & Typeface.ITALIC) != 0 ? FontStyle.FONT_SLANT_ITALIC
-                        : FontStyle.FONT_SLANT_UPRIGHT
-        );
-        return new Typeface.CustomFallbackBuilder(familyBuilder.build())
-                .setStyle(defaultStyle)
-                .build();
     }
 
     /**
@@ -142,18 +150,16 @@ public class TypefaceCompatApi29Impl extends TypefaceCompatBaseImpl {
     public Typeface createFromResourcesFontFile(
             Context context, Resources resources, int id, String path, int style) {
         FontFamily family = null;
+        Font font = null;
         try {
-            family = new FontFamily.Builder(new Font.Builder(resources, id).build()).build();
-        } catch (IOException e) {
+            font = new Font.Builder(resources, id).build();
+            family = new FontFamily.Builder(font).build();
+            return new Typeface.CustomFallbackBuilder(family)
+                    // Set font's style to the display style for backward compatibility.
+                    .setStyle(font.getStyle())
+                    .build();
+        } catch (Exception e) {
             return null;
         }
-        final FontStyle defaultStyle = new FontStyle(
-                (style & Typeface.BOLD) != 0 ? FontStyle.FONT_WEIGHT_BOLD
-                        : FontStyle.FONT_WEIGHT_NORMAL,
-                (style & Typeface.ITALIC) != 0 ? FontStyle.FONT_SLANT_ITALIC
-                        : FontStyle.FONT_SLANT_UPRIGHT
-        );
-        return new Typeface.CustomFallbackBuilder(family).setStyle(defaultStyle).build();
     }
-
 }

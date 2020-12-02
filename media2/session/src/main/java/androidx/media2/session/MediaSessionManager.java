@@ -28,7 +28,6 @@ import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.collection.ArraySet;
 import androidx.media.MediaBrowserServiceCompat;
 
@@ -48,7 +47,6 @@ import java.util.Set;
  * @see MediaController
  * @see MediaBrowser
  */
-@RequiresApi(28)
 public final class MediaSessionManager {
     static final String TAG = "MediaSessionManager";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);

@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.res.AssetManager
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import org.junit.Assert.assertEquals
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -116,6 +117,7 @@ class SQLiteCopyOpenHelperTest {
         assertEquals(1, getAndIncrementAccessCount(copyFile))
     }
 
+    @Ignore("b/166632825 test is flaky")
     @Test
     fun singleCopy_multiProcess() {
         val copyFile = tempDirectory.newFile("toCopy.db")
@@ -130,8 +132,10 @@ class SQLiteCopyOpenHelperTest {
                 }
                 val exitCode = it.exitValue()
                 if (exitCode != 0) {
-                    throw IllegalStateException("Copy process exited with non-zero code. " +
-                            "Code: $exitCode")
+                    throw IllegalStateException(
+                        "Copy process exited with non-zero code. " +
+                            "Code: $exitCode"
+                    )
                 }
             }
         } finally {
@@ -207,6 +211,7 @@ class SQLiteCopyOpenHelperTest {
             context,
             copyFromAssetFile.name,
             null,
+            null,
             DB_VERSION,
             delegate
         ).apply { setDatabaseConfiguration(configuration) }
@@ -239,8 +244,10 @@ class SQLiteCopyOpenHelperTest {
 
     // Spawns a new Java process to perform a copy using the open helper.
     private fun spawnCopyProcess(copyFromFile: File): Process {
-        val javaBin = System.getProperty("java.home") +
-                File.separator + "bin" + File.separator + "java"
+        val home = checkNotNull(System.getProperty("java.home")) {
+            "cannot read java.home from system properties."
+        }
+        val javaBin = home + File.separator + "bin" + File.separator + "java"
         val classpath = System.getProperty("java.class.path")
         val mainClass = RoomCopyTestProcess::class.java.canonicalName
         val tmpDirPath = tempDirectory.root.absolutePath

@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+MissingJvmstatic: androidx.datastore.migrations.SharedPreferencesView#getString(String, String):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+MissingJvmstatic: androidx.datastore.migrations.SharedPreferencesView#getStringSet(String, java.util.Set<java.lang.String>):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults

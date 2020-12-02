@@ -18,6 +18,7 @@ package androidx.work.impl.model;
 
 import static androidx.room.OnConflictStrategy.IGNORE;
 
+import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -46,4 +47,12 @@ public interface WorkNameDao {
      */
     @Query("SELECT work_spec_id FROM workname WHERE name=:name")
     List<String> getWorkSpecIdsWithName(String name);
+
+    /**
+     * @param workSpecId The {@link WorkSpec} id
+     * @return All the names associated to the {@link WorkSpec} id
+     */
+    @Query("SELECT name FROM workname WHERE work_spec_id=:workSpecId")
+    @NonNull
+    List<String> getNamesForWorkSpecId(@NonNull String workSpecId);
 }

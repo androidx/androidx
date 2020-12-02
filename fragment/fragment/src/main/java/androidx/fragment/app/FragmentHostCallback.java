@@ -16,6 +16,9 @@
 
 package androidx.fragment.app;
 
+import static androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
+import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -23,12 +26,17 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultRegistryOwner;
+import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.util.Preconditions;
 
 import java.io.FileDescriptor;
@@ -40,7 +48,31 @@ import java.io.PrintWriter;
  * Fragments may be hosted by any object; such as an {@link Activity}. In order to
  * host fragments, implement {@link FragmentHostCallback}, overriding the methods
  * applicable to the host.
+ * <p>
+ * FragmentManager changes its behavior based on what optional interfaces your
+ * FragmentHostCallback implements. This includes the following:
+ * <ul>
+ *     <li><strong>{@link ActivityResultRegistryOwner}</strong>: Removes the need to
+ *     override {@link #onStartIntentSenderFromFragment} or
+ *     {@link #onRequestPermissionsFromFragment}.</li>
+ *     <li><strong>{@link FragmentOnAttachListener}</strong>: Removes the need to
+ *     manually call {@link FragmentManager#addFragmentOnAttachListener} from your
+ *     host in order to receive {@link FragmentOnAttachListener#onAttachFragment} callbacks
+ *     for the {@link FragmentController#getSupportFragmentManager()}.</li>
+ *     <li><strong>{@link androidx.activity.OnBackPressedDispatcherOwner}</strong>: Removes
+ *     the need to manually call
+ *     {@link FragmentManager#popBackStackImmediate()} when handling the system
+ *     back button.</li>
+ *     <li><strong>{@link androidx.lifecycle.ViewModelStoreOwner}</strong>: Removes the need
+ *     for your {@link FragmentController} to call
+ *     {@link FragmentController#retainNestedNonConfig()} or
+ *     {@link FragmentController#restoreAllState(Parcelable, FragmentManagerNonConfig)}.</li>
+ * </ul>
+ *
+ * @param <E> the type of object that's currently hosting the fragments. An instance of this
+ *           class must be returned by {@link #onGetHost()}.
  */
+@SuppressWarnings("deprecation")
 public abstract class FragmentHostCallback<E> extends FragmentContainer {
     @Nullable private final Activity mActivity;
     @NonNull private final Context mContext;
@@ -54,6 +86,7 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
                 windowAnimations);
     }
 
+    @SuppressWarnings("deprecation")
     FragmentHostCallback(@NonNull FragmentActivity activity) {
         this(activity, activity /*context*/, new Handler(), 0 /*windowAnimations*/);
     }
@@ -130,13 +163,20 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
             throw new IllegalStateException(
                     "Starting activity with a requestCode requires a FragmentActivity host");
         }
-        mContext.startActivity(intent);
+        ContextCompat.startActivity(mContext, intent, options);
     }
 
     /**
      * Starts a new {@link IntentSender} from the given fragment.
      * See {@link Activity#startIntentSender(IntentSender, Intent, int, int, int, Bundle)}.
+     *
+     * @deprecated Have your FragmentHostCallback implement {@link ActivityResultRegistryOwner}
+     * to allow Fragments to use
+     * {@link Fragment#registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * with {@link StartIntentSenderForResult}. This method will still be called when Fragments
+     * call the deprecated <code>startIntentSenderForResult()</code> method.
      */
+    @Deprecated
     public void onStartIntentSenderFromFragment(@NonNull Fragment fragment,
             @SuppressLint("UnknownNullness") IntentSender intent, int requestCode,
             @Nullable Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags,
@@ -152,7 +192,14 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
     /**
      * Requests permissions from the given fragment.
      * See {@link FragmentActivity#requestPermissions(String[], int)}
+     *
+     * @deprecated Have your FragmentHostCallback implement {@link ActivityResultRegistryOwner}
+     * to allow Fragments to use
+     * {@link Fragment#registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * with {@link RequestMultiplePermissions}. This method will still be called when Fragments
+     * call the deprecated <code>requestPermissions()</code> method.
      */
+    @Deprecated
     public void onRequestPermissionsFromFragment(@NonNull Fragment fragment,
             @NonNull String[] permissions, int requestCode) {
     }
@@ -203,8 +250,5 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
     @NonNull
     Handler getHandler() {
         return mHandler;
-    }
-
-    void onAttachFragment(@NonNull Fragment fragment) {
     }
 }

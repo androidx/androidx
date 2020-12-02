@@ -3,56 +3,6 @@ CallbackName: androidx.loader.content.Loader.ForceLoadContentObserver:
     Class should be named ForceLoadContentCallback
 
 
-MissingNullability: androidx.loader.app.LoaderManager#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #0:
-    Missing nullability on parameter `prefix` in method `dump`
-MissingNullability: androidx.loader.app.LoaderManager#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Missing nullability on parameter `fd` in method `dump`
-MissingNullability: androidx.loader.app.LoaderManager#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #2:
-    Missing nullability on parameter `writer` in method `dump`
-MissingNullability: androidx.loader.app.LoaderManager#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #3:
-    Missing nullability on parameter `args` in method `dump`
-MissingNullability: androidx.loader.content.AsyncTaskLoader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #0:
-    Missing nullability on parameter `prefix` in method `dump`
-MissingNullability: androidx.loader.content.AsyncTaskLoader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Missing nullability on parameter `fd` in method `dump`
-MissingNullability: androidx.loader.content.AsyncTaskLoader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #2:
-    Missing nullability on parameter `writer` in method `dump`
-MissingNullability: androidx.loader.content.AsyncTaskLoader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #3:
-    Missing nullability on parameter `args` in method `dump`
-MissingNullability: androidx.loader.content.CursorLoader#deliverResult(android.database.Cursor) parameter #0:
-    Missing nullability on parameter `cursor` in method `deliverResult`
-MissingNullability: androidx.loader.content.CursorLoader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #0:
-    Missing nullability on parameter `prefix` in method `dump`
-MissingNullability: androidx.loader.content.CursorLoader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Missing nullability on parameter `fd` in method `dump`
-MissingNullability: androidx.loader.content.CursorLoader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #2:
-    Missing nullability on parameter `writer` in method `dump`
-MissingNullability: androidx.loader.content.CursorLoader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #3:
-    Missing nullability on parameter `args` in method `dump`
-MissingNullability: androidx.loader.content.CursorLoader#loadInBackground():
-    Missing nullability on method `loadInBackground` return
-MissingNullability: androidx.loader.content.CursorLoader#onCanceled(android.database.Cursor) parameter #0:
-    Missing nullability on parameter `cursor` in method `onCanceled`
-MissingNullability: androidx.loader.content.Loader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #0:
-    Missing nullability on parameter `prefix` in method `dump`
-MissingNullability: androidx.loader.content.Loader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Missing nullability on parameter `fd` in method `dump`
-MissingNullability: androidx.loader.content.Loader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #2:
-    Missing nullability on parameter `writer` in method `dump`
-MissingNullability: androidx.loader.content.Loader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #3:
-    Missing nullability on parameter `args` in method `dump`
-
-
-NoClone: androidx.loader.app.LoaderManager#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.loader.app.LoaderManager.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
-NoClone: androidx.loader.content.AsyncTaskLoader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.loader.content.AsyncTaskLoader.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
-NoClone: androidx.loader.content.CursorLoader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.loader.content.CursorLoader.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
-NoClone: androidx.loader.content.Loader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.loader.content.Loader.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
-
-
 RegistrationName: androidx.loader.content.Loader#registerListener(int, androidx.loader.content.Loader.OnLoadCompleteListener<D>):
     Listener methods should be named add/remove; was registerListener
 RegistrationName: androidx.loader.content.Loader#registerOnLoadCanceledListener(androidx.loader.content.Loader.OnLoadCanceledListener<D>):
@@ -69,6 +19,16 @@ SingletonConstructor: androidx.loader.app.LoaderManager#LoaderManager():
 
 SingularCallback: androidx.loader.app.LoaderManager.LoaderCallbacks:
     Callback class names should be singular: LoaderCallbacks
+
+
+UseParcelFileDescriptor: androidx.loader.app.LoaderManager#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.loader.app.LoaderManager.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+UseParcelFileDescriptor: androidx.loader.content.AsyncTaskLoader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.loader.content.AsyncTaskLoader.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+UseParcelFileDescriptor: androidx.loader.content.CursorLoader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.loader.content.CursorLoader.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+UseParcelFileDescriptor: androidx.loader.content.Loader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.loader.content.Loader.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
 
 
 VisiblySynchronized: androidx.loader.content.CursorLoader#cancelLoadInBackground():

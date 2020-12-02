@@ -18,9 +18,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="androidx.benchmark.integration.dryrun.benchmark.test">
+    <!-- NOTE: set debuggable=true below to verify that's not an error in dryRun mode -->
     <application
         android:name="androidx.benchmark.integration.dryrun.benchmark.ArgumentInjectingApplication"
-        android:debuggable="false"
+        android:debuggable="true"
         tools:ignore="HardcodedDebugMode"
         tools:replace="android:debuggable" />
     />

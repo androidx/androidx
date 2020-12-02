@@ -16,6 +16,8 @@
 
 package androidx.remotecallback.compiler;
 
+import static androidx.remotecallback.compiler.RemoteCallbackProcessor.EXTERNAL_INPUT;
+
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -43,9 +45,7 @@ import javax.tools.Diagnostic;
 /**
  *
  */
-public class CallableMethod {
-
-    private static final String EXTERNAL_INPUT = "androidx.remotecallback.ExternalInput";
+class CallableMethod {
 
     private static final String BYTE = "byte";
     private static final String CHAR = "char";
@@ -87,7 +87,7 @@ public class CallableMethod {
     private final ProcessingEnvironment mEnv;
     private TypeMirror mReturnType;
 
-    public CallableMethod(String name, Element element, ProcessingEnvironment env) {
+    CallableMethod(String name, Element element, ProcessingEnvironment env) {
         mClsName = name;
         mElement = element;
         mEnv = env;
@@ -97,7 +97,7 @@ public class CallableMethod {
     /**
      * Get the name of the method this class is representing/tracking.
      */
-    public String getName() {
+    String getName() {
         return mElement.getSimpleName().toString();
     }
 
@@ -143,7 +143,7 @@ public class CallableMethod {
     /**
      * Generate code and add the methods to the specified class/method.
      */
-    public void addMethods(TypeSpec.Builder genClass, MethodSpec.Builder runBuilder,
+    void addMethods(TypeSpec.Builder genClass, MethodSpec.Builder runBuilder,
             ProcessingEnvironment env, Messager messager) {
         // Validate types
         for (int i = 0; i < mTypes.size(); i++) {
@@ -163,6 +163,7 @@ public class CallableMethod {
                 "CallbackHandlerRegistry");
         ClassName callbackHandler = ClassName.get("androidx.remotecallback",
                 "CallbackHandlerRegistry.CallbackHandler");
+        @SuppressWarnings("unused")
         ClassName remoteInputHolder = ClassName.get("androidx.remotecallback",
                 "RemoteInputHolder");
         ClassName bundle = ClassName.get("android.os", "Bundle");
@@ -244,6 +245,7 @@ public class CallableMethod {
         genClass.addMethod(builder.build());
     }
 
+    @SuppressWarnings("unused")
     private int countArgs(ClassName context) {
         int ct = 0;
         for (int i = 0; i < mTypes.size(); i++) {
@@ -255,6 +257,7 @@ public class CallableMethod {
         return ct;
     }
 
+    @SuppressWarnings("unused")
     private String getBundleParam(String type, int index) {
         String key = getBundleKey(index);
         return getBundleParam(type, key);
@@ -361,6 +364,7 @@ public class CallableMethod {
         return "\"p" + index + "\"";
     }
 
+    @SuppressWarnings("unused")
     private boolean checkType(String type, Messager messager) {
         switch (type) {
             case BYTE:

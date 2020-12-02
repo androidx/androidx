@@ -21,6 +21,8 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.integration.testapp.vo.BlobEntity;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.List;
 
 @Dao
@@ -31,6 +33,9 @@ public interface BlobEntityDao {
 
     @Query("SELECT * FROM BlobEntity")
     List<BlobEntity> selectAll();
+
+    @Query("SELECT * FROM BlobEntity")
+    ImmutableList<BlobEntity> selectAllImmutable();
 
     @Query("SELECT content FROM BlobEntity WHERE id = :id")
     byte[] getContent(long id);

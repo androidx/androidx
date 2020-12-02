@@ -16,6 +16,10 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.media2.test.client.test">
+    <queries>
+        <package android:name="androidx.media2.test.service.test" />
+    </queries>
+
     <application android:supportsRtl="true">
         <activity android:name="androidx.media2.test.client.SurfaceActivity" />
 

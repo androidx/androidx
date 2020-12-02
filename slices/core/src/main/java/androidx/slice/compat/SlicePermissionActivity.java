@@ -16,7 +16,6 @@
 
 package androidx.slice.compat;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnDismissListener;
@@ -34,6 +33,7 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.text.BidiFormatter;
 import androidx.slice.core.R;
 
@@ -43,7 +43,7 @@ import androidx.slice.core.R;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
-public class SlicePermissionActivity extends Activity implements OnClickListener,
+public class SlicePermissionActivity extends AppCompatActivity implements OnClickListener,
         OnDismissListener {
 
     private static final float MAX_LABEL_SIZE_PX = 500f;

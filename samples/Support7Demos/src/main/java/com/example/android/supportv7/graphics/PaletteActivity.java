@@ -207,6 +207,7 @@ public class PaletteActivity extends AppCompatActivity {
                         cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID));
 
                 ImageLoader.loadMediaStoreThumbnail(imageView, id, new ImageLoader.Listener() {
+                    @SuppressWarnings("deprecation")
                     @Override
                     public void onImageLoaded(Bitmap bitmap) {
                         new Palette.Builder(bitmap).maximumColorCount(mNumColors).generate(

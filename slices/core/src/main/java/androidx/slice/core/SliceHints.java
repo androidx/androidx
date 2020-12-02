@@ -40,6 +40,21 @@ public class SliceHints {
     public static final String SUBTYPE_MIN = "min";
 
     /**
+     * Indicates that the content is the determinate mode for a range.
+     */
+    public static final int DETERMINATE_RANGE = 0;
+
+    /**
+     * Indicates that the content is the indeterminate mode for a range.
+     */
+    public static final int INDETERMINATE_RANGE = 1;
+
+    /**
+     * Indicates that the content is the star rating mode for a range.
+     */
+    public static final int STAR_RATING = 2;
+
+    /**
      * The meta-data key that allows an activity to easily be linked directly to a slice.
      * <p>
      * An activity can be statically linked to a slice uri by including a meta-data item
@@ -60,15 +75,45 @@ public class SliceHints {
     public static final String HINT_ACTIVITY = "activity";
 
     /**
+     * Hint indicating that this slice is the end of section and may need some form of visual
+     * separation.
+     */
+    public static final String HINT_END_OF_SECTION = "end_of_section";
+
+    /**
      * Hint indicating that this slice was parsed from a serialized format.
      */
     public static final String HINT_CACHED = "cached";
+
+    /**
+     * Hint indicating that the content in this slice should be left unaltered as much as possible.
+     */
+    public static final String HINT_RAW = "raw";
+
+    /**
+     * Hint indicating that the text in this slice should be used to overlay an image.
+     */
+    public static final String HINT_OVERLAY = "overlay";
+
+    /**
+     * Hint indicating that the button in this slice should be shown as text button.
+     */
+    public static final String HINT_SHOW_LABEL = "show_label";
 
     /**
      * Subtype indicating that this slice represents a selection. The options will be included as
      * sub-slices.
      */
     public static final String SUBTYPE_SELECTION = "selection";
+
+    /**
+     * Subtype indicating that this slice represents a Date Picker.
+     */
+    public static final String SUBTYPE_DATE_PICKER = "date_picker";
+    /**
+     * Subtype indicating that this slice represents a Time Picker.
+     */
+    public static final String SUBTYPE_TIME_PICKER = "time_picker";
 
     /**
      * Hint indicating that this slice represents an option selectable in a selection slice.
@@ -93,11 +138,8 @@ public class SliceHints {
      */
     public static final String SUBTYPE_SELECTION_OPTION_VALUE = "selection_option_value";
 
-    @IntDef({
-            LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE, UNKNOWN_IMAGE
-    })
-    @Retention(SOURCE)
-    public @interface ImageMode{}
+    public static final String SUBTYPE_HOST_EXTRAS = "host_extras";
+
 
     /**
      * Indicates that an image should be presented as an icon and it can be tinted.
@@ -112,9 +154,31 @@ public class SliceHints {
      */
     public static final int LARGE_IMAGE = 2;
     /**
+     * Indicates that an image should be presented in its intrinsic size and shouldn't be tinted.
+     * If SliceView in the call-site doesn't support RAW_IMAGE, fallback to SMALL_IMAGE instead.
+     */
+    public static final int RAW_IMAGE_SMALL = 3;
+    /**
+     * Indicates that an image should be presented in its intrinsic size and shouldn't be tinted.
+     * If SliceView in the call-site doesn't support RAW_IMAGE, fallback to LARGE_IMAGE instead.
+     */
+    public static final int RAW_IMAGE_LARGE = 4;
+    /**
      * Indicates that an image mode is unknown.
      */
-    public static final int UNKNOWN_IMAGE = 3;
+    public static final int UNKNOWN_IMAGE = 5;
+    /**
+     * Indicates that an action with label.
+     */
+    public static final int ACTION_WITH_LABEL = 6;
+
+    @IntDef({
+            LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE, RAW_IMAGE_SMALL, RAW_IMAGE_LARGE, UNKNOWN_IMAGE,
+            ACTION_WITH_LABEL
+    })
+    @Retention(SOURCE)
+    public @interface ImageMode {
+    }
 
     /**
      * Constant representing infinity.

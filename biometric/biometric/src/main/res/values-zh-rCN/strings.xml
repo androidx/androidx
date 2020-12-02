@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"请轻触指纹传感器"</string>
+    <string name="fingerprint_not_recognized" msgid="3873359464293253009">"无法识别"</string>
+    <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"指纹硬件无法使用。"</string>
+    <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"未注册任何指纹。"</string>
+    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"此设备没有指纹传感器"</string>
+    <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"用户取消了指纹操作。"</string>
+    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"尝试次数过多，请稍后重试。"</string>
+    <string name="default_error_msg" msgid="4776854077120974966">"未知错误"</string>
+    <string name="generic_error_user_canceled" msgid="7309881387583143581">"用户已取消身份验证。"</string>
+    <string name="confirm_device_credential_password" msgid="5912733858573823945">"使用密码"</string>
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"未设置 PIN 码、解锁图案或密码。"</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"此设备不支持 PIN 码、解锁图案或密码。"</string>
+</resources>

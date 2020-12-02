@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.arch.core.util.Function
 
+@Suppress("DEPRECATION")
 internal class WrapperPositionalDataSource<A : Any, B : Any>(
     private val source: PositionalDataSource<A>,
     val listFunction: Function<List<A>, List<B>>
@@ -25,27 +26,36 @@ internal class WrapperPositionalDataSource<A : Any, B : Any>(
     override val isInvalid
         get() = source.isInvalid
 
-    override fun addInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) =
+    override fun addInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
         source.addInvalidatedCallback(onInvalidatedCallback)
+    }
 
-    override fun removeInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) =
+    override fun removeInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
         source.removeInvalidatedCallback(onInvalidatedCallback)
+    }
 
     override fun invalidate() = source.invalidate()
 
     override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<B>) {
-        source.loadInitial(params, object : LoadInitialCallback<A>() {
-            override fun onResult(data: List<A>, position: Int, totalCount: Int) =
-                callback.onResult(convert(listFunction, data), position, totalCount)
+        source.loadInitial(
+            params,
+            object : LoadInitialCallback<A>() {
+                override fun onResult(data: List<A>, position: Int, totalCount: Int) =
+                    callback.onResult(convert(listFunction, data), position, totalCount)
 
-            override fun onResult(data: List<A>, position: Int) =
-                callback.onResult(convert(listFunction, data), position)
-        })
+                override fun onResult(data: List<A>, position: Int) =
+                    callback.onResult(convert(listFunction, data), position)
+            }
+        )
     }
 
     override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<B>) {
-        source.loadRange(params, object : LoadRangeCallback<A>() {
-            override fun onResult(data: List<A>) = callback.onResult(convert(listFunction, data))
-        })
+        source.loadRange(
+            params,
+            object : LoadRangeCallback<A>() {
+                override fun onResult(data: List<A>) =
+                    callback.onResult(convert(listFunction, data))
+            }
+        )
     }
 }

@@ -17,8 +17,8 @@
 package androidx.room.solver.prepared.binderprovider
 
 import androidx.room.parser.ParsedQuery
+import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
-import javax.lang.model.type.DeclaredType
 
 /**
  * Interface for for providing the appropriate [PreparedQueryResultBinder] given a query and a
@@ -26,13 +26,13 @@ import javax.lang.model.type.DeclaredType
  */
 interface PreparedQueryResultBinderProvider {
     /**
-     * Check whether the [DeclaredType] can be handled by the [PreparedQueryResultBinder] provided
+     * Check whether the [XDeclaredType] can be handled by the [PreparedQueryResultBinder] provided
      * by this provider.
      */
-    fun matches(declared: DeclaredType): Boolean
+    fun matches(declared: XDeclaredType): Boolean
 
     /**
      * Provides a [PreparedQueryResultBinder]
      */
-    fun provide(declared: DeclaredType, query: ParsedQuery): PreparedQueryResultBinder
+    fun provide(declared: XDeclaredType, query: ParsedQuery): PreparedQueryResultBinder
 }

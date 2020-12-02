@@ -29,7 +29,6 @@ import static junit.framework.TestCase.fail;
 import android.os.Bundle;
 
 import androidx.enterprise.feedback.ReceivedKeyedAppState.ReceivedKeyedAppStateBuilder;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,7 +50,6 @@ public class ReceivedKeyedAppStateTest {
     private static final long TIMESTAMP = 12345;
 
     @Test
-    @SmallTest
     public void fromBundle() {
         Bundle bundle = new Bundle();
         bundle.putString(APP_STATE_KEY, KEY);
@@ -71,7 +69,6 @@ public class ReceivedKeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void fromBundle_invalidBundle_throwsIllegalArgumentException() {
         Bundle bundle = new Bundle();
         bundle.putString(APP_STATE_KEY, KEY);
@@ -85,7 +82,6 @@ public class ReceivedKeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void keyIsRequired() {
         ReceivedKeyedAppStateBuilder builder =
                 ReceivedKeyedAppState.builder()
@@ -102,7 +98,6 @@ public class ReceivedKeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void severityIsRequired() {
         ReceivedKeyedAppStateBuilder builder =
                 ReceivedKeyedAppState.builder()
@@ -119,7 +114,6 @@ public class ReceivedKeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void packageNameIsRequired() {
         ReceivedKeyedAppStateBuilder builder =
                 ReceivedKeyedAppState.builder()
@@ -136,7 +130,6 @@ public class ReceivedKeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void timestampIsRequired() {
         ReceivedKeyedAppStateBuilder builder =
                 ReceivedKeyedAppState.builder()

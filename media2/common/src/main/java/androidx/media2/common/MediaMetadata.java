@@ -19,7 +19,6 @@ package androidx.media2.common;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -32,6 +31,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
 import androidx.collection.ArrayMap;
 import androidx.versionedparcelable.CustomVersionedParcelable;
+import androidx.versionedparcelable.NonParcelField;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;
@@ -111,8 +111,6 @@ import java.util.Set;
 //   - Don't implement Parcelable for updatable support.
 //   - Also support MediaDescription features. MediaDescription is deprecated instead because
 //     it was insufficient for controller to display media contents. (e.g. duration is missing)
-// TODO: Remove once the minSdkVersion is lowered enough.
-@SuppressLint("ObsoleteSdkInt")
 @VersionedParcelize(isCustom = true)
 public final class MediaMetadata extends CustomVersionedParcelable {
     private static final String TAG = "MediaMetadata";
@@ -735,36 +733,21 @@ public final class MediaMetadata extends CustomVersionedParcelable {
         METADATA_KEYS_TYPE.put(METADATA_KEY_EXTRAS, METADATA_TYPE_BUNDLE);
     }
 
-    private static final @MediaMetadata.TextKey
-    String[] PREFERRED_DESCRIPTION_ORDER = {
-            METADATA_KEY_TITLE,
-            METADATA_KEY_ARTIST,
-            METADATA_KEY_ALBUM,
-            METADATA_KEY_ALBUM_ARTIST,
-            METADATA_KEY_WRITER,
-            METADATA_KEY_AUTHOR,
-            METADATA_KEY_COMPOSER
-    };
-
-    private static final @MediaMetadata.BitmapKey
-    String[] PREFERRED_BITMAP_ORDER = {
-            METADATA_KEY_DISPLAY_ICON,
-            METADATA_KEY_ART,
-            METADATA_KEY_ALBUM_ART
-    };
-
-    private static final @MediaMetadata.TextKey
-    String[] PREFERRED_URI_ORDER = {
-            METADATA_KEY_DISPLAY_ICON_URI,
-            METADATA_KEY_ART_URI,
-            METADATA_KEY_ALBUM_ART_URI
-    };
-
-    @ParcelField(1)
+    // Parceled via mParcelableNoBitmapBundle for non-Bitmap values, and mBitmapListSlice for Bitmap
+    // values.
+    @NonParcelField
     Bundle mBundle;
+    // For parceling mBundle's non-Bitmap values. Should be only used by onPreParceling() and
+    // onPostParceling().
+    @ParcelField(1)
+    Bundle mParcelableWithoutBitmapBundle;
 
+    // For parceling mBundle's Bitmap values. Should be only used by onPreParceling() and
+    // onPostParceling().
     @ParcelField(2)
     ParcelImplListSlice mBitmapListSlice;
+
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
 
     /**
      * Used for VersionedParcelable
@@ -966,23 +949,25 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      */
     @Override
     @RestrictTo(LIBRARY)
+    @SuppressWarnings("SynchronizeOnNonFinalField") // mBundle is effectively final.
     public void onPreParceling(boolean isStream) {
-        List<ParcelImpl> parcelImplList = new ArrayList<>();
-        List<String> keysForBitmap = new ArrayList<>();
-        for (String key : mBundle.keySet()) {
-            Object value = mBundle.get(key);
-            if (!(value instanceof Bitmap)) {
-                // Note: Null bitmap is sent through mBundle.
-                continue;
+        synchronized (mBundle) {
+            if (mParcelableWithoutBitmapBundle == null) {
+                mParcelableWithoutBitmapBundle = new Bundle(mBundle);
+                List<ParcelImpl> parcelImplList = new ArrayList<>();
+                for (String key : mBundle.keySet()) {
+                    Object value = mBundle.get(key);
+                    if (!(value instanceof Bitmap)) {
+                        // Note: Null bitmap is sent through mParcelableNoBitmapBundle.
+                        continue;
+                    }
+                    Bitmap bitmap = (Bitmap) value;
+                    parcelImplList.add(MediaParcelUtils.toParcelable(new BitmapEntry(key, bitmap)));
+                    mParcelableWithoutBitmapBundle.remove(key);
+                }
+                mBitmapListSlice = new ParcelImplListSlice(parcelImplList);
             }
-            Bitmap bitmap = (Bitmap) value;
-            parcelImplList.add(MediaParcelUtils.toParcelable(new BitmapEntry(key, bitmap)));
-            keysForBitmap.add(key);
         }
-        for (String key : keysForBitmap) {
-            mBundle.remove(key);
-        }
-        mBitmapListSlice = new ParcelImplListSlice(parcelImplList);
     }
 
     /**
@@ -991,13 +976,15 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     @Override
     @RestrictTo(LIBRARY)
     public void onPostParceling() {
-        List<ParcelImpl> parcelImplList = mBitmapListSlice.getList();
-        for (ParcelImpl parcelImpl : parcelImplList) {
-            BitmapEntry entry = MediaParcelUtils.fromParcelable(parcelImpl);
-            mBundle.putParcelable(entry.getKey(), entry.getBitmap());
+        mBundle = (mParcelableWithoutBitmapBundle != null)
+                ? mParcelableWithoutBitmapBundle : new Bundle();
+        if (mBitmapListSlice != null) {
+            List<ParcelImpl> parcelImplList = mBitmapListSlice.getList();
+            for (ParcelImpl parcelImpl : parcelImplList) {
+                BitmapEntry entry = MediaParcelUtils.fromParcelable(parcelImpl);
+                mBundle.putParcelable(entry.getKey(), entry.getBitmap());
+            }
         }
-        parcelImplList.clear();
-        mBitmapListSlice = null;
     }
 
     /**
@@ -1271,6 +1258,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
 
         @ParcelField(2)
         Bitmap mBitmap;
+
+        // WARNING: Adding a new ParcelField may break old library users (b/152830728)
 
         /**
          * Used for VersionedParcelable

@@ -19,7 +19,8 @@ package androidx.lifecycle.lint.stubs
 import com.android.tools.lint.checks.infrastructure.TestFiles
 
 internal val LIFECYCLE_STUB = TestFiles.kt(
-    "androidx/lifecycle/PausingDispatcher.kt", """
+    "androidx/lifecycle/PausingDispatcher.kt",
+    """
         package androidx.lifecycle;
 
         import kotlinx.coroutines.CoroutineScope
@@ -62,7 +63,8 @@ internal val LIFECYCLE_STUB = TestFiles.kt(
 ).indented().within("src")
 
 internal val COROUTINES_STUB = TestFiles.kt(
-    "kotlinx/coroutines/GlobalScope.kt", """
+    "kotlinx/coroutines/GlobalScope.kt",
+    """
         package kotlinx.coroutines;
 
         import kotlinx.coroutines.CoroutineScope

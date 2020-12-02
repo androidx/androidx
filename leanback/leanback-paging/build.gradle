@@ -1,0 +1,58 @@
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import static androidx.build.dependencies.DependenciesKt.*
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
+}
+
+dependencies {
+    api("androidx.annotation:annotation:1.1.0")
+    api(project(":leanback:leanback"))
+    api("androidx.paging:paging-runtime:3.0.0-alpha09")
+
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(project(":internal-testutils-espresso"))
+    androidTestImplementation(project(":internal-testutils-runtime"))
+    androidTestImplementation(project(":internal-testutils-common"))
+    androidTestImplementation(project(":internal-testutils-ktx"))
+    androidTestImplementation(project(":internal-testutils-paging"))
+    androidTestImplementation(KOTLIN_TEST)
+    androidTestImplementation(KOTLIN_COROUTINES_TEST)
+    androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
+    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 21
+    }
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
+}
+
+androidx {
+    name = "AndroidX Leanback Paging"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenVersion = LibraryVersions.LEANBACK_PAGING
+    mavenGroup = LibraryGroups.LEANBACK
+    inceptionYear = "2020"
+    description = "AndroidX Leanback Paging"
+    failOnDeprecationWarnings = false
+    legacyDisableKotlinStrictApiMode = true
+}

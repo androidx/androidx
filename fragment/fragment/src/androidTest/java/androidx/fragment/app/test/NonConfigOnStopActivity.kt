@@ -29,6 +29,7 @@ class NonConfigOnStopActivity : RecreatedActivity() {
             .commitNowAllowingStateLoss()
     }
 
+    @Suppress("DEPRECATION")
     class RetainedFragment : Fragment() {
         init {
             retainInstance = true

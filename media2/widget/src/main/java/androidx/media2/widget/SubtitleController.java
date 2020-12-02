@@ -20,6 +20,7 @@ import android.content.Context;
 import android.media.MediaFormat;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.TrackInfo;
+import android.os.Build.VERSION;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -27,6 +28,7 @@ import android.view.accessibility.CaptioningManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.media2.widget.SubtitleTrack.RenderingWidget;
 
 import java.util.ArrayList;
@@ -45,8 +47,11 @@ class SubtitleController {
     private final Object mRenderersLock = new Object();
     private final Object mTracksLock = new Object();
     private SubtitleTrack mSelectedTrack;
-    private boolean mShowing;
+    @RequiresApi(19)
     private CaptioningManager mCaptioningManager;
+    @RequiresApi(19)
+    private CaptioningManager.CaptioningChangeListener mCaptioningChangeListener;
+
     private Handler mHandler;
 
     private static final int WHAT_SHOW = 1;
@@ -76,19 +81,6 @@ class SubtitleController {
         }
     };
 
-    private CaptioningManager.CaptioningChangeListener mCaptioningChangeListener =
-            new CaptioningManager.CaptioningChangeListener() {
-                @Override
-                public void onEnabledChanged(boolean enabled) {
-                    selectDefaultTrack();
-                }
-
-                @Override
-                public void onLocaleChanged(Locale locale) {
-                    selectDefaultTrack();
-                }
-            };
-
     SubtitleController(@NonNull Context context) {
         this(context, null, null);
     }
@@ -107,16 +99,31 @@ class SubtitleController {
         mListener = listener;
 
         mRenderers = new ArrayList<Renderer>();
-        mShowing = false;
         mTracks = new ArrayList<SubtitleTrack>();
-        mCaptioningManager =
-            (CaptioningManager) context.getSystemService(Context.CAPTIONING_SERVICE);
+        if (VERSION.SDK_INT >= 19) {
+            mCaptioningManager =
+                    (CaptioningManager) context.getSystemService(Context.CAPTIONING_SERVICE);
+            mCaptioningChangeListener =
+                new CaptioningManager.CaptioningChangeListener() {
+                    @Override
+                    public void onEnabledChanged(boolean enabled) {
+                        selectDefaultTrack();
+                    }
+
+                    @Override
+                    public void onLocaleChanged(Locale locale) {
+                        selectDefaultTrack();
+                    }
+            };
+        }
     }
 
     @Override
     protected void finalize() throws Throwable {
-        mCaptioningManager.removeCaptioningChangeListener(
-                mCaptioningChangeListener);
+        if (VERSION.SDK_INT >= 19) {
+            mCaptioningManager.removeCaptioningChangeListener(
+                    mCaptioningChangeListener);
+        }
         super.finalize();
     }
 
@@ -221,12 +228,12 @@ class SubtitleController {
         SubtitleTrack bestTrack = null;
         int bestScore = -1;
 
-        Locale selectedLocale = mCaptioningManager.getLocale();
+        Locale selectedLocale = VERSION.SDK_INT >= 19 ? mCaptioningManager.getLocale() : null;
         Locale locale = selectedLocale;
         if (locale == null) {
             locale = Locale.getDefault();
         }
-        boolean selectForced = !mCaptioningManager.isEnabled();
+        boolean selectForced = VERSION.SDK_INT >= 19 ? !mCaptioningManager.isEnabled() : true;
 
         synchronized (mTracksLock) {
             for (SubtitleTrack track: mTracks) {
@@ -293,7 +300,9 @@ class SubtitleController {
             }
             // If track selection is explicit, but visibility
             // is not, it falls back to the captioning setting
-            if (mCaptioningManager.isEnabled()
+            boolean captionIsEnabledOnSystem =
+                    VERSION.SDK_INT >= 19 ? mCaptioningManager.isEnabled() : false;
+            if (captionIsEnabledOnSystem
                     || (mSelectedTrack != null && MediaFormatUtil.getInteger(
                             mSelectedTrack.getFormat(),
                             MediaFormat.KEY_IS_FORCED_SUBTITLE, 0) != 0)) {
@@ -321,14 +330,15 @@ class SubtitleController {
 
     /** must be called from anchor thread */
     public void reset() {
-        checkAnchorLooper();
         hide();
         selectTrack(null);
         mTracks.clear();
         mTrackIsExplicit = false;
         mVisibilityIsExplicit = false;
-        mCaptioningManager.removeCaptioningChangeListener(
-                mCaptioningChangeListener);
+        if (VERSION.SDK_INT >= 19) {
+            mCaptioningManager.removeCaptioningChangeListener(
+                    mCaptioningChangeListener);
+        }
     }
 
     /**
@@ -345,7 +355,7 @@ class SubtitleController {
                     SubtitleTrack track = renderer.createTrack(format);
                     if (track != null) {
                         synchronized (mTracksLock) {
-                            if (mTracks.size() == 0) {
+                            if (mTracks.size() == 0 && VERSION.SDK_INT >= 19) {
                                 mCaptioningManager.addCaptioningChangeListener(
                                         mCaptioningChangeListener);
                             }
@@ -370,7 +380,6 @@ class SubtitleController {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void doShow() {
-        mShowing = true;
         mVisibilityIsExplicit = true;
         if (mSelectedTrack != null) {
             mSelectedTrack.show();
@@ -392,7 +401,6 @@ class SubtitleController {
         if (mSelectedTrack != null) {
             mSelectedTrack.hide();
         }
-        mShowing = false;
     }
 
     /**
@@ -492,26 +500,17 @@ class SubtitleController {
         }
 
         if (mAnchor != null) {
-            checkAnchorLooper();
             mAnchor.setSubtitleWidget(null);
         }
         mAnchor = anchor;
         mHandler = null;
         if (mAnchor != null) {
             mHandler = new Handler(mAnchor.getSubtitleLooper(), mCallback);
-            checkAnchorLooper();
             mAnchor.setSubtitleWidget(getRenderingWidget());
         }
     }
 
-    private void checkAnchorLooper() {
-        assert mHandler != null : "Should have a looper already";
-        assert Looper.myLooper() == mHandler.getLooper()
-                : "Must be called from the anchor's looper";
-    }
-
     private void processOnAnchor(Message m) {
-        assert mHandler != null : "Should have a looper already";
         if (Looper.myLooper() == mHandler.getLooper()) {
             mHandler.dispatchMessage(m);
         } else {

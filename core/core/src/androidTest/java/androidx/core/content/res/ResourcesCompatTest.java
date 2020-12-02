@@ -34,6 +34,7 @@ import android.support.v4.testutils.TestUtils;
 import android.util.DisplayMetrics;
 
 import androidx.annotation.NonNull;
+import androidx.core.graphics.TypefaceCompat;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.MockFontProvider;
 import androidx.core.test.R;
@@ -312,6 +313,27 @@ public class ResourcesCompatTest {
         assertNotSame(Typeface.DEFAULT, font);
     }
 
+    @Test
+    public void testGetFont_adjustDisplayStyle() {
+        Typeface tf = ResourcesCompat.getFont(mContext, R.font.thin_italic);
+
+        assertNotNull(tf);
+        if (Build.VERSION.SDK_INT >= 28) {
+            assertEquals(100, tf.getWeight());
+        }
+        assertEquals(Typeface.ITALIC, tf.getStyle());
+    }
+
+    @Test
+    public void testGetFont_fontFile_cached() {
+        TypefaceCompat.clearCache();
+        assertNull(ResourcesCompat.getCachedFont(mContext, R.font.samplefont));
+        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplefont);
+        Typeface cachedFont = ResourcesCompat.getCachedFont(mContext, R.font.samplefont);
+        assertNotNull(cachedFont);
+        assertSame(font, cachedFont);
+    }
+
     private static final class FontCallback extends ResourcesCompat.FontCallback {
         private final CountDownLatch mLatch;
         Typeface mTypeface;
@@ -365,6 +387,11 @@ public class ResourcesCompatTest {
 
         assertNotNull(callback.mTypeface);
         assertNotSame(Typeface.DEFAULT, callback.mTypeface);
+    }
+
+    @Test(expected = Resources.NotFoundException.class)
+    public void testGetFont_brokenFont() {
+        ResourcesCompat.getFont(mContext, R.font.invalid_font);
     }
 
     @Test

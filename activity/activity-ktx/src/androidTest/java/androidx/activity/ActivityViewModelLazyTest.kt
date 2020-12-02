@@ -21,7 +21,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -29,7 +28,10 @@ import java.lang.IllegalArgumentException
 
 @MediumTest
 class ActivityViewModelLazyTest {
-    @get:Rule val activityRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    @Suppress("DEPRECATION")
+    @get:Rule val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(
+        TestActivity::class.java
+    )
 
     @UiThreadTest
     @Test fun vmInitialization() {

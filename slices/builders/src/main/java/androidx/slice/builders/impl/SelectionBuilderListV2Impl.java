@@ -28,6 +28,7 @@ import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_KEY;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_VALUE;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Pair;
@@ -48,7 +49,7 @@ public class SelectionBuilderListV2Impl extends SelectionBuilderImpl {
     }
 
     @Override
-    public void apply(Slice.Builder sliceBuilder) {
+    public void apply(@NonNull Slice.Builder sliceBuilder) {
         Slice.Builder actionBuilder = new Slice.Builder(sliceBuilder);
 
         final SelectionBuilder selectionBuilder = getSelectionBuilder();

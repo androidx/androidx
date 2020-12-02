@@ -16,6 +16,11 @@
 
 package androidx.media2.widget;
 
+import static androidx.media2.widget.AspectRatioMatcher.withAspectRatio;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -27,7 +32,6 @@ import static org.mockito.Mockito.verify;
 import android.app.Activity;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -39,6 +43,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer;
@@ -55,7 +60,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -92,8 +96,6 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
         mVideoView = mActivity.findViewById(R.id.videoview);
         mMediaItem = createTestMediaItem();
         mPixelCopyHelper = new SynchronousPixelCopy();
-
-        setKeepScreenOn(mActivityRule);
         checkAttachedToWindow(mVideoView);
     }
 
@@ -109,7 +111,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testPlayVideo() throws Throwable {
+    public void playVideo() throws Throwable {
         DefaultPlayerCallback callback = new DefaultPlayerCallback();
         PlayerWrapper playerWrapper = createPlayerWrapper(callback, mMediaItem, null);
         setPlayerWrapper(playerWrapper);
@@ -124,7 +126,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testPlayVideoWithMediaItemFromFileDescriptor() throws Throwable {
+    public void playVideoWithMediaItemFromFileDescriptor() throws Throwable {
         AssetFileDescriptor afd = mContext.getResources()
                 .openRawResourceFd(R.raw.testvideo_with_2_subtitle_tracks);
         final MediaItem item = new FileMediaItem.Builder(
@@ -146,10 +148,12 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testPlayVideoOnTextureView() throws Throwable {
+    public void playVideoOnTextureView() throws Throwable {
         final VideoView.OnViewTypeChangedListener mockViewTypeListener =
                 mock(VideoView.OnViewTypeChangedListener.class);
-
+        if (setViewTypeMayCrash()) {
+            return;
+        }
         DefaultPlayerCallback callback = new DefaultPlayerCallback();
         PlayerWrapper playerWrapper = createPlayerWrapper(callback, mMediaItem, null);
         setPlayerWrapper(playerWrapper);
@@ -175,9 +179,12 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testPlayVideoWithVisibilityChange() throws Throwable {
+    public void playVideoWithVisibilityChange() throws Throwable {
         final VideoView.OnViewTypeChangedListener mockViewTypeListener =
                 mock(VideoView.OnViewTypeChangedListener.class);
+        if (setViewTypeMayCrash()) {
+            return;
+        }
 
         DefaultPlayerCallback callback = new DefaultPlayerCallback();
         PlayerWrapper playerWrapper = createPlayerWrapper(callback, mMediaItem, null);
@@ -236,7 +243,10 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testSetViewType() throws Throwable {
+    public void setViewType() throws Throwable {
+        if (setViewTypeMayCrash()) {
+            return;
+        }
         final VideoView.OnViewTypeChangedListener mockViewTypeListener =
                 mock(VideoView.OnViewTypeChangedListener.class);
 
@@ -280,7 +290,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
 
     // @UiThreadTest will be ignored by Parameterized test runner (b/30746303)
     @Test
-    public void testAttachedMediaControlView_setPlayerOrController() throws Throwable {
+    public void attachedMediaControlView_setPlayerOrController() throws Throwable {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -323,50 +333,41 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testOnVideoSizeChanged() throws Throwable {
-        final Uri nonMusicUri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
-                + R.raw.testvideo_with_2_subtitle_tracks);
-        final Uri musicUri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
-                + R.raw.test_music);
-        final String nonMusicMediaId = "nonMusic";
-        final String musicMediaId = "music";
-        final VideoSize nonMusicVideoSize = new VideoSize(160, 90);
-        final VideoSize musicVideoSize = new VideoSize(0, 0);
+    public void aspectRatioOfSurfaceView() throws Throwable {
+        MediaItem testMediaItem = createTestMediaItem(getResourceUri(R.raw.test_file_scheme_video));
+        VideoSize testVideoSize = new VideoSize(352, 288);
+        CountDownLatch latch = new CountDownLatch(1);
 
-        final CountDownLatch latchForNonMusicItem = new CountDownLatch(1);
-        final CountDownLatch latchForMusicItem = new CountDownLatch(1);
+        mActivityRule.runOnUiThread(() -> {
+            int parentWidth = mVideoView.getWidth();
+            int parentHeight = mVideoView.getHeight();
 
-        List<MediaItem> playlist = new ArrayList<>();
-        playlist.add(createTestMediaItem(nonMusicUri, nonMusicMediaId));
-        playlist.add(createTestMediaItem(musicUri, musicMediaId));
+            View surfaceView = findVideoSurfaceView();
+            assertNotNull("Couldn't find VideoSurfaceView", surfaceView);
+            surfaceView.addOnLayoutChangeListener(
+                    (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+                        if (left == 0 && top == 0 && right == parentWidth
+                                && bottom == parentHeight) {
+                            // Ignore layout changes to the default size
+                            return;
+                        }
+                        latch.countDown();
+                    });
+        });
 
-        final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
-            @Override
-            void onVideoSizeChanged(@NonNull PlayerWrapper player, @NonNull VideoSize videoSize) {
-                MediaItem item = player.getCurrentMediaItem();
-                if (item == null) {
-                    return;
-                }
-                String mediaId = item.getMediaId();
-                if (nonMusicMediaId.equals(mediaId)) {
-                    if (player.mController != null
-                            && videoSize.getHeight() == 0 && videoSize.getWidth() == 0) {
-                        // PlayerWrapper could notify onVideoSizeChanged with VideoSize of (0, 0)
-                        // right after its MediaController is connected. Ignore this case.
-                        return;
-                    }
-                    assertEquals(nonMusicVideoSize, videoSize);
-                    latchForNonMusicItem.countDown();
-                } else if (musicMediaId.equals(mediaId)) {
-                    assertEquals(musicVideoSize, videoSize);
-                    latchForMusicItem.countDown();
-                }
-            }
-        }, null, playlist);
+        DefaultPlayerCallback playerCallback = new DefaultPlayerCallback();
+        PlayerWrapper playerWrapper = createPlayerWrapper(playerCallback, testMediaItem, null);
         setPlayerWrapper(playerWrapper);
-        assertTrue(latchForNonMusicItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        playerWrapper.skipToNextItem();
-        assertTrue(latchForMusicItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(playerCallback.mPausedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+
+        playerWrapper.play();
+        assertTrue(playerCallback.mPlayingLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        onView(instanceOf(VideoSurfaceView.class)).check(matches(
+                withAspectRatio(testVideoSize.getWidth(), testVideoSize.getHeight())));
+
+        // Unable to test the case for multiple media items with different aspect ratio due to the
+        // flakiness of onVideoSizeChanged of MediaPlayer (b/144876689, b/144972397)
     }
 
     private void setPlayerWrapper(final PlayerWrapper playerWrapper) throws Throwable {
@@ -392,6 +393,9 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
             // See b/137321781
             return;
         }
+        if (Build.DEVICE.startsWith("generic_") && Build.VERSION.SDK_INT == 26) {
+            return;
+        }
         if (Build.DEVICE.equals("fugu") && Build.VERSION.SDK_INT == 24) {
             return;
         }
@@ -408,6 +412,15 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
         }
     }
 
+    private boolean setViewTypeMayCrash() {
+        // TODO(b/143496920): Remove this method which is a guard to avoid crash.
+        // Need to skip the tests, which call VV#setViewType(), on the emulator with API 26.
+        if (Build.DEVICE.startsWith("generic_") && Build.VERSION.SDK_INT == 26) {
+            return true;
+        }
+        return false;
+    }
+
     private Bitmap getVideoScreenshot() {
         Bitmap bitmap = Bitmap.createBitmap(mVideoView.getWidth(),
                 mVideoView.getHeight(), Bitmap.Config.RGB_565);
@@ -422,6 +435,17 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
             bitmap = mVideoView.mTextureView.getBitmap(bitmap);
         }
         return bitmap;
+    }
+
+    @UiThread
+    private VideoSurfaceView findVideoSurfaceView() {
+        for (int i = 0; i < mVideoView.getChildCount(); i++) {
+            View child = mVideoView.getChildAt(i);
+            if (child instanceof VideoSurfaceView) {
+                return (VideoSurfaceView) child;
+            }
+        }
+        return null;
     }
 
     private static class SynchronousPixelCopy {

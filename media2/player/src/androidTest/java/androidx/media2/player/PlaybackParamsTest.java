@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
 public class PlaybackParamsTest extends MediaTestBase {
 
     @Test
-    public void testConstructor() {
+    public void constructor() {
         PlaybackParams params = new PlaybackParams.Builder()
                 .setAudioFallbackMode(PlaybackParams.AUDIO_FALLBACK_MODE_MUTE)
                 .setPitch(1.0f)
@@ -47,7 +47,7 @@ public class PlaybackParamsTest extends MediaTestBase {
     }
 
     @Test
-    public void testConstructorNullValues() {
+    public void constructorNullValues() {
         PlaybackParams params = new PlaybackParams.Builder().build();
         assertEquals(null, params.getAudioFallbackMode());
         assertEquals(null, params.getPitch());
@@ -55,8 +55,8 @@ public class PlaybackParamsTest extends MediaTestBase {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-    public void testConstants() {
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // For framework PlaybackParams
+    public void constants() {
         assertEquals(android.media.PlaybackParams.AUDIO_FALLBACK_MODE_DEFAULT,
                 PlaybackParams.AUDIO_FALLBACK_MODE_DEFAULT);
         assertEquals(android.media.PlaybackParams.AUDIO_FALLBACK_MODE_MUTE,

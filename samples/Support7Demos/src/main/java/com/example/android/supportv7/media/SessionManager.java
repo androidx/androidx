@@ -101,10 +101,11 @@ public class SessionManager implements Player.Callback {
     }
 
     public PlaylistItem add(String title, Uri uri, String mime) {
-        return add(title, uri, mime, null);
+        return add(title, uri, mime, 0, null);
     }
 
-    public PlaylistItem add(String title, Uri uri, String mime, PendingIntent receiver) {
+    public PlaylistItem add(String title, Uri uri, String mime, long startPosition,
+            PendingIntent receiver) {
         if (DEBUG) {
             log("add: title=" + title + ", uri=" + uri + ", receiver=" + receiver);
         }
@@ -115,6 +116,7 @@ public class SessionManager implements Player.Callback {
         // append new item with initial status PLAYBACK_STATE_PENDING
         PlaylistItem item = new PlaylistItem(Integer.toString(mSessionId),
                 Integer.toString(mItemId), title, uri, mime, receiver);
+        item.setPosition(startPosition);
         mPlaylist.add(item);
         mItemId++;
 
@@ -229,6 +231,23 @@ public class SessionManager implements Player.Callback {
             return true;
         }
         return false;
+    }
+
+    void syncWithManager(SessionManager manager) {
+        manager.updateStatus();
+        mSessionId = manager.mSessionId;
+        mItemId = manager.mItemId;
+        mPaused = manager.mPaused;
+        mSessionValid = manager.mSessionValid;
+        mPlaylist = new ArrayList<>();
+        for (PlaylistItem item : manager.mPlaylist) {
+            mPlaylist.add(new PlaylistItem(item));
+        }
+        if (mPlaylist.size() > 0) {
+            PlaylistItem firstItem = mPlaylist.get(0);
+            firstItem.setState(MediaItemStatus.PLAYBACK_STATE_PENDING);
+        }
+        updatePlaybackState();
     }
 
     MediaSessionStatus getSessionStatus(String sid) {

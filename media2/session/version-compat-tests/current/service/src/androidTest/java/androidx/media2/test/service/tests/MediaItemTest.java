@@ -22,7 +22,6 @@ import static org.junit.Assert.fail;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Parcel;
 import android.os.ParcelFileDescriptor;
 
@@ -37,7 +36,6 @@ import androidx.media2.common.UriMediaItem;
 import androidx.media2.test.service.MediaTestUtils;
 import androidx.media2.test.service.test.R;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;
@@ -56,7 +54,6 @@ import java.util.Collection;
 /**
  * Tests {@link MediaItem} and its subclasses.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(Parameterized.class)
 @SmallTest
 public class MediaItemTest {
@@ -155,7 +152,7 @@ public class MediaItemTest {
     }
 
     @Test
-    public void testSubclass_sameProcess() {
+    public void subclass_sameProcess() {
         final ParcelImpl parcel = MediaParcelUtils.toParcelable(mTestItem);
 
         final MediaItem testRemoteItem = MediaParcelUtils.fromParcelable(parcel);
@@ -163,37 +160,43 @@ public class MediaItemTest {
     }
 
     @Test
-    public void testSubclass_acrossProcessWithMediaUtils() {
-        // Mocks the binder call across the processes by using writeParcelable/readParcelable
-        // which only happens between processes. Code snippets are copied from
-        // VersionedParcelIntegTest#parcelCopy.
+    public void subclass_acrossProcessWithMediaUtils() {
         final Parcel p = Parcel.obtain();
-        p.writeParcelable(MediaParcelUtils.toParcelable(mTestItem), 0);
-        p.setDataPosition(0);
-        final MediaItem testRemoteItem = MediaParcelUtils.fromParcelable(
-                (ParcelImpl) p.readParcelable(MediaItem.class.getClassLoader()));
-
-        assertEquals(MediaItem.class, testRemoteItem.getClass());
-        assertEquals(mTestItem.getStartPosition(), testRemoteItem.getStartPosition());
-        assertEquals(mTestItem.getEndPosition(), testRemoteItem.getEndPosition());
-        MediaTestUtils.assertMediaMetadataEquals(
-                mTestItem.getMetadata(), testRemoteItem.getMetadata());
-    }
-
-    @Test
-    public void testSubclass_acrossProcessWithParcelUtils() {
-        if (mTestItem.getClass() == MediaItem.class) {
-            return;
-        }
         try {
             // Mocks the binder call across the processes by using writeParcelable/readParcelable
             // which only happens between processes. Code snippets are copied from
             // VersionedParcelIntegTest#parcelCopy.
-            final Parcel p = Parcel.obtain();
+            p.writeParcelable(MediaParcelUtils.toParcelable(mTestItem), 0);
+            p.setDataPosition(0);
+            final MediaItem testRemoteItem = MediaParcelUtils.fromParcelable(
+                    (ParcelImpl) p.readParcelable(MediaItem.class.getClassLoader()));
+
+            assertEquals(MediaItem.class, testRemoteItem.getClass());
+            assertEquals(mTestItem.getStartPosition(), testRemoteItem.getStartPosition());
+            assertEquals(mTestItem.getEndPosition(), testRemoteItem.getEndPosition());
+            MediaTestUtils.assertMediaMetadataEquals(
+                    mTestItem.getMetadata(), testRemoteItem.getMetadata());
+        } finally {
+            p.recycle();
+        }
+    }
+
+    @Test
+    public void subclass_acrossProcessWithParcelUtils() {
+        if (mTestItem.getClass() == MediaItem.class) {
+            return;
+        }
+        final Parcel p = Parcel.obtain();
+        try {
+            // Mocks the binder call across the processes by using writeParcelable/readParcelable
+            // which only happens between processes. Code snippets are copied from
+            // VersionedParcelIntegTest#parcelCopy.
             p.writeParcelable(ParcelUtils.toParcelable(mTestItem), 0);
             fail("Write to parcel should throw RuntimeException for subclass of MediaItem");
         } catch (RuntimeException e) {
             // Expected.
+        } finally {
+            p.recycle();
         }
     }
 
@@ -202,7 +205,7 @@ public class MediaItemTest {
      * them all.
      */
     @Test
-    public void testSubclass_overriddenAllMethods() throws Exception {
+    public void subclass_overriddenAllMethods() throws Exception {
         Method[] mediaItemBuilderMethods = MediaItem.Builder.class.getDeclaredMethods();
         for (int i = 0; i < mediaItemBuilderMethods.length; i++) {
             Method mediaItemBuilderMethod = mediaItemBuilderMethods[i];

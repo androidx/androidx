@@ -501,8 +501,8 @@ public class SliceMetadataTest {
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                int newState = intent.getExtras().getInt(EXTRA_TOGGLE_STATE, 0);
-                toggleState.set(newState == 1);
+                boolean newState = intent.getExtras().getBoolean(EXTRA_TOGGLE_STATE, false);
+                toggleState.set(newState);
                 latch.countDown();
             }
         };

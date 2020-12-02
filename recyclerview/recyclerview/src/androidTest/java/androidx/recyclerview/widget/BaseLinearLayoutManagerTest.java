@@ -33,6 +33,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.hamcrest.CoreMatchers;
@@ -191,13 +192,15 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
 
     public void assertRectSetsNotEqual(String message, Map<Item, Rect> before,
             Map<Item, Rect> after, boolean strictItemEquality) {
-        Throwable throwable = null;
-        try {
-            assertRectSetsEqual("NOT " + message, before, after, strictItemEquality);
-        } catch (Throwable t) {
-            throwable = t;
+        final LayoutEquality layoutEquality = new LayoutEquality(
+                message, before, after, strictItemEquality
+        );
+        Inequality inequality = layoutEquality.findInequality();
+        if (inequality == null) {
+            throw new AssertionError(
+                    layoutEquality.buildErrorLog("two layout should be different")
+            );
         }
-        assertNotNull(message + "\ntwo layout should be different", throwable);
     }
 
     public void assertRectSetsEqual(String message, Map<Item, Rect> before, Map<Item, Rect> after) {
@@ -206,40 +209,109 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
 
     public void assertRectSetsEqual(String message, Map<Item, Rect> before, Map<Item, Rect> after,
             boolean strictItemEquality) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("checking rectangle equality.\n");
-        sb.append("before:\n");
-        for (Map.Entry<Item, Rect> entry : before.entrySet()) {
-            sb.append(entry.getKey().mAdapterIndex + ":" + entry.getValue()).append("\n");
+        final LayoutEquality layoutEquality = new LayoutEquality(
+                message, before, after, strictItemEquality
+        );
+        Inequality inequality = layoutEquality.findInequality();
+        if (inequality != null) {
+            inequality.throwAsError();
         }
-        sb.append("after:\n");
-        for (Map.Entry<Item, Rect> entry : after.entrySet()) {
-            sb.append(entry.getKey().mAdapterIndex + ":" + entry.getValue()).append("\n");
+    }
+
+    private static class LayoutEquality {
+        private final String mMessagePrefix;
+        private final Map<Item, Rect> mBefore;
+        private final Map<Item, Rect> mAfter;
+        private boolean mStrictEquality;
+        @Nullable private String mPositionsLog;
+
+        private LayoutEquality(String messagePrefix,
+                Map<Item, Rect> before,
+                Map<Item, Rect> after, boolean strictEquality) {
+            mMessagePrefix = messagePrefix;
+            mBefore = before;
+            mAfter = after;
+            mStrictEquality = strictEquality;
         }
-        message = message + "\n" + sb.toString();
-        assertEquals(message + ":\nitem counts should be equal", before.size()
-                , after.size());
-        for (Map.Entry<Item, Rect> entry : before.entrySet()) {
-            final Item beforeItem = entry.getKey();
-            Rect afterRect = null;
-            if (strictItemEquality) {
-                afterRect = after.get(beforeItem);
-                assertNotNull(message + ":\nSame item should be visible after simple re-layout",
-                        afterRect);
-            } else {
-                for (Map.Entry<Item, Rect> afterEntry : after.entrySet()) {
-                    final Item afterItem = afterEntry.getKey();
-                    if (afterItem.mAdapterIndex == beforeItem.mAdapterIndex) {
-                        afterRect = afterEntry.getValue();
-                        break;
+
+        @Nullable
+        public Inequality findInequality() {
+            if (mBefore.size() != mAfter.size()) {
+                return new Inequality(this,
+                        "item counts should be equal " + mBefore.size() + " vs " + mAfter.size());
+            }
+            for (Map.Entry<Item, Rect> entry : mBefore.entrySet()) {
+                final Item beforeItem = entry.getKey();
+                Rect afterRect = null;
+                if (mStrictEquality) {
+                    afterRect = mAfter.get(beforeItem);
+                    if (afterRect == null) {
+                        return new Inequality(this,
+                                "Same item should be visible after"
+                                + " simple re-layout, rectangle for " + beforeItem + " is "
+                                + "missing");
+                    }
+                } else {
+                    for (Map.Entry<Item, Rect> afterEntry : mAfter.entrySet()) {
+                        final Item afterItem = afterEntry.getKey();
+                        if (afterItem.mAdapterIndex == beforeItem.mAdapterIndex) {
+                            afterRect = afterEntry.getValue();
+                            break;
+                        }
+                    }
+                    if (afterRect == null) {
+                        return new Inequality(this,
+                                "Item with same adapter index should be visible after "
+                                        + "simple re-layout," + beforeItem + " is missing");
                     }
                 }
-                assertNotNull(message + ":\nItem with same adapter index should be visible " +
-                                "after simple re-layout",
-                        afterRect);
+                if (!entry.getValue().equals(afterRect)) {
+                    return new Inequality(this,
+                            "Item should be laid out at the same coordinates. Before:"
+                                    + entry.getValue() + ", after:" + afterRect);
+                }
             }
-            assertEquals(message + ":\nItem should be laid out at the same coordinates",
-                    entry.getValue(), afterRect);
+            return null;
+        }
+        @NonNull
+        private String getPositionsLog() {
+            if (mPositionsLog == null) {
+                mPositionsLog = buildPositionLog();
+            }
+            return mPositionsLog;
+        }
+
+        private String buildPositionLog() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("checking rectangle equality.\n");
+            sb.append("before:\n");
+            for (Map.Entry<Item, Rect> entry : mBefore.entrySet()) {
+                sb.append(entry.getKey().mAdapterIndex + ":" + entry.getValue()).append("\n");
+            }
+            sb.append("after:\n");
+            for (Map.Entry<Item, Rect> entry : mAfter.entrySet()) {
+                sb.append(entry.getKey().mAdapterIndex + ":" + entry.getValue()).append("\n");
+            }
+            return sb.toString();
+        }
+
+        private String buildErrorLog(String error) {
+            return  error + "\n" + mMessagePrefix + "\n" + getPositionsLog();
+        }
+    }
+
+    private static class Inequality {
+        private final String mMessage;
+        private final LayoutEquality mLayoutEquality;
+
+        private Inequality(LayoutEquality layoutEquality,
+                String message) {
+            mMessage = message;
+            mLayoutEquality = layoutEquality;
+        }
+
+        void throwAsError() {
+            throw new AssertionError(mLayoutEquality.buildErrorLog(mMessage));
         }
     }
 
@@ -273,7 +345,7 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
         }
     }
 
-    static class Config implements Cloneable {
+    public static class Config implements Cloneable {
 
         static final int DEFAULT_ITEM_COUNT = 250;
 

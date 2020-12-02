@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+BuilderSetStyle: androidx.core.animation.AnimatorSet.Builder#after(androidx.core.animation.Animator):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.animation.AnimatorSet.Builder.after(androidx.core.animation.Animator)
+BuilderSetStyle: androidx.core.animation.AnimatorSet.Builder#after(long):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.animation.AnimatorSet.Builder.after(long)
+BuilderSetStyle: androidx.core.animation.AnimatorSet.Builder#before(androidx.core.animation.Animator):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.animation.AnimatorSet.Builder.before(androidx.core.animation.Animator)
+BuilderSetStyle: androidx.core.animation.AnimatorSet.Builder#with(androidx.core.animation.Animator):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.animation.AnimatorSet.Builder.with(androidx.core.animation.Animator)
+
+
+StaticFinalBuilder: androidx.core.animation.AnimatorSet.Builder:
+    Builder must be final: androidx.core.animation.AnimatorSet.Builder

@@ -92,9 +92,9 @@ public class TestUtils {
     }
 
     /**
-     * When testing with any dummy lists, get the expected media ID of index {@param index}.
+     * When testing with any fake lists, get the expected media ID of index {@param index}.
      */
-    public static String getMediaIdInDummyList(int index) {
+    public static String getMediaIdInFakeList(int index) {
         // Set the media as the index with leading zeros.
         return String.format("%08d", index);
     }

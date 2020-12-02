@@ -78,7 +78,57 @@ public final class Insets {
     }
 
     /**
-     * Two Insets instances are equal iff they belong to the same class and their fields are
+     * Add two Insets.
+     *
+     * @param a The first Insets to add.
+     * @param b The second Insets to add.
+     * @return a + b, i. e. all insets on every side are added together.
+     */
+    @NonNull
+    public static Insets add(@NonNull Insets a, @NonNull Insets b) {
+        return Insets.of(a.left + b.left, a.top + b.top, a.right + b.right, a.bottom + b.bottom);
+    }
+
+    /**
+     * Subtract two Insets.
+     *
+     * @param a The minuend; the value from which {@code b} will be subtracted.
+     * @param b The subtrahend; the value which will be subtracted from {@code a}.
+     * @return a - b, i. e. all insets on every side are subtracted from each other.
+     */
+    @NonNull
+    public static Insets subtract(@NonNull Insets a, @NonNull Insets b) {
+        return Insets.of(a.left - b.left, a.top - b.top, a.right - b.right, a.bottom - b.bottom);
+    }
+
+    /**
+     * Retrieves the maximum of two Insets.
+     *
+     * @param a The first Insets.
+     * @param b The second Insets.
+     * @return max(a, b), i. e. the larger of every inset on every side is taken for the result.
+     */
+    @NonNull
+    public static Insets max(@NonNull Insets a, @NonNull Insets b) {
+        return Insets.of(Math.max(a.left, b.left), Math.max(a.top, b.top),
+                Math.max(a.right, b.right), Math.max(a.bottom, b.bottom));
+    }
+
+    /**
+     * Retrieves the minimum of two Insets.
+     *
+     * @param a The first Insets.
+     * @param b The second Insets.
+     * @return min(a, b), i. e. the smaller of every inset on every side is taken for the result.
+     */
+    @NonNull
+    public static Insets min(@NonNull Insets a, @NonNull Insets b) {
+        return Insets.of(Math.min(a.left, b.left), Math.min(a.top, b.top),
+                Math.min(a.right, b.right), Math.min(a.bottom, b.bottom));
+    }
+
+    /**
+     * Two Insets instances are equal if they belong to the same class and their fields are
      * pairwise equal.
      *
      * @param o the object to compare this instance with.
@@ -116,11 +166,33 @@ public final class Insets {
 
     /**
      * @hide
+     * @deprecated Use {@link #toCompatInsets(android.graphics.Insets)} instead.
      */
     @RequiresApi(api = 29)
     @NonNull
+    @Deprecated
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static Insets wrap(@NonNull android.graphics.Insets insets) {
+        return toCompatInsets(insets);
+    }
+
+    /**
+     * Return a copy of the given {@link android.graphics.Insets} instance, converted to be an
+     * {@link Insets} instance from AndroidX.
+     */
+    @RequiresApi(api = 29)
+    @NonNull
+    public static Insets toCompatInsets(@NonNull android.graphics.Insets insets) {
         return Insets.of(insets.left, insets.top, insets.right, insets.bottom);
+    }
+
+    /**
+     * Return a copy this instance, converted to be an {@link android.graphics.Insets} instance
+     * from the platform.
+     */
+    @RequiresApi(api = 29)
+    @NonNull
+    public android.graphics.Insets toPlatformInsets() {
+        return android.graphics.Insets.of(left, top, right, bottom);
     }
 }

@@ -31,12 +31,7 @@ public abstract class AdvertisingIdInfo {
     AdvertisingIdInfo() {
     }
 
-    /**
-     * Retrieves the Advertising ID.
-     *
-     * <p>This will be in UUID format, either Advertising ID Provider provided an Advertising ID
-     * in UUID format, or this developer library will normalize the Advertising ID to UUID format.
-     */
+    /** Retrieves the Advertising ID. */
     @NonNull
     public abstract String getId();
 
@@ -46,7 +41,6 @@ public abstract class AdvertisingIdInfo {
 
     /** Retrieves whether the user has set Limit Advertising Tracking. */
     public abstract boolean isLimitAdTrackingEnabled();
-
 
     /** Create a {@link Builder}. */
     static Builder builder() {

@@ -17,14 +17,13 @@
 package androidx.room.solver.shortcut.binder
 
 import androidx.room.ext.CallableTypeSpecBuilder
-import androidx.room.ext.typeName
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.TypeSpec
-import javax.lang.model.type.TypeMirror
 
 /**
  * Binder for deferred delete and update methods.
@@ -34,14 +33,14 @@ import javax.lang.model.type.TypeMirror
  * function.
  */
 class CallableDeleteOrUpdateMethodBinder private constructor(
-    val typeArg: TypeMirror,
+    val typeArg: XType,
     val addStmntBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit,
     adapter: DeleteOrUpdateMethodAdapter?
 ) : DeleteOrUpdateMethodBinder(adapter) {
 
     companion object {
         fun createDeleteOrUpdateBinder(
-            typeArg: TypeMirror,
+            typeArg: XType,
             adapter: DeleteOrUpdateMethodAdapter?,
             addCodeBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit
         ) = CallableDeleteOrUpdateMethodBinder(typeArg, addCodeBlock, adapter)
@@ -54,7 +53,7 @@ class CallableDeleteOrUpdateMethodBinder private constructor(
         scope: CodeGenScope
     ) {
         val adapterScope = scope.fork()
-        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName()) {
+        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
             adapter?.createDeleteOrUpdateMethodBody(
                 parameters = parameters,
                 adapters = adapters,

@@ -41,9 +41,11 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.rule.ActivityTestRule;
+import androidx.testutils.ActivityScenarioResetRule;
+import androidx.testutils.ResettableActivityScenarioRule;
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,9 +66,14 @@ import java.util.concurrent.TimeUnit;
 @SdkSuppress(minSdkVersion = 16)
 public class RecyclerViewNestedScrollingA11yScrollTest {
 
+
+    @ClassRule
+    public static ResettableActivityScenarioRule<TestActivity> mActivityRule =
+            new ResettableActivityScenarioRule<>(TestActivity.class);
+
     @Rule
-    public final ActivityTestRule<TestActivity> mActivityTestRule =
-            new ActivityTestRule<>(TestActivity.class);
+    public ActivityScenarioResetRule<TestActivity> mActivityResetRule =
+            new TestActivity.ResetRule(mActivityRule.getScenario());
 
     @Parameterized.Parameters(name = "orientationVertical:{0}, scrollForwards:{1}")
     public static Collection<Object[]> getParams() {
@@ -105,7 +112,7 @@ public class RecyclerViewNestedScrollingA11yScrollTest {
 
     @Before
     public void setup() throws Throwable {
-        Context context = mActivityTestRule.getActivity();
+        Context context = mActivityRule.getActivity();
 
         // Create view hierarchy.
         mRecyclerView = new RecyclerView(context);
@@ -129,9 +136,9 @@ public class RecyclerViewNestedScrollingA11yScrollTest {
 
         // Attach view hierarchy to activity and wait for first layout.
         final TestedFrameLayout testContentView =
-                mActivityTestRule.getActivity().getContainer();
+                mActivityRule.getActivity().getContainer();
         testContentView.expectLayouts(1);
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 testContentView.addView(mParent);
@@ -147,7 +154,7 @@ public class RecyclerViewNestedScrollingA11yScrollTest {
         final CountDownLatch countDownLatch = new CountDownLatch(2);
         final int[] totalScrolled = new int[1];
 
-        mActivityTestRule.runOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 doReturn(true).when(mParent).onStartNestedScroll(any(View.class), any(View.class),

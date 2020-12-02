@@ -36,6 +36,7 @@ public final class CursorWindowCompat {
      * <p>
      * Prior to Android P, this method will return a CursorWindow of size defined by the platform.
      */
+    @SuppressWarnings("deprecation")
     @NonNull
     public static CursorWindow create(@Nullable String name, long windowSizeBytes) {
         if (Build.VERSION.SDK_INT >= 28) {
@@ -43,7 +44,6 @@ public final class CursorWindowCompat {
         } else if (Build.VERSION.SDK_INT >= 15) {
             return new CursorWindow(name);
         } else {
-            //noinspection deprecation
             return new CursorWindow(false);
         }
     }

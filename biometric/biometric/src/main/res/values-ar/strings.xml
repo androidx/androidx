@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"المس زر استشعار بصمة الإصبع"</string>
+    <string name="fingerprint_not_recognized" msgid="3873359464293253009">"لم يتم التعرف عليها."</string>
+    <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"جهاز بصمة الإصبع غير متاح."</string>
+    <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"ليست هناك بصمات إصبع مسجَّلة."</string>
+    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"لا يحتوي هذا الجهاز على جهاز استشعار بصمات الأصابع."</string>
+    <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"تم إلغاء تشغيل بصمة الإصبع بواسطة المستخدم."</string>
+    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"تم إجراء محاولات كثيرة جدًا. يُرجى المحاولة مرة أخرى لاحقًا."</string>
+    <string name="default_error_msg" msgid="4776854077120974966">"خطأ غير معروف"</string>
+    <string name="generic_error_user_canceled" msgid="7309881387583143581">"ألغى المستخدم المصادقة."</string>
+    <string name="confirm_device_credential_password" msgid="5912733858573823945">"استخدام كلمة المرور"</string>
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"لم يتم ضبط رقم تعريف شخصي أو نقش أو كلمة مرور."</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"هذا الجهاز لا يتيح استخدام رقم تعريف شخصي أو نقش أو كلمة مرور."</string>
+</resources>

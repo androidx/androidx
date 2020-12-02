@@ -26,18 +26,19 @@ plugins {
 }
 
 dependencies {
+    api("androidx.annotation:annotation:1.0.0")
+    api("androidx.annotation:annotation-experimental:1.0.0-rc01")
     api("androidx.lifecycle:lifecycle-livedata:2.1.0")
-    api("androidx.lifecycle:lifecycle-common:2.1.0")
+    api(GUAVA_LISTENABLE_FUTURE)
     implementation("androidx.exifinterface:exifinterface:1.0.0")
-    implementation("androidx.annotation:annotation:1.0.0")
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
-
+    implementation("androidx.lifecycle:lifecycle-common:2.1.0")
     implementation(AUTO_VALUE_ANNOTATIONS)
-    api(GUAVA_LISTENABLE_FUTURE)
 
     annotationProcessor(AUTO_VALUE)
 
+    testImplementation(KOTLIN_STDLIB)
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
@@ -55,12 +56,10 @@ dependencies {
     androidTestImplementation(TRUTH)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation project(":camera:camera-testing"), {
-        exclude group: "androidx.camera", module: "camera-core"
-    }
+    androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
-    androidTestImplementation(KOTLIN_COROUTINES_GUAVA)
+    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
     androidTestImplementation(project(":internal-testutils-truth"))
 }
 
@@ -80,12 +79,10 @@ android {
 androidx {
     name = "Jetpack Camera Core Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.CAMERA
     mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2019"
     description = "Core components for the Jetpack Camera Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +
             "experiences across all of Android."
-    failOnDeprecationWarnings = false
 }
 

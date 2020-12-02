@@ -34,7 +34,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -605,6 +604,15 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         onLayoutChildren(recycler, state, true);
     }
 
+    @Override
+    public void onAdapterChanged(@Nullable RecyclerView.Adapter oldAdapter,
+            @Nullable RecyclerView.Adapter newAdapter) {
+        // RV will remove all views so we should clear all spans and assignments of views into spans
+        mLazySpanLookup.clear();
+        for (int i = 0; i < mSpanCount; i++) {
+            mSpans[i].clear();
+        }
+    }
 
     private void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state,
             boolean shouldCheckForGaps) {
@@ -1221,6 +1229,10 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     public void onRestoreInstanceState(Parcelable state) {
         if (state instanceof SavedState) {
             mPendingSavedState = (SavedState) state;
+            if (mPendingScrollPosition != RecyclerView.NO_POSITION) {
+                mPendingSavedState.invalidateAnchorPositionInfo();
+                mPendingSavedState.invalidateSpanInfo();
+            }
             requestLayout();
         } else if (DEBUG) {
             Log.d(TAG, "invalid saved state class");
@@ -1278,26 +1290,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     }
 
     @Override
-    public void onInitializeAccessibilityNodeInfoForItem(RecyclerView.Recycler recycler,
-            RecyclerView.State state, View host, AccessibilityNodeInfoCompat info) {
-        ViewGroup.LayoutParams lp = host.getLayoutParams();
-        if (!(lp instanceof LayoutParams)) {
-            super.onInitializeAccessibilityNodeInfoForItem(host, info);
-            return;
-        }
-        LayoutParams sglp = (LayoutParams) lp;
-        if (mOrientation == HORIZONTAL) {
-            info.setCollectionItemInfo(AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
-                    sglp.getSpanIndex(), sglp.mFullSpan ? mSpanCount : 1,
-                    -1, -1, false, false));
-        } else { // VERTICAL
-            info.setCollectionItemInfo(AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
-                    -1, -1,
-                    sglp.getSpanIndex(), sglp.mFullSpan ? mSpanCount : 1, false, false));
-        }
-    }
-
-    @Override
     public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
         super.onInitializeAccessibilityEvent(event);
         if (getChildCount() > 0) {
@@ -1327,24 +1319,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         final View first = mShouldReverseLayout ? findFirstVisibleItemClosestToEnd(true) :
                 findFirstVisibleItemClosestToStart(true);
         return first == null ? RecyclerView.NO_POSITION : getPosition(first);
-    }
-
-    @Override
-    public int getRowCountForAccessibility(RecyclerView.Recycler recycler,
-            RecyclerView.State state) {
-        if (mOrientation == HORIZONTAL) {
-            return mSpanCount;
-        }
-        return super.getRowCountForAccessibility(recycler, state);
-    }
-
-    @Override
-    public int getColumnCountForAccessibility(RecyclerView.Recycler recycler,
-            RecyclerView.State state) {
-        if (mOrientation == VERTICAL) {
-            return mSpanCount;
-        }
-        return super.getColumnCountForAccessibility(recycler, state);
     }
 
     /**
@@ -2872,9 +2846,11 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
                 Arrays.fill(mData, position, mData.length, LayoutParams.INVALID_SPAN_ID);
                 return mData.length;
             } else {
-                // just invalidate items in between
-                Arrays.fill(mData, position, endPosition + 1, LayoutParams.INVALID_SPAN_ID);
-                return endPosition + 1;
+                // Just invalidate items in between `position` and the next full span item, or the
+                // end of the tracked spans in mData if it's not been lengthened yet.
+                final int invalidateToIndex = Math.min(endPosition + 1, mData.length);
+                Arrays.fill(mData, position, invalidateToIndex, LayoutParams.INVALID_SPAN_ID);
+                return invalidateToIndex;
             }
         }
 

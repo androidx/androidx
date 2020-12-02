@@ -17,29 +17,28 @@
 package androidx.room.vo
 
 import androidx.room.ext.CommonTypeNames
-import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.SupportDbTypeNames
-import androidx.room.ext.typeName
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
+import androidx.room.ext.isNotVoid
 import androidx.room.solver.query.result.QueryResultBinder
 import com.squareup.javapoet.TypeName
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.type.TypeMirror
 
 /**
  * A class that holds information about a method annotated with RawQuery.
  * It is self sufficient and must have all generics etc resolved once created.
  */
 data class RawQueryMethod(
-    val element: ExecutableElement,
+    val element: XMethodElement,
     val name: String,
-    val returnType: TypeMirror,
+    val returnType: XType,
     val inTransaction: Boolean,
     val observedTableNames: Set<String>,
     val runtimeQueryParam: RuntimeQueryParameter?,
     val queryResultBinder: QueryResultBinder
 ) {
     val returnsValue by lazy {
-        returnType.typeName() != TypeName.VOID && returnType.typeName() != KotlinTypeNames.UNIT
+        returnType.isNotVoid() && !returnType.isKotlinUnit()
     }
 
     data class RuntimeQueryParameter(

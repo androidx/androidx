@@ -19,14 +19,14 @@ import android.app.Activity
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.IntentSender
-import androidx.core.app.ActivityCompat
+import android.os.Bundle
 import androidx.fragment.app.test.FragmentResultActivity
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
+import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.fail
@@ -34,11 +34,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.eq
-import org.mockito.ArgumentMatchers.same
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoMoreInteractions
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -48,8 +43,9 @@ import java.util.concurrent.TimeUnit
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class FragmentReceiveResultTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(FragmentTestActivity::class.java)
+    val activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
 
     private lateinit var activity: FragmentTestActivity
     private lateinit var fragment: TestFragment
@@ -60,63 +56,87 @@ class FragmentReceiveResultTest {
         fragment = attachTestFragment()
     }
 
+    @Suppress("DEPRECATION")
+    @Test
+    @UiThreadTest
+    fun testNoFragmentOnActivityResult() {
+        activity.supportFragmentManager.saveAllState()
+
+        // 0xffff is the request code for the startActivityResult launcher in FragmentManager
+        activity.onActivityResult(0xffff, Activity.RESULT_OK, Intent())
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun testNoFragmentOnRequestPermissionsResult() {
+        // 0xffff + 2 is the request code for the requestPermissions launcher in FragmentManager
+        activity.onRequestPermissionsResult(0xffff + 2, arrayOf("permission"), intArrayOf(1))
+    }
+
     @Test
     fun testStartActivityForResultOk() {
         startActivityForResult(10, Activity.RESULT_OK, "content 10")
 
-        assertWithMessage("Fragment should receive result").that(fragment.hasResult).isTrue()
-        assertThat(fragment.requestCode).isEqualTo(10)
-        assertThat(fragment.resultCode).isEqualTo(Activity.RESULT_OK)
-        assertThat(fragment.resultContent).isEqualTo("content 10")
+        assertWithMessage("Fragment should receive result").that(fragment.hasResult[0]).isTrue()
+        assertThat(fragment.requestCode[0]).isEqualTo(10)
+        assertThat(fragment.resultCode[0]).isEqualTo(Activity.RESULT_OK)
+        assertThat(fragment.resultContent[0]).isEqualTo("content 10")
+    }
+
+    @Test
+    fun testMultipleStartActivityForResultOk() {
+        startActivityForResult(10, Activity.RESULT_OK, "content 10")
+        startActivityForResult(20, Activity.RESULT_OK, "content 20")
+
+        assertWithMessage("Fragment should receive result").that(fragment.hasResult[0]).isTrue()
+        assertThat(fragment.requestCode[0]).isEqualTo(10)
+        assertThat(fragment.resultCode[0]).isEqualTo(Activity.RESULT_OK)
+        assertThat(fragment.resultContent[0]).isEqualTo("content 10")
+
+        assertWithMessage("Fragment should receive result").that(fragment.hasResult[1]).isTrue()
+        assertThat(fragment.requestCode[1]).isEqualTo(20)
+        assertThat(fragment.resultCode[1]).isEqualTo(Activity.RESULT_OK)
+        assertThat(fragment.resultContent[1]).isEqualTo("content 20")
     }
 
     @Test
     fun testStartActivityForResultCanceled() {
         startActivityForResult(20, Activity.RESULT_CANCELED, "content 20")
 
-        assertWithMessage("Fragment should receive result").that(fragment.hasResult).isTrue()
-        assertThat(fragment.requestCode).isEqualTo(20)
-        assertThat(fragment.resultCode).isEqualTo(Activity.RESULT_CANCELED)
-        assertThat(fragment.resultContent).isEqualTo("content 20")
+        assertWithMessage("Fragment should receive result").that(fragment.hasResult[0]).isTrue()
+        assertThat(fragment.requestCode[0]).isEqualTo(20)
+        assertThat(fragment.resultCode[0]).isEqualTo(Activity.RESULT_CANCELED)
+        assertThat(fragment.resultContent[0]).isEqualTo("content 20")
     }
 
     @Test
     fun testStartIntentSenderForResultOk() {
         startIntentSenderForResult(30, Activity.RESULT_OK, "content 30")
 
-        assertWithMessage("Fragment should receive result").that(fragment.hasResult).isTrue()
-        assertThat(fragment.requestCode).isEqualTo(30)
-        assertThat(fragment.resultCode).isEqualTo(Activity.RESULT_OK)
-        assertThat(fragment.resultContent).isEqualTo("content 30")
+        assertWithMessage("Fragment should receive result").that(fragment.hasResult[0]).isTrue()
+        assertThat(fragment.requestCode[0]).isEqualTo(30)
+        assertThat(fragment.resultCode[0]).isEqualTo(Activity.RESULT_OK)
+        assertThat(fragment.resultContent[0]).isEqualTo("content 30")
+    }
+
+    @Test
+    fun testStartIntentSenderForResultWithOptionsOk() {
+        startIntentSenderForResult(30, Activity.RESULT_OK, "content 30", Bundle())
+
+        assertWithMessage("Fragment should receive result").that(fragment.hasResult[0]).isTrue()
+        assertThat(fragment.requestCode[0]).isEqualTo(30)
+        assertThat(fragment.resultCode[0]).isEqualTo(Activity.RESULT_OK)
+        assertThat(fragment.resultContent[0]).isEqualTo("content 30")
     }
 
     @Test
     fun testStartIntentSenderForResultCanceled() {
         startIntentSenderForResult(40, Activity.RESULT_CANCELED, "content 40")
 
-        assertWithMessage("Fragment should receive result").that(fragment.hasResult).isTrue()
-        assertThat(fragment.requestCode).isEqualTo(40)
-        assertThat(fragment.resultCode).isEqualTo(Activity.RESULT_CANCELED)
-        assertThat(fragment.resultContent).isEqualTo("content 40")
-    }
-
-    @Test
-    fun testActivityResult_withDelegate() {
-        val delegate = mock(ActivityCompat.PermissionCompatDelegate::class.java)
-
-        val data = Intent()
-        ActivityCompat.setPermissionCompatDelegate(delegate)
-
-        activityRule.activity.onActivityResult(42, 43, data)
-
-        verify(delegate).onActivityResult(
-            same(activityRule.activity), eq(42), eq(43),
-            same(data)
-        )
-
-        ActivityCompat.setPermissionCompatDelegate(null)
-        activityRule.activity.onActivityResult(42, 43, data)
-        verifyNoMoreInteractions(delegate)
+        assertWithMessage("Fragment should receive result").that(fragment.hasResult[0]).isTrue()
+        assertThat(fragment.requestCode[0]).isEqualTo(40)
+        assertThat(fragment.resultCode[0]).isEqualTo(Activity.RESULT_CANCELED)
+        assertThat(fragment.resultContent[0]).isEqualTo("content 40")
     }
 
     private fun attachTestFragment(): TestFragment {
@@ -132,6 +152,7 @@ class FragmentReceiveResultTest {
         return fragment
     }
 
+    @Suppress("DEPRECATION")
     private fun startActivityForResult(
         requestCode: Int,
         resultCode: Int,
@@ -144,14 +165,19 @@ class FragmentReceiveResultTest {
 
             fragment.startActivityForResult(intent, requestCode)
         }
-        assertThat(fragment.resultReceiveLatch.await(1, TimeUnit.SECONDS)).isTrue()
+        assertThat(
+            fragment.resultReceiveLatch[fragment.onActivityResultCount]
+                .await(1, TimeUnit.SECONDS)
+        ).isTrue()
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
 
+    @Suppress("DEPRECATION")
     private fun startIntentSenderForResult(
         requestCode: Int,
         resultCode: Int,
-        content: String
+        content: String,
+        options: Bundle? = null
     ) {
         activityRule.runOnUiThread {
             val intent = Intent(activity, FragmentResultActivity::class.java)
@@ -163,29 +189,31 @@ class FragmentReceiveResultTest {
             try {
                 fragment.startIntentSenderForResult(
                     pendingIntent.intentSender,
-                    requestCode, null, 0, 0, 0, null
+                    requestCode, null, 0, 0, 0, options
                 )
             } catch (e: IntentSender.SendIntentException) {
                 fail("IntentSender failed")
             }
         }
-        assertThat(fragment.resultReceiveLatch.await(1, TimeUnit.SECONDS)).isTrue()
+        assertThat(fragment.resultReceiveLatch[0].await(1, TimeUnit.SECONDS)).isTrue()
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
 
     class TestFragment : Fragment() {
-        internal var hasResult = false
-        internal var requestCode = -1
-        internal var resultCode = 100
-        internal lateinit var resultContent: String
-        internal val resultReceiveLatch = CountDownLatch(1)
+        internal val hasResult = ArrayList<Boolean>()
+        internal val requestCode = ArrayList<Int>()
+        internal val resultCode = ArrayList<Int>()
+        internal val resultContent = ArrayList<String>()
+        internal val resultReceiveLatch = arrayListOf(CountDownLatch(1), CountDownLatch(1))
+        internal var onActivityResultCount = 0
 
         override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-            hasResult = true
-            this.requestCode = requestCode
-            this.resultCode = resultCode
-            resultContent = data!!.getStringExtra(FragmentResultActivity.EXTRA_RESULT_CONTENT)!!
-            resultReceiveLatch.countDown()
+            hasResult.add(true)
+            this.requestCode.add(requestCode)
+            this.resultCode.add(resultCode)
+            resultContent.add(data!!.getStringExtra(FragmentResultActivity.EXTRA_RESULT_CONTENT)!!)
+            resultReceiveLatch[onActivityResultCount].countDown()
+            onActivityResultCount++
         }
     }
 }

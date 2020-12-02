@@ -19,6 +19,7 @@ package androidx.paging
 import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 
 /**
@@ -40,7 +41,7 @@ import androidx.recyclerview.widget.RecyclerView
  * A complete usage pattern with Room would look like this:
  * ```
  * @Dao
- *     interface UserDao {
+ * interface UserDao {
  *     @Query("SELECT * FROM user ORDER BY lastName ASC")
  *     public abstract DataSource.Factory<Integer, User> usersByLastName();
  * }
@@ -104,15 +105,21 @@ import androidx.recyclerview.widget.RecyclerView
  * @param T Type of the PagedLists this Adapter will receive.
  * @param VH A class that extends ViewHolder that will be used by the adapter.
  */
+@Deprecated(
+    message = "PagedListAdapter is deprecated and has been replaced by PagingDataAdapter",
+    replaceWith = ReplaceWith(
+        "PagingDataAdapter<T, VH>",
+        "androidx.paging.PagingDataAdapter"
+    )
+)
 abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : RecyclerView.Adapter<VH> {
+    @Suppress("DEPRECATION")
     internal val differ: AsyncPagedListDiffer<T>
+    @Suppress("DEPRECATION")
     private val listener = { previousList: PagedList<T>?, currentList: PagedList<T>? ->
-        @Suppress("DEPRECATION")
         this@PagedListAdapter.onCurrentListChanged(currentList)
         this@PagedListAdapter.onCurrentListChanged(previousList, currentList)
     }
-    private val loadStateListener
-        get() = this::onLoadStateChanged
 
     /**
      * Returns the [PagedList] currently being displayed by the [PagedListAdapter].
@@ -125,6 +132,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      *
      * @see onCurrentListChanged
      */
+    @Suppress("DEPRECATION")
     open val currentList: PagedList<T>?
         get() = differ.currentList
 
@@ -138,15 +146,15 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * compare items in the list.
      */
     protected constructor(diffCallback: DiffUtil.ItemCallback<T>) {
+        @Suppress("DEPRECATION")
         differ = AsyncPagedListDiffer(this, diffCallback)
         differ.addPagedListListener(listener)
-        differ.addLoadStateListener(loadStateListener)
     }
 
     protected constructor(config: AsyncDifferConfig<T>) {
+        @Suppress("DEPRECATION")
         differ = AsyncPagedListDiffer(AdapterListUpdateCallback(this), config)
         differ.addPagedListListener(listener)
-        differ.addLoadStateListener(loadStateListener)
     }
 
     /**
@@ -157,7 +165,8 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      *
      * @param pagedList The new list to be displayed.
      */
-    open fun submitList(pagedList: PagedList<T>?) = differ.submitList(pagedList)
+    open fun submitList(@Suppress("DEPRECATION") pagedList: PagedList<T>?) =
+        differ.submitList(pagedList)
 
     /**
      * Set the new list to be displayed.
@@ -173,8 +182,10 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * @param commitCallback Optional runnable that is executed when the PagedList is committed, if
      * it is committed.
      */
-    open fun submitList(pagedList: PagedList<T>?, commitCallback: Runnable?) =
-        differ.submitList(pagedList, commitCallback)
+    open fun submitList(
+        @Suppress("DEPRECATION") pagedList: PagedList<T>?,
+        commitCallback: Runnable?
+    ) = differ.submitList(pagedList, commitCallback)
 
     protected open fun getItem(position: Int) = differ.getItem(position)
 
@@ -200,7 +211,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
         "Use the two argument variant instead.",
         ReplaceWith("onCurrentListChanged(previousList, currentList)")
     )
-    open fun onCurrentListChanged(currentList: PagedList<T>?) {
+    open fun onCurrentListChanged(@Suppress("DEPRECATION") currentList: PagedList<T>?) {
     }
 
     /**
@@ -220,43 +231,82 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      *
      * @see currentList
      */
-    open fun onCurrentListChanged(previousList: PagedList<T>?, currentList: PagedList<T>?) {
+    open fun onCurrentListChanged(
+        @Suppress("DEPRECATION") previousList: PagedList<T>?,
+        @Suppress("DEPRECATION") currentList: PagedList<T>?
+    ) {
     }
 
     /**
-     * Called when the [LoadState] for a particular type of load (START, END, REFRESH) has
-     * changed.
+     * Add a [LoadState] listener to observe the loading state of the current [PagedList].
      *
-     * REFRESH events can be used to drive a `SwipeRefreshLayout`, or START/END events
-     * can be used to drive loading spinner items in the Adapter.
+     * As new PagedLists are submitted and displayed, the listener will be notified to reflect
+     * current [LoadType.REFRESH], [LoadType.PREPEND], and [LoadType.APPEND] states.
      *
-     * @param type [LoadType] Can be START, END, or REFRESH
-     * @param state [LoadState] Idle, Loading, Done, or Error.
-     */
-    open fun onLoadStateChanged(type: LoadType, state: LoadState) {
-    }
-
-    /**
-     * Add a [LoadStateListener] to observe the loading state of the current [PagedList].
-     *
-     * As new PagedLists are submitted and displayed, the callback will be notified to reflect
-     * current REFRESH, START, and END states.
-     *
-     * @param callback [LoadStateListener] to receive updates.
+     * @param listener Listener to receive [LoadState] updates.
      *
      * @see removeLoadStateListener
      */
-    open fun addLoadStateListener(callback: LoadStateListener) {
-        differ.addLoadStateListener(callback)
+    open fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+        differ.addLoadStateListener(listener)
     }
 
     /**
-     * Remove a previously registered [LoadStateListener].
+     * Remove a previously registered [LoadState] listener.
      *
-     * @param callback Previously registered callback.
+     * @param listener Previously registered listener.
      * @see addLoadStateListener
      */
-    open fun removeLoadStateListener(callback: LoadStateListener) {
-        differ.removeLoadStateListener(callback)
+    open fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+        differ.removeLoadStateListener(listener)
+    }
+
+    /**
+     * Create a [ConcatAdapter] with the provided [LoadStateAdapter]s displaying the
+     * [LoadType.PREPEND] [LoadState] as a list item at the end of the presented list.
+     */
+    fun withLoadStateHeader(
+        header: LoadStateAdapter<*>
+    ): ConcatAdapter {
+        addLoadStateListener { loadType, loadState ->
+            if (loadType == LoadType.PREPEND) {
+                header.loadState = loadState
+            }
+        }
+        return ConcatAdapter(header, this)
+    }
+
+    /**
+     * Create a [ConcatAdapter] with the provided [LoadStateAdapter]s displaying the
+     * [LoadType.APPEND] [LoadState] as a list item at the start of the presented list.
+     */
+    fun withLoadStateFooter(
+        footer: LoadStateAdapter<*>
+    ): ConcatAdapter {
+        addLoadStateListener { loadType, loadState ->
+            if (loadType == LoadType.APPEND) {
+                footer.loadState = loadState
+            }
+        }
+        return ConcatAdapter(this, footer)
+    }
+
+    /**
+     * Create a [ConcatAdapter] with the provided [LoadStateAdapter]s displaying the
+     * [LoadType.PREPEND] and [LoadType.APPEND] [LoadState]s as list items at the start and end
+     * respectively.
+     */
+    fun withLoadStateHeaderAndFooter(
+        header: LoadStateAdapter<*>,
+        footer: LoadStateAdapter<*>
+    ): ConcatAdapter {
+        addLoadStateListener { loadType, loadState ->
+            if (loadType == LoadType.PREPEND) {
+                header.loadState = loadState
+            } else if (loadType == LoadType.APPEND) {
+                footer.loadState = loadState
+            }
+        }
+        return ConcatAdapter(header, this, footer)
     }
 }

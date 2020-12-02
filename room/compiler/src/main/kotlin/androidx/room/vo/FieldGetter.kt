@@ -18,11 +18,10 @@ package androidx.room.vo
 
 import androidx.room.ext.L
 import androidx.room.ext.T
+import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.TypeName
-import javax.lang.model.type.TypeMirror
 
-data class FieldGetter(val name: String, val type: TypeMirror, val callType: CallType) {
+data class FieldGetter(val name: String, val type: XType, val callType: CallType) {
     fun writeGet(ownerVar: String, outVar: String, builder: CodeBlock.Builder) {
         val stmt = when (callType) {
             CallType.FIELD -> "final $T $L = $L.$L"
@@ -30,7 +29,7 @@ data class FieldGetter(val name: String, val type: TypeMirror, val callType: Cal
             CallType.CONSTRUCTOR -> null
         }
         stmt?.let {
-            builder.addStatement(stmt, TypeName.get(type), outVar, ownerVar, name)
+            builder.addStatement(stmt, type.typeName, outVar, ownerVar, name)
         }
     }
 }

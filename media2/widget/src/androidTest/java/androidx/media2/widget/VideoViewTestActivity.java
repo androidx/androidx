@@ -31,6 +31,7 @@ public class VideoViewTestActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        TestUtils.setKeepScreenOn(this);
         setContentView(R.layout.videoview_layout);
     }
 }

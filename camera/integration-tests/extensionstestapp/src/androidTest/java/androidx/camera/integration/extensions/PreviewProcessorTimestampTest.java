@@ -16,6 +16,8 @@
 
 package androidx.camera.integration.extensions;
 
+import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider;
+
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
@@ -23,22 +25,25 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNotNull;
 import static org.junit.Assume.assumeTrue;
 
-import android.Manifest;
 import android.app.Instrumentation;
+import android.content.Context;
 import android.graphics.SurfaceTexture;
-import android.hardware.camera2.CameraDevice;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.CaptureProcessor;
-import androidx.camera.core.ImageAnalysisConfig;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.impl.CaptureProcessor;
+import androidx.camera.core.impl.PreviewConfig;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.extensions.AutoImageCaptureExtender;
 import androidx.camera.extensions.AutoPreviewExtender;
 import androidx.camera.extensions.BeautyImageCaptureExtender;
@@ -52,17 +57,21 @@ import androidx.camera.extensions.ImageCaptureExtender;
 import androidx.camera.extensions.NightImageCaptureExtender;
 import androidx.camera.extensions.NightPreviewExtender;
 import androidx.camera.extensions.PreviewExtender;
+import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.GLUtil;
+import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.camera.testing.TimestampCaptureProcessor;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.GrantPermissionRule;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -71,7 +80,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Tests that the {@link androidx.camera.extensions.impl.PreviewImageProcessorImpl} properly
@@ -82,15 +93,14 @@ import java.util.concurrent.TimeUnit;
 public class PreviewProcessorTimestampTest {
 
     @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA);
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
-    private FakeLifecycleOwner mLifecycleOwner;
-    private CameraDevice.StateCallback mCameraStatusCallback;
+    private final Context mContext = ApplicationProvider.getApplicationContext();
+
     private ExtensionsManager.EffectMode mEffectMode;
-    private CameraX.LensFacing mLensFacing;
-    private CountDownLatch mLatch;
+    @CameraSelector.LensFacing
+    private int mLensFacing;
     private CountDownLatch mInputTimestampsLatch;
     private CountDownLatch mOutputTimestampsLatch;
     private CountDownLatch mSurfaceTextureLatch;
@@ -100,34 +110,34 @@ public class PreviewProcessorTimestampTest {
     TimestampCaptureProcessor.TimestampListener mTimestampListener;
     SurfaceTexture.OnFrameAvailableListener mOnFrameAvailableListener;
 
-    private ImageCaptureConfig.Builder mImageCaptureConfigBuilder;
-    private PreviewConfig.Builder mPreviewConfigBuilder;
-    private ImageAnalysisConfig.Builder mImageAnalysisConfigBuilder;
+    private ImageCapture.Builder mImageCaptureBuilder;
+    private Preview.Builder mPreviewBuilder;
 
-    @Parameterized.Parameters
+    @Parameterized.Parameters(name = "effect = {0}, facing = {1}")
     public static Collection<Object[]> getParameters() {
         return Arrays.asList(new Object[][]{
-                {ExtensionsManager.EffectMode.BOKEH, CameraX.LensFacing.FRONT},
-                {ExtensionsManager.EffectMode.BOKEH, CameraX.LensFacing.BACK},
-                {ExtensionsManager.EffectMode.HDR, CameraX.LensFacing.FRONT},
-                {ExtensionsManager.EffectMode.HDR, CameraX.LensFacing.BACK},
-                {ExtensionsManager.EffectMode.BEAUTY, CameraX.LensFacing.FRONT},
-                {ExtensionsManager.EffectMode.BEAUTY, CameraX.LensFacing.BACK},
-                {ExtensionsManager.EffectMode.NIGHT, CameraX.LensFacing.FRONT},
-                {ExtensionsManager.EffectMode.NIGHT, CameraX.LensFacing.BACK},
-                {ExtensionsManager.EffectMode.AUTO, CameraX.LensFacing.FRONT},
-                {ExtensionsManager.EffectMode.AUTO, CameraX.LensFacing.BACK}
+                {ExtensionsManager.EffectMode.BOKEH, CameraSelector.LENS_FACING_FRONT},
+                {ExtensionsManager.EffectMode.BOKEH, CameraSelector.LENS_FACING_BACK},
+                {ExtensionsManager.EffectMode.HDR, CameraSelector.LENS_FACING_FRONT},
+                {ExtensionsManager.EffectMode.HDR, CameraSelector.LENS_FACING_BACK},
+                {ExtensionsManager.EffectMode.BEAUTY, CameraSelector.LENS_FACING_FRONT},
+                {ExtensionsManager.EffectMode.BEAUTY, CameraSelector.LENS_FACING_BACK},
+                {ExtensionsManager.EffectMode.NIGHT, CameraSelector.LENS_FACING_FRONT},
+                {ExtensionsManager.EffectMode.NIGHT, CameraSelector.LENS_FACING_BACK},
+                {ExtensionsManager.EffectMode.AUTO, CameraSelector.LENS_FACING_FRONT},
+                {ExtensionsManager.EffectMode.AUTO, CameraSelector.LENS_FACING_BACK}
         });
     }
 
     public PreviewProcessorTimestampTest(ExtensionsManager.EffectMode effectMode,
-            CameraX.LensFacing lensFacing) {
+            @CameraSelector.LensFacing int lensFacing) {
         mEffectMode = effectMode;
         mLensFacing = lensFacing;
     }
 
     @Before
-    public void setUp() {
+    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+    public void setUp() throws Exception {
         mProcessingHandlerThread =
                 new HandlerThread("Processing");
         mProcessingHandlerThread.start();
@@ -135,33 +145,18 @@ public class PreviewProcessorTimestampTest {
 
         assumeTrue(androidx.camera.testing.CameraUtil.deviceHasCamera());
 
-        mLifecycleOwner = new FakeLifecycleOwner();
+        CameraXConfig config = Camera2Config.defaultConfig();
+        CameraX.initialize(mContext, config);
 
-        mImageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
-        mPreviewConfigBuilder = new PreviewConfig.Builder();
-        mImageAnalysisConfigBuilder = new ImageAnalysisConfig.Builder();
-        mCameraStatusCallback = new CameraDevice.StateCallback() {
-            @Override
-            public void onOpened(@NonNull CameraDevice camera) {
-                mLatch = new CountDownLatch(1);
-            }
+        ListenableFuture<ExtensionsManager.ExtensionsAvailability> availability =
+                ExtensionsManager.init(mContext);
+        ExtensionsManager.ExtensionsAvailability extensionsAvailability = availability.get(1,
+                TimeUnit.SECONDS);
+        assumeTrue(extensionsAvailability
+                == ExtensionsManager.ExtensionsAvailability.LIBRARY_AVAILABLE);
 
-            @Override
-            public void onDisconnected(@NonNull CameraDevice camera) {
-
-            }
-
-            @Override
-            public void onError(@NonNull CameraDevice camera, int error) {
-
-            }
-
-            @Override
-            public void onClosed(@NonNull CameraDevice camera) {
-                mLatch.countDown();
-            }
-        };
-
+        mImageCaptureBuilder = new ImageCapture.Builder();
+        mPreviewBuilder = new Preview.Builder();
         mInputTimestampsLatch = new CountDownLatch(1);
 
         mTimestampListener = new TimestampCaptureProcessor.TimestampListener() {
@@ -191,7 +186,14 @@ public class PreviewProcessorTimestampTest {
                 if (mComplete) {
                     return;
                 }
-                surfaceTexture.updateTexImage();
+
+                synchronized (mIsSurfaceTextureReleasedLock) {
+                    if (!mIsSurfaceTextureReleased) {
+                        mInstrumentation.runOnMainSync(() -> {
+                            surfaceTexture.updateTexImage();
+                        });
+                    }
+                }
 
                 mOutputTimestamps.add(surfaceTexture.getTimestamp());
                 if (mOutputTimestamps.size() > 10) {
@@ -202,23 +204,19 @@ public class PreviewProcessorTimestampTest {
         };
 
         mSurfaceTextureLatch = new CountDownLatch(1);
-
-        new Camera2Config.Extender(mImageCaptureConfigBuilder).setDeviceStateCallback(
-                mCameraStatusCallback);
     }
 
     @After
-    public void cleanUp() throws InterruptedException {
-        if (mLatch != null) {
-            mInstrumentation.runOnMainSync(CameraX::unbindAll);
-
-            // Make sure camera was closed.
-            mLatch.await(3000, TimeUnit.MILLISECONDS);
-        }
+    public void cleanUp() throws InterruptedException, ExecutionException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        ExtensionsManager.deinit().get();
     }
 
     private HandlerThread mProcessingHandlerThread;
     private Handler mProcessingHandler;
+
+    private boolean mIsSurfaceTextureReleased = false;
+    private Object mIsSurfaceTextureReleasedLock = new Object();
 
     @Test
     public void timestampIsCorrect() throws InterruptedException {
@@ -228,32 +226,47 @@ public class PreviewProcessorTimestampTest {
         enableExtension(mEffectMode, mLensFacing);
 
         // To test bind/unbind and take picture.
-        ImageCapture imageCapture = new ImageCapture(mImageCaptureConfigBuilder.build());
+        ImageCapture imageCapture = mImageCaptureBuilder.build();
 
-        PreviewConfig previewConfig = mPreviewConfigBuilder
-                .build();
+        PreviewConfig previewConfig = mPreviewBuilder.getUseCaseConfig();
         CaptureProcessor previewCaptureProcessor = previewConfig.getCaptureProcessor(null);
         assumeNotNull(previewCaptureProcessor);
-        mPreviewConfigBuilder.setCaptureProcessor(
+        mPreviewBuilder.setCaptureProcessor(
                 new TimestampCaptureProcessor(previewCaptureProcessor, mTimestampListener));
 
-        Preview preview = new Preview(mPreviewConfigBuilder.build());
+        Preview preview = mPreviewBuilder.build();
 
-        // To set the update listener and Preview will change to active state.
-        preview.setOnPreviewOutputUpdateListener(previewOutput -> {
-                    mProcessingHandler.post(() -> previewOutput.getSurfaceTexture()
-                            .attachToGLContext(GLUtil.getTexIdFromGLContext()));
-                    previewOutput.getSurfaceTexture().setOnFrameAvailableListener(
-                            mOnFrameAvailableListener, mProcessingHandler);
-
-                    mSurfaceTextureLatch.countDown();
-                }
-        );
-
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
         mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(mLifecycleOwner, preview, imageCapture);
+            // To set the update listener and Preview will change to active state.
+            preview.setSurfaceProvider(createSurfaceTextureProvider(
+                    new SurfaceTextureProvider.SurfaceTextureCallback() {
+                        @Override
+                        public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
+                                @NonNull Size resolution) {
+                            surfaceTexture.attachToGLContext(GLUtil.getTexIdFromGLContext());
+                            surfaceTexture.setOnFrameAvailableListener(
+                                    mOnFrameAvailableListener, mProcessingHandler);
+                            mSurfaceTextureLatch.countDown();
+                        }
 
-            mLifecycleOwner.startAndResume();
+                        @Override
+                        public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
+                            synchronized (mIsSurfaceTextureReleasedLock) {
+                                mIsSurfaceTextureReleased = true;
+                                surfaceTexture.release();
+                            }
+                        }
+                    }));
+
+            CameraUseCaseAdapter cameraUseCaseAdapter =
+                    CameraUtil.createCameraUseCaseAdapter(mContext, cameraSelector);
+            try {
+                cameraUseCaseAdapter.addUseCases(Arrays.asList(preview, imageCapture));
+            } catch (CameraUseCaseAdapter.CameraException e) {
+                e.printStackTrace();
+            }
         });
 
         assertTrue(mSurfaceTextureLatch.await(1000, TimeUnit.MILLISECONDS));
@@ -268,46 +281,43 @@ public class PreviewProcessorTimestampTest {
      * To invoke the enableExtension() method for different effect.
      */
     private void enableExtension(ExtensionsManager.EffectMode effectMode,
-            CameraX.LensFacing lensFacing) {
+            @CameraSelector.LensFacing int lensFacing) {
 
-        mImageCaptureConfigBuilder.setLensFacing(lensFacing);
-        mPreviewConfigBuilder.setLensFacing(lensFacing);
-        mImageAnalysisConfigBuilder.setLensFacing(lensFacing);
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(lensFacing).build();
 
         ImageCaptureExtender imageCaptureExtender = null;
         PreviewExtender previewExtender = null;
 
         switch (effectMode) {
             case HDR:
-                imageCaptureExtender = HdrImageCaptureExtender.create(mImageCaptureConfigBuilder);
-                previewExtender = HdrPreviewExtender.create(mPreviewConfigBuilder);
+                imageCaptureExtender = HdrImageCaptureExtender.create(mImageCaptureBuilder);
+                previewExtender = HdrPreviewExtender.create(mPreviewBuilder);
                 break;
             case BOKEH:
-                imageCaptureExtender = BokehImageCaptureExtender.create(
-                        mImageCaptureConfigBuilder);
-                previewExtender = BokehPreviewExtender.create(mPreviewConfigBuilder);
+                imageCaptureExtender = BokehImageCaptureExtender.create(mImageCaptureBuilder);
+                previewExtender = BokehPreviewExtender.create(mPreviewBuilder);
                 break;
             case BEAUTY:
-                imageCaptureExtender = BeautyImageCaptureExtender.create(
-                        mImageCaptureConfigBuilder);
-                previewExtender = BeautyPreviewExtender.create(mPreviewConfigBuilder);
+                imageCaptureExtender = BeautyImageCaptureExtender.create(mImageCaptureBuilder);
+                previewExtender = BeautyPreviewExtender.create(mPreviewBuilder);
                 break;
             case NIGHT:
-                imageCaptureExtender = NightImageCaptureExtender.create(mImageCaptureConfigBuilder);
-                previewExtender = NightPreviewExtender.create(mPreviewConfigBuilder);
+                imageCaptureExtender = NightImageCaptureExtender.create(mImageCaptureBuilder);
+                previewExtender = NightPreviewExtender.create(mPreviewBuilder);
                 break;
             case AUTO:
-                imageCaptureExtender = AutoImageCaptureExtender.create(mImageCaptureConfigBuilder);
-                previewExtender = AutoPreviewExtender.create(mPreviewConfigBuilder);
+                imageCaptureExtender = AutoImageCaptureExtender.create(mImageCaptureBuilder);
+                previewExtender = AutoPreviewExtender.create(mPreviewBuilder);
                 break;
         }
 
         assertNotNull(imageCaptureExtender);
         assertNotNull(previewExtender);
 
-        assertTrue(previewExtender.isExtensionAvailable());
-        previewExtender.enableExtension();
-        assertTrue(imageCaptureExtender.isExtensionAvailable());
-        imageCaptureExtender.enableExtension();
+        assertTrue(previewExtender.isExtensionAvailable(cameraSelector));
+        previewExtender.enableExtension(cameraSelector);
+        assertTrue(imageCaptureExtender.isExtensionAvailable(cameraSelector));
+        imageCaptureExtender.enableExtension(cameraSelector);
     }
 }

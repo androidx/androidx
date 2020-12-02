@@ -70,7 +70,7 @@ public class GridLayoutManagerCacheTest extends BaseGridLayoutManagerTest {
     private boolean cachedViewsContains(int position) {
         // Note: can't make assumptions about order here, so just check all cached views
         for (int i = 0; i < cachedViews().size(); i++) {
-            if (cachedViews().get(i).getAdapterPosition() == position) return true;
+            if (cachedViews().get(i).getAbsoluteAdapterPosition() == position) return true;
         }
         return false;
     }
@@ -91,24 +91,22 @@ public class GridLayoutManagerCacheTest extends BaseGridLayoutManagerTest {
 
                 // scroll to the middle, so we can move in either direction
                 mRecyclerView.scrollToPosition(mConfig.mItemCount / 2);
+                mRecyclerView.setItemViewCacheSize(0);
             }
         });
 
-        mRecyclerView.setItemViewCacheSize(0);
-        {
-            mGlm.expectPrefetch(1);
-            mActivityRule.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mRecyclerView.mRecycler.recycleAndClearCachedViews();
-                    mRecyclerView.mGapWorker.postFromTraversal(mRecyclerView, mDx, mDy);
+        mGlm.expectPrefetch(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.mRecycler.recycleAndClearCachedViews();
+                mRecyclerView.mGapWorker.postFromTraversal(mRecyclerView, mDx, mDy);
 
-                    // Lie about post time, so prefetch executes even if it is delayed
-                    mRecyclerView.mGapWorker.mPostTimeNs += TimeUnit.SECONDS.toNanos(5);
-                }
-            });
-            mGlm.waitForPrefetch(1);
-        }
+                // Lie about post time, so prefetch executes even if it is delayed
+                mRecyclerView.mGapWorker.mPostTimeNs += TimeUnit.SECONDS.toNanos(5);
+            }
+        });
+        mGlm.waitForPrefetch(1);
 
         mActivityRule.runOnUiThread(new Runnable() {
             @Override

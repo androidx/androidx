@@ -448,6 +448,7 @@ public class ContextCompat {
      *           The value 0 is an invalid identifier.
      * @return Drawable An object that can be used to draw this resource.
      */
+    @SuppressWarnings("deprecation")
     @Nullable
     public static Drawable getDrawable(@NonNull Context context, @DrawableRes int id) {
         if (Build.VERSION.SDK_INT >= 21) {
@@ -485,6 +486,7 @@ public class ContextCompat {
      * @throws android.content.res.Resources.NotFoundException if the given ID
      *         does not exist.
      */
+    @SuppressWarnings("deprecation")
     @Nullable
     public static ColorStateList getColorStateList(@NonNull Context context,
             @ColorRes int id) {
@@ -508,6 +510,7 @@ public class ContextCompat {
      * @throws android.content.res.Resources.NotFoundException if the given ID
      *         does not exist.
      */
+    @SuppressWarnings("deprecation")
     @ColorInt
     public static int getColor(@NonNull Context context, @ColorRes int id) {
         if (Build.VERSION.SDK_INT >= 23) {

@@ -31,6 +31,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.RecyclerView;
@@ -151,19 +152,21 @@ public class AnimatedRecyclerView extends Activity {
                 mPendingSettleList.clear();
             }
 
+            @NonNull
             @Override
-            public ItemHolderInfo recordPreLayoutInformation(RecyclerView.State state,
-                    RecyclerView.ViewHolder viewHolder,
-                    @AdapterChanges int changeFlags, List<Object> payloads) {
+            public ItemHolderInfo recordPreLayoutInformation(@NonNull RecyclerView.State state,
+                    @NonNull RecyclerView.ViewHolder viewHolder,
+                    @AdapterChanges int changeFlags, @NonNull List<Object> payloads) {
                 MyItemInfo info = (MyItemInfo) super
                         .recordPreLayoutInformation(state, viewHolder, changeFlags, payloads);
                 info.text = ((MyViewHolder) viewHolder).textView.getText();
                 return info;
             }
 
+            @NonNull
             @Override
-            public ItemHolderInfo recordPostLayoutInformation(RecyclerView.State state,
-                    RecyclerView.ViewHolder viewHolder) {
+            public ItemHolderInfo recordPostLayoutInformation(@NonNull RecyclerView.State state,
+                    @NonNull RecyclerView.ViewHolder viewHolder) {
                 MyItemInfo info = (MyItemInfo) super.recordPostLayoutInformation(state, viewHolder);
                 info.text = ((MyViewHolder) viewHolder).textView.getText();
                 return info;
@@ -171,7 +174,7 @@ public class AnimatedRecyclerView extends Activity {
 
 
             @Override
-            public boolean canReuseUpdatedViewHolder(RecyclerView.ViewHolder viewHolder) {
+            public boolean canReuseUpdatedViewHolder(@NonNull RecyclerView.ViewHolder viewHolder) {
                 return mEnableInPlaceChange;
             }
 
@@ -203,17 +206,16 @@ public class AnimatedRecyclerView extends Activity {
             }
 
             @Override
-            public boolean animateChange(RecyclerView.ViewHolder oldHolder,
-                    RecyclerView.ViewHolder newHolder, ItemHolderInfo preInfo,
-                    ItemHolderInfo postInfo) {
+            public boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder,
+                    @NonNull RecyclerView.ViewHolder newHolder, @NonNull ItemHolderInfo preInfo,
+                    @NonNull ItemHolderInfo postInfo) {
                 if (oldHolder != newHolder) {
                     return super.animateChange(oldHolder, newHolder, preInfo, postInfo);
                 }
-                return animateChangeApiHoneycombMr1(oldHolder, newHolder, preInfo, postInfo);
+                return animateChangeApiHoneycombMr1(oldHolder, preInfo, postInfo);
             }
 
             private boolean animateChangeApiHoneycombMr1(RecyclerView.ViewHolder oldHolder,
-                    RecyclerView.ViewHolder newHolder,
                     ItemHolderInfo preInfo, ItemHolderInfo postInfo) {
                 endAnimation(oldHolder);
                 MyItemInfo pre = (MyItemInfo) preInfo;
@@ -222,7 +224,7 @@ public class AnimatedRecyclerView extends Activity {
 
                 CharSequence finalText = post.text;
 
-                if (pre.text.equals(post.text)) {
+                if (pre.text.toString().contentEquals(post.text)) {
                     // same content. Just translate back to 0
                     final long duration = (long) (getChangeDuration()
                             * (vh.textView.getTranslationX() / vh.textView.getWidth()));
@@ -250,6 +252,7 @@ public class AnimatedRecyclerView extends Activity {
                 return true;
             }
 
+            @NonNull
             @Override
             public ItemHolderInfo obtainHolderInfo() {
                 return new MyItemInfo();
@@ -356,7 +359,7 @@ public class AnimatedRecyclerView extends Activity {
     public void itemClicked(View view) {
         ViewGroup parent = (ViewGroup) view;
         MyViewHolder holder = (MyViewHolder) mRecyclerView.getChildViewHolder(parent);
-        final int position = holder.getAdapterPosition();
+        final int position = holder.getBindingAdapterPosition();
         if (position == RecyclerView.NO_POSITION) {
             return;
         }
@@ -375,10 +378,6 @@ public class AnimatedRecyclerView extends Activity {
                 }
             }
         }
-    }
-
-    private String generateNewText() {
-        return "Added Item #" + mNumItemsAdded++;
     }
 
     public void d1a2d3(View view) {

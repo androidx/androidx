@@ -18,20 +18,27 @@ package androidx.build
 
 import com.jakewharton.dex.DexParser.Companion.toDexParser
 import org.gradle.api.DefaultTask
+import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.TaskProvider
 import org.json.simple.JSONObject
 import java.io.File
-import java.lang.IllegalStateException
 
 private const val AAR_FILE_EXTENSION = ".aar"
 private const val BYTECODE_SIZE = "bytecode_size"
 private const val METHOD_COUNT = "method_count"
 private const val METRICS_DIRECTORY = "librarymetrics"
-private const val METRICS_FILE_SUFFIX = "-library_metrics.json"
+private const val JSON_FILE_EXTENSION = ".json"
 private const val JAR_FILE_EXTENSION = ".jar"
 
+@CacheableTask
 abstract class ReportLibraryMetricsTask : DefaultTask() {
 
     init {
@@ -42,18 +49,16 @@ abstract class ReportLibraryMetricsTask : DefaultTask() {
     /**
      * The variants we are interested in gathering metrics for.
      */
-    @get:InputFiles
+    @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     abstract val jarFiles: ConfigurableFileCollection
+
+    @get:OutputFile
+    abstract val outputFile: Property<File>
 
     @TaskAction
     fun reportLibraryMetrics() {
-        val distDir = project.rootProject.getDistributionDirectory()
-        val outputDir = File(distDir.canonicalPath + '/' + METRICS_DIRECTORY)
-        outputDir.mkdirs()
-        val outputFile = File(
-            outputDir,
-            "${project.path.replace(':', '-').substring(1)}_${project.name}$METRICS_FILE_SUFFIX"
-        )
+        val file = outputFile.get()
+        file.parentFile.mkdirs()
         val json = JSONObject()
 
         val jarFiles = getJarFiles()
@@ -67,12 +72,12 @@ abstract class ReportLibraryMetricsTask : DefaultTask() {
             json[METHOD_COUNT] = methodCount
         }
 
-        outputFile.writeText(json.toJSONString())
+        file.writeText(json.toJSONString())
     }
 
     private fun getJarFiles(): List<File> {
         return jarFiles.files.filter { file ->
-                file.name.endsWith(JAR_FILE_EXTENSION)
+            file.name.endsWith(JAR_FILE_EXTENSION)
         }
     }
 
@@ -88,4 +93,20 @@ abstract class ReportLibraryMetricsTask : DefaultTask() {
                 throw IllegalStateException("One or more of the items in $jarFiles is not a file.")
         }
     }
+}
+
+fun Project.configureReportLibraryMetricsTask(): TaskProvider<ReportLibraryMetricsTask> {
+    val task = tasks.register(
+        AndroidXPlugin.REPORT_LIBRARY_METRICS_TASK,
+        ReportLibraryMetricsTask::class.java
+    )
+    task.configure {
+        val outputDir = File(project.rootProject.getDistributionDirectory(), METRICS_DIRECTORY)
+        it.outputFile.set(
+            task.map {
+                File(outputDir, "${project.group}_${project.name}$JSON_FILE_EXTENSION")
+            }
+        )
+    }
+    return task
 }

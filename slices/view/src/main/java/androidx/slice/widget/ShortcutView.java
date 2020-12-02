@@ -24,7 +24,6 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
-import android.net.Uri;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.ImageView;
@@ -49,9 +48,7 @@ public class ShortcutView extends SliceChildView {
     private static final String TAG = "ShortcutView";
 
     private ListContent mListContent;
-    private Uri mUri;
     private SliceItem mActionItem;
-    private CharSequence mLabel;
     private IconCompat mIcon;
     private Set<SliceItem> mLoadingActions;
 
@@ -75,7 +72,6 @@ public class ShortcutView extends SliceChildView {
         SliceActionImpl shortcutAction = (SliceActionImpl) mListContent.getShortcut(getContext());
         mActionItem = shortcutAction.getActionItem();
         mIcon = shortcutAction.getIcon();
-        mLabel = shortcutAction.getTitle();
         boolean tintable = shortcutAction.getImageMode() == ICON_IMAGE;
         int color = mListContent.getAccentColor();
         final int accentColor = color != -1 ? color : SliceViewUtil.getColorAccent(getContext());
@@ -91,7 +87,6 @@ public class ShortcutView extends SliceChildView {
             final int iconSize = tintable ? mSmallIconSize : mLargeIconSize;
             SliceViewUtil.createCircledIcon(getContext(), iconSize, mIcon,
                     !tintable, this /* parent */);
-            mUri = sliceContent.getSliceItem().getSlice().getUri();
             setClickable(true);
         } else {
             setClickable(false);
@@ -147,9 +142,7 @@ public class ShortcutView extends SliceChildView {
     @Override
     public void resetView() {
         mListContent = null;
-        mUri = null;
         mActionItem = null;
-        mLabel = null;
         mIcon = null;
         setBackground(null);
         removeAllViews();

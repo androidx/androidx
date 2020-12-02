@@ -40,6 +40,13 @@ import kotlin.coroutines.resume
  * @param Key Type of data used to query Value types out of the [DataSource].
  * @param Value Type of items being loaded by the [DataSource].
  */
+@Deprecated(
+    message = "ItemKeyedDataSource is deprecated and has been replaced by PagingSource",
+    replaceWith = ReplaceWith(
+        "PagingSource<Key, Value>",
+        "androidx.paging.PagingSource"
+    )
+)
 abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Value>(ITEM_KEYED) {
 
     /**
@@ -160,8 +167,8 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
                     params.placeholdersEnabled
                 )
             )
-            LoadType.START -> loadBefore(LoadParams(params.key!!, params.pageSize))
-            LoadType.END -> loadAfter(LoadParams(params.key!!, params.pageSize))
+            LoadType.PREPEND -> loadBefore(LoadParams(params.key!!, params.pageSize))
+            LoadType.APPEND -> loadAfter(LoadParams(params.key!!, params.pageSize))
         }
     }
 
@@ -171,39 +178,45 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
     @VisibleForTesting
     internal suspend fun loadInitial(params: LoadInitialParams<Key>) =
         suspendCancellableCoroutine<BaseResult<Value>> { cont ->
-            loadInitial(params, object : LoadInitialCallback<Value>() {
-                override fun onResult(data: List<Value>, position: Int, totalCount: Int) {
-                    cont.resume(
-                        BaseResult(
-                            data = data,
-                            prevKey = data.getPrevKey(),
-                            nextKey = data.getNextKey(),
-                            itemsBefore = position,
-                            itemsAfter = totalCount - data.size - position
+            loadInitial(
+                params,
+                object : LoadInitialCallback<Value>() {
+                    override fun onResult(data: List<Value>, position: Int, totalCount: Int) {
+                        cont.resume(
+                            BaseResult(
+                                data = data,
+                                prevKey = data.getPrevKey(),
+                                nextKey = data.getNextKey(),
+                                itemsBefore = position,
+                                itemsAfter = totalCount - data.size - position
+                            )
                         )
-                    )
-                }
+                    }
 
-                override fun onResult(data: List<Value>) {
-                    cont.resume(
-                        BaseResult(
-                            data = data,
-                            prevKey = data.getPrevKey(),
-                            nextKey = data.getNextKey()
+                    override fun onResult(data: List<Value>) {
+                        cont.resume(
+                            BaseResult(
+                                data = data,
+                                prevKey = data.getPrevKey(),
+                                nextKey = data.getNextKey()
+                            )
                         )
-                    )
+                    }
                 }
-            })
+            )
         }
 
+    @Suppress("DEPRECATION")
     private fun CancellableContinuation<BaseResult<Value>>.asCallback() =
         object : ItemKeyedDataSource.LoadCallback<Value>() {
             override fun onResult(data: List<Value>) {
-                resume(BaseResult(
-                    data,
-                    data.getPrevKey(),
-                    data.getNextKey()
-                ))
+                resume(
+                    BaseResult(
+                        data,
+                        data.getPrevKey(),
+                        data.getNextKey()
+                    )
+                )
             }
         }
 
@@ -303,19 +316,23 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
     @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
     internal override fun getKeyInternal(item: Value): Key = getKey(item)
 
+    @Suppress("DEPRECATION")
     final override fun <ToValue : Any> mapByPage(
         function: Function<List<Value>, List<ToValue>>
     ): ItemKeyedDataSource<Key, ToValue> = WrapperItemKeyedDataSource(this, function)
 
+    @Suppress("DEPRECATION")
     final override fun <ToValue : Any> mapByPage(
         function: (List<Value>) -> List<ToValue>
     ): ItemKeyedDataSource<Key, ToValue> = mapByPage(Function { function(it) })
 
+    @Suppress("DEPRECATION")
     final override fun <ToValue : Any> map(
         function: Function<Value, ToValue>
     ): ItemKeyedDataSource<Key, ToValue> =
         mapByPage(Function { list -> list.map { function.apply(it) } })
 
+    @Suppress("DEPRECATION")
     final override fun <ToValue : Any> map(
         function: (Value) -> ToValue
     ): ItemKeyedDataSource<Key, ToValue> = mapByPage(Function { list -> list.map(function) })

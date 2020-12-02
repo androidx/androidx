@@ -16,29 +16,20 @@
 
 package androidx.room.solver.query.result
 
-import androidx.annotation.NonNull
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.L
 import androidx.room.ext.N
-import androidx.room.ext.RoomTypeNames.INVALIDATION_OBSERVER
 import androidx.room.ext.T
 import androidx.room.ext.arrayTypeName
-import androidx.room.ext.typeName
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterSpec
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Modifier
-import javax.lang.model.type.TypeMirror
 
 /**
  * Converts the query into a LiveData and returns it. No query is run until necessary.
  */
 class LiveDataQueryResultBinder(
-    val typeArg: TypeMirror,
+    val typeArg: XType,
     val tableNames: Set<String>,
     adapter: QueryResultAdapter?
 ) : BaseObservableQueryResultBinder(adapter) {
@@ -50,7 +41,7 @@ class LiveDataQueryResultBinder(
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName()) {
+        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
             createRunQueryAndReturnStatements(
                 builder = this,
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
@@ -70,65 +61,11 @@ class LiveDataQueryResultBinder(
             addStatement(
                 "return $N.getInvalidationTracker().createLiveData(new $T{$L}, $L, $L)",
                 dbField,
-                String::class.arrayTypeName(),
+                String::class.arrayTypeName,
                 tableNamesList,
                 if (inTransaction) "true" else "false",
                 callableImpl
             )
         }
-    }
-
-    private fun createComputeMethod(
-        roomSQLiteQueryVar: String,
-        typeName: TypeName,
-        observerField: FieldSpec,
-        dbField: FieldSpec,
-        inTransaction: Boolean,
-        scope: CodeGenScope,
-        cancellationSignal: String
-    ): MethodSpec {
-        return MethodSpec.methodBuilder("compute").apply {
-            addAnnotation(Override::class.java)
-            addModifiers(Modifier.PROTECTED)
-            returns(typeName)
-
-            beginControlFlow("if ($N == null)", observerField).apply {
-                addStatement("$N = $L", observerField, createAnonymousObserver())
-                addStatement(
-                    "$N.getInvalidationTracker().addWeakObserver($N)",
-                    dbField, observerField
-                )
-            }
-            endControlFlow()
-
-            createRunQueryAndReturnStatements(
-                builder = this,
-                roomSQLiteQueryVar = roomSQLiteQueryVar,
-                dbField = dbField,
-                inTransaction = inTransaction,
-                scope = scope,
-                cancellationSignalVar = cancellationSignal
-            )
-        }.build()
-    }
-
-    private fun createAnonymousObserver(): TypeSpec {
-        val tableNamesList = tableNames.joinToString(",") { "\"$it\"" }
-        return TypeSpec.anonymousClassBuilder(tableNamesList).apply {
-            superclass(INVALIDATION_OBSERVER)
-            addMethod(MethodSpec.methodBuilder("onInvalidated").apply {
-                returns(TypeName.VOID)
-                addAnnotation(Override::class.java)
-                addParameter(
-                    ParameterSpec.builder(
-                        ParameterizedTypeName.get(Set::class.java, String::class.java), "tables"
-                    )
-                        .addAnnotation(NonNull::class.java)
-                        .build()
-                )
-                addModifiers(Modifier.PUBLIC)
-                addStatement("invalidate()")
-            }.build())
-        }.build()
     }
 }

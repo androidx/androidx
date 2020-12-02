@@ -258,8 +258,4 @@ public class MockRemotePlayer extends RemoteSessionPlayer {
     public int getNextMediaItemIndex() {
         return ITEM_NONE;
     }
-
-    @Override
-    public void close() throws Exception {
-    }
 }

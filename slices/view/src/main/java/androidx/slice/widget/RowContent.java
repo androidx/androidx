@@ -35,6 +35,7 @@ import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
+import static androidx.slice.core.SliceHints.HINT_END_OF_SECTION;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_KEY;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_VALUE;
@@ -68,8 +69,8 @@ public class RowContent extends SliceContent {
     private SliceItem mTitleItem;
     private SliceItem mSubtitleItem;
     private SliceItem mSummaryItem;
-    private ArrayList<SliceItem> mEndItems = new ArrayList<>();
-    private ArrayList<SliceAction> mToggleItems = new ArrayList<>();
+    private final ArrayList<SliceItem> mEndItems = new ArrayList<>();
+    private final ArrayList<SliceAction> mToggleItems = new ArrayList<>();
     private SliceItem mRange;
     private SliceItem mSelection;
     private boolean mIsHeader;
@@ -87,6 +88,10 @@ public class RowContent extends SliceContent {
      * @return whether this row has content that is valid to display.
      */
     private boolean populate(SliceItem rowSlice, boolean isHeader) {
+        if (rowSlice.hasHint(HINT_END_OF_SECTION)) {
+            showBottomDivider(true);
+        }
+
         mIsHeader = isHeader;
         if (!isValidRow(rowSlice)) {
             Log.w(TAG, "Provided SliceItem is invalid for RowContent");
@@ -97,16 +102,42 @@ public class RowContent extends SliceContent {
         // Filter anything not viable for displaying in a row
         ArrayList<SliceItem> rowItems = filterInvalidItems(rowSlice);
         // If we've only got one item that's a slice / action use those items instead
+        boolean isOneItem = false;
         if (rowItems.size() == 1 && (FORMAT_ACTION.equals(rowItems.get(0).getFormat())
                 || FORMAT_SLICE.equals(rowItems.get(0).getFormat()))
                 && !rowItems.get(0).hasAnyHints(HINT_SHORTCUT, HINT_TITLE)) {
             if (isValidRow(rowItems.get(0))) {
+                isOneItem = true;
                 rowSlice = rowItems.get(0);
                 rowItems = filterInvalidItems(rowSlice);
             }
         }
         if (SUBTYPE_RANGE.equals(rowSlice.getSubType())) {
-            mRange = rowSlice;
+            // It must be a Range, InputRange, or StarRating without StartItem/EndItem.
+            if (SliceQuery.findSubtype(rowSlice, FORMAT_ACTION, SUBTYPE_RANGE) == null
+                    || isOneItem) {
+                mRange = rowSlice;
+            } else {
+                // Remove the startItem we already know about
+                rowItems.remove(mStartItem);
+                // After removing startItem, if size == 1, then it must be action<range>
+                if (rowItems.size() == 1) {
+                    if (isValidRow(rowItems.get(0))) {
+                        rowSlice = rowItems.get(0);
+                        rowItems = filterInvalidItems(rowSlice);
+                        mRange = rowSlice;
+                        // Remove thumb icon, don't let it be added into endItems
+                        rowItems.remove(getInputRangeThumb());
+                    }
+                } else { // It must has end items.
+                    mRange = SliceQuery.findSubtype(rowSlice, FORMAT_ACTION, SUBTYPE_RANGE);
+                    // Refactor the rowItems, then it can be parsed correctly
+                    ArrayList<SliceItem> rangeItems = filterInvalidItems(mRange);
+                    rangeItems.remove(getInputRangeThumb());
+                    rowItems.remove(mRange);
+                    rowItems.addAll(rangeItems);
+                }
+            }
         }
         if (SUBTYPE_SELECTION.equals(rowSlice.getSubType())) {
             mSelection = rowSlice;

@@ -17,7 +17,6 @@
 package androidx.room.vo
 
 import androidx.annotation.NonNull
-import androidx.room.ext.hasAnnotation
 
 /**
  * Used when a field is embedded inside an Entity or Pojo.

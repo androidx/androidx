@@ -35,7 +35,7 @@ import java.util.Arrays;
 public class TimedMetaDataTest extends MediaTestBase {
 
     @Test
-    public void testConstructor() {
+    public void constructor() {
         byte[] meta = new byte[] { 0x42, 0x4f };
         TimedMetaData timedMeta = new TimedMetaData(123, meta);
         assertEquals(123, timedMeta.getTimestamp());

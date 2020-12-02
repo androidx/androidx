@@ -19,6 +19,7 @@ package androidx.paging
 import androidx.arch.core.util.Function
 import java.util.IdentityHashMap
 
+@Suppress("DEPRECATION")
 internal class WrapperItemKeyedDataSource<K : Any, A : Any, B : Any>(
     private val source: ItemKeyedDataSource<K, A>,
     private val listFunction: Function<List<A>, List<B>>
@@ -54,31 +55,40 @@ internal class WrapperItemKeyedDataSource<K : Any, A : Any, B : Any>(
     }
 
     override fun loadInitial(params: LoadInitialParams<K>, callback: LoadInitialCallback<B>) {
-        source.loadInitial(params, object : LoadInitialCallback<A>() {
-            override fun onResult(data: List<A>, position: Int, totalCount: Int) {
-                callback.onResult(convertWithStashedKeys(data), position, totalCount)
-            }
+        source.loadInitial(
+            params,
+            object : LoadInitialCallback<A>() {
+                override fun onResult(data: List<A>, position: Int, totalCount: Int) {
+                    callback.onResult(convertWithStashedKeys(data), position, totalCount)
+                }
 
-            override fun onResult(data: List<A>) {
-                callback.onResult(convertWithStashedKeys(data))
+                override fun onResult(data: List<A>) {
+                    callback.onResult(convertWithStashedKeys(data))
+                }
             }
-        })
+        )
     }
 
     override fun loadAfter(params: LoadParams<K>, callback: LoadCallback<B>) {
-        source.loadAfter(params, object : LoadCallback<A>() {
-            override fun onResult(data: List<A>) {
-                callback.onResult(convertWithStashedKeys(data))
+        source.loadAfter(
+            params,
+            object : LoadCallback<A>() {
+                override fun onResult(data: List<A>) {
+                    callback.onResult(convertWithStashedKeys(data))
+                }
             }
-        })
+        )
     }
 
     override fun loadBefore(params: LoadParams<K>, callback: LoadCallback<B>) {
-        source.loadBefore(params, object : LoadCallback<A>() {
-            override fun onResult(data: List<A>) {
-                callback.onResult(convertWithStashedKeys(data))
+        source.loadBefore(
+            params,
+            object : LoadCallback<A>() {
+                override fun onResult(data: List<A>) {
+                    callback.onResult(convertWithStashedKeys(data))
+                }
             }
-        })
+        )
     }
 
     override fun getKey(item: B): K = synchronized(keyMap) {

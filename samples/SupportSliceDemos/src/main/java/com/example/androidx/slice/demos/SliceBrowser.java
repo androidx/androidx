@@ -35,6 +35,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
+import android.speech.tts.TextToSpeech;
 import android.util.ArrayMap;
 import android.util.Log;
 import android.util.TypedValue;
@@ -67,6 +68,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Example use of SliceView. Uses a search bar to select/auto-complete a slice uri which is
@@ -88,6 +90,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
     private LiveData<Slice> mSliceLiveData;
     private SliceView mSliceView;
     private SharedPreferences mSharedPreferences;
+    private TextToSpeech mTextToSpeech;
 
     // Mode menu
     private int mSelectedMode;
@@ -110,6 +113,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
         mSearchView = findViewById(R.id.search_view);
 
         mSliceView = findViewById(R.id.slice_view);
+        mSliceView.setShowTitleItems(true);
 
         final String[] from = new String[]{"uri"};
         final int[] to = new int[]{android.R.id.text1};
@@ -143,6 +147,8 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
                 populateAdapter(s);
                 return false;
             }
+        });
+        mTextToSpeech = new TextToSpeech(getApplicationContext(), status -> {
         });
 
         mSharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
@@ -356,6 +362,11 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
             }
             mShowingSerialized = false;
             mSliceView.setSlice(slice);
+            Bundle hostExtras = SliceMetadata.from(this, slice).getHostExtras();
+            if (hostExtras.getString("tts") != null) {
+                mTextToSpeech.setLanguage(Locale.ENGLISH);
+                mTextToSpeech.speak(hostExtras.getString("tts"), TextToSpeech.QUEUE_FLUSH, null);
+            }
         });
     }
 

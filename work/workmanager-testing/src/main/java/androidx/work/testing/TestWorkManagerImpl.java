@@ -92,7 +92,12 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
     }
 
     @Override
-    public @NonNull List<Scheduler> createSchedulers(Context context, TaskExecutor taskExecutor) {
+    @NonNull
+    public List<Scheduler> createSchedulers(
+            @NonNull Context context,
+            @NonNull Configuration configuration,
+            @NonNull TaskExecutor taskExecutor) {
+
         mScheduler = new TestScheduler(context);
         return Collections.singletonList((Scheduler) mScheduler);
     }

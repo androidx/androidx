@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.ComponentName;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 
@@ -35,7 +34,6 @@ import androidx.media2.test.service.MockMediaSessionService;
 import androidx.media2.test.service.MockPlayer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
@@ -49,7 +47,6 @@ import java.util.List;
 /**
  * Tests {@link SessionToken}.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class SessionTokenTest extends MediaTestBase {
@@ -71,7 +68,7 @@ public class SessionTokenTest extends MediaTestBase {
     }
 
     @Test
-    public void testConstructor_sessionService() {
+    public void constructor_sessionService() {
         SessionToken token = new SessionToken(mContext, new ComponentName(
                 mContext.getPackageName(),
                 MockMediaSessionService.class.getCanonicalName()));
@@ -81,7 +78,7 @@ public class SessionTokenTest extends MediaTestBase {
     }
 
     @Test
-    public void testConstructor_libraryService() {
+    public void constructor_libraryService() {
         ComponentName testComponentName = new ComponentName(mContext.getPackageName(),
                 MockMediaLibraryService.class.getCanonicalName());
         SessionToken token = new SessionToken(mContext, testComponentName);
@@ -93,7 +90,7 @@ public class SessionTokenTest extends MediaTestBase {
     }
 
     @Test
-    public void testGetters_whenCreatedBySession() {
+    public void getters_whenCreatedBySession() {
         prepareLooper();
         Bundle testTokenExtras = TestUtils.createTestBundle();
         MediaSession session = new MediaSession.Builder(mContext, new MockPlayer(0))

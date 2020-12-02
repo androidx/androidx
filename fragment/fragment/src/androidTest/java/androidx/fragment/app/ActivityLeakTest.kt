@@ -18,7 +18,6 @@ package androidx.fragment.app
 
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.RecreatedActivity
 import androidx.testutils.recreate
 import androidx.testutils.runOnUiThreadRethrow
@@ -48,6 +47,7 @@ object NotRetained : LeakConfiguration() {
 }
 
 object Retained : LeakConfiguration() {
+    @Suppress("DEPRECATION")
     override fun commit(fragmentManager: FragmentManager) = StrictFragment().apply {
         retainInstance = true
     }.also {
@@ -82,8 +82,9 @@ class ActivityLeakTest(
         }
     }
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(ActivityLeakActivity::class.java)
+    val activityRule = androidx.test.rule.ActivityTestRule(ActivityLeakActivity::class.java)
 
     @Test
     fun testActivityDoesNotLeak() {

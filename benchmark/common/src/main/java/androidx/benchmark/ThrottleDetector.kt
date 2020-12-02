@@ -38,16 +38,16 @@ internal object ThrottleDetector {
         copySomeData()
 
         val state = BenchmarkState()
-        state.performThrottleChecks = false
-        val input = FloatArray(16) { System.nanoTime().toFloat() }
-        val output = FloatArray(16)
+        state.simplifiedTimingOnlyMode = true
+        val sourceMatrix = FloatArray(16) { System.nanoTime().toFloat() }
+        val resultMatrix = FloatArray(16)
 
         while (state.keepRunningInline()) {
             // Benchmark a simple thermal
-            Matrix.translateM(output, 0, input, 0, 1F, 2F, 3F)
+            Matrix.translateM(resultMatrix, 0, sourceMatrix, 0, 1F, 2F, 3F)
         }
 
-        return state.stats.min
+        return state.getMinTimeNanos()
     }
 
     /**

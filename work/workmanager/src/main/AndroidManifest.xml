@@ -45,7 +45,7 @@
             android:directBootAware="false"
             tools:targetApi="n"/>
         <service
-            android:name=".impl.foreground.SystemForegroundService"
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
             android:exported="false"
             android:directBootAware="false"
             android:enabled="@bool/enable_system_foreground_service_default"
@@ -119,6 +119,17 @@
             tools:targetApi="n">
             <intent-filter>
                 <action android:name="androidx.work.impl.background.systemalarm.UpdateProxies" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".impl.diagnostics.DiagnosticsReceiver"
+            android:directBootAware="false"
+            android:enabled="true"
+            android:exported="true"
+            tools:targetApi="n"
+            android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="androidx.work.diagnostics.REQUEST_DIAGNOSTICS" />
             </intent-filter>
         </receiver>
     </application>

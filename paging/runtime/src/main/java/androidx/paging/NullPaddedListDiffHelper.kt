@@ -38,41 +38,44 @@ internal fun <T : Any> NullPaddedList<T>.computeDiff(
     val oldSize = storageCount
     val newSize = newList.storageCount
 
-    return DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-        override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-            val oldItem = getFromStorage(oldItemPosition)
-            val newItem = newList.getFromStorage(newItemPosition)
+    return DiffUtil.calculateDiff(
+        object : DiffUtil.Callback() {
+            override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
+                val oldItem = getFromStorage(oldItemPosition)
+                val newItem = newList.getFromStorage(newItemPosition)
 
-            return when {
-                oldItem === newItem -> true
-                else -> diffCallback.getChangePayload(oldItem, newItem)
+                return when {
+                    oldItem === newItem -> true
+                    else -> diffCallback.getChangePayload(oldItem, newItem)
+                }
             }
-        }
 
-        override fun getOldListSize() = oldSize
+            override fun getOldListSize() = oldSize
 
-        override fun getNewListSize() = newSize
+            override fun getNewListSize() = newSize
 
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            val oldItem = getFromStorage(oldItemPosition)
-            val newItem = newList.getFromStorage(newItemPosition)
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                val oldItem = getFromStorage(oldItemPosition)
+                val newItem = newList.getFromStorage(newItemPosition)
 
-            return when {
-                oldItem === newItem -> true
-                else -> diffCallback.areItemsTheSame(oldItem, newItem)
+                return when {
+                    oldItem === newItem -> true
+                    else -> diffCallback.areItemsTheSame(oldItem, newItem)
+                }
             }
-        }
 
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            val oldItem = getFromStorage(oldItemPosition)
-            val newItem = newList.getFromStorage(newItemPosition)
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                val oldItem = getFromStorage(oldItemPosition)
+                val newItem = newList.getFromStorage(newItemPosition)
 
-            return when {
-                oldItem === newItem -> true
-                else -> diffCallback.areContentsTheSame(oldItem, newItem)
+                return when {
+                    oldItem === newItem -> true
+                    else -> diffCallback.areContentsTheSame(oldItem, newItem)
+                }
             }
-        }
-    }, true)
+        },
+        true
+    )
 }
 
 private class OffsettingListUpdateCallback internal constructor(
@@ -113,10 +116,10 @@ internal fun <T : Any> NullPaddedList<T>.dispatchDiff(
     newList: NullPaddedList<T>,
     diffResult: DiffUtil.DiffResult
 ) {
-    val trailingOld = trailingNullCount
-    val trailingNew = newList.trailingNullCount
-    val leadingOld = leadingNullCount
-    val leadingNew = newList.leadingNullCount
+    val trailingOld = placeholdersAfter
+    val trailingNew = newList.placeholdersAfter
+    val leadingOld = placeholdersBefore
+    val leadingNew = newList.placeholdersBefore
 
     if (trailingOld == 0 &&
         trailingNew == 0 &&
@@ -162,7 +165,7 @@ internal fun NullPaddedList<*>.transformAnchorIndex(
 ): Int {
     // diffResult's indices starting after nulls, need to transform to diffutil indices
     // (see also dispatchDiff(), which adds this offset when dispatching)
-    val diffIndex = oldPosition - leadingNullCount
+    val diffIndex = oldPosition - placeholdersBefore
 
     val oldSize = storageCount
 
@@ -180,7 +183,7 @@ internal fun NullPaddedList<*>.transformAnchorIndex(
             val result = diffResult.convertOldPositionToNew(positionToTry)
             if (result != -1) {
                 // also need to transform from diffutil output indices to newList
-                return result + newList.leadingNullCount
+                return result + newList.placeholdersBefore
             }
         }
     }

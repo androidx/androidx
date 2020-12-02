@@ -39,12 +39,6 @@ class SubtitleView extends View {
     // Ratio of inner padding to font size.
     private static final float INNER_PADDING_RATIO = 0.125f;
 
-    /** Color used for the shadowed edge of a bevel. */
-    private static final int COLOR_BEVEL_DARK = 0x80000000;
-
-    /** Color used for the illuminated edge of a bevel. */
-    private static final int COLOR_BEVEL_LIGHT = 0x80FFFFFF;
-
     // Styled dimensions.
     private final float mCornerRadius;
     private final float mOutlineWidth;
@@ -210,6 +204,7 @@ class SubtitleView extends View {
         computeMeasurements(width);
     }
 
+    @SuppressWarnings("deprecation")  // The constructor of StaticLayout is deprecated.
     private boolean computeMeasurements(int maxWidth) {
         if (mHasMeasurements && maxWidth == mLastMeasuredWidth) {
             return true;

@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.util.ArrayMap;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
@@ -36,6 +35,7 @@ import androidx.test.core.app.ApplicationProvider;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
@@ -54,7 +54,7 @@ abstract class MediaSessionTestBase {
     static Executor sHandlerExecutor;
 
     Context mContext;
-    private Map<MediaController, TestBrowserCallback> mControllers = new ArrayMap<>();
+    private Map<MediaController, TestBrowserCallback> mControllers = new HashMap<>();
 
     interface TestControllerCallbackInterface {
         void waitForConnect(boolean expect) throws InterruptedException;

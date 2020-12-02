@@ -120,4 +120,23 @@ public class WorkTest extends WorkManagerTest {
                 .setConstraints(constraints)
                 .build();
     }
+
+    @Test
+    public void testBuild_initialDelayMaxLong_throwsIllegalArgumentException() {
+        mThrown.expect(IllegalArgumentException.class);
+        new OneTimeWorkRequest.Builder(
+                TestWorker.class)
+                .setInitialDelay(Long.MAX_VALUE, TimeUnit.MILLISECONDS)
+                .build();
+    }
+
+    @Test
+    public void testBuild_initialDelayTooLarge_throwsIllegalArgumentException() {
+        mThrown.expect(IllegalArgumentException.class);
+        long now = System.currentTimeMillis();
+        new OneTimeWorkRequest.Builder(
+                TestWorker.class)
+                .setInitialDelay(Long.MAX_VALUE - now, TimeUnit.MILLISECONDS)
+                .build();
+    }
 }

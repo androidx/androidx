@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
 
     <issue
         id="UnknownNullness"
@@ -8,7 +8,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="100"
+            line="102"
             column="32"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                                                ~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="100"
+            line="102"
             column="65"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="112"
+            line="114"
             column="32"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                                                                ~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="112"
+            line="114"
             column="65"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="113"
+            line="115"
             column="13"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                            ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="123"
+            line="125"
             column="29"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="140"
+            line="142"
             column="12"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                                                ~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="140"
+            line="142"
             column="49"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="201"
+            line="206"
             column="12"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                                                          ~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="201"
+            line="206"
             column="59"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="202"
+            line="207"
             column="44"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="                            ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="250"
+            line="258"
             column="29"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="277"
+            line="285"
             column="35"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="294"
+            line="302"
             column="35"/>
     </issue>
 

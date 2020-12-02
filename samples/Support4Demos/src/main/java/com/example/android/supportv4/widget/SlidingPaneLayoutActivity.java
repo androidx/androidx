@@ -31,8 +31,8 @@ import android.widget.TextView;
 
 import androidx.slidingpanelayout.widget.SlidingPaneLayout;
 
+import com.example.android.supportv4.LoremIpsum;
 import com.example.android.supportv4.R;
-import com.example.android.supportv4.Shakespeare;
 
 /**
  * This example illustrates a common usage of SlidingPaneLayout in the Android support library.
@@ -84,7 +84,7 @@ public class SlidingPaneLayoutActivity extends Activity {
         mSlidingLayout.openPane();
 
         mList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
-                Shakespeare.TITLES));
+                LoremIpsum.TITLES));
         mList.setOnItemClickListener(new ListItemClickListener());
 
         mActionBar = createActionBarHelper();
@@ -114,8 +114,8 @@ public class SlidingPaneLayoutActivity extends Activity {
     private class ListItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            mContent.setText(Shakespeare.DIALOGUE[position]);
-            mActionBar.setTitle(Shakespeare.TITLES[position]);
+            mContent.setText(LoremIpsum.DIALOGUE[position]);
+            mActionBar.setTitle(LoremIpsum.TITLES[position]);
             mSlidingLayout.closePane();
         }
     }
@@ -143,12 +143,12 @@ public class SlidingPaneLayoutActivity extends Activity {
      */
     private class FirstLayoutListener implements ViewTreeObserver.OnGlobalLayoutListener {
         @Override
+        @SuppressWarnings("deprecation")
         public void onGlobalLayout() {
             mActionBar.onFirstLayout();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 mSlidingLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             } else {
-                //noinspection deprecation
                 mSlidingLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
             }
         }

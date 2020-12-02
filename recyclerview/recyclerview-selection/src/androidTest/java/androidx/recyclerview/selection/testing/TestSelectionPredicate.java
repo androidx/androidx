@@ -16,6 +16,7 @@
 
 package androidx.recyclerview.selection.testing;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
 
 public final class TestSelectionPredicate<K> extends SelectionPredicate<K> {
@@ -37,7 +38,7 @@ public final class TestSelectionPredicate<K> extends SelectionPredicate<K> {
     }
 
     @Override
-    public boolean canSetStateForKey(K key, boolean nextState) {
+    public boolean canSetStateForKey(@NonNull K key, boolean nextState) {
         return mValue;
     }
 

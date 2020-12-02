@@ -59,15 +59,21 @@ function confirm() {
 }
 confirm
 
-export OUT_DIR=../../out
+scriptDir="$(cd $(dirname $0) && pwd)"
+checkoutDir="$(cd $scriptDir/../.. && pwd)"
+export OUT_DIR="$checkoutDir/out"
 function removeCaches() {
   echo removing caches
   rm -rf .gradle
   rm -rf buildSrc/.gradle
   rm -f local.properties
-  rm -rf ../../out
+  # AGP should (also) do this automatically (b/170640263)
+  rm -rf appsearch/appsearch/.cxx
+  rm -rf appsearch/local-backend/.cxx
+  rm -rf appsearch/local-storage/.cxx
+  rm -rf $OUT_DIR
 }
 removeCaches
 
 echo running build
-GRADLE_USER_HOME=../../out ./gradlew --no-daemon $goals
+./gradlew --no-daemon $goals

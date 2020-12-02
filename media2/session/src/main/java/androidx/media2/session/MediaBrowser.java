@@ -278,11 +278,11 @@ public class MediaBrowser extends MediaController {
     }
 
     void notifyBrowserCallback(final BrowserCallbackRunnable callbackRunnable) {
-        if (mCallback != null && mCallbackExecutor != null) {
-            mCallbackExecutor.execute(new Runnable() {
+        if (mPrimaryCallback != null && mPrimaryCallbackExecutor != null) {
+            mPrimaryCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callbackRunnable.run((BrowserCallback) mCallback);
+                    callbackRunnable.run((BrowserCallback) mPrimaryCallback);
                 }
             });
         }

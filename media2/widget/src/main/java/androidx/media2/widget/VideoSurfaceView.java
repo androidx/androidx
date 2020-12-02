@@ -20,7 +20,6 @@ import static androidx.media2.widget.VideoView.VIEW_TYPE_SURFACEVIEW;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -29,8 +28,6 @@ import androidx.core.content.ContextCompat;
 
 class VideoSurfaceView extends SurfaceView
         implements VideoViewInterface, SurfaceHolder.Callback {
-    private static final String TAG = "VideoSurfaceView";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
     private Surface mSurface = null;
     SurfaceListener mSurfaceListener = null;
     private PlayerWrapper mPlayer;

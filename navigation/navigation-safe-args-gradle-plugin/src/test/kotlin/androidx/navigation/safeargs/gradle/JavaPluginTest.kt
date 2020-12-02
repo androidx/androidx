@@ -27,49 +27,32 @@ class JavaPluginTest : BasePluginTest() {
     @Test
     fun runGenerateTask() {
         testData("app-project").copyRecursively(projectRoot())
-        buildFile.writeText("""
-            plugins {
-                id('com.android.application')
-                id('androidx.navigation.safeargs')
-            }
-
-            repositories {
-                maven { url "$prebuiltsRepo/androidx/external" }
-                maven { url "$prebuiltsRepo/androidx/internal" }
-            }
-
-            android {
-                compileSdkVersion $compileSdkVersion
-                buildToolsVersion "$buildToolsVersion"
-                flavorDimensions "mode"
-                productFlavors {
-                    foo {
-                        dimension "mode"
-                        applicationIdSuffix ".foo"
-                    }
-                    notfoo {
-                        dimension "mode"
-                    }
-
+        projectSetup.writeDefaultBuildGradle(
+            prefix = """
+                plugins {
+                    id('com.android.application')
+                    id('androidx.navigation.safeargs')
                 }
-
-                defaultConfig {
-                    minSdkVersion $minSdkVersion
-                }
-
-                signingConfigs {
-                    debug {
-                        storeFile file("$debugKeystore")
+            """.trimIndent(),
+            suffix = """
+                android {
+                    flavorDimensions "mode"
+                    productFlavors {
+                        foo {
+                            dimension "mode"
+                            applicationIdSuffix ".foo"
+                        }
+                        notfoo {
+                            dimension "mode"
+                        }
                     }
                 }
-            }
 
-            dependencies {
-                implementation "$navigationCommon"
-            }
-        """.trimIndent()
+                dependencies {
+                    implementation "${projectSetup.props.navigationCommon}"
+                }
+            """.trimIndent()
         )
-
         runGradle("assembleNotfooDebug", "assembleFooDebug")
             .assertSuccessfulTask("assembleNotfooDebug")
             .assertSuccessfulTask("assembleFooDebug")
@@ -84,11 +67,11 @@ class JavaPluginTest : BasePluginTest() {
     fun generateForFeature() {
         setupMultiModuleBuildGradle()
         runGradle(
-            ":feature:assembleFooDebugFeature",
-            ":feature:assembleNotfooDebugFeature"
+            ":feature:assembleFooDebug",
+            ":feature:assembleNotfooDebug"
         )
-            .assertSuccessfulTask("feature:assembleNotfooDebugFeature")
-            .assertSuccessfulTask("feature:assembleFooDebugFeature")
+            .assertSuccessfulTask("feature:assembleNotfooDebug")
+            .assertSuccessfulTask("feature:assembleFooDebug")
 
         assertGenerated("foo/debug/$FEATURE_DIRECTIONS.java", "feature/")
         assertGenerated("notfoo/debug/$FEATURE_DIRECTIONS.java", "feature/")
@@ -112,11 +95,11 @@ class JavaPluginTest : BasePluginTest() {
     fun generateForBaseFeature() {
         setupMultiModuleBuildGradle()
         runGradle(
-            ":base:assembleFooDebugFeature",
-            ":base:assembleNotfooDebugFeature"
+            ":base:assembleFooDebug",
+            ":base:assembleNotfooDebug"
         )
-            .assertSuccessfulTask("base:assembleNotfooDebugFeature")
-            .assertSuccessfulTask("base:assembleFooDebugFeature")
+            .assertSuccessfulTask("base:assembleNotfooDebug")
+            .assertSuccessfulTask("base:assembleFooDebug")
 
         assertGenerated("foo/debug/$MAIN_DIRECTIONS.java", "base/")
         assertGenerated("notfoo/debug/$MAIN_DIRECTIONS.java", "base/")

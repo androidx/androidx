@@ -31,6 +31,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.collection.SparseArrayCompat;
 import androidx.navigation.common.R;
 
@@ -74,15 +75,20 @@ public class NavDestination {
     static class DeepLinkMatch implements Comparable<DeepLinkMatch> {
         @NonNull
         private final NavDestination mDestination;
-        @NonNull
+        @Nullable
         private final Bundle mMatchingArgs;
         private final boolean mIsExactDeepLink;
 
-        DeepLinkMatch(@NonNull NavDestination destination, @NonNull Bundle matchingArgs,
-                boolean isExactDeepLink) {
+        private final boolean mHasMatchingAction;
+        private final int mMimeTypeMatchLevel;
+
+        DeepLinkMatch(@NonNull NavDestination destination, @Nullable Bundle matchingArgs,
+                boolean isExactDeepLink, boolean hasMatchingAction, int mimeTypeMatchLevel) {
             mDestination = destination;
             mMatchingArgs = matchingArgs;
             mIsExactDeepLink = isExactDeepLink;
+            mHasMatchingAction = hasMatchingAction;
+            mMimeTypeMatchLevel = mimeTypeMatchLevel;
         }
 
         @NonNull
@@ -90,21 +96,42 @@ public class NavDestination {
             return mDestination;
         }
 
-        @NonNull
+        @Nullable
         Bundle getMatchingArgs() {
             return mMatchingArgs;
         }
 
         @Override
-        public int compareTo(DeepLinkMatch other) {
+        public int compareTo(@NonNull DeepLinkMatch other) {
             // Prefer exact deep links
             if (mIsExactDeepLink && !other.mIsExactDeepLink) {
                 return 1;
             } else if (!mIsExactDeepLink && other.mIsExactDeepLink) {
                 return -1;
             }
-            // Prefer matches with more matching arguments
-            return mMatchingArgs.size() - other.mMatchingArgs.size();
+
+            if (mMatchingArgs != null && other.mMatchingArgs == null) {
+                return 1;
+            } else if (mMatchingArgs == null && other.mMatchingArgs != null) {
+                return -1;
+            }
+
+            if (mMatchingArgs != null) {
+                int sizeDifference = mMatchingArgs.size() - other.mMatchingArgs.size();
+                if (sizeDifference > 0) {
+                    return 1;
+                } else if (sizeDifference < 0) {
+                    return -1;
+                }
+            }
+
+            if (mHasMatchingAction && !other.mHasMatchingAction) {
+                return 1;
+            } else if (!mHasMatchingAction && other.mHasMatchingAction) {
+                return -1;
+            }
+
+            return mMimeTypeMatchLevel - other.mMimeTypeMatchLevel;
         }
     }
 
@@ -158,7 +185,9 @@ public class NavDestination {
      * @param id The id to get a display name for
      * @return The resource's name if it is a valid id or just the id itself if it is not
      * a valid resource
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     static String getDisplayName(@NonNull Context context, int id) {
         // aapt-generated IDs have the high byte nonzero,
@@ -265,8 +294,12 @@ public class NavDestination {
         mIdName = null;
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    String getDisplayName() {
+    public String getDisplayName() {
         if (mIdName == null) {
             mIdName = Integer.toString(mId);
         }
@@ -314,9 +347,30 @@ public class NavDestination {
      * @return True if the deepLink exists for the destination.
      * @see #addDeepLink(String)
      * @see NavController#navigate(Uri)
+     * @see #hasDeepLink(NavDeepLinkRequest)
      */
     public boolean hasDeepLink(@NonNull Uri deepLink) {
-        return matchDeepLink(deepLink) != null;
+        return hasDeepLink(new NavDeepLinkRequest(deepLink, null, null));
+    }
+
+    /**
+     * Checks the given {@link NavDeepLinkRequest}, and determines whether it matches a
+     * {@link NavDeepLink} added to the destination by a call to
+     * {@link #addDeepLink(NavDeepLink)}. It returns <code>true</code> if the request is a valid
+     * match, and <code>false</code> otherwise.
+     *
+     * <p>
+     * This should be called prior to {@link NavController#navigate(NavDeepLinkRequest)} to
+     * ensure the deep link can be navigated to.
+     * </p>
+     *
+     * @param deepLinkRequest to the destination reachable from the current NavGraph
+     * @return True if the deepLink exists for the destination.
+     * @see #addDeepLink(NavDeepLink)
+     * @see NavController#navigate(NavDeepLinkRequest)
+     */
+    public boolean hasDeepLink(@NonNull NavDeepLinkRequest deepLinkRequest) {
+        return matchDeepLink(deepLinkRequest) != null;
     }
 
     /**
@@ -347,31 +401,88 @@ public class NavDestination {
      * @param uriPattern The uri pattern to add as a deep link
      * @see NavController#handleDeepLink(Intent)
      * @see NavController#navigate(Uri)
+     * @see #addDeepLink(NavDeepLink)
      */
     public final void addDeepLink(@NonNull String uriPattern) {
+        addDeepLink(new NavDeepLink.Builder().setUriPattern(uriPattern).build());
+    }
+
+    /**
+     * Add a deep link to this destination. Uris that match the given {@link NavDeepLink} uri
+     * sent to {@link NavController#handleDeepLink(Intent)} or
+     * {@link NavController#navigate(NavDeepLinkRequest)} will trigger navigating to this
+     * destination.
+     * <p>
+     * In addition to a direct Uri match, the following features are supported:
+     * <ul>
+     *     <li>Uris without a scheme are assumed as http and https. For example,
+     *     <code>www.example.com</code> will match <code>http://www.example.com</code> and
+     *     <code>https://www.example.com</code>.</li>
+     *     <li>Placeholders in the form of <code>{placeholder_name}</code> matches 1 or more
+     *     characters. The String value of the placeholder will be available in the arguments
+     *     {@link Bundle} with a key of the same name. For example,
+     *     <code>http://www.example.com/users/{id}</code> will match
+     *     <code>http://www.example.com/users/4</code>.</li>
+     *     <li>The <code>.*</code> wildcard can be used to match 0 or more characters.</li>
+     * </ul>
+     * These Uris can be declared in your navigation XML files by adding one or more
+     * <code>&lt;deepLink app:uri="uriPattern" /&gt;</code> elements as
+     * a child to your destination.
+     * <p>
+     * Custom actions and mimetypes are also supported by {@link NavDeepLink} and can be declared
+     * in your navigation XML files by adding
+     * <code>&lt;app:action="android.intent.action.SOME_ACTION" /&gt;</code> or
+     * <code>&lt;app:mimetype="type/subtype" /&gt;</code> as part of your deepLink declaration.
+     * <p>
+     * Deep link Uris, actions, and mimetypes added in navigation XML files will automatically
+     * replace instances of <code>${applicationId}</code> with the applicationId of your app.
+     * Programmatically added deep links should use {@link Context#getPackageName()} directly
+     * when constructing the uriPattern.
+     * <p>
+     * When matching deep links for calls to {@link NavController#handleDeepLink(Intent)} or
+     * {@link NavController#navigate(NavDeepLinkRequest)} the order of precedence is as follows:
+     * the deep link with the most matching arguments will be chosen, followed by the deep link
+     * with a matching action, followed by the best matching mimeType (e.i. when matching
+     * mimeType image/jpg: image/* > *\/jpg > *\/*).
+     * @param navDeepLink The NavDeepLink to add as a deep link
+     * @see NavController#handleDeepLink(Intent)
+     * @see NavController#navigate(NavDeepLinkRequest)
+     */
+    public final void addDeepLink(@NonNull NavDeepLink navDeepLink) {
         if (mDeepLinks == null) {
             mDeepLinks = new ArrayList<>();
         }
-        mDeepLinks.add(new NavDeepLink(uriPattern));
+        mDeepLinks.add(navDeepLink);
     }
 
     /**
      * Determines if this NavDestination has a deep link matching the given Uri.
-     * @param uri The Uri to match against all deep links added in {@link #addDeepLink(String)}
+     * @param navDeepLinkRequest The request to match against all deep links added in
+     * {@link #addDeepLink(NavDeepLink)}
      * @return The matching {@link NavDestination} and the appropriate {@link Bundle} of arguments
      * extracted from the Uri, or null if no match was found.
      */
     @Nullable
-    DeepLinkMatch matchDeepLink(@NonNull Uri uri) {
+    DeepLinkMatch matchDeepLink(@NonNull NavDeepLinkRequest navDeepLinkRequest) {
         if (mDeepLinks == null) {
             return null;
         }
         DeepLinkMatch bestMatch = null;
         for (NavDeepLink deepLink : mDeepLinks) {
-            Bundle matchingArguments = deepLink.getMatchingArguments(uri, getArguments());
-            if (matchingArguments != null) {
+            Uri uri = navDeepLinkRequest.getUri();
+            Bundle matchingArguments = uri != null
+                    ? deepLink.getMatchingArguments(uri, getArguments()) : null;
+
+            String requestAction = navDeepLinkRequest.getAction();
+            boolean matchingAction = requestAction != null && requestAction.equals(
+                    deepLink.getAction());
+
+            String mimeType = navDeepLinkRequest.getMimeType();
+            int mimeTypeMatchLevel = mimeType != null
+                    ? deepLink.getMimeTypeMatchRating(mimeType) : -1;
+            if (matchingArguments != null || matchingAction || mimeTypeMatchLevel > -1) {
                 DeepLinkMatch newMatch = new DeepLinkMatch(this, matchingArguments,
-                        deepLink.isExactDeepLink());
+                        deepLink.isExactDeepLink(), matchingAction, mimeTypeMatchLevel);
                 if (bestMatch == null || newMatch.compareTo(bestMatch) > 0) {
                     bestMatch = newMatch;
                 }
@@ -387,10 +498,27 @@ public class NavDestination {
      */
     @NonNull
     int[] buildDeepLinkIds() {
+        return buildDeepLinkIds(null);
+    }
+
+    /**
+     * Build an array containing the hierarchy from the root down to this destination.
+     *
+     * @param previousDestination the previous destination we are starting at
+     * @return An array containing all of the ids from the previous destination (or the root of
+     * the graph if null) to this destination
+     */
+    @NonNull
+    int[] buildDeepLinkIds(@Nullable NavDestination previousDestination) {
         ArrayDeque<NavDestination> hierarchy = new ArrayDeque<>();
         NavDestination current = this;
         do {
             NavGraph parent = current.getParent();
+            if (previousDestination != null && previousDestination.getParent() != null
+                    && previousDestination.getParent().findNode(current.getId()) == current) {
+                hierarchy.addFirst(current);
+                break;
+            }
             if (parent == null || parent.getStartDestination() != current.getId()) {
                 hierarchy.addFirst(current);
             }
@@ -470,7 +598,7 @@ public class NavDestination {
         if (mActions == null) {
             return;
         }
-        mActions.delete(actionId);
+        mActions.remove(actionId);
     }
 
     /**

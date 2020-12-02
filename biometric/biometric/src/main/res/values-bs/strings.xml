@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"Dodirnite senzor za otisak prsta"</string>
+    <string name="fingerprint_not_recognized" msgid="3873359464293253009">"Nije prepoznato"</string>
+    <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"Hardver za otisak prsta nije dostupan."</string>
+    <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"Nije prijavljen nijedan otisak prsta."</string>
+    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"Ovaj uređaj nema senzor za otisak prsta"</string>
+    <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"Korisnik je otkazao radnju s otiskom prsta."</string>
+    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"Previše pokušaja. Pokušajte ponovo kasnije."</string>
+    <string name="default_error_msg" msgid="4776854077120974966">"Nepoznata greška"</string>
+    <string name="generic_error_user_canceled" msgid="7309881387583143581">"Korisnik je otkazao autentifikaciju."</string>
+    <string name="confirm_device_credential_password" msgid="5912733858573823945">"Koristi lozinku"</string>
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Nije postavljen PIN, uzorak niti lozinka."</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Ovaj uređaj ne podržava PIN, uzorak ili lozinku."</string>
+</resources>

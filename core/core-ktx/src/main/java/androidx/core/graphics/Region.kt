@@ -26,12 +26,12 @@ import android.graphics.RegionIterator
 /**
  * Return true if the region contains the specified [Point].
  */
-inline operator fun Region.contains(p: Point) = contains(p.x, p.y)
+public inline operator fun Region.contains(p: Point): Boolean = contains(p.x, p.y)
 
 /**
  * Return the union of this region and the specified [Rect] as a new region.
  */
-inline operator fun Region.plus(r: Rect): Region {
+public inline operator fun Region.plus(r: Rect): Region {
     return Region(this).apply {
         union(r)
     }
@@ -40,7 +40,7 @@ inline operator fun Region.plus(r: Rect): Region {
 /**
  * Return the union of this region and the specified region as a new region.
  */
-inline operator fun Region.plus(r: Region): Region {
+public inline operator fun Region.plus(r: Region): Region {
     return Region(this).apply {
         op(r, Region.Op.UNION)
     }
@@ -49,7 +49,7 @@ inline operator fun Region.plus(r: Region): Region {
 /**
  * Return the difference of this region and the specified [Rect] as a new region.
  */
-inline operator fun Region.minus(r: Rect): Region {
+public inline operator fun Region.minus(r: Rect): Region {
     return Region(this).apply {
         op(r, Region.Op.DIFFERENCE)
     }
@@ -58,7 +58,7 @@ inline operator fun Region.minus(r: Rect): Region {
 /**
  * Return the difference of this region and the specified region as a new region.
  */
-inline operator fun Region.minus(r: Region): Region {
+public inline operator fun Region.minus(r: Region): Region {
     return Region(this).apply {
         op(r, Region.Op.DIFFERENCE)
     }
@@ -67,7 +67,7 @@ inline operator fun Region.minus(r: Region): Region {
 /**
  * Returns the negation of this region as a new region.
  */
-inline operator fun Region.unaryMinus(): Region {
+public inline operator fun Region.unaryMinus(): Region {
     return Region(bounds).apply {
         op(this@unaryMinus, Region.Op.DIFFERENCE)
     }
@@ -76,22 +76,22 @@ inline operator fun Region.unaryMinus(): Region {
 /**
  * Returns the negation of this region as a new region.
  */
-inline operator fun Region.not() = -this
+public inline operator fun Region.not(): Region = -this
 
 /**
  * Return the union of this region and the specified [Rect] as a new region.
  */
-inline infix fun Region.or(r: Rect) = this + r
+public inline infix fun Region.or(r: Rect): Region = this + r
 
 /**
  * Return the union of this region and the specified region as a new region.
  */
-inline infix fun Region.or(r: Region) = this + r
+public inline infix fun Region.or(r: Region): Region = this + r
 
 /**
  * Return the intersection of this region and the specified [Rect] as a new region.
  */
-inline infix fun Region.and(r: Rect): Region {
+public inline infix fun Region.and(r: Rect): Region {
     return Region(this).apply {
         op(r, Region.Op.INTERSECT)
     }
@@ -100,7 +100,7 @@ inline infix fun Region.and(r: Rect): Region {
 /**
  * Return the intersection of this region and the specified region as a new region.
  */
-inline infix fun Region.and(r: Region): Region {
+public inline infix fun Region.and(r: Region): Region {
     return Region(this).apply {
         op(r, Region.Op.INTERSECT)
     }
@@ -110,7 +110,7 @@ inline infix fun Region.and(r: Region): Region {
  * Return the union minus the intersection of this region and the specified [Rect]
  * as a new region.
  */
-inline infix fun Region.xor(r: Rect): Region {
+public inline infix fun Region.xor(r: Rect): Region {
     return Region(this).apply {
         op(r, Region.Op.XOR)
     }
@@ -120,14 +120,14 @@ inline infix fun Region.xor(r: Rect): Region {
  * Return the union minus the intersection of this region and the specified region
  * as a new region.
  */
-inline infix fun Region.xor(r: Region): Region {
+public inline infix fun Region.xor(r: Region): Region {
     return Region(this).apply {
         op(r, Region.Op.XOR)
     }
 }
 
 /** Performs the given action on each rect in this region. */
-inline fun Region.forEach(action: (rect: Rect) -> Unit) {
+public inline fun Region.forEach(action: (rect: Rect) -> Unit) {
     val iterator = RegionIterator(this)
     while (true) {
         val r = Rect()
@@ -139,7 +139,7 @@ inline fun Region.forEach(action: (rect: Rect) -> Unit) {
 }
 
 /** Returns an [Iterator] over the rects in this region. */
-operator fun Region.iterator() = object : Iterator<Rect> {
+public operator fun Region.iterator(): Iterator<Rect> = object : Iterator<Rect> {
     private val iterator = RegionIterator(this@iterator)
     private val rect = Rect()
     private var hasMore = iterator.next(rect)

@@ -87,6 +87,7 @@ import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
@@ -177,7 +178,7 @@ public class MediaControllerCompatCallbackTest {
      * Tests {@link MediaSessionCompat#setExtras}.
      */
     @Test
-    @SmallTest
+    @MediumTest
     public void testSetExtras() throws Exception {
         synchronized (mWaitLock) {
             mMediaControllerCallback.resetLocked();
@@ -221,7 +222,7 @@ public class MediaControllerCompatCallbackTest {
      * Tests {@link MediaSessionCompat#setMetadata}.
      */
     @Test
-    @SmallTest
+    @MediumTest
     public void testSetMetadata() throws Exception {
         synchronized (mWaitLock) {
             mMediaControllerCallback.resetLocked();
@@ -416,7 +417,7 @@ public class MediaControllerCompatCallbackTest {
      * Tests {@link MediaSessionCompat#setRepeatMode}.
      */
     @Test
-    @SmallTest
+    @MediumTest
     public void testSetRepeatMode() throws Exception {
         synchronized (mWaitLock) {
             mMediaControllerCallback.resetLocked();
@@ -433,7 +434,7 @@ public class MediaControllerCompatCallbackTest {
      * Tests {@link MediaSessionCompat#setShuffleMode}.
      */
     @Test
-    @SmallTest
+    @MediumTest
     public void testSetShuffleMode() throws Exception {
         final int shuffleMode = PlaybackStateCompat.SHUFFLE_MODE_ALL;
         synchronized (mWaitLock) {
@@ -579,6 +580,7 @@ public class MediaControllerCompatCallbackTest {
         final MediaControllerCallback callback = new MediaControllerCallback();
         synchronized (mWaitLock) {
             getInstrumentation().runOnMainSync(new Runnable() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public void run() {
                     try {

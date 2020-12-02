@@ -15,8 +15,12 @@
  */
 package androidx.core.view;
 
+import static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT;
+import static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -24,6 +28,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -32,13 +37,16 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.Display;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
 import androidx.core.test.R;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -46,6 +54,7 @@ import androidx.test.filters.SdkSuppress;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -262,6 +271,47 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
         } else {
             assertTrue("empty list for old device", returnedRects.isEmpty());
         }
+    }
+
+    @Test
+    @UiThreadTest
+    @SdkSuppress(minSdkVersion = 20) // dispatchApplyWindowInsets only works on API 20+
+    public void dispatchApplyWindowInsets_correctReturnValue() {
+        final View view = mActivityTestRule.getActivity().findViewById(R.id.container);
+
+        // Set an OnApplyWindowInsetsListener which returns consumed insets
+        ViewCompat.setOnApplyWindowInsetsListener(view, new OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                return insets.consumeSystemWindowInsets();
+            }
+        });
+
+        // Now create an inset instance and dispatch it to the view
+        final WindowInsetsCompat insets = new WindowInsetsCompat.Builder()
+                .setSystemWindowInsets(Insets.of(10, 20, 30, 40))
+                .build();
+        final WindowInsetsCompat result = ViewCompat.dispatchApplyWindowInsets(view, insets);
+
+        // Assert that the return insets doesn't equal what we passed in, and it is consumed
+        assertNotEquals(insets, result);
+        assertTrue(result.isConsumed());
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    public void testPerformAction_ExpectedActionAndArguments() {
+        AccessibilityActionCompat actionCompat = AccessibilityActionCompat.ACTION_PRESS_AND_HOLD;
+        View view = mock(View.class);
+        Bundle bundle = new Bundle();
+        bundle.putInt(ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT, 100);
+
+        ViewCompat.performAccessibilityAction(view, actionCompat.getId(), bundle);
+
+        ArgumentCaptor<Bundle> bundleCaptor = ArgumentCaptor.forClass(Bundle.class);
+        verify(view).performAccessibilityAction(eq(actionCompat.getId()), bundleCaptor.capture());
+        assertEquals(100,
+                bundleCaptor.getValue().getInt(ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT));
     }
 
     private static boolean isViewIdGenerated(int id) {

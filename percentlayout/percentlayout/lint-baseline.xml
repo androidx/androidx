@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="            return String.format(&quot;PercentLayoutInformation width: %f height %f, margins (%f, %f, &quot;"
+        errorLine2="                   ^">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentLayoutHelper.java"
+            line="562"
+            column="20"/>
+    </issue>
 
     <issue
         id="UnknownNullness"
@@ -8,7 +19,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
-            line="136"
+            line="137"
             column="31"/>
     </issue>
 
@@ -19,7 +30,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
-            line="140"
+            line="141"
             column="31"/>
     </issue>
 
@@ -30,7 +41,7 @@
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
-            line="140"
+            line="141"
             column="48"/>
     </issue>
 
@@ -41,7 +52,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
-            line="144"
+            line="145"
             column="31"/>
     </issue>
 
@@ -52,7 +63,7 @@
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
-            line="144"
+            line="145"
             column="48"/>
     </issue>
 
@@ -63,7 +74,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
-            line="149"
+            line="150"
             column="15"/>
     </issue>
 
@@ -74,7 +85,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
-            line="154"
+            line="155"
             column="12"/>
     </issue>
 
@@ -85,7 +96,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
-            line="154"
+            line="155"
             column="46"/>
     </issue>
 
@@ -96,7 +107,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
-            line="181"
+            line="182"
             column="29"/>
     </issue>
 
@@ -107,7 +118,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
-            line="181"
+            line="182"
             column="40"/>
     </issue>
 
@@ -118,7 +129,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
-            line="194"
+            line="195"
             column="29"/>
     </issue>
 
@@ -129,7 +140,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
-            line="198"
+            line="199"
             column="29"/>
     </issue>
 
@@ -140,7 +151,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
-            line="202"
+            line="203"
             column="29"/>
     </issue>
 
@@ -151,7 +162,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
-            line="208"
+            line="209"
             column="29"/>
     </issue>
 
@@ -162,7 +173,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
-            line="215"
+            line="216"
             column="16"/>
     </issue>
 
@@ -173,7 +184,7 @@
         errorLine2="                                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
-            line="224"
+            line="225"
             column="42"/>
     </issue>
 
@@ -316,7 +327,7 @@
         errorLine2="                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
-            line="133"
+            line="135"
             column="34"/>
     </issue>
 
@@ -327,7 +338,7 @@
         errorLine2="                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
-            line="137"
+            line="139"
             column="34"/>
     </issue>
 
@@ -338,7 +349,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
-            line="137"
+            line="139"
             column="51"/>
     </issue>
 
@@ -349,7 +360,7 @@
         errorLine2="                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
-            line="141"
+            line="143"
             column="34"/>
     </issue>
 
@@ -360,7 +371,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
-            line="141"
+            line="143"
             column="51"/>
     </issue>
 
@@ -371,7 +382,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
-            line="146"
+            line="148"
             column="15"/>
     </issue>
 
@@ -382,7 +393,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
-            line="151"
+            line="153"
             column="12"/>
     </issue>
 
@@ -393,7 +404,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
-            line="151"
+            line="153"
             column="46"/>
     </issue>
 
@@ -404,7 +415,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
-            line="178"
+            line="180"
             column="29"/>
     </issue>
 
@@ -415,7 +426,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
-            line="178"
+            line="180"
             column="40"/>
     </issue>
 
@@ -426,7 +437,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
-            line="187"
+            line="189"
             column="29"/>
     </issue>
 
@@ -437,7 +448,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
-            line="191"
+            line="193"
             column="29"/>
     </issue>
 
@@ -448,7 +459,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
-            line="196"
+            line="198"
             column="16"/>
     </issue>
 
@@ -459,7 +470,7 @@
         errorLine2="                                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
-            line="205"
+            line="207"
             column="42"/>
     </issue>
 

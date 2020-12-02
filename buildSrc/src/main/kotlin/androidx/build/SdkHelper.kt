@@ -16,29 +16,25 @@
 
 package androidx.build
 
+import org.gradle.api.GradleException
+import org.gradle.api.Project
+import org.gradle.api.plugins.ExtraPropertiesExtension
 import java.io.File
 import java.util.Properties
 
 /**
- * Writes the appropriate SDK path to local.properties file.
- */
-fun setSdkInLocalPropertiesFile(supportRoot: File) {
-    setSdkInLocalPropertiesFile(supportRoot, supportRoot)
-}
-
-/**
  * Writes the appropriate SDK path to local.properties file in specified location.
  */
-fun setSdkInLocalPropertiesFile(supportRoot: File, propertiesFile: File) {
-    val sdkPath = getSdkPath(supportRoot)
+fun Project.writeSdkPathToLocalPropertiesFile() {
+    val sdkPath = project.getSdkPath()
     if (sdkPath.exists()) {
-        val props = File(propertiesFile, "local.properties")
-        // gradle always deliminate directories with '/' regardless of the OS.
-        // So convert deliminator here.
+        // This must be the project's real root directory (ex. fw/support/ui) rather than the
+        // canonical root obtained via getSupportRootFolder().
+        val props = File(project.rootDir, "local.properties")
+        // Gradle always separates directories with '/' regardless of the OS, so convert here.
         val gradlePath = sdkPath.absolutePath.replace(File.separator, "/")
         var expectedContents = "sdk.dir=$gradlePath"
         expectedContents += "\ncmake.dir=$gradlePath/cmake"
-        expectedContents += "\nndk.dir=$gradlePath/ndk"
         if (!props.exists() || props.readText(Charsets.UTF_8).trim() != expectedContents) {
             props.printWriter().use { out ->
                 out.println(expectedContents)
@@ -46,62 +42,95 @@ fun setSdkInLocalPropertiesFile(supportRoot: File, propertiesFile: File) {
             println("updated local.properties")
         }
     } else {
-        throw Exception("You are using non androidx-master-dev checkout. You need to check out " +
-                "androidx-master-dev to work on support library. See go/androidx for details.")
+        throw Exception(
+            "Unable to find SDK prebuilts at $sdkPath. If you are not using a " +
+                "standard repo-based checkout, please follow the checkout instructions at " +
+                "go/androidx-onboarding."
+        )
     }
 }
 
 /**
- * Returns the appropriate SDK path.
+ * Returns the root project's platform-specific SDK path as a file.
  */
-fun getSdkPath(supportRoot: File): File {
-    if (isUnbundledBuild(supportRoot)) {
-        val properties = Properties()
-        val propertiesFile = File(supportRoot, "local.properties")
-        if (propertiesFile.exists()) {
-            propertiesFile.inputStream().use(properties::load)
+fun Project.getSdkPath(): File {
+    if (rootProject.plugins.hasPlugin(AndroidXPlaygroundRootPlugin::class.java)) {
+        // This is not full checkout, use local settings instead.
+        // https://developer.android.com/studio/command-line/variables
+        // check for local.properties first
+        val localPropsFile = rootProject.projectDir.resolve("local.properties")
+        if (localPropsFile.exists()) {
+            val localProps = Properties()
+            localPropsFile.inputStream().use {
+                localProps.load(it)
+            }
+            val localSdkDir = localProps["sdk.dir"]?.toString()
+            if (localSdkDir != null) {
+                val sdkDirectory = File(localSdkDir)
+                if (sdkDirectory.isDirectory) {
+                    return sdkDirectory
+                }
+            }
         }
-        return findSdkLocation(properties, supportRoot)
+        return getSdkPathFromEnvironmentVariable()
+    }
+
+    val os = getOperatingSystem()
+    return if (os == OperatingSystem.WINDOWS) {
+        getSdkPathFromEnvironmentVariable()
     } else {
-        val osName = System.getProperty("os.name").toLowerCase()
-        val isMacOsX = osName.contains("mac os x") || osName.contains("darwin") ||
-                osName.contains("osx")
-        val platform = if (isMacOsX) "darwin" else "linux"
-        // Making an assumption that prebuilts directory is in ../../prebuilts/
-        return File(supportRoot.parentFile.parentFile, "prebuilts/fullsdk-$platform")
+        val platform = if (os == OperatingSystem.MAC) "darwin" else "linux"
+
+        // By convention, the SDK prebuilts live under the root checkout directory.
+        File(project.getCheckoutRoot(), "prebuilts/fullsdk-$platform")
     }
 }
 
 /**
- * Adapted from com.android.build.gradle.internal.SdkHandler
+ * @return the root project's platform-specific NDK path as a file.
  */
-private fun findSdkLocation(properties: Properties, rootDir: File): File {
-    var sdkDirProp = properties.getProperty("sdk.dir")
-    if (sdkDirProp != null) {
-        var sdk = File(sdkDirProp)
-        if (!sdk.isAbsolute()) {
-            sdk = File(rootDir, sdkDirProp)
-        }
-        return sdk
-    }
-
-    sdkDirProp = properties.getProperty("android.dir")
-    if (sdkDirProp != null) {
-        return File(rootDir, sdkDirProp)
-    }
-
-    val envVar = System.getenv("ANDROID_HOME")
-    if (envVar != null) {
-        return File(envVar)
-    }
-
-    val property = System.getProperty("android.home")
-    if (property != null) {
-        return File(property)
-    }
-    throw Exception("Could not find your SDK")
+fun Project.getNdkPath(): File {
+    return File(getSdkPath(), "ndk")
 }
 
-private fun isUnbundledBuild(supportRoot: File): Boolean {
-    return (File(supportRoot, "unbundled-build")).exists()
+private fun getSdkPathFromEnvironmentVariable(): File {
+    // check for environment variables, in the order AGP checks
+    listOf("ANDROID_HOME", "ANDROID_SDK_ROOT").forEach {
+        val envValue = System.getenv(it)
+        if (envValue != null) {
+            val sdkDirectory = File(envValue)
+            if (sdkDirectory.isDirectory) {
+                return sdkDirectory
+            }
+        }
+    }
+    // only print the error for SDK ROOT since ANDROID_HOME is deprecated but we first check
+    // it because it is prioritized according to the documentation
+    throw GradleException("ANDROID_SDK_ROOT environment variable is not set")
+}
+
+/**
+ * Sets the path to the canonical root project directory, e.g. {@code frameworks/support}.
+ */
+fun Project.setSupportRootFolder(rootDir: File) {
+    val extension = project.rootProject.property("ext") as ExtraPropertiesExtension
+    return extension.set("supportRootFolder", rootDir)
+}
+
+/**
+ * Returns the path to the canonical root project directory, e.g. {@code frameworks/support}.
+ */
+fun Project.getSupportRootFolder(): File {
+    // When the `ui` project is merged, this can be simplified to `project.rootDir`.
+    val extension = project.rootProject.property("ext") as ExtraPropertiesExtension
+    return extension.get("supportRootFolder") as File
+}
+
+/**
+ * Returns the path to the checkout's root directory, e.g. where {@code repo init} was run.
+ * <p>
+ * This method assumes that the canonical root project directory is {@code frameworks/support}.
+ */
+fun Project.getCheckoutRoot(): File {
+    return project.getSupportRootFolder().parentFile.parentFile
 }

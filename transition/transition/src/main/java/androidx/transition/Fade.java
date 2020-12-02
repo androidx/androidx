@@ -29,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.res.TypedArrayUtils;
 import androidx.core.view.ViewCompat;
 
@@ -100,7 +101,7 @@ public class Fade extends Visibility {
 
     @SuppressLint("RestrictedApi") // remove once core lib would be released with the new
     // LIBRARY_GROUP_PREFIX restriction. tracking in b/127286008
-    public Fade(Context context, AttributeSet attrs) {
+    public Fade(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, Styleable.FADE);
         @Mode
@@ -143,6 +144,7 @@ public class Fade extends Visibility {
         return anim;
     }
 
+    @Nullable
     @Override
     public Animator onAppear(ViewGroup sceneRoot, View view,
             TransitionValues startValues,
@@ -159,6 +161,7 @@ public class Fade extends Visibility {
         return createAnimation(view, startAlpha, 1);
     }
 
+    @Nullable
     @Override
     public Animator onDisappear(ViewGroup sceneRoot, final View view, TransitionValues startValues,
             TransitionValues endValues) {

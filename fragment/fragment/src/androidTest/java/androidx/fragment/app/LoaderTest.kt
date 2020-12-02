@@ -25,7 +25,6 @@ import androidx.loader.content.Loader
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.recreate
 import androidx.testutils.waitForExecution
 import com.google.common.truth.Truth.assertThat
@@ -37,8 +36,9 @@ import java.lang.ref.WeakReference
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class LoaderTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(LoaderActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(LoaderActivity::class.java)
 
     /**
      * Test to ensure that there is no Activity leak due to Loader
@@ -123,14 +123,14 @@ class LoaderTest {
 
     class LoaderFragment : Fragment(), LoaderManager.LoaderCallbacks<Boolean> {
 
-        override fun onActivityCreated(savedInstanceState: Bundle?) {
-            super.onActivityCreated(savedInstanceState)
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
 
             LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this)
         }
 
         override fun onCreateLoader(id: Int, args: Bundle?):
-                Loader<Boolean> = SimpleLoader(requireContext())
+            Loader<Boolean> = SimpleLoader(requireContext())
 
         override fun onLoadFinished(loader: Loader<Boolean>, data: Boolean?) {}
 

@@ -1,13 +1,10 @@
 #!/bin/bash
 set -e
 
-SCRIPT_DIR="$(cd $(dirname $0) && pwd)"
-# TODO(b/141549086): move everything below into a common script once this script (androidx_host_tests_max_dep_versions.sh) is under presubmit testing
-if [ "$DIST_DIR" == "" ]; then
-  DIST_DIR="$SCRIPT_DIR/../../../out/dist"
-fi
-mkdir -p "$DIST_DIR"
-cd "$SCRIPT_DIR/../../.."
+echo "Starting $0 at $(date)"
 
-SNAPSHOT=true OUT_DIR=out DIST_DIR="$DIST_DIR" ANDROID_HOME=`pwd`/prebuilts/fullsdk-linux frameworks/support/gradlew -p frameworks/support --no-daemon createArchive
-SNAPSHOT=true OUT_DIR=out/ui DIST_DIR="$DIST_DIR/ui" ANDROID_HOME=`pwd`/prebuilts/fullsdk-linux frameworks/support/ui/gradlew -p frameworks/support/ui --no-daemon createArchive
+cd "$(dirname $0)"
+
+SNAPSHOT=true impl/build.sh --no-daemon createArchive -Pandroidx.allWarningsAsErrors -Pandroidx.validateNoUnrecognizedMessages --offline "$@"
+
+echo "Completing $0 at $(date)"

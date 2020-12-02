@@ -29,8 +29,10 @@ import androidx.viewpager2.widget.ViewPager2
 class OrientationController(private val viewPager: ViewPager2, private val spinner: Spinner) {
     fun setUp() {
         val orientation = viewPager.orientation
-        val adapter = ArrayAdapter(spinner.context, android.R.layout.simple_spinner_item,
-            arrayOf(HORIZONTAL, VERTICAL))
+        val adapter = ArrayAdapter(
+            spinner.context, android.R.layout.simple_spinner_item,
+            arrayOf(HORIZONTAL, VERTICAL)
+        )
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
 

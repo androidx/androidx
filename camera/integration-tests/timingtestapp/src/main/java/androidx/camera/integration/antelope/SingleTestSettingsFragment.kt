@@ -34,7 +34,8 @@ class SingleTestSettingsFragment(
 
         val cameraPref =
             preferenceManager.findPreference<ListPreference>(
-                getString(R.string.settings_single_test_camera_key))
+                getString(R.string.settings_single_test_camera_key)
+            )
         cameraPref?.entries = cameraNames
         cameraPref?.entryValues = cameraIds
         if (cameraIds.isNotEmpty())
@@ -71,7 +72,8 @@ class SingleTestSettingsFragment(
     fun toggleNumTests() {
         val typePref =
             preferenceManager.findPreference<ListPreference>(
-                getString(R.string.settings_single_test_type_key))
+                getString(R.string.settings_single_test_type_key)
+            )
         val numberPref = preferenceManager
             .findPreference<ListPreference>(getString(R.string.settings_numtests_key))
         when (typePref?.value) {

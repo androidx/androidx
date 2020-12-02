@@ -55,23 +55,26 @@ import androidx.loader.content.Loader
  * @param onLoadFinished Lambda to call to handle [LoaderManager.LoaderCallbacks.onLoadFinished]
  */
 @MainThread
-inline fun <D> LoaderManager.initLoader(
+public inline fun <D> LoaderManager.initLoader(
     id: Int,
     loader: Loader<D>,
     crossinline onLoaderReset: () -> Unit = {},
     crossinline onLoadFinished: (data: D) -> Unit
 ) {
-    initLoader(id, null, object : LoaderManager.LoaderCallbacks<D> {
-        override fun onCreateLoader(id: Int, args: Bundle?) = loader
+    initLoader(
+        id, null,
+        object : LoaderManager.LoaderCallbacks<D> {
+            override fun onCreateLoader(id: Int, args: Bundle?) = loader
 
-        override fun onLoadFinished(loader: Loader<D>, data: D) {
-            onLoadFinished(data)
-        }
+            override fun onLoadFinished(loader: Loader<D>, data: D) {
+                onLoadFinished(data)
+            }
 
-        override fun onLoaderReset(loader: Loader<D>) {
-            onLoaderReset()
+            override fun onLoaderReset(loader: Loader<D>) {
+                onLoaderReset()
+            }
         }
-    })
+    )
 }
 
 /**
@@ -102,21 +105,24 @@ inline fun <D> LoaderManager.initLoader(
  * @param onLoadFinished Lambda to call to handle [LoaderManager.LoaderCallbacks.onLoadFinished]
  */
 @MainThread
-inline fun <D> LoaderManager.restartLoader(
+public inline fun <D> LoaderManager.restartLoader(
     id: Int,
     loader: Loader<D>,
     crossinline onLoaderReset: () -> Unit = {},
     crossinline onLoadFinished: (data: D) -> Unit
 ) {
-    restartLoader(id, null, object : LoaderManager.LoaderCallbacks<D> {
-        override fun onCreateLoader(id: Int, args: Bundle?) = loader
+    restartLoader(
+        id, null,
+        object : LoaderManager.LoaderCallbacks<D> {
+            override fun onCreateLoader(id: Int, args: Bundle?) = loader
 
-        override fun onLoadFinished(loader: Loader<D>, data: D) {
-            onLoadFinished(data)
-        }
+            override fun onLoadFinished(loader: Loader<D>, data: D) {
+                onLoadFinished(data)
+            }
 
-        override fun onLoaderReset(loader: Loader<D>) {
-            onLoaderReset()
+            override fun onLoaderReset(loader: Loader<D>) {
+                onLoaderReset()
+            }
         }
-    })
+    )
 }

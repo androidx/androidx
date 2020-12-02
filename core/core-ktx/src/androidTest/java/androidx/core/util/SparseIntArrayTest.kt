@@ -104,6 +104,7 @@ class SparseIntArrayTest {
         assertEquals(22, array.getOrElse(1) { 22 })
         array.put(1, 11)
         assertEquals(11, array.getOrElse(1) { fail() })
+        assertEquals(33, array.getOrElse(2) { 33 })
     }
 
     @Test fun isEmpty() {
@@ -123,7 +124,7 @@ class SparseIntArrayTest {
     @Test fun removeValue() {
         val array = SparseIntArray()
         array.put(1, 11)
-        assertFalse(array.remove(0, 11))
+        assertFalse(array.remove(2, 11))
         assertEquals(1, array.size())
         assertFalse(array.remove(1, 22))
         assertEquals(1, array.size())

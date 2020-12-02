@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2017 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +14,8 @@
   ~ limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.paging.integration.testapp">
+    package="androidx.paging.integration.testapp">
+
     <application
         android:allowBackup="true"
         android:supportsRtl="true"
@@ -29,31 +29,47 @@
             </intent-filter>
         </activity>
         <activity
-                android:name=".room.RoomPagedListActivity"
-                android:label="Room Live PagedList"
-                android:theme="@style/Theme.AppCompat">
+            android:name=".v3.V3Activity"
+            android:label="V3">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-                android:name=".room.RoomKeyedPagedListActivity"
-                android:label="Keyed Live PagedList"
-                android:theme="@style/Theme.AppCompat">
+            android:name=".room.RoomPagedListActivity"
+            android:label="Room Live PagedList"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-                android:name=".room.RoomPagedListRxActivity"
-                android:label="PagedList Observable"
-                android:theme="@style/Theme.AppCompat">
+            android:name=".room.RoomKeyedPagedListActivity"
+            android:label="Keyed Live PagedList"
+            android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".room.RoomPagedListRxActivity"
+            android:label="PagedList Observable"
+            android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".v3room.V3RoomActivity"
+            android:label="V3 Room">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
-  </manifest>
+</manifest>

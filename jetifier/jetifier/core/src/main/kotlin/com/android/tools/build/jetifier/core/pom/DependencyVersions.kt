@@ -41,9 +41,11 @@ data class DependencyVersions(private val currentSet: Map<String, String>) {
 
             val map = versionsMap.data[name]
             if (map == null) {
-                throw IllegalArgumentException("The given versions map is invalid as it does not " +
-                    "contain version set called '$name' or maybe you passed incorrect version " +
-                    "set identifier?")
+                throw IllegalArgumentException(
+                    "The given versions map is invalid as it does not " +
+                        "contain version set called '$name' or maybe you passed incorrect " +
+                        "version set identifier?"
+                )
             }
 
             return DependencyVersions(map)
@@ -72,7 +74,8 @@ data class DependencyVersions(private val currentSet: Map<String, String>) {
             val variableName = version.removePrefix("{").removeSuffix("}")
             return currentSet[variableName]
                 ?: throw IllegalArgumentException(
-                    "The version variable '$variableName' was not found")
+                    "The version variable '$variableName' was not found"
+                )
         }
 
         return version
@@ -82,6 +85,7 @@ data class DependencyVersions(private val currentSet: Map<String, String>) {
         return PomDependency(
             groupId = dep.groupId,
             artifactId = dep.artifactId,
-            version = applyOnVersionRef(dep.version!!))
+            version = applyOnVersionRef(dep.version!!)
+        )
     }
 }

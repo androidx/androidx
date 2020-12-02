@@ -33,18 +33,18 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
             package foo.bar;
             import android.database.Cursor;
             import java.lang.SuppressWarnings;
-            import javax.annotation.Generated;
+            import javax.annotation.processing.Generated;
             @Generated("androidx.room.RoomProcessor")
             @SuppressWarnings({"unchecked", "deprecation"})
             public class MyContainerClass {
-            """.trimIndent()
+        """.trimIndent()
         const val OUT_SUFFIX = "}"
     }
 
     @Test
     fun generateSimple() {
         generateAndMatch(
-                """
+            """
                 @PrimaryKey
                 private int id;
                 String name;
@@ -53,7 +53,7 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
                 public int getId() { return id; }
                 public void setId(int id) { this.id = id; }
                 """,
-                """
+            """
                 private MyEntity __entityCursorConverter_fooBarMyEntity(Cursor cursor) {
                   final MyEntity _entity;
                   final int _cursorIndexOfId = cursor.getColumnIndex("id");
@@ -77,7 +77,8 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
                   }
                   return _entity;
                 }
-                """.trimIndent())
+            """.trimIndent()
+        )
     }
 
     fun generateAndMatch(
@@ -86,11 +87,14 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
         attributes: Map<String, String> = mapOf()
     ) {
         generate(input, attributes)
-                .compilesWithoutError()
-                .and()
-                .generatesSources(JavaFileObjects.forSourceString(
-                        "foo.bar.MyEntity_CursorConverter",
-                        listOf(OUT_PREFIX, output, OUT_SUFFIX).joinToString("\n")))
+            .compilesWithoutError()
+            .and()
+            .generatesSources(
+                JavaFileObjects.forSourceString(
+                    "foo.bar.MyEntity_CursorConverter",
+                    listOf(OUT_PREFIX, output, OUT_SUFFIX).joinToString("\n")
+                )
+            )
     }
 
     fun generate(input: String, attributes: Map<String, String> = mapOf()): CompileTester {

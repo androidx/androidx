@@ -25,9 +25,8 @@ plugins {
 }
 
 dependencies {
-    api(project(":media2:media2-common"))
     api(project(":media2:media2-session"))
-    implementation("androidx.appcompat:appcompat:1.0.2")
+    implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.palette:palette:1.0.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
@@ -43,7 +42,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 16
     }
     sourceSets {
         main.res.srcDirs += 'src/main/res-public'
@@ -59,10 +58,7 @@ android {
 androidx {
     name = "AndroidX media2 widget library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.MEDIA2_WIDGET
     mavenGroup = LibraryGroups.MEDIA2
     inceptionYear = "2018"
     description = "AndroidX Media2 Widget"
-    // TODO: Remove these (b/130838274)
-    failOnDeprecationWarnings = false
 }

@@ -17,6 +17,7 @@
 package androidx.viewpager2.integration.testapp.cards
 
 import android.os.Bundle
+import androidx.core.text.BidiFormatter
 
 /**
  * Playing card
@@ -34,7 +35,12 @@ class Card private constructor(val suit: String, val value: String) {
     }
 
     override fun toString(): String {
-        return "$value $suit"
+        val bidi = BidiFormatter.getInstance()
+        if (!bidi.isRtlContext) {
+            return bidi.unicodeWrap("$value $suit")
+        } else {
+            return bidi.unicodeWrap("$suit $value")
+        }
     }
 
     companion object {
@@ -44,6 +50,10 @@ class Card private constructor(val suit: String, val value: String) {
         val VALUES = setOf("2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A")
         val DECK = SUITS.flatMap { suit ->
             VALUES.map { value -> Card(suit, value) }
+        }
+
+        fun List<Card>.find(value: String, suit: String): Card? {
+            return find { it.value == value && it.suit == suit }
         }
 
         /** Use in conjunction with [Card.toBundle]  */

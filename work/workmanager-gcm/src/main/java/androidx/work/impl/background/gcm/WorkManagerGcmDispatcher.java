@@ -157,24 +157,23 @@ public class WorkManagerGcmDispatcher {
         mWorkTimer.onDestroy();
     }
 
-    private int reschedule(@NonNull String workSpecId) {
-        WorkDatabase workDatabase = mWorkManagerImpl.getWorkDatabase();
-        workDatabase.beginTransaction();
-        try {
-            // Mark the workSpec as unscheduled. We are doing this explicitly here because
-            // there are many cases where WorkerWrapper may not have had a chance to update this
-            // flag. For e.g. this will happen if the Worker took longer than 10 minutes.
-            workDatabase.workSpecDao()
-                    .markWorkSpecScheduled(workSpecId, WorkSpec.SCHEDULE_NOT_REQUESTED_YET);
-            // We reschedule on our own to apply our own backoff policy.
-            Schedulers.schedule(
-                    mWorkManagerImpl.getConfiguration(),
-                    mWorkManagerImpl.getWorkDatabase(),
-                    mWorkManagerImpl.getSchedulers());
-            workDatabase.setTransactionSuccessful();
-        } finally {
-            workDatabase.endTransaction();
-        }
+    private int reschedule(@NonNull final String workSpecId) {
+        final WorkDatabase workDatabase = mWorkManagerImpl.getWorkDatabase();
+        workDatabase.runInTransaction(new Runnable() {
+            @Override
+            public void run() {
+                // Mark the workSpec as unscheduled. We are doing this explicitly here because
+                // there are many cases where WorkerWrapper may not have had a chance to update this
+                // flag. For e.g. this will happen if the Worker took longer than 10 minutes.
+                workDatabase.workSpecDao()
+                        .markWorkSpecScheduled(workSpecId, WorkSpec.SCHEDULE_NOT_REQUESTED_YET);
+                // We reschedule on our own to apply our own backoff policy.
+                Schedulers.schedule(
+                        mWorkManagerImpl.getConfiguration(),
+                        mWorkManagerImpl.getWorkDatabase(),
+                        mWorkManagerImpl.getSchedulers());
+            }
+        });
 
         Logger.get().debug(TAG,
                 String.format("Returning RESULT_SUCCESS for WorkSpec %s", workSpecId));

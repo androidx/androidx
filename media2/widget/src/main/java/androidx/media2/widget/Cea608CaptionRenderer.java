@@ -32,7 +32,6 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
-import android.view.accessibility.CaptioningManager.CaptionStyle;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -103,7 +102,7 @@ class Cea608CaptionRenderer extends SubtitleController.Renderer {
      * Widget capable of rendering CEA-608 closed captions.
      */
     class Cea608CCWidget extends ClosedCaptionWidget implements Cea608CCParser.DisplayListener {
-        private static final String DUMMY_TEXT = "1234567890123456789012345678901234";
+        private static final String PLACEHOLDER_TEXT = "1234567890123456789012345678901234";
         final Rect mTextBounds = new Rect();
 
         Cea608CCWidget(Context context) {
@@ -195,7 +194,8 @@ class Cea608CaptionRenderer extends SubtitleController.Renderer {
 
                 // set font scale in the X direction to match the required width
                 setScaleX(1.0f);
-                getPaint().getTextBounds(DUMMY_TEXT, 0, DUMMY_TEXT.length(), mTextBounds);
+                getPaint().getTextBounds(PLACEHOLDER_TEXT, 0, PLACEHOLDER_TEXT.length(),
+                        mTextBounds);
                 float actualTextWidth = mTextBounds.width();
                 float requiredTextWidth = MeasureSpec.getSize(widthMeasureSpec);
                 if (actualTextWidth != .0f) {

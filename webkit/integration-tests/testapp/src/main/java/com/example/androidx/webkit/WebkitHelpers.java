@@ -47,13 +47,19 @@ public final class WebkitHelpers {
     /**
      * Replaces the entire view hierachy of this {@link Activity} to show an error message.
      *
+     * <p>Returns the {@link TextView} holding the error message, so callers can optionally add more
+     * functionality (ex. {@code setOnClickListener()}).
+     *
      * @param activity the Activity to show the message in.
      * @param messageResourceId the resource ID of the message to show.
+     * @return the {@link TextView} holding the error message.
      */
-    public static void showMessageInActivity(Activity activity, @StringRes int messageResourceId) {
+    public static TextView showMessageInActivity(Activity activity,
+            @StringRes int messageResourceId) {
         TextView errorMessage = new TextView(activity);
         errorMessage.setText(messageResourceId);
         activity.setContentView(errorMessage);
+        return errorMessage;
     }
 
     // Do not instantiate this class.

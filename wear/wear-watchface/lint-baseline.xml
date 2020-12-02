@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+
+    <issue
+        id="BanTargetApiAnnotation"
+        message="Uses @TargetApi annotation"
+        errorLine1="@TargetApi(16)"
+        errorLine2="~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/ui/WatchFaceConfigActivity.kt"
+            line="71"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="BanTargetApiAnnotation"
+        message="Uses @TargetApi annotation"
+        errorLine1="@TargetApi(26)"
+        errorLine2="~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/WatchFaceService.kt"
+            line="200"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="ExportedService"
+        message="Exported service does not require permission"
+        errorLine1="    &lt;service"
+        errorLine2="     ~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="20"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="DrawAllocation"
+        message="Avoid object allocations during draw/layout operations (preallocate and reuse instead)"
+        errorLine1="            RenderParameters("
+        errorLine2="            ^">
+        <location
+            file="src/main/java/androidx/wear/watchface/ui/ComplicationConfigFragment.kt"
+            line="191"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="Wakelock"
+        message="Found a wakelock `acquire()` but no `release()` calls anywhere"
+        errorLine1="                ambientUpdateWakelock.acquire()"
+        errorLine2="                                      ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/WatchFaceService.kt"
+            line="324"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="WakelockTimeout"
+        message="Provide a timeout when requesting a wakelock with `PowerManager.Wakelock.acquire(long timeout)`. This will ensure the OS will cleanup any wakelocks that last longer than you intend, and will save your user&apos;s battery."
+        errorLine1="                ambientUpdateWakelock.acquire()"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/WatchFaceService.kt"
+            line="324"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="WakelockTimeout"
+        message="Provide a timeout when requesting a wakelock with `PowerManager.Wakelock.acquire(long timeout)`. This will ensure the OS will cleanup any wakelocks that last longer than you intend, and will save your user&apos;s battery."
+        errorLine1="                ambientUpdateWakelock.acquire()"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/WatchFaceService.kt"
+            line="324"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-xxhdpi`: ic_elements_settings_styles.png (found in drawable-hdpi, drawable-mdpi, drawable-xhdpi)">
+        <location
+            file="src/main/res/drawable-xxhdpi"/>
+    </issue>
+
+</issues>

@@ -32,6 +32,7 @@ import android.view.animation.DecelerateInterpolator;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.res.TypedArrayUtils;
 import androidx.core.view.ViewCompat;
@@ -165,7 +166,7 @@ public class Slide extends Visibility {
 
     @SuppressLint("RestrictedApi") // remove once core lib would be released with the new
     // LIBRARY_GROUP_PREFIX restriction. tracking in b/127286008
-    public Slide(Context context, AttributeSet attrs) {
+    public Slide(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, Styleable.SLIDE);
         int edge = TypedArrayUtils.getNamedInt(a, (XmlPullParser) attrs, "slideEdge",
@@ -244,6 +245,7 @@ public class Slide extends Visibility {
         return mSlideEdge;
     }
 
+    @Nullable
     @Override
     public Animator onAppear(ViewGroup sceneRoot, View view,
             TransitionValues startValues, TransitionValues endValues) {
@@ -260,6 +262,7 @@ public class Slide extends Visibility {
                         startX, startY, endX, endY, sDecelerate, this);
     }
 
+    @Nullable
     @Override
     public Animator onDisappear(ViewGroup sceneRoot, View view,
             TransitionValues startValues, TransitionValues endValues) {

@@ -452,7 +452,7 @@ class ChildHelper {
                 final boolean lastBit = (mData & LAST_BIT) != 0;
                 long mask = (1L << index) - 1;
                 final long before = mData & mask;
-                final long after = ((mData & ~mask)) << 1;
+                final long after = (mData & ~mask) << 1;
                 mData = before | after;
                 if (value) {
                     set(index);

@@ -170,9 +170,9 @@ public class CommandHandler implements ExecutionListener {
                 } else if (ACTION_DELAY_MET.equals(action)) {
                     handleDelayMet(intent, startId, dispatcher);
                 } else if (ACTION_STOP_WORK.equals(action)) {
-                    handleStopWork(intent, startId, dispatcher);
+                    handleStopWork(intent, dispatcher);
                 } else if (ACTION_EXECUTION_COMPLETED.equals(action)) {
-                    handleExecutionCompleted(intent, startId, dispatcher);
+                    handleExecutionCompleted(intent, startId);
                 } else {
                     Logger.get().warning(TAG, String.format("Ignoring intent %s", intent));
                 }
@@ -279,7 +279,7 @@ public class CommandHandler implements ExecutionListener {
     }
 
     private void handleStopWork(
-            @NonNull Intent intent, int startId,
+            @NonNull Intent intent,
             @NonNull SystemAlarmDispatcher dispatcher) {
 
         Bundle extras = intent.getExtras();
@@ -316,8 +316,7 @@ public class CommandHandler implements ExecutionListener {
 
     private void handleExecutionCompleted(
             @NonNull Intent intent,
-            int startId,
-            @NonNull SystemAlarmDispatcher dispatcher) {
+            int startId) {
 
         Bundle extras = intent.getExtras();
         String workSpecId = extras.getString(KEY_WORKSPEC_ID);

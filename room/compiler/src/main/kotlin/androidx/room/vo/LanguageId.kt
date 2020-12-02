@@ -16,12 +16,12 @@
 
 package androidx.room.vo
 
-import javax.lang.model.element.Element
+import androidx.room.compiler.processing.XElement
 
 /**
  * Represents the 'languageid' column of an FTS entity.
  */
-data class LanguageId(val declaredIn: Element?, val field: Field?) {
+data class LanguageId(val declaredIn: XElement?, val field: Field?) {
 
     companion object {
         val MISSING = LanguageId(null, null)

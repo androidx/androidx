@@ -241,11 +241,23 @@ public final class NavUtils {
         int flags = PackageManager.GET_META_DATA;
         // Check for disabled components to handle cases where the
         // ComponentName points to a disabled activity-alias.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        if (Build.VERSION.SDK_INT >= 24) {
             flags |= PackageManager.MATCH_DISABLED_COMPONENTS;
         } else {
             flags |= PackageManager.GET_DISABLED_COMPONENTS;
         }
+        // On newer versions of the OS we need to pass direct boot
+        // flags so that getActivityInfo doesn't crash under strict
+        // mode checks
+        if (Build.VERSION.SDK_INT >= 29) {
+            flags |= (PackageManager.MATCH_DIRECT_BOOT_AUTO
+                    | PackageManager.MATCH_DIRECT_BOOT_AWARE
+                    | PackageManager.MATCH_DIRECT_BOOT_UNAWARE);
+        } else if (Build.VERSION.SDK_INT >= 24) {
+            flags |= (PackageManager.MATCH_DIRECT_BOOT_AWARE
+                    | PackageManager.MATCH_DIRECT_BOOT_UNAWARE);
+        }
+
         ActivityInfo info = pm.getActivityInfo(componentName, flags);
         if (Build.VERSION.SDK_INT >= 16) {
             String result = info.parentActivityName;

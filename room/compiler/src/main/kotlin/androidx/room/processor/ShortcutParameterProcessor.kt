@@ -16,49 +16,47 @@
 
 package androidx.room.processor
 
-import androidx.room.ext.extendsBound
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XVariableElement
+import androidx.room.compiler.processing.asDeclaredType
+import androidx.room.compiler.processing.isArray
 import androidx.room.vo.ShortcutQueryParameter
-import com.google.auto.common.MoreTypes
-import javax.lang.model.element.TypeElement
-import javax.lang.model.element.VariableElement
-import javax.lang.model.type.ArrayType
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
-import javax.lang.model.util.ElementFilter
 
 /**
  * Processes parameters of methods that are annotated with Insert, Update or Delete.
  */
 class ShortcutParameterProcessor(
     baseContext: Context,
-    val containing: DeclaredType,
-    val element: VariableElement
+    val containing: XDeclaredType,
+    val element: XVariableElement
 ) {
     val context = baseContext.fork(element)
     fun process(): ShortcutQueryParameter {
-        val asMember = MoreTypes.asMemberOf(context.processingEnv.typeUtils, containing, element)
-        val name = element.simpleName.toString()
-        context.checker.check(!name.startsWith("_"), element,
-                ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE)
+        val asMember = element.asMemberOf(containing)
+        val name = element.name
+        context.checker.check(
+            !name.startsWith("_"), element,
+            ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE
+        )
 
         val (pojoType, isMultiple) = extractPojoType(asMember)
         return ShortcutQueryParameter(
-                element = element,
-                name = name,
-                type = asMember,
-                pojoType = pojoType,
-                isMultiple = isMultiple
+            element = element,
+            name = name,
+            type = asMember,
+            pojoType = pojoType,
+            isMultiple = isMultiple
         )
     }
 
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    private fun extractPojoType(typeMirror: TypeMirror): Pair<TypeMirror?, Boolean> {
+    private fun extractPojoType(typeMirror: XType): Pair<XType?, Boolean> {
 
-        val elementUtils = context.processingEnv.elementUtils
-        val typeUtils = context.processingEnv.typeUtils
+        val processingEnv = context.processingEnv
 
-        fun verifyAndPair(pojoType: TypeMirror, isMultiple: Boolean): Pair<TypeMirror?, Boolean> {
-            if (!MoreTypes.isType(pojoType)) {
+        fun verifyAndPair(pojoType: XType, isMultiple: Boolean): Pair<XType?, Boolean> {
+            if (!pojoType.isType()) {
                 // kotlin may generate ? extends T so we should reduce it.
                 val boundedVar = pojoType.extendsBound()
                 return boundedVar?.let {
@@ -68,26 +66,27 @@ class ShortcutParameterProcessor(
             return Pair(pojoType, isMultiple)
         }
 
-        fun extractPojoTypeFromIterator(iterableType: DeclaredType): TypeMirror {
-            ElementFilter.methodsIn(elementUtils
-                    .getAllMembers(typeUtils.asElement(iterableType) as TypeElement)).forEach {
-                if (it.simpleName.toString() == "iterator") {
-                    return MoreTypes.asDeclared(MoreTypes.asExecutable(
-                            typeUtils.asMemberOf(iterableType, it)).returnType)
-                            .typeArguments.first()
+        fun extractPojoTypeFromIterator(iterableType: XDeclaredType): XType {
+            iterableType.asTypeElement().getAllNonPrivateInstanceMethods().forEach {
+                if (it.name == "iterator") {
+                    return it.asMemberOf(iterableType)
+                        .returnType
+                        .asDeclaredType()
+                        .typeArguments
+                        .first()
                 }
             }
             throw IllegalArgumentException("iterator() not found in Iterable $iterableType")
         }
 
-        val iterableType = typeUtils.erasure(elementUtils
-                .getTypeElement("java.lang.Iterable").asType())
-        if (typeUtils.isAssignable(typeMirror, iterableType)) {
-            val declared = MoreTypes.asDeclared(typeMirror)
+        val iterableType = processingEnv
+            .requireType("java.lang.Iterable").rawType
+        if (iterableType.isAssignableFrom(typeMirror)) {
+            val declared = typeMirror.asDeclaredType()
             val pojo = extractPojoTypeFromIterator(declared)
             return verifyAndPair(pojo, true)
         }
-        if (typeMirror is ArrayType) {
+        if (typeMirror.isArray()) {
             val pojo = typeMirror.componentType
             return verifyAndPair(pojo, true)
         }

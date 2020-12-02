@@ -20,74 +20,76 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import android.os.Build;
 
-import androidx.annotation.NonNull;
 import androidx.camera.extensions.impl.ExtensionVersionImpl;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-import org.robolectric.annotation.Implementation;
-import org.robolectric.annotation.Implements;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.lang.reflect.Field;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(
-        minSdk = Build.VERSION_CODES.LOLLIPOP,
-        manifest = Config.NONE,
-        shadows = {
-                ExtensionVersionTest.ShadowExtenderVersioningImpl.class,
-                ExtensionVersionTest.ShadowVersionName.class
-        })
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class ExtensionVersionTest {
 
+    @Before
+    public void setUp() throws NoSuchFieldException, IllegalAccessException {
+        Field field = VersionName.class.getDeclaredField("CURRENT");
+        field.setAccessible(true);
+        field.set(null, new VersionName("1.1.0"));
+    }
+
     @Test
-    public void testVendorReturnValidVersion() {
+    public void testVendorReturnValidVersion() throws NoSuchFieldException, IllegalAccessException {
         String testString = "1.0.1";
-        ShadowExtenderVersioningImpl.setTestApiVersion(testString);
+        setTestApiVersion(testString);
 
         assertTrue(ExtensionVersion.isExtensionVersionSupported());
         assertEquals(ExtensionVersion.getRuntimeVersion(), Version.parse(testString));
     }
 
     @Test
-    public void testVendorReturnGreaterMajor() {
+    public void testVendorReturnGreaterMajor() throws NoSuchFieldException, IllegalAccessException {
         String testString = "2.0.0";
-        ShadowExtenderVersioningImpl.setTestApiVersion(testString);
+        setTestApiVersion(testString);
 
         assertFalse(ExtensionVersion.isExtensionVersionSupported());
         assertNull(ExtensionVersion.getRuntimeVersion());
     }
 
     @Test
-    public void testVendorReturnGreaterMinor() {
+    public void testVendorReturnGreaterMinor() throws NoSuchFieldException, IllegalAccessException {
         String testString = "1.2.0";
-        ShadowExtenderVersioningImpl.setTestApiVersion(testString);
+        setTestApiVersion(testString);
 
         assertTrue(ExtensionVersion.isExtensionVersionSupported());
         assertEquals(ExtensionVersion.getRuntimeVersion(), Version.parse(testString));
     }
 
     @Test
-    public void testVendorReturnLesserMinor() {
+    public void testVendorReturnLesserMinor() throws NoSuchFieldException, IllegalAccessException {
         String testString = "1.0.0";
-        ShadowExtenderVersioningImpl.setTestApiVersion(testString);
+        setTestApiVersion(testString);
 
         assertTrue(ExtensionVersion.isExtensionVersionSupported());
         assertEquals(ExtensionVersion.getRuntimeVersion(), Version.parse(testString));
     }
 
     @Test
-    public void testVendorReturnInvalid() {
+    public void testVendorReturnInvalid() throws NoSuchFieldException, IllegalAccessException {
         String testString = "1.0.1.0";
-        ShadowExtenderVersioningImpl.setTestApiVersion(testString);
+        setTestApiVersion(testString);
 
         assertFalse(ExtensionVersion.isExtensionVersionSupported());
         assertNull(ExtensionVersion.getRuntimeVersion());
@@ -109,41 +111,22 @@ public class ExtensionVersionTest {
         }
     }
 
-    /**
-     * A Shadow of {@link ExtensionVersionImpl} which return a test version for testing.
-     */
-    @Implements(
-            value = ExtensionVersionImpl.class,
-            minSdk = 21
-    )
-    static class ShadowExtenderVersioningImpl {
+    private void setTestApiVersion(String testString) throws NoSuchFieldException,
+            IllegalAccessException {
+        ExtensionVersionImpl mockExtensionVersionImpl = mock(ExtensionVersionImpl.class);
+        when(mockExtensionVersionImpl.checkApiVersion(anyString())).thenReturn(testString);
 
-        private static String sTestVersionString;
+        Class<?> vendorExtenderVersioningClass = null;
 
-        public static void setTestApiVersion(String s) {
-            sTestVersionString = s;
+        for (Class<?> clazz : ExtensionVersion.class.getDeclaredClasses()) {
+            if (clazz.getSimpleName().equals("VendorExtenderVersioning")) {
+                vendorExtenderVersioningClass = clazz;
+                break;
+            }
         }
 
-        @NonNull
-        @Implementation
-        public String checkApiVersion(String s) {
-            return sTestVersionString;
-        }
-    }
-
-    /**
-     * A Shadow of {@link VersionName} which changes the current version for testing.
-     */
-    @Implements(
-            value = VersionName.class,
-            minSdk = 21
-    )
-    static class ShadowVersionName {
-        private static VersionName sCurrentVersion = new VersionName("1.1.0");
-
-        @Implementation
-        public static VersionName getCurrentVersion() {
-            return sCurrentVersion;
-        }
+        Field field = vendorExtenderVersioningClass.getDeclaredField("sImpl");
+        field.setAccessible(true);
+        field.set(null, mockExtensionVersionImpl);
     }
 }

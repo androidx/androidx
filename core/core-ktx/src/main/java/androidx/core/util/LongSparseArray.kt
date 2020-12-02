@@ -23,19 +23,20 @@ import androidx.annotation.RequiresApi
 
 /** Returns the number of key/value pairs in the collection. */
 @get:RequiresApi(16)
-inline val <T> LongSparseArray<T>.size get() = size()
+public inline val <T> LongSparseArray<T>.size: Int get() = size()
 
 /** Returns true if the collection contains [key]. */
 @RequiresApi(16)
-inline operator fun <T> LongSparseArray<T>.contains(key: Long) = indexOfKey(key) >= 0
+public inline operator fun <T> LongSparseArray<T>.contains(key: Long): Boolean =
+    indexOfKey(key) >= 0
 
 /** Allows the use of the index operator for storing values in the collection. */
 @RequiresApi(16)
-inline operator fun <T> LongSparseArray<T>.set(key: Long, value: T) = put(key, value)
+public inline operator fun <T> LongSparseArray<T>.set(key: Long, value: T): Unit = put(key, value)
 
 /** Creates a new collection by adding or replacing entries from [other]. */
 @RequiresApi(16)
-operator fun <T> LongSparseArray<T>.plus(other: LongSparseArray<T>): LongSparseArray<T> {
+public operator fun <T> LongSparseArray<T>.plus(other: LongSparseArray<T>): LongSparseArray<T> {
     val new = LongSparseArray<T>(size() + other.size())
     new.putAll(this)
     new.putAll(other)
@@ -44,35 +45,36 @@ operator fun <T> LongSparseArray<T>.plus(other: LongSparseArray<T>): LongSparseA
 
 /** Returns true if the collection contains [key]. */
 @RequiresApi(16)
-inline fun <T> LongSparseArray<T>.containsKey(key: Long) = indexOfKey(key) >= 0
+public inline fun <T> LongSparseArray<T>.containsKey(key: Long): Boolean = indexOfKey(key) >= 0
 
 /** Returns true if the collection contains [value]. */
 @RequiresApi(16)
-inline fun <T> LongSparseArray<T>.containsValue(value: T) = indexOfValue(value) != -1
+public inline fun <T> LongSparseArray<T>.containsValue(value: T): Boolean =
+    indexOfValue(value) >= 0
 
 /** Return the value corresponding to [key], or [defaultValue] when not present. */
 @RequiresApi(16)
-inline fun <T> LongSparseArray<T>.getOrDefault(key: Long, defaultValue: T) =
+public inline fun <T> LongSparseArray<T>.getOrDefault(key: Long, defaultValue: T): T =
     get(key) ?: defaultValue
 
 /** Return the value corresponding to [key], or from [defaultValue] when not present. */
 @RequiresApi(16)
-inline fun <T> LongSparseArray<T>.getOrElse(key: Long, defaultValue: () -> T) =
+public inline fun <T> LongSparseArray<T>.getOrElse(key: Long, defaultValue: () -> T): T =
     get(key) ?: defaultValue()
 
 /** Return true when the collection contains no elements. */
 @RequiresApi(16)
-inline fun <T> LongSparseArray<T>.isEmpty() = size() == 0
+public inline fun <T> LongSparseArray<T>.isEmpty(): Boolean = size() == 0
 
 /** Return true when the collection contains elements. */
 @RequiresApi(16)
-inline fun <T> LongSparseArray<T>.isNotEmpty() = size() != 0
+public inline fun <T> LongSparseArray<T>.isNotEmpty(): Boolean = size() != 0
 
 /** Removes the entry for [key] only if it is mapped to [value]. */
 @RequiresApi(16)
-fun <T> LongSparseArray<T>.remove(key: Long, value: T): Boolean {
+public fun <T> LongSparseArray<T>.remove(key: Long, value: T): Boolean {
     val index = indexOfKey(key)
-    if (index != -1 && value == valueAt(index)) {
+    if (index >= 0 && value == valueAt(index)) {
         removeAt(index)
         return true
     }
@@ -81,11 +83,11 @@ fun <T> LongSparseArray<T>.remove(key: Long, value: T): Boolean {
 
 /** Update this collection by adding or replacing entries from [other]. */
 @RequiresApi(16)
-fun <T> LongSparseArray<T>.putAll(other: LongSparseArray<T>) = other.forEach(::put)
+public fun <T> LongSparseArray<T>.putAll(other: LongSparseArray<T>): Unit = other.forEach(::put)
 
 /** Performs the given [action] for each key/value entry. */
 @RequiresApi(16)
-inline fun <T> LongSparseArray<T>.forEach(action: (key: Long, value: T) -> Unit) {
+public inline fun <T> LongSparseArray<T>.forEach(action: (key: Long, value: T) -> Unit) {
     for (index in 0 until size()) {
         action(keyAt(index), valueAt(index))
     }
@@ -93,7 +95,7 @@ inline fun <T> LongSparseArray<T>.forEach(action: (key: Long, value: T) -> Unit)
 
 /** Return an iterator over the collection's keys. */
 @RequiresApi(16)
-fun <T> LongSparseArray<T>.keyIterator(): LongIterator = object : LongIterator() {
+public fun <T> LongSparseArray<T>.keyIterator(): LongIterator = object : LongIterator() {
     var index = 0
     override fun hasNext() = index < size()
     override fun nextLong() = keyAt(index++)
@@ -101,7 +103,7 @@ fun <T> LongSparseArray<T>.keyIterator(): LongIterator = object : LongIterator()
 
 /** Return an iterator over the collection's values. */
 @RequiresApi(16)
-fun <T> LongSparseArray<T>.valueIterator(): Iterator<T> = object : Iterator<T> {
+public fun <T> LongSparseArray<T>.valueIterator(): Iterator<T> = object : Iterator<T> {
     var index = 0
     override fun hasNext() = index < size()
     override fun next() = valueAt(index++)

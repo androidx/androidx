@@ -25,7 +25,6 @@ import static androidx.media2.session.MediaUtils.TRANSACTION_SIZE_LIMIT_IN_BYTES
 import android.content.Context;
 import android.os.BadParcelableException;
 import android.os.Bundle;
-import android.os.Process;
 import android.os.RemoteException;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -47,6 +46,7 @@ import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.media2.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionImpl;
 import androidx.media2.session.MediaSession.CommandButton;
+import androidx.media2.session.MediaSession.ControllerCb;
 import androidx.media2.session.MediaSession.ControllerInfo;
 
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
     private static final String TAG = "MLS2LegacyStub";
     private static final boolean DEBUG = false;
 
-    private final ControllerInfo mControllersForAll;
+    private final ControllerCb mBrowserLegacyCbForBroadcast;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final MediaLibrarySessionImpl mLibrarySessionImpl;
@@ -71,10 +71,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
             MediaSessionCompat.Token token) {
         super(context, session, token);
         mLibrarySessionImpl = session;
-        mControllersForAll = new ControllerInfo(new RemoteUserInfo(
-                RemoteUserInfo.LEGACY_CONTROLLER, Process.myPid(), Process.myUid()),
-                false /* trusted */,
-                new BrowserLegacyCbForAll(this), null /* connectionHints */);
+        mBrowserLegacyCbForBroadcast = new BrowserLegacyCbForBroadcast(this);
     }
 
     @Override
@@ -352,13 +349,13 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
 
     @Override
     ControllerInfo createControllerInfo(RemoteUserInfo remoteUserInfo) {
-        return new ControllerInfo(remoteUserInfo,
+        return new ControllerInfo(remoteUserInfo, MediaUtils.VERSION_UNKNOWN,
                 mManager.isTrustedForMediaControl(remoteUserInfo),
                 new BrowserLegacyCb(remoteUserInfo), null /* connectionHints */);
     }
 
-    ControllerInfo getControllersForAll() {
-        return mControllersForAll;
+    ControllerCb getBrowserLegacyCbForBroadcast() {
+        return mBrowserLegacyCbForBroadcast;
     }
 
     private ControllerInfo getCurrentController() {
@@ -523,7 +520,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
     }
 
-    private class BrowserLegacyCb extends BaseBrowserLegacyCb {
+    private final class BrowserLegacyCb extends BaseBrowserLegacyCb {
         private final Object mLock = new Object();
         private final RemoteUserInfo mRemoteUserInfo;
 
@@ -629,7 +626,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
             if (this == obj) {
                 return true;
             }
-            if (obj == null || obj.getClass() != BrowserLegacyCb.class) {
+            if (!(obj instanceof BrowserLegacyCb)) {
                 return false;
             }
             BrowserLegacyCb other = (BrowserLegacyCb) obj;
@@ -637,13 +634,11 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
     }
 
-    /**
-     * Intentionally static class to prevent lint warning 'SynteheticAccessor' in constructor.
-     */
-    private static class BrowserLegacyCbForAll extends BaseBrowserLegacyCb {
+    // Intentionally static class to prevent lint warning 'SyntheticAccessor' in constructor.
+    private static class BrowserLegacyCbForBroadcast extends BaseBrowserLegacyCb {
         private final MediaBrowserServiceCompat mService;
 
-        BrowserLegacyCbForAll(MediaBrowserServiceCompat service) {
+        BrowserLegacyCbForBroadcast(MediaBrowserServiceCompat service) {
             mService = service;
         }
 

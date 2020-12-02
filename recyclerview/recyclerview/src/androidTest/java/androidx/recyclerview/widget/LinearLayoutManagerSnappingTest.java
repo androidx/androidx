@@ -86,7 +86,7 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
         SnapHelper snapHelper = new LinearSnapHelper();
         mLayoutManager.expectIdleState(1);
         snapHelper.attachToRecyclerView(mRecyclerView);
-        mLayoutManager.waitForSnap(10);
+        mLayoutManager.waitForSnap(25);
 
         // Record the current center view.
         View view = findCenterView(mLayoutManager);
@@ -96,7 +96,7 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
             ? -scrollDistance : scrollDistance;
         mLayoutManager.expectIdleState(1);
         smoothScrollBy(scrollDist);
-        mLayoutManager.waitForSnap(10);
+        mLayoutManager.waitForSnap(25);
         mLayoutManager.expectCallbacks(5);
         mLayoutManager.assertNoCallbacks("There should be no callbacks after some time", 3);
     }
@@ -115,7 +115,7 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
         int scrollDist = mReverseScroll ? -scrollDistance : scrollDistance;
         mLayoutManager.expectIdleState(2);
         smoothScrollBy(scrollDist);
-        mLayoutManager.waitForSnap(10);
+        mLayoutManager.waitForSnap(25);
 
         // Views have not changed
         View viewAfterFling = findCenterView(mLayoutManager);
@@ -137,7 +137,7 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
         int scrollDist = mReverseScroll ? -scrollDistance : scrollDistance;
         mLayoutManager.expectIdleState(2);
         smoothScrollBy(scrollDist);
-        mLayoutManager.waitForSnap(10);
+        mLayoutManager.waitForSnap(25);
 
         // Views have not changed
         View viewAfterFling = findCenterView(mLayoutManager);
@@ -198,7 +198,7 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
         SnapHelper snapHelper = new LinearSnapHelper();
         mLayoutManager.expectIdleState(1);
         snapHelper.attachToRecyclerView(mRecyclerView);
-        mLayoutManager.waitForSnap(10);
+        mLayoutManager.waitForSnap(25);
 
         mLayoutManager.expectLayouts(1);
         scrollToPosition(mConfig.mItemCount / 2);
@@ -214,7 +214,7 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
 
         mLayoutManager.expectIdleState(2);
         smoothScrollBy(scrollDist);
-        mLayoutManager.waitForSnap(10);
+        mLayoutManager.waitForSnap(25);
     }
 
     @Nullable

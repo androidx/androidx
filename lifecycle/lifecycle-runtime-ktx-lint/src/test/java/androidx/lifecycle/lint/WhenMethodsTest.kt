@@ -50,7 +50,6 @@ class WhenMethodsTest(val config: TestConfig) {
     private fun check(body: String): TestLintResult {
         return TestLintTask.lint()
             .files(VIEW_STUB, LIFECYCLE_STUB, COROUTINES_STUB, TestFiles.kt(template(body)))
-            .allowMissingSdk(true)
             .issues(LifecycleWhenChecks.ISSUE)
             .run()
     }

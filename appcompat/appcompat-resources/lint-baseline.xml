@@ -1,0 +1,866 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        /**"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
+            line="1128"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="89"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    public synchronized void setHooks(ResourceManagerHooks hooks) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="127"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    public synchronized Drawable getDrawable(@NonNull Context context, @DrawableRes int resId) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="131"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    synchronized Drawable getDrawable(@NonNull Context context, @DrawableRes int resId,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="135"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    public synchronized void onConfigurationChanged(@NonNull Context context) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="158"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    private synchronized Drawable getCachedDrawable(@NonNull final Context context,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="313"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    private synchronized boolean addDrawableToCache(@NonNull final Context context, final long key,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="334"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    synchronized Drawable onDrawableLoadedFromResources(@NonNull Context context,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="349"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    synchronized ColorStateList getTintList(@NonNull Context context, @DrawableRes int resId) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="377"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    public static synchronized PorterDuffColorFilter getPorterDuffColorFilter("
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="467"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                final Object insets = getOpticalInsetsMethod.invoke(drawable);"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
+            line="90"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat.AnimationDrawableTransition is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="                anim.setAutoCancel(true);"
+        errorLine2="                     ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"
+            line="401"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            state.mChangingConfigurations |= a.getChangingConfigurations();"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"
+            line="452"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                dr = Drawable.createFromXmlInner(resources, parser, attrs, theme);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"
+            line="541"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                dr = Drawable.createFromXmlInner(resources, parser, attrs, theme);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"
+            line="591"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.appcompat.content.res.AppCompatResources is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="            return context.getColorStateList(resId);"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/content/res/AppCompatResources.java"
+            line="69"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            mCurrDrawable.getOutline(outline);"
+        errorLine2="                          ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
+            line="132"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                d.setLayoutDirection(getLayoutDirection());"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
+            line="518"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                d.setLayoutDirection(getLayoutDirection());"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
+            line="518"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="                d.setAutoMirrored(mDrawableContainerState.mAutoMirrored);"
+        errorLine2="                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
+            line="521"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                d.setHotspotBounds(hotspotBounds.left, hotspotBounds.top,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
+            line="525"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer.DrawableContainerState is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                child.setLayoutDirection(mLayoutDirection);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
+            line="813"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer.DrawableContainerState is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                        childChanged = drawables[i].setLayoutDirection(layoutDirection);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
+            line="859"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer.DrawableContainerState is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                    if (drawables[i] != null &amp;&amp; drawables[i].canApplyTheme()) {"
+        errorLine2="                                                             ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
+            line="898"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer.DrawableContainerState is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                        drawables[i].applyTheme(theme);"
+        errorLine2="                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
+            line="899"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer.DrawableContainerState is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                updateDensity(theme.getResources());"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
+            line="904"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer.DrawableContainerState is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                    if (d.canApplyTheme()) {"
+        errorLine2="                          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
+            line="916"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.DrawableContainer.DrawableContainerState is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                    if (future != null &amp;&amp; future.canApplyTheme()) {"
+        errorLine2="                                                 ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
+            line="921"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class androidx.appcompat.widget.DrawableUtils is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="            final android.graphics.Insets insets = drawable.getOpticalInsets();"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
+            line="74"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.appcompat.widget.ResourceManagerInternal.DrawableDelegate is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                        drawable.inflate(context.getResources(), parser, attrs, theme);"
+        errorLine2="                                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="562"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.appcompat.widget.ResourcesWrapper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        return mResources.getDrawable(id, theme);"
+        errorLine2="                          ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourcesWrapper.java"
+            line="137"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 15, the call containing class androidx.appcompat.widget.ResourcesWrapper is not annotated with @RequiresApi(x) where x is at least 15. Either annotate the containing class with at least @RequiresApi(15) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(15)."
+        errorLine1="        return mResources.getDrawableForDensity(id, density);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourcesWrapper.java"
+            line="144"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.appcompat.widget.ResourcesWrapper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        return mResources.getDrawableForDensity(id, density, theme);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourcesWrapper.java"
+            line="150"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 15, the call containing class androidx.appcompat.widget.ResourcesWrapper is not annotated with @RequiresApi(x) where x is at least 15. Either annotate the containing class with at least @RequiresApi(15) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(15)."
+        errorLine1="        mResources.getValueForDensity(id, density, outValue, resolveRefs);"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourcesWrapper.java"
+            line="221"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.StateListDrawable is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            state.mChangingConfigurations |= a.getChangingConfigurations();"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/StateListDrawable.java"
+            line="159"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.appcompat.graphics.drawable.StateListDrawable is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                    dr = Drawable.createFromXmlInner(r, parser, attrs, theme);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/StateListDrawable.java"
+            line="218"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="VectorRaster"
+        message="Resource references will not work correctly in images generated for this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
+        errorLine1="        android:fillColor=&quot;@android:color/white&quot;"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/abc_vector_test.xml"
+            line="23"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`Theme`) and setter parameter type (`int`) getter and setter methods for property `theme` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public Resources.Theme getTheme() {"
+        errorLine2="                           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"
+            line="107"
+            column="28"/>
+        <location
+            file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"
+            line="112"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 2, &quot;what&quot;, in androidx.appcompat.graphics.drawable.DrawableWrapper.scheduleDrawable) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="    public void scheduleDrawable(Drawable who, Runnable what, long when) {"
+        errorLine2="                                                              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="169"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static AnimatedStateListDrawableCompat createFromXmlInner("
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"
+            line="164"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected boolean onStateChange(int[] stateSet) {"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"
+            line="275"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Drawable mutate() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"
+            line="604"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static ColorStateList getColorStateList(@NonNull Context context, @ColorRes int resId) {"
+        errorLine2="                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/content/res/AppCompatResources.java"
+            line="66"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Rect getOpticalBounds(Drawable drawable) {"
+        errorLine2="                  ~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
+            line="72"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Rect getOpticalBounds(Drawable drawable) {"
+        errorLine2="                                        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
+            line="72"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static PorterDuff.Mode parseTintMode(int value, PorterDuff.Mode defaultMode) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
+            line="199"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static PorterDuff.Mode parseTintMode(int value, PorterDuff.Mode defaultMode) {"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
+            line="199"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public DrawableWrapper(Drawable drawable) {"
+        errorLine2="                           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="46"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void draw(Canvas canvas) {"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="51"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onBoundsChange(Rect bounds) {"
+        errorLine2="                                  ~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="56"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setColorFilter(ColorFilter cf) {"
+        errorLine2="                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="87"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean setState(final int[] stateSet) {"
+        errorLine2="                                  ~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="97"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int[] getState() {"
+        errorLine2="           ~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="102"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Drawable getCurrent() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="112"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Region getTransparentRegion() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="128"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean getPadding(Rect padding) {"
+        errorLine2="                              ~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="153"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void invalidateDrawable(Drawable who) {"
+        errorLine2="                                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="161"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void scheduleDrawable(Drawable who, Runnable what, long when) {"
+        errorLine2="                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="169"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void scheduleDrawable(Drawable who, Runnable what, long when) {"
+        errorLine2="                                               ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="169"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void unscheduleDrawable(Drawable who, Runnable what) {"
+        errorLine2="                                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="177"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void unscheduleDrawable(Drawable who, Runnable what) {"
+        errorLine2="                                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="177"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setTintList(ColorStateList tint) {"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="202"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setTintMode(PorterDuff.Mode tintMode) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="207"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Drawable getWrappedDrawable() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="221"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setWrappedDrawable(Drawable drawable) {"
+        errorLine2="                                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
+            line="225"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static synchronized ResourceManagerInternal get() {"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="92"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public synchronized void setHooks(ResourceManagerHooks hooks) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="127"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public synchronized Drawable getDrawable(@NonNull Context context, @DrawableRes int resId) {"
+        errorLine2="                        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="131"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static synchronized PorterDuffColorFilter getPorterDuffColorFilter("
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="467"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            int color, PorterDuff.Mode mode) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="468"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Context wrap(@NonNull final Context context) {"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"
+            line="45"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Resources.Theme getTheme() {"
+        errorLine2="           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"
+            line="107"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Resources getResources() {"
+        errorLine2="           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"
+            line="121"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public AssetManager getAssets() {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"
+            line="126"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ColorStateList mTintList;"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/TintInfo.java"
+            line="29"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PorterDuff.Mode mTintMode;"
+        errorLine2="           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/TintInfo.java"
+            line="30"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Drawable getDrawable(int id) throws NotFoundException {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/VectorEnabledTintResources.java"
+            line="67"
+            column="12"/>
+    </issue>
+
+</issues>

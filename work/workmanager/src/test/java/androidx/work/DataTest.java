@@ -80,7 +80,7 @@ public class DataTest {
                 .putIntArray(KEY2, expectedValue2)
                 .build();
 
-        byte[] byteArray = Data.toByteArray(data);
+        byte[] byteArray = Data.toByteArrayInternal(data);
         Data restoredData = Data.fromByteArray(byteArray);
 
         assertThat(restoredData, is(notNullValue()));

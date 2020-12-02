@@ -16,6 +16,7 @@
 
 package androidx.work.integration.testapp.imageprocessing;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -88,6 +89,7 @@ public class ImageProcessingActivity extends AppCompatActivity {
     }
 
     @Override
+    @SuppressLint("MissingSuperCall")
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == IMAGE_REQUEST_CODE && resultCode == RESULT_OK
                 && Build.VERSION.SDK_INT >= 16 && data.getClipData() != null) {

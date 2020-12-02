@@ -1,0 +1,65 @@
+<resources>
+    <color name="white">@android:color/white</color>
+    <color name="black">@android:color/black</color>
+
+    <!-- Blue A400 -->
+    <color name="blue_a400">#2979FF</color>
+    <!-- Blue 800 -->
+    <color name="dark_blue">#1565C0</color>
+    <!-- Green A700 -->
+    <color name="green">#00C853</color>
+    <!-- Grey 400 -->
+    <color name="light_grey">#bdbdbd</color>
+    <!-- Grey 600 -->
+    <color name="grey">#757575</color>
+    <!-- Grey 800 -->
+    <color name="dark_grey">#424242</color>
+    <!-- Red A200 -->
+    <color name="red_a200">#FF5252</color>
+    <!-- Red 700 -->
+    <color name="dark_red">#D32F2F</color>
+    <!-- Amber 900 -->
+    <color name="orange">#FF6D3F</color>
+
+    <color name="semitransparent_grey">#66777777</color>
+
+    <color name="dismiss_overlay_bg">#80000000</color>
+    <color name="dismiss_close">#FF5151</color>
+    <color name="dismiss_close_pressed">#B83120</color>
+
+    <!-- Light Blue 700 -->
+    <color name="circular_button_normal">#0288D1</color>
+    <!-- Light Blue 900 -->
+    <color name="circular_button_pressed">#01579B</color>
+    <color name="circular_button_disabled">@color/grey</color>
+    <color name="primary_text_light">@color/dark_grey</color>
+    <!-- Grey 500 -->
+    <color name="secondary_text_light">#9E9E9E</color>
+    <!-- Grey 300 -->
+    <color name="disabled_text_light">#E0E0E0</color>
+
+    <color name="primary_text_dark">@color/white</color>
+    <color name="ambient_mode_text">@color/primary_text_dark</color>
+    <!-- Grey 300 -->
+    <color name="card_default_background">#E0E0E0</color>
+
+    <!-- 86% Black -->
+    <color name="black_86p">#DE000000</color>
+    <!-- 54% Black -->
+    <color name="black_54p">#8A000000</color>
+
+    <!-- 30% Black -->
+    <color name="action_button_background">#4D000000</color>
+
+    <color name="dialog_background">#414141</color>
+    <color name="dialog_shade_background">#606060</color>
+
+    <!-- Default colors to be used by the spinner if none are provided -->
+    <array name="progress_spinner_sequence">
+        <item>#FFF4B400</item>
+        <item>#FFDB4437</item>
+        <item>#FF4285F4</item>
+        <item>#FF0F9D58</item>
+    </array>
+
+</resources>

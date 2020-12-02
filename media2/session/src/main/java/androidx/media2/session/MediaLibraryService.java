@@ -30,6 +30,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.session.LibraryResult.ResultCode;
@@ -70,7 +71,32 @@ public abstract class MediaLibraryService extends MediaSessionService {
     /**
      * Session for the {@link MediaLibraryService}. Build this object with
      * {@link Builder} and return in {@link MediaSessionService#onGetSession(ControllerInfo)}.
-     */
+     *
+     * <h3 id="BackwardCompatibility">Backward compatibility with legacy media browser APIs</h3>
+     * Media library session supports connection from both {@link MediaBrowser} and
+     * {@link android.support.v4.media.MediaBrowserCompat}, but {@link ControllerInfo} may not be
+     * precise. Here are current limitations with details.
+     *
+     * <table>
+     * <tr><th>SDK version</th>
+     *     <th>{@link ControllerInfo#getPackageName()}<br>for legacy browser</th>
+     *     <th>{@link ControllerInfo#getUid()}<br>for legacy browser</th></tr>
+     * <tr><td>{@code SDK_VERSION} &lt; 21</td>
+     *     <td>Actual package name via {@link Context#getPackageName()}</td>
+     *     <td>Actual UID</td></tr>
+     * <tr><td>21 &ge; {@code SDK_VERSION} &lt; 28,<br>
+     *         {@code MediaLibrarySessionCallback#onConnect} and<br>
+     *         {@code MediaLibrarySessionCallback#onGetLibraryRoot}</td>
+     *     <td>Actual package name via {@link Context#getPackageName()}</td>
+     *     <td>Actual UID</td></tr>
+     * <tr><td>21 &ge; {@code SDK_VERSION} &lt; 28, for other callbacks</td>
+     *     <td>{@link RemoteUserInfo#LEGACY_CONTROLLER}</td>
+     *     <td>Negative value</td></tr>
+     * <tr><td>28 &ge; {@code SDK_VERSION}</td>
+     *     <td>Actual package name via {@link Context#getPackageName()}</td>
+     *     <td>Actual UID</td></tr>
+     * </table>
+     **/
     public static final class MediaLibrarySession extends MediaSession {
         /**
          * Callback for the {@link MediaLibrarySession}.
@@ -484,6 +510,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
         int mOffline;
         @ParcelField(4)
         int mSuggested;
+
+        // WARNING: Adding a new ParcelField may break old library users (b/152830728)
 
         // For versioned parcelable.
         LibraryParams() {

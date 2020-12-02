@@ -42,7 +42,7 @@ import javax.crypto.Mac;
  * @deprecated Use {@code androidx.biometrics.BiometricPrompt} instead.
  */
 @Deprecated
-public final class FingerprintManagerCompat {
+public class FingerprintManagerCompat {
 
     private final Context mContext;
 

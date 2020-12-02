@@ -29,6 +29,7 @@ import android.media.ImageReader;
 import android.os.Handler;
 import android.view.Surface;
 
+import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -125,5 +126,17 @@ public final class AndroidImageReaderProxyTest {
 
         transformedListenerCaptor.getValue().onImageAvailable(mImageReader);
         verify(listener, times(1)).onImageAvailable(mImageReaderProxy);
+    }
+
+    @Test
+    public void returnNullWhenImageReaderIsClosed() {
+        ImageReader imageReader =
+                ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
+        ImageReaderProxy imageReaderProxy = new AndroidImageReaderProxy(imageReader);
+
+        imageReaderProxy.close();
+
+        assertThat(imageReaderProxy.acquireLatestImage()).isNull();
+        assertThat(imageReaderProxy.acquireNextImage()).isNull();
     }
 }

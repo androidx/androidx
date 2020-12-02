@@ -39,7 +39,6 @@ import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.RemoteMediaController;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
@@ -53,7 +52,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests {@link MediaSession}.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaSessionTest extends MediaSessionTestBase {
@@ -96,7 +94,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testBuilder() {
+    public void builder() {
         prepareLooper();
         MediaSession.Builder builder;
         try {
@@ -122,7 +120,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetDuration() throws Exception {
+    public void getDuration() throws Exception {
         prepareLooper();
         final long testDuration = 9999;
         mPlayer.mLastPlayerState = SessionPlayer.PLAYER_STATE_PAUSED;
@@ -131,7 +129,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetPlaybackSpeed() throws Exception {
+    public void getPlaybackSpeed() throws Exception {
         prepareLooper();
         final float speed = 1.5f;
         mPlayer.mLastPlayerState = SessionPlayer.PLAYER_STATE_PAUSED;
@@ -140,7 +138,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetPlayerState() {
+    public void getPlayerState() {
         prepareLooper();
         final int state = SessionPlayer.PLAYER_STATE_PLAYING;
         mPlayer.mLastPlayerState = state;
@@ -148,7 +146,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetBufferingState() {
+    public void getBufferingState() {
         prepareLooper();
         final int bufferingState = SessionPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
         mPlayer.mLastBufferingState = bufferingState;
@@ -156,7 +154,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetPosition() {
+    public void getPosition() {
         prepareLooper();
         final long position = 150000;
         mPlayer.mCurrentPosition = position;
@@ -165,7 +163,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetBufferedPosition() {
+    public void getBufferedPosition() {
         prepareLooper();
         final long bufferedPosition = 900000;
         mPlayer.mBufferedPosition = bufferedPosition;
@@ -174,7 +172,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetCurrentMediaItem() {
+    public void getCurrentMediaItem() {
         prepareLooper();
         MediaItem item = MediaTestUtils.createMediaItemWithMetadata();
         mPlayer.mCurrentMediaItem = item;
@@ -182,7 +180,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetPlaylist() {
+    public void getPlaylist() {
         prepareLooper();
         final List<MediaItem> list = MediaTestUtils.createPlaylist(2);
         mPlayer.mPlaylist = list;
@@ -190,7 +188,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetPlaylistMetadata() {
+    public void getPlaylistMetadata() {
         prepareLooper();
         final MediaMetadata testMetadata = MediaTestUtils.createMetadata();
         mPlayer.mMetadata = testMetadata;
@@ -198,7 +196,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetShuffleMode() throws InterruptedException {
+    public void getShuffleMode() throws InterruptedException {
         prepareLooper();
         final int testShuffleMode = SessionPlayer.SHUFFLE_MODE_GROUP;
         mPlayer.setShuffleMode(testShuffleMode);
@@ -206,7 +204,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetRepeatMode() throws InterruptedException {
+    public void getRepeatMode() throws InterruptedException {
         prepareLooper();
         final int testRepeatMode = SessionPlayer.REPEAT_MODE_GROUP;
         mPlayer.setRepeatMode(testRepeatMode);
@@ -214,7 +212,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testUpdatePlayer() throws Exception {
+    public void updatePlayer() throws Exception {
         prepareLooper();
         MockPlayer player = new MockPlayer(0);
 
@@ -231,7 +229,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
      */
     @Test
     @LargeTest
-    public void testDeadlock() throws InterruptedException {
+    public void deadlock() throws InterruptedException {
         prepareLooper();
         sHandler.postAndSync(new Runnable() {
             @Override
@@ -349,7 +347,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testCreatingTwoSessionWithSameId() {
+    public void creatingTwoSessionWithSameId() {
         prepareLooper();
         final String sessionId = "testSessionId";
         MediaSession session = new MediaSession.Builder(mContext, new MockPlayer(0))

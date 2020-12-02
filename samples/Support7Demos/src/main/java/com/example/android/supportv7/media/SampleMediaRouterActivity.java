@@ -21,8 +21,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.AudioManager;
-import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -51,7 +49,9 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.mediarouter.app.MediaRouteActionProvider;
@@ -63,9 +63,9 @@ import androidx.mediarouter.media.MediaControlIntent;
 import androidx.mediarouter.media.MediaItemStatus;
 import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
-import androidx.mediarouter.media.MediaRouter.Callback;
 import androidx.mediarouter.media.MediaRouter.ProviderInfo;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
+import androidx.mediarouter.media.MediaRouterParams;
 
 import com.example.android.supportv7.R;
 
@@ -96,9 +96,9 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     private ImageButton mPauseResumeButton;
     private ImageButton mStopButton;
     private SeekBar mSeekBar;
-    private boolean mNeedResume;
     private boolean mSeeking;
 
+    @SuppressWarnings("deprecation")
     private final Handler mHandler = new Handler();
     private final Runnable mUpdateSeekRunnable = new Runnable() {
         @Override
@@ -131,15 +131,21 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onRouteSelected(MediaRouter router, RouteInfo route) {
-            Log.d(TAG, "onRouteSelected: route=" + route);
+        public void onRouteSelected(@NonNull MediaRouter router,
+                @NonNull RouteInfo selectedRoute, int reason, @NonNull RouteInfo requestedRoute) {
+            Log.d(TAG, "onRouteSelected: requestedRoute=" + requestedRoute
+                    + ", route=" + selectedRoute + ", reason=" + reason);
 
-            mPlayer = Player.create(SampleMediaRouterActivity.this, route, mMediaSession);
+            mPlayer = Player.create(SampleMediaRouterActivity.this, selectedRoute, mMediaSession);
             if (isPresentationApiSupported()) {
                 mPlayer.updatePresentation();
             }
             mSessionManager.setPlayer(mPlayer);
-            mSessionManager.unsuspend();
+            if (reason != MediaRouter.UNSELECT_REASON_ROUTE_CHANGED) {
+                mSessionManager.stop();
+            } else {
+                mSessionManager.unsuspend();
+            }
 
             updateUi();
         }
@@ -197,21 +203,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
 
     private MediaSessionCompat mMediaSession;
     private ComponentName mEventReceiver;
-    private AudioManager mAudioManager;
     private PendingIntent mMediaPendingIntent;
-    private final OnAudioFocusChangeListener mAfChangeListener =
-            new OnAudioFocusChangeListener() {
-        @Override
-        public void onAudioFocusChange(int focusChange) {
-            if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
-                Log.d(TAG, "onAudioFocusChange: LOSS_TRANSIENT");
-            } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-                Log.d(TAG, "onAudioFocusChange: AUDIOFOCUS_GAIN");
-            } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-                Log.d(TAG, "onAudioFocusChange: AUDIOFOCUS_LOSS");
-            }
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -228,13 +220,23 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         // Get the media router service.
         mMediaRouter = MediaRouter.getInstance(this);
 
+        mMediaRouter.setRouterParams(getRouterParams());
+
         // Create a route selector for the type of routes that we care about.
         mSelector = new MediaRouteSelector.Builder()
-                .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
-                .addControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO)
                 .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
+                .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
                 .addControlCategory(SampleMediaRouteProvider.CATEGORY_SAMPLE_ROUTE)
                 .build();
+
+        mMediaRouter.setOnPrepareTransferListener((fromRoute, toRoute) -> {
+            Log.d(TAG, "onPrepareTransfer: from=" + fromRoute.getId()
+                    + ", to=" + toRoute.getId());
+            return CallbackToFutureAdapter.getFuture(completer -> {
+                completer.set(null);
+                return "onPrepareTransfer";
+            });
+        });
 
         // Add a fragment to take care of media route discovery.
         // This fragment automatically adds or removes a callback whenever the activity
@@ -254,10 +256,11 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         // Populate an array adapter with streaming media items.
         String[] mediaNames = getResources().getStringArray(R.array.media_names);
         String[] mediaUris = getResources().getStringArray(R.array.media_uris);
+        String[] mediaMimes = getResources().getStringArray(R.array.media_mimes);
         mLibraryItems = new LibraryAdapter();
         for (int i = 0; i < mediaNames.length; i++) {
             mLibraryItems.add(new MediaItem(
-                    "[streaming] "+mediaNames[i], Uri.parse(mediaUris[i]), "video/mp4"));
+                    "[streaming] " + mediaNames[i], Uri.parse(mediaUris[i]), mediaMimes[i]));
         }
 
         // Scan local external storage directory for media files.
@@ -380,7 +383,6 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         mHandler.postDelayed(mUpdateSeekRunnable, 1000);
 
         // Build the PendingIntent for the remote control client
-        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mEventReceiver = new ComponentName(getPackageName(),
                 SampleMediaButtonReceiver.class.getName());
         Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
@@ -499,30 +501,11 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onPause() {
-        // pause media player for local playback case only
-        if (!mPlayer.isRemotePlayback() && !mSessionManager.isPaused()) {
-            mNeedResume = true;
-            mSessionManager.pause();
-        }
-        super.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        // resume media player for local playback case only
-        if (!mPlayer.isRemotePlayback() && mNeedResume) {
-            mSessionManager.resume();
-            mNeedResume = false;
-        }
-        super.onResume();
-    }
-
-    @Override
     public void onDestroy() {
         mSessionManager.stop();
         mPlayer.release();
         mMediaSession.release();
+        mMediaRouter.removeCallback(mMediaRouterCB);
         super.onDestroy();
     }
 
@@ -538,11 +521,10 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         MediaRouteActionProvider mediaRouteActionProvider =
                 (MediaRouteActionProvider) MenuItemCompat.getActionProvider(mediaRouteMenuItem);
         mediaRouteActionProvider.setRouteSelector(mSelector);
-        mediaRouteActionProvider.enableDynamicGroup();
         mediaRouteActionProvider.setDialogFactory(new MediaRouteDialogFactory() {
             @Override
             public MediaRouteControllerDialogFragment onCreateControllerDialogFragment() {
-                return new ControllerDialogFragment(mPlayer, mUseDefaultControlCheckBox);
+                return new ControllerDialogFragment(mUseDefaultControlCheckBox);
             }
         });
 
@@ -616,7 +598,6 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     }
 
     private void updateButtons() {
-        MediaRouter.RouteInfo route = mMediaRouter.getSelectedRoute();
         // show pause or resume icon depending on current state
         mPauseResumeButton.setImageResource(mSessionManager.isPaused() ?
                 R.drawable.ic_media_play : R.drawable.ic_media_pause);
@@ -638,30 +619,32 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         return null;
     }
 
+    public MediaRouterParams getRouterParams() {
+        return new MediaRouterParams.Builder()
+                .setDialogType(MediaRouterParams.DIALOG_TYPE_DEFAULT)
+                .setTransferToLocalEnabled(true) // Phone speaker will be shown when casting.
+                .build();
+    }
+
     /**
      * Media route discovery fragment.
      */
     public static final class DiscoveryFragment extends MediaRouteDiscoveryFragment {
         private static final String TAG = "DiscoveryFragment";
-        private Callback mCallback;
+        private MediaRouter.Callback mCallback;
 
-        public void setCallback(Callback cb) {
+        public void setCallback(MediaRouter.Callback cb) {
             mCallback = cb;
         }
 
         @Override
-        public Callback onCreateCallback() {
+        public MediaRouter.Callback onCreateCallback() {
             return mCallback;
         }
 
         @Override
         public int onPrepareCallbackFlags() {
-            // Add the CALLBACK_FLAG_UNFILTERED_EVENTS flag to ensure that we will
-            // observe and log all route events including those that are for routes
-            // that do not match our selector.  This is only for demonstration purposes
-            // and should not be needed by most applications.
-            return super.onPrepareCallbackFlags()
-                    | MediaRouter.CALLBACK_FLAG_UNFILTERED_EVENTS;
+            return super.onPrepareCallbackFlags();
         }
     }
 
@@ -766,17 +749,39 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     public static class LightWithDarkActionBar extends SampleMediaRouterActivity {
     }
 
+    /**
+     * This will show dynamic group dialog when ther user clicks the media route button.
+     */
+    public static class DynamicGroupActivity extends SampleMediaRouterActivity {
+        @Override
+        public MediaRouterParams getRouterParams() {
+            return new MediaRouterParams.Builder(super.getRouterParams())
+                    .setDialogType(MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP)
+                    .build();
+        }
+    }
+
+    /**
+     * This pops up the output switcher if run on Android R+
+     */
+    public static class OutputSwitcherActivity extends SampleMediaRouterActivity {
+        @Override
+        public MediaRouterParams getRouterParams() {
+            return new MediaRouterParams.Builder(super.getRouterParams())
+                    .setOutputSwitcherEnabled(true)
+                    .build();
+        }
+    }
+
     public static class ControllerDialogFragment extends MediaRouteControllerDialogFragment {
         private MediaRouteControllerDialog mControllerDialog;
-        private Player mPlayer;
         private CheckBox mUseDefaultControlCheckBox;
 
         public ControllerDialogFragment() {
             super();
         }
 
-        public ControllerDialogFragment(Player player, CheckBox customControlViewCheckBox) {
-            mPlayer = player;
+        public ControllerDialogFragment(CheckBox customControlViewCheckBox) {
             this.mUseDefaultControlCheckBox = customControlViewCheckBox;
         }
 
@@ -793,10 +798,6 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
                 }
             });
             return mControllerDialog;
-        }
-
-        public void setPlayer(Player player) {
-            mPlayer = player;
         }
     }
 }

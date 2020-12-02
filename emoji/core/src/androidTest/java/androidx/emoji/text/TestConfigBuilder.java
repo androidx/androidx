@@ -17,6 +17,7 @@ package androidx.emoji.text;
 
 import static org.junit.Assert.fail;
 
+import android.content.Context;
 import android.content.res.AssetManager;
 
 import androidx.annotation.GuardedBy;
@@ -26,8 +27,21 @@ import androidx.test.core.app.ApplicationProvider;
 import java.util.concurrent.CountDownLatch;
 
 public class TestConfigBuilder {
+    private static final String FONT_FILE = "NotoColorEmojiCompat.ttf";
+
+    private TestConfigBuilder() { }
+
     public static EmojiCompat.Config config() {
         return new TestConfig().setReplaceAll(true);
+    }
+
+    /**
+     * Forces the creation of Metadata instead of relying on cached metadata. If GlyphChecker is
+     * mocked, a new metadata has to be used instead of the statically cached metadata since the
+     * result of GlyphChecker on the same device might effect other tests.
+     */
+    public static EmojiCompat.Config freshConfig() {
+        return new TestConfig(new ResettingTestDataLoader()).setReplaceAll(true);
     }
 
     public static class TestConfig extends EmojiCompat.Config {
@@ -100,10 +114,9 @@ public class TestConfigBuilder {
                 synchronized (sMetadataRepoLock) {
                     if (sMetadataRepo == null) {
                         try {
-                            final AssetManager assetManager =
-                                    ApplicationProvider.getApplicationContext().getAssets();
-                            sMetadataRepo = MetadataRepo.create(assetManager,
-                                    "NotoColorEmojiCompat.ttf");
+                            final Context context = ApplicationProvider.getApplicationContext();
+                            final AssetManager assetManager = context.getAssets();
+                            sMetadataRepo = MetadataRepo.create(assetManager, FONT_FILE);
                         } catch (Throwable e) {
                             loaderCallback.onFailed(e);
                             throw new RuntimeException(e);
@@ -113,6 +126,29 @@ public class TestConfigBuilder {
             }
 
             loaderCallback.onLoaded(sMetadataRepo);
+        }
+    }
+
+    public static class ResettingTestDataLoader implements EmojiCompat.MetadataRepoLoader {
+        private MetadataRepo mMetadataRepo;
+
+        ResettingTestDataLoader() {
+        }
+
+        @Override
+        public void load(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
+            if (mMetadataRepo == null) {
+                try {
+                    final Context context = ApplicationProvider.getApplicationContext();
+                    final AssetManager assetManager = context.getAssets();
+                    mMetadataRepo = MetadataRepo.create(assetManager, FONT_FILE);
+                } catch (Throwable e) {
+                    loaderCallback.onFailed(e);
+                    throw new RuntimeException(e);
+                }
+            }
+
+            loaderCallback.onLoaded(mMetadataRepo);
         }
     }
 

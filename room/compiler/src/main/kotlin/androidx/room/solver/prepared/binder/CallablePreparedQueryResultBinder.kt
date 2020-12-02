@@ -17,13 +17,12 @@
 package androidx.room.solver.prepared.binder
 
 import androidx.room.ext.CallableTypeSpecBuilder
-import androidx.room.ext.typeName
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.prepared.result.PreparedQueryResultAdapter
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.TypeSpec
-import javax.lang.model.type.TypeMirror
 
 /**
  * Binder for deferred queries.
@@ -33,14 +32,14 @@ import javax.lang.model.type.TypeMirror
  * function.
  */
 class CallablePreparedQueryResultBinder private constructor(
-    val returnType: TypeMirror,
+    val returnType: XType,
     val addStmntBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit,
     adapter: PreparedQueryResultAdapter?
 ) : PreparedQueryResultBinder(adapter) {
 
     companion object {
         fun createPreparedBinder(
-            returnType: TypeMirror,
+            returnType: XType,
             adapter: PreparedQueryResultAdapter?,
             addCodeBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit
         ) = CallablePreparedQueryResultBinder(returnType, addCodeBlock, adapter)
@@ -53,12 +52,13 @@ class CallablePreparedQueryResultBinder private constructor(
         scope: CodeGenScope
     ) {
         val binderScope = scope.fork()
-        val callableImpl = CallableTypeSpecBuilder(returnType.typeName()) {
+        val callableImpl = CallableTypeSpecBuilder(returnType.typeName) {
             adapter?.executeAndReturn(
                 binderScope.prepareQueryStmtBlock(),
                 preparedStmtField,
                 dbField,
-                binderScope)
+                binderScope
+            )
             addCode(binderScope.generate())
         }.build()
 

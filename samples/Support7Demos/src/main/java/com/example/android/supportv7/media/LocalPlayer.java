@@ -56,7 +56,7 @@ public abstract class LocalPlayer extends Player implements
     private static final String TAG = "LocalPlayer";
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
-    private final Context mContext;
+    @SuppressWarnings("deprecation")
     private final Handler mHandler = new Handler();
     private final Handler mUpdateSurfaceHandler = new Handler(mHandler.getLooper());
     private MediaPlayer mMediaPlayer;

@@ -53,7 +53,7 @@ public class RemoteMediaBrowserCompatTest extends MediaSessionTestBase {
 
     @Test
     @SmallTest
-    public void testConnect() throws Exception {
+    public void connect() throws Exception {
         mRemoteBrowserCompat.connect(true /* waitForConnection */);
         assertTrue(mRemoteBrowserCompat.isConnected());
     }

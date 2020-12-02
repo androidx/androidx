@@ -36,9 +36,11 @@ import androidx.core.view.ViewCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.testutils.AnimationDurationScaleRule;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -60,6 +62,10 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
 
     final List<TestViewHolder> recycledVHs = new ArrayList<>();
 
+    @Rule
+    public final AnimationDurationScaleRule mEnableAnimations =
+            AnimationDurationScaleRule.createForAllTests(1f);
+
     @Test
     public void keepFocusAfterChangeAnimation() throws Throwable {
         setupBasic(10, 0, 5, new TestAdapter(10) {
@@ -70,23 +76,23 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 holder.itemView.setFocusableInTouchMode(true);
             }
         });
-        ((SimpleItemAnimator)(mRecyclerView.getItemAnimator())).setSupportsChangeAnimations(true);
+        ((SimpleItemAnimator) (mRecyclerView.getItemAnimator())).setSupportsChangeAnimations(true);
 
         final RecyclerView.ViewHolder oldVh = mRecyclerView.findViewHolderForAdapterPosition(3);
-        assertNotNull("test sanity", oldVh);
+        assertNotNull("Assumption check", oldVh);
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 oldVh.itemView.requestFocus();
             }
         });
-        assertTrue("test sanity", oldVh.itemView.hasFocus());
+        assertTrue("Assumption check", oldVh.itemView.hasFocus());
         mLayoutManager.expectLayouts(2);
         mTestAdapter.changeAndNotify(3, 1);
         mLayoutManager.waitForLayout(2);
 
         RecyclerView.ViewHolder newVh = mRecyclerView.findViewHolderForAdapterPosition(3);
-        assertNotNull("test sanity", newVh);
+        assertNotNull("Assumption check", newVh);
         assertNotSame(oldVh, newVh);
         assertFalse(oldVh.itemView.hasFocus());
         assertTrue(newVh.itemView.hasFocus());
@@ -122,7 +128,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         LoggingItemAnimator animator = new LoggingItemAnimator() {
             @Override
             public boolean canReuseUpdatedViewHolder(@NonNull RecyclerView.ViewHolder viewHolder,
-                                                     @NonNull List<Object> payloads) {
+                    @NonNull List<Object> payloads) {
                 return reUse;
             }
         };
@@ -136,7 +142,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 mLayoutManager.mOnLayoutCallbacks = new OnLayoutCallbacks() {
                     @Override
                     void doLayout(RecyclerView.Recycler recycler, AnimationLayoutManager lm,
-                                  RecyclerView.State state) {
+                            RecyclerView.State state) {
                         if (state.isPreLayout()) {
                             super.doLayout(recycler, lm, state);
                         } else {
@@ -210,7 +216,8 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         // TODO don't use this after moving this class to Junit 4
         try {
             removeRecyclerView();
-        } catch (Throwable t){}
+        } catch (Throwable t) {
+        }
     }
 
 
@@ -236,7 +243,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                             RecyclerView.State state) {
                         mLayoutItemCount = 7;
                         View targetView = recycler
-                                .getViewForPosition(target.getAdapterPosition());
+                                .getViewForPosition(target.getAbsoluteAdapterPosition());
                         assertSame(targetView, target.itemView);
                         super.beforePostLayout(recycler, layoutManager, state);
                     }
@@ -246,7 +253,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                             AnimationLayoutManager layoutManager,
                             RecyclerView.State state) {
                         super.afterPostLayout(recycler, layoutManager, state);
-                        assertNull("test sanity. this view should not be re-laid out in post "
+                        assertNull("Assumption check. this view should not be re-laid out in post "
                                 + "layout", target.itemView.getParent());
                     }
                 };
@@ -297,7 +304,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                             AnimationLayoutManager layoutManager,
                             RecyclerView.State state) {
                         super.afterPostLayout(recycler, layoutManager, state);
-                        assertNull("test sanity. this view should not be re-laid out in post "
+                        assertNull("Assumption check. this view should not be re-laid out in post "
                                 + "layout", target.itemView.getParent());
                     }
                 };
@@ -472,7 +479,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 mLayoutManager.expectLayouts(1);
                 target.mBoundItem.mType += 2;
                 mLayoutManager.mOnLayoutCallbacks.mLayoutItemCount = 9;
-                mTestAdapter.changeAndNotify(target.getAdapterPosition(), 1);
+                mTestAdapter.changeAndNotify(target.getAbsoluteAdapterPosition(), 1);
                 requestLayoutOnUIThread(mRecyclerView);
                 mLayoutManager.waitForLayout(2);
 
@@ -517,8 +524,8 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         mLayoutManager.expectLayouts(2);
         adapter.deleteAndNotify(2, 1);
         mLayoutManager.waitForLayout(2);
-        // test sanity, make sure target is hidden now
-        assertTrue("test sanity", mRecyclerView.mChildHelper.isHidden(target.itemView));
+        // Assumption check, make sure target is hidden now
+        assertTrue("Assumption check", mRecyclerView.mChildHelper.isHidden(target.itemView));
         callback.postSetup(recycledVHs, target);
         // TODO TEST ITEM INVALIDATION OR TYPE CHANGE IN BETWEEN
         // TODO TEST ITEM IS RECEIVED FROM RECYCLER BUT NOT RE-ADDED
@@ -542,7 +549,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         mTestAdapter.deleteAndNotify(3, 4);
         mLayoutManager.waitForLayout(2);
         removeRecyclerView();
-        assertNull("test sanity check RV should be removed", rv.getParent());
+        assertNull("Assumption check check RV should be removed", rv.getParent());
         assertEquals("no views should be hidden", 0, rv.mChildHelper.mHiddenViews.size());
         assertFalse("there should not be any animations running", animator.isRunning());
     }
@@ -561,7 +568,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
             }
         });
 
-        assertNotNull("test sanity", targetChild);
+        assertNotNull("Assumption check", targetChild);
         mLayoutManager.expectLayouts(1);
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
@@ -599,8 +606,9 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         setupBasic(4, 0, 3);
         waitForAnimations(2);
         final View[] targetChild = new View[1];
-        // Using DummyItemAnimator so we must end all animations manually at the end of the test.
-        final DummyItemAnimator animator = new DummyItemAnimator();
+        // Using ItemAnimatorTestDouble so we must end all animations manually at the end of the
+        // test.
+        final ItemAnimatorTestDouble animator = new ItemAnimatorTestDouble();
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -609,7 +617,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
             }
         });
 
-        assertNotNull("test sanity", targetChild);
+        assertNotNull("Assumption check", targetChild);
         final RecyclerView.ViewHolder targetVH = mRecyclerView.getChildViewHolder(targetChild[0]);
 
         // remove first child causing targetChild moving
@@ -622,14 +630,14 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
             @Override
             public void run() {
                 try {
-                    animator.expect(DummyItemAnimator.MOVE_FINISHED, 1);
-                    assertFalse("sanity check", targetVH.isRecyclable());
+                    animator.expect(ItemAnimatorTestDouble.MOVE_FINISHED, 1);
+                    assertFalse("Assumption check", targetVH.isRecyclable());
                     mRecyclerView.getLayoutManager().removeAndRecycleView(targetChild[0],
                             mRecyclerView.mRecycler);
                     assertTrue("if scroll pass remove the view, should not immediately"
                                     + " stop animating",
-                            animator.waitFor(DummyItemAnimator.MOVE_FINISHED));
-                    assertTrue("sanity check", targetVH.isRecyclable());
+                            animator.waitFor(ItemAnimatorTestDouble.MOVE_FINISHED));
+                    assertTrue("Assumption check", targetVH.isRecyclable());
                 } catch (InterruptedException ex) {
                     fail("waitFor interrupted");
                 }
@@ -643,8 +651,9 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
     public void scrollPassRemoveAdditionView() throws Throwable {
         setupBasic(4, 0, 3);
         waitForAnimations(2);
-        // Using DummyItemAnimator so we must end all animations manually at the end of the test.
-        final DummyItemAnimator animator = new DummyItemAnimator();
+        // Using ItemAnimatorTestDouble so we must end all animations manually at the end of the
+        // test.
+        final ItemAnimatorTestDouble animator = new ItemAnimatorTestDouble();
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -662,15 +671,15 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
             @Override
             public void run() {
                 try {
-                    animator.expect(DummyItemAnimator.ADD_FINISHED, 1);
+                    animator.expect(ItemAnimatorTestDouble.ADD_FINISHED, 1);
                     RecyclerView.ViewHolder vh = animator.mAdds.get(0);
-                    assertFalse("sanity check", vh.isRecyclable());
+                    assertFalse("Assumption check", vh.isRecyclable());
                     mRecyclerView.getLayoutManager().removeAndRecycleView(vh.itemView,
                             mRecyclerView.mRecycler);
                     assertTrue("if scroll pass remove the view, should not immediately"
                                     + " stop animating",
-                            animator.waitFor(DummyItemAnimator.ADD_FINISHED));
-                    assertTrue("sanity check", vh.isRecyclable());
+                            animator.waitFor(ItemAnimatorTestDouble.ADD_FINISHED));
+                    assertTrue("Assumption check", vh.isRecyclable());
                 } catch (InterruptedException ex) {
                     fail("waitFor interrupted");
                 }
@@ -710,7 +719,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
             }
         });
 
-        assertNotNull("test sanity", targetChild[0]);
+        assertNotNull("Assumption check", targetChild[0]);
 
         // now delete that item.
         mLayoutManager.expectLayouts(2);
@@ -1839,7 +1848,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                             RecyclerView.ViewHolder holder =
                                     mRecyclerView.getChildViewHolderInt(view);
                             targetVh[0] = holder;
-                            assertTrue("test sanity", holder.isRemoved());
+                            assertTrue("Assumption check", holder.isRemoved());
                             mLayoutManager.removeAndRecycleView(view, recycler);
                         }
                         break;
@@ -1851,7 +1860,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         mLayoutManager.expectLayouts(2);
         mTestAdapter.deleteAndNotify(1, 1);
         mLayoutManager.waitForLayout(2);
-        assertTrue("test sanity, view should be recycled", pooledViews.contains(targetVh[0]));
+        assertTrue("Assumption check, view should be recycled", pooledViews.contains(targetVh[0]));
         assertTrue("since LM force recycled a view, animate disappearance should not be called",
                 animateRemoveList.isEmpty());
     }

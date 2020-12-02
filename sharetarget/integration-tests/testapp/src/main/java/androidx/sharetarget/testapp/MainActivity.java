@@ -82,6 +82,7 @@ public class MainActivity extends Activity {
                 .setLongLived()
                 .setPerson(new Person.Builder().build())
                 .setCategories(categories1)
+                .setRank(2)
                 .build());
         shortcuts.add(new ShortcutInfoCompat.Builder(this, "Person_Two_ID")
                 .setShortLabel("Person_Two")
@@ -90,6 +91,7 @@ public class MainActivity extends Activity {
                 .setLongLived()
                 .setPerson(new Person.Builder().build())
                 .setCategories(categories2)
+                .setRank(1)
                 .build());
 
         ShortcutManagerCompat.addDynamicShortcuts(this, shortcuts);

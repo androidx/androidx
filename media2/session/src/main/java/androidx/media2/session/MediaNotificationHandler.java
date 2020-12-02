@@ -103,6 +103,14 @@ import java.util.List;
         int id = mediaNotification.getNotificationId();
         Notification notification = mediaNotification.getNotification();
 
+        if (Build.VERSION.SDK_INT >= 21) {
+            // Call Notification.MediaStyle#setMediaSession() indirectly.
+            android.media.session.MediaSession.Token fwkToken =
+                    (android.media.session.MediaSession.Token)
+                            session.getSessionCompat().getSessionToken().getToken();
+            notification.extras.putParcelable(Notification.EXTRA_MEDIA_SESSION, fwkToken);
+        }
+
         if (isPlaybackStopped(state)) {
             stopForegroundServiceIfNeeded();
             mNotificationManager.notify(id, notification);

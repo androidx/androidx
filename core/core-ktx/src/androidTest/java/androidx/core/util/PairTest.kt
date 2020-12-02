@@ -16,37 +16,64 @@
 
 package androidx.core.util
 
-import android.util.Pair
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
 import org.junit.Test
+import android.util.Pair as AndroidPair
+import kotlin.Pair as KotlinPair
 
 @SmallTest
 class PairTest {
-    @Test fun destructuringNonNull() {
+    @Test fun androidDestructuringNonNull() {
+        val pair = AndroidPair("one", "two")
+        val (first: String, second: String) = pair
+        assertSame(pair.first, first)
+        assertSame(pair.second, second)
+    }
+
+    @Test fun androidDestructuringNullable() {
+        val pair = AndroidPair("one", "two")
+        val (first: String?, second: String?) = pair
+        assertSame(pair.first, first)
+        assertSame(pair.second, second)
+    }
+
+    @Test fun androidToKotlin() {
+        val android = AndroidPair("one", "two")
+        val kotlin = android.toKotlinPair()
+        assertEquals(android.first to android.second, kotlin)
+    }
+
+    @Test fun kotlinToAndroid() {
+        val kotlin = KotlinPair("one", "two")
+        val android = kotlin.toAndroidPair()
+        assertEquals(AndroidPair(kotlin.first, kotlin.second), android)
+    }
+
+    @Test fun androidXDestructuringNonNull() {
         val pair = Pair("one", "two")
         val (first: String, second: String) = pair
         assertSame(pair.first, first)
         assertSame(pair.second, second)
     }
 
-    @Test fun destructuringNullable() {
+    @Test fun androidXDestructuringNullable() {
         val pair = Pair("one", "two")
         val (first: String?, second: String?) = pair
         assertSame(pair.first, first)
         assertSame(pair.second, second)
     }
 
-    @Test fun toKotlin() {
-        val android = Pair("one", "two")
-        val kotlin = android.toKotlinPair()
-        assertEquals(android.first to android.second, kotlin)
+    @Test fun androidXToKotlin() {
+        val pair = Pair("one", "two")
+        val kotlin = pair.toKotlinPair()
+        assertEquals(pair.first to pair.second, kotlin)
     }
 
-    @Test fun toAndroid() {
-        val kotlin = kotlin.Pair("one", "two")
-        val android = kotlin.toAndroidPair()
-        assertEquals(Pair(kotlin.first, kotlin.second), android)
+    @Test fun kotlinToAndroidX() {
+        val kotlin = KotlinPair("one", "two")
+        val pair = kotlin.toAndroidXPair()
+        assertEquals(Pair(kotlin.first, kotlin.second), pair)
     }
 }

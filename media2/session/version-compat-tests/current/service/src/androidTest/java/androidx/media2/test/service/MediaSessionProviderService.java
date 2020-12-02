@@ -26,18 +26,16 @@ import static androidx.media2.test.common.CommonConstants.KEY_CURRENT_POSITION;
 import static androidx.media2.test.common.CommonConstants.KEY_CURRENT_VOLUME;
 import static androidx.media2.test.common.CommonConstants.KEY_MAX_VOLUME;
 import static androidx.media2.test.common.CommonConstants.KEY_MEDIA_ITEM;
-import static androidx.media2.test.common.CommonConstants.KEY_METADATA;
+import static androidx.media2.test.common.CommonConstants.KEY_PLAYBACK_SPEED;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST;
-import static androidx.media2.test.common.CommonConstants.KEY_SPEED;
+import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST_METADATA;
 import static androidx.media2.test.common.CommonConstants.KEY_TRACK_INFO;
 import static androidx.media2.test.common.CommonConstants.KEY_VIDEO_SIZE;
 import static androidx.media2.test.common.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
-import static androidx.media2.test.common.MediaSessionConstants
-        .TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
+import static androidx.media2.test.common.MediaSessionConstants.TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
 import static androidx.media2.test.common.MediaSessionConstants.TEST_GET_SESSION_ACTIVITY;
-import static androidx.media2.test.common.MediaSessionConstants
-        .TEST_ON_PLAYLIST_METADATA_CHANGED_SESSION_SET_PLAYLIST;
+import static androidx.media2.test.common.MediaSessionConstants.TEST_ON_PLAYLIST_METADATA_CHANGED_SESSION_SET_PLAYLIST;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -222,7 +220,7 @@ public class MediaSessionProviderService extends Service {
                 localPlayer.mLastBufferingState = config.getInt(KEY_BUFFERING_STATE);
                 localPlayer.mCurrentPosition = config.getLong(KEY_CURRENT_POSITION);
                 localPlayer.mBufferedPosition = config.getLong(KEY_BUFFERED_POSITION);
-                localPlayer.mPlaybackSpeed = config.getFloat(KEY_SPEED);
+                localPlayer.mPlaybackSpeed = config.getFloat(KEY_PLAYBACK_SPEED);
 
                 ParcelImplListSlice listSlice = config.getParcelable(KEY_PLAYLIST);
                 if (listSlice != null) {
@@ -230,7 +228,8 @@ public class MediaSessionProviderService extends Service {
                 }
                 localPlayer.mCurrentMediaItem =
                         MediaTestUtils.convertToMediaItem(config.getParcelable(KEY_MEDIA_ITEM));
-                localPlayer.mMetadata = ParcelUtils.getVersionedParcelable(config, KEY_METADATA);
+                localPlayer.mMetadata = ParcelUtils.getVersionedParcelable(config,
+                        KEY_PLAYLIST_METADATA);
                 ParcelImpl videoSize = config.getParcelable(KEY_VIDEO_SIZE);
                 if (videoSize != null) {
                     localPlayer.mVideoSize = MediaParcelUtils.fromParcelable(videoSize);
@@ -441,7 +440,15 @@ public class MediaSessionProviderService extends Service {
         }
 
         @Override
-        public void createAndSetDummyPlaylist(String sessionId, int size) throws RemoteException {
+        public void setCurrentMediaItemMetadata(String sessionId, ParcelImpl metadata)
+                throws RemoteException {
+            MediaSession session = mSessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            player.mCurrentMediaItem.setMetadata(MediaParcelUtils.fromParcelable(metadata));
+        }
+
+        @Override
+        public void createAndSetFakePlaylist(String sessionId, int size) throws RemoteException {
             MediaSession session = mSessionMap.get(sessionId);
             MockPlayer player = (MockPlayer) session.getPlayer();
 
@@ -450,14 +457,14 @@ public class MediaSessionProviderService extends Service {
                 list.add(new MediaItem.Builder()
                         .setMetadata(new MediaMetadata.Builder()
                                 .putString(MediaMetadata.METADATA_KEY_MEDIA_ID,
-                                        TestUtils.getMediaIdInDummyList(i)).build())
+                                        TestUtils.getMediaIdInFakeList(i)).build())
                         .build());
             }
             player.mPlaylist = list;
         }
 
         @Override
-        public void setPlaylistWithDummyItem(String sessionId, List<ParcelImpl> playlist)
+        public void setPlaylistWithFakeItem(String sessionId, List<ParcelImpl> playlist)
                 throws RemoteException {
             MediaSession session = mSessionMap.get(sessionId);
             MockPlayer player = (MockPlayer) session.getPlayer();
@@ -489,7 +496,7 @@ public class MediaSessionProviderService extends Service {
 
             MediaMetadata.Builder builder = new MediaMetadata.Builder();
             for (int i = 0; i < count; i++) {
-                builder.putBitmap(TestUtils.getMediaIdInDummyList(i), bitmap);
+                builder.putBitmap(TestUtils.getMediaIdInFakeList(i), bitmap);
             }
             player.mMetadata = builder.build();
         }
@@ -576,6 +583,14 @@ public class MediaSessionProviderService extends Service {
             SessionPlayer.TrackInfo trackObj = MediaParcelUtils.fromParcelable(track);
             SubtitleData dataObj = MediaParcelUtils.fromParcelable(data);
             player.notifySubtitleData(itemObj, trackObj, dataObj);
+        }
+
+        @Override
+        public void notifyVolumeChanged(String sessionId, int volume) {
+            MediaSession session = mSessionMap.get(sessionId);
+            MockRemotePlayer player = (MockRemotePlayer) session.getPlayer();
+            player.mCurrentVolume = volume;
+            player.notifyVolumeChanged();
         }
     }
 }

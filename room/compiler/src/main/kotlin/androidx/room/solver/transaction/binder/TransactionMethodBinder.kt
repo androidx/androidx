@@ -16,11 +16,11 @@
 
 package androidx.room.solver.transaction.binder
 
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.transaction.result.TransactionMethodAdapter
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
-import javax.lang.model.type.TypeMirror
 
 /**
  * Connects a transaction method, database and a [TransactionMethodAdapter].
@@ -36,7 +36,7 @@ abstract class TransactionMethodBinder(val adapter: TransactionMethodAdapter) {
      * transaction wrapper body that delegates to the non-abstract or default dao method.
      */
     abstract fun executeAndReturn(
-        returnType: TypeMirror,
+        returnType: XType,
         parameterNames: List<String>,
         daoName: ClassName,
         daoImplName: ClassName,

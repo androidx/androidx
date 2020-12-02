@@ -234,7 +234,7 @@ public class WorkerWrapper implements Runnable {
                 mWorkTaskExecutor,
                 mConfiguration.getWorkerFactory(),
                 new WorkProgressUpdater(mWorkDatabase, mWorkTaskExecutor),
-                new WorkForegroundUpdater(mForegroundProcessor, mWorkTaskExecutor));
+                new WorkForegroundUpdater(mWorkDatabase, mForegroundProcessor, mWorkTaskExecutor));
 
         // Not always creating a worker here, as the WorkerWrapper.Builder can set a worker override
         // in test mode.
@@ -326,7 +326,6 @@ public class WorkerWrapper implements Runnable {
 
     // Package-private for synthetic accessor.
     void onWorkFinished() {
-        boolean isWorkFinished = false;
         if (!tryCheckForInterruptionAndResolve()) {
             mWorkDatabase.beginTransaction();
             try {
@@ -338,12 +337,8 @@ public class WorkerWrapper implements Runnable {
                     // turn into a no-op. We still need to notify potential observers
                     // holding on to wake locks on our behalf.
                     resolve(false);
-                    isWorkFinished = true;
                 } else if (state == RUNNING) {
                     handleResult(mResult);
-                    // Update state after a call to handleResult()
-                    state = mWorkSpecDao.getState(mWorkSpecId);
-                    isWorkFinished = state.isFinished();
                 } else if (!state.isFinished()) {
                     rescheduleAndResolve();
                 }
@@ -358,13 +353,11 @@ public class WorkerWrapper implements Runnable {
         // happen in its own transaction.
 
         // Cancel this work in other schedulers.  For example, if this work was
-        // completed by GreedyScheduler, we should make sure JobScheduler is informed
+        // handled by GreedyScheduler, we should make sure JobScheduler is informed
         // that it should remove this job and AlarmManager should remove all related alarms.
         if (mSchedulers != null) {
-            if (isWorkFinished) {
-                for (Scheduler scheduler : mSchedulers) {
-                    scheduler.cancel(mWorkSpecId);
-                }
+            for (Scheduler scheduler : mSchedulers) {
+                scheduler.cancel(mWorkSpecId);
             }
             Schedulers.schedule(mConfiguration, mWorkDatabase, mSchedulers);
         }
@@ -445,11 +438,13 @@ public class WorkerWrapper implements Runnable {
                 PackageManagerHelper.setComponentEnabled(
                         mAppContext, RescheduleReceiver.class, false);
             }
+            if (needsReschedule) {
+                // Set state to ENQUEUED again.
+                // Reset scheduled state so its picked up by background schedulers again.
+                mWorkSpecDao.setState(ENQUEUED, mWorkSpecId);
+                mWorkSpecDao.markWorkSpecScheduled(mWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
+            }
             if (mWorkSpec != null && mWorker != null && mWorker.isRunInForeground()) {
-                if (needsReschedule) {
-                    // Reset scheduled state so its picked up by background schedulers again.
-                    mWorkSpecDao.markWorkSpecScheduled(mWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
-                }
                 mForegroundProcessor.stopForeground(mWorkSpecId);
             }
             mWorkDatabase.setTransactionSuccessful();

@@ -26,6 +26,7 @@ import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_7_8;
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_8_9;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_1;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_10;
+import static androidx.work.impl.WorkDatabaseMigrations.VERSION_11;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_2;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_3;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_4;
@@ -390,6 +391,39 @@ public class WorkDatabaseMigrationTest {
                 nextJobSchedulerId,
                 nextAlarmId
         };
+        for (int i = 0; i < keys.length; i++) {
+            String key = keys[i];
+            long expected = expectedValues[i];
+            Cursor cursor = database.query(query, new Object[]{key});
+            assertThat(cursor.getCount(), is(1));
+            cursor.moveToFirst();
+            assertThat(cursor.getLong(cursor.getColumnIndex("long_value")), is(expected));
+            cursor.close();
+        }
+        database.close();
+    }
+
+    @Test
+    @MediumTest
+    public void testMigrationVersion10To11() throws IOException {
+        SupportSQLiteDatabase database =
+                mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_10);
+        WorkDatabaseMigrations.RescheduleMigration migration10To11 =
+                new WorkDatabaseMigrations.RescheduleMigration(mContext, VERSION_10, VERSION_11);
+        database = mMigrationTestHelper.runMigrationsAndValidate(
+                TEST_DATABASE,
+                VERSION_11,
+                VALIDATE_DROPPED_TABLES,
+                migration10To11);
+
+        String[] keys = new String[]{
+                KEY_RESCHEDULE_NEEDED,
+        };
+        long[] expectedValues = new long[]{
+                1L,
+        };
+
+        String query = "SELECT * FROM `Preference` where `key`=@key";
         for (int i = 0; i < keys.length; i++) {
             String key = keys[i];
             long expected = expectedValues[i];

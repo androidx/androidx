@@ -21,8 +21,9 @@ import static com.google.common.truth.Truth.assertThat;
 import android.hardware.camera2.CaptureResult;
 import android.os.Build;
 
-import androidx.camera.core.CameraCaptureResult;
-import androidx.test.filters.SmallTest;
+import androidx.camera.camera2.internal.Camera2CameraCaptureResult;
+import androidx.camera.core.impl.CameraCaptureResult;
+import androidx.camera.core.impl.TagBundle;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +32,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -40,8 +40,8 @@ public final class Camera2CameraCaptureResultConverterTest {
 
     @Test
     public void canRetrieveCaptureResult() {
-        CameraCaptureResult cameraCaptureResult = new Camera2CameraCaptureResult(null,
-                mCaptureResult);
+        CameraCaptureResult cameraCaptureResult =
+                new Camera2CameraCaptureResult(TagBundle.emptyBundle(), mCaptureResult);
 
         CaptureResult captureResult = Camera2CameraCaptureResultConverter.getCaptureResult(
                 cameraCaptureResult);

@@ -21,7 +21,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("kotlin-android")
-    id("kotlin-android-extensions")
 }
 
 android {
@@ -30,22 +29,36 @@ android {
         minSdkVersion 21
         versionCode 1
         multiDexEnabled true
-    }
+        testInstrumentationRunnerArgument "listener", "leakcanary.FailAnnotatedTestOnLeakRunListener"
 
-    sourceSets {
-        main.manifest.srcFile 'src/main/AndroidManifest.xml'
-        main.java.srcDirs = ['src/main/java']
-        main.java.excludes = ['**/build/**']
-        main.java.includes = ['**/*.java']
-        main.res.srcDirs = ['src/main/res']
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++17"
+                arguments "-DCMAKE_VERBOSE_MAKEFILE=ON"
+            }
+        }
     }
 
     buildTypes {
         debug {
-            testCoverageEnabled true
+            pseudoLocalesEnabled true
         }
 
         release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            // AGP doesn't allow us to use project.buildDir (or subdirs) for CMake's generated
+            // build files (ninja build files, CMakeCache.txt, etc.). Use a staging directory that
+            // lives alongside the project's buildDir.
+            buildStagingDirectory "${project.buildDir}/../nativeBuildStaging"
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.10.2"
         }
     }
 }
@@ -53,26 +66,43 @@ android {
 dependencies {
     // Internal library
     implementation(project(":camera:camera-camera2"))
+    implementation(project(":camera:camera-camera2-pipe-integration"))
     implementation(project(":camera:camera-core"))
-    implementation(project(":lifecycle:lifecycle-extensions"))
-    implementation(GUAVA_LISTENABLE_FUTURE)
+    implementation(project(":camera:camera-lifecycle"))
+    implementation(project(":appcompat:appcompat"))
+    implementation(project(":activity:activity"))
+    implementation(project(":fragment:fragment"))
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
     // Android Support Library
     api(CONSTRAINT_LAYOUT, { transitive = true })
-    implementation("androidx.appcompat:appcompat:1.1.0")
-    implementation(KOTLIN_STDLIB)
+    implementation(GUAVA_ANDROID)
+    implementation(ESPRESSO_IDLING_RESOURCE)
+
+    // 3P library
+    debugImplementation(LEAKCANARY)
+    // Testing resource dependency for manifest
+    debugImplementation(project(":camera:camera-testing"))
 
     // Testing framework
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(ESPRESSO_IDLING_RESOURCE)
     androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
+    androidTestImplementation(LEAKCANARY)
+    androidTestImplementation(LEAKCANARY_INSTRUMENTATION)
+    androidTestImplementation(TRUTH)
     androidTestImplementation(project(":camera:camera-testing"))
-    implementation(ESPRESSO_IDLING_RESOURCE)
+    androidTestImplementation(project(":concurrent:concurrent-futures"))
+    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation(project(':internal-testutils-runtime'))
+
+    testImplementation(JUNIT)
+    testImplementation(TRUTH)
 }
 

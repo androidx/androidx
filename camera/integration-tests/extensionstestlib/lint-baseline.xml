@@ -1,113 +1,289 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                ~~~~~~">
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 21): `android.graphics.ImageFormat#PRIVATE`"
+        errorLine1="            Size[] outputSizes = map.getOutputSizes(ImageFormat.PRIVATE);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="50"
-            column="33"/>
+            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
+            line="97"
+            column="53"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~">
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 21): `android.graphics.ImageFormat#PRIVATE`"
+        errorLine1="                formatResolutionsPairList.add(Pair.create(ImageFormat.PRIVATE, outputSizes));"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="50"
-            column="50"/>
+            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
+            line="100"
+            column="59"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean isExtensionAvailable(String cameraId,"
-        errorLine2="                                        ~~~~~~">
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 21): `android.opengl.EGLExt#EGL_RECORDABLE_ANDROID`"
+        errorLine1="                EGL_RECORDABLE_ANDROID,"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="54"
-            column="41"/>
+            file="src/main/java/androidx/camera/extensions/impl/GLImage2SurfaceRenderer.java"
+            line="127"
+            column="17"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                            mImageWriter = ImageWriter.newInstance(surface, 1);"
+        errorLine2="                                                       ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="55"
-            column="13"/>
+            line="93"
+            column="56"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public List&lt;CaptureStageImpl> getCaptureStages() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                                Image image = mImageWriter.dequeueInputImage();"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="61"
-            column="12"/>
+            line="109"
+            column="60"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CaptureProcessorImpl getCaptureProcessor() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                                mImageWriter.queueInputImage(image);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="72"
-            column="12"/>
+            line="121"
+            column="46"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
-        errorLine2="                       ~~~~~~">
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                            mImageWriter = ImageWriter.newInstance(surface, 1);"
+        errorLine2="                                                       ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="129"
-            column="24"/>
+            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
+            line="98"
+            column="56"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                                Image image = mImageWriter.dequeueInputImage();"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="129"
-            column="41"/>
+            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
+            line="114"
+            column="60"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Context context) {"
-        errorLine2="            ~~~~~~~">
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                                mImageWriter.queueInputImage(image);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="130"
-            column="13"/>
+            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
+            line="126"
+            column="46"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CaptureStageImpl onPresetSession() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                            mImageWriter = ImageWriter.newInstance(surface, 1);"
+        errorLine2="                                                       ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
+            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
+            line="93"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                                Image image = mImageWriter.dequeueInputImage();"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
+            line="110"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                                mImageWriter.queueInputImage(image);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
+            line="122"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                            mImageWriter = ImageWriter.newInstance(surface, 1);"
+        errorLine2="                                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
+            line="104"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                            Image outputImage = mImageWriter.dequeueInputImage();"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
             line="140"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                            mImageWriter.queueInputImage(outputImage);"
+        errorLine2="                                         ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
+            line="200"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                            mImageWriter = ImageWriter.newInstance(surface, 1);"
+        errorLine2="                                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
+            line="93"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                                Image image = mImageWriter.dequeueInputImage();"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
+            line="109"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                                mImageWriter.queueInputImage(image);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
+            line="121"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
+            line="56"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
+            line="56"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;CaptureStageImpl> getCaptureStages() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
+            line="75"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CaptureProcessorImpl getCaptureProcessor() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
+            line="85"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
+            line="142"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
+            line="142"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Context context) {"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
+            line="143"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CaptureStageImpl onPresetSession() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
+            line="153"
             column="12"/>
     </issue>
 
@@ -118,567 +294,6 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="151"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CaptureStageImpl onDisableSession() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
-            line="162"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
-            line="36"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
-            line="36"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean isExtensionAvailable(String cameraId,"
-        errorLine2="                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
-            line="40"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
-            line="41"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CaptureStageImpl getCaptureStage() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
-            line="47"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ProcessorType getProcessorType() {"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
-            line="58"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ProcessorImpl getProcessor() {"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
-            line="63"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
-        errorLine2="                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
-            line="68"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
-            line="68"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Context context) {"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
-            line="69"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CaptureStageImpl onPresetSession() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
-            line="79"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CaptureStageImpl onEnableSession() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
-            line="90"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CaptureStageImpl onDisableSession() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
-            line="101"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="50"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="50"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean isExtensionAvailable(String cameraId,"
-        errorLine2="                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="54"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="55"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public List&lt;CaptureStageImpl> getCaptureStages() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="61"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CaptureProcessorImpl getCaptureProcessor() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="72"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
-        errorLine2="                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="129"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="129"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Context context) {"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="130"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CaptureStageImpl onPresetSession() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="140"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CaptureStageImpl onEnableSession() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="151"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CaptureStageImpl onDisableSession() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
-            line="162"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
-            line="36"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
-            line="36"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean isExtensionAvailable(String cameraId,"
-        errorLine2="                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
-            line="40"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
-            line="41"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CaptureStageImpl getCaptureStage() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
-            line="47"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ProcessorType getProcessorType() {"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
-            line="58"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ProcessorImpl getProcessor() {"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
-            line="63"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
-        errorLine2="                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
-            line="68"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
-            line="68"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Context context) {"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
-            line="69"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CaptureStageImpl onPresetSession() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
-            line="79"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CaptureStageImpl onEnableSession() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
-            line="90"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CaptureStageImpl onDisableSession() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
-            line="101"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="50"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="50"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean isExtensionAvailable(String cameraId,"
-        errorLine2="                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="54"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="55"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public List&lt;CaptureStageImpl> getCaptureStages() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="61"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CaptureProcessorImpl getCaptureProcessor() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="72"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
-        errorLine2="                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="130"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="130"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Context context) {"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="131"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CaptureStageImpl onPresetSession() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="141"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CaptureStageImpl onEnableSession() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
-            line="152"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CaptureStageImpl onDisableSession() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
             line="163"
             column="12"/>
     </issue>
@@ -686,45 +301,551 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                ~~~~~~">
+        errorLine1="    public CaptureStageImpl onDisableSession() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/impl/BokehPreviewExtenderImpl.java"
-            line="39"
-            column="33"/>
+            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
+            line="173"
+            column="12"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public List&lt;Pair&lt;Integer, Size[]&gt;> getSupportedResolutions() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/impl/BokehPreviewExtenderImpl.java"
-            line="39"
-            column="50"/>
+            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
+            line="188"
+            column="12"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean isExtensionAvailable(String cameraId,"
-        errorLine2="                                        ~~~~~~">
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                     ~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/impl/BokehPreviewExtenderImpl.java"
+            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
             line="46"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
+            line="46"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CaptureStageImpl getCaptureStage() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
+            line="62"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ProcessorType getProcessorType() {"
+        errorLine2="           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
+            line="72"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ProcessorImpl getProcessor() {"
+        errorLine2="           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
+            line="77"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;Pair&lt;Integer, Size[]&gt;> getSupportedResolutions() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
+            line="82"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
+            line="87"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
+            line="87"
             column="41"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            Context context) {"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
+            line="88"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CaptureStageImpl onPresetSession() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
+            line="98"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CaptureStageImpl onEnableSession() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
+            line="108"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CaptureStageImpl onDisableSession() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoPreviewExtenderImpl.java"
+            line="118"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
+            line="60"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
+            line="60"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;CaptureStageImpl> getCaptureStages() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
+            line="80"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CaptureProcessorImpl getCaptureProcessor() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
+            line="90"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
+            line="147"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
+            line="147"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Context context) {"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
+            line="148"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CaptureStageImpl onPresetSession() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
+            line="158"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CaptureStageImpl onEnableSession() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
+            line="168"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CaptureStageImpl onDisableSession() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
+            line="178"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;Pair&lt;Integer, Size[]&gt;> getSupportedResolutions() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
+            line="193"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
+            line="51"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
+            line="51"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CaptureStageImpl getCaptureStage() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
+            line="68"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ProcessorType getProcessorType() {"
+        errorLine2="           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
+            line="78"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ProcessorImpl getProcessor() {"
+        errorLine2="           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
+            line="83"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;Pair&lt;Integer, Size[]&gt;> getSupportedResolutions() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
+            line="88"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
+            line="108"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
+            line="108"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Context context) {"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
+            line="109"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CaptureStageImpl onPresetSession() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
+            line="119"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CaptureStageImpl onEnableSession() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
+            line="129"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CaptureStageImpl onDisableSession() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
+            line="139"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
+            line="56"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
+            line="56"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;CaptureStageImpl> getCaptureStages() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
+            line="75"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CaptureProcessorImpl getCaptureProcessor() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
+            line="85"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
+            line="143"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
+            line="143"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Context context) {"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
+            line="144"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CaptureStageImpl onPresetSession() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
+            line="154"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CaptureStageImpl onEnableSession() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
+            line="164"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CaptureStageImpl onDisableSession() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
+            line="174"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;Pair&lt;Integer, Size[]&gt;> getSupportedResolutions() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
+            line="189"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehPreviewExtenderImpl.java"
-            line="47"
-            column="13"/>
+            line="49"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BokehPreviewExtenderImpl.java"
+            line="49"
+            column="39"/>
     </issue>
 
     <issue
@@ -734,7 +855,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehPreviewExtenderImpl.java"
-            line="53"
+            line="68"
             column="12"/>
     </issue>
 
@@ -745,7 +866,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehPreviewExtenderImpl.java"
-            line="58"
+            line="73"
             column="12"/>
     </issue>
 
@@ -756,7 +877,18 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehPreviewExtenderImpl.java"
-            line="101"
+            line="116"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;Pair&lt;Integer, Size[]&gt;> getSupportedResolutions() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BokehPreviewExtenderImpl.java"
+            line="121"
             column="12"/>
     </issue>
 
@@ -767,7 +899,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehPreviewExtenderImpl.java"
-            line="106"
+            line="126"
             column="24"/>
     </issue>
 
@@ -778,7 +910,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehPreviewExtenderImpl.java"
-            line="106"
+            line="126"
             column="41"/>
     </issue>
 
@@ -789,7 +921,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehPreviewExtenderImpl.java"
-            line="107"
+            line="127"
             column="13"/>
     </issue>
 
@@ -800,7 +932,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehPreviewExtenderImpl.java"
-            line="117"
+            line="137"
             column="12"/>
     </issue>
 
@@ -811,7 +943,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehPreviewExtenderImpl.java"
-            line="128"
+            line="147"
             column="12"/>
     </issue>
 
@@ -822,7 +954,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/BokehPreviewExtenderImpl.java"
-            line="139"
+            line="157"
             column="12"/>
     </issue>
 
@@ -833,7 +965,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/CaptureProcessorImpl.java"
-            line="38"
+            line="40"
             column="26"/>
     </issue>
 
@@ -844,7 +976,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/CaptureProcessorImpl.java"
-            line="50"
+            line="52"
             column="18"/>
     </issue>
 
@@ -855,7 +987,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/CaptureProcessorImpl.java"
-            line="59"
+            line="61"
             column="29"/>
     </issue>
 
@@ -866,7 +998,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/CaptureStageImpl.java"
-            line="35"
+            line="37"
             column="5"/>
     </issue>
 
@@ -877,7 +1009,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ExtenderStateListener.java"
-            line="39"
+            line="41"
             column="17"/>
     </issue>
 
@@ -888,7 +1020,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ExtenderStateListener.java"
-            line="39"
+            line="41"
             column="34"/>
     </issue>
 
@@ -899,7 +1031,7 @@
         errorLine2="                                                                              ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ExtenderStateListener.java"
-            line="39"
+            line="41"
             column="79"/>
     </issue>
 
@@ -910,7 +1042,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ExtenderStateListener.java"
-            line="57"
+            line="59"
             column="5"/>
     </issue>
 
@@ -921,7 +1053,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ExtenderStateListener.java"
-            line="68"
+            line="70"
             column="5"/>
     </issue>
 
@@ -932,7 +1064,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ExtenderStateListener.java"
-            line="78"
+            line="80"
             column="5"/>
     </issue>
 
@@ -943,7 +1075,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ExtensionVersionImpl.java"
-            line="52"
+            line="59"
             column="12"/>
     </issue>
 
@@ -954,52 +1086,30 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ExtensionVersionImpl.java"
-            line="52"
+            line="59"
             column="35"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="53"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="53"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean isExtensionAvailable(String cameraId,"
-        errorLine2="                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="57"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
             line="58"
-            column="13"/>
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
+            line="58"
+            column="39"/>
     </issue>
 
     <issue
@@ -1009,7 +1119,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="64"
+            line="69"
             column="12"/>
     </issue>
 
@@ -1020,7 +1130,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="91"
+            line="96"
             column="12"/>
     </issue>
 
@@ -1031,7 +1141,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="168"
+            line="220"
             column="24"/>
     </issue>
 
@@ -1042,7 +1152,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="168"
+            line="220"
             column="41"/>
     </issue>
 
@@ -1053,7 +1163,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="169"
+            line="221"
             column="13"/>
     </issue>
 
@@ -1064,7 +1174,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="179"
+            line="231"
             column="12"/>
     </issue>
 
@@ -1075,7 +1185,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="185"
+            line="237"
             column="12"/>
     </issue>
 
@@ -1086,52 +1196,41 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="191"
+            line="243"
             column="12"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                ~~~~~~">
+        errorLine1="    public List&lt;Pair&lt;Integer, Size[]&gt;> getSupportedResolutions() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/impl/HdrPreviewExtenderImpl.java"
-            line="40"
-            column="33"/>
+            file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
+            line="254"
+            column="12"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrPreviewExtenderImpl.java"
-            line="40"
-            column="50"/>
+            line="48"
+            column="22"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean isExtensionAvailable(String cameraId,"
-        errorLine2="                                        ~~~~~~">
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrPreviewExtenderImpl.java"
-            line="44"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/HdrPreviewExtenderImpl.java"
-            line="45"
-            column="13"/>
+            line="48"
+            column="39"/>
     </issue>
 
     <issue
@@ -1141,7 +1240,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrPreviewExtenderImpl.java"
-            line="51"
+            line="59"
             column="12"/>
     </issue>
 
@@ -1152,7 +1251,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrPreviewExtenderImpl.java"
-            line="60"
+            line="68"
             column="12"/>
     </issue>
 
@@ -1163,7 +1262,18 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrPreviewExtenderImpl.java"
-            line="65"
+            line="73"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;Pair&lt;Integer, Size[]&gt;> getSupportedResolutions() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/HdrPreviewExtenderImpl.java"
+            line="78"
             column="12"/>
     </issue>
 
@@ -1174,7 +1284,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrPreviewExtenderImpl.java"
-            line="93"
+            line="118"
             column="24"/>
     </issue>
 
@@ -1185,7 +1295,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrPreviewExtenderImpl.java"
-            line="93"
+            line="118"
             column="41"/>
     </issue>
 
@@ -1196,7 +1306,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrPreviewExtenderImpl.java"
-            line="94"
+            line="119"
             column="13"/>
     </issue>
 
@@ -1207,7 +1317,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrPreviewExtenderImpl.java"
-            line="104"
+            line="130"
             column="12"/>
     </issue>
 
@@ -1218,7 +1328,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrPreviewExtenderImpl.java"
-            line="109"
+            line="135"
             column="12"/>
     </issue>
 
@@ -1229,7 +1339,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrPreviewExtenderImpl.java"
-            line="114"
+            line="140"
             column="12"/>
     </issue>
 
@@ -1240,7 +1350,7 @@
         errorLine2="                                 ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ImageCaptureExtenderImpl.java"
-            line="34"
+            line="41"
             column="34"/>
     </issue>
 
@@ -1251,30 +1361,30 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ImageCaptureExtenderImpl.java"
-            line="34"
+            line="41"
             column="51"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics);"
-        errorLine2="                         ~~~~~~">
+        errorLine1="    void init(String cameraId, CameraCharacteristics cameraCharacteristics);"
+        errorLine2="              ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ImageCaptureExtenderImpl.java"
-            line="42"
-            column="26"/>
+            line="52"
+            column="15"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics);"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    void init(String cameraId, CameraCharacteristics cameraCharacteristics);"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ImageCaptureExtenderImpl.java"
-            line="42"
-            column="43"/>
+            line="52"
+            column="32"/>
     </issue>
 
     <issue
@@ -1284,7 +1394,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ImageCaptureExtenderImpl.java"
-            line="47"
+            line="57"
             column="5"/>
     </issue>
 
@@ -1295,52 +1405,30 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ImageCaptureExtenderImpl.java"
-            line="50"
+            line="60"
             column="5"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                ~~~~~~">
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="50"
-            column="33"/>
+            line="56"
+            column="22"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="50"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean isExtensionAvailable(String cameraId,"
-        errorLine2="                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="54"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="55"
-            column="13"/>
+            line="56"
+            column="39"/>
     </issue>
 
     <issue
@@ -1350,7 +1438,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="61"
+            line="75"
             column="12"/>
     </issue>
 
@@ -1361,7 +1449,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="72"
+            line="85"
             column="12"/>
     </issue>
 
@@ -1372,7 +1460,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="129"
+            line="142"
             column="24"/>
     </issue>
 
@@ -1383,7 +1471,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="129"
+            line="142"
             column="41"/>
     </issue>
 
@@ -1394,7 +1482,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="130"
+            line="143"
             column="13"/>
     </issue>
 
@@ -1405,7 +1493,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="140"
+            line="153"
             column="12"/>
     </issue>
 
@@ -1416,7 +1504,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="151"
+            line="163"
             column="12"/>
     </issue>
 
@@ -1427,52 +1515,41 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
-            line="162"
+            line="173"
             column="12"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                ~~~~~~">
+        errorLine1="    public List&lt;Pair&lt;Integer, Size[]&gt;> getSupportedResolutions() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/impl/NightPreviewExtenderImpl.java"
-            line="36"
-            column="33"/>
+            file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
+            line="188"
+            column="12"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightPreviewExtenderImpl.java"
-            line="36"
-            column="50"/>
+            line="46"
+            column="22"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean isExtensionAvailable(String cameraId,"
-        errorLine2="                                        ~~~~~~">
+        errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightPreviewExtenderImpl.java"
-            line="40"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            CameraCharacteristics cameraCharacteristics) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/NightPreviewExtenderImpl.java"
-            line="41"
-            column="13"/>
+            line="46"
+            column="39"/>
     </issue>
 
     <issue
@@ -1482,7 +1559,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightPreviewExtenderImpl.java"
-            line="47"
+            line="62"
             column="12"/>
     </issue>
 
@@ -1493,7 +1570,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightPreviewExtenderImpl.java"
-            line="58"
+            line="72"
             column="12"/>
     </issue>
 
@@ -1504,7 +1581,18 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightPreviewExtenderImpl.java"
-            line="63"
+            line="77"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;Pair&lt;Integer, Size[]&gt;> getSupportedResolutions() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/NightPreviewExtenderImpl.java"
+            line="82"
             column="12"/>
     </issue>
 
@@ -1515,7 +1603,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightPreviewExtenderImpl.java"
-            line="68"
+            line="87"
             column="24"/>
     </issue>
 
@@ -1526,7 +1614,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightPreviewExtenderImpl.java"
-            line="68"
+            line="87"
             column="41"/>
     </issue>
 
@@ -1537,7 +1625,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightPreviewExtenderImpl.java"
-            line="69"
+            line="88"
             column="13"/>
     </issue>
 
@@ -1548,7 +1636,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightPreviewExtenderImpl.java"
-            line="79"
+            line="98"
             column="12"/>
     </issue>
 
@@ -1559,7 +1647,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightPreviewExtenderImpl.java"
-            line="90"
+            line="108"
             column="12"/>
     </issue>
 
@@ -1570,7 +1658,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/NightPreviewExtenderImpl.java"
-            line="101"
+            line="118"
             column="12"/>
     </issue>
 
@@ -1581,7 +1669,7 @@
         errorLine2="                                 ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/PreviewExtenderImpl.java"
-            line="43"
+            line="52"
             column="34"/>
     </issue>
 
@@ -1592,30 +1680,30 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/PreviewExtenderImpl.java"
-            line="43"
+            line="52"
             column="51"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics);"
-        errorLine2="                         ~~~~~~">
+        errorLine1="    void init(String cameraId, CameraCharacteristics cameraCharacteristics);"
+        errorLine2="              ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/PreviewExtenderImpl.java"
-            line="51"
-            column="26"/>
+            line="63"
+            column="15"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics);"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    void init(String cameraId, CameraCharacteristics cameraCharacteristics);"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/PreviewExtenderImpl.java"
-            line="51"
-            column="43"/>
+            line="63"
+            column="32"/>
     </issue>
 
     <issue
@@ -1625,7 +1713,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/PreviewExtenderImpl.java"
-            line="64"
+            line="76"
             column="5"/>
     </issue>
 
@@ -1636,7 +1724,7 @@
         errorLine2="    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/PreviewExtenderImpl.java"
-            line="67"
+            line="79"
             column="5"/>
     </issue>
 
@@ -1647,7 +1735,7 @@
         errorLine2="    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/PreviewExtenderImpl.java"
-            line="75"
+            line="94"
             column="5"/>
     </issue>
 
@@ -1658,7 +1746,7 @@
         errorLine2="                 ~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/PreviewImageProcessorImpl.java"
-            line="37"
+            line="39"
             column="18"/>
     </issue>
 
@@ -1669,7 +1757,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/PreviewImageProcessorImpl.java"
-            line="37"
+            line="39"
             column="31"/>
     </issue>
 
@@ -1680,7 +1768,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ProcessorImpl.java"
-            line="30"
+            line="34"
             column="26"/>
     </issue>
 
@@ -1691,7 +1779,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/ProcessorImpl.java"
-            line="40"
+            line="44"
             column="29"/>
     </issue>
 
@@ -1702,7 +1790,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/RequestUpdateProcessorImpl.java"
-            line="33"
+            line="35"
             column="5"/>
     </issue>
 
@@ -1713,7 +1801,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/RequestUpdateProcessorImpl.java"
-            line="33"
+            line="35"
             column="30"/>
     </issue>
 

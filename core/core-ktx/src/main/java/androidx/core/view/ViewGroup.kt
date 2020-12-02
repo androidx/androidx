@@ -28,53 +28,77 @@ import androidx.annotation.RequiresApi
  *
  * @throws IndexOutOfBoundsException if index is less than 0 or greater than or equal to the count.
  */
-operator fun ViewGroup.get(index: Int) =
+public operator fun ViewGroup.get(index: Int): View =
     getChildAt(index) ?: throw IndexOutOfBoundsException("Index: $index, Size: $childCount")
 
 /** Returns `true` if [view] is found in this view group. */
-inline operator fun ViewGroup.contains(view: View) = indexOfChild(view) != -1
+public inline operator fun ViewGroup.contains(view: View): Boolean = indexOfChild(view) != -1
 
 /** Adds [view] to this view group. */
-inline operator fun ViewGroup.plusAssign(view: View) = addView(view)
+public inline operator fun ViewGroup.plusAssign(view: View): Unit = addView(view)
 
 /** Removes [view] from this view group. */
-inline operator fun ViewGroup.minusAssign(view: View) = removeView(view)
+public inline operator fun ViewGroup.minusAssign(view: View): Unit = removeView(view)
 
 /** Returns the number of views in this view group. */
-inline val ViewGroup.size get() = childCount
+public inline val ViewGroup.size: Int get() = childCount
 
 /** Returns true if this view group contains no views. */
-inline fun ViewGroup.isEmpty() = childCount == 0
+public inline fun ViewGroup.isEmpty(): Boolean = childCount == 0
 
 /** Returns true if this view group contains one or more views. */
-inline fun ViewGroup.isNotEmpty() = childCount != 0
+public inline fun ViewGroup.isNotEmpty(): Boolean = childCount != 0
 
 /** Performs the given action on each view in this view group. */
-inline fun ViewGroup.forEach(action: (view: View) -> Unit) {
+public inline fun ViewGroup.forEach(action: (view: View) -> Unit) {
     for (index in 0 until childCount) {
         action(getChildAt(index))
     }
 }
 
 /** Performs the given action on each view in this view group, providing its sequential index. */
-inline fun ViewGroup.forEachIndexed(action: (index: Int, view: View) -> Unit) {
+public inline fun ViewGroup.forEachIndexed(action: (index: Int, view: View) -> Unit) {
     for (index in 0 until childCount) {
         action(index, getChildAt(index))
     }
 }
 
 /** Returns a [MutableIterator] over the views in this view group. */
-operator fun ViewGroup.iterator() = object : MutableIterator<View> {
+public operator fun ViewGroup.iterator(): MutableIterator<View> = object : MutableIterator<View> {
     private var index = 0
     override fun hasNext() = index < childCount
     override fun next() = getChildAt(index++) ?: throw IndexOutOfBoundsException()
     override fun remove() = removeViewAt(--index)
 }
 
-/** Returns a [Sequence] over the child views in this view group. */
-val ViewGroup.children: Sequence<View>
+/**
+ * Returns a [Sequence] over the immediate child views in this view group.
+ *
+ * @see View.allViews
+ * @see ViewGroup.descendants
+ */
+public val ViewGroup.children: Sequence<View>
     get() = object : Sequence<View> {
         override fun iterator() = this@children.iterator()
+    }
+
+/**
+ * Returns a [Sequence] over the child views in this view group recursively.
+ * This performs a depth-first traversal.
+ * A view with no children will return a zero-element sequence.
+ *
+ * @see View.allViews
+ * @see ViewGroup.children
+ * @see View.ancestors
+ */
+public val ViewGroup.descendants: Sequence<View>
+    get() = sequence {
+        forEach { child ->
+            yield(child)
+            if (child is ViewGroup) {
+                yieldAll(child.descendants)
+            }
+        }
     }
 
 /**
@@ -83,7 +107,7 @@ val ViewGroup.children: Sequence<View>
  *
  * @see ViewGroup.MarginLayoutParams.setMargins
  */
-inline fun ViewGroup.MarginLayoutParams.setMargins(@Px size: Int) {
+public inline fun ViewGroup.MarginLayoutParams.setMargins(@Px size: Int) {
     setMargins(size, size, size, size)
 }
 
@@ -93,7 +117,7 @@ inline fun ViewGroup.MarginLayoutParams.setMargins(@Px size: Int) {
  *
  * @see ViewGroup.MarginLayoutParams.setMargins
  */
-inline fun ViewGroup.MarginLayoutParams.updateMargins(
+public inline fun ViewGroup.MarginLayoutParams.updateMargins(
     @Px left: Int = leftMargin,
     @Px top: Int = topMargin,
     @Px right: Int = rightMargin,
@@ -109,7 +133,7 @@ inline fun ViewGroup.MarginLayoutParams.updateMargins(
  * @see ViewGroup.MarginLayoutParams.setMargins
  */
 @RequiresApi(17)
-inline fun ViewGroup.MarginLayoutParams.updateMarginsRelative(
+public inline fun ViewGroup.MarginLayoutParams.updateMarginsRelative(
     @Px start: Int = marginStart,
     @Px top: Int = topMargin,
     @Px end: Int = marginEnd,

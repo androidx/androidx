@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+
+    <issue
+        id="ObsoleteLintCustomCheck"
+        message="Lint found an issue registry (`androidx.fragment.lint.FragmentIssueRegistry`) which is older than the current API level; these checks may not work correctly.&#xA;&#xA;Recompile the checks against the latest version. Custom check API version is 6 (3.6), current lint API level is 8 (4.1)">
+        <location
+            file="../../../../../../home/jeffrygaston/.gradle/caches/transforms-2/files-2.1/e3e8070ff55bdd44622c92131fecd482/fragment-1.2.5/jars/lint.jar"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `accessibilityLiveRegion` is only used in API level 19 and higher (current min is 14)"
+        errorLine1="            android:accessibilityLiveRegion=&quot;polite&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/fingerprint_dialog_layout.xml"
+            line="69"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                            canAuthenticateWithCrypto.invoke(mBiometricManager, crypto);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/biometric/BiometricManager.java"
+            line="426"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class null is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                            ? CryptoObjectUtils.unwrapFromBiometricPrompt(result.getCryptoObject())"
+        errorLine2="                                                                                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/biometric/AuthenticationCallbackProvider.java"
+            line="229"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="VectorRaster"
+        message="This attribute is not supported in images generated from this vector icon for API &lt; 24; check generated icon to make sure it looks acceptable"
+        errorLine1="                  android:trimPathEnd=&quot;1&quot; android:trimPathOffset=&quot;0&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable-v23/fingerprint_dialog_error.xml"
+            line="26"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="VectorRaster"
+        message="This attribute is not supported in images generated from this vector icon for API &lt; 24; check generated icon to make sure it looks acceptable"
+        errorLine1="                  android:trimPathEnd=&quot;1&quot; android:trimPathOffset=&quot;0&quot;"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable-v23/fingerprint_dialog_error.xml"
+            line="26"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="VectorRaster"
+        message="This attribute is not supported in images generated from this vector icon for API &lt; 24; check generated icon to make sure it looks acceptable"
+        errorLine1="                  android:trimPathStart=&quot;0&quot;/>"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable-v23/fingerprint_dialog_error.xml"
+            line="27"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="TrulyRandom"
+        message="Potentially insecure random numbers on Android 4.3 and older. Read https://android-developers.blogspot.com/2013/08/some-securerandom-thoughts.html for more info."
+        errorLine1="                    KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_INSTANCE);"
+        errorLine2="                                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/biometric/CryptoObjectUtils.java"
+            line="253"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/fingerprint_dialog_layout.xml"
+            line="51"
+            column="10"/>
+    </issue>
+
+</issues>

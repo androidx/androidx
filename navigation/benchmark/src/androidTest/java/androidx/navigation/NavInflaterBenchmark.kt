@@ -18,10 +18,10 @@ package androidx.navigation
 
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
-import androidx.navigation.testing.TestNavigatorProvider
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.testutils.TestNavigatorProvider
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

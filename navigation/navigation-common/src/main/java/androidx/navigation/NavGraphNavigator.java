@@ -42,7 +42,7 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
 
     /**
      * Creates a new {@link NavGraph} associated with this navigator.
-     * @return
+     * @return The created {@link NavGraph}.
      */
     @NonNull
     @Override

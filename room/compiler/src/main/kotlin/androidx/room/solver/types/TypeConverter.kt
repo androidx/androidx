@@ -16,12 +16,12 @@
 
 package androidx.room.solver.types
 
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
-import javax.lang.model.type.TypeMirror
 
 /**
  * A code generator that can convert from 1 type to another
  */
-abstract class TypeConverter(val from: TypeMirror, val to: TypeMirror) {
+abstract class TypeConverter(val from: XType, val to: XType) {
     abstract fun convert(inputVarName: String, outputVarName: String, scope: CodeGenScope)
 }

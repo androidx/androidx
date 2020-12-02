@@ -1,0 +1,124 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// A generic settings.gradle file for all playground projects that sets it up to use public
+// artifacts and the playground-build.gradle build file.
+// See README.md for details
+
+def includeProject(name, filePath) {
+    settings.include(name)
+
+    def file
+    if (filePath instanceof String) {
+        file = new File(rootDir, filePath)
+    } else {
+        file = filePath
+    }
+    project(name).projectDir = file
+}
+
+/**
+ * Initializes the playground project to use public repositories as well as other internal projects
+ * that cannot be found in public repositories.
+ *
+ * @param settings The reference to the settings script
+ * @param relativePathToRoot The relative path of the project to the root AndroidX project
+ */
+def setupPlayground(settings, String relativePathToRoot) {
+    def projectDir = settings.rootProject.getProjectDir()
+    def supportRoot = new File(projectDir, relativePathToRoot).getCanonicalFile()
+    def buildFile = new File(supportRoot, "playground-common/playground-build.gradle")
+    def relativePathToBuild = projectDir.toPath().relativize(buildFile.toPath()).toString()
+    Properties playgroundProperties = new Properties()
+    File propertiesFile = new File(supportRoot, "playground-common/playground.properties")
+    propertiesFile.withInputStream {
+        playgroundProperties.load(it)
+    }
+    gradle.beforeProject { project ->
+        // load playground properties. These are not kept in the playground projects to prevent
+        // AndroidX build from reading them.
+        playgroundProperties.each {
+            project.ext[it.key] = it.value
+        }
+    }
+    settings.ext.supportRootDir = supportRoot
+    settings.rootProject.buildFileName = relativePathToBuild
+    settings.pluginManagement {
+        repositories {
+            google()
+            mavenCentral()
+            jcenter()
+        }
+    }
+    settings.includeBuild(new File(supportRoot, "androidx-plugin"))
+    settings.includeProject(":lint-checks", new File(supportRoot, "lint-checks"))
+    settings.includeProject(":fakeannotations", new File(supportRoot,"fakeannotations"))
+    settings.includeProject(":internal-testutils-common",
+            new File(supportRoot, "testutils/testutils-common"))
+    settings.includeProject(":internal-testutils-gradle-plugin",
+            new File(supportRoot, "testutils/testutils-gradle-plugin"))
+
+    // AndroidXUiPlugin dependencies
+    settings.includeProject(":compose:internal-lint-checks",
+            new File(supportRoot, "compose/internal-lint-checks"))
+}
+
+/**
+ * A convenience method to include projects from the main AndroidX build using a filter.
+ *
+ * @param filter This filter will be called with the project name (project path in gradle).
+ *               If filter returns true, it will be included in the build.
+ */
+def selectProjectsFromAndroidX(filter) {
+    def includeProjectPattern = ~/.*includeProject\("(?<name>.*)", "(?<path>.*)"(.*)\).*/
+    def supportSettingsFile = new File(ext.supportRootDir, "settings.gradle")
+    supportSettingsFile.eachLine { line ->
+        def matcher = (line =~ includeProjectPattern)
+        // check if is an include project line, if so, extract project gradle path and
+        // file system path and call the filter
+        if (matcher.matches()) {
+            def projectGradlePath = matcher.group("name")
+            def projectFilePath = matcher.group("path")
+            if (filter(projectGradlePath)) {
+                settings.includeProject(projectGradlePath,
+                        new File(ext.supportRootDir, projectFilePath))
+            }
+        }
+    }
+}
+
+// define functions that can be called by the main settings.gradle file
+ext.includeProject = this.&includeProject
+ext.selectProjectsFromAndroidX = this.&selectProjectsFromAndroidX
+ext.setupPlayground = this.&setupPlayground
+
+// validate JVM version to print an understandable error if it is not set to the
+// required value (11)
+def jvmVersion = System.getProperty("java.vm.specification.version")
+if (jvmVersion != "11") {
+    def guidance;
+    if (startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
+        guidance = "Make sure to set the gradle JDK to JDK 11 in the project settings." +
+                   "(File -> Other Settings -> Default Project Structure)"
+    } else {
+        guidance = "Make sure your JAVA_HOME environment variable points to Java 11 JDK."
+    }
+    throw new IllegalStateException("""
+            AndroidX build must be invoked with JDK 11.
+            $guidance
+            Current version: $jvmVersion
+            Current JAVA HOME: ${System.getProperty("java.home")}""".stripIndent());
+}

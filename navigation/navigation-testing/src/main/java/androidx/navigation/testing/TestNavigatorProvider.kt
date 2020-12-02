@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,50 @@
 
 package androidx.navigation.testing
 
+import android.os.Bundle
+import androidx.navigation.NavDestination
 import androidx.navigation.NavGraphNavigator
+import androidx.navigation.NavOptions
+import androidx.navigation.Navigator
 import androidx.navigation.NavigatorProvider
+import java.lang.IllegalStateException
 
 /**
- * Simple NavigatorProvider that only supports &lt;navigation&gt; and &lt;test&gt; navigation
- * elements.
+ * A [NavigatorProvider] for testing that only parses
+ * [navigation graphs][androidx.navigation.NavGraph] and [destinations][NavDestination].
  */
-class TestNavigatorProvider : NavigatorProvider() {
+internal class TestNavigatorProvider : NavigatorProvider() {
+
+    /**
+     * A [Navigator] that only supports creating destinations.
+     */
+    private val navigator = object : Navigator<NavDestination>() {
+        override fun createDestination() = NavDestination("test")
+
+        override fun navigate(
+            destination: NavDestination,
+            args: Bundle?,
+            navOptions: NavOptions?,
+            navigatorExtras: Extras?
+        ): NavDestination? {
+            return destination
+        }
+
+        override fun popBackStack(): Boolean {
+            return true
+        }
+    }
 
     init {
         addNavigator(NavGraphNavigator(this))
-        addNavigator(TestNavigator())
+    }
+
+    override fun <T : Navigator<out NavDestination>> getNavigator(name: String): T {
+        return try {
+            super.getNavigator(name)
+        } catch (e: IllegalStateException) {
+            @Suppress("UNCHECKED_CAST")
+            navigator as T
+        }
     }
 }

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="        textView.setText(&quot;There are &quot; + allAdIdProviders.size() + &quot; provider(s) on the device.\n&quot;);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ads/identifier/provider/testapp/AdsIdentifierProviderActivity.java"
+            line="61"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="        textView.setText(&quot;There are &quot; + allAdIdProviders.size() + &quot; provider(s) on the device.\n&quot;);"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ads/identifier/provider/testapp/AdsIdentifierProviderActivity.java"
+            line="61"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="            textView.setText(&quot;Package name: &quot; + providerInfo.getPackageName() + &quot;\n&quot;);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ads/identifier/provider/testapp/AdsIdentifierProviderActivity.java"
+            line="105"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="            textView.setText(&quot;Package name: &quot; + providerInfo.getPackageName() + &quot;\n&quot;);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ads/identifier/provider/testapp/AdsIdentifierProviderActivity.java"
+            line="105"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/ads/identifier/provider/testapp/AdsIdentifierProviderActivity.java"
+            line="44"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void listProviders(View view) {"
+        errorLine2="                              ~~~~">
+        <location
+            file="src/main/java/androidx/ads/identifier/provider/testapp/AdsIdentifierProviderActivity.java"
+            line="56"
+            column="31"/>
+    </issue>
+
+</issues>

@@ -240,6 +240,22 @@ public class Person {
         return mIsImportant;
     }
 
+    /**
+     * @return the URI associated with this person, or "name:mName" otherwise
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    public String resolveToLegacyUri() {
+        if (mUri != null) {
+            return mUri;
+        }
+        if (mName != null) {
+            return "name:" + mName;
+        }
+        return "";
+    }
+
     /** Builder for the immutable {@link Person} class. */
     public static class Builder {
         @Nullable CharSequence mName;

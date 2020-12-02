@@ -16,7 +16,7 @@
 
 package androidx.paging
 
-import androidx.paging.PagedSource.LoadResult.Page
+import androidx.paging.PagingSource.LoadResult.Page
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -27,6 +27,7 @@ import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
+import kotlin.test.assertNotNull
 
 @RunWith(JUnit4::class)
 class PagedStorageTest {
@@ -147,7 +148,7 @@ class PagedStorageTest {
     fun trim_twoPagesNoOp() {
         val callback = mock(PagedStorage.Callback::class.java)
         val storage = PagedStorage<String>()
-        storage.init(0, pageOf("a", "b", "c"), 3, 0, callback)
+        storage.init(0, pageOf("a", "b", "c"), 3, 0, callback, true)
         verify(callback).onInitialized(6)
         storage.appendPage(pageOf("d", "e", "f"), callback)
         verify(callback).onPageAppended(3, 3, 0)
@@ -219,12 +220,115 @@ class PagedStorageTest {
         verifyNoMoreInteractions(callback)
     }
 
+    @Test
+    fun getRefreshKeyInfo_withoutPlaceholders() {
+        val page = pageOf("a", "b", "c")
+        val storage = PagedStorage(0, page, 0)
+
+        storage.lastLoadAroundIndex = -5
+        var pagingState = storage.getRefreshKeyInfo(
+            @Suppress("DEPRECATION")
+            PagedList.Config(
+                pageSize = 3,
+                prefetchDistance = 0,
+                enablePlaceholders = true,
+                initialLoadSizeHint = 3,
+                maxSize = 3
+            )
+        )
+        assertNotNull(pagingState)
+        assertEquals(0, pagingState.anchorPosition)
+
+        storage.lastLoadAroundIndex = 1
+        pagingState = storage.getRefreshKeyInfo(
+            @Suppress("DEPRECATION")
+            PagedList.Config(
+                pageSize = 3,
+                prefetchDistance = 0,
+                enablePlaceholders = true,
+                initialLoadSizeHint = 3,
+                maxSize = 3
+            )
+        )
+        assertNotNull(pagingState)
+        assertEquals(1, pagingState.anchorPosition)
+
+        storage.lastLoadAroundIndex = 5
+        pagingState = storage.getRefreshKeyInfo(
+            @Suppress("DEPRECATION")
+            PagedList.Config(
+                pageSize = 3,
+                prefetchDistance = 0,
+                enablePlaceholders = true,
+                initialLoadSizeHint = 3,
+                maxSize = 3
+            )
+        )
+        assertNotNull(pagingState)
+        assertEquals(2, pagingState.anchorPosition)
+    }
+
+    @Test
+    fun getRefreshKeyInfo_withPlaceholders() {
+        val page = pageOf("a", "b", "c")
+        val storage = PagedStorage(10, page, 10)
+
+        storage.lastLoadAroundIndex = 1
+        var pagingState = storage.getRefreshKeyInfo(
+            @Suppress("DEPRECATION")
+            PagedList.Config(
+                pageSize = 3,
+                prefetchDistance = 0,
+                enablePlaceholders = true,
+                initialLoadSizeHint = 3,
+                maxSize = 3
+            )
+        )
+        assertNotNull(pagingState)
+        assertEquals(10, pagingState.anchorPosition)
+
+        storage.lastLoadAroundIndex = 11
+        pagingState = storage.getRefreshKeyInfo(
+            @Suppress("DEPRECATION")
+            PagedList.Config(
+                pageSize = 3,
+                prefetchDistance = 0,
+                enablePlaceholders = true,
+                initialLoadSizeHint = 3,
+                maxSize = 3
+            )
+        )
+        assertNotNull(pagingState)
+        assertEquals(11, pagingState.anchorPosition)
+
+        storage.lastLoadAroundIndex = 21
+        pagingState = storage.getRefreshKeyInfo(
+            @Suppress("DEPRECATION")
+            PagedList.Config(
+                pageSize = 3,
+                prefetchDistance = 0,
+                enablePlaceholders = true,
+                initialLoadSizeHint = 3,
+                maxSize = 3
+            )
+        )
+        assertNotNull(pagingState)
+        assertEquals(12, pagingState.anchorPosition)
+    }
+
     companion object {
         @Suppress("TestFunctionName")
         private fun PagedStorage(pages: List<Page<*, String>>): PagedStorage<String> {
             val storage = PagedStorage<String>()
             val totalPageCount = pages.map { it.data.size }.sum()
-            storage.init(0, pages[0], totalPageCount - pages[0].data.size, 0, IGNORED_CALLBACK)
+            storage.init(
+                leadingNulls = 0,
+                page = pages[0],
+                trailingNulls = totalPageCount - pages[0].data.size,
+                positionOffset = 0,
+                callback = IGNORED_CALLBACK,
+                counted = true
+            )
             pages.forEachIndexed { index, page ->
                 if (index != 0) {
                     storage.appendPage(page, IGNORED_CALLBACK)

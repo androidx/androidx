@@ -32,8 +32,9 @@ class PeriodicWorkRequestTest {
     @Test
     fun testPeriodicWorkRequestBuilder() {
         val builder = PeriodicWorkRequestBuilder<TestWorker>(
-                repeatInterval = 15L,
-                repeatIntervalTimeUnit = TimeUnit.MINUTES)
+            repeatInterval = 15L,
+            repeatIntervalTimeUnit = TimeUnit.MINUTES
+        )
         val workRequest = builder.build()
         assertEquals(workRequest.workSpec.workerClassName, TestWorker::class.java.name)
         assertEquals(workRequest.workSpec.isPeriodic, true)
@@ -56,10 +57,11 @@ class PeriodicWorkRequestTest {
     @Test
     fun testPeriodicWorkRequestBuilder_withFlexTime() {
         val builder = PeriodicWorkRequestBuilder<TestWorker>(
-                repeatInterval = 15L,
-                repeatIntervalTimeUnit = TimeUnit.MINUTES,
-                flexTimeInterval = 10L,
-                flexTimeIntervalUnit = TimeUnit.MINUTES)
+            repeatInterval = 15L,
+            repeatIntervalTimeUnit = TimeUnit.MINUTES,
+            flexTimeInterval = 10L,
+            flexTimeIntervalUnit = TimeUnit.MINUTES
+        )
         val workRequest = builder.build()
         assertEquals(workRequest.workSpec.workerClassName, TestWorker::class.java.name)
         assertEquals(workRequest.workSpec.isPeriodic, true)
@@ -72,8 +74,9 @@ class PeriodicWorkRequestTest {
         val repeatInterval = Duration.ofHours(3).plusMinutes(25)
         val flexInterval = repeatInterval.minusMinutes(15)
         val builder = PeriodicWorkRequestBuilder<TestWorker>(
-                repeatInterval = repeatInterval,
-                flexTimeInterval = flexInterval)
+            repeatInterval = repeatInterval,
+            flexTimeInterval = flexInterval
+        )
         val workRequest = builder.build()
         assertEquals(workRequest.workSpec.workerClassName, TestWorker::class.java.name)
         assertEquals(workRequest.workSpec.isPeriodic, true)

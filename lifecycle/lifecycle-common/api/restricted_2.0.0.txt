@@ -1,14 +1,13 @@
 // Signature format: 3.0
 package androidx.lifecycle {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class CompositeGeneratedAdaptersObserver implements androidx.lifecycle.GenericLifecycleObserver {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class CompositeGeneratedAdaptersObserver implements androidx.lifecycle.LifecycleObserver {
     method public void onStateChanged(androidx.lifecycle.LifecycleOwner!, androidx.lifecycle.Lifecycle.Event!);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface GeneratedAdapter {
     method public void callMethods(androidx.lifecycle.LifecycleOwner!, androidx.lifecycle.Lifecycle.Event!, boolean, androidx.lifecycle.MethodCallsLogger!);
   }
-
 
   public abstract class Lifecycle {
     ctor public Lifecycle();
@@ -56,7 +55,7 @@ package androidx.lifecycle {
     method public abstract androidx.lifecycle.Lifecycle.Event! value();
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class SingleGeneratedAdapterObserver implements androidx.lifecycle.GenericLifecycleObserver {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class SingleGeneratedAdapterObserver implements androidx.lifecycle.LifecycleObserver {
     method public void onStateChanged(androidx.lifecycle.LifecycleOwner!, androidx.lifecycle.Lifecycle.Event!);
   }
 

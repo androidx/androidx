@@ -27,6 +27,7 @@
         android:layout_height="@dimen/media2_widget_music_view_full_image_size"
         android:layout_gravity="center_vertical"
         android:layout_marginEnd="@dimen/media2_widget_music_view_image_title_gap"
+        android:layout_marginRight="@dimen/media2_widget_music_view_image_title_gap"
         android:src="@drawable/media2_widget_ic_default_album_image" />
 
     <LinearLayout

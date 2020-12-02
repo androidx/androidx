@@ -26,6 +26,7 @@ import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.media.Image;
 
+import androidx.annotation.experimental.UseExperimental;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -35,6 +36,9 @@ import org.junit.runner.RunWith;
 
 import java.nio.ByteBuffer;
 
+/**
+ * Unit tests for {@link AndroidImageProxy}.
+ */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class AndroidImageProxyTest {
@@ -107,13 +111,7 @@ public final class AndroidImageProxyTest {
 
     @Test
     public void getTimestamp_returnsTimestampForWrappedImage() {
-        assertThat(mImageProxy.getTimestamp()).isEqualTo(INITIAL_TIMESTAMP);
-    }
-
-    public void setTimestamp_setsTimestampForWrappedImage() {
-        mImageProxy.setTimestamp(INITIAL_TIMESTAMP + 10);
-
-        assertThat(mImageProxy.getTimestamp()).isEqualTo(INITIAL_TIMESTAMP + 10);
+        assertThat(mImageProxy.getImageInfo().getTimestamp()).isEqualTo(INITIAL_TIMESTAMP);
     }
 
     @Test
@@ -131,6 +129,7 @@ public final class AndroidImageProxyTest {
     }
 
     @Test
+    @UseExperimental(markerClass = ExperimentalGetImage.class)
     public void getImage_returnsWrappedImage() {
         assertThat(mImageProxy.getImage()).isEqualTo(mImage);
     }

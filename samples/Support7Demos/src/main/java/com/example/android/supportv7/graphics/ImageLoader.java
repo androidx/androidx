@@ -17,7 +17,6 @@
 package com.example.android.supportv7.graphics;
 
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.widget.ImageView;
 
@@ -43,6 +42,7 @@ class ImageLoader {
         void onImageLoaded(Bitmap bitmap);
     }
 
+    @SuppressWarnings("deprecation") /* AsyncTask */
     static void loadMediaStoreThumbnail(final ImageView imageView,
             final long id,
             final Listener listener) {
@@ -58,7 +58,7 @@ class ImageLoader {
             return;
         }
 
-        new AsyncTask<Void, Void, Bitmap>() {
+        new android.os.AsyncTask<Void, Void, Bitmap>() {
             @Override
             protected Bitmap doInBackground(Void... params) {
                 return MediaStore.Images.Thumbnails.getThumbnail(
@@ -81,7 +81,7 @@ class ImageLoader {
                     }
                 }
             }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }.executeOnExecutor(android.os.AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     /**

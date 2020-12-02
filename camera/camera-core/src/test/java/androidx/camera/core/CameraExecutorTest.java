@@ -26,7 +26,6 @@ import androidx.annotation.GuardedBy;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
-import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -36,7 +35,8 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-@SmallTest
+import java.util.concurrent.RejectedExecutionException;
+
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -49,12 +49,12 @@ public class CameraExecutorTest {
     public void setUp() {
         mCameraExecutor = new CameraExecutor();
         mCameraFactory = new FakeCameraFactory();
-        mCameraFactory.insertCamera(CameraX.LensFacing.BACK, "0",
-                () -> new FakeCamera(null, new FakeCameraInfoInternal(0,
-                        CameraX.LensFacing.BACK)));
-        mCameraFactory.insertCamera(CameraX.LensFacing.FRONT, "1",
-                () -> new FakeCamera(null, new FakeCameraInfoInternal(0,
-                        CameraX.LensFacing.FRONT)));
+        mCameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, "0",
+                () -> new FakeCamera(null,
+                        new FakeCameraInfoInternal(0, CameraSelector.LENS_FACING_BACK)));
+        mCameraFactory.insertCamera(CameraSelector.LENS_FACING_FRONT, "1",
+                () -> new FakeCamera(null,
+                        new FakeCameraInfoInternal(0, CameraSelector.LENS_FACING_FRONT)));
     }
 
     @After
@@ -88,7 +88,7 @@ public class CameraExecutorTest {
         blockRun1.unblock();
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = RejectedExecutionException.class)
     public void canNotExecuteAfterDeinit() {
         mCameraExecutor.deinit();
         mCameraExecutor.execute(mock(Runnable.class));
@@ -105,11 +105,10 @@ public class CameraExecutorTest {
     }
 
     private static class BlockedRunnable implements Runnable {
-        private final Object mLock = new Object();
         private final Runnable mDelegate;
-        @GuardedBy("mLock")
+        @GuardedBy("this")
         private Thread mThread;
-        @GuardedBy("mLock")
+        @GuardedBy("this")
         private boolean mUnblock;
 
         BlockedRunnable(Runnable runnable) {
@@ -120,7 +119,7 @@ public class CameraExecutorTest {
         public void run() {
             mDelegate.run();
 
-            synchronized (mLock) {
+            synchronized (this) {
                 if (mUnblock) {
                     return;
                 }
@@ -133,7 +132,7 @@ public class CameraExecutorTest {
         }
 
         public void unblock() {
-            synchronized (mLock) {
+            synchronized (this) {
                 mUnblock = true;
 
                 if (mThread != null) {

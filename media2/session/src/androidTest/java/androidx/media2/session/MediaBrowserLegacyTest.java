@@ -117,17 +117,13 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testConnect() throws InterruptedException {
-        prepareLooper();
-
+    public void connect() throws InterruptedException {
         MediaBrowser browser = createBrowser(new MediaBrowser.BrowserCallback() { });
         // If connection failed, exception will be thrown inside of #createBrowser().
     }
 
     @Test
-    public void testConnect_rejected() throws InterruptedException {
-        prepareLooper();
-
+    public void connect_rejected() throws InterruptedException {
         MockMediaBrowserServiceCompat.setMediaBrowserServiceProxy(new Proxy() {
             @Override
             public BrowserRoot onGetRoot(String clientPackageName, int clientUid,
@@ -155,8 +151,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetLibraryRoot() throws Exception {
-        prepareLooper();
+    public void getLibraryRoot() throws Exception {
         final String testMediaId = "testGetLibraryRoot";
         final Bundle testExtra = new Bundle();
         testExtra.putString(testMediaId, testMediaId);
@@ -201,8 +196,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetItem() throws Exception {
-        prepareLooper();
+    public void getItem() throws Exception {
         final String testMediaId = "test_media_item";
         final MediaBrowserCompat.MediaItem testItem = createMediaItem(testMediaId);
         MockMediaBrowserServiceCompat.setMediaBrowserServiceProxy(new Proxy() {
@@ -221,8 +215,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetItem_nullResult() throws Exception {
-        prepareLooper();
+    public void getItem_nullResult() throws Exception {
         final String testMediaId = "test_media_item";
         MockMediaBrowserServiceCompat.setMediaBrowserServiceProxy(new Proxy() {
             @Override
@@ -238,8 +231,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetChildren_onLoadChildrenWithoutOptions() throws Exception {
-        prepareLooper();
+    public void getChildren_onLoadChildrenWithoutOptions() throws Exception {
         final String testParentId = "test_media_parent";
         final int testPage = 2;
         final int testPageSize = 4;
@@ -264,8 +256,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetChildren_withoutOption() throws Exception {
-        prepareLooper();
+    public void getChildren_withoutOption() throws Exception {
         final String testParentId = "test_media_parent";
         final int testPage = 2;
         final int testPageSize = 4;
@@ -297,8 +288,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetChildren_withOption() throws Exception {
-        prepareLooper();
+    public void getChildren_withOption() throws Exception {
         final String testParentId = "test_media_parent";
         final int testPage = 2;
         final int testPageSize = 4;
@@ -325,8 +315,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetChildren_nullResult() throws Exception {
-        prepareLooper();
+    public void getChildren_nullResult() throws Exception {
         final String testParentId = "test_media_parent";
         final int testPage = 2;
         final int testPageSize = 4;
@@ -349,8 +338,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testSearch() throws Exception {
-        prepareLooper();
+    public void search() throws Exception {
         final String testQuery = "search_query";
         final int testPage = 2;
         final int testPageSize = 4;
@@ -401,8 +389,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testSearch_nullResult() throws Exception {
-        prepareLooper();
+    public void search_nullResult() throws Exception {
         final String testQuery = "search_query";
         final int testPage = 2;
         final int testPageSize = 4;
@@ -446,8 +433,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
      * @throws InterruptedException
      */
     @Test
-    public void testSubscribeAndUnsubscribe() throws Exception {
-        prepareLooper();
+    public void subscribeAndUnsubscribe() throws Exception {
         final String testParentId = "testSubscribe";
         final LibraryParams testParams = TestUtils.createLibraryParams();
         final List<MediaBrowserCompat.MediaItem> testFullMediaItemList = createMediaItems(4);
@@ -498,6 +484,35 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
         // This shouldn't trigger browser's onChildrenChanged().
         // Wait for some time. Exception will be thrown in the callback if error happens.
         Thread.sleep(TIMEOUT_MS);
+    }
+
+    @Test
+    public void subscribe_failed() throws Exception {
+        final String testParentId = "testSubscribe_failed";
+        final CountDownLatch subscribeLatch = new CountDownLatch(1);
+        MockMediaBrowserServiceCompat.setMediaBrowserServiceProxy(new Proxy() {
+            @Override
+            public void onLoadChildren(String parentId,
+                    Result<List<MediaBrowserCompat.MediaItem>> result, Bundle option) {
+                // Called by subscribe and notifyChildrenChanged()
+                assertEquals(testParentId, parentId);
+
+                // Cannot use Result#sendError() for sending error here. The API is specific to
+                // custom action.
+                result.sendResult(null);
+
+                // Shouldn't call notifyChildrenChanged() again here because it will call
+                // onLoadChildren() again for getting list of children.
+                if (subscribeLatch.getCount() > 0) {
+                    subscribeLatch.countDown();
+                }
+            }
+        });
+        MediaBrowser browser = createBrowser(new MediaBrowser.BrowserCallback() {});
+        LibraryResult result = browser.subscribe(testParentId, null)
+                .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        assertNotEquals(RESULT_SUCCESS, result.getResultCode());
+        assertTrue(subscribeLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     private static MediaBrowserCompat.MediaItem createMediaItem(String mediaId) {

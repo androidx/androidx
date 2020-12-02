@@ -39,7 +39,6 @@ import static junit.framework.Assert.fail;
 
 import static org.junit.Assert.assertNotEquals;
 
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -59,7 +58,6 @@ import androidx.media2.test.common.MediaBrowserConstants;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.versionedparcelable.ParcelUtils;
 
 import org.junit.Test;
@@ -78,7 +76,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link MediaController} works cleanly.
  */
 // TODO: (internal cleanup) Move tests that aren't related with callbacks.
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
@@ -119,7 +116,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     }
 
     @Test
-    public void testGetLibraryRoot() throws Exception {
+    public void getLibraryRoot() throws Exception {
         prepareLooper();
         final LibraryParams params = new LibraryParams.Builder()
                 .setOffline(true).setRecent(true).setExtras(new Bundle()).build();
@@ -135,7 +132,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     }
 
     @Test
-    public void testGetItem() throws Exception {
+    public void getItem() throws Exception {
         prepareLooper();
         final String mediaId = MediaBrowserConstants.MEDIA_ID_GET_ITEM;
 
@@ -146,7 +143,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     }
 
     @Test
-    public void testGetItem_unknownId() throws Exception {
+    public void getItem_unknownId() throws Exception {
         prepareLooper();
         final String mediaId = "random_media_id";
 
@@ -157,7 +154,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     }
 
     @Test
-    public void testGetItem_nullResult() throws Exception {
+    public void getItem_nullResult() throws Exception {
         prepareLooper();
         final String mediaId = MediaBrowserConstants.MEDIA_ID_GET_NULL_ITEM;
 
@@ -178,7 +175,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     }
 
     @Test
-    public void testGetItem_invalidResult() throws Exception {
+    public void getItem_invalidResult() throws Exception {
         prepareLooper();
         final String mediaId = MediaBrowserConstants.MEDIA_ID_GET_INVALID_ITEM;
 
@@ -199,7 +196,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     }
 
     @Test
-    public void testGetChildren() throws Exception {
+    public void getChildren() throws Exception {
         prepareLooper();
         final String parentId = MediaBrowserConstants.PARENT_ID;
         final int page = 4;
@@ -221,7 +218,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
 
     @Test
     @LargeTest
-    public void testGetChildren_withLongList() throws Exception {
+    public void getChildren_withLongList() throws Exception {
         prepareLooper();
         final String parentId = MediaBrowserConstants.PARENT_ID_LONG_LIST;
         final int page = 0;
@@ -239,12 +236,12 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         List<MediaItem> list = result.getMediaItems();
         assertEquals(LONG_LIST_COUNT, list.size());
         for (int i = 0; i < result.getMediaItems().size(); i++) {
-            assertEquals(TestUtils.getMediaIdInDummyList(i), list.get(i).getMediaId());
+            assertEquals(TestUtils.getMediaIdInFakeList(i), list.get(i).getMediaId());
         }
     }
 
     @Test
-    public void testGetChildren_emptyResult() throws Exception {
+    public void getChildren_emptyResult() throws Exception {
         prepareLooper();
         final String parentId = MediaBrowserConstants.PARENT_ID_NO_CHILDREN;
 
@@ -256,7 +253,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     }
 
     @Test
-    public void testGetChildren_nullResult() throws Exception {
+    public void getChildren_nullResult() throws Exception {
         prepareLooper();
         final String parentId = MediaBrowserConstants.PARENT_ID_ERROR;
 
@@ -268,7 +265,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     }
 
     @Test
-    public void testSearchCallbacks() throws Exception {
+    public void searchCallbacks() throws Exception {
         prepareLooper();
         final String query = MediaBrowserConstants.SEARCH_QUERY;
         final int page = 4;
@@ -304,7 +301,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
 
     @Test
     @LargeTest
-    public void testSearchCallbacks_withLongList() throws Exception {
+    public void searchCallbacks_withLongList() throws Exception {
         prepareLooper();
         final String query = MediaBrowserConstants.SEARCH_QUERY_LONG_LIST;
         final int page = 0;
@@ -334,13 +331,13 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         assertEquals(RESULT_SUCCESS, result.getResultCode());
         List<MediaItem> list = result.getMediaItems();
         for (int i = 0; i < list.size(); i++) {
-            assertEquals(TestUtils.getMediaIdInDummyList(i), list.get(i).getMediaId());
+            assertEquals(TestUtils.getMediaIdInFakeList(i), list.get(i).getMediaId());
         }
     }
 
     @Test
     @LargeTest
-    public void testOnSearchResultChanged_searchTakesTime() throws Exception {
+    public void onSearchResultChanged_searchTakesTime() throws Exception {
         prepareLooper();
         final String query = MediaBrowserConstants.SEARCH_QUERY_TAKES_TIME;
         final LibraryParams testParams = MediaTestUtils.createLibraryParams();
@@ -366,7 +363,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     }
 
     @Test
-    public void testOnSearchResultChanged_emptyResult() throws Exception {
+    public void onSearchResultChanged_emptyResult() throws Exception {
         prepareLooper();
         final String query = MediaBrowserConstants.SEARCH_QUERY_EMPTY_RESULT;
         final LibraryParams testParams = MediaTestUtils.createLibraryParams();
@@ -391,7 +388,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     }
 
     @Test
-    public void testOnChildrenChanged_calledWhenSubscribed() throws Exception {
+    public void onChildrenChanged_calledWhenSubscribed() throws Exception {
         // This test uses MediaLibrarySession.notifyChildrenChanged().
         prepareLooper();
         final String expectedParentId = SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL;
@@ -419,7 +416,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     }
 
     @Test
-    public void testOnChildrenChanged_calledWhenSubscribed2() throws Exception {
+    public void onChildrenChanged_calledWhenSubscribed2() throws Exception {
         // This test uses MediaLibrarySession.notifyChildrenChanged(ControllerInfo).
         prepareLooper();
         final String expectedParentId = SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE;
@@ -447,7 +444,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     }
 
     @Test
-    public void testOnChildrenChanged_notCalledWhenNotSubscribed() throws Exception {
+    public void onChildrenChanged_notCalledWhenNotSubscribed() throws Exception {
         // This test uses MediaLibrarySession.notifyChildrenChanged().
         prepareLooper();
         final String subscribedMediaId =
@@ -476,7 +473,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     }
 
     @Test
-    public void testOnChildrenChanged_notCalledWhenNotSubscribed2() throws Exception {
+    public void onChildrenChanged_notCalledWhenNotSubscribed2() throws Exception {
         // This test uses MediaLibrarySession.notifyChildrenChanged(ControllerInfo).
         prepareLooper();
         final String subscribedMediaId =

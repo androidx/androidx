@@ -16,11 +16,23 @@
 
 package androidx.camera.core;
 
+import android.graphics.Rect;
+import android.util.Size;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * An {@link ImageProxy} which overwrites the {@link ImageInfo}.
  */
 final class SettableImageProxy extends ForwardingImageProxy{
     private final ImageInfo mImageInfo;
+
+    @Nullable
+    private Rect mCropRect;
+
+    private final int mWidth;
+    private final int mHeight;
 
     /**
      * Constructor for a {@link SettableImageProxy}.
@@ -29,11 +41,62 @@ final class SettableImageProxy extends ForwardingImageProxy{
      * @param imageInfo The {@link ImageInfo} to overwrite with.
      */
     SettableImageProxy(ImageProxy imageProxy, ImageInfo imageInfo) {
+        this(imageProxy, null, imageInfo);
+    }
+
+    /**
+     * Constructor for a {@link SettableImageProxy} which overrides the resolution.
+     *
+     * @param imageProxy The {@link ImageProxy} to forward.
+     * @param resolution The resolution to overwrite with.
+     * @param imageInfo The {@link ImageInfo} to overwrite with.
+     */
+    SettableImageProxy(ImageProxy imageProxy, @Nullable Size resolution, ImageInfo imageInfo) {
         super(imageProxy);
+        if (resolution == null) {
+            mWidth = super.getWidth();
+            mHeight = super.getHeight();
+        } else {
+            mWidth = resolution.getWidth();
+            mHeight = resolution.getHeight();
+        }
         mImageInfo = imageInfo;
     }
 
+    @NonNull
     @Override
+    public synchronized Rect getCropRect() {
+        if (mCropRect == null) {
+            return new Rect(0, 0, getWidth(), getHeight());
+        } else {
+            return new Rect(mCropRect); // return a copy
+        }
+    }
+
+    @Override
+    public synchronized void setCropRect(@Nullable Rect cropRect) {
+        if (cropRect != null) {
+            cropRect = new Rect(cropRect);  // make a copy
+            if (!cropRect.intersect(0, 0, getWidth(), getHeight())) {
+                cropRect.setEmpty();
+            }
+        }
+        mCropRect = cropRect;
+    }
+
+    @Override
+    public synchronized int getWidth() {
+        return mWidth;
+    }
+
+    @Override
+    public synchronized int getHeight() {
+        return mHeight;
+    }
+
+    @SuppressWarnings("UnsynchronizedOverridesSynchronized")
+    @Override
+    @NonNull
     public ImageInfo getImageInfo() {
         return mImageInfo;
     }

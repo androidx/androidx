@@ -16,6 +16,8 @@
 package androidx.fragment.app;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.graphics.Rect;
 import android.transition.TransitionValues;
 import android.transition.Visibility;
@@ -25,19 +27,28 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Visibility transition that tracks which targets are applied to it.
- * This transition does no animation.
+ * By default, this transition does no animation.
  */
 public class TrackingVisibility extends Visibility implements TargetTracking {
-    public final ArrayList<View> targets = new ArrayList<>();
+    private final ArrayList<View> mEnteringTargets = new ArrayList<>();
+    private final ArrayList<View> mExitingTargets = new ArrayList<>();
     private final Rect[] mEpicenter = new Rect[1];
+    private boolean mRealTransition;
+    public CountDownLatch endAnimatorCountDownLatch = new CountDownLatch(1);
+
+    public void setRealTransition(boolean realTransition) {
+        this.mRealTransition = realTransition;
+    }
 
     @Override
     public Animator onAppear(ViewGroup sceneRoot, View view, TransitionValues startValues,
             TransitionValues endValues) {
-        targets.add(endValues.view);
+        mEnteringTargets.add(endValues.view);
         Rect epicenter = getEpicenter();
         if (epicenter != null) {
             mEpicenter[0] = new Rect(epicenter);
@@ -50,25 +61,56 @@ public class TrackingVisibility extends Visibility implements TargetTracking {
     @Override
     public Animator onDisappear(ViewGroup sceneRoot, View view, TransitionValues startValues,
             TransitionValues endValues) {
-        targets.add(startValues.view);
+        mExitingTargets.add(startValues.view);
         Rect epicenter = getEpicenter();
         if (epicenter != null) {
             mEpicenter[0] = new Rect(epicenter);
         } else {
             mEpicenter[0] = null;
         }
+        if (mRealTransition) {
+            Animator animator = ObjectAnimator.ofFloat(view, "transitionAlpha", 0);
+            // We need to wait until the exiting Transition has completed. Just adding a listener
+            // is not enough because it will not be last listener to get an onTransitionEnd
+            // callback, so we have to add a listener on the Animator that runs the Transition
+            // and wait for that to end.
+            animator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    super.onAnimationStart(animation);
+                    animation.removeListener(this);
+                    animation.addListener(this);
+                    endAnimatorCountDownLatch = new CountDownLatch(1);
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    endAnimatorCountDownLatch.countDown();
+                    animation.removeListener(this);
+                }
+            });
+            return animator;
+        }
         return null;
     }
 
     @NonNull
     @Override
-    public ArrayList<View> getTrackedTargets() {
-        return targets;
+    public List<View> getEnteringTargets() {
+        return mEnteringTargets;
+    }
+
+    @NonNull
+    @Override
+    public List<View> getExitingTargets() {
+        return mExitingTargets;
     }
 
     @Override
     public void clearTargets() {
-        targets.clear();
+        mEnteringTargets.clear();
+        mExitingTargets.clear();
+        mEpicenter[0] = null;
     }
 
     @Override

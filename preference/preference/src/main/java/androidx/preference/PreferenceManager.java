@@ -387,6 +387,7 @@ public class PreferenceManager {
      * preferences that are managed by this PreferenceManager. If
      * a {@link PreferenceDataStore} has been set, this method returns {@code null}.
      */
+    @Nullable
     public SharedPreferences getSharedPreferences() {
         if (getPreferenceDataStore() != null) {
             return null;
@@ -464,6 +465,7 @@ public class PreferenceManager {
      * been set, this method returns {@code null}.
      * @see #shouldCommit()
      */
+    @Nullable
     SharedPreferences.Editor getEditor() {
         if (mPreferenceDataStore != null) {
             return null;

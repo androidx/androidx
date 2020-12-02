@@ -22,6 +22,7 @@ import static androidx.slice.builders.ListBuilder.SMALL_IMAGE;
 
 import android.graphics.drawable.Icon;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
@@ -63,7 +64,7 @@ public class MessagingListV1Impl extends TemplateBuilderImpl implements Messagin
     /**
      */
     @Override
-    public void apply(Slice.Builder builder) {
+    public void apply(@NonNull Slice.Builder builder) {
         mListBuilder.apply(builder);
     }
 
@@ -109,7 +110,7 @@ public class MessagingListV1Impl extends TemplateBuilderImpl implements Messagin
         /**
          */
         @Override
-        public void apply(Slice.Builder builder) {
+        public void apply(@NonNull Slice.Builder builder) {
             mListBuilder.apply(builder);
         }
     }

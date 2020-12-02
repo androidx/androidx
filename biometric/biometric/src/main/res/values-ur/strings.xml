@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"فنگر پرنٹ سینسر کو ٹچ کریں"</string>
+    <string name="fingerprint_not_recognized" msgid="3873359464293253009">"شناخت نہیں ہو سکی"</string>
+    <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"فنگر پرنٹ ہارڈ ویئر دستیاب نہیں ہے۔"</string>
+    <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"کوئی فنگر پرنٹ مندرج نہیں ہے۔"</string>
+    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"اس آلہ میں فنگر پرنٹ سینسر نہیں ہے"</string>
+    <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"صارف نے فنگر پرنٹ کی کارروائی منسوخ کر دی۔"</string>
+    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"کافی زیادہ کوششیں۔ براہ کرم بعد میں دوبارہ کوشش کریں۔"</string>
+    <string name="default_error_msg" msgid="4776854077120974966">"نامعلوم خرابی"</string>
+    <string name="generic_error_user_canceled" msgid="7309881387583143581">"صارف نے تصدیق کو منسوخ کر دیا۔"</string>
+    <string name="confirm_device_credential_password" msgid="5912733858573823945">"پاس ورڈ استعمال کریں"</string>
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"کوئی پن، پیٹرن، یا پاس ورڈ سیٹ نہیں ہے۔"</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"‏یہ آلہ PIN، پیٹرن یا پاس ورڈ کو سپورٹ نہیں کرتا ہے۔"</string>
+</resources>

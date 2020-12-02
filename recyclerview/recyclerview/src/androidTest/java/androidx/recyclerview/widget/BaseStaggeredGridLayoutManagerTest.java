@@ -935,7 +935,6 @@ abstract class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstru
             stl.addState(new int[]{android.R.attr.state_focused},
                     new ColorDrawable(Color.RED));
             stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-            //noinspection deprecation using this for kitkat tests
             holder.itemView.setBackgroundDrawable(stl);
             if (mOnBindCallback != null) {
                 mOnBindCallback.onBoundItem(holder, position);

@@ -2,7 +2,6 @@ package androidx.fragment.app
 
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -10,7 +9,9 @@ import org.junit.Test
 @SmallTest
 @Suppress("DEPRECATION")
 class FragmentManagerTest {
-    @get:Rule val activityRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    @get:Rule val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(
+        TestActivity::class.java
+    )
     private val fragmentManager get() = activityRule.activity.supportFragmentManager
 
     @UiThreadTest

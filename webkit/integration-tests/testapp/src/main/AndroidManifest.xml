@@ -69,7 +69,7 @@
         <activity
             android:name=".PopupInterstitialActivity" />
         <activity
-            android:name=".WhitelistActivity"
+            android:name=".AllowlistActivity"
             android:exported="true" />
         <activity
             android:name=".ProxyOverrideActivity"
@@ -98,6 +98,24 @@
             android:exported="true" />
         <activity
             android:name=".RendererTerminationActivity"
+            android:exported="true" />
+        <activity
+            android:name=".FullscreenActivity"
+            android:exported="true" />
+        <activity
+            android:name=".JsJavaInteractionActivity"
+            android:exported="true" />
+        <activity
+            android:name=".WebMessageListenerActivity"
+            android:exported="true" />
+        <activity
+            android:name=".WebMessageListenerMaliciousWebsiteActivity"
+            android:exported="true" />
+        <activity
+            android:name=".DocumentStartJavaScriptActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ForceDarkStrategyActivity"
             android:exported="true" />
     </application>
 </manifest>

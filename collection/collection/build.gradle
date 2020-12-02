@@ -21,22 +21,24 @@ import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
-    id("java")
+    id("java-library")
+    id("kotlin")
 }
 
 targetCompatibility = JavaVersion.VERSION_1_7
 sourceCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
-    compile("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.1.0")
     annotationProcessor(NULLAWAY)
-    testCompile(JUNIT)
+    testImplementation(KOTLIN_STDLIB)
+    testImplementation(JUNIT)
+    testImplementation(TRUTH)
 }
 
 androidx {
     name = "Android Support Library collections"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.COLLECTION
     mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
     description = "Standalone efficient collections."

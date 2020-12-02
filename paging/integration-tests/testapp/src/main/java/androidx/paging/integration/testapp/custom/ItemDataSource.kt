@@ -18,43 +18,42 @@ package androidx.paging.integration.testapp.custom
 
 import android.graphics.Color
 import androidx.annotation.ColorInt
-import androidx.paging.LoadType
-import androidx.paging.PagedSource
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
 import kotlinx.coroutines.delay
 import java.util.concurrent.atomic.AtomicBoolean
 
 val dataSourceError = AtomicBoolean(false)
 
 /**
- * Sample position-based PagedSource with artificial data.
+ * Sample position-based PagingSource with artificial data.
  */
-internal class ItemDataSource : PagedSource<Int, Item>() {
+internal class ItemDataSource : PagingSource<Int, Item>() {
     class RetryableItemError : Exception()
 
     private val generationId = sGenerationId++
 
-    override fun getRefreshKeyFromPage(
-        indexInPage: Int,
-        page: LoadResult.Page<Int, Item>
-    ): Int? = page.prevKey!! + indexInPage
+    @OptIn(ExperimentalPagingApi::class)
+    override fun getRefreshKey(state: PagingState<Int, Item>): Int? = state.anchorPosition
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> =
-        when (params.loadType) {
-            LoadType.REFRESH ->
+        when (params) {
+            is LoadParams.Refresh ->
                 loadInternal(
                     position = ((params.key ?: 0) - params.loadSize / 2).coerceAtLeast(0),
                     loadSize = params.loadSize
                 )
-            LoadType.START -> {
-                val loadSize = minOf(params.key!!, params.pageSize)
+            is LoadParams.Prepend -> {
+                val loadSize = minOf(params.key, params.loadSize)
                 loadInternal(
-                    position = params.key!! - loadSize,
+                    position = params.key - loadSize,
                     loadSize = loadSize
                 )
             }
-            LoadType.END ->
+            is LoadParams.Append ->
                 loadInternal(
-                    position = params.key!!,
+                    position = params.key,
                     loadSize = params.loadSize
                 )
         }

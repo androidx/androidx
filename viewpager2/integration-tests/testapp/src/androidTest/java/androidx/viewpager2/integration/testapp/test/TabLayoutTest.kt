@@ -25,6 +25,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.viewpager2.integration.testapp.CardViewTabLayoutActivity
 import androidx.viewpager2.integration.testapp.R
+import androidx.viewpager2.integration.testapp.cards.Card
+import androidx.viewpager2.integration.testapp.cards.Card.Companion.find
 import androidx.viewpager2.integration.testapp.test.util.onTab
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,8 +34,8 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class TabLayoutTest : BaseTest<CardViewTabLayoutActivity>(CardViewTabLayoutActivity::class.java) {
-    private val nineOfHeartsTab = "9 ♥"
-    private val tenOfHeartsTab = "10 ♥"
+    private val nineOfHeartsTab = Card.DECK.find("9", "♥").toString()
+    private val tenOfHeartsTab = Card.DECK.find("10", "♥").toString()
     private val nineOfHeartsPage = "9\n♥"
     private val tenOfHeartsPage = "10\n♥"
 

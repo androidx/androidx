@@ -19,7 +19,7 @@
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Legacy shortcut, ignored by ShareTargetXmlParser -->
     <shortcut>
-            android:shortcutId="dummy_shortcut1"
+            android:shortcutId="noop_shortcut1"
             android:enabled="true">
         <intent
                 android:action="android.intent.action.VIEW"
@@ -59,7 +59,7 @@
 
     <!-- Legacy shortcut, ignored by ShareTargetXmlParser -->
     <shortcut>
-            android:shortcutId="dummy_shortcut2"
+            android:shortcutId="noop_shortcut2"
             android:enabled="true">
         <intent
                 android:action="android.intent.action.VIEW"

@@ -28,7 +28,6 @@ import androidx.navigation.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,15 +36,22 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class EmbeddedXmlTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = ActivityTestRule(EmbeddedXmlActivity::class.java, false, false)
+    var activityRule = androidx.test.rule.ActivityTestRule(
+        EmbeddedXmlActivity::class.java,
+        false,
+        false
+    )
 
     @Test
     @Throws(Throwable::class)
     fun testRecreate() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val intent = Intent(instrumentation.context,
-                EmbeddedXmlActivity::class.java)
+        val intent = Intent(
+            instrumentation.context,
+            EmbeddedXmlActivity::class.java
+        )
 
         val activity = activityRule.launchActivity(intent)
         instrumentation.waitForIdleSync()
@@ -69,9 +75,9 @@ class EmbeddedXmlActivity : FragmentActivity() {
         if (savedInstanceState == null) {
             val embeddedFragment = EmbeddedXmlFragment()
             supportFragmentManager.beginTransaction()
-                    .replace(R.id.container, embeddedFragment)
-                    .setPrimaryNavigationFragment(embeddedFragment)
-                    .commit()
+                .replace(R.id.container, embeddedFragment)
+                .setPrimaryNavigationFragment(embeddedFragment)
+                .commit()
         }
     }
 }
