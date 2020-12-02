@@ -24,6 +24,7 @@ import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
 import android.support.wearable.complications.ComplicationData
 import androidx.annotation.UiThread
+import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.data.ComplicationType
@@ -211,7 +212,7 @@ public open class CanvasComplicationDrawable(
 public class Complication internal constructor(
     internal val id: Int,
     @ComplicationBoundsType internal val boundsType: Int,
-    unitSquareBounds: RectF,
+    complicationBounds: ComplicationBounds,
     canvasComplication: CanvasComplication,
     supportedTypes: List<ComplicationType>,
     defaultProviderPolicy: DefaultComplicationProviderPolicy,
@@ -253,26 +254,16 @@ public class Complication internal constructor(
              */
             defaultProviderPolicy: DefaultComplicationProviderPolicy,
 
-            /**
-             * The initial fractional bounds for the complication which are clamped to the unit
-             * square [0..1], and subsequently converted to screen space coordinates. NB 0 and 1 are
-             * included in the unit square.
-             */
-            unitSquareBounds: RectF
+            /** The initial [ComplicationBounds]. */
+            complicationBounds: ComplicationBounds
         ): Builder = Builder(
             id,
             renderer,
             supportedTypes,
             defaultProviderPolicy,
             ComplicationBoundsType.ROUND_RECT,
-            RectF().apply {
-                setIntersect(
-                    unitSquareBounds,
-                    unitSquare
-                )
-            }
+            complicationBounds
         )
-
         /**
          * Constructs a [Builder] for a complication with bound type
          * [ComplicationBoundsType.BACKGROUND] whose bounds cover the entire screen. A background
@@ -312,7 +303,7 @@ public class Complication internal constructor(
             supportedTypes,
             defaultProviderPolicy,
             ComplicationBoundsType.BACKGROUND,
-            RectF(0f, 0f, 1f, 1f)
+            ComplicationBounds(RectF(0f, 0f, 1f, 1f))
         )
     }
 
@@ -323,7 +314,7 @@ public class Complication internal constructor(
         private val supportedTypes: List<ComplicationType>,
         private val defaultProviderPolicy: DefaultComplicationProviderPolicy,
         @ComplicationBoundsType private val boundsType: Int,
-        private val unitSquareBounds: RectF
+        private val complicationBounds: ComplicationBounds
     ) {
         private var defaultProviderType = ComplicationType.NOT_CONFIGURED
 
@@ -343,7 +334,7 @@ public class Complication internal constructor(
         public fun build(): Complication = Complication(
             id,
             boundsType,
-            unitSquareBounds,
+            complicationBounds,
             renderer,
             supportedTypes,
             defaultProviderPolicy,
@@ -364,16 +355,15 @@ public class Complication internal constructor(
     private lateinit var complicationsManager: ComplicationsManager
     private lateinit var invalidateListener: InvalidateListener
 
-    internal var unitSquareBoundsDirty = true
+    internal var complicationBoundsDirty = true
 
     /**
-     * The screen space unit-square bounds of the complication. This is converted to pixels during
-     * rendering.
+     * The complication's [ComplicationBounds] which are converted to pixels during rendering.
      *
      * Note it's not allowed to change the bounds of a background complication because
      * they are assumed to always cover the entire screen.
      */
-    public var unitSquareBounds: RectF = unitSquareBounds
+    public var complicationBounds: ComplicationBounds = complicationBounds
         @UiThread
         get
         @UiThread
@@ -383,7 +373,7 @@ public class Complication internal constructor(
                 return
             }
             field = value
-            unitSquareBoundsDirty = true
+            complicationBoundsDirty = true
 
             // The caller might modify a number of complications. For efficiency we need to coalesce
             // these into one update task.
@@ -573,11 +563,20 @@ public class Complication internal constructor(
     }
 
     /** Computes the bounds of the complication by converting the unitSquareBounds to pixels. */
-    internal fun computeBounds(screen: Rect) =
-        Rect(
+    internal fun computeBounds(screen: Rect): Rect {
+        System.err.println("<<< defaultProviderType " + defaultProviderType)
+        // Try the current type if there is one, otherwise fall back to the bounds for the default
+        // provider type.
+        val unitSquareBounds =
+            renderer.idAndData?.let {
+                complicationBounds.perComplicationTypeBounds[it.complicationData.type]
+            } ?: complicationBounds.perComplicationTypeBounds[defaultProviderType]!!
+        unitSquareBounds.intersect(unitSquare)
+        return Rect(
             (unitSquareBounds.left * screen.width()).toInt(),
             (unitSquareBounds.top * screen.height()).toInt(),
             (unitSquareBounds.right * screen.width()).toInt(),
             (unitSquareBounds.bottom * screen.height()).toInt()
         )
+    }
 }

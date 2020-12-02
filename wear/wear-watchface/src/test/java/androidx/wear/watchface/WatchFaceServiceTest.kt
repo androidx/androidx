@@ -34,6 +34,7 @@ import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
 import android.view.ViewConfiguration
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
@@ -169,7 +170,7 @@ class WatchFaceServiceTest {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET),
-            RectF(0.2f, 0.4f, 0.4f, 0.6f)
+            ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
@@ -190,7 +191,7 @@ class WatchFaceServiceTest {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
-            RectF(0.6f, 0.4f, 0.8f, 0.6f)
+            ComplicationBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
@@ -1261,8 +1262,8 @@ class WatchFaceServiceTest {
             4
         )
 
-        leftComplication.unitSquareBounds = RectF(0.3f, 0.3f, 0.5f, 0.5f)
-        rightComplication.unitSquareBounds = RectF(0.7f, 0.75f, 0.9f, 0.95f)
+        leftComplication.complicationBounds = ComplicationBounds(RectF(0.3f, 0.3f, 0.5f, 0.5f))
+        rightComplication.complicationBounds = ComplicationBounds(RectF(0.7f, 0.75f, 0.9f, 0.95f))
 
         val complicationDetails = engineWrapper.getComplicationState()
         assertThat(complicationDetails[0].id).isEqualTo(LEFT_COMPLICATION_ID)
@@ -1403,7 +1404,7 @@ class WatchFaceServiceTest {
                 provider2,
                 SystemProviders.SUNRISE_SUNSET
             ),
-            RectF(0.2f, 0.4f, 0.4f, 0.6f)
+            ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
         initEngine(WatchFaceType.ANALOG, listOf(complication), UserStyleSchema(emptyList()))
@@ -1431,7 +1432,7 @@ class WatchFaceServiceTest {
                 provider2,
                 SystemProviders.SUNRISE_SUNSET
             ),
-            RectF(0.2f, 0.4f, 0.4f, 0.6f)
+            ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
         initEngine(
