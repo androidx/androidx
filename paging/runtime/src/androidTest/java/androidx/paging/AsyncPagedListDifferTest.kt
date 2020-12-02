@@ -65,11 +65,16 @@ class AsyncPagedListDifferTest {
         data: List<V>,
         initialKey: Int
     ): PagedList<V> {
+        // unblock page loading thread to allow build to succeed
+        pageLoadingThread.autoRun = true
         return PagedList.Builder(TestPositionalDataSource(data), config)
             .setInitialKey(initialKey)
             .setNotifyExecutor(mainThread)
             .setFetchExecutor(pageLoadingThread)
             .build()
+            .also {
+                pageLoadingThread.autoRun = false
+            }
     }
 
     @Test

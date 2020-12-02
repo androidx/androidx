@@ -30,24 +30,25 @@ import kotlinx.coroutines.withContext
  * A wrapper around [DataSource] which adapts it to the [PagingSource] API.
  */
 internal class LegacyPagingSource<Key : Any, Value : Any>(
-    private val fetchDispatcher: CoroutineDispatcher = DirectDispatcher,
-    internal val dataSourceFactory: () -> DataSource<Key, Value>
+    private val fetchDispatcher: CoroutineDispatcher,
+    internal val dataSource: DataSource<Key, Value>
 ) : PagingSource<Key, Value>() {
     private var pageSize: Int = PAGE_SIZE_NOT_SET
-    // Lazily initialize because it must be created on fetchDispatcher, but PagingSourceFactory
-    // passed to Pager is a non-suspending method.
-    internal val dataSource by lazy {
-        dataSourceFactory().also { dataSource ->
-            dataSource.addInvalidatedCallback(::invalidate)
-            // LegacyPagingSource registers invalidate callback after DataSource is created, so we
-            // need to check for race condition here. If DataSource is already invalid, simply
-            // propagate invalidation manually.
-            if (dataSource.isInvalid && !invalid) {
-                dataSource.removeInvalidatedCallback(::invalidate)
-                // Note: Calling this.invalidate directly will re-evaluate dataSource's by lazy
-                // init block, since we haven't returned a value for dataSource yet.
-                super.invalidate()
-            }
+
+    init {
+        dataSource.addInvalidatedCallback(::invalidate)
+        // technically, there is a possibly race where data source might call back our invalidate.
+        // in practice, it is fine because all fields are initialized at this point.
+        registerInvalidatedCallback {
+            dataSource.removeInvalidatedCallback(::invalidate)
+            dataSource.invalidate()
+        }
+
+        // LegacyPagingSource registers invalidate callback after DataSource is created, so we
+        // need to check for race condition here. If DataSource is already invalid, simply
+        // propagate invalidation manually.
+        if (!invalid && dataSource.isInvalid) {
+            invalidate()
         }
     }
 
@@ -116,11 +117,6 @@ internal class LegacyPagingSource<Key : Any, Value : Any>(
                 )
             }
         }
-    }
-
-    override fun invalidate() {
-        super.invalidate()
-        dataSource.invalidate()
     }
 
     @OptIn(ExperimentalPagingApi::class)
