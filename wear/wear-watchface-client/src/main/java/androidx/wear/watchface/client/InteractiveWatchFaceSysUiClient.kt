@@ -50,7 +50,7 @@ public annotation class TapType
 
 /**
  * Controls a stateful remote interactive watch face with an interface tailored for SysUI the
- * WearOS 3.0 launcher app. Typically this will be used for the current active watch face.
+ * WearOS launcher app. Typically this will be used for the current active watch face.
  *
  * Note clients should call [close] when finished.
  */
