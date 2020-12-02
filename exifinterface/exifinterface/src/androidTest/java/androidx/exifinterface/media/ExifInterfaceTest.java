@@ -684,6 +684,22 @@ public class ExifInterfaceTest {
         exif.saveAttributes();
         exif = new ExifInterface(imageFile.getAbsolutePath());
         assertEquals(currentTimeStamp - expectedDatetimeOffsetLongValue, (long) exif.getDateTime());
+
+        // Test that setting null throws NPE
+        try {
+            exif.setDateTime(null);
+            fail();
+        } catch (NullPointerException e) {
+            // Expected
+        }
+
+        // Test that setting negative value throws IAE
+        try {
+            exif.setDateTime(-1L);
+            fail();
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
     }
 
     /**
@@ -757,29 +773,80 @@ public class ExifInterfaceTest {
         assertEquals(dateTimeOriginalValue, exif.getAttribute(ExifInterface.TAG_DATETIME));
     }
 
-    // TODO: Add tests for other variations (e.g. single/double digit number strings)
     @Test
     @LargeTest
-    public void testParsingSubsec() throws IOException {
+    public void testSubsec() throws IOException {
         File imageFile = getFileFromExternalDir(JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT);
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
-        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, /* 0ms */ "000000");
+
+        // Set initial value to 0
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, /* 0ms */ "000");
         exif.saveAttributes();
+        assertEquals("000", exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
         long currentDateTimeValue = exif.getDateTime();
 
-        // Check that TAG_SUBSEC_TIME values starting with zero are supported.
-        // Note: getDateTime() supports only up to 1/1000th of a second.
-        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, /* 1ms */ "001000");
-        exif.saveAttributes();
-        assertEquals(currentDateTimeValue + 1, (long) exif.getDateTime());
-
-        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, /* 10ms */ "010000");
-        exif.saveAttributes();
-        assertEquals(currentDateTimeValue + 10, (long) exif.getDateTime());
-
-        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, /* 100ms */ "100000");
+        // Test that single and double-digit values are set properly.
+        // Note that since SubSecTime tag records fractions of a second, a single-digit value
+        // should be counted as the first decimal value, which is why "1" becomes 100ms and "11"
+        // becomes 110ms.
+        String oneDigitSubSec = "1";
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, oneDigitSubSec);
         exif.saveAttributes();
         assertEquals(currentDateTimeValue + 100, (long) exif.getDateTime());
+        assertEquals(oneDigitSubSec, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+
+        String twoDigitSubSec1 = "01";
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, twoDigitSubSec1);
+        exif.saveAttributes();
+        assertEquals(currentDateTimeValue + 10, (long) exif.getDateTime());
+        assertEquals(twoDigitSubSec1, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+
+        String twoDigitSubSec2 = "11";
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, twoDigitSubSec2);
+        exif.saveAttributes();
+        assertEquals(currentDateTimeValue + 110, (long) exif.getDateTime());
+        assertEquals(twoDigitSubSec2, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+
+        // Test that 3-digit values are set properly.
+        String hundredMs = "100";
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, hundredMs);
+        exif.saveAttributes();
+        assertEquals(currentDateTimeValue + 100, (long) exif.getDateTime());
+        assertEquals(hundredMs, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+
+        // Test that values starting with zero are also supported.
+        String oneMsStartingWithZeroes = "001";
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, oneMsStartingWithZeroes);
+        exif.saveAttributes();
+        assertEquals(currentDateTimeValue + 1, (long) exif.getDateTime());
+        assertEquals(oneMsStartingWithZeroes, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+
+        String tenMsStartingWithZero = "010";
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, tenMsStartingWithZero);
+        exif.saveAttributes();
+        assertEquals(currentDateTimeValue + 10, (long) exif.getDateTime());
+        assertEquals(tenMsStartingWithZero, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+
+        // Test that values with more than three digits are set properly. getAttribute() should
+        // return the whole string, but getDateTime() should only add the first three digits
+        // because it supports only up to 1/1000th of a second.
+        String fourDigitSubSec = "1234";
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, fourDigitSubSec);
+        exif.saveAttributes();
+        assertEquals(currentDateTimeValue + 123, (long) exif.getDateTime());
+        assertEquals(fourDigitSubSec, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+
+        String fiveDigitSubSec = "23456";
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, fiveDigitSubSec);
+        exif.saveAttributes();
+        assertEquals(currentDateTimeValue + 234, (long) exif.getDateTime());
+        assertEquals(fiveDigitSubSec, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+
+        String sixDigitSubSec = "345678";
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, sixDigitSubSec);
+        exif.saveAttributes();
+        assertEquals(currentDateTimeValue + 345, (long) exif.getDateTime());
+        assertEquals(sixDigitSubSec, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
     }
 
     @Test
