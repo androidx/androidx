@@ -54,7 +54,7 @@ import java.security.InvalidParameterException;
  * The CarContext class is a {@link ContextWrapper} subclass accessible to your {@link
  * CarAppService} and {@link Screen} instances, which provides access to car services such as the
  * {@link ScreenManager} for managing the screen stack, the {@link AppManager} for general
- * app-related functionality such as accessing a surface for drawing your navigation app’s map, and
+ * app-related functionality such as accessing a surface for drawing your navigation app's map, and
  * the {@link NavigationManager} used by turn-by-turn navigation apps to communicate navigation
  * metadata and other navigation-related events with the host. See Access the navigation templates
  * for a comprehensive list of library functionality available to navigation apps.
