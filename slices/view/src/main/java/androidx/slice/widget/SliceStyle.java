@@ -89,6 +89,8 @@ public class SliceStyle {
 
     private final Context mContext;
 
+    private final float mImageCornerRadius;
+
     public SliceStyle(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SliceView,
                 defStyleAttr, defStyleRes);
@@ -155,6 +157,8 @@ public class SliceStyle {
             mHideHeaderRow = a.getBoolean(R.styleable.SliceView_hideHeaderRow, false);
 
             mContext = context;
+
+            mImageCornerRadius = (float) a.getDimension(R.styleable.SliceView_imageCornerRadius, 0);
         } finally {
             a.recycle();
         }
@@ -302,6 +306,14 @@ public class SliceStyle {
 
     public boolean getHideHeaderRow() {
         return mHideHeaderRow;
+    }
+
+    public boolean getApplyCornerRadiusToLargeImages() {
+        return mImageCornerRadius > 0;
+    }
+
+    public float getImageCornerRadius() {
+        return mImageCornerRadius;
     }
 
     public int getRowHeight(RowContent row, SliceViewPolicy policy) {
