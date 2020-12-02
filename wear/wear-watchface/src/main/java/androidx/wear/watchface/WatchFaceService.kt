@@ -128,8 +128,8 @@ private class PendingComplicationData(val complicationId: Int, val data: Complic
  * Sub classes of WatchFaceService are expected to implement [createWatchFace] which is the
  * factory for making [WatchFace]s. All [Complication]s are assumed to be enumerated up upfront and
  * passed as a collection into [ComplicationsManager]'s constructor which is in turn passed to
- * [WatchFace]'s constructor. Complications can be enabled and disabled as needed although it's
- * recommended to use [UserStyleSetting.ComplicationsUserStyleSetting] for this.
+ * [WatchFace]'s constructor. Complications can be enabled and disabled via [UserStyleSetting
+ * .ComplicationsUserStyleSetting].
  *
  * Watch face styling (color and visual look of watch face elements such as numeric fonts, watch
  * hands and ticks, etc...) is directly supported via [UserStyleSetting] and

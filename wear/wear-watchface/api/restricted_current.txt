@@ -43,11 +43,7 @@ package androidx.wear.watchface {
     method public boolean isActiveAt(long dateTimeMillis);
     method @UiThread public boolean isEnabled();
     method @UiThread public void render(android.graphics.Canvas canvas, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
-    method @UiThread public void setDefaultProviderPolicy(androidx.wear.complications.DefaultComplicationProviderPolicy value);
-    method @UiThread public void setDefaultProviderType(androidx.wear.complications.data.ComplicationType value);
-    method @UiThread public void setEnabled(boolean value);
     method @UiThread public void setRenderer(androidx.wear.watchface.CanvasComplication value);
-    method @UiThread public void setSupportedTypes(java.util.List<? extends androidx.wear.complications.data.ComplicationType> value);
     method @UiThread public void setUnitSquareBounds(android.graphics.RectF value);
     property public final androidx.wear.watchface.ObservableWatchData<androidx.wear.complications.data.ComplicationData> complicationData;
     property @UiThread public final androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy;
