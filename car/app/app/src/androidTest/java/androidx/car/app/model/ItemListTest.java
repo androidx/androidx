@@ -30,8 +30,8 @@ import static org.mockito.Mockito.verify;
 import android.os.RemoteException;
 
 import androidx.car.app.IOnDoneCallback;
+import androidx.car.app.OnDoneCallback;
 import androidx.car.app.WrappedRuntimeException;
-import androidx.car.app.host.OnDoneCallback;
 import androidx.car.app.model.ItemList.OnItemVisibilityChangedListener;
 import androidx.car.app.model.ItemList.OnSelectedListener;
 import androidx.test.annotation.UiThreadTest;

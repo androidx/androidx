@@ -14,20 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.car.app.host;
+package androidx.car.app.model;
 
 import androidx.annotation.NonNull;
+import androidx.car.app.OnDoneCallback;
 
 /**
- * A host-side interface for reporting to clients that the checked state has changed.
+ * A host-side interface for reporting click to clients.
  */
-public interface OnCheckedChangeListenerWrapper {
+public interface OnClickListenerWrapper {
     /**
-     * Notifies that checked state has changed.
-     *
-     * @param isChecked the updated checked state.
-     * @param callback  the {@link OnDoneCallback} to trigger when the client finishes handling
-     *                  the event.
+     * Indicates if the click listener is for parked-only scenarios.
      */
-    void onCheckedChange(boolean isChecked, @NonNull OnDoneCallback callback);
+    boolean isParkedOnly();
+
+    /**
+     * Notifies that a click happened.
+     *
+     * @param callback the {@link OnDoneCallback} to trigger when the client finishes handling
+     *                 the event.
+     */
+    void onClick(@NonNull OnDoneCallback callback);
 }

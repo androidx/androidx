@@ -27,9 +27,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.IOnCheckedChangeListener;
 import androidx.car.app.IOnDoneCallback;
+import androidx.car.app.OnCheckedChangeListenerWrapper;
+import androidx.car.app.OnDoneCallback;
 import androidx.car.app.WrappedRuntimeException;
-import androidx.car.app.host.OnCheckedChangeListenerWrapper;
-import androidx.car.app.host.OnDoneCallback;
 import androidx.car.app.utils.RemoteUtils;
 
 /** Represents a toggle that can have either a checked or unchecked state. */

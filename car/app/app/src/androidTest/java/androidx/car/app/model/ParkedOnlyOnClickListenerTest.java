@@ -23,9 +23,7 @@ import static org.mockito.Mockito.verify;
 
 import android.os.RemoteException;
 
-import androidx.car.app.host.OnDoneCallback;
-import androidx.car.app.host.model.OnClickListenerWrapper;
-import androidx.car.app.host.model.OnClickListenerWrapperImpl;
+import androidx.car.app.OnDoneCallback;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.car.app.host.model;
+package androidx.car.app.model;
 
 /** Tests for {@link OnClickListenerWrapper}. */
 
@@ -23,8 +23,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import androidx.car.app.host.OnDoneCallback;
-import androidx.car.app.model.OnClickListener;
+import androidx.car.app.OnDoneCallback;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;

@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.car.app.host.model;
+package androidx.car.app;
 
 import androidx.annotation.NonNull;
-import androidx.car.app.host.OnDoneCallback;
 
 /**
- * A host-side interface for reporting click to clients.
+ * A host-side interface for reporting to clients that an item was selected.
  */
-public interface OnClickListenerWrapper {
+public interface OnSelectedListenerWrapper {
     /**
-     * Indicates if the click listener is for parked-only scenarios.
-     */
-    boolean isParkedOnly();
-
-    /**
-     * Notifies that a click happened.
+     * Notifies that an item was selected.
      *
-     * @param callback the {@link OnDoneCallback} to trigger when the client finishes handling
-     *                 the event.
+     * <p>This event is called even if the selection did not change, for example, if the user
+     * selected an already selected item.
+     *
+     * @param selectedIndex the index of the selected item.
+     * @param callback      the {@link OnDoneCallback} to trigger when the client finishes handling
+     *                      the event.
      */
-    void onClick(@NonNull OnDoneCallback callback);
+    void onSelected(int selectedIndex, @NonNull OnDoneCallback callback);
 }

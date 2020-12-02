@@ -31,7 +31,7 @@ import android.os.Parcelable;
 import android.os.RemoteException;
 
 import androidx.annotation.Nullable;
-import androidx.car.app.host.OnDoneCallback;
+import androidx.car.app.OnDoneCallback;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarIcon;
