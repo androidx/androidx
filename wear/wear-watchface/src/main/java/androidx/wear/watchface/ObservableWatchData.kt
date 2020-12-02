@@ -21,7 +21,7 @@ import androidx.annotation.UiThread
 /**
  * An observable UI thread only data holder class (see [Observer]).
  *
- * @param <T> The type of data hold by this instance
+ * @param T The type of data held by this instance
  */
 public open class ObservableWatchData<T : Any> internal constructor(internal var _value: T?) {
 
@@ -100,7 +100,7 @@ public open class ObservableWatchData<T : Any> internal constructor(internal var
 /**
  * [ObservableWatchData] which publicly exposes [setValue(T)] method.
  *
- * @param <T> The type of data hold by this instance
+ * @param T The type of data held by this instance
  */
 public class MutableObservableWatchData<T : Any>(initialValue: T?) :
     ObservableWatchData<T>(initialValue) {
