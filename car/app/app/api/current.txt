@@ -406,7 +406,6 @@ package androidx.car.app.model {
     method public androidx.car.app.host.OnItemVisibilityChangedListenerWrapper? getOnItemsVisibilityChangeListener();
     method public androidx.car.app.host.OnSelectedListenerWrapper? getOnSelectedListener();
     method public int getSelectedIndex();
-    method public boolean isRefresh(androidx.car.app.model.ItemList?, androidx.car.app.utils.Logger);
   }
 
   public static final class ItemList.Builder {
@@ -499,7 +498,6 @@ package androidx.car.app.model {
     method public androidx.car.app.model.ActionList? getActionList();
     method public java.util.List<java.lang.Object!> getRows();
     method public boolean isLoading();
-    method public boolean isRefresh(androidx.car.app.model.Pane?, androidx.car.app.utils.Logger);
   }
 
   public static final class Pane.Builder {
@@ -648,7 +646,6 @@ package androidx.car.app.model {
 
   public interface Template {
     method public default void checkPermissions(android.content.Context);
-    method public default boolean isRefresh(androidx.car.app.model.Template, androidx.car.app.utils.Logger);
   }
 
   public final class TemplateInfo {
@@ -1119,10 +1116,6 @@ package androidx.car.app.serialization {
 }
 
 package androidx.car.app.utils {
-
-  public interface Logger {
-    method public void log(String);
-  }
 
   public class ThreadUtils {
     method public static void checkMainThread();

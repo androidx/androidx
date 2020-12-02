@@ -27,7 +27,6 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.utils.Logger;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -90,17 +89,6 @@ public final class PaneTemplate implements Template {
     @Nullable
     public ActionStrip getActionStrip() {
         return mActionStrip;
-    }
-
-    @Override
-    public boolean isRefresh(@NonNull Template oldTemplate, @NonNull Logger logger) {
-        if (oldTemplate.getClass() != this.getClass()) {
-            return false;
-        }
-
-        PaneTemplate old = (PaneTemplate) oldTemplate;
-        return Objects.equals(old.getTitle(), getTitle()) && getPane().isRefresh(old.getPane(),
-                logger);
     }
 
     @NonNull
