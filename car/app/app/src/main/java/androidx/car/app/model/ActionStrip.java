@@ -140,17 +140,6 @@ public class ActionStrip {
         }
 
         /**
-         * Clears any actions that may have been added with {@link #addAction(Action)} up to this
-         * point.
-         */
-        @NonNull
-        public Builder clearActions() {
-            mActions.clear();
-            mAddedActionTypes.clear();
-            return this;
-        }
-
-        /**
          * Constructs the {@link ActionStrip} defined by this builder.
          *
          * @throws IllegalStateException if the action strip is empty.

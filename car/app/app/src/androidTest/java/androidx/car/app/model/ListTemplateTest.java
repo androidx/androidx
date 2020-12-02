@@ -69,23 +69,6 @@ public class ListTemplateTest {
     }
 
     @Test
-    public void resetList_clearsSingleList() {
-        ListTemplate.Builder builder =
-                ListTemplate.builder().setTitle("Title").setSingleList(getList());
-        assertThrows(IllegalStateException.class, () -> builder.clearAllLists().build());
-    }
-
-    @Test
-    public void resetList_clearsMultipleLists() {
-        ListTemplate.Builder builder =
-                ListTemplate.builder()
-                        .setTitle("Title")
-                        .addList(getList(), "header1")
-                        .addList(getList(), "header2");
-        assertThrows(IllegalStateException.class, () -> builder.clearAllLists().build());
-    }
-
-    @Test
     public void addList_withVisibilityListener_throws() {
         ItemList list =
                 ItemList.builder()

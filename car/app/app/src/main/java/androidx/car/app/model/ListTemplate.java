@@ -222,15 +222,6 @@ public final class ListTemplate implements Template {
             return this;
         }
 
-        /** Resets any list(s) that were added via {@link #setSingleList} or {@link #addList}. */
-        @NonNull
-        public Builder clearAllLists() {
-            mSingleList = null;
-            mSectionLists.clear();
-            mHasSelectableList = false;
-            return this;
-        }
-
         /**
          * Sets a single {@link ItemList} to show in the template.
          *
