@@ -220,8 +220,7 @@ public final class PlaceListMapTemplate implements Template {
 
         /**
          * Sets the {@link Action} that will be displayed in the header of the template, or
-         * {@code null}
-         * to not display an action.
+         * {@code null} to not display an action.
          *
          * <h4>Requirements</h4>
          *
@@ -242,8 +241,7 @@ public final class PlaceListMapTemplate implements Template {
 
         /**
          * Sets the {@link CharSequence} to show as the template's title, or {@code null} to not
-         * display
-         * a title.
+         * display a title.
          */
         @NonNull
         public Builder setTitle(@Nullable CharSequence title) {
@@ -308,8 +306,7 @@ public final class PlaceListMapTemplate implements Template {
          *
          * This template allows up to 2 {@link Action}s in its {@link ActionStrip}. Of the 2 allowed
          * {@link Action}s, one of them can contain a title as set via
-         * {@link Action.Builder#setTitle}.
-         * Otherwise, only {@link Action}s with icons are allowed.
+         * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
          *
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the template's
          *                                  requirements.
@@ -328,13 +325,11 @@ public final class PlaceListMapTemplate implements Template {
          * <p>The anchor marker is displayed differently from other markers by the host.
          *
          * <p>If not {@code null}, an anchor marker will be shown at the specified {@link LatLng}
-         * on the
-         * map. The camera will adapt to always have the anchor marker visible within its viewport,
-         * along with other places' markers from {@link Row} that are currently visible in the
-         * {@link
-         * Pane}. This can be used to provide a reference point on the map (e.g. the center of a
-         * search
-         * region) as the user pages through the {@link Pane}'s markers, for example.
+         * on the map. The camera will adapt to always have the anchor marker visible within its
+         * viewport, along with other places' markers from {@link Row} that are currently visible
+         * in the {@link Pane}. This can be used to provide a reference point on the map (e.g.
+         * the center of a search region) as the user pages through the {@link Pane}'s markers,
+         * for example.
          */
         @NonNull
         public Builder setAnchor(@Nullable Place anchor) {
@@ -350,8 +345,7 @@ public final class PlaceListMapTemplate implements Template {
          * Either a header {@link Action} or title must be set on the template.
          *
          * @throws IllegalArgumentException if the template is in a loading state but the list is
-         *                                  set,
-         *                                  or vice versa.
+         *                                  set, or vice versa.
          * @throws IllegalStateException    if the template does not have either a title or header
          *                                  {@link Action} set.
          */

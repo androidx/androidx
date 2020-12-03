@@ -93,7 +93,7 @@ public final class MessageTemplate implements Template {
     }
 
     @Nullable
-    public ActionList getActionList() {
+    public ActionList getActions() {
         return mActionList;
     }
 
@@ -273,8 +273,6 @@ public final class MessageTemplate implements Template {
          * @throws NullPointerException if {@code actions} is {@code null}.
          */
         @NonNull
-        // TODO(shiufai): consider rename to match getter's name (e.g. setActionList or getActions).
-        @SuppressLint("MissingGetterMatchingBuilder")
         public Builder setActions(@NonNull List<Action> actions) {
             mActionList = ActionList.create(requireNonNull(actions));
             return this;
