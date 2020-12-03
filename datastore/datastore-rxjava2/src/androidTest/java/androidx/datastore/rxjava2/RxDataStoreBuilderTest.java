@@ -47,18 +47,14 @@ public class RxDataStoreBuilderTest {
     public void testConstructWithProduceFile() throws Exception {
         File file = tempFolder.newFile();
         DataStore<Byte> dataStore =
-                new RxDataStoreBuilder<Byte>()
-                        .setFileProducer(() -> file)
-                        .setSerializer(new TestingSerializer())
+                new RxDataStoreBuilder<Byte>(() -> file, new TestingSerializer())
                         .build();
         Single<Byte> incrementByte = RxDataStore.updateDataAsync(dataStore,
                 RxDataStoreBuilderTest::incrementByte);
         assertThat(incrementByte.blockingGet()).isEqualTo(1);
         // Construct it again and confirm that the data is still there:
         dataStore =
-                new RxDataStoreBuilder<Byte>()
-                        .setFileProducer(() -> file)
-                        .setSerializer(new TestingSerializer())
+                new RxDataStoreBuilder<Byte>(() -> file, new TestingSerializer())
                         .build();
         assertThat(RxDataStore.data(dataStore).blockingFirst()).isEqualTo(1);
     }
@@ -68,27 +64,20 @@ public class RxDataStoreBuilderTest {
         Context context = ApplicationProvider.getApplicationContext();
         String name = "my_data_store";
         DataStore<Byte> dataStore =
-                new RxDataStoreBuilder<Byte>()
-                        .setFileName(context, name)
-                        .setSerializer(new TestingSerializer())
+                new RxDataStoreBuilder<Byte>(context, name, new TestingSerializer())
                         .build();
         Single<Byte> set1 = RxDataStore.updateDataAsync(dataStore, input -> Single.just((byte) 1));
         assertThat(set1.blockingGet()).isEqualTo(1);
         // Construct it again and confirm that the data is still there:
         dataStore =
-                new RxDataStoreBuilder<Byte>()
-                        .setFileName(context, name)
-                        .setSerializer(new TestingSerializer())
+                new RxDataStoreBuilder<Byte>(context, name, new TestingSerializer())
                         .build();
         assertThat(RxDataStore.data(dataStore).blockingFirst()).isEqualTo(1);
         // Construct it again with the expected file path and confirm that the data is there:
         dataStore =
-                new RxDataStoreBuilder<Byte>()
-                        .setFileProducer(
-                                () -> new File(
-                                        context.getFilesDir().getPath()
-                                                + "/datastore/" + name))
-                        .setSerializer(new TestingSerializer())
+                new RxDataStoreBuilder<Byte>(() -> new File(context.getFilesDir().getPath()
+                        + "/datastore/" + name), new TestingSerializer()
+                )
                         .build();
         assertThat(RxDataStore.data(dataStore).blockingFirst()).isEqualTo(1);
     }
@@ -102,9 +91,10 @@ public class RxDataStoreBuilderTest {
                         return new Thread(r, "TestingThread");
                     }
                 }));
-        DataStore<Byte> dataStore = new RxDataStoreBuilder<Byte>()
-                .setFileProducer(() -> tempFolder.newFile())
-                .setSerializer(new TestingSerializer())
+
+
+        DataStore<Byte> dataStore = new RxDataStoreBuilder<Byte>(() -> tempFolder.newFile(),
+                new TestingSerializer())
                 .setIoScheduler(singleThreadedScheduler)
                 .build();
         Single<Byte> update = RxDataStore.updateDataAsync(dataStore, input -> {
@@ -127,39 +117,13 @@ public class RxDataStoreBuilderTest {
         testingSerializer.setFailReadWithCorruptionException(true);
         ReplaceFileCorruptionHandler<Byte> replaceFileCorruptionHandler =
                 new ReplaceFileCorruptionHandler<Byte>(exception -> (byte) 99);
-        DataStore<Byte> dataStore = new RxDataStoreBuilder<Byte>()
-                .setFileProducer(() -> tempFolder.newFile())
-                .setSerializer(testingSerializer)
+
+
+        DataStore<Byte> dataStore = new RxDataStoreBuilder<Byte>(
+                () -> tempFolder.newFile(),
+                testingSerializer)
                 .setCorruptionHandler(replaceFileCorruptionHandler)
                 .build();
         assertThat(RxDataStore.data(dataStore).blockingFirst()).isEqualTo(99);
-    }
-
-    @Test
-    public void testSerializerIsRequired() {
-        AssertThrowsKt.assertThrows(IllegalStateException.class,
-                () -> new RxDataStoreBuilder<Byte>().setFileProducer(
-                        () -> tempFolder.newFile()).build());
-    }
-
-    @Test
-    public void testOneOfProduceFileOrContextAndNameIsRequired() {
-        // Set file producer then context and name
-        AssertThrowsKt.assertThrows(IllegalStateException.class,
-                () -> new RxDataStoreBuilder<Byte>()
-                        .setSerializer(new TestingSerializer())
-                        .setFileProducer(() -> tempFolder.newFile())
-                        .setFileName(ApplicationProvider.getApplicationContext(), "name"));
-        // Set context and name then file producer
-        AssertThrowsKt.assertThrows(IllegalStateException.class,
-                () -> new RxDataStoreBuilder<Byte>()
-                        .setSerializer(new TestingSerializer())
-                        .setFileName(ApplicationProvider.getApplicationContext(), "name")
-                        .setFileProducer(() -> tempFolder.newFile()));
-        // Set neither and try to build.
-        AssertThrowsKt.assertThrows(IllegalStateException.class,
-                () -> new RxDataStoreBuilder<Byte>()
-                        .setSerializer(new TestingSerializer())
-                        .build());
     }
 }
