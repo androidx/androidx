@@ -1,5 +1,7 @@
 # Adding custom Lint checks
 
+[TOC]
+
 ## Getting started
 
 Lint is a static analysis tool that checks Android project source files. Lint
@@ -47,8 +49,8 @@ plugins {
 }
 
 dependencies {
-    // compileOnly because we use lintChecks and it doesn't allow other types of deps
-    // this ugly hack exists because of b/63873667
+    // compileOnly because lint runtime is provided when checks are run
+    // Use latest lint for running from IDE to make sure checks always run
     if (rootProject.hasProperty("android.injected.invoked.from.ide")) {
         compileOnly LINT_API_LATEST
     } else {
@@ -81,7 +83,7 @@ automatically in the module directory.
 
 Your new module will need to have a registry that contains a list of all of the
 checks to be performed on the library. There is an
-[`IssueRegistry`](https://cs.android.com/android/platform/superproject/+/master:tools/base/lint/libs/lint-api/src/main/java/com/android/tools/lint/client/api/IssueRegistry.java)
+[`IssueRegistry`](https://cs.android.com/android/platform/superproject/+/master:tools/base/lint/libs/lint-api/src/main/java/com/android/tools/lint/client/api/IssueRegistry.java;l=47)
 class provided by the tools team. Extend this class into your own
 `IssueRegistry` class, and provide it with the issues in the module.
 
@@ -103,7 +105,7 @@ where versions 0-6 correspond to Lint/Studio versions 3.0-3.6.
 `CURRENT_API` is defined by the Lint API version against which your project is
 compiled, as defined in the module's `build.gradle` file. Jetpack Lint modules
 should compile using Lint API version 3.3 defined in
-[Dependencies.kt](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:buildSrc/src/main/kotlin/androidx/build/dependencies/Dependencies.kt;l=84).
+[Dependencies.kt](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:buildSrc/src/main/kotlin/androidx/build/dependencies/Dependencies.kt;l=176).
 
 We guarantee that our Lint checks work with versions 3.3-3.6 by running our
 tests with both versions 3.3 and 3.6. For newer versions of Android Studio (and
@@ -268,7 +270,7 @@ is not available under `Tools`, you must enable it by adding the line
 These are Lint checks that will apply to source code files -- primarily Java and
 Kotlin, but can also be used for other similar file types. All code detectors
 that analyze Java or Kotlin files should implement the
-[SourceCodeScanner](https://android.googlesource.com/platform/tools/base/+/studio-master-dev/lint/libs/lint-api/src/main/java/com/android/tools/lint/detector/api/SourceCodeScanner.kt).
+[SourceCodeScanner](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-api/src/main/java/com/android/tools/lint/detector/api/SourceCodeScanner.kt).
 
 ### API surface
 
@@ -401,7 +403,7 @@ create another stub for this.
 These are Lint rules that will apply to resource files including `anim`,
 `layout`, `values`, etc. Lint rules being applied to resource files should
 extend
-[`ResourceXmlDetector`](https://cs.android.com/android/platform/superproject/+/master:tools/base/lint/libs/lint-api/src/main/java/com/android/tools/lint/detector/api/ResourceXmlDetector.java).
+[`ResourceXmlDetector`](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-api/src/main/java/com/android/tools/lint/detector/api/ResourceXmlDetector.java).
 The `Detector` must define the issue it is going to detect, most commonly as a
 static variable of the class.
 
@@ -436,7 +438,7 @@ visitElement(context: XmlContext, element: Element)
 #### appliesTo
 
 This determines the
-[ResourceFolderType](https://cs.android.com/android/platform/superproject/+/master:tools/base/layoutlib-api/src/main/java/com/android/resources/ResourceFolderType.java)
+[ResourceFolderType](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:layoutlib-api/src/main/java/com/android/resources/ResourceFolderType.java)
 that the check will run against.
 
 ```kotlin
@@ -503,7 +505,7 @@ class ApiLintVersionsTest {
 ```
 
 Next, you must test the `Detector` class. The Tools team provides a
-[`LintDetectorTest`](https://android.googlesource.com/platform/tools/base/+/studio-master-dev/lint/libs/lint-tests/src/main/java/com/android/tools/lint/checks/infrastructure/LintDetectorTest.java)
+[`LintDetectorTest`](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-tests/src/main/java/com/android/tools/lint/checks/infrastructure/LintDetectorTest.java)
 class that should be extended. Override `getDetector()` to return an instance of
 the `Detector` class:
 
@@ -517,13 +519,13 @@ Override `getIssues()` to return the list of Detector Issues:
 getIssues(): MutableList<Issue> = mutableListOf(MyLibraryDetector.ISSUE)
 ```
 
-[`LintDetectorTest`](https://android.googlesource.com/platform/tools/base/+/studio-master-dev/lint/libs/lint-tests/src/main/java/com/android/tools/lint/checks/infrastructure/LintDetectorTest.java)
+[`LintDetectorTest`](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-tests/src/main/java/com/android/tools/lint/checks/infrastructure/LintDetectorTest.java)
 provides a `lint()` method that returns a
-[`TestLintTask`](https://android.googlesource.com/platform/tools/base/+/studio-master-dev/lint/libs/lint-tests/src/main/java/com/android/tools/lint/checks/infrastructure/TestLintTask.java).
+[`TestLintTask`](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-tests/src/main/java/com/android/tools/lint/checks/infrastructure/TestLintTask.java).
 `TestLintTask` is a builder class for setting up lint tests. Call the `files()`
 method and provide an `.xml` test file, along with a file stub. After completing
 the set up, call `run()` which returns a
-[`TestLintResult`](https://android.googlesource.com/platform/tools/base/+/studio-master-dev/lint/libs/lint-tests/src/main/java/com/android/tools/lint/checks/infrastructure/TestLintResult.kt).
+[`TestLintResult`](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-tests/src/main/java/com/android/tools/lint/checks/infrastructure/TestLintResult.kt).
 `TestLintResult` provides methods for checking the outcome of the provided
 `TestLintTask`. `ExpectClean()` means the output is expected to be clean because
 the lint rule was followed. `Expect()` takes a string literal of the expected
@@ -536,13 +538,13 @@ If a quick fix was implemented, you can check that the fix is correct by calling
 ## Android manifest detector
 
 Lint checks targeting `AndroidManifest.xml` files should implement the
-[XmlScanner](https://android.googlesource.com/platform/tools/base/+/studio-master-dev/lint/libs/lint-api/src/main/java/com/android/tools/lint/detector/api/XmlScanner.kt)
+[XmlScanner](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-api/src/main/java/com/android/tools/lint/detector/api/XmlScanner.kt)
 and define target scope in issues as `Scope.MANIFEST`
 
 ## Gradle detector
 
 Lint checks targeting Gradle configuration files should implement the
-[GradleScanner](https://android.googlesource.com/platform/tools/base/+/studio-master-dev/lint/libs/lint-api/src/main/java/com/android/tools/lint/detector/api/GradleScanner.kt)
+[GradleScanner](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-api/src/main/java/com/android/tools/lint/detector/api/GradleScanner.kt)
 and define target scope in issues as `Scope.GRADLE_SCOPE`
 
 ### API surface
@@ -599,7 +601,7 @@ androidx.mylibrary.lint.MyLibraryIssueRegistry
 
 Sometimes it is necessary to implement multiple different scanners in a Lint
 detector. For example, the
-[Unused Resource](https://android.googlesource.com/platform/tools/base/+/studio-master-dev/lint/libs/lint-checks/src/main/java/com/android/tools/lint/checks/UnusedResourceDetector.java)
+[Unused Resource](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-checks/src/main/java/com/android/tools/lint/checks/UnusedResourceDetector.java)
 Lint check implements an XML and SourceCode Scanner in order to determine if
 resources defined in XML files are ever references in the Java/Kotlin source
 code.
@@ -621,16 +623,16 @@ using `context.driver.requestRepeat(detector, scope)`.
 
 ## Useful classes/packages
 
-### [`SdkConstants`](https://cs.android.com/android/platform/superproject/+/master:tools/base/common/src/main/java/com/android/SdkConstants.java;l=38?q=SdkCon)
+### [`SdkConstants`](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:common/src/main/java/com/android/SdkConstants.java)
 
 Contains most of the canonical names for android core library classes, as well
 as XML tag names.
 
 ## Helpful links
 
-[Studio Lint Rules](https://android.googlesource.com/platform/tools/base/+/studio-master-dev/lint/libs/lint-checks/src/main/java/com/android/tools/lint/checks)
+[Studio Lint Rules](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-checks/src/main/java/com/android/tools/lint/checks/)
 
-[Lint Detectors and Scanners Source Code](https://android.googlesource.com/platform/tools/base/+/studio-master-dev/lint/libs/lint-api/src/main/java/com/android/tools/lint/detector/api)
+[Lint Detectors and Scanners Source Code](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-api/src/main/java/com/android/tools/lint/detector/api/)
 
 [Creating Custom Link Checks (external)](https://twitter.com/alexjlockwood/status/1176675045281693696)
 
