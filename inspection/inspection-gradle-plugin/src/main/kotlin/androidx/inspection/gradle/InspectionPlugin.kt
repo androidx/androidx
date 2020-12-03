@@ -52,8 +52,8 @@ class InspectionPlugin : Plugin<Project> {
                 if (variant.name == "release") {
                     foundReleaseVariant = true
                     val unzip = project.registerUnzipTask(variant)
-                    val jarJar = project.registerJarJarDependenciesTask(variant, unzip)
-                    dexTask = project.registerDexInspectorTask(variant, libExtension, jarJar)
+                    val shadowJar = project.registerShadowDependenciesTask(variant, unzip)
+                    dexTask = project.registerDexInspectorTask(variant, libExtension, shadowJar)
                 }
             }
             libExtension.sourceSets.findByName("main")!!.resources.srcDirs(
