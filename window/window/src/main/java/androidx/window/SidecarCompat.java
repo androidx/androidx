@@ -40,6 +40,7 @@ import androidx.window.sidecar.SidecarProvider;
 import androidx.window.sidecar.SidecarWindowLayoutInfo;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 /** Extension interface compatibility wrapper for v0.1 sidecar. */
@@ -159,6 +160,7 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
         mSidecar.onDeviceStateListenersChanged(isEmpty);
     }
 
+    @SuppressLint("BanUncheckedReflection")
     @Override
     @SuppressWarnings("unused")
     public boolean validateExtensionInterface() {
@@ -215,7 +217,24 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
             tmpDeviceState = new SidecarDeviceState();
 
             // deviceState.posture
-            tmpDeviceState.posture = SidecarDeviceState.POSTURE_OPENED;
+            // TODO(b/172620880): Workaround for Sidecar API implementation issue.
+            try {
+                tmpDeviceState.posture = SidecarDeviceState.POSTURE_OPENED;
+            } catch (NoSuchFieldError error) {
+                if (DEBUG) {
+                    Log.w(TAG, "Sidecar implementation doesn't conform to primary interface "
+                            + "version, continue to check for the secondary one "
+                            + VERSION_0_1 + ", error: " + error);
+                }
+                Method methodSetPosture = SidecarDeviceState.class.getMethod("setPosture",
+                        int.class);
+                methodSetPosture.invoke(tmpDeviceState, SidecarDeviceState.POSTURE_OPENED);
+                Method methodGetPosture = SidecarDeviceState.class.getMethod("getPosture");
+                int posture = (int) methodGetPosture.invoke(tmpDeviceState);
+                if (posture != SidecarDeviceState.POSTURE_OPENED) {
+                    throw new Exception("Invalid device posture getter/setter");
+                }
+            }
 
             // SidecarDisplayFeature constructor
             SidecarDisplayFeature displayFeature = new SidecarDisplayFeature();
@@ -232,13 +251,36 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
             SidecarWindowLayoutInfo windowLayoutInfo = new SidecarWindowLayoutInfo();
 
             // windowLayoutInfo.displayFeatures
-            final List<SidecarDisplayFeature> tmpDisplayFeatures = windowLayoutInfo.displayFeatures;
+            try {
+                final List<SidecarDisplayFeature> tmpDisplayFeatures =
+                        windowLayoutInfo.displayFeatures;
+                // TODO(b/172620880): Workaround for Sidecar API implementation issue.
+            } catch (NoSuchFieldError error) {
+                if (DEBUG) {
+                    Log.w(TAG, "Sidecar implementation doesn't conform to primary interface "
+                            + "version, continue to check for the secondary one "
+                            + VERSION_0_1 + ", error: " + error);
+                }
+                List<SidecarDisplayFeature> featureList = new ArrayList<>();
+                featureList.add(displayFeature);
+                Method methodSetFeatures = SidecarWindowLayoutInfo.class.getMethod(
+                        "setDisplayFeatures", List.class);
+                methodSetFeatures.invoke(windowLayoutInfo, featureList);
+                Method methodGetFeatures = SidecarWindowLayoutInfo.class.getMethod(
+                        "getDisplayFeatures");
+                @SuppressWarnings("unchecked")
+                final List<SidecarDisplayFeature> resultDisplayFeatures =
+                        (List<SidecarDisplayFeature>) methodGetFeatures.invoke(windowLayoutInfo);
+                if (!featureList.equals(resultDisplayFeatures)) {
+                    throw new Exception("Invalid display feature getter/setter");
+                }
+            }
 
             return true;
-        } catch (Exception e) {
+        } catch (Throwable t) {
             if (DEBUG) {
-                Log.e(TAG, "Extension implementation doesn't conform to interface version "
-                        + VERSION_0_1 + ", error: " + e);
+                Log.e(TAG, "Sidecar implementation doesn't conform to interface version "
+                        + VERSION_0_1 + ", error: " + t);
             }
             return false;
         }
