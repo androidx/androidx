@@ -408,7 +408,6 @@ WARNING: Please consider reporting this to the maintainers of com\.intellij\.uti
 WARNING: Use \-\-illegal\-access=warn to enable warnings of further illegal reflective access operations
 WARNING: All illegal access operations will be denied in a future release
 # > Task :compose:compiler:compiler-hosted:integration-tests:testDebugUnitTest
-[0-9]+ tests completed, [0-9]+ failed, [0-9]+ skipped
 WARNING: Illegal reflective access by org\.robolectric\.util\.ReflectionHelpers \(file:\$CHECKOUT/prebuilts/androidx/external/org/robolectric/shadowapi/[0-9]+\.[0-9]+\-alpha\-[0-9]+/shadowapi\-[0-9]+\.[0-9]+\-alpha\-[0-9]+\.jar\) to field java\.lang\.reflect\.Field\.modifiers
 WARNING: Please consider reporting this to the maintainers of org\.robolectric\.util\.ReflectionHelpers
 # > Task :compose:compiler:compiler-hosted:integration-tests:test
@@ -607,7 +606,6 @@ assertThat\(excludedSizes\)\.containsExactly\(mConfig\.mExcludedSizes\);
 w: \$SUPPORT/navigation/navigation\-dynamic\-features\-fragment/src/main/java/androidx/navigation/dynamicfeatures/fragment/ui/AbstractProgressFragment\.kt: \([0-9]+, [0-9]+\): 'startIntentSenderForResult\(IntentSender!, Int, Intent\?, Int, Int, Int, Bundle\?\): Unit' is deprecated\. Deprecated in Java
 w: \$SUPPORT/navigation/navigation\-dynamic\-features\-fragment/src/main/java/androidx/navigation/dynamicfeatures/fragment/ui/AbstractProgressFragment\.kt: \([0-9]+, [0-9]+\): 'onActivityResult\(Int, Int, Intent\?\): Unit' is deprecated\. Deprecated in Java
 # > Task :inspection:inspection-gradle-plugin:test
-[0-9]+ test completed, [0-9]+ failed
 There were failing tests\. See the report at: .*.html
 # > Task :compose:ui:ui:processDebugUnitTestManifest
 \$OUT_DIR/androidx/compose/ui/ui/build/intermediates/tmp/manifest/test/debug/manifestMerger[0-9]+\.xml Warning:
