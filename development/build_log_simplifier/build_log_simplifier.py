@@ -160,7 +160,6 @@ def remove_known_uninteresting_lines(lines):
 
       "w: ATTENTION!",
       "This build uses unsafe internal compiler arguments:",
-      "-XXLanguage:-NewInference",
       "-XXLanguage:+InlineClasses",
       "This mode is not recommended for production use,",
       "as no stability/compatibility guarantees are given on",
