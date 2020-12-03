@@ -166,7 +166,12 @@ public class LazyPagingItems<T : Any> internal constructor(
      * A [CombinedLoadStates] object which represents the current loading state.
      */
     public var loadState: CombinedLoadStates by mutableStateOf(
-        CombinedLoadStates(InitialLoadStates)
+        CombinedLoadStates(
+            refresh = InitialLoadStates.refresh,
+            prepend = InitialLoadStates.prepend,
+            append = InitialLoadStates.append,
+            source = InitialLoadStates,
+        )
     )
         private set
 

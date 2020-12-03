@@ -23,7 +23,6 @@ import androidx.paging.ListUpdateEvent.Moved
 import androidx.paging.ListUpdateEvent.Removed
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
-import androidx.paging.LoadType.REFRESH
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -133,9 +132,10 @@ class AsyncPagingDataDifferTest {
         // empty previous list.
         assertEvents(
             listOf(
-                REFRESH to Loading,
-                REFRESH to NotLoading(endOfPaginationReached = false)
-            ).toCombinedLoadStatesLocal(),
+                localLoadStatesOf(),
+                localLoadStatesOf(refreshLocal = Loading),
+                localLoadStatesOf(refreshLocal = NotLoading(endOfPaginationReached = false)),
+            ),
             loadEvents
         )
         loadEvents.clear()
@@ -152,8 +152,8 @@ class AsyncPagingDataDifferTest {
                 localLoadStatesOf(
                     refreshLocal = NotLoading(endOfPaginationReached = false),
                     prependLocal = NotLoading(endOfPaginationReached = true),
-                    appendLocal = NotLoading(endOfPaginationReached = true)
-                )
+                    appendLocal = NotLoading(endOfPaginationReached = true),
+                ),
             ),
             actual = loadEvents
         )
@@ -190,9 +190,10 @@ class AsyncPagingDataDifferTest {
         // empty previous list.
         assertEvents(
             listOf(
-                REFRESH to Loading,
-                REFRESH to NotLoading(endOfPaginationReached = false)
-            ).toCombinedLoadStatesLocal(),
+                localLoadStatesOf(),
+                localLoadStatesOf(refreshLocal = Loading),
+                localLoadStatesOf(refreshLocal = NotLoading(endOfPaginationReached = false)),
+            ),
             loadEvents
         )
         loadEvents.clear()
@@ -209,8 +210,8 @@ class AsyncPagingDataDifferTest {
                 localLoadStatesOf(
                     refreshLocal = NotLoading(endOfPaginationReached = false),
                     prependLocal = NotLoading(endOfPaginationReached = true),
-                    appendLocal = NotLoading(endOfPaginationReached = true)
-                )
+                    appendLocal = NotLoading(endOfPaginationReached = true),
+                ),
             ),
             actual = loadEvents
         )
@@ -510,48 +511,21 @@ class AsyncPagingDataDifferTest {
 
         // Initial refresh
         advanceUntilIdle()
-        assertEquals(
-            CombinedLoadStates(
-                source = LoadStates(
-                    refresh = NotLoading(endOfPaginationReached = false),
-                    prepend = NotLoading(endOfPaginationReached = false),
-                    append = NotLoading(endOfPaginationReached = false)
-                )
-            ),
-            combinedLoadStates
-        )
+        assertEquals(localLoadStatesOf(), combinedLoadStates)
         assertEquals(10, itemCount)
         assertEquals(10, differ.itemCount)
 
         // Append
         differ.getItem(9)
         advanceUntilIdle()
-        assertEquals(
-            CombinedLoadStates(
-                source = LoadStates(
-                    refresh = NotLoading(endOfPaginationReached = false),
-                    prepend = NotLoading(endOfPaginationReached = false),
-                    append = NotLoading(endOfPaginationReached = false)
-                )
-            ),
-            combinedLoadStates
-        )
+        assertEquals(localLoadStatesOf(), combinedLoadStates)
         assertEquals(20, itemCount)
         assertEquals(20, differ.itemCount)
 
         // Prepend
         differ.getItem(0)
         advanceUntilIdle()
-        assertEquals(
-            CombinedLoadStates(
-                source = LoadStates(
-                    refresh = NotLoading(endOfPaginationReached = false),
-                    prepend = NotLoading(endOfPaginationReached = false),
-                    append = NotLoading(endOfPaginationReached = false)
-                )
-            ),
-            combinedLoadStates
-        )
+        assertEquals(localLoadStatesOf(), combinedLoadStates)
         assertEquals(30, itemCount)
         assertEquals(30, differ.itemCount)
 
@@ -584,48 +558,21 @@ class AsyncPagingDataDifferTest {
 
             // Initial refresh
             advanceUntilIdle()
-            assertEquals(
-                CombinedLoadStates(
-                    source = LoadStates(
-                        refresh = NotLoading(endOfPaginationReached = false),
-                        prepend = NotLoading(endOfPaginationReached = false),
-                        append = NotLoading(endOfPaginationReached = false)
-                    )
-                ),
-                combinedLoadStates
-            )
+            assertEquals(localLoadStatesOf(), combinedLoadStates)
             assertEquals(10, itemCount)
             assertEquals(10, differ.itemCount)
 
             // Append
             differ.getItem(9)
             advanceUntilIdle()
-            assertEquals(
-                CombinedLoadStates(
-                    source = LoadStates(
-                        refresh = NotLoading(endOfPaginationReached = false),
-                        prepend = NotLoading(endOfPaginationReached = false),
-                        append = NotLoading(endOfPaginationReached = false)
-                    )
-                ),
-                combinedLoadStates
-            )
+            assertEquals(localLoadStatesOf(), combinedLoadStates)
             assertEquals(20, itemCount)
             assertEquals(20, differ.itemCount)
 
             // Prepend
             differ.getItem(0)
             advanceUntilIdle()
-            assertEquals(
-                CombinedLoadStates(
-                    source = LoadStates(
-                        refresh = NotLoading(endOfPaginationReached = false),
-                        prepend = NotLoading(endOfPaginationReached = false),
-                        append = NotLoading(endOfPaginationReached = false)
-                    )
-                ),
-                combinedLoadStates
-            )
+            assertEquals(localLoadStatesOf(), combinedLoadStates)
             assertEquals(30, itemCount)
             assertEquals(30, differ.itemCount)
 

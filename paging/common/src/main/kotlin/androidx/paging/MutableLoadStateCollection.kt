@@ -16,27 +16,45 @@
 
 package androidx.paging
 
-import androidx.annotation.RestrictTo
+import androidx.paging.LoadState.Error
+import androidx.paging.LoadState.Loading
+import androidx.paging.LoadState.NotLoading
 
 /**
- * TODO: Remove this once [PageEvent.LoadStateUpdate] contained [CombinedLoadStates].
- *
- * @hide
+ * Helper to construct [CombinedLoadStates] that accounts for previous state to set the convenience
+ * properties correctly.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class MutableLoadStateCollection {
+internal class MutableLoadStateCollection {
+    private var refresh: LoadState = NotLoading.Incomplete
+    private var prepend: LoadState = NotLoading.Incomplete
+    private var append: LoadState = NotLoading.Incomplete
     private var source: LoadStates = LoadStates.IDLE
     private var mediator: LoadStates? = null
 
-    fun snapshot() = CombinedLoadStates(source, mediator)
+    fun snapshot() = CombinedLoadStates(
+        refresh = refresh,
+        prepend = prepend,
+        append = append,
+        source = source,
+        mediator = mediator,
+    )
 
     fun set(combinedLoadStates: CombinedLoadStates) {
+        refresh = combinedLoadStates.refresh
+        prepend = combinedLoadStates.prepend
+        append = combinedLoadStates.append
         source = combinedLoadStates.source
         mediator = combinedLoadStates.mediator
     }
 
+    fun set(sourceLoadStates: LoadStates, remoteLoadStates: LoadStates?) {
+        source = sourceLoadStates
+        mediator = remoteLoadStates
+        updateHelperStates()
+    }
+
     fun set(type: LoadType, remote: Boolean, state: LoadState): Boolean {
-        return if (remote) {
+        val didChange = if (remote) {
             val lastMediator = mediator
             mediator = (mediator ?: LoadStates.IDLE).modifyState(type, state)
             mediator != lastMediator
@@ -45,10 +63,59 @@ class MutableLoadStateCollection {
             source = source.modifyState(type, state)
             source != lastSource
         }
+
+        updateHelperStates()
+        return didChange
     }
 
     fun get(type: LoadType, remote: Boolean): LoadState? {
         return (if (remote) mediator else source)?.get(type)
+    }
+
+    private fun updateHelperStates() {
+        refresh = computeHelperState(
+            previousState = refresh,
+            sourceRefreshState = source.refresh,
+            sourceState = source.refresh,
+            remoteState = mediator?.refresh
+        )
+        prepend = computeHelperState(
+            previousState = prepend,
+            sourceRefreshState = source.refresh,
+            sourceState = source.prepend,
+            remoteState = mediator?.prepend
+        )
+        append = computeHelperState(
+            previousState = append,
+            sourceRefreshState = source.refresh,
+            sourceState = source.append,
+            remoteState = mediator?.append
+        )
+    }
+
+    /**
+     * Computes the next value for the convenience helpers in [CombinedLoadStates], which
+     * generally defers to remote state, but waits for both source and remote states to become
+     * [NotLoading] before moving to that state. This provides a reasonable default for the common
+     * use-case where you generally want to wait for both RemoteMediator to return and for the
+     * update to get applied before signaling to UI that a network fetch has "finished".
+     */
+    private fun computeHelperState(
+        previousState: LoadState,
+        sourceRefreshState: LoadState,
+        sourceState: LoadState,
+        remoteState: LoadState?
+    ): LoadState {
+        if (remoteState == null) return sourceState
+
+        return when (previousState) {
+            is Loading -> when {
+                sourceRefreshState is NotLoading && remoteState is NotLoading -> remoteState
+                remoteState is Error -> remoteState
+                else -> previousState
+            }
+            else -> remoteState
+        }
     }
 
     internal inline fun forEach(op: (LoadType, Boolean, LoadState) -> Unit) {
@@ -58,5 +125,10 @@ class MutableLoadStateCollection {
         mediator?.forEach { type, state ->
             op(type, true, state)
         }
+    }
+
+    internal fun terminates(loadType: LoadType): Boolean {
+        return get(loadType, false)!!.endOfPaginationReached &&
+            get(loadType, true)?.endOfPaginationReached != false
     }
 }
