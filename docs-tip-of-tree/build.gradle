@@ -191,6 +191,7 @@ dependencies {
     docs(project(":room:room-testing"))
     docs(project(":savedstate:savedstate"))
     docs(project(":savedstate:savedstate-ktx"))
+    docs(project(":security:security-app-authenticator"))
     docs(project(":security:security-biometric"))
     docs(project(":security:security-crypto"))
     docs(project(":security:security-crypto-ktx"))
