@@ -76,8 +76,8 @@ public final class CarAppExtenderTest {
         assertThat(carAppExtender.isExtended()).isFalse();
         assertThat(carAppExtender.getContentTitle()).isNull();
         assertThat(carAppExtender.getContentText()).isNull();
-        assertThat(carAppExtender.getSmallIconResId()).isEqualTo(0);
-        assertThat(carAppExtender.getLargeIconBitmap()).isNull();
+        assertThat(carAppExtender.getSmallIcon()).isEqualTo(0);
+        assertThat(carAppExtender.getLargeIcon()).isNull();
         assertThat(carAppExtender.getContentIntent()).isNull();
         assertThat(carAppExtender.getDeleteIntent()).isNull();
         assertThat(carAppExtender.getActions()).isEmpty();
@@ -134,7 +134,7 @@ public final class CarAppExtenderTest {
                 new NotificationCompat.Builder(mContext, NOTIFICATION_CHANNEL_ID)
                         .extend(CarAppExtender.builder().setSmallIcon(resId).build());
 
-        assertThat(new CarAppExtender(builder.build()).getSmallIconResId()).isEqualTo(resId);
+        assertThat(new CarAppExtender(builder.build()).getSmallIcon()).isEqualTo(resId);
     }
 
     @Test
@@ -144,7 +144,7 @@ public final class CarAppExtenderTest {
                 new NotificationCompat.Builder(mContext, NOTIFICATION_CHANNEL_ID)
                         .extend(CarAppExtender.builder().setLargeIcon(bitmap).build());
 
-        assertThat(new CarAppExtender(builder.build()).getLargeIconBitmap()).isEqualTo(bitmap);
+        assertThat(new CarAppExtender(builder.build()).getLargeIcon()).isEqualTo(bitmap);
     }
 
     @Test

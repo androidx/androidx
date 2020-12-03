@@ -62,7 +62,7 @@ public class RoutePreviewNavigationTemplateTest {
                 () -> RoutePreviewNavigationTemplate.builder().setTitle("Title").build());
 
         // Positive case
-        RoutePreviewNavigationTemplate.builder().setTitle("Title").setIsLoading(true).build();
+        RoutePreviewNavigationTemplate.builder().setTitle("Title").setLoading(true).build();
     }
 
     @Test
@@ -71,7 +71,7 @@ public class RoutePreviewNavigationTemplateTest {
                 IllegalStateException.class,
                 () -> RoutePreviewNavigationTemplate.builder()
                         .setTitle("Title")
-                        .setIsLoading(true)
+                        .setLoading(true)
                         .setItemList(
                                 TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
                         .build());
@@ -127,13 +127,13 @@ public class RoutePreviewNavigationTemplateTest {
     public void noHeaderTitleOrAction_throws() {
         assertThrows(
                 IllegalStateException.class,
-                () -> RoutePreviewNavigationTemplate.builder().setIsLoading(true).build());
+                () -> RoutePreviewNavigationTemplate.builder().setLoading(true).build());
 
         // Positive cases.
-        RoutePreviewNavigationTemplate.builder().setTitle("Title").setIsLoading(true).build();
+        RoutePreviewNavigationTemplate.builder().setTitle("Title").setLoading(true).build();
         RoutePreviewNavigationTemplate.builder()
                 .setHeaderAction(Action.BACK)
-                .setIsLoading(true)
+                .setLoading(true)
                 .build();
     }
 
@@ -216,7 +216,7 @@ public class RoutePreviewNavigationTemplateTest {
                         .build());
 
         // Positive case
-        RoutePreviewNavigationTemplate.builder().setTitle("Title").setIsLoading(true).build();
+        RoutePreviewNavigationTemplate.builder().setTitle("Title").setLoading(true).build();
     }
 
     @Test
@@ -234,7 +234,7 @@ public class RoutePreviewNavigationTemplateTest {
                         .build());
 
         // Positive case
-        RoutePreviewNavigationTemplate.builder().setTitle("Title").setIsLoading(true).build();
+        RoutePreviewNavigationTemplate.builder().setTitle("Title").setLoading(true).build();
     }
 
     @Test

@@ -54,7 +54,7 @@ public class RoutingInfoTest {
         assertThrows(
                 IllegalStateException.class,
                 () -> RoutingInfo.builder()
-                        .setIsLoading(true)
+                        .setLoading(true)
                         .setCurrentStep(mCurrentStep, mCurrentDistance)
                         .build());
     }
