@@ -924,6 +924,7 @@ package androidx.leanback.app {
     method @Deprecated public void onCreate(android.os.Bundle!);
     method @Deprecated public android.view.View! onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
     method @Deprecated public void onDestroy();
+    method @Deprecated public void onDestroyView();
     method @Deprecated public void onPause();
     method @Deprecated public void onRequestPermissionsResult(int, String![]!, int[]!);
     method @Deprecated public void onResume();
