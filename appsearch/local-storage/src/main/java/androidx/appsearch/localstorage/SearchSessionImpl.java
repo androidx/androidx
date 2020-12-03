@@ -31,10 +31,13 @@ import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.localstorage.util.FutureUtil;
+import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -67,8 +70,10 @@ class SearchSessionImpl implements AppSearchSession {
         return execute(() -> {
             try {
                 mAppSearchImpl.setSchema(
-                        mDatabaseName, request.getSchemas(),
-                        request.getSchemasNotPlatformSurfaceable(), request.isForceOverride());
+                        mDatabaseName,
+                        new ArrayList<>(request.getSchemas()),
+                        new ArrayList<>(request.getSchemasNotPlatformSurfaceable()),
+                        request.isForceOverride());
                 return AppSearchResult.newSuccessfulResult(/*value=*/ null);
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
@@ -81,7 +86,8 @@ class SearchSessionImpl implements AppSearchSession {
     public ListenableFuture<AppSearchResult<Set<AppSearchSchema>>> getSchema() {
         return execute(() -> {
             try {
-                return AppSearchResult.newSuccessfulResult(mAppSearchImpl.getSchema(mDatabaseName));
+                List<AppSearchSchema> schemas = mAppSearchImpl.getSchema(mDatabaseName);
+                return AppSearchResult.newSuccessfulResult(new ArraySet<>(schemas));
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
             }
