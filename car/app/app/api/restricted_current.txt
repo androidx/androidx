@@ -24,6 +24,7 @@ package androidx.car.app {
 
   public abstract class CarAppService extends android.app.Service {
     ctor public CarAppService();
+    method public abstract void configureHostValidator(androidx.car.app.utils.HostValidator.Builder);
     method @CallSuper public final void dump(java.io.FileDescriptor, java.io.PrintWriter, String![]?);
     method public final androidx.car.app.Session? getCurrentSession();
     method public final androidx.car.app.HostInfo? getHostInfo();
@@ -1045,6 +1046,27 @@ package androidx.car.app.serialization {
   public class BundlerException extends java.lang.Exception {
     ctor public BundlerException(String?, Throwable);
     ctor public BundlerException(String?);
+  }
+
+}
+
+package androidx.car.app.utils {
+
+  public final class HostValidator {
+    method public java.util.Map<java.lang.String!,java.lang.String!> getAllowListedHosts();
+    method public java.util.Set<java.lang.String!> getDenyListedHosts();
+    method public boolean isAllowUnknownHostsEnabled();
+    method public boolean isValidHost(androidx.car.app.HostInfo);
+    field public static final String TEMPLATE_RENDERER_PERMISSION = "android.car.permission.TEMPLATE_RENDERER";
+  }
+
+  public static final class HostValidator.Builder {
+    ctor public HostValidator.Builder(android.content.Context);
+    method public androidx.car.app.utils.HostValidator.Builder addAllowListedHost(String, String);
+    method public androidx.car.app.utils.HostValidator.Builder addAllowListedHosts(@ArrayRes int);
+    method public androidx.car.app.utils.HostValidator.Builder addDenyListedHost(String);
+    method public androidx.car.app.utils.HostValidator build();
+    method public androidx.car.app.utils.HostValidator.Builder setAllowUnknownHostsEnabled(boolean);
   }
 
 }

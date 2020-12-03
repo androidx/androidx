@@ -35,6 +35,7 @@ import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.testing.CarAppServiceController;
 import androidx.car.app.testing.TestCarContext;
+import androidx.car.app.utils.HostValidator;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
@@ -82,6 +83,18 @@ public final class CarAppServiceTest {
                 ApplicationProvider.getApplicationContext());
         mCarAppService =
                 new CarAppService() {
+                    @Override
+                    public void onCreate() {
+                        attachBaseContext(mCarContext);
+                        super.onCreate();
+                    }
+
+                    @Override
+                    public void configureHostValidator(
+                            @NonNull HostValidator.Builder hostValidatorBuilder) {
+                        hostValidatorBuilder.setAllowUnknownHostsEnabled(true);
+                    }
+
                     @Override
                     @NonNull
                     public Session onCreateSession() {
@@ -247,7 +260,8 @@ public final class CarAppServiceTest {
     }
 
     @Test
-    public void onHandshakeCompleted_updatesHostInfo() throws RemoteException, BundlerException {
+    public void onHandshakeCompleted_updatesHostInfo()
+            throws RemoteException, BundlerException, InterruptedException {
         String hostPackageName = "com.google.projection.gearhead";
         ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
         HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName, CarAppApiLevels.LEVEL_1);
