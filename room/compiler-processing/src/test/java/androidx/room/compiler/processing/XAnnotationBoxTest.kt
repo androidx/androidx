@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.processing.testcode.JavaAnnotationWithDefaults
+import androidx.room.compiler.processing.testcode.JavaEnum
 import androidx.room.compiler.processing.testcode.MainAnnotation
 import androidx.room.compiler.processing.testcode.OtherAnnotation
 import androidx.room.compiler.processing.util.Source
@@ -27,9 +29,11 @@ import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
 import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import com.squareup.javapoet.ClassName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.LinkedHashMap
 
 @RunWith(JUnit4::class)
 class XAnnotationBoxTest {
@@ -313,6 +317,76 @@ class XAnnotationBoxTest {
             subject.getMethod("getX").assertHasSuppressWithValue("onGetter")
             subject.getMethod("setX").assertHasSuppressWithValue("onSetter")
             subject.getField("x").assertHasSuppressWithValue("onField")
+        }
+    }
+
+    @Test
+    fun defaultValues() {
+        val kotlinSrc = Source.kotlin(
+            "KotlinClass.kt",
+            """
+            import androidx.room.compiler.processing.testcode.JavaAnnotationWithDefaults
+            @JavaAnnotationWithDefaults
+            class KotlinClass
+            """.trimIndent()
+        )
+        val javaSrc = Source.java(
+            "JavaClass.java",
+            """
+            import androidx.room.compiler.processing.testcode.JavaAnnotationWithDefaults;
+            @JavaAnnotationWithDefaults
+            class JavaClass {}
+            """.trimIndent()
+        )
+        runProcessorTestIncludingKsp(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
+            listOf("KotlinClass", "JavaClass")
+                .map {
+                    invocation.processingEnv.requireTypeElement(it)
+                }.forEach { typeElement ->
+                    val annotation =
+                        typeElement.toAnnotationBox(JavaAnnotationWithDefaults::class)
+                    checkNotNull(annotation)
+                    assertThat(annotation.value.intVal).isEqualTo(3)
+                    assertThat(annotation.value.stringArrayVal).isEqualTo(arrayOf("x", "y"))
+                    assertThat(annotation.value.stringVal).isEqualTo("foo")
+                    assertThat(
+                        annotation.getAsType("typeVal")?.rawType?.typeName
+                    ).isEqualTo(
+                        ClassName.get(HashMap::class.java)
+                    )
+                    assertThat(
+                        annotation.getAsTypeList("typeArrayVal").map {
+                            it.rawType.typeName
+                        }
+                    ).isEqualTo(
+                        listOf(ClassName.get(LinkedHashMap::class.java))
+                    )
+
+                    assertThat(
+                        annotation.value.enumVal
+                    ).isEqualTo(
+                        JavaEnum.DEFAULT
+                    )
+
+                    assertThat(
+                        annotation.value.enumArrayVal
+                    ).isEqualTo(
+                        arrayOf(JavaEnum.VAL1, JavaEnum.VAL2)
+                    )
+
+                    assertThat(
+                        annotation.getAsAnnotationBox<OtherAnnotation>("otherAnnotationVal")
+                            .value.value
+                    ).isEqualTo("def")
+
+                    assertThat(
+                        annotation
+                            .getAsAnnotationBoxArray<OtherAnnotation>("otherAnnotationArrayVal")
+                            .map {
+                                it.value.value
+                            }
+                    ).containsExactly("v1")
+                }
         }
     }
 
