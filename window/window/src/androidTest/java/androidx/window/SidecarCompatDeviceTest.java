@@ -112,7 +112,9 @@ public class SidecarCompatDeviceTest extends WindowTestBase implements CompatDev
                 return false;
             }
             for (int i = 0; i < windowLayoutInfo.getDisplayFeatures().size(); i++) {
-                DisplayFeature feature = windowLayoutInfo.getDisplayFeatures().get(i);
+                // Sidecar only has folding features
+                FoldingFeature feature = (FoldingFeature) windowLayoutInfo.getDisplayFeatures()
+                        .get(i);
                 SidecarDisplayFeature sidecarDisplayFeature = sidecarDisplayFeatures.get(i);
 
                 if (feature.getType() != sidecarDisplayFeature.getType()) {

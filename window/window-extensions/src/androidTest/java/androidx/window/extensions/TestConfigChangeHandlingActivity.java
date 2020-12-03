@@ -16,21 +16,6 @@
 
 package androidx.window.extensions;
 
-import android.graphics.Rect;
-
-import androidx.annotation.NonNull;
-
-/**
- * Description of a physical feature on the display.
- */
-public interface ExtensionDisplayFeature {
-
-    /**
-     * The bounding rectangle of the feature within the application window
-     * in the window coordinate space.
-     *
-     * @return bounds of display feature.
-     */
-    @NonNull
-    Rect getBounds();
+/** Activity that handles orientation configuration change. */
+public final class TestConfigChangeHandlingActivity extends TestActivity {
 }
