@@ -17,7 +17,7 @@
 package androidx.inspection.gradle
 
 import com.android.build.gradle.api.BaseVariant
-import org.anarres.gradle.plugin.jarjar.JarjarTask
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.Project
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.TaskProvider
@@ -27,29 +27,29 @@ import java.util.jar.JarFile
 
 // variant.taskName relies on @ExperimentalStdlibApi api
 @ExperimentalStdlibApi
-fun Project.registerJarJarDependenciesTask(
+fun Project.registerShadowDependenciesTask(
     variant: BaseVariant,
     zipTask: TaskProvider<Copy>
-): TaskProvider<JarjarTask> {
+): TaskProvider<ShadowJar> {
     val uberJar = registerUberJarTask(variant)
     return tasks.register(
-        variant.taskName("jarJarDependencies"),
-        JarjarTask::class.java
+        variant.taskName("shadowDependencies"),
+        ShadowJar::class.java
     ) {
         it.dependsOn(uberJar)
         val fileTree = project.fileTree(zipTask.get().destinationDir)
         fileTree.include("**/*.jar")
         it.from(fileTree)
-        it.destinationDir = taskWorkingDir(variant, "jarJar")
-        it.destinationName = "${project.name}-shadowed.jar"
+        it.destinationDirectory.set(taskWorkingDir(variant, "shadowedJar"))
+        it.archiveBaseName.set("${project.name}-shadowed")
         it.dependsOn(zipTask)
         val prefix = "deps.${project.name.replace('-', '.')}"
         it.doFirst {
-            val task = it as JarjarTask
+            val task = it as ShadowJar
             val input = uberJar.get().outputs.files
             task.from(input)
             input.extractPackageNames().forEach { packageName ->
-                task.classRename("$packageName.**", "$prefix.$packageName.@1")
+                task.relocate(packageName, "$prefix.$packageName")
             }
         }
     }
