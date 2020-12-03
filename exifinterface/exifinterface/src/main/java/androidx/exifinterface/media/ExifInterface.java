@@ -5151,9 +5151,21 @@ public class ExifInterface {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setDateTime(@NonNull Long timeStamp) {
-        long sub = timeStamp % 1000;
+        if (timeStamp == null) {
+            throw new NullPointerException("Timestamp should not be null.");
+        }
+
+        if (timeStamp < 0) {
+            throw new IllegalArgumentException("Timestamp should a positive value.");
+        }
+
+        long subsec = timeStamp % 1000;
+        String subsecString = Long.toString(subsec);
+        for (int i = subsecString.length(); i < 3; i++) {
+            subsecString = "0" + subsecString;
+        }
         setAttribute(TAG_DATETIME, sFormatterPrimary.format(new Date(timeStamp)));
-        setAttribute(TAG_SUBSEC_TIME, Long.toString(sub));
+        setAttribute(TAG_SUBSEC_TIME, subsecString);
     }
 
     /**
