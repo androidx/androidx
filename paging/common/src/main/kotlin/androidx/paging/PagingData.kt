@@ -143,13 +143,15 @@ class PagingData<T : Any> internal constructor(
                     placeholdersBefore = 0,
                     placeholdersAfter = 0,
                     combinedLoadStates = CombinedLoadStates(
+                        refresh = LoadState.NotLoading.Incomplete,
+                        prepend = LoadState.NotLoading.Complete,
+                        append = LoadState.NotLoading.Complete,
                         source = LoadStates(
                             refresh = LoadState.NotLoading.Incomplete,
                             prepend = LoadState.NotLoading.Complete,
                             append = LoadState.NotLoading.Complete
                         )
                     )
-
                 )
             ),
             receiver = NOOP_RECEIVER

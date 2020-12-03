@@ -39,6 +39,7 @@ import kotlin.test.fail
 class RemoteMediatorAccessorTest {
     private val testScope = TestCoroutineScope()
     private var mockStateId = 0
+
     // creates a unique state using the anchor position to be able to do equals check in assertions
     private fun createMockState(
         anchorPosition: Int? = mockStateId++
@@ -48,6 +49,110 @@ class RemoteMediatorAccessorTest {
             anchorPosition = anchorPosition,
             config = PagingConfig(10),
             leadingPlaceholderCount = COUNT_UNDEFINED
+        )
+    }
+
+    @Test
+    fun load_reportsPrependLoadState() = testScope.runBlockingTest {
+        val emptyState = PagingState<Int, Int>(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
+        val remoteMediator = RemoteMediatorMock(loadDelay = 1000)
+        val remoteMediatorAccessor = createAccessor(remoteMediator)
+
+        // Assert initial state is NotLoading.Incomplete.
+        assertEquals(
+            LoadStates.IDLE.copy(prepend = LoadState.NotLoading.Incomplete),
+            remoteMediatorAccessor.state.value,
+        )
+
+        // Start a PREPEND load.
+        remoteMediatorAccessor.requestLoad(
+            loadType = PREPEND,
+            pagingState = emptyState,
+        )
+
+        // Assert state is immediately set to Loading.
+        assertEquals(
+            LoadStates.IDLE.copy(prepend = LoadState.Loading),
+            remoteMediatorAccessor.state.value,
+        )
+
+        // Wait for load to finish.
+        advanceUntilIdle()
+
+        // Assert state is set to NotLoading.Incomplete.
+        assertEquals(
+            LoadStates.IDLE.copy(prepend = LoadState.NotLoading.Incomplete),
+            remoteMediatorAccessor.state.value,
+        )
+
+        // Start a PREPEND load which results in endOfPaginationReached = true.
+        remoteMediator.loadCallback = { _, _ ->
+            RemoteMediator.MediatorResult.Success(endOfPaginationReached = true)
+        }
+        remoteMediatorAccessor.requestLoad(
+            loadType = PREPEND,
+            pagingState = emptyState,
+        )
+
+        // Wait for load to finish.
+        advanceUntilIdle()
+
+        // Assert state is set to NotLoading.Incomplete.
+        assertEquals(
+            LoadStates.IDLE.copy(prepend = LoadState.NotLoading.Complete),
+            remoteMediatorAccessor.state.value,
+        )
+    }
+
+    @Test
+    fun load_reportsAppendLoadState() = testScope.runBlockingTest {
+        val emptyState = PagingState<Int, Int>(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
+        val remoteMediator = RemoteMediatorMock(loadDelay = 1000)
+        val remoteMediatorAccessor = createAccessor(remoteMediator)
+
+        // Assert initial state is NotLoading.Incomplete.
+        assertEquals(
+            LoadStates.IDLE.copy(prepend = LoadState.NotLoading.Incomplete),
+            remoteMediatorAccessor.state.value,
+        )
+
+        // Start a APPEND load.
+        remoteMediatorAccessor.requestLoad(
+            loadType = APPEND,
+            pagingState = emptyState,
+        )
+
+        // Assert state is immediately set to Loading.
+        assertEquals(
+            LoadStates.IDLE.copy(append = LoadState.Loading),
+            remoteMediatorAccessor.state.value,
+        )
+
+        // Wait for load to finish.
+        advanceUntilIdle()
+
+        // Assert state is set to NotLoading.Incomplete.
+        assertEquals(
+            LoadStates.IDLE.copy(append = LoadState.NotLoading.Incomplete),
+            remoteMediatorAccessor.state.value,
+        )
+
+        // Start a APPEND load which results in endOfPaginationReached = true.
+        remoteMediator.loadCallback = { _, _ ->
+            RemoteMediator.MediatorResult.Success(endOfPaginationReached = true)
+        }
+        remoteMediatorAccessor.requestLoad(
+            loadType = APPEND,
+            pagingState = emptyState,
+        )
+
+        // Wait for load to finish.
+        advanceUntilIdle()
+
+        // Assert state is set to NotLoading.Incomplete.
+        assertEquals(
+            LoadStates.IDLE.copy(append = LoadState.NotLoading.Complete),
+            remoteMediatorAccessor.state.value,
         )
     }
 

@@ -76,7 +76,7 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
                         Customer().apply {
                             id = -1
                             name = "RIGHT ABOVE DIVIDER"
-                            lastName = "LAST NAME"
+                            lastName = "RIGHT ABOVE DIVIDER"
                         }
                     }
                 }
@@ -85,19 +85,21 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
                         Customer().apply {
                             id = -2
                             name = "RIGHT BELOW DIVIDER"
-                            lastName = "LAST NAME"
+                            lastName = "RIGHT BELOW DIVIDER"
                         }
                     } else null
                 }
                 .insertHeaderItem(
                     Customer().apply {
                         id = Int.MIN_VALUE
+                        name = "HEADER"
                         lastName = "HEADER"
                     }
                 )
                 .insertFooterItem(
                     Customer().apply {
                         id = Int.MAX_VALUE
+                        name = "FOOTER"
                         lastName = "FOOTER"
                     }
                 )
