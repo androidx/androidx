@@ -18,33 +18,29 @@ package androidx.biometric.integration.testapp
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
+import androidx.biometric.integration.testapp.databinding.MainActivityBinding
 import androidx.fragment.app.FragmentActivity
 
 /**
  * Main activity for the AndroidX Biometric test app.
  */
 class MainActivity : FragmentActivity() {
+    private lateinit var binding: MainActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = MainActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        findViewById<Button>(R.id.biometricprompt_api).setOnClickListener {
-            launchBiometricTestActivity()
-        }
-        findViewById<Button>(R.id.authprompt_api).setOnClickListener {
-            launchAuthPromptTestActivity()
-        }
+        // Set button callbacks.
+        binding.biometricPromptButton.setOnClickListener { launch<BiometricPromptTestActivity>() }
+        binding.authPromptButton.setOnClickListener { launch<AuthPromptTestActivity>() }
     }
 
-    private fun launchBiometricTestActivity() {
-        val intent = Intent(this, BiometricTestActivity::class.java)
-        startActivity(intent)
-    }
-
-    private fun launchAuthPromptTestActivity() {
-        val intent = Intent(this, AuthPromptTestActivity::class.java)
-        startActivity(intent)
+    /**
+     * Launches an instance of the given test activity [T].
+     */
+    private inline fun <reified T : FragmentActivity> launch() {
+        startActivity(Intent(this, T::class.java))
     }
 }

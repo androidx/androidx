@@ -16,11 +16,8 @@
 
 package androidx.biometric.integration.testapp
 
-import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
-import android.security.keystore.KeyGenParameterSpec
-import android.security.keystore.KeyProperties
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.biometric.BiometricManager
@@ -33,86 +30,24 @@ import androidx.biometric.auth.startClass2BiometricOrCredentialAuthentication
 import androidx.biometric.auth.startClass3BiometricAuthentication
 import androidx.biometric.auth.startClass3BiometricOrCredentialAuthentication
 import androidx.biometric.auth.startCredentialAuthentication
-import androidx.biometric.integration.testapp.R.layout.activity_authprompt_test
 import androidx.biometric.integration.testapp.R.string.biometric_prompt_description
-import androidx.biometric.integration.testapp.R.string.biometric_prompt_negative_label
+import androidx.biometric.integration.testapp.R.string.biometric_prompt_negative_text
 import androidx.biometric.integration.testapp.R.string.biometric_prompt_subtitle
 import androidx.biometric.integration.testapp.R.string.biometric_prompt_title
-import androidx.biometric.integration.testapp.TestUtils.KEYSTORE_INSTANCE
-import androidx.biometric.integration.testapp.TestUtils.KEY_LOG_TEXT
-import androidx.biometric.integration.testapp.TestUtils.KEY_NAME
-import androidx.biometric.integration.testapp.TestUtils.PAYLOAD
-import androidx.biometric.integration.testapp.TestUtils.getCipher
-import androidx.biometric.integration.testapp.TestUtils.getSecretKey
-import androidx.biometric.integration.testapp.TestUtils.toAuthenticationStatusString
-import androidx.biometric.integration.testapp.TestUtils.toDataString
+import androidx.biometric.integration.testapp.databinding.AuthPromptTestActivityBinding
 import androidx.fragment.app.FragmentActivity
-import kotlinx.android.synthetic.main.activity_authprompt_test.authType
-import kotlinx.android.synthetic.main.activity_authprompt_test.button_authenticate
-import kotlinx.android.synthetic.main.activity_authprompt_test.button_can_authenticate
-import kotlinx.android.synthetic.main.activity_authprompt_test.button_clear_log
-import kotlinx.android.synthetic.main.activity_authprompt_test.checkbox_cancel_config_change
-import kotlinx.android.synthetic.main.activity_authprompt_test.checkbox_require_confirmation
-import kotlinx.android.synthetic.main.activity_authprompt_test.checkbox_use_crypto_auth
-import kotlinx.android.synthetic.main.activity_authprompt_test.class2_biometric_button
-import kotlinx.android.synthetic.main.activity_authprompt_test.class2_biometric_or_credential_button
-import kotlinx.android.synthetic.main.activity_authprompt_test.class3_biometric_button
-import kotlinx.android.synthetic.main.activity_authprompt_test.class3_biometric_or_credential_button
-import kotlinx.android.synthetic.main.activity_authprompt_test.credential_button
-import kotlinx.android.synthetic.main.activity_authprompt_test.text_view_log
 import java.nio.charset.Charset
-import javax.crypto.Cipher
-import javax.crypto.KeyGenerator.getInstance
 
 /**
- * Main activity for the AndroidX Biometric test app.
+ * Interactive test activity for the [androidx.biometric.auth] APIs.
  */
 class AuthPromptTestActivity : FragmentActivity() {
+    private lateinit var binding: AuthPromptTestActivityBinding
 
     /**
-     * Sample custom callback that logs all authentication events
+     * A handle to the prompt for an ongoing authentication session.
      */
-    private class MyCallback(val useCryptoAuth: Boolean) : AuthPromptCallback() {
-
-        @SuppressLint("SyntheticAccessor")
-        override fun onAuthenticationError(
-            activity: FragmentActivity?,
-            errorCode: Int,
-            errString: CharSequence
-        ) {
-            super.onAuthenticationError(activity, errorCode, errString)
-            activity as AuthPromptTestActivity
-            activity.log("onAuthenticationError $errorCode: $errString")
-        }
-
-        @SuppressLint("SyntheticAccessor")
-        override fun onAuthenticationSucceeded(
-            activity: FragmentActivity?,
-            result: BiometricPrompt.AuthenticationResult
-        ) {
-            super.onAuthenticationSucceeded(activity, result)
-            activity as AuthPromptTestActivity
-            activity.log("onAuthenticationSucceeded: ${result.toDataString()}")
-
-            // Encrypt a test payload using the result of crypto-based auth.
-            if (useCryptoAuth) {
-                val encryptedPayload = result.cryptoObject?.cipher?.doFinal(
-                    PAYLOAD.toByteArray(Charset.defaultCharset())
-                )
-                activity.log("Encrypted payload: ${encryptedPayload?.contentToString()}")
-            }
-        }
-
-        @SuppressLint("SyntheticAccessor")
-        override fun onAuthenticationFailed(activity: FragmentActivity?) {
-            super.onAuthenticationFailed(activity)
-            activity as AuthPromptTestActivity
-            activity.log("onAuthenticationFailed")
-        }
-    }
-
-    // Individual UI elements.
-    private lateinit var authPrompt: AuthPrompt // The new API prompt used for authentication.
+    private var authPrompt: AuthPrompt? = null
 
     /**
      * A bit field representing the currently allowed authenticator type(s).
@@ -120,78 +55,78 @@ class AuthPromptTestActivity : FragmentActivity() {
     private val allowedAuthenticators: Int
         get() {
             var authenticators = 0
-            if (class3_biometric_button.isChecked ||
-                class3_biometric_or_credential_button.isChecked
+
+            if (binding.class3BiometricButton.isChecked ||
+                binding.class3BiometricOrCredentialButton.isChecked
             ) {
                 authenticators = authenticators or Authenticators.BIOMETRIC_STRONG
             }
-            if (class2_biometric_button.isChecked ||
-                class2_biometric_or_credential_button.isChecked
+
+            if (binding.class2BiometricButton.isChecked ||
+                binding.class2BiometricOrCredentialButton.isChecked
             ) {
                 authenticators = authenticators or Authenticators.BIOMETRIC_WEAK
             }
-            if (class2_biometric_or_credential_button.isChecked ||
-                class3_biometric_or_credential_button.isChecked ||
-                credential_button.isChecked
+
+            if (binding.class2BiometricOrCredentialButton.isChecked ||
+                binding.class3BiometricOrCredentialButton.isChecked ||
+                binding.credentialButton.isChecked
             ) {
                 authenticators = authenticators or Authenticators.DEVICE_CREDENTIAL
             }
+
             return authenticators
         }
 
     /**
-     * A bit field representing the authentication type(s) that can authorize use of the secret key.
+     * Whether the selected options allow for biometric authentication.
      */
-    private val keyType: Int
-        @RequiresApi(Build.VERSION_CODES.R)
+    private val isBiometricAllowed: Boolean
         get() {
-            var type = 0
-            if (class3_biometric_button.isChecked ||
-                class3_biometric_or_credential_button.isChecked
-            ) {
-                type = type or KeyProperties.AUTH_BIOMETRIC_STRONG
-            }
-            if (class2_biometric_or_credential_button.isChecked ||
-                class3_biometric_or_credential_button.isChecked ||
-                credential_button.isChecked
-            ) {
-                type = type or KeyProperties.AUTH_DEVICE_CREDENTIAL
-            }
-            return type
+            return binding.class2BiometricButton.isChecked ||
+                binding.class2BiometricOrCredentialButton.isChecked ||
+                binding.class3BiometricButton.isChecked ||
+                binding.class3BiometricOrCredentialButton.isChecked
+        }
+
+    /**
+     * Whether the selected options allow for device credential authentication.
+     */
+    private val isCredentialAllowed: Boolean
+        get() {
+            return binding.class2BiometricOrCredentialButton.isChecked ||
+                binding.class3BiometricOrCredentialButton.isChecked ||
+                binding.credentialButton.isChecked
         }
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(activity_authprompt_test)
-        checkbox_use_crypto_auth.isEnabled = false
+        binding = AuthPromptTestActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            checkbox_use_crypto_auth.isEnabled = false
-        }
-
+        // Disallow unsupported authentication type combinations.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            credential_button.isEnabled = false
-            class3_biometric_or_credential_button.isEnabled = false
+            binding.class3BiometricOrCredentialButton.isEnabled = false
+            binding.credentialButton.isEnabled = false
         }
 
-        authType.setOnCheckedChangeListener { _, checkedAuthClassId ->
-            var enableCrypto = (
-                (checkedAuthClassId != R.id.class2_biometric_button) &&
-                    (checkedAuthClassId != R.id.class2_biometric_or_credential_button)
-                )
-            checkbox_use_crypto_auth.isEnabled = enableCrypto
-            if (!enableCrypto) checkbox_use_crypto_auth.isChecked = enableCrypto
+        // Crypto-based authentication is not supported prior to Android 6.0 (API 23).
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            binding.common.useCryptoAuthCheckbox.isEnabled = false
         }
 
-        // Set the button callbacks.
-        button_can_authenticate.setOnClickListener { canAuthenticate() }
-        button_authenticate.setOnClickListener { authenticate() }
-        button_clear_log.setOnClickListener { clearLog() }
+        // Set button callbacks.
+        binding.authTypeGroup.setOnCheckedChangeListener { _, checkedId ->
+            updateCryptoCheckboxState(checkedId)
+        }
+        binding.common.canAuthenticateButton.setOnClickListener { canAuthenticate() }
+        binding.common.authenticateButton.setOnClickListener { authenticate() }
+        binding.common.clearLogButton.setOnClickListener { clearLog() }
 
         // Restore logged messages on activity recreation (e.g. due to device rotation).
         if (savedInstanceState != null) {
-            text_view_log.text = savedInstanceState.getCharSequence(KEY_LOG_TEXT, "")
+            binding.common.logTextView.text = savedInstanceState.getCharSequence(KEY_LOG_TEXT, "")
         }
     }
 
@@ -199,8 +134,8 @@ class AuthPromptTestActivity : FragmentActivity() {
         super.onStop()
 
         // If option is selected, dismiss the prompt on rotation.
-        if (checkbox_cancel_config_change.isChecked && isChangingConfigurations) {
-            authPrompt.cancelAuthentication()
+        if (binding.common.cancelConfigChangeCheckbox.isChecked && isChangingConfigurations) {
+            authPrompt?.cancelAuthentication()
         }
     }
 
@@ -208,153 +143,179 @@ class AuthPromptTestActivity : FragmentActivity() {
         super.onSaveInstanceState(outState)
 
         // Save the current log messages to be restored on activity recreation.
-        outState.putCharSequence(KEY_LOG_TEXT, text_view_log.text)
+        outState.putCharSequence(KEY_LOG_TEXT, binding.common.logTextView.text)
+    }
+
+    /**
+     * Updates the state of the crypto-based auth checkbox when a given [checkedId] is selected
+     * from the authentication types radio group.
+     */
+    private fun updateCryptoCheckboxState(checkedId: Int) {
+        // Crypto-based authentication is not supported prior to Android 6.0 (API 23).
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return
+        }
+
+        val isCheckboxEnabled = checkedId != R.id.class2_biometric_button &&
+            checkedId != R.id.class2_biometric_or_credential_button
+
+        binding.common.useCryptoAuthCheckbox.isEnabled = isCheckboxEnabled
+        if (!isCheckboxEnabled) {
+            binding.common.useCryptoAuthCheckbox.isChecked = false
+        }
     }
 
     /**
      * Logs the authentication status given by [BiometricManager.canAuthenticate].
      */
-    @SuppressLint("SyntheticAccessor")
     private fun canAuthenticate() {
         val result = BiometricManager.from(this).canAuthenticate(allowedAuthenticators)
         log("canAuthenticate: ${result.toAuthenticationStatusString()}")
     }
 
     /**
-     * Launches the [AuthPrompt] to begin authentication.
+     * Launches the appropriate [AuthPrompt] to begin authentication.
      */
     @RequiresApi(Build.VERSION_CODES.M)
     private fun authenticate() {
         val title = getString(biometric_prompt_title)
         val subtitle = getString(biometric_prompt_subtitle)
         val description = getString(biometric_prompt_description)
-        val confirmationRequired = checkbox_require_confirmation.isChecked
-        val negativeButtonText = getString(biometric_prompt_negative_label)
+        val negativeButtonText = getString(biometric_prompt_negative_text)
+        val confirmationRequired = binding.common.requireConfirmationCheckbox.isChecked
+        val callback = AuthCallback()
 
-        @SuppressLint("SyntheticAccessor")
-        val callback = MyCallback(checkbox_use_crypto_auth.isChecked)
-
-        when (authType.checkedRadioButtonId) {
+        authPrompt = when (val buttonId = binding.authTypeGroup.checkedRadioButtonId) {
             R.id.class2_biometric_button ->
-                authPrompt = startClass2BiometricAuthentication(
-                    title,
-                    negativeButtonText,
+                startClass2BiometricAuthentication(
+                    title = title,
+                    negativeButtonText = negativeButtonText,
                     callback = callback
                 )
+
             R.id.class3_biometric_button ->
-                authPrompt = if (checkbox_use_crypto_auth.isChecked) {
+                if (binding.common.useCryptoAuthCheckbox.isChecked) {
                     startClass3BiometricAuthentication(
-                        crypto = getCryptoObject(),
-                        title,
-                        negativeButtonText,
-                        subtitle,
-                        description,
+                        crypto = createCryptoObject(isBiometricAllowed, isCredentialAllowed),
+                        title = title,
+                        subtitle = subtitle,
+                        description = description,
+                        negativeButtonText = negativeButtonText,
                         callback = callback
                     )
                 } else {
                     startClass3BiometricAuthentication(
                         crypto = null,
-                        title,
-                        negativeButtonText,
-                        subtitle,
-                        description,
+                        title = title,
+                        description = description,
+                        negativeButtonText = negativeButtonText,
                         callback = callback
                     )
                 }
+
             R.id.class2_biometric_or_credential_button ->
-                authPrompt = startClass2BiometricOrCredentialAuthentication(
-                    title,
-                    subtitle,
-                    description,
-                    confirmationRequired,
+                startClass2BiometricOrCredentialAuthentication(
+                    title = title,
+                    subtitle = subtitle,
+                    description = description,
+                    confirmationRequired = confirmationRequired,
                     callback = callback
                 )
+
             R.id.class3_biometric_or_credential_button ->
-                authPrompt = if (checkbox_use_crypto_auth.isChecked) {
+                if (binding.common.useCryptoAuthCheckbox.isChecked) {
                     startClass3BiometricOrCredentialAuthentication(
-                        crypto = getCryptoObject(),
-                        title,
-                        subtitle,
-                        description,
-                        confirmationRequired,
+                        crypto = createCryptoObject(isBiometricAllowed, isCredentialAllowed),
+                        title = title,
+                        subtitle = subtitle,
+                        description = description,
+                        confirmationRequired = confirmationRequired,
                         callback = callback
                     )
                 } else {
                     startClass3BiometricOrCredentialAuthentication(
                         crypto = null,
-                        title,
-                        subtitle,
-                        description,
-                        confirmationRequired,
+                        title = title,
+                        subtitle = subtitle,
+                        description = description,
+                        confirmationRequired = confirmationRequired,
                         callback = callback
                     )
                 }
+
             R.id.credential_button ->
-                authPrompt = if (checkbox_use_crypto_auth.isChecked) {
+                if (binding.common.useCryptoAuthCheckbox.isChecked) {
                     startCredentialAuthentication(
-                        crypto = getCryptoObject(),
-                        title,
-                        description,
+                        crypto = createCryptoObject(isBiometricAllowed, isCredentialAllowed),
+                        title = title,
+                        description = description,
                         callback = callback
                     )
                 } else {
                     startCredentialAuthentication(
                         crypto = null,
-                        title,
-                        description,
+                        title = title,
+                        description = description,
                         callback = callback
                     )
                 }
+
+            else -> throw IllegalStateException("Invalid checked button ID: $buttonId")
         }
     }
 
     /**
-     * Returns [BiometricPrompt.CryptoObject] for crypto-based authentication.
+     * Logs a new [message] to the in-app [TextView].
      */
-    @RequiresApi(Build.VERSION_CODES.M)
-    @SuppressLint("UnsafeNewApiCall", "SyntheticAccessor", "TrulyRandom")
-    @Suppress("DEPRECATION")
-    private fun getCryptoObject(): BiometricPrompt.CryptoObject {
-        // Create a spec for the key to be generated.
-        val keyPurpose = KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-        val keySpec = KeyGenParameterSpec.Builder(KEY_NAME, keyPurpose)
-            .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
-            .setUserAuthenticationRequired(true)
-            .apply {
-                // Require authentication for each use of the key.
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    setUserAuthenticationParameters(0 /* timeout */, keyType)
-                } else {
-                    setUserAuthenticationValidityDurationSeconds(-1)
-                }
-            }
-            .build()
-
-        // Generate and store the key in the Android keystore.
-        val keyGenerator = getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_INSTANCE)
-        keyGenerator.init(keySpec)
-        keyGenerator.generateKey()
-
-        // Prepare the crypto object to use for authentication.
-        val cipher = getCipher()
-        cipher.init(Cipher.ENCRYPT_MODE, getSecretKey())
-
-        return BiometricPrompt.CryptoObject(cipher)
+    internal fun log(message: CharSequence) {
+        binding.common.logTextView.prependLogMessage(message)
     }
 
     /**
      * Clears all logged messages from the in-app [TextView].
      */
     private fun clearLog() {
-        text_view_log.text = ""
+        binding.common.logTextView.text = ""
     }
 
     /**
-     * Logs a new [message] to the in-app [TextView].
+     * Sample callback that logs all authentication events.
      */
-    @SuppressLint("SetTextI18n")
-    private fun log(message: CharSequence) {
-        text_view_log.text = "${message}\n${text_view_log.text}"
+    private class AuthCallback : AuthPromptCallback() {
+        override fun onAuthenticationError(
+            activity: FragmentActivity?,
+            errorCode: Int,
+            errString: CharSequence
+        ) {
+            super.onAuthenticationError(activity, errorCode, errString)
+            if (activity is AuthPromptTestActivity) {
+                activity.log("onAuthenticationError $errorCode: $errString")
+            }
+        }
+
+        override fun onAuthenticationSucceeded(
+            activity: FragmentActivity?,
+            result: BiometricPrompt.AuthenticationResult
+        ) {
+            super.onAuthenticationSucceeded(activity, result)
+            if (activity is AuthPromptTestActivity) {
+                activity.log("onAuthenticationSucceeded: ${result.toDataString()}")
+
+                // Encrypt a test payload using the result of crypto-based auth.
+                if (activity.binding.common.useCryptoAuthCheckbox.isChecked) {
+                    val encryptedPayload = result.cryptoObject?.cipher?.doFinal(
+                        PAYLOAD.toByteArray(Charset.defaultCharset())
+                    )
+                    activity.log("Encrypted payload: ${encryptedPayload?.contentToString()}")
+                }
+            }
+        }
+
+        override fun onAuthenticationFailed(activity: FragmentActivity?) {
+            super.onAuthenticationFailed(activity)
+            if (activity is AuthPromptTestActivity) {
+                activity.log("onAuthenticationFailed")
+            }
+        }
     }
 }
