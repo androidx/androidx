@@ -228,7 +228,7 @@ public inline fun <reified F : Fragment, T : Any> FragmentScenario<F>.withFragme
  * If your testing Fragment has a dependency to specific theme such as `Theme.AppCompat`,
  * use the theme ID parameter in [launch] method.
  *
- * @param <F> The Fragment class being tested
+ * @param F The Fragment class being tested
  *
  * @see ActivityScenario a scenario API for Activity
  */
