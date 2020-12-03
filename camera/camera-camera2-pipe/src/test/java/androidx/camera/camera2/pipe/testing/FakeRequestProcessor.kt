@@ -20,6 +20,7 @@ import android.hardware.camera2.CaptureRequest
 import android.view.Surface
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.impl.GraphState3A
 import androidx.camera.camera2.pipe.impl.RequestProcessor
 import androidx.camera.camera2.pipe.impl.TokenLock
 import androidx.camera.camera2.pipe.impl.TokenLockImpl
@@ -30,7 +31,8 @@ import kotlinx.coroutines.withTimeout
 /**
  * Fake implementation of a [RequestProcessor] for tests.
  */
-class FakeRequestProcessor : RequestProcessor, RequestProcessor.Factory {
+class FakeRequestProcessor(private val graphState3A: GraphState3A) :
+    RequestProcessor, RequestProcessor.Factory {
     private val eventChannel = Channel<Event>(Channel.UNLIMITED)
 
     val requestQueue: MutableList<FakeRequest> = mutableListOf()
@@ -71,7 +73,7 @@ class FakeRequestProcessor : RequestProcessor, RequestProcessor.Factory {
         requireSurfacesForAllStreams: Boolean
     ): Boolean {
         val fakeRequest =
-            FakeRequest(listOf(request), extraRequestParameters, requireSurfacesForAllStreams)
+            createFakeRequest(listOf(request), extraRequestParameters, requireSurfacesForAllStreams)
 
         if (rejectRequests || closeInvoked) {
             check(eventChannel.offer(Event(request = fakeRequest, rejected = true)))
@@ -90,7 +92,7 @@ class FakeRequestProcessor : RequestProcessor, RequestProcessor.Factory {
         requireSurfacesForAllStreams: Boolean
     ): Boolean {
         val fakeRequest =
-            FakeRequest(requests, extraRequestParameters, requireSurfacesForAllStreams)
+            createFakeRequest(requests, extraRequestParameters, requireSurfacesForAllStreams)
         if (rejectRequests || closeInvoked) {
             check(eventChannel.offer(Event(request = fakeRequest, rejected = true)))
             return false
@@ -108,7 +110,7 @@ class FakeRequestProcessor : RequestProcessor, RequestProcessor.Factory {
         requireSurfacesForAllStreams: Boolean
     ): Boolean {
         val fakeRequest =
-            FakeRequest(listOf(request), extraRequestParameters, requireSurfacesForAllStreams)
+            createFakeRequest(listOf(request), extraRequestParameters, requireSurfacesForAllStreams)
         if (rejectRequests || closeInvoked) {
             check(eventChannel.offer(Event(request = fakeRequest, rejected = true)))
             return false
@@ -137,8 +139,19 @@ class FakeRequestProcessor : RequestProcessor, RequestProcessor.Factory {
     /**
      * Get the next event from queue with an option to specify a timeout for tests.
      */
-    suspend fun nextEvent(timeMillis: Long = 100): Event = withTimeout(timeMillis) {
+    suspend fun nextEvent(timeMillis: Long = 500): Event = withTimeout(timeMillis) {
         eventChannel.receive()
+    }
+
+    private fun createFakeRequest(
+        burst: List<Request>,
+        extraRequestParameters: Map<CaptureRequest.Key<*>, Any>,
+        requireStreams: Boolean
+    ): FakeRequest {
+        val parameterMap = mutableMapOf<CaptureRequest.Key<*>, Any>()
+        parameterMap.putAll(graphState3A.readState())
+        parameterMap.putAll(extraRequestParameters)
+        return FakeRequest(burst, parameterMap, requireStreams)
     }
 }
 
