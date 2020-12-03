@@ -22,8 +22,18 @@ plugins {
     id("kotlin-android")
 }
 
+android {
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+        }
+    }
+}
+
 dependencies {
-    api(KOTLIN_STDLIB)
+    implementation(KOTLIN_STDLIB)
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
     implementation("androidx.arch.core:core-runtime:2.1.0")
     implementation("androidx.appcompat:appcompat:1.2.0")
