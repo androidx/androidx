@@ -24,6 +24,25 @@ import androidx.room.compiler.processing.XProcessingEnv
 class XTestInvocation(
     val processingEnv: XProcessingEnv,
 ) {
+    private val postCompilationAssertions = mutableListOf<CompilationResultSubject.() -> Unit>()
     val isKsp: Boolean
         get() = processingEnv.backend == XProcessingEnv.Backend.KSP
+
+    /**
+     * Registers a block that will be called with a [CompilationResultSubject] when compilation
+     * finishes.
+     *
+     * Note that it is not safe to access the environment in this block.
+     */
+    fun assertCompilationResult(block: CompilationResultSubject.() -> Unit) {
+        postCompilationAssertions.add(block)
+    }
+
+    internal fun runPostCompilationChecks(
+        compilationResultSubject: CompilationResultSubject
+    ) {
+        postCompilationAssertions.forEach {
+            it(compilationResultSubject)
+        }
+    }
 }

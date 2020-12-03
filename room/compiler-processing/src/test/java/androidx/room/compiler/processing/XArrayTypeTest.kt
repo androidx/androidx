@@ -170,8 +170,7 @@ class XArrayTypeTest {
     @Test
     fun createArray() {
         runKspTest(
-            sources = emptyList(),
-            succeed = true
+            sources = emptyList()
         ) { invocation ->
             val intType = invocation.processingEnv.requireType("kotlin.Int")
             invocation.processingEnv.getArrayType(intType).let {

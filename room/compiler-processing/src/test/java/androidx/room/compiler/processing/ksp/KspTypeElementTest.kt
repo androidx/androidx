@@ -52,8 +52,7 @@ class KspTypeElementTest {
             """.trimIndent()
         )
         runKspTest(
-            sources = listOf(src1, src2),
-            succeed = true
+            sources = listOf(src1, src2)
         ) { invocation ->
             invocation.processingEnv.requireTypeElement("TopLevel").let {
                 assertThat(it.packageName).isEqualTo("")
@@ -93,7 +92,7 @@ class KspTypeElementTest {
             interface MyInterface {}
             """.trimIndent()
         )
-        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+        runKspTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("foo.bar.Baz").let {
                 assertThat(it.superType).isEqualTo(
                     invocation.processingEnv.requireType("foo.bar.AbstractClass")
@@ -134,7 +133,7 @@ class KspTypeElementTest {
             }
             """.trimIndent()
         )
-        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+        runKspTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("foo.bar.Outer").let {
                 assertThat(it.className).isEqualTo(ClassName.get("foo.bar", "Outer"))
                 assertThat(it.enclosingTypeElement).isNull()
@@ -163,7 +162,7 @@ class KspTypeElementTest {
             private class PrivateClass
             """.trimIndent()
         )
-        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+        runKspTest(sources = listOf(src)) { invocation ->
             fun getModifiers(element: XTypeElement): Set<String> {
                 val result = mutableSetOf<String>()
                 if (element.isAbstract()) result.add("abstract")
@@ -205,7 +204,7 @@ class KspTypeElementTest {
             interface MyInterface
             """.trimIndent()
         )
-        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+        runKspTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("MyClass").let {
                 assertThat(it.kindName()).isEqualTo("class")
             }
@@ -269,7 +268,7 @@ class KspTypeElementTest {
             ) : BaseClass(value)
             """.trimIndent()
         )
-        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+        runKspTest(sources = listOf(src)) { invocation ->
             val baseClass = invocation.processingEnv.requireTypeElement("BaseClass")
             assertThat(baseClass.getAllFieldNames()).containsExactly("value")
             val subClass = invocation.processingEnv.requireTypeElement("SubClass")
@@ -317,7 +316,7 @@ class KspTypeElementTest {
             }
             """.trimIndent()
         )
-        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+        runKspTest(sources = listOf(src)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("Base")
             assertThat(base.getDeclaredMethods().names()).containsExactly(
                 "baseFun", "suspendFun", "privateBaseFun", "staticBaseFun"
@@ -371,7 +370,7 @@ class KspTypeElementTest {
             }
             """.trimIndent()
         )
-        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+        runKspTest(sources = listOf(src)) { invocation ->
             val klass = invocation.processingEnv.requireTypeElement("SubClass")
             assertThat(klass.getAllMethods().names()).containsExactly(
                 "baseMethod", "overriddenMethod", "baseCompanionMethod",
@@ -395,7 +394,7 @@ class KspTypeElementTest {
             }
             """.trimIndent()
         )
-        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+        runKspTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("JustGetter").let { base ->
                 assertThat(base.getDeclaredMethods().names()).containsExactly(
                     "getX"
@@ -438,7 +437,7 @@ class KspTypeElementTest {
             class SubClass : CompanionSubject()
             """.trimIndent()
         )
-        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+        runKspTest(sources = listOf(src)) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("CompanionSubject")
             assertThat(subject.getAllFieldNames()).containsExactly(
                 "mutableStatic", "immutableStatic"
@@ -471,7 +470,7 @@ class KspTypeElementTest {
             }
             """.trimIndent()
         )
-        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+        runKspTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("JustGetter").let { base ->
                 assertThat(base.getDeclaredMethods().names()).containsExactly(
                     "getX"
@@ -576,7 +575,7 @@ class KspTypeElementTest {
             }
             """.trimIndent()
         )
-        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+        runKspTest(sources = listOf(src)) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("MyInterface")
             assertThat(subject.getMethod("notJvmDefault").isJavaDefault()).isFalse()
             assertThat(subject.getMethod("jvmDefault").isJavaDefault()).isTrue()

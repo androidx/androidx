@@ -25,7 +25,6 @@ import androidx.room.compiler.processing.util.javaElementUtils
 import androidx.room.compiler.processing.util.kspResolver
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
-import androidx.room.compiler.processing.util.runProcessorTestForFailedCompilation
 import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
 import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth
@@ -111,7 +110,7 @@ class XTypeTest {
             """.trimIndent()
         )
         // TODO run with KSP as well once https://github.com/google/ksp/issues/107 is resolved
-        runProcessorTestForFailedCompilation(
+        runProcessorTest(
             sources = listOf(missingTypeRef)
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
@@ -126,6 +125,9 @@ class XTypeTest {
                 assertThat(method.returnType.typeName).isEqualTo(
                     ClassName.get("", "NotExistingType")
                 )
+            }
+            it.assertCompilationResult {
+                compilationDidFail()
             }
         }
     }
@@ -174,7 +176,7 @@ class XTypeTest {
 
     @Test
     fun isCollection_kotlin() {
-        runKspTest(sources = emptyList(), succeed = true) { invocation ->
+        runKspTest(sources = emptyList()) { invocation ->
             val subjects = listOf("Map" to false, "List" to true, "Set" to true)
             subjects.forEach { (subject, expected) ->
                 invocation.processingEnv.requireType("kotlin.collections.$subject").let { type ->
@@ -213,11 +215,14 @@ class XTypeTest {
             """.trimIndent()
         )
         // TODO run with KSP as well once https://github.com/google/ksp/issues/107 is resolved
-        runProcessorTestForFailedCompilation(
+        runProcessorTest(
             sources = listOf(missingTypeRef)
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             assertThat(element.superType?.isError()).isTrue()
+            it.assertCompilationResult {
+                compilationDidFail()
+            }
         }
     }
 

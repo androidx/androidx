@@ -316,8 +316,7 @@ class MethodSpecHelperTest {
     ): List<String> {
         lateinit var result: List<String>
         runKaptTest(
-            sources = listOf(source),
-            succeed = true
+            sources = listOf(source)
         ) { invocation ->
             val (target, methods) = invocation.getOverrideTestTargets(
                 ignoreInheritedMethods
