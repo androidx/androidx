@@ -20,16 +20,20 @@ import static androidx.window.DeviceState.POSTURE_MAX_KNOWN;
 import static androidx.window.DeviceState.POSTURE_UNKNOWN;
 import static androidx.window.ExtensionCompat.DEBUG;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Rect;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.window.sidecar.SidecarDeviceState;
 import androidx.window.sidecar.SidecarDisplayFeature;
 import androidx.window.sidecar.SidecarWindowLayoutInfo;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,17 +48,77 @@ final class SidecarAdapter {
     List<DisplayFeature> translate(SidecarWindowLayoutInfo sidecarWindowLayoutInfo,
             Rect windowBounds) {
         List<DisplayFeature> displayFeatures = new ArrayList<>();
-        if (sidecarWindowLayoutInfo.displayFeatures == null) {
+        List<SidecarDisplayFeature> sidecarDisplayFeatures =
+                getSidecarDisplayFeatures(sidecarWindowLayoutInfo);
+        if (sidecarDisplayFeatures == null) {
             return displayFeatures;
         }
 
-        for (SidecarDisplayFeature sidecarFeature : sidecarWindowLayoutInfo.displayFeatures) {
+        for (SidecarDisplayFeature sidecarFeature : sidecarDisplayFeatures) {
             final DisplayFeature displayFeature = translate(sidecarFeature, windowBounds);
             if (displayFeature != null) {
                 displayFeatures.add(displayFeature);
             }
         }
         return displayFeatures;
+    }
+
+    // TODO(b/172620880): Workaround for Sidecar API implementation issue.
+    @SuppressLint("BanUncheckedReflection")
+    @SuppressWarnings("unchecked")
+    @VisibleForTesting
+    @Nullable
+    static List<SidecarDisplayFeature> getSidecarDisplayFeatures(SidecarWindowLayoutInfo info) {
+        try {
+            return info.displayFeatures;
+        } catch (NoSuchFieldError error) {
+            try {
+                Method methodGetFeatures = SidecarWindowLayoutInfo.class.getMethod(
+                        "getDisplayFeatures");
+                return (List<SidecarDisplayFeature>) methodGetFeatures.invoke(info);
+            } catch (NoSuchMethodException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            } catch (IllegalAccessException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            } catch (InvocationTargetException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
+    }
+
+    // TODO(b/172620880): Workaround for Sidecar API implementation issue.
+    @SuppressLint("BanUncheckedReflection")
+    @VisibleForTesting
+    static void setSidecarDisplayFeatures(SidecarWindowLayoutInfo info,
+            List<SidecarDisplayFeature> displayFeatures) {
+        try {
+            info.displayFeatures = displayFeatures;
+        } catch (NoSuchFieldError error) {
+            try {
+                Method methodSetFeatures = SidecarWindowLayoutInfo.class.getMethod(
+                        "setDisplayFeatures", List.class);
+                methodSetFeatures.invoke(info, displayFeatures);
+            } catch (NoSuchMethodException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            } catch (IllegalAccessException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            } catch (InvocationTargetException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     @NonNull
@@ -79,10 +143,9 @@ final class SidecarAdapter {
         return new DeviceState(posture);
     }
 
-
     @DeviceState.Posture
     private static int postureFromSidecar(SidecarDeviceState sidecarDeviceState) {
-        int sidecarPosture = sidecarDeviceState.posture;
+        int sidecarPosture = getSidecarDevicePosture(sidecarDeviceState);
         if (sidecarPosture > POSTURE_MAX_KNOWN) {
             if (DEBUG) {
                 Log.d(TAG, "Unknown posture reported, WindowManager library should be updated");
@@ -90,6 +153,60 @@ final class SidecarAdapter {
             return POSTURE_UNKNOWN;
         }
         return sidecarPosture;
+    }
+
+    // TODO(b/172620880): Workaround for Sidecar API implementation issue.
+    @SuppressLint("BanUncheckedReflection")
+    @VisibleForTesting
+    static int getSidecarDevicePosture(SidecarDeviceState sidecarDeviceState) {
+        try {
+            return sidecarDeviceState.posture;
+        } catch (NoSuchFieldError error) {
+            try {
+                Method methodGetPosture = SidecarDeviceState.class.getMethod("getPosture");
+                return (int) methodGetPosture.invoke(sidecarDeviceState);
+            } catch (NoSuchMethodException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            } catch (IllegalAccessException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            } catch (InvocationTargetException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return SidecarDeviceState.POSTURE_UNKNOWN;
+    }
+
+    // TODO(b/172620880): Workaround for Sidecar API implementation issue.
+    @SuppressLint("BanUncheckedReflection")
+    @VisibleForTesting
+    static void setSidecarDevicePosture(SidecarDeviceState sidecarDeviceState, int posture) {
+        try {
+            sidecarDeviceState.posture = posture;
+        } catch (NoSuchFieldError error) {
+            try {
+                Method methodSetPosture = SidecarDeviceState.class.getMethod("setPosture",
+                        int.class);
+                methodSetPosture.invoke(sidecarDeviceState, posture);
+            } catch (NoSuchMethodException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            } catch (IllegalAccessException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            } catch (InvocationTargetException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     /**
