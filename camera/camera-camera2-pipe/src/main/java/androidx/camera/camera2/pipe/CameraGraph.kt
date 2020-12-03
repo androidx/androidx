@@ -95,7 +95,8 @@ interface CameraGraph : Closeable {
     companion object Constants3A {
         // Constants related to controlling the time or frame budget a 3A operation should get.
         const val DEFAULT_FRAME_LIMIT = 60
-        const val DEFAULT_TIME_LIMIT_MS = 3000
+        const val DEFAULT_TIME_LIMIT_MS = 3_000
+        const val DEFAULT_TIME_LIMIT_NS = 3_000_000_000L
 
         // Constants related to metering regions.
         /** No metering region is specified. */
@@ -170,19 +171,19 @@ interface CameraGraph : Closeable {
          *
          * @param frameLimit the maximum number of frames to wait before we give up waiting for
          * this operation to complete.
-         * @param timeLimitMs the maximum time limit in ms we wait before we give up waiting for
+         * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
          * this operation to complete.
          *
          * @return [Result3A], which will contain the latest frame number at which the locks were
          * applied or the frame number at which the method returned early because either frame limit
          * or time limit was reached.
          */
-        fun lock3A(
+        suspend fun lock3A(
             aeLockBehavior: Lock3ABehavior? = null,
             afLockBehavior: Lock3ABehavior? = null,
             awbLockBehavior: Lock3ABehavior? = null,
             frameLimit: Int = DEFAULT_FRAME_LIMIT,
-            timeLimitMs: Int = DEFAULT_TIME_LIMIT_MS
+            timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS
         ): Deferred<Result3A>
 
         /**
