@@ -24,7 +24,7 @@ plugins {
 
 dependencies {
     implementation(KOTLIN_STDLIB)
-    implementation(project(":fragment:fragment"))
+    implementation(projectOrArtifact(":fragment:fragment"))
     implementation(project(":lifecycle:lifecycle-process"))
     implementation(project(":lifecycle:lifecycle-common"))
     annotationProcessor(project(":lifecycle:lifecycle-compiler"))
