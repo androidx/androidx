@@ -38,6 +38,7 @@ BundleInsideHelper.forInsideAar(
 )
 
 dependencies {
+    implementation 'androidx.concurrent:concurrent-listenablefuture-callback:1.0.0-beta01'
     releaseBundleInside(project(path: ':camera:camera-camera2-pipe', configuration: "exportRelease"))
     debugBundleInside(project(path: ':camera:camera-camera2-pipe', configuration: "exportDebug"))
 
@@ -47,6 +48,7 @@ dependencies {
 
     // Classes and types that are only needed at runtime
     implementation(project(":lifecycle:lifecycle-livedata-ktx"))
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation(KOTLIN_COROUTINES_GUAVA)
     implementation(KOTLIN_STDLIB)
 
