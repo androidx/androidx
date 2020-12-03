@@ -60,7 +60,7 @@ public class PlaceListNavigationTemplateTest {
                 () -> PlaceListNavigationTemplate.builder().setTitle("Title").build());
 
         // Positive case
-        PlaceListNavigationTemplate.builder().setTitle("Title").setIsLoading(true).build();
+        PlaceListNavigationTemplate.builder().setTitle("Title").setLoading(true).build();
     }
 
     @Test
@@ -70,7 +70,7 @@ public class PlaceListNavigationTemplateTest {
                 () ->
                         PlaceListNavigationTemplate.builder()
                                 .setTitle("Title")
-                                .setIsLoading(true)
+                                .setLoading(true)
                                 .setItemList(ItemList.builder().build())
                                 .build());
     }

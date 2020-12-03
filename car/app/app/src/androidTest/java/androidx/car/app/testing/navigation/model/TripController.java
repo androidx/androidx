@@ -40,7 +40,7 @@ import java.util.List;
  *   <li>The {@link TravelEstimate}s set via {@link Trip.Builder#addDestinationTravelEstimate}.
  *   <li>The {@link TravelEstimate}s set via {@link Trip.Builder#addStepTravelEstimate}.
  *   <li>The current road set via {@link Trip.Builder#setCurrentRoad}.
- *   <li>The loading state set via {@link Trip.Builder#setIsLoading}.
+ *   <li>The loading state set via {@link Trip.Builder#setLoading}.
  * </ul>
  */
 public class TripController {

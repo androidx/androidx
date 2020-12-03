@@ -237,7 +237,7 @@ public final class ItemList {
          * @see #setSelectedIndex(int)
          */
         @NonNull
-        @SuppressLint({"ExecutorRegistration"})
+        @SuppressLint("ExecutorRegistration")
         public Builder setOnSelectedListener(@Nullable OnSelectedListener onSelectedListener) {
             this.mOnSelectedListener =
                     onSelectedListener == null ? null : createOnSelectedListener(
