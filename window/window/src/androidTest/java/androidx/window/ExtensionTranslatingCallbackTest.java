@@ -30,6 +30,7 @@ import android.graphics.Rect;
 
 import androidx.window.extensions.ExtensionDeviceState;
 import androidx.window.extensions.ExtensionDisplayFeature;
+import androidx.window.extensions.ExtensionFoldingFeature;
 import androidx.window.extensions.ExtensionWindowLayoutInfo;
 
 import org.junit.After;
@@ -62,8 +63,8 @@ public class ExtensionTranslatingCallbackTest {
     public void testOnWindowLayoutChange_validFeature() {
         Activity mockActivity = mock(Activity.class);
         Rect bounds = new Rect(WINDOW_BOUNDS.left, 0, WINDOW_BOUNDS.right, 0);
-        ExtensionDisplayFeature foldFeature = new ExtensionDisplayFeature(bounds,
-                ExtensionDisplayFeature.TYPE_FOLD);
+        ExtensionDisplayFeature foldFeature = new ExtensionFoldingFeature(bounds,
+                ExtensionFoldingFeature.TYPE_FOLD, ExtensionFoldingFeature.STATE_FLAT);
 
         List<ExtensionDisplayFeature> extensionDisplayFeatures = new ArrayList<>();
         extensionDisplayFeatures.add(foldFeature);
@@ -71,7 +72,8 @@ public class ExtensionTranslatingCallbackTest {
                 new ExtensionWindowLayoutInfo(extensionDisplayFeatures);
 
         List<DisplayFeature> expectedFeatures = new ArrayList<>();
-        expectedFeatures.add(new DisplayFeature(foldFeature.getBounds(), DisplayFeature.TYPE_FOLD));
+        expectedFeatures.add(new FoldingFeature(foldFeature.getBounds(), FoldingFeature.TYPE_FOLD,
+                FoldingFeature.STATE_FLAT));
         WindowLayoutInfo expected = new WindowLayoutInfo(expectedFeatures);
 
         ExtensionCallbackInterface mockCallback = mock(ExtensionCallbackInterface.class);
@@ -86,59 +88,16 @@ public class ExtensionTranslatingCallbackTest {
     }
 
     @Test
-    public void testOnWindowLayoutChange_filterRemovesEmptyBoundsFeature() {
-        List<ExtensionDisplayFeature> extensionDisplayFeatures = new ArrayList<>();
-        extensionDisplayFeatures.add(
-                new ExtensionDisplayFeature(new Rect(), ExtensionDisplayFeature.TYPE_FOLD));
-
-        ExtensionCallbackInterface mockCallback = mock(ExtensionCallbackInterface.class);
-        ExtensionTranslatingCallback extensionTranslatingCallback =
-                new ExtensionTranslatingCallback(mockCallback, new ExtensionAdapter());
-        ExtensionWindowLayoutInfo windowLayoutInfo =
-                new ExtensionWindowLayoutInfo(extensionDisplayFeatures);
-        Activity mockActivity = mock(Activity.class);
-
-        extensionTranslatingCallback.onWindowLayoutChanged(mockActivity, windowLayoutInfo);
-
-        verify(mockCallback).onWindowLayoutChanged(eq(mockActivity),
-                argThat((layoutInfo) -> layoutInfo.getDisplayFeatures().isEmpty()));
-    }
-
-
-    @Test
-    public void testOnWindowLayoutChange_filterRemovesNonEmptyAreaFoldFeature() {
-        List<ExtensionDisplayFeature> extensionDisplayFeatures = new ArrayList<>();
-        Rect fullWidthBounds = new Rect(0, 1, WINDOW_BOUNDS.width(), 2);
-        Rect fullHeightBounds = new Rect(1, 0, 2, WINDOW_BOUNDS.height());
-        extensionDisplayFeatures.add(new ExtensionDisplayFeature(fullWidthBounds,
-                ExtensionDisplayFeature.TYPE_FOLD));
-        extensionDisplayFeatures.add(new ExtensionDisplayFeature(fullHeightBounds,
-                ExtensionDisplayFeature.TYPE_FOLD));
-
-        ExtensionCallbackInterface mockCallback = mock(ExtensionCallbackInterface.class);
-        ExtensionTranslatingCallback extensionTranslatingCallback =
-                new ExtensionTranslatingCallback(mockCallback, new ExtensionAdapter());
-        ExtensionWindowLayoutInfo windowLayoutInfo =
-                new ExtensionWindowLayoutInfo(extensionDisplayFeatures);
-        Activity mockActivity = mock(Activity.class);
-
-        extensionTranslatingCallback.onWindowLayoutChanged(mockActivity, windowLayoutInfo);
-
-        verify(mockCallback).onWindowLayoutChanged(eq(mockActivity),
-                argThat((layoutInfo) -> layoutInfo.getDisplayFeatures().isEmpty()));
-    }
-
-    @Test
     public void testOnWindowLayoutChange_filterRemovesHingeFeatureNotSpanningFullDimension() {
         List<ExtensionDisplayFeature> extensionDisplayFeatures = new ArrayList<>();
         Rect fullWidthBounds = new Rect(WINDOW_BOUNDS.left, WINDOW_BOUNDS.top,
                 WINDOW_BOUNDS.right / 2, 2);
         Rect fullHeightBounds = new Rect(WINDOW_BOUNDS.left, WINDOW_BOUNDS.top, 2,
                 WINDOW_BOUNDS.bottom / 2);
-        extensionDisplayFeatures.add(new ExtensionDisplayFeature(fullWidthBounds,
-                ExtensionDisplayFeature.TYPE_HINGE));
-        extensionDisplayFeatures.add(new ExtensionDisplayFeature(fullHeightBounds,
-                ExtensionDisplayFeature.TYPE_HINGE));
+        extensionDisplayFeatures.add(new ExtensionFoldingFeature(fullWidthBounds,
+                ExtensionFoldingFeature.TYPE_HINGE, ExtensionFoldingFeature.STATE_FLAT));
+        extensionDisplayFeatures.add(new ExtensionFoldingFeature(fullHeightBounds,
+                ExtensionFoldingFeature.TYPE_HINGE, ExtensionFoldingFeature.STATE_FLAT));
 
         ExtensionCallbackInterface mockCallback = mock(ExtensionCallbackInterface.class);
         ExtensionTranslatingCallback extensionTranslatingCallback =
@@ -161,10 +120,10 @@ public class ExtensionTranslatingCallbackTest {
                 WINDOW_BOUNDS.right / 2, WINDOW_BOUNDS.top);
         Rect fullHeightBounds = new Rect(WINDOW_BOUNDS.left, WINDOW_BOUNDS.top, WINDOW_BOUNDS.left,
                 WINDOW_BOUNDS.bottom / 2);
-        extensionDisplayFeatures.add(new ExtensionDisplayFeature(fullWidthBounds,
-                ExtensionDisplayFeature.TYPE_HINGE));
-        extensionDisplayFeatures.add(new ExtensionDisplayFeature(fullHeightBounds,
-                ExtensionDisplayFeature.TYPE_HINGE));
+        extensionDisplayFeatures.add(new ExtensionFoldingFeature(fullWidthBounds,
+                ExtensionFoldingFeature.TYPE_HINGE, ExtensionFoldingFeature.STATE_FLAT));
+        extensionDisplayFeatures.add(new ExtensionFoldingFeature(fullHeightBounds,
+                ExtensionFoldingFeature.TYPE_HINGE, ExtensionFoldingFeature.STATE_FLAT));
 
         ExtensionCallbackInterface mockCallback = mock(ExtensionCallbackInterface.class);
         ExtensionTranslatingCallback extensionTranslatingCallback =
@@ -187,10 +146,6 @@ public class ExtensionTranslatingCallbackTest {
                 new ExtensionTranslatingCallback(mockCallback, new ExtensionAdapter());
 
         extensionTranslatingCallback.onDeviceStateChanged(new ExtensionDeviceState(
-                ExtensionDeviceState.POSTURE_UNKNOWN));
-        extensionTranslatingCallback.onDeviceStateChanged(new ExtensionDeviceState(
-                ExtensionDeviceState.POSTURE_CLOSED));
-        extensionTranslatingCallback.onDeviceStateChanged(new ExtensionDeviceState(
                 ExtensionDeviceState.POSTURE_HALF_OPENED));
         extensionTranslatingCallback.onDeviceStateChanged(new ExtensionDeviceState(
                 ExtensionDeviceState.POSTURE_OPENED));
@@ -201,11 +156,9 @@ public class ExtensionTranslatingCallbackTest {
         verify(mockCallback, atLeastOnce()).onDeviceStateChanged(captor.capture());
 
         List<DeviceState> values = captor.getAllValues();
-        assertEquals(DeviceState.POSTURE_UNKNOWN, values.get(0).getPosture());
-        assertEquals(DeviceState.POSTURE_CLOSED, values.get(1).getPosture());
-        assertEquals(DeviceState.POSTURE_HALF_OPENED, values.get(2).getPosture());
-        assertEquals(DeviceState.POSTURE_OPENED, values.get(3).getPosture());
-        assertEquals(DeviceState.POSTURE_FLIPPED, values.get(4).getPosture());
-        assertEquals(5, values.size());
+        assertEquals(DeviceState.POSTURE_HALF_OPENED, values.get(0).getPosture());
+        assertEquals(DeviceState.POSTURE_OPENED, values.get(1).getPosture());
+        assertEquals(DeviceState.POSTURE_FLIPPED, values.get(2).getPosture());
+        assertEquals(3, values.size());
     }
 }

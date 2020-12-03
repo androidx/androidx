@@ -16,21 +16,25 @@
 
 package androidx.window.extensions;
 
-import android.graphics.Rect;
+import android.app.Activity;
+import android.os.IBinder;
 
-import androidx.annotation.NonNull;
+import androidx.test.core.app.ActivityScenario;
+
+import org.junit.Before;
 
 /**
- * Description of a physical feature on the display.
+ * Base class for all tests in the module.
  */
-public interface ExtensionDisplayFeature {
+class WindowTestBase {
+    ActivityScenario<TestActivity> mActivityTestRule;
 
-    /**
-     * The bounding rectangle of the feature within the application window
-     * in the window coordinate space.
-     *
-     * @return bounds of display feature.
-     */
-    @NonNull
-    Rect getBounds();
+    @Before
+    public void setUp() {
+        mActivityTestRule = ActivityScenario.launch(TestActivity.class);
+    }
+
+    static IBinder getActivityWindowToken(Activity activity) {
+        return activity.getWindow().getAttributes().token;
+    }
 }
