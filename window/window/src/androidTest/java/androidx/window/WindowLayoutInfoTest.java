@@ -48,14 +48,11 @@ public final class WindowLayoutInfoTest {
 
     @Test
     public void testBuilder_setDisplayFeatures() {
-        DisplayFeature.Builder featureBuilder = new DisplayFeature.Builder();
-        featureBuilder.setType(DisplayFeature.TYPE_HINGE);
-        featureBuilder.setBounds(new Rect(1, 0, 3, 4));
-        DisplayFeature feature1 = featureBuilder.build();
+        DisplayFeature feature1 = new FoldingFeature(new Rect(1, 0, 3, 4),
+                FoldingFeature.TYPE_HINGE, FoldingFeature.STATE_FLAT);
 
-        featureBuilder = new DisplayFeature.Builder();
-        featureBuilder.setBounds(new Rect(1, 0, 1, 4));
-        DisplayFeature feature2 = featureBuilder.build();
+        DisplayFeature feature2 = new FoldingFeature(new Rect(1, 0, 1, 4),
+                FoldingFeature.STATE_FLAT, FoldingFeature.STATE_FLAT);
 
         List<DisplayFeature> displayFeatures = new ArrayList<>();
         displayFeatures.add(feature1);
@@ -83,7 +80,8 @@ public final class WindowLayoutInfoTest {
         List<DisplayFeature> originalFeatures = new ArrayList<>();
         List<DisplayFeature> differentFeatures = new ArrayList<>();
         Rect rect = new Rect(1, 0, 1, 10);
-        differentFeatures.add(new DisplayFeature(rect, 1));
+        differentFeatures.add(new FoldingFeature(rect, FoldingFeature.TYPE_HINGE,
+                FoldingFeature.STATE_FLAT));
 
         WindowLayoutInfo original = new WindowLayoutInfo(originalFeatures);
         WindowLayoutInfo different = new WindowLayoutInfo(differentFeatures);
@@ -104,13 +102,15 @@ public final class WindowLayoutInfoTest {
 
     @Test
     public void testHashCode_matchesIfEqualFeatures() {
-        DisplayFeature originalFeature = new DisplayFeature(
-                new Rect(-1, 1, 1, -1),
-                0
+        DisplayFeature originalFeature = new FoldingFeature(
+                new Rect(0, 0, 100, 0),
+                FoldingFeature.TYPE_HINGE,
+                FoldingFeature.STATE_FLAT
         );
-        DisplayFeature matchingFeature = new DisplayFeature(
-                new Rect(-1, 1, 1, -1),
-                0
+        DisplayFeature matchingFeature = new FoldingFeature(
+                new Rect(0, 0, 100, 0),
+                FoldingFeature.TYPE_HINGE,
+                FoldingFeature.STATE_FLAT
         );
         List<DisplayFeature> firstFeatures = Collections.singletonList(originalFeature);
         List<DisplayFeature> secondFeatures = Collections.singletonList(matchingFeature);
