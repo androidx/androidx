@@ -152,24 +152,33 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
                 placeholdersBefore = placeholdersBefore,
                 placeholdersAfter = placeholdersAfter,
                 combinedLoadStates = CombinedLoadStates(
+                    refresh = sourceLoadStates.refresh,
+                    prepend = sourceLoadStates.prepend,
+                    append = sourceLoadStates.append,
                     source = sourceLoadStates,
-                    mediator = null
+                    mediator = null,
                 )
             )
             PREPEND -> Prepend(
                 pages = pages,
                 placeholdersBefore = placeholdersBefore,
                 combinedLoadStates = CombinedLoadStates(
+                    refresh = sourceLoadStates.refresh,
+                    prepend = sourceLoadStates.prepend,
+                    append = sourceLoadStates.append,
                     source = sourceLoadStates,
-                    mediator = null
+                    mediator = null,
                 )
             )
             APPEND -> Append(
                 pages = pages,
                 placeholdersAfter = placeholdersAfter,
                 combinedLoadStates = CombinedLoadStates(
+                    refresh = sourceLoadStates.refresh,
+                    prepend = sourceLoadStates.prepend,
+                    append = sourceLoadStates.append,
                     source = sourceLoadStates,
-                    mediator = null
+                    mediator = null,
                 )
             )
         }

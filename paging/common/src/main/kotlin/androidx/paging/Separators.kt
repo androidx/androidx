@@ -16,10 +16,13 @@
 
 package androidx.paging
 
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
+import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert
+import androidx.paging.PageEvent.LoadStateUpdate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -165,17 +168,18 @@ private class SeparatorState<R : Any, T : R>(
     var endTerminalSeparatorDeferred = false
     var startTerminalSeparatorDeferred = false
 
+    val loadStates = MutableLoadStateCollection()
+    var placeholdersBefore = 0
+    var placeholdersAfter = 0
+
     var footerAdded = false
     var headerAdded = false
 
     @Suppress("UNCHECKED_CAST")
     suspend fun onEvent(event: PageEvent<T>): PageEvent<R> = when (event) {
         is Insert<T> -> onInsert(event)
-        is Drop -> {
-            onDrop(event) // Update pageStash state
-            event as Drop<R>
-        }
-        is PageEvent.LoadStateUpdate -> event as PageEvent<R>
+        is Drop -> onDrop(event)
+        is LoadStateUpdate -> onLoadStateUpdate(event)
     }.also {
         // validate internal state after each modification
         if (endTerminalSeparatorDeferred) {
@@ -191,16 +195,14 @@ private class SeparatorState<R : Any, T : R>(
         return this as Insert<R>
     }
 
-    fun LoadState.isTerminal(): Boolean {
-        return this is LoadState.NotLoading && endOfPaginationReached
-    }
-
     fun CombinedLoadStates.terminatesStart(): Boolean {
-        return source.prepend.isTerminal() && mediator?.prepend?.isTerminal() != false
+        return source.prepend.endOfPaginationReached &&
+            mediator?.prepend?.endOfPaginationReached != false
     }
 
     fun CombinedLoadStates.terminatesEnd(): Boolean {
-        return source.append.isTerminal() && mediator?.append?.isTerminal() != false
+        return source.append.endOfPaginationReached &&
+            mediator?.append?.endOfPaginationReached != false
     }
 
     fun <T : Any> Insert<T>.terminatesStart(): Boolean = if (loadType == APPEND) {
@@ -225,6 +227,17 @@ private class SeparatorState<R : Any, T : R>(
         }
         require(!footerAdded || event.loadType != APPEND || eventEmpty) {
             "Additional append event after append state is done"
+        }
+
+        // Update SeparatorState before we do any real work.
+        loadStates.set(event.combinedLoadStates)
+        // Append insert has placeholdersBefore = -1 as a placeholder value.
+        if (event.loadType != APPEND) {
+            placeholdersBefore = event.placeholdersBefore
+        }
+        // Prepend insert has placeholdersAfter = -1 as a placeholder value.
+        if (event.loadType != PREPEND) {
+            placeholdersAfter = event.placeholdersAfter
         }
 
         if (eventEmpty) {
@@ -410,7 +423,14 @@ private class SeparatorState<R : Any, T : R>(
     /**
      * Process a [Drop] event to update [pageStash] stage.
      */
-    fun onDrop(event: Drop<T>) {
+    fun onDrop(event: Drop<T>): Drop<R> {
+        loadStates.set(type = event.loadType, remote = false, state = NotLoading.Incomplete)
+        if (event.loadType == PREPEND) {
+            placeholdersBefore = event.placeholdersRemaining
+        } else if (event.loadType == APPEND) {
+            placeholdersAfter = event.placeholdersRemaining
+        }
+
         if (pageStash.isEmpty()) {
             if (event.loadType == PREPEND) {
                 startTerminalSeparatorDeferred = false
@@ -424,6 +444,49 @@ private class SeparatorState<R : Any, T : R>(
         pageStash.removeAll { stash ->
             stash.originalPageOffsets.any { pageOffsetsToDrop.contains(it) }
         }
+
+        @Suppress("UNCHECKED_CAST")
+        return event as Drop<R>
+    }
+
+    suspend fun onLoadStateUpdate(event: LoadStateUpdate<T>): PageEvent<R> {
+        // Check for redundant LoadStateUpdate events to avoid unnecessary mapping to empty inserts
+        // that might cause terminal separators to get added out of place.
+        if (loadStates.get(event.loadType, event.fromMediator) == event.loadState) {
+            @Suppress("UNCHECKED_CAST")
+            return event as PageEvent<R>
+        }
+
+        loadStates.set(type = event.loadType, remote = event.fromMediator, state = event.loadState)
+
+        // Transform terminal load state updates into empty inserts for header + footer support
+        // when used with RemoteMediator. In cases where we defer adding a terminal separator,
+        // RemoteMediator can report endOfPaginationReached via LoadStateUpdate event, which
+        // isn't possible to add a separator to. Note: Adding a separate insert event also
+        // doesn't work in the case where .insertSeparators() is called multiple times on the
+        // same page event stream - we have to transform the terminating LoadStateUpdate event.
+        if (event.loadType != REFRESH && event.fromMediator &&
+            event.loadState.endOfPaginationReached
+        ) {
+            val emptyTerminalInsert: Insert<T> = if (event.loadType == PREPEND) {
+                Insert.Prepend(
+                    pages = emptyList(),
+                    placeholdersBefore = placeholdersBefore,
+                    combinedLoadStates = loadStates.snapshot(),
+                )
+            } else {
+                Insert.Append(
+                    pages = emptyList(),
+                    placeholdersAfter = placeholdersAfter,
+                    combinedLoadStates = loadStates.snapshot(),
+                )
+            }
+
+            return onInsert(emptyTerminalInsert)
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        return event as PageEvent<R>
     }
 
     private fun <T : Any> transformablePageToStash(

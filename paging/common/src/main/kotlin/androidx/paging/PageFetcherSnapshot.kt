@@ -303,19 +303,13 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     if (result.prevKey == null) {
                         state.setSourceLoadState(
                             type = PREPEND,
-                            newState = when (remoteMediatorConnection) {
-                                null -> NotLoading.Complete
-                                else -> NotLoading.Incomplete
-                            }
+                            newState = NotLoading.Complete
                         )
                     }
                     if (result.nextKey == null) {
                         state.setSourceLoadState(
                             type = APPEND,
-                            newState = when (remoteMediatorConnection) {
-                                null -> NotLoading.Complete
-                                else -> NotLoading.Incomplete
-                            }
+                            newState = NotLoading.Complete
                         )
                     }
                 }

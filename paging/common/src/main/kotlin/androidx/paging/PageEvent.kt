@@ -39,11 +39,11 @@ internal sealed class PageEvent<T : Any> {
     ) : PageEvent<T>() {
         init {
             require(loadType == APPEND || placeholdersBefore >= 0) {
-                "Append state defining placeholdersBefore must be > 0, but was" +
+                "Prepend insert defining placeholdersBefore must be > 0, but was" +
                     " $placeholdersBefore"
             }
             require(loadType == PREPEND || placeholdersAfter >= 0) {
-                "Prepend state defining placeholdersAfter must be > 0, but was" +
+                "Append insert defining placeholdersAfter must be > 0, but was" +
                     " $placeholdersAfter"
             }
             require(loadType != REFRESH || pages.isNotEmpty()) {
@@ -150,11 +150,14 @@ internal sealed class PageEvent<T : Any> {
                 placeholdersBefore = 0,
                 placeholdersAfter = 0,
                 combinedLoadStates = CombinedLoadStates(
+                    refresh = LoadState.NotLoading.Incomplete,
+                    prepend = LoadState.NotLoading.Complete,
+                    append = LoadState.NotLoading.Complete,
                     source = LoadStates(
                         refresh = LoadState.NotLoading.Incomplete,
                         prepend = LoadState.NotLoading.Complete,
-                        append = LoadState.NotLoading.Complete
-                    )
+                        append = LoadState.NotLoading.Complete,
+                    ),
                 )
             )
         }
@@ -212,8 +215,7 @@ internal sealed class PageEvent<T : Any> {
              * This prevents multiple related RV animations from happening simultaneously
              */
             internal fun canDispatchWithoutInsert(loadState: LoadState, fromMediator: Boolean) =
-                loadState is LoadState.Loading || loadState is LoadState.Error ||
-                    (loadState.endOfPaginationReached && fromMediator)
+                loadState is LoadState.Loading || loadState is LoadState.Error || fromMediator
         }
     }
 
