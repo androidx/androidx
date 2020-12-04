@@ -54,7 +54,7 @@ final class SidecarAdapter {
             return displayFeatures;
         }
 
-        for (SidecarDisplayFeature sidecarFeature : sidecarWindowLayoutInfo.displayFeatures) {
+        for (SidecarDisplayFeature sidecarFeature : sidecarDisplayFeatures) {
             final DisplayFeature displayFeature = translate(sidecarFeature, deviceState,
                     windowBounds);
             if (displayFeature != null) {
@@ -130,7 +130,8 @@ final class SidecarAdapter {
         }
 
         SidecarDeviceState deviceState = new SidecarDeviceState();
-        deviceState.posture = state.posture;
+        int devicePosture = getSidecarDevicePosture(state);
+        setSidecarDevicePosture(deviceState, devicePosture);
 
         Rect windowBounds = WindowBoundsHelper.getInstance().computeCurrentWindowBounds(activity);
         List<DisplayFeature> displayFeatures = translate(extensionInfo, deviceState, windowBounds);
@@ -257,7 +258,8 @@ final class SidecarAdapter {
         }
 
         final int state;
-        switch (deviceState.posture) {
+        final int devicePosture = getSidecarDevicePosture(deviceState);
+        switch (devicePosture) {
             case SidecarDeviceState.POSTURE_CLOSED:
             case SidecarDeviceState.POSTURE_UNKNOWN:
                 return null;
