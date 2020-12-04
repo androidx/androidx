@@ -21,6 +21,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
@@ -293,7 +294,10 @@ class LegacyPagingSourceTest {
         // from them
         runBlocking {
             pager.flow.take(2).collectLatest { pagingData ->
-                pagingData.flow.first()
+                // wait until first insert happens
+                pagingData.flow.filter {
+                    it is PageEvent.Insert
+                }.first()
                 pagingData.receiver.refresh()
             }
         }
