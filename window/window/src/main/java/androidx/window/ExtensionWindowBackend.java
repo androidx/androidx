@@ -77,8 +77,12 @@ final class ExtensionWindowBackend implements WindowBackend {
 
     private static final String TAG = "WindowServer";
 
-    private ExtensionWindowBackend() {
-        // Empty
+    @VisibleForTesting
+    ExtensionWindowBackend(@Nullable ExtensionInterfaceCompat windowExtension) {
+        mWindowExtension = windowExtension;
+        if (mWindowExtension != null) {
+            mWindowExtension.setExtensionCallback(new ExtensionListenerImpl());
+        }
     }
 
     /**
@@ -89,23 +93,12 @@ final class ExtensionWindowBackend implements WindowBackend {
         if (sInstance == null) {
             synchronized (sLock) {
                 if (sInstance == null) {
-                    sInstance = new ExtensionWindowBackend();
-                    sInstance.initExtension(context.getApplicationContext());
+                    ExtensionInterfaceCompat windowExtension = initAndVerifyExtension(context);
+                    sInstance = new ExtensionWindowBackend(windowExtension);
                 }
             }
         }
         return sInstance;
-    }
-
-    /** Tries to initialize Extension, returns early if it's not available. */
-    @SuppressLint("SyntheticAccessor")
-    @GuardedBy("sLock")
-    private void initExtension(Context context) {
-        mWindowExtension = initAndVerifyExtension(context);
-        if (mWindowExtension == null) {
-            return;
-        }
-        mWindowExtension.setExtensionCallback(new ExtensionListenerImpl());
     }
 
     @Override
@@ -126,10 +119,12 @@ final class ExtensionWindowBackend implements WindowBackend {
             WindowLayoutChangeCallbackWrapper callbackWrapper =
                     new WindowLayoutChangeCallbackWrapper(activity, executor, callback);
             mWindowLayoutChangeCallbacks.add(callbackWrapper);
+            // Read value before registering in case the extension updates synchronously.
+            // A synchronous update would result in two values emitted.
+            WindowLayoutInfo lastReportedValue = mLastReportedWindowLayouts.get(activity);
             if (!isActivityRegistered) {
                 mWindowExtension.onWindowLayoutChangeListenerAdded(activity);
             }
-            WindowLayoutInfo lastReportedValue = mLastReportedWindowLayouts.get(activity);
             if (lastReportedValue != null) {
                 callbackWrapper.accept(lastReportedValue);
             }
