@@ -1145,6 +1145,141 @@ class SeparatorsTest {
     }
 
     @Test
+    fun remotePrependEndOfPaginationReachedWithDrops() = runBlockingTest {
+        assertThat(
+            flowOf(
+                Refresh(
+                    pages = listOf(listOf("b1")).toTransformablePages(),
+                    placeholdersBefore = 1,
+                    placeholdersAfter = 1,
+                    combinedLoadStates = remoteLoadStatesOf(
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Incomplete,
+                    )
+                ),
+                Prepend(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffset = -1,
+                            data = listOf("a1"),
+                        )
+                    ),
+                    placeholdersBefore = 0,
+                    combinedLoadStates = remoteLoadStatesOf(
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete,
+                    )
+                ),
+                // Signalling that remote prepend is done triggers the header to resolve.
+                LoadStateUpdate(PREPEND, true, NotLoading.Complete),
+                // Drop the first page, header and separator between "b1" and "a1"
+                Drop(
+                    loadType = PREPEND,
+                    minPageOffset = -1,
+                    maxPageOffset = -1,
+                    placeholdersRemaining = 1
+                ),
+                Prepend(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffset = -1,
+                            data = listOf("a1"),
+                        )
+                    ),
+                    placeholdersBefore = 0,
+                    combinedLoadStates = remoteLoadStatesOf(
+                        prepend = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete,
+                        prependRemote = NotLoading.Complete,
+                    )
+                ),
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+        ).isEqualTo(
+            listOf(
+                Refresh(
+                    pages = listOf(listOf("b1")).toTransformablePages(),
+                    placeholdersBefore = 1,
+                    placeholdersAfter = 1,
+                    combinedLoadStates = remoteLoadStatesOf(
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Incomplete,
+                    )
+                ),
+                Prepend(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffset = -1,
+                            data = listOf("a1"),
+                        ),
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(-1, 0),
+                            data = listOf("B"),
+                            hintOriginalIndices = listOf(0),
+                            hintOriginalPageOffset = -1
+                        ),
+                    ),
+                    placeholdersBefore = 0,
+                    combinedLoadStates = remoteLoadStatesOf(
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete,
+                    )
+                ),
+                Prepend(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(-1),
+                            data = listOf("A"),
+                            hintOriginalIndices = listOf(0),
+                            hintOriginalPageOffset = -1,
+                        ),
+                    ),
+                    placeholdersBefore = 0,
+                    combinedLoadStates = remoteLoadStatesOf(
+                        prepend = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete,
+                        prependRemote = NotLoading.Complete,
+                    ),
+                ),
+                Drop(
+                    loadType = PREPEND,
+                    minPageOffset = -1,
+                    maxPageOffset = -1,
+                    placeholdersRemaining = 1
+                ),
+                Prepend(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(-1),
+                            data = listOf("A"),
+                            hintOriginalIndices = listOf(0),
+                            hintOriginalPageOffset = -1,
+                        ),
+                        TransformablePage(
+                            originalPageOffset = -1,
+                            data = listOf("a1"),
+                        ),
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(-1, 0),
+                            data = listOf("B"),
+                            hintOriginalIndices = listOf(0),
+                            hintOriginalPageOffset = -1
+                        ),
+                    ),
+                    placeholdersBefore = 0,
+                    combinedLoadStates = remoteLoadStatesOf(
+                        prepend = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete,
+                        prependRemote = NotLoading.Complete,
+                    )
+                ),
+            )
+        )
+    }
+
+    @Test
     fun remoteAppendEndOfPaginationReached() = runBlockingTest {
         assertThat(
             flowOf(
@@ -1187,6 +1322,141 @@ class SeparatorsTest {
                         prependLocal = NotLoading.Complete,
                         appendRemote = NotLoading.Complete,
                     ),
+                ),
+            )
+        )
+    }
+
+    @Test
+    fun remoteAppendEndOfPaginationReachedWithDrops() = runBlockingTest {
+        assertThat(
+            flowOf(
+                Refresh(
+                    pages = listOf(listOf("b1")).toTransformablePages(),
+                    placeholdersBefore = 1,
+                    placeholdersAfter = 1,
+                    combinedLoadStates = remoteLoadStatesOf(
+                        prependLocal = NotLoading.Complete,
+                        appendLocal = NotLoading.Incomplete,
+                    )
+                ),
+                Append(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffset = 1,
+                            data = listOf("c1"),
+                        )
+                    ),
+                    placeholdersAfter = 0,
+                    combinedLoadStates = remoteLoadStatesOf(
+                        prependLocal = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                    )
+                ),
+                // Signalling that remote append is done triggers the footer to resolve.
+                LoadStateUpdate(APPEND, true, NotLoading.Complete),
+                // Drop the last page, footer and separator between "b1" and "c1"
+                Drop(
+                    loadType = APPEND,
+                    minPageOffset = 1,
+                    maxPageOffset = 1,
+                    placeholdersRemaining = 1
+                ),
+                Append(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffset = 1,
+                            data = listOf("c1"),
+                        )
+                    ),
+                    placeholdersAfter = 0,
+                    combinedLoadStates = remoteLoadStatesOf(
+                        append = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                        appendRemote = NotLoading.Complete,
+                    )
+                ),
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+        ).isEqualTo(
+            listOf(
+                Refresh(
+                    pages = listOf(listOf("b1")).toTransformablePages(),
+                    placeholdersBefore = 1,
+                    placeholdersAfter = 1,
+                    combinedLoadStates = remoteLoadStatesOf(
+                        prependLocal = NotLoading.Complete,
+                        appendLocal = NotLoading.Incomplete,
+                    )
+                ),
+                Append(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(0, 1),
+                            data = listOf("C"),
+                            hintOriginalIndices = listOf(0),
+                            hintOriginalPageOffset = 1
+                        ),
+                        TransformablePage(
+                            originalPageOffset = 1,
+                            data = listOf("c1"),
+                        ),
+                    ),
+                    placeholdersAfter = 0,
+                    combinedLoadStates = remoteLoadStatesOf(
+                        prependLocal = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                    )
+                ),
+                Append(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(1),
+                            data = listOf("END"),
+                            hintOriginalIndices = listOf(0),
+                            hintOriginalPageOffset = 1,
+                        ),
+                    ),
+                    placeholdersAfter = 0,
+                    combinedLoadStates = remoteLoadStatesOf(
+                        append = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                        appendRemote = NotLoading.Complete,
+                    ),
+                ),
+                Drop(
+                    loadType = APPEND,
+                    minPageOffset = 1,
+                    maxPageOffset = 1,
+                    placeholdersRemaining = 1
+                ),
+                Append(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(0, 1),
+                            data = listOf("C"),
+                            hintOriginalIndices = listOf(0),
+                            hintOriginalPageOffset = 1
+                        ),
+                        TransformablePage(
+                            originalPageOffset = 1,
+                            data = listOf("c1"),
+                        ),
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(1),
+                            data = listOf("END"),
+                            hintOriginalIndices = listOf(0),
+                            hintOriginalPageOffset = 1
+                        ),
+                    ),
+                    placeholdersAfter = 0,
+                    combinedLoadStates = remoteLoadStatesOf(
+                        append = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                        appendRemote = NotLoading.Complete,
+                    )
                 ),
             )
         )
