@@ -39,7 +39,6 @@ public class BundleUtilTest {
     public void testDeepEquals_self() {
         Bundle one = new Bundle();
         one.putString("a", "a");
-        assertThat(one).isEqualTo(one);
         assertThat(BundleUtil.deepEquals(one, one)).isTrue();
     }
 
