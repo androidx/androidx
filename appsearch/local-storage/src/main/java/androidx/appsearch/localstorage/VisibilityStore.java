@@ -97,7 +97,7 @@ class VisibilityStore {
         if (!mAppSearchImpl.hasSchemaTypeLocked(DATABASE_NAME, SCHEMA_TYPE)) {
             // Schema type doesn't exist yet. Add it.
             mAppSearchImpl.setSchema(DATABASE_NAME,
-                    Collections.singleton(new AppSearchSchema.Builder(SCHEMA_TYPE)
+                    Collections.singletonList(new AppSearchSchema.Builder(SCHEMA_TYPE)
                             .addProperty(new AppSearchSchema.PropertyConfig.Builder(
                                     NOT_PLATFORM_SURFACEABLE_PROPERTY)
                                     .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
@@ -105,7 +105,7 @@ class VisibilityStore {
                                             AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
                                     .build())
                             .build()),
-                    /*schemasNotPlatformSurfaceable=*/ Collections.emptySet(),
+                    /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
                     /*forceOverride=*/ false);
         }
 
