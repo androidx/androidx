@@ -17,6 +17,7 @@
 package androidx.wear.watchface
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -135,8 +136,8 @@ public sealed class Renderer(
     /**
      * The bounds of the [SurfaceHolder] this Renderer renders into. Depending on the shape of the
      * device's screen not all of these pixels may be visible to the user (see
-     * [WatchState.screenShape]).  Note also that API level 27+ devices draw indicators in the top
-     * and bottom 24dp of the screen, avoid rendering anything important there.
+     * [Configuration.isScreenRound]).  Note also that API level 27+ devices draw indicators in the
+     * top and bottom 24dp of the screen, avoid rendering anything important there.
      */
     public var screenBounds: Rect = surfaceHolder.surfaceFrame
         private set
@@ -249,8 +250,9 @@ public sealed class Renderer(
     }
 
     /**
-     * Posts a message to schedule a call to [renderInternal] to draw the next frame. Unlike
-     * [invalidate], this method is thread-safe and may be called on any thread.
+     * Posts a message to schedule a call to either [CanvasRenderer.render] or [GlesRenderer.render]
+     * to draw the next frame. Unlike [invalidate], this method is thread-safe and may be called
+     * on any thread.
      */
     public fun postInvalidate() {
         if (this::watchFaceHostApi.isInitialized) {
