@@ -28,6 +28,7 @@ import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.rx2.asCoroutineDispatcher
+import kotlinx.coroutines.rx2.await
 import java.io.File
 import java.util.concurrent.Callable
 
@@ -111,6 +112,18 @@ public class RxDataStoreBuilder<T> {
         RxDataStoreBuilder<T> = apply { this.corruptionHandler = corruptionHandler }
 
     /**
+     * Add an RxDataMigration to the DataStore. Migrations are run in the order they are added.
+     *
+     * @param rxDataMigration the migration to add.
+     * @return this
+     */
+    @Suppress("MissingGetterMatchingBuilder")
+    public fun addRxDataMigration(rxDataMigration: RxDataMigration<T>): RxDataStoreBuilder<T> =
+        apply {
+            this.dataMigrations.add(DataMigrationFromRxDataMigration(rxDataMigration))
+        }
+
+    /**
      * Add a DataMigration to the Datastore. Migrations are run in the order they are added.
      *
      * @param dataMigration the migration to add
@@ -152,5 +165,20 @@ public class RxDataStoreBuilder<T> {
                 "Either produceFile or context and name must be set. This should never happen."
             )
         }
+    }
+}
+
+internal class DataMigrationFromRxDataMigration<T>(private val migration: RxDataMigration<T>) :
+    DataMigration<T> {
+    override suspend fun shouldMigrate(currentData: T): Boolean {
+        return migration.shouldMigrate(currentData).await()
+    }
+
+    override suspend fun migrate(currentData: T): T {
+        return migration.migrate(currentData).await()
+    }
+
+    override suspend fun cleanUp() {
+        migration.cleanUp().await()
     }
 }
