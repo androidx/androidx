@@ -317,6 +317,8 @@ includeProject(":heifwriter:heifwriter", "heifwriter/heifwriter", [BuildType.MAI
 includeProject(":hilt:hilt-common", "hilt/hilt-common", [BuildType.MAIN])
 includeProject(":hilt:hilt-compiler", "hilt/hilt-compiler", [BuildType.MAIN])
 includeProject(":hilt:hilt-lifecycle-viewmodel", "hilt/hilt-lifecycle-viewmodel", [BuildType.MAIN])
+includeProject(":hilt:hilt-navigation", "hilt/hilt-navigation", [BuildType.MAIN])
+includeProject(":hilt:hilt-navigation-fragment", "hilt/hilt-navigation-fragment", [BuildType.MAIN])
 includeProject(":hilt:hilt-work", "hilt/hilt-work", [BuildType.MAIN])
 includeProject(":hilt:integration-tests:hilt-testapp-viewmodel", "hilt/integration-tests/viewmodelapp", [BuildType.MAIN])
 includeProject(":hilt:integration-tests:hilt-testapp-worker", "hilt/integration-tests/workerapp", [BuildType.MAIN])
