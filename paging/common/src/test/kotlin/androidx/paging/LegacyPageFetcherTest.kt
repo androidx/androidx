@@ -139,7 +139,7 @@ class LegacyPageFetcherTest {
             GlobalScope,
             config,
             pagingSource,
-            DirectDispatcher,
+            testDispatcher,
             testDispatcher,
             consumer,
             storage as LegacyPageFetcher.KeyProvider<Int>
