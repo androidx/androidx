@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.RestrictTo
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -31,15 +32,17 @@ import kotlinx.coroutines.CoroutineScope
 class InitialPagedList<K : Any, V : Any>(
     pagingSource: PagingSource<K, V>,
     coroutineScope: CoroutineScope,
+    notifyDispatcher: CoroutineDispatcher,
+    backgroundDispatcher: CoroutineDispatcher,
     config: Config,
     initialLastKey: K?
 ) : ContiguousPagedList<K, V>(
-    pagingSource,
-    coroutineScope,
-    DirectDispatcher,
-    DirectDispatcher,
-    null,
-    config,
-    PagingSource.LoadResult.Page.empty(),
-    initialLastKey
+    pagingSource = pagingSource,
+    coroutineScope = coroutineScope,
+    notifyDispatcher = notifyDispatcher,
+    backgroundDispatcher = backgroundDispatcher,
+    boundaryCallback = null,
+    config = config,
+    initialPage = PagingSource.LoadResult.Page.empty(),
+    initialLastKey = initialLastKey
 )

@@ -21,6 +21,7 @@ import androidx.paging.LoadType.REFRESH
 import androidx.testutils.TestDispatcher
 import androidx.testutils.TestExecutor
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -86,8 +87,8 @@ class PagedListTest {
                     pagingSource,
                     null,
                     testCoroutineScope,
-                    DirectDispatcher,
-                    DirectDispatcher,
+                    Dispatchers.Default,
+                    Dispatchers.IO,
                     null,
                     Config(10),
                     0
@@ -114,8 +115,8 @@ class PagedListTest {
                     pagingSource,
                     null,
                     testCoroutineScope,
-                    DirectDispatcher,
-                    DirectDispatcher,
+                    Dispatchers.Default,
+                    Dispatchers.IO,
                     null,
                     Config(10),
                     0
@@ -136,8 +137,8 @@ class PagedListTest {
 
         @Suppress("DEPRECATION")
         val pagedList = PagedList.Builder(pagingSource, initialPage, config)
-            .setNotifyDispatcher(DirectDispatcher)
-            .setFetchDispatcher(DirectDispatcher)
+            .setNotifyDispatcher(Dispatchers.Default)
+            .setFetchDispatcher(Dispatchers.IO)
             .build()
 
         assertEquals(pagingSource, pagedList.pagingSource)
