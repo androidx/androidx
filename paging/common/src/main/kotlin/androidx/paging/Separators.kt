@@ -427,8 +427,10 @@ private class SeparatorState<R : Any, T : R>(
         loadStates.set(type = event.loadType, remote = false, state = NotLoading.Incomplete)
         if (event.loadType == PREPEND) {
             placeholdersBefore = event.placeholdersRemaining
+            headerAdded = false
         } else if (event.loadType == APPEND) {
             placeholdersAfter = event.placeholdersRemaining
+            footerAdded = false
         }
 
         if (pageStash.isEmpty()) {
