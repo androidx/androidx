@@ -771,15 +771,17 @@ package androidx.car.app.model.constraints {
 package androidx.car.app.navigation {
 
   public class NavigationManager {
+    method @MainThread public void clearNavigationManagerListener();
     method @MainThread public void navigationEnded();
     method @MainThread public void navigationStarted();
-    method @MainThread public void setListener(androidx.car.app.navigation.NavigationManagerListener?);
+    method @MainThread public void setNavigationManagerListener(androidx.car.app.navigation.NavigationManagerListener);
+    method @MainThread public void setNavigationManagerListener(java.util.concurrent.Executor, androidx.car.app.navigation.NavigationManagerListener);
     method @MainThread public void updateTrip(androidx.car.app.navigation.model.Trip);
   }
 
   public interface NavigationManagerListener {
     method public void onAutoDriveEnabled();
-    method public void stopNavigation();
+    method public void onStopNavigation();
   }
 
 }

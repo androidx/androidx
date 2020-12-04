@@ -16,12 +16,10 @@
 
 package androidx.car.app.navigation;
 
-import android.annotation.SuppressLint;
-
 import androidx.car.app.navigation.model.Trip;
 
 /**
- * Listener of events from the {@link NavigationManager}.
+ * Listener for events from the {@link NavigationManager}.
  *
  * @see NavigationManager
  */
@@ -34,11 +32,7 @@ public interface NavigationManagerListener {
      * guidance, routing-related notifications, and updating trip information via {@link
      * NavigationManager#updateTrip(Trip)}.
      */
-
-    // TODO(rampara): Listener method names must follow the on<Something> style. Consider
-    //  onShouldStopNavigation.
-    @SuppressLint("CallbackMethodName")
-    void stopNavigation();
+    void onStopNavigation();
 
     /**
      * Notifies the app that, from this point onwards, when the user chooses to navigate to a

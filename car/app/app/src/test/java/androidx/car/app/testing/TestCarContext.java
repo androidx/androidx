@@ -226,7 +226,7 @@ public class TestCarContext extends CarContext {
         this.mFakeHost = new FakeHost(this);
         this.mTestLifecycleOwner = testLifecycleOwner;
         this.mTestAppManager = new TestAppManager(this, hostDispatcher);
-        this.mTestNavigationManager = new TestNavigationManager(hostDispatcher);
+        this.mTestNavigationManager = new TestNavigationManager(this, hostDispatcher);
         this.mTestScreenManager = new TestScreenManager(this);
     }
 }

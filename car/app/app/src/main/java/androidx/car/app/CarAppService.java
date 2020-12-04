@@ -129,7 +129,7 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
             mRegistry.handleLifecycleEvent(Event.ON_STOP);
 
             // Stop any active navigation
-            mCarContext.getCarService(NavigationManager.class).stopNavigation();
+            mCarContext.getCarService(NavigationManager.class).onStopNavigation();
 
             // Destroy all screens in the stack
             mCarContext.getCarService(ScreenManager.class).destroyAndClearScreenStack();
