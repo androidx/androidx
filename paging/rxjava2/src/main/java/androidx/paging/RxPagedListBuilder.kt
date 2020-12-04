@@ -356,10 +356,12 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
 
         init {
             currentData = InitialPagedList(
-                pagingSourceFactory(),
-                GlobalScope,
-                config,
-                initialLoadKey
+                pagingSource = pagingSourceFactory(),
+                coroutineScope = GlobalScope,
+                notifyDispatcher = notifyDispatcher,
+                backgroundDispatcher = fetchDispatcher,
+                config = config,
+                initialLastKey = initialLoadKey
             )
             currentData.setRetryCallback(refreshRetryCallback)
         }

@@ -19,6 +19,7 @@ package androidx.paging
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import com.nhaarman.mockitokotlin2.capture
 import com.nhaarman.mockitokotlin2.mock
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -289,7 +290,7 @@ class ItemKeyedDataSourceTest {
         @Suppress("DEPRECATION")
         PagedList.Builder(dataSource, 10)
             .setNotifyDispatcher(FailDispatcher())
-            .setFetchDispatcher(DirectDispatcher)
+            .setFetchDispatcher(Dispatchers.IO)
             .setInitialKey("")
             .build()
     }
