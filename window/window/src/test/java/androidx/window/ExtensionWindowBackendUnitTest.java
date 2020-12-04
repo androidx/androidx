@@ -27,40 +27,35 @@ import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Rect;
 
+import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
-import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.LargeTest;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/** Tests for {@link ExtensionWindowBackend} class. */
-@SuppressWarnings("deprecation") // TODO(b/173739071) remove DeviceState
-@LargeTest
-@RunWith(AndroidJUnit4.class)
-public final class ExtensionWindowBackendTest extends WindowTestBase {
+/**
+ * Unit tests for {@link ExtensionWindowBackend} that run on the JVM.
+ */
+@SuppressWarnings("deprecation") // TODO(b/173739071) Remove DeviceState
+public class ExtensionWindowBackendUnitTest {
     private Context mContext;
 
     @Before
     public void setUp() {
-        mContext = ApplicationProvider.getApplicationContext();
+        mContext = mock(Context.class);
         ExtensionWindowBackend.resetInstance();
     }
 
@@ -72,32 +67,6 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
         // Verify that getInstance always returns the same value
         ExtensionWindowBackend newBackend = ExtensionWindowBackend.getInstance(mContext);
         assertEquals(backend, newBackend);
-    }
-
-    @Test
-    public void testInitAndVerifyExtension() {
-        Version extensionVersion = ExtensionCompat.getExtensionVersion();
-        assumeTrue(extensionVersion != null);
-        assertTrue(ExtensionWindowBackend.isExtensionVersionSupported(extensionVersion));
-
-        ExtensionInterfaceCompat extension =
-                ExtensionWindowBackend.initAndVerifyExtension(mContext);
-        assertNotNull(extension);
-        assertTrue(extension instanceof ExtensionCompat);
-        assertTrue(extension.validateExtensionInterface());
-    }
-
-    @Test
-    public void testInitAndVerifySidecar() {
-        Version sidecarVersion = SidecarCompat.getSidecarVersion();
-        assumeTrue(sidecarVersion != null);
-        assertTrue(ExtensionWindowBackend.isExtensionVersionSupported(sidecarVersion));
-
-        ExtensionInterfaceCompat sidecar =
-                ExtensionWindowBackend.initAndVerifyExtension(mContext);
-        assertNotNull(sidecar);
-        assertTrue(sidecar instanceof SidecarCompat);
-        assertTrue(sidecar.validateExtensionInterface());
     }
 
     @Test
@@ -134,7 +103,7 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
 
         // Check registering the layout change callback
         Consumer<WindowLayoutInfo> consumer = mock(WindowLayoutInfoConsumer.class);
-        TestActivity activity = mActivityTestRule.launchActivity(new Intent());
+        Activity activity = mock(Activity.class);
         backend.registerLayoutChangeCallback(activity, Runnable::run, consumer);
 
         assertEquals(1, backend.mWindowLayoutChangeCallbacks.size());
@@ -148,13 +117,30 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
     }
 
     @Test
+    public void testRegisterLayoutChangeCallback_synchronousExtension() {
+        WindowLayoutInfo expectedInfo = newTestWindowLayoutInfo();
+        ExtensionInterfaceCompat extensionInterfaceCompat =
+                new SynchronousExtensionInterface(expectedInfo,
+                newTestDeviceState());
+        ExtensionWindowBackend backend = new ExtensionWindowBackend(extensionInterfaceCompat);
+
+        // Check registering the layout change callback
+        Consumer<WindowLayoutInfo> consumer = mock(WindowLayoutInfoConsumer.class);
+        Activity activity = mock(Activity.class);
+        backend.registerLayoutChangeCallback(activity, Runnable::run, consumer);
+
+        // Check unregistering the layout change callback
+        verify(consumer).accept(expectedInfo);
+    }
+
+    @Test
     public void testRegisterLayoutChangeCallback_callsExtensionOnce() {
         ExtensionWindowBackend backend = ExtensionWindowBackend.getInstance(mContext);
         backend.mWindowExtension = mock(ExtensionInterfaceCompat.class);
 
         // Check registering the layout change callback
         Consumer<WindowLayoutInfo> consumer = mock(WindowLayoutInfoConsumer.class);
-        TestActivity activity = mActivityTestRule.launchActivity(new Intent());
+        Activity activity = mock(Activity.class);
         backend.registerLayoutChangeCallback(activity, Runnable::run, consumer);
         backend.registerLayoutChangeCallback(activity, Runnable::run,
                 mock(WindowLayoutInfoConsumer.class));
@@ -178,7 +164,7 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
         // Check registering the layout change callback
         Consumer<WindowLayoutInfo> firstConsumer = mock(WindowLayoutInfoConsumer.class);
         Consumer<WindowLayoutInfo> secondConsumer = mock(WindowLayoutInfoConsumer.class);
-        TestActivity activity = mActivityTestRule.launchActivity(new Intent());
+        Activity activity = mock(Activity.class);
         backend.registerLayoutChangeCallback(activity, Runnable::run, firstConsumer);
         backend.registerLayoutChangeCallback(activity, Runnable::run, secondConsumer);
 
@@ -191,50 +177,8 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
     }
 
     @Test
-    public void testRegisterLayoutChangeCallback_relayLastEmittedValue() {
-        WindowLayoutInfo expectedWindowLayoutInfo = newTestWindowLayoutInfo();
-        ExtensionWindowBackend backend = ExtensionWindowBackend.getInstance(mContext);
-        Consumer<WindowLayoutInfo> consumer = mock(WindowLayoutInfoConsumer.class);
-        TestActivity activity = mActivityTestRule.launchActivity(new Intent());
-        backend.registerLayoutChangeCallback(activity, Runnable::run,
-                mock(WindowLayoutInfoConsumer.class));
-        backend.mWindowExtension = mock(ExtensionInterfaceCompat.class);
-        backend.mLastReportedWindowLayouts.put(activity, expectedWindowLayoutInfo);
-
-        backend.registerLayoutChangeCallback(activity, Runnable::run, consumer);
-
-        verify(consumer).accept(expectedWindowLayoutInfo);
-    }
-
-    @Test
-    public void testLayoutChangeCallback_emitNewValue() {
-        ExtensionWindowBackend backend = ExtensionWindowBackend.getInstance(mContext);
-        backend.mWindowExtension = mock(ExtensionInterfaceCompat.class);
-
-        // Check that callbacks from the extension are propagated correctly
-        Consumer<WindowLayoutInfo> consumer = mock(WindowLayoutInfoConsumer.class);
-        TestActivity activity = mActivityTestRule.launchActivity(new Intent());
-
-        backend.registerLayoutChangeCallback(activity, Runnable::run, consumer);
-        WindowLayoutInfo windowLayoutInfo = newTestWindowLayoutInfo();
-
-        ExtensionWindowBackend.ExtensionListenerImpl backendListener =
-                backend.new ExtensionListenerImpl();
-        backendListener.onWindowLayoutChanged(activity, windowLayoutInfo);
-
-        verify(consumer).accept(eq(windowLayoutInfo));
-        assertEquals(windowLayoutInfo, backend.mLastReportedWindowLayouts.get(activity));
-
-        // Test that the same value wouldn't be reported again
-        reset(consumer);
-        backendListener.onWindowLayoutChanged(activity, windowLayoutInfo);
-        verify(consumer, never()).accept(any());
-    }
-
-    @Test
     public void testRegisterDeviceChangeCallback() {
-        ExtensionInterfaceCompat mockInterface = mock(
-                ExtensionInterfaceCompat.class);
+        ExtensionInterfaceCompat mockInterface = mock(ExtensionInterfaceCompat.class);
         ExtensionWindowBackend backend = ExtensionWindowBackend.getInstance(mContext);
         backend.mWindowExtension = mockInterface;
 
@@ -266,13 +210,12 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
                 backend.new ExtensionListenerImpl();
         backendListener.onDeviceStateChanged(deviceState);
 
-        verify(consumer).accept(eq(deviceState));
+        verify(consumer, times(1)).accept(eq(deviceState));
         assertEquals(deviceState, backend.mLastReportedDeviceState);
 
         // Test that the same value wouldn't be reported again
-        reset(consumer);
         backendListener.onDeviceStateChanged(deviceState);
-        verify(consumer, never()).accept(any());
+        verify(consumer, times(1)).accept(any());
     }
 
     @Test
@@ -282,7 +225,6 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
 
         // Check registering the layout change callback
         Consumer<DeviceState> consumer = mock(DeviceStateConsumer.class);
-        mActivityTestRule.launchActivity(new Intent());
         backend.registerDeviceStateChangeCallback(Runnable::run, consumer);
         backend.registerDeviceStateChangeCallback(Runnable::run, mock(DeviceStateConsumer.class));
 
@@ -305,7 +247,6 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
         // Check registering the layout change callback
         Consumer<DeviceState> firstConsumer = mock(DeviceStateConsumer.class);
         Consumer<DeviceState> secondConsumer = mock(DeviceStateConsumer.class);
-        mActivityTestRule.launchActivity(new Intent());
         backend.registerDeviceStateChangeCallback(Runnable::run, firstConsumer);
         backend.registerDeviceStateChangeCallback(Runnable::run, secondConsumer);
 
@@ -344,21 +285,6 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
 
     private static WindowLayoutInfo newTestWindowLayoutInfo() {
         WindowLayoutInfo.Builder builder = new WindowLayoutInfo.Builder();
-        WindowLayoutInfo windowLayoutInfo = builder.build();
-
-        assertTrue(windowLayoutInfo.getDisplayFeatures().isEmpty());
-
-        DisplayFeature feature1 = new FoldingFeature(new Rect(0, 2, 3, 4),
-                FoldingFeature.TYPE_HINGE, FoldingFeature.STATE_FLAT);
-        DisplayFeature feature2 = new FoldingFeature(new Rect(0, 1, 5, 1),
-                FoldingFeature.TYPE_HINGE, FoldingFeature.STATE_FLAT);
-
-        List<DisplayFeature> displayFeatures = new ArrayList<>();
-        displayFeatures.add(feature1);
-        displayFeatures.add(feature2);
-
-        builder = new WindowLayoutInfo.Builder();
-        builder.setDisplayFeatures(displayFeatures);
         return builder.build();
     }
 
@@ -386,6 +312,56 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
 
         T lastValue() {
             return mValues.get(mValues.size() - 1);
+        }
+    }
+
+    private static class SynchronousExtensionInterface implements ExtensionInterfaceCompat {
+
+        private ExtensionCallbackInterface mInterface;
+        private final DeviceState mDeviceState;
+        private final WindowLayoutInfo mWindowLayoutInfo;
+
+        SynchronousExtensionInterface(WindowLayoutInfo windowLayoutInfo, DeviceState deviceState) {
+            mInterface = new ExtensionCallbackInterface() {
+                @Override
+                public void onDeviceStateChanged(@NonNull @NotNull DeviceState newDeviceState) {
+
+                }
+
+                @Override
+                public void onWindowLayoutChanged(@NonNull @NotNull Activity activity,
+                        @NonNull @NotNull WindowLayoutInfo newLayout) {
+
+                }
+            };
+            mWindowLayoutInfo = windowLayoutInfo;
+            mDeviceState = deviceState;
+        }
+
+        @Override
+        public boolean validateExtensionInterface() {
+            return true;
+        }
+
+        @Override
+        public void setExtensionCallback(
+                @NonNull @NotNull ExtensionCallbackInterface extensionCallback) {
+            mInterface = extensionCallback;
+        }
+
+        @Override
+        public void onWindowLayoutChangeListenerAdded(@NonNull @NotNull Activity activity) {
+            mInterface.onWindowLayoutChanged(activity, mWindowLayoutInfo);
+        }
+
+        @Override
+        public void onWindowLayoutChangeListenerRemoved(@NonNull @NotNull Activity activity) {
+
+        }
+
+        @Override
+        public void onDeviceStateListenersChanged(boolean isEmpty) {
+            mInterface.onDeviceStateChanged(mDeviceState);
         }
     }
 }

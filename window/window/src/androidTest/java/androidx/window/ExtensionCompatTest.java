@@ -17,9 +17,9 @@
 package androidx.window;
 
 import static androidx.window.ExtensionInterfaceCompat.ExtensionCallbackInterface;
-import static androidx.window.TestBoundUtil.invalidFoldBounds;
-import static androidx.window.TestBoundUtil.invalidHingeBounds;
-import static androidx.window.TestBoundUtil.validFoldBound;
+import static androidx.window.TestBoundsUtil.invalidFoldBounds;
+import static androidx.window.TestBoundsUtil.invalidHingeBounds;
+import static androidx.window.TestBoundsUtil.validFoldBound;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
