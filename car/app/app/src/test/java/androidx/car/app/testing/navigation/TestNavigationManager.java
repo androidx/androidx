@@ -24,6 +24,7 @@ import androidx.car.app.HostDispatcher;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.navigation.NavigationManagerListener;
 import androidx.car.app.navigation.model.Trip;
+import androidx.car.app.testing.TestCarContext;
 import androidx.car.app.testing.navigation.model.TripController;
 
 import java.util.ArrayList;
@@ -37,7 +38,8 @@ import java.util.List;
  *
  * <ul>
  *   <li>All the {@link Trip}s sent via {@link NavigationManager#updateTrip}.
- *   <li>All the {@link NavigationManagerListener}s set via {@link NavigationManager#setListener}.
+ *   <li>All the {@link NavigationManagerListener}s set via
+ *   {@link NavigationManager#setNavigationManagerListener}.
  *   <li>Count of times that the navigation was started via {@link
  *       NavigationManager#navigationStarted()}.
  *   <li>Count of times that the navigation was ended via {@link NavigationManager#navigationEnded}.
@@ -71,14 +73,14 @@ public class TestNavigationManager extends NavigationManager {
 
     /**
      * Retrieves all the {@link NavigationManagerListener}s added via {@link
-     * NavigationManager#setListener(NavigationManagerListener)}.
+     * NavigationManager#setNavigationManagerListener(NavigationManagerListener)}.
      *
      * <p>The listeners are stored in order of calls.
      *
      * <p>The listeners will be stored until {@link #reset} is called.
      */
     @NonNull
-    public List<NavigationManagerListener> getNavigationManagerListenersSet() {
+    public List<NavigationManagerListener> getNavigationManagerCallbacksSet() {
         return mListenersSet;
     }
 
@@ -105,9 +107,9 @@ public class TestNavigationManager extends NavigationManager {
     }
 
     @Override
-    public void setListener(@Nullable NavigationManagerListener listener) {
+    public void setNavigationManagerListener(@Nullable NavigationManagerListener listener) {
         mListenersSet.add(listener);
-        super.setListener(listener);
+        super.setNavigationManagerListener(listener);
     }
 
     @Override
@@ -122,7 +124,7 @@ public class TestNavigationManager extends NavigationManager {
         super.navigationEnded();
     }
 
-    public TestNavigationManager(HostDispatcher hostDispatcher) {
-        super(hostDispatcher);
+    public TestNavigationManager(TestCarContext testCarContext, HostDispatcher hostDispatcher) {
+        super(testCarContext, hostDispatcher);
     }
 }
