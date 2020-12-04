@@ -21,6 +21,8 @@ import androidx.annotation.NonNull;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
+import kotlin.NotImplementedError;
+
 /**
  * Base class to serialize / deserialize {@link OngoingActivityStatus} into / from a Notification
  *
@@ -29,7 +31,12 @@ import androidx.versionedparcelable.VersionedParcelize;
  * {@link android.os.SystemClock#elapsedRealtime()}
  */
 @VersionedParcelize
-public abstract class OngoingActivityStatus implements VersionedParcelable {
+public class OngoingActivityStatus implements VersionedParcelable {
+
+    // Required by VersionedParcelable
+    OngoingActivityStatus() {
+    }
+
     /**
      * Returns a textual representation of the ongoing activity status at the given time
      * represented as milliseconds timestamp
@@ -43,7 +50,9 @@ public abstract class OngoingActivityStatus implements VersionedParcelable {
      *                      returned by {@link android.os.SystemClock#elapsedRealtime()}.
      */
     @NonNull
-    public abstract CharSequence getText(@NonNull Context context, long timeNowMillis);
+    public CharSequence getText(@NonNull Context context, long timeNowMillis) {
+        throw new NotImplementedError();
+    }
 
     /**
      * Returns the timestamp of the next time when the display will be different from the current
@@ -56,7 +65,9 @@ public abstract class OngoingActivityStatus implements VersionedParcelable {
      * @return the first point in time after {@code fromTimeMillis} when the displayed value of
      * this status will change. returns Long.MAX_VALUE if the display will never change.
      */
-    public abstract long getNextChangeTimeMillis(long fromTimeMillis);
+    public long getNextChangeTimeMillis(long fromTimeMillis) {
+        throw new NotImplementedError();
+    }
 
     // Invalid value to use for paused_at and duration, as suggested by api guidelines 5.15
     static final long LONG_DEFAULT = -1L;
