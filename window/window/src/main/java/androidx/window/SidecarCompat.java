@@ -32,7 +32,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.SimpleArrayMap;
-import androidx.core.util.Consumer;
 import androidx.window.sidecar.SidecarDeviceState;
 import androidx.window.sidecar.SidecarDisplayFeature;
 import androidx.window.sidecar.SidecarInterface;
@@ -128,7 +127,8 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
         if (windowToken != null) {
             register(windowToken, activity);
         } else {
-            FirstAttachAdapter attachAdapter = new FirstAttachAdapter((token) -> {
+            FirstAttachAdapter attachAdapter = new FirstAttachAdapter(() -> {
+                IBinder token = getActivityWindowToken(activity);
                 register(token, activity);
             });
             activity.getWindow().getDecorView().addOnAttachStateChangeListener(attachAdapter);
@@ -315,15 +315,15 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
      */
     private static class FirstAttachAdapter implements View.OnAttachStateChangeListener {
 
-        private final Consumer<IBinder> mCallback;
+        private final Runnable mCallback;
 
-        FirstAttachAdapter(Consumer<IBinder> callback) {
+        FirstAttachAdapter(Runnable callback) {
             mCallback = callback;
         }
 
         @Override
         public void onViewAttachedToWindow(View view) {
-            mCallback.accept(view.getWindowToken());
+            mCallback.run();
             view.removeOnAttachStateChangeListener(this);
         }
 
