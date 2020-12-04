@@ -21,7 +21,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <EditText
-        android:id="@+id/edit_text_for_rich_content_receiver"
+        android:id="@+id/edit_text"
         android:layout_width="200dip"
         android:layout_height="60dip" />
 </FrameLayout>

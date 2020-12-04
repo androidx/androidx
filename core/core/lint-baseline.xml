@@ -11537,17 +11537,6 @@
 
     <issue
         id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.core.widget.TextViewRichContentReceiverCompat is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
-        errorLine1="                    paste = clip.getItemAt(i).coerceToStyledText(context);"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/TextViewRichContentReceiverCompat.java"
-            line="82"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
         message="This call is to a method from API 29, the call containing class androidx.core.os.TraceCompat is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
         errorLine1="            return Trace.isEnabled();"
         errorLine2="                         ~~~~~~~~~">

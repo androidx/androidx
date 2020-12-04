@@ -25,29 +25,33 @@ import android.text.Spanned;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.view.OnReceiveContentListener;
 
 import java.util.Collections;
 import java.util.Set;
 
 /**
- * Base implementation of {@link RichContentReceiverCompat} for editable {@link TextView}
+ * Base implementation of {@link OnReceiveContentListener} for editable {@link TextView}
  * components.
  *
  * <p>This class handles insertion of text (plain text, styled text, HTML, etc) but not images or
  * other rich content. It should be used as a base class when implementing a custom
- * {@link RichContentReceiverCompat}, to provide consistent behavior for insertion of text while
- * implementing custom behavior for insertion of other content (images, etc).
+ * {@link OnReceiveContentListener}, to provide consistent behavior for insertion of text
+ * while implementing custom behavior for insertion of other content (images, etc).
  *
- * <p>See {@link RichContentReceiverCompat} for an example of how to implement a custom receiver.
+ * <p>See {@link OnReceiveContentListener} for an example of how to implement the listener.
  */
-public abstract class TextViewRichContentReceiverCompat extends
-        RichContentReceiverCompat<TextView> {
+@SuppressWarnings("ListenerInterface")
+public abstract class TextViewOnReceiveContentListener extends
+        OnReceiveContentListener<TextView> {
 
     private static final Set<String> MIME_TYPES_ALL_TEXT = Collections.singleton("text/*");
 
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("CallbackMethodName")
     @Override
     @NonNull
     public Set<String> getSupportedMimeTypes() {
@@ -74,15 +78,10 @@ public abstract class TextViewRichContentReceiverCompat extends
         boolean didFirst = false;
         for (int i = 0; i < clip.getItemCount(); i++) {
             CharSequence paste;
-            if ((flags & FLAG_CONVERT_TO_PLAIN_TEXT) != 0) {
-                paste = clip.getItemAt(i).coerceToText(context);
-                paste = (paste instanceof Spanned) ? paste.toString() : paste;
+            if (Build.VERSION.SDK_INT >= 16) {
+                paste = CoerceToTextApi16Impl.coerce(context, clip.getItemAt(i), flags);
             } else {
-                if (Build.VERSION.SDK_INT >= 16) {
-                    paste = clip.getItemAt(i).coerceToStyledText(context);
-                } else {
-                    paste = clip.getItemAt(i).coerceToText(context);
-                }
+                paste = CoerceToTextImpl.coerce(context, clip.getItemAt(i), flags);
             }
             if (paste != null) {
                 if (!didFirst) {
@@ -100,5 +99,31 @@ public abstract class TextViewRichContentReceiverCompat extends
             }
         }
         return didFirst;
+    }
+
+    @RequiresApi(16) // For ClipData.Item.coerceToStyledText()
+    private static final class CoerceToTextApi16Impl {
+        private CoerceToTextApi16Impl() {}
+
+        static CharSequence coerce(Context context, ClipData.Item item, @Flags int flags) {
+            if ((flags & FLAG_CONVERT_TO_PLAIN_TEXT) != 0) {
+                CharSequence text = item.coerceToText(context);
+                return (text instanceof Spanned) ? text.toString() : text;
+            } else {
+                return item.coerceToStyledText(context);
+            }
+        }
+    }
+
+    private static final class CoerceToTextImpl {
+        private CoerceToTextImpl() {}
+
+        static CharSequence coerce(Context context, ClipData.Item item, @Flags int flags) {
+            CharSequence text = item.coerceToText(context);
+            if ((flags & FLAG_CONVERT_TO_PLAIN_TEXT) != 0 && text instanceof Spanned) {
+                text = text.toString();
+            }
+            return text;
+        }
     }
 }
