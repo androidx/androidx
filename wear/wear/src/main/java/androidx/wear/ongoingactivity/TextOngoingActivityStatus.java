@@ -31,7 +31,11 @@ import java.util.Objects;
 public class TextOngoingActivityStatus extends OngoingActivityStatus {
     @NonNull
     @ParcelField(value = 1, defaultValue = "")
-    private String mStr = "";
+    String mStr = "";
+
+    // Required by VersionedParcelable
+    TextOngoingActivityStatus() {
+    }
 
     public TextOngoingActivityStatus(@NonNull String str) {
         this.mStr = str;

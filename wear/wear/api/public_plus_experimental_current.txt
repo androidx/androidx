@@ -114,16 +114,13 @@ package androidx.wear.ongoingactivity {
     method public static boolean hasOngoingActivity(android.app.Notification);
   }
 
-  @androidx.versionedparcelable.VersionedParcelize public abstract class OngoingActivityStatus implements androidx.versionedparcelable.VersionedParcelable {
-    ctor public OngoingActivityStatus();
-    method public abstract long getNextChangeTimeMillis(long);
-    method public abstract CharSequence getText(android.content.Context, long);
+  @androidx.versionedparcelable.VersionedParcelize public class OngoingActivityStatus implements androidx.versionedparcelable.VersionedParcelable {
+    method public long getNextChangeTimeMillis(long);
+    method public CharSequence getText(android.content.Context, long);
   }
 
   @androidx.versionedparcelable.VersionedParcelize public class TextOngoingActivityStatus extends androidx.wear.ongoingactivity.OngoingActivityStatus {
     ctor public TextOngoingActivityStatus(String);
-    method public long getNextChangeTimeMillis(long);
-    method public CharSequence getText(android.content.Context, long);
   }
 
   @androidx.versionedparcelable.VersionedParcelize public class TimerOngoingActivityStatus extends androidx.wear.ongoingactivity.OngoingActivityStatus {
@@ -131,9 +128,7 @@ package androidx.wear.ongoingactivity {
     ctor public TimerOngoingActivityStatus(long, boolean, long);
     ctor public TimerOngoingActivityStatus(long, boolean);
     ctor public TimerOngoingActivityStatus(long);
-    method public long getNextChangeTimeMillis(long);
     method public long getPausedAtMillis();
-    method public CharSequence getText(android.content.Context, long);
     method public long getTimeZeroMillis();
     method public long getTotalDurationMillis();
     method public boolean hasTotalDuration();
