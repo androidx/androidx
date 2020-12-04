@@ -55,7 +55,7 @@ class Controller3AUnlock3ATest {
         val unLock3AAsyncTask = GlobalScope.async {
             controller3A.unlock3A(ae = true)
         }
-        Truth.assertThat(unLock3AAsyncTask.isCompleted).isFalse()
+
         // Launch a task to repeatedly invoke a given capture result.
         GlobalScope.launch {
             while (true) {
@@ -116,7 +116,7 @@ class Controller3AUnlock3ATest {
         initGraphProcessor()
 
         val unLock3AAsyncTask = GlobalScope.async { controller3A.unlock3A(af = true) }
-        Truth.assertThat(unLock3AAsyncTask.isCompleted).isFalse()
+
         // Launch a task to repeatedly invoke a given capture result.
         GlobalScope.launch {
             while (true) {
@@ -179,7 +179,7 @@ class Controller3AUnlock3ATest {
         val unLock3AAsyncTask = GlobalScope.async {
             controller3A.unlock3A(awb = true)
         }
-        Truth.assertThat(unLock3AAsyncTask.isCompleted).isFalse()
+
         // Launch a task to repeatedly invoke a given capture result.
         GlobalScope.launch {
             while (true) {
@@ -240,7 +240,7 @@ class Controller3AUnlock3ATest {
         initGraphProcessor()
 
         val unLock3AAsyncTask = GlobalScope.async { controller3A.unlock3A(ae = true, af = true) }
-        Truth.assertThat(unLock3AAsyncTask.isCompleted).isFalse()
+
         // Launch a task to repeatedly invoke a given capture result.
         GlobalScope.launch {
             while (true) {
