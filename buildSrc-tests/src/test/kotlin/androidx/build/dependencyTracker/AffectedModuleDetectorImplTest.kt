@@ -48,7 +48,6 @@ class AffectedModuleDetectorImplTest {
     val tmpFolder2 = TemporaryFolder()
 
     private lateinit var root: Project
-    private lateinit var root2: Project
     private lateinit var p1: Project
     private lateinit var p2: Project
     private lateinit var p3: Project
