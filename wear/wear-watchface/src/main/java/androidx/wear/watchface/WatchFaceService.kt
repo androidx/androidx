@@ -17,11 +17,9 @@
 package androidx.wear.watchface
 
 import android.annotation.SuppressLint
-import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Rect
@@ -263,14 +261,6 @@ public abstract class WatchFaceService : WallpaperService() {
             isVisible.value = this@EngineWrapper.isVisible
         }
 
-        private var timeTickRegistered = false
-        private val timeTickReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-            @SuppressWarnings("SyntheticAccessor")
-            override fun onReceive(context: Context, intent: Intent) {
-                watchFaceImpl.renderer.invalidate()
-            }
-        }
-
         /**
          * Whether or not we allow watchfaces to animate. In some tests or for headless
          * rendering (for remote config) we don't want this.
@@ -302,16 +292,6 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         private val invalidateRunnable = Runnable(this::invalidate)
-
-        private val ambientTimeTickFilter = IntentFilter().apply {
-            addAction(Intent.ACTION_DATE_CHANGED)
-            addAction(Intent.ACTION_TIME_CHANGED)
-            addAction(Intent.ACTION_TIMEZONE_CHANGED)
-        }
-
-        private val interactiveTimeTickFilter = IntentFilter(ambientTimeTickFilter).apply {
-            addAction(Intent.ACTION_TIME_TICK)
-        }
 
         // TODO(alexclarke): Figure out if we can remove this.
         private var pendingBackgroundAction: Bundle? = null
@@ -399,7 +379,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 systemState.inAmbientMode != mutableWatchState.isAmbient.value
             ) {
                 mutableWatchState.isAmbient.value = systemState.inAmbientMode
-                updateTimeTickReceiver()
             }
 
             if (firstSetSystemState ||
@@ -658,11 +637,6 @@ public abstract class WatchFaceService : WallpaperService() {
             uiThreadHandler.removeCallbacks(invalidateRunnable)
             if (this::choreographer.isInitialized) {
                 choreographer.removeFrameCallback(frameCallback)
-            }
-
-            if (timeTickRegistered) {
-                timeTickRegistered = false
-                unregisterReceiver(timeTickReceiver)
             }
 
             if (this::watchFaceImpl.isInitialized) {
@@ -924,41 +898,6 @@ public abstract class WatchFaceService : WallpaperService() {
             pendingSetWatchFaceStyle = false
         }
 
-        /**
-         * Registers [timeTickReceiver] if it should be registered and isn't currently, or
-         * unregisters it if it shouldn't be registered but currently is. It also applies the right
-         * intent filter depending on whether we are in ambient mode or not.
-         */
-        internal fun updateTimeTickReceiver() {
-            // Separate calls are issued to deliver the state of isAmbient and isVisible, so during
-            // init we might not yet know the state of both.
-            if (!mutableWatchState.isAmbient.hasValue() ||
-                !mutableWatchState.isVisible.hasValue()
-            ) {
-                return
-            }
-
-            if (timeTickRegistered) {
-                unregisterReceiver(timeTickReceiver)
-                timeTickRegistered = false
-            }
-
-            // We only register if we are visible, otherwise it doesn't make sense to waste cycles.
-            if (mutableWatchState.isVisible.value) {
-                if (mutableWatchState.isAmbient.value) {
-                    registerReceiver(timeTickReceiver, ambientTimeTickFilter)
-                } else {
-                    registerReceiver(timeTickReceiver, interactiveTimeTickFilter)
-                }
-                timeTickRegistered = true
-
-                // In case we missed a tick while transitioning from ambient to interactive, we
-                // want to make sure the watch face doesn't show stale time when in interactive
-                // mode.
-                watchFaceImpl.renderer.invalidate()
-            }
-        }
-
         override fun onVisibilityChanged(visible: Boolean) {
             super.onVisibilityChanged(visible)
 
@@ -979,7 +918,6 @@ public abstract class WatchFaceService : WallpaperService() {
             }
 
             mutableWatchState.isVisible.value = visible
-            updateTimeTickReceiver()
             pendingVisibilityChanged = null
         }
 
