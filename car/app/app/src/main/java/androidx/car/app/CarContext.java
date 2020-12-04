@@ -442,7 +442,7 @@ public class CarContext extends ContextWrapper {
 
         this.mHostDispatcher = hostDispatcher;
         mAppManager = AppManager.create(this, hostDispatcher);
-        mNavigationManager = NavigationManager.create(hostDispatcher);
+        mNavigationManager = NavigationManager.create(this, hostDispatcher);
         mScreenManager = ScreenManager.create(this, lifecycle);
         mOnBackPressedDispatcher =
                 new OnBackPressedDispatcher(() -> getCarService(ScreenManager.class).pop());

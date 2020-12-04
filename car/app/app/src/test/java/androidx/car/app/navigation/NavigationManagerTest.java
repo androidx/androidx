@@ -37,6 +37,8 @@ import androidx.car.app.navigation.model.Step;
 import androidx.car.app.navigation.model.TravelEstimate;
 import androidx.car.app.navigation.model.Trip;
 import androidx.car.app.serialization.Bundleable;
+import androidx.car.app.testing.TestCarContext;
+import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,6 +49,7 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 /** Tests for {@link NavigationManager}. */
@@ -90,6 +93,9 @@ public class NavigationManagerTest {
     public void setUp() throws RemoteException {
         MockitoAnnotations.initMocks(this);
 
+        TestCarContext testCarContext =
+                TestCarContext.createCarContext(ApplicationProvider.getApplicationContext());
+
         INavigationHost navHostStub =
                 new INavigationHost.Stub() {
                     @Override
@@ -111,14 +117,14 @@ public class NavigationManagerTest {
 
         mHostDispatcher.setCarHost(mMockCarHost);
 
-        mNavigationManager = NavigationManager.create(mHostDispatcher);
+        mNavigationManager = NavigationManager.create(testCarContext, mHostDispatcher);
     }
 
     @Test
     public void navigationStarted_sendState_navigationEnded() throws RemoteException {
         InOrder inOrder = inOrder(mMockNavHost);
 
-        mNavigationManager.setListener(mNavigationListener);
+        mNavigationManager.setNavigationManagerListener(mNavigationListener);
         mNavigationManager.navigationStarted();
         inOrder.verify(mMockNavHost).navigationStarted();
 
@@ -137,7 +143,7 @@ public class NavigationManagerTest {
     @Test
     public void navigationStarted_multiple() throws RemoteException {
 
-        mNavigationManager.setListener(mNavigationListener);
+        mNavigationManager.setNavigationManagerListener(mNavigationListener);
         mNavigationManager.navigationStarted();
 
         mNavigationManager.navigationStarted();
@@ -158,22 +164,24 @@ public class NavigationManagerTest {
     }
 
     @Test
-    public void stopNavigation_notNavigating() throws RemoteException {
-        mNavigationManager.setListener(mNavigationListener);
-        mNavigationManager.getIInterface().stopNavigation(mock(IOnDoneCallback.class));
-        verify(mNavigationListener, never()).stopNavigation();
+    public void onStopNavigation_notNavigating() throws RemoteException {
+        mNavigationManager.setNavigationManagerListener(mNavigationListener);
+        mNavigationManager.getIInterface().onStopNavigation(mock(IOnDoneCallback.class));
+        verify(mNavigationListener, never()).onStopNavigation();
     }
 
     @Test
-    public void stopNavigation_navigating_restart() throws RemoteException {
+    public void onStopNavigation_navigating_restart() throws RemoteException {
         InOrder inOrder = inOrder(mMockNavHost, mNavigationListener);
 
-        mNavigationManager.setListener(mNavigationListener);
+        mNavigationManager.setNavigationManagerListener(new SynchronousExecutor(),
+                mNavigationListener);
         mNavigationManager.navigationStarted();
         inOrder.verify(mMockNavHost).navigationStarted();
 
-        mNavigationManager.getIInterface().stopNavigation(mock(IOnDoneCallback.class));
-        inOrder.verify(mNavigationListener).stopNavigation();
+        mNavigationManager.getIInterface().onStopNavigation(mock(IOnDoneCallback.class));
+
+        inOrder.verify(mNavigationListener).onStopNavigation();
 
         mNavigationManager.navigationStarted();
         inOrder.verify(mMockNavHost).navigationStarted();
@@ -181,7 +189,8 @@ public class NavigationManagerTest {
 
     @Test
     public void onAutoDriveEnabled_callsListener() {
-        mNavigationManager.setListener(mNavigationListener);
+        mNavigationManager.setNavigationManagerListener(new SynchronousExecutor(),
+                mNavigationListener);
         mNavigationManager.onAutoDriveEnabled();
 
         verify(mNavigationListener).onAutoDriveEnabled();
@@ -190,8 +199,17 @@ public class NavigationManagerTest {
     @Test
     public void onAutoDriveEnabledBeforeRegisteringListener_callsListener() {
         mNavigationManager.onAutoDriveEnabled();
-        mNavigationManager.setListener(mNavigationListener);
+        mNavigationManager.setNavigationManagerListener(new SynchronousExecutor(),
+                mNavigationListener);
 
         verify(mNavigationListener).onAutoDriveEnabled();
     }
+
+    static class SynchronousExecutor implements Executor {
+        @Override
+        public void execute(Runnable r) {
+            r.run();
+        }
+    }
+
 }

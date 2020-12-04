@@ -28,5 +28,5 @@ oneway interface INavigationManager {
   * <p>The app should stop any audio guidance, routing notifications tagged for
   * the car, and metadata state updates.
   */
-  void stopNavigation(IOnDoneCallback callback) = 1;
+  void onStopNavigation(IOnDoneCallback callback) = 1;
 }
