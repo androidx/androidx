@@ -36,41 +36,44 @@ import androidx.versionedparcelable.VersionedParcelize;
 public class OngoingActivityData implements VersionedParcelable {
     @Nullable
     @ParcelField(value = 1, defaultValue = "null")
-    private final Icon mAnimatedIcon;
+    Icon mAnimatedIcon;
 
     @NonNull
     @ParcelField(value = 2)
-    private final Icon mStaticIcon;
+    Icon mStaticIcon;
 
     @Nullable
     @ParcelField(value = 3, defaultValue = "null")
-    private OngoingActivityStatus mStatus;
+    OngoingActivityStatus mStatus;
 
     @NonNull
     @ParcelField(value = 4)
-    private final PendingIntent mTouchIntent;
+    PendingIntent mTouchIntent;
 
     @Nullable
     @ParcelField(value = 5, defaultValue = "null")
-    private final LocusIdCompat mLocusId;
+    String mLocusId;
 
     @ParcelField(value = 6, defaultValue = "-1")
-    private final int mOngoingActivityId;
+    int mOngoingActivityId;
 
     @Nullable
     @ParcelField(value = 7, defaultValue = "null")
-    private final String mCategory;
+    String mCategory;
 
     @ParcelField(value = 8)
     long mTimestamp;
 
+    // Required by VersionedParcelable
+    OngoingActivityData() {
+    }
 
     OngoingActivityData(
             @Nullable Icon animatedIcon,
             @NonNull Icon staticIcon,
             @Nullable OngoingActivityStatus status,
             @NonNull PendingIntent touchIntent,
-            @Nullable LocusIdCompat locusId,
+            @Nullable String locusId,
             int ongoingActivityId,
             @Nullable String category,
             long timestamp
@@ -170,7 +173,7 @@ public class OngoingActivityData implements VersionedParcelable {
      */
     @Nullable
     public LocusIdCompat getLocusId() {
-        return mLocusId;
+        return new LocusIdCompat(mLocusId);
     }
 
     /**
