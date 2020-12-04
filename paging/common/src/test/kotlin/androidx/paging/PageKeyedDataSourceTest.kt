@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.testutils.TestDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -248,7 +249,7 @@ class PageKeyedDataSourceTest {
         val pagedList = PagedList.Builder(dataSource, 10)
             .setBoundaryCallback(boundaryCallback)
             .setCoroutineScope(testCoroutineScope)
-            .setFetchDispatcher(dispatcher)
+            .setFetchDispatcher(Dispatchers.Unconfined)
             .setNotifyDispatcher(dispatcher)
             .build()
 
@@ -301,7 +302,7 @@ class PageKeyedDataSourceTest {
         val pagedList = PagedList.Builder(dataSource, 10)
             .setBoundaryCallback(boundaryCallback)
             .setCoroutineScope(testCoroutineScope)
-            .setFetchDispatcher(dispatcher)
+            .setFetchDispatcher(Dispatchers.Unconfined)
             .setNotifyDispatcher(dispatcher)
             .build()
 

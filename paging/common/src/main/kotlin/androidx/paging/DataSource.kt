@@ -233,9 +233,12 @@ internal constructor(internal val type: KeyType) {
         @JvmOverloads
         fun asPagingSourceFactory(
             fetchDispatcher: CoroutineDispatcher = Dispatchers.IO
-        ): () -> PagingSource<Key, Value> = {
-            LegacyPagingSource(fetchDispatcher) { create() }
-        }
+        ): () -> PagingSource<Key, Value> = SuspendingPagingSourceFactory(
+            delegate = {
+                LegacyPagingSource(fetchDispatcher, create())
+            },
+            dispatcher = fetchDispatcher
+        )
     }
 
     /**
