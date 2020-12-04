@@ -114,18 +114,17 @@ public class BuildCompat {
     }
 
     /**
-     * Checks if the device is running on a pre-release version of Android R or a release
-     * version of Android R or newer.
+     * Checks if the device is running on release version of Android R or newer.
      * <p>
-     * <strong>Note:</strong> When Android R is finalized for release, this method will be
-     * deprecated and all calls should be replaced with
-     * {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.R}.
-     *
      * @return {@code true} if R APIs are available for use, {@code false} otherwise
+     * @deprecated Android R is a finalized release and this method is no longer necessary. It
+     *             will be removed in a future release of the Support Library. Instead, use
+     *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.R}.
      */
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.R)
+    @Deprecated
     public static boolean isAtLeastR() {
-        return VERSION.SDK_INT >= 30 || VERSION.CODENAME.equals("R");
+        return VERSION.SDK_INT >= 30;
     }
 
     /**
