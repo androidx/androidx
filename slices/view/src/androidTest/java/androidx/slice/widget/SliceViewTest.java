@@ -74,6 +74,7 @@ public class SliceViewTest {
     @Before
     @UiThreadTest
     public void setup() {
+        mContext.setTheme(R.style.AppTheme);
         mSliceView = new SliceView(mContext);
         SliceProvider.setSpecs(SliceLiveData.SUPPORTED_SPECS);
     }

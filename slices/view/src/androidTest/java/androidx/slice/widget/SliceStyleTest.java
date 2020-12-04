@@ -48,6 +48,7 @@ public class SliceStyleTest {
 
     @Before
     public void setup() {
+        mContext.setTheme(R.style.AppTheme);
         // Empty XML file to initialize empty AttributeSet.
         XmlPullParser parser = mContext.getResources().getXml(R.xml.slice_style_test);
         AttributeSet attributes = Xml.asAttributeSet(parser);
