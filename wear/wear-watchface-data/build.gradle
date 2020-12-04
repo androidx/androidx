@@ -48,6 +48,10 @@ android {
     buildFeatures {
         aidl = true
     }
+
+    buildTypes.all {
+        consumerProguardFiles 'proguard-rules.pro'
+    }
 }
 
 androidx {
