@@ -18,6 +18,7 @@ package androidx.wear.ongoingactivity;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
+import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -56,13 +57,23 @@ public class OngoingActivityData implements VersionedParcelable {
     @ParcelField(value = 6, defaultValue = "-1")
     private final int mOngoingActivityId;
 
+    @Nullable
+    @ParcelField(value = 7, defaultValue = "null")
+    private final String mCategory;
+
+    @ParcelField(value = 8)
+    long mTimestamp;
+
+
     OngoingActivityData(
             @Nullable Icon animatedIcon,
             @NonNull Icon staticIcon,
             @Nullable OngoingActivityStatus status,
             @NonNull PendingIntent touchIntent,
             @Nullable LocusIdCompat locusId,
-            int ongoingActivityId
+            int ongoingActivityId,
+            @Nullable String category,
+            long timestamp
     ) {
         mAnimatedIcon = animatedIcon;
         mStaticIcon = staticIcon;
@@ -70,6 +81,8 @@ public class OngoingActivityData implements VersionedParcelable {
         mTouchIntent = touchIntent;
         mLocusId = locusId;
         mOngoingActivityId = ongoingActivityId;
+        mCategory = category;
+        mTimestamp = timestamp;
     }
 
     @NonNull
@@ -122,7 +135,8 @@ public class OngoingActivityData implements VersionedParcelable {
 
     /**
      * Get the static icon that can be used on some surfaces to represent this
-     * {@link OngoingActivity}. For example in the WatchFace in ambient mode.
+     * {@link OngoingActivity}. For example in the WatchFace in ambient mode. If not set, returns
+     *  the small icon of the corresponding Notification.
      */
     @NonNull
     public Icon getStaticIcon() {
@@ -131,7 +145,8 @@ public class OngoingActivityData implements VersionedParcelable {
 
     /**
      * Get the status of this ongoing activity, the status may be displayed on the UI to
-     * show progress of the Ongoing Activity.
+     * show progress of the Ongoing Activity. If not set, returns the content text of the
+     * corresponding Notification.
      */
     @Nullable
     public OngoingActivityStatus getStatus() {
@@ -140,7 +155,8 @@ public class OngoingActivityData implements VersionedParcelable {
 
     /**
      * Get the intent to be used to go back to the activity when the user interacts with the
-     * Ongoing Activity in other surfaces (for example, taps the Icon on the WatchFace)
+     * Ongoing Activity in other surfaces (for example, taps the Icon on the WatchFace). If not
+     * set, returns the touch intent of the corresponding Notification.
      */
     @NonNull
     public PendingIntent getTouchIntent() {
@@ -149,7 +165,8 @@ public class OngoingActivityData implements VersionedParcelable {
 
     /**
      * Get the LocusId of this {@link OngoingActivity}, this can be used by the launcher to
-     * identify the corresponding launcher item and display it accordingly.
+     * identify the corresponding launcher item and display it accordingly. If not set, returns
+     * the one in the corresponding Notification.
      */
     @Nullable
     public LocusIdCompat getLocusId() {
@@ -162,6 +179,22 @@ public class OngoingActivityData implements VersionedParcelable {
      */
     public int getOngoingActivityId() {
         return mOngoingActivityId;
+    }
+
+    /**
+     * Get the Category of this {@link OngoingActivity} if set, otherwise the category of the
+     * corresponding notification.
+     */
+    @Nullable
+    public String getCategory() {
+        return mCategory;
+    }
+
+    /**
+     * Get the time (in {@link SystemClock#elapsedRealtime()} time) the OngoingActivity was built.
+     */
+    public long getTimestamp() {
+        return mTimestamp;
     }
 
     // Status is mutable, by the library.
