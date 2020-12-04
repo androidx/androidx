@@ -310,7 +310,7 @@ public final class AppSearchImpl {
      *
      * <p>This method belongs to query group.
      *
-     * @param databaseName  The name of the database where this schema lives.
+     * @param databaseName The name of the database where this schema lives.
      * @throws AppSearchException on IcingSearchEngine error.
      */
     @NonNull

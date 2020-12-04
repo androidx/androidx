@@ -35,9 +35,11 @@ import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
+import androidx.appsearch.app.util.AppSearchTestUtils;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,21 +57,23 @@ public class GlobalSearchSessionCtsTest {
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
+        AppSearchTestUtils.cleanup(context);
+
         mDb1 = checkIsResultSuccess(LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context)
-                        .setDatabaseName("testDb1").build()));
+                        .setDatabaseName(AppSearchTestUtils.DEFAULT_DATABASE).build()));
         mDb2 = checkIsResultSuccess(LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context)
-                        .setDatabaseName("testDb2").build()));
+                        .setDatabaseName(AppSearchTestUtils.DB_2).build()));
 
         mGlobalAppSearchManager = checkIsResultSuccess(LocalStorage.createGlobalSearchSession(
                 new LocalStorage.GlobalSearchContext.Builder(context).build()));
 
-        // Remove all documents from any instances that may have been created in the tests.
-        checkIsResultSuccess(
-                mDb1.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()));
-        checkIsResultSuccess(
-                mDb2.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()));
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        AppSearchTestUtils.cleanup(ApplicationProvider.getApplicationContext());
     }
 
     @Test
