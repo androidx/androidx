@@ -46,6 +46,14 @@ import kotlinx.coroutines.flow.Flow
  * compute fine grained updates as updated content in the form of new PagingData objects are
  * received.
  *
+ * *State Restoration*: To be able to restore [RecyclerView] state (e.g. scroll position) after a
+ * configuration change / application recreate, [PagingDataAdapter] calls
+ * [RecyclerView.Adapter.setStateRestorationPolicy] with
+ * [RecyclerView.Adapter.StateRestorationPolicy.PREVENT] upon initialization and waits for the
+ * first page to load before allowing state restoration.
+ * Any other call to [RecyclerView.Adapter.setStateRestorationPolicy] by the application will
+ * disable this logic and will rely on the user set value.
+ *
  * @sample androidx.paging.samples.pagingDataAdapterSample
  */
 abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOverloads constructor(
@@ -53,6 +61,41 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
     mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
     workerDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : RecyclerView.Adapter<VH>() {
+
+    init {
+        super.setStateRestorationPolicy(StateRestorationPolicy.PREVENT)
+        // prevent state restoration and then watch for the first insert event.
+        // differ calls this with the inserted page even when it is empty, which is what we want
+        // here
+        @Suppress("LeakingThis")
+        registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                considerAllowingStateRestoration()
+                unregisterAdapterDataObserver(this)
+                super.onItemRangeInserted(positionStart, itemCount)
+            }
+
+            private fun considerAllowingStateRestoration() {
+                if (stateRestorationPolicy == StateRestorationPolicy.PREVENT &&
+                    !userSetRestorationPolicy
+                ) {
+                    this@PagingDataAdapter.setStateRestorationPolicy(StateRestorationPolicy.ALLOW)
+                }
+            }
+        })
+    }
+
+    /**
+     * Track whether developer called [setStateRestorationPolicy] or not to decide whether the
+     * automated state restoration should apply or not.
+     */
+    private var userSetRestorationPolicy = false
+
+    override fun setStateRestorationPolicy(strategy: StateRestorationPolicy) {
+        userSetRestorationPolicy = true
+        super.setStateRestorationPolicy(strategy)
+    }
+
     private val differ = AsyncPagingDataDiffer(
         diffCallback = diffCallback,
         updateCallback = AdapterListUpdateCallback(this),
