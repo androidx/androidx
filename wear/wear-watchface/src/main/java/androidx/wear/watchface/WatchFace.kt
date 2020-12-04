@@ -18,11 +18,9 @@ package androidx.wear.watchface
 
 import android.annotation.SuppressLint
 import android.app.NotificationManager
-import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.graphics.Point
 import android.graphics.Rect
 import android.icu.util.Calendar
@@ -39,7 +37,6 @@ import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationData
-import androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle
 import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
 import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.UserStyle
@@ -331,35 +328,6 @@ internal class WatchFaceImpl(
     private val pendingPostDoubleTap: CancellableUniqueTask =
         CancellableUniqueTask(watchFaceHostApi.getHandler())
 
-    private val timeZoneReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            calendar.timeZone = TimeZone.getDefault()
-            watchFaceHostApi.invalidate()
-        }
-    }
-
-    private val timeReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            // System time has changed hence next scheduled draw is invalid.
-            nextDrawTimeMillis = systemTimeProvider.getSystemTimeMillis()
-            watchFaceHostApi.invalidate()
-        }
-    }
-
-    internal val batteryLevelReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        @SuppressWarnings("SyntheticAccessor")
-        override fun onReceive(context: Context, intent: Intent) {
-            val isBatteryLowAndNotCharging =
-                watchState.isBatteryLowAndNotCharging as MutableObservableWatchData
-            when (intent.action) {
-                Intent.ACTION_BATTERY_LOW -> isBatteryLowAndNotCharging.value = true
-                Intent.ACTION_BATTERY_OKAY -> isBatteryLowAndNotCharging.value = false
-                Intent.ACTION_POWER_CONNECTED -> isBatteryLowAndNotCharging.value = false
-            }
-            watchFaceHostApi.invalidate()
-        }
-    }
-
     private val componentName =
         ComponentName(
             watchFaceHostApi.getContext().packageName,
@@ -376,14 +344,36 @@ internal class WatchFaceImpl(
         legacyWatchFaceStyle.tapEventsAccepted
     )
 
-    /**
-     * We listen for MOCK_TIME_INTENTs which we interpret as a request to modify time. E.g. speeding
-     * up or slowing down time, and providing support for making time loop between two instants.
-     * This is intended to help implement animations which may occur infrequently (e.g. hourly).
-     */
-    internal val mockTimeReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        @SuppressWarnings("SyntheticAccessor")
-        override fun onReceive(context: Context, intent: Intent) {
+    private val broadcastEventObserver = object : BroadcastReceivers.BroadcastEventObserver {
+        override fun onActionTimeTick() {
+            if (!watchState.isAmbient.value) {
+                renderer.invalidate()
+            }
+        }
+
+        override fun onActionTimeZoneChanged() {
+            calendar.timeZone = TimeZone.getDefault()
+            renderer.invalidate()
+        }
+
+        override fun onActionTimeChanged() {
+            // System time has changed hence next scheduled draw is invalid.
+            nextDrawTimeMillis = systemTimeProvider.getSystemTimeMillis()
+            renderer.invalidate()
+        }
+
+        override fun onActionBatteryChanged(intent: Intent) {
+            val isBatteryLowAndNotCharging =
+                watchState.isBatteryLowAndNotCharging as MutableObservableWatchData
+            when (intent.action) {
+                Intent.ACTION_BATTERY_LOW -> isBatteryLowAndNotCharging.value = true
+                Intent.ACTION_BATTERY_OKAY -> isBatteryLowAndNotCharging.value = false
+                Intent.ACTION_POWER_CONNECTED -> isBatteryLowAndNotCharging.value = false
+            }
+            renderer.invalidate()
+        }
+
+        override fun onMockTime(intent: Intent) {
             mockTime.speed = intent.getFloatExtra(
                 EXTRA_MOCK_TIME_SPEED_MULTIPLIER,
                 MOCK_TIME_DEFAULT_SPEED_MULTIPLIER
@@ -561,21 +551,9 @@ internal class WatchFaceImpl(
             return
         }
         registeredReceivers = true
-        watchFaceHostApi.getContext().registerReceiver(
-            timeZoneReceiver,
-            IntentFilter(Intent.ACTION_TIMEZONE_CHANGED)
-        )
-        watchFaceHostApi.getContext().registerReceiver(
-            timeReceiver,
-            IntentFilter(Intent.ACTION_TIME_CHANGED)
-        )
-        watchFaceHostApi.getContext().registerReceiver(
-            batteryLevelReceiver,
-            IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-        )
-        watchFaceHostApi.getContext().registerReceiver(
-            mockTimeReceiver,
-            IntentFilter(MOCK_TIME_INTENT)
+        BroadcastReceivers.addBroadcastEventObserver(
+            watchFaceHostApi.getContext(),
+            broadcastEventObserver
         )
     }
 
@@ -584,10 +562,7 @@ internal class WatchFaceImpl(
             return
         }
         registeredReceivers = false
-        watchFaceHostApi.getContext().unregisterReceiver(timeZoneReceiver)
-        watchFaceHostApi.getContext().unregisterReceiver(timeReceiver)
-        watchFaceHostApi.getContext().unregisterReceiver(batteryLevelReceiver)
-        watchFaceHostApi.getContext().unregisterReceiver(mockTimeReceiver)
+        BroadcastReceivers.removeBroadcastEventObserver(broadcastEventObserver)
     }
 
     private fun scheduleDraw() {

@@ -106,6 +106,10 @@ internal class TestWatchFaceService(
     override fun getHandler() = handler
 
     override fun getMutableWatchState() = watchState
+
+    fun setIsVisible(isVisible: Boolean) {
+        watchState.isVisible.value = isVisible
+    }
 }
 
 /**
