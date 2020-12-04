@@ -17,53 +17,32 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.os.Build
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.junit.runners.model.FrameworkMethod
-import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.internal.bytecode.InstrumentationConfiguration
-
-/**
- * A [RobolectricTestRunner] for [androidx.camera.camera2.pipe] unit tests.
- *
- * It has instrumentation turned off for the [androidx.camera.camera2.pipe] package.
- *
- * Robolectric tries to instrument Kotlin classes, and it throws errors when it encounters
- * companion objects, constructors with default values for parameters, and data classes with
- * inline classes. We don't need shadowing of our classes because we want to use the actual
- * objects in our tests.
- */
-class CameraPipeRobolectricTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass) {
-    override fun createClassLoaderConfig(method: FrameworkMethod?): InstrumentationConfiguration {
-        val builder = InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
-        builder.doNotInstrumentPackage("androidx.camera.camera2.pipe")
-        return builder.build()
-    }
-}
 
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
-inline class TestValue(val value: String)
+public inline class TestValue(public val value: String)
 
-data class TestData(
+public data class TestData(
     val value1: TestValue,
     val value2: String
 )
 
 @RunWith(JUnit4::class)
-class DataWithInlineClassJUnitTest {
+public class DataWithInlineClassJUnitTest {
     @Test
-    fun inlineClassesAreEqualInJUnit() {
-        Truth.assertThat(TestValue("42")).isEqualTo(
+    public fun inlineClassesAreEqualInJUnit() {
+        assertThat(TestValue("42")).isEqualTo(
             TestValue("42")
         )
     }
 
     @Test
-    fun dataWithInlineClassesAreEqualInJUnit() {
-        Truth.assertThat(
+    public fun dataWithInlineClassesAreEqualInJUnit() {
+        assertThat(
             TestData(
                 value1 = TestValue("Test value #1"),
                 value2 = "Test value #2"
@@ -79,17 +58,17 @@ class DataWithInlineClassJUnitTest {
 
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class DataWithInlineClassRobolectricTest {
+public class DataWithInlineClassRobolectricTest {
     @Test
-    fun inlineClassesAreEqualInRobolectric() {
-        Truth.assertThat(TestValue("42")).isEqualTo(
+    public fun inlineClassesAreEqualInRobolectric() {
+        assertThat(TestValue("42")).isEqualTo(
             TestValue("42")
         )
     }
 
     @Test
-    fun dataWithInlineClassesAreEqualInRobolectric() {
-        Truth.assertThat(
+    public fun dataWithInlineClassesAreEqualInRobolectric() {
+        assertThat(
             TestData(
                 value1 = TestValue("Test value #1"),
                 value2 = "Test value #2"
