@@ -122,6 +122,34 @@ import java.util.List;
         mServiceInstance.startForeground(id, notification);
     }
 
+    /**
+     * Updates the notification when needed.
+     * This will be called when the current media item is changed.
+     */
+    @Override
+    public void onNotificationUpdateNeeded(MediaSession session) {
+        MediaSessionService.MediaNotification mediaNotification =
+                mServiceInstance.onUpdateNotification(session);
+        if (mediaNotification == null) {
+            // The service implementation doesn't want to use the automatic start/stopForeground
+            // feature.
+            return;
+        }
+
+        int id = mediaNotification.getNotificationId();
+        Notification notification = mediaNotification.getNotification();
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            // Call Notification.MediaStyle#setMediaSession() indirectly.
+            android.media.session.MediaSession.Token fwkToken =
+                    (android.media.session.MediaSession.Token)
+                            session.getSessionCompat().getSessionToken().getToken();
+            notification.extras.putParcelable(Notification.EXTRA_MEDIA_SESSION, fwkToken);
+        }
+
+        mNotificationManager.notify(id, notification);
+    }
+
     @Override
     public void onSessionClosed(MediaSession session) {
         mServiceInstance.removeSession(session);
