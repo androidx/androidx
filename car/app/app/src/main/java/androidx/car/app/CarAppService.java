@@ -110,7 +110,7 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
     @Override
     @CallSuper
     @Nullable
-    public IBinder onBind(@NonNull Intent intent) {
+    public final IBinder onBind(@NonNull Intent intent) {
         return mBinder;
     }
 
@@ -196,7 +196,7 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
      * <p>At some point after this call {@link #onCarAppFinished} will be called, and eventually the
      * system will destroy this {@link CarAppService}.
      */
-    public void finish() {
+    public final void finish() {
         mCarContext.finishCarApp();
     }
 
@@ -323,13 +323,13 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
      */
     @NonNull
     @Override
-    public Lifecycle getLifecycle() {
+    public final Lifecycle getLifecycle() {
         return mRegistry;
     }
 
     @Override
     @CallSuper
-    public void dump(@NonNull FileDescriptor fd, @NonNull PrintWriter writer,
+    public final void dump(@NonNull FileDescriptor fd, @NonNull PrintWriter writer,
             @Nullable String[] args) {
         super.dump(fd, writer, args);
 
@@ -347,7 +347,7 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
      * @see HostInfo
      */
     @Nullable
-    public HostInfo getHostInfo() {
+    public final HostInfo getHostInfo() {
         return mHostInfo;
     }
 
