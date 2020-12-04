@@ -16,9 +16,9 @@
 
 package androidx.appcompat.widget;
 
-import static androidx.core.widget.RichContentReceiverCompat.FLAG_CONVERT_TO_PLAIN_TEXT;
-import static androidx.core.widget.RichContentReceiverCompat.SOURCE_CLIPBOARD;
-import static androidx.core.widget.RichContentReceiverCompat.SOURCE_INPUT_METHOD;
+import static androidx.core.view.OnReceiveContentListener.FLAG_CONVERT_TO_PLAIN_TEXT;
+import static androidx.core.view.OnReceiveContentListener.SOURCE_CLIPBOARD;
+import static androidx.core.view.OnReceiveContentListener.SOURCE_INPUT_METHOD;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -44,11 +44,10 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.test.R;
+import androidx.core.view.OnReceiveContentListener;
 import androidx.core.view.inputmethod.EditorInfoCompat;
 import androidx.core.view.inputmethod.InputConnectionCompat;
 import androidx.core.view.inputmethod.InputContentInfoCompat;
-import androidx.core.widget.RichContentReceiverCompat;
-import androidx.core.widget.TextViewRichContentReceiverCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -69,17 +68,17 @@ import java.util.Set;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-public class AppCompatEditTextRichContentReceiverTest {
+public class AppCompatEditTextReceiveContentTest {
     private static final Set<String> ALL_TEXT_AND_IMAGE_MIME_TYPES = ImmutableSet.of(
             "text/*", "image/*");
 
     @Rule
-    public final ActivityTestRule<AppCompatEditTextRichContentReceiverActivity> mActivityTestRule =
-            new ActivityTestRule<>(AppCompatEditTextRichContentReceiverActivity.class);
+    public final ActivityTestRule<AppCompatEditTextReceiveContentActivity> mActivityTestRule =
+            new ActivityTestRule<>(AppCompatEditTextReceiveContentActivity.class);
 
     private Context mContext;
     private AppCompatEditText mEditText;
-    private RichContentReceiverCompat<TextView> mMockReceiver;
+    private OnReceiveContentListener<TextView> mMockReceiver;
     private ClipboardManager mClipboardManager;
 
     @UiThreadTest
@@ -87,9 +86,9 @@ public class AppCompatEditTextRichContentReceiverTest {
     public void before() {
         AppCompatActivity activity = mActivityTestRule.getActivity();
         mContext = activity;
-        mEditText = activity.findViewById(R.id.edit_text_default_values);
+        mEditText = activity.findViewById(R.id.edit_text);
 
-        mMockReceiver = Mockito.mock(RichContentReceiverCompat.class);
+        mMockReceiver = Mockito.mock(OnReceiveContentListener.class);
 
         mClipboardManager = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
 
@@ -109,16 +108,16 @@ public class AppCompatEditTextRichContentReceiverTest {
     @Test
     public void testGetAndSetRichContentReceiverCompat() throws Exception {
         // Verify that by default the getter returns null.
-        assertThat(mEditText.getRichContentReceiverCompat()).isNull();
+        assertThat(mEditText.getOnReceiveContentListenerCompat()).isNull();
 
         // Verify that after setting a custom receiver, the getter returns it.
-        TextViewRichContentReceiverCompat receiver = new TextViewRichContentReceiverCompat() {};
-        mEditText.setRichContentReceiverCompat(receiver);
-        assertThat(mEditText.getRichContentReceiverCompat()).isSameInstanceAs(receiver);
+        OnReceiveContentListener<TextView> receiver = mMockReceiver;
+        mEditText.setOnReceiveContentListenerCompat(receiver);
+        assertThat(mEditText.getOnReceiveContentListenerCompat()).isSameInstanceAs(receiver);
 
         // Verify that the receiver can be reset by passing null.
-        mEditText.setRichContentReceiverCompat(null);
-        assertThat(mEditText.getRichContentReceiverCompat()).isNull();
+        mEditText.setOnReceiveContentListenerCompat(null);
+        assertThat(mEditText.getOnReceiveContentListenerCompat()).isNull();
     }
 
     @UiThreadTest
@@ -152,7 +151,7 @@ public class AppCompatEditTextRichContentReceiverTest {
         // Setup: Configure the receiver to a custom impl.
         Set<String> receiverMimeTypes = ImmutableSet.of("text/plain", "image/png", "video/mp4");
         when(mMockReceiver.getSupportedMimeTypes()).thenReturn(receiverMimeTypes);
-        mEditText.setRichContentReceiverCompat(mMockReceiver);
+        mEditText.setOnReceiveContentListenerCompat(mMockReceiver);
 
         // Call onCreateInputConnection() and assert that contentMimeTypes is set from the receiver.
         EditorInfo editorInfo = new EditorInfo();
@@ -205,7 +204,7 @@ public class AppCompatEditTextRichContentReceiverTest {
         clip = copyToClipboard(clip);
 
         // Setup: Configure to use the mock receiver.
-        mEditText.setRichContentReceiverCompat(mMockReceiver);
+        mEditText.setOnReceiveContentListenerCompat(mMockReceiver);
 
         // Trigger the "Paste" action and assert that the custom receiver was executed.
         triggerContextMenuAction(android.R.id.paste);
@@ -224,7 +223,7 @@ public class AppCompatEditTextRichContentReceiverTest {
         clip = copyToClipboard(clip);
 
         // Setup: Configure to use the mock receiver.
-        mEditText.setRichContentReceiverCompat(mMockReceiver);
+        mEditText.setOnReceiveContentListenerCompat(mMockReceiver);
 
         // Trigger the "Paste" action and assert that the boolean result is true regardless of
         // the receiver's return value.
@@ -250,7 +249,7 @@ public class AppCompatEditTextRichContentReceiverTest {
         clip = copyToClipboard(clip);
 
         // Setup: Configure to use the mock receiver.
-        mEditText.setRichContentReceiverCompat(mMockReceiver);
+        mEditText.setOnReceiveContentListenerCompat(mMockReceiver);
 
         // Trigger the "Paste" action and assert that the custom receiver was executed. This
         // confirms that the receiver is invoked (give a chance to handle the content via some
@@ -290,7 +289,7 @@ public class AppCompatEditTextRichContentReceiverTest {
         clip = copyToClipboard(clip);
 
         // Setup: Configure to use the mock receiver.
-        mEditText.setRichContentReceiverCompat(mMockReceiver);
+        mEditText.setOnReceiveContentListenerCompat(mMockReceiver);
 
         // Trigger the "Paste as plain text" action and assert that the custom receiver was
         // executed.
@@ -312,7 +311,7 @@ public class AppCompatEditTextRichContentReceiverTest {
         clip = copyToClipboard(clip);
 
         // Setup: Configure to use the mock receiver.
-        mEditText.setRichContentReceiverCompat(mMockReceiver);
+        mEditText.setOnReceiveContentListenerCompat(mMockReceiver);
 
         // Trigger the "Paste as plain text" action and assert that the custom receiver was
         // executed. This confirms that the receiver is invoked (given a chance to handle the
@@ -343,7 +342,7 @@ public class AppCompatEditTextRichContentReceiverTest {
 
         // Setup: Configure the receiver to a custom impl that supports all text and images.
         when(mMockReceiver.getSupportedMimeTypes()).thenReturn(ALL_TEXT_AND_IMAGE_MIME_TYPES);
-        mEditText.setRichContentReceiverCompat(mMockReceiver);
+        mEditText.setOnReceiveContentListenerCompat(mMockReceiver);
 
         // Trigger the IME's commitContent() call and assert that the custom receiver was executed.
         triggerImeCommitContentViaCompat("image/png");
@@ -360,7 +359,7 @@ public class AppCompatEditTextRichContentReceiverTest {
 
         // Setup: Configure the receiver to a custom impl that supports all text and images.
         when(mMockReceiver.getSupportedMimeTypes()).thenReturn(ALL_TEXT_AND_IMAGE_MIME_TYPES);
-        mEditText.setRichContentReceiverCompat(mMockReceiver);
+        mEditText.setOnReceiveContentListenerCompat(mMockReceiver);
 
         // Trigger the IME's commitContent() call, once when the mock receiver is configured to
         // return true and once when the mock receiver is configured to return false.
@@ -396,7 +395,7 @@ public class AppCompatEditTextRichContentReceiverTest {
 
         // Setup: Configure the receiver to a custom impl that supports all text and images.
         when(mMockReceiver.getSupportedMimeTypes()).thenReturn(ALL_TEXT_AND_IMAGE_MIME_TYPES);
-        mEditText.setRichContentReceiverCompat(mMockReceiver);
+        mEditText.setOnReceiveContentListenerCompat(mMockReceiver);
 
         // Trigger the IME's commitContent() call and assert that the custom receiver was not
         // executed. This is because InputConnectionCompat.commitContent() checks the supported MIME
@@ -414,7 +413,7 @@ public class AppCompatEditTextRichContentReceiverTest {
 
         // Setup: Configure the receiver to a custom impl that supports all text and images.
         when(mMockReceiver.getSupportedMimeTypes()).thenReturn(ALL_TEXT_AND_IMAGE_MIME_TYPES);
-        mEditText.setRichContentReceiverCompat(mMockReceiver);
+        mEditText.setOnReceiveContentListenerCompat(mMockReceiver);
 
         // Trigger the IME's commitContent() call and assert that the custom receiver was executed.
         triggerImeCommitContentDirect("video/mp4");

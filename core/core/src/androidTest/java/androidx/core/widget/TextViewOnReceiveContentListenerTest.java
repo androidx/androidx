@@ -16,9 +16,9 @@
 
 package androidx.core.widget;
 
-import static androidx.core.widget.RichContentReceiverCompat.FLAG_CONVERT_TO_PLAIN_TEXT;
-import static androidx.core.widget.RichContentReceiverCompat.SOURCE_CLIPBOARD;
-import static androidx.core.widget.RichContentReceiverCompat.SOURCE_INPUT_METHOD;
+import static androidx.core.view.OnReceiveContentListener.FLAG_CONVERT_TO_PLAIN_TEXT;
+import static androidx.core.view.OnReceiveContentListener.SOURCE_CLIPBOARD;
+import static androidx.core.view.OnReceiveContentListener.SOURCE_INPUT_METHOD;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -37,6 +37,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.core.test.R;
+import androidx.core.view.OnReceiveContentListener;
 import androidx.core.view.inputmethod.EditorInfoCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -51,20 +52,20 @@ import org.junit.runner.RunWith;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-public class RichContentReceiverCompatTest {
+public class TextViewOnReceiveContentListenerTest {
 
     @Rule
-    public final ActivityTestRule<RichContentReceiverTestActivity> mActivityTestRule =
-            new ActivityTestRule<>(RichContentReceiverTestActivity.class);
+    public final ActivityTestRule<ReceiveContentTestActivity> mActivityTestRule =
+            new ActivityTestRule<>(ReceiveContentTestActivity.class);
 
     private EditText mEditText;
-    private RichContentReceiverCompat<TextView> mReceiver;
+    private TextViewOnReceiveContentListener mReceiver;
 
     @Before
     public void before() {
-        RichContentReceiverTestActivity activity = mActivityTestRule.getActivity();
-        mEditText = activity.findViewById(R.id.edit_text_for_rich_content_receiver);
-        mReceiver = new TextViewRichContentReceiverCompat() {};
+        ReceiveContentTestActivity activity = mActivityTestRule.getActivity();
+        mEditText = activity.findViewById(R.id.edit_text);
+        mReceiver = new TextViewOnReceiveContentListener() {};
     }
 
     @UiThreadTest
@@ -281,8 +282,8 @@ public class RichContentReceiverCompatTest {
         assertThat(EditorInfoCompat.getContentMimeTypes(outAttrs)).isEqualTo(new String[0]);
     }
 
-    private boolean onReceive(final RichContentReceiverCompat<TextView> receiver,
-            final ClipData clip, @RichContentReceiverCompat.Source final int source,
+    private boolean onReceive(final OnReceiveContentListener<TextView> receiver,
+            final ClipData clip, @OnReceiveContentListener.Source final int source,
             final int flags) {
         return receiver.onReceive(mEditText, clip, source, flags);
     }
