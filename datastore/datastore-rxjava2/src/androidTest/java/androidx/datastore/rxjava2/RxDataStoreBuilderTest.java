@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.datastore.core.DataStore;
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler;
 import androidx.test.core.app.ApplicationProvider;
@@ -31,6 +32,7 @@ import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
+import io.reactivex.Completable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
@@ -79,6 +81,36 @@ public class RxDataStoreBuilderTest {
                         + "/datastore/" + name), new TestingSerializer()
                 )
                         .build();
+        assertThat(RxDataStore.data(dataStore).blockingFirst()).isEqualTo(1);
+    }
+
+    @Test
+    public void testMigrationsAreInstalledAndRun() throws Exception {
+        RxDataMigration<Byte> plusOneMigration = new RxDataMigration<Byte>() {
+            @NonNull
+            @Override
+            public Single<Boolean> shouldMigrate(@NonNull Byte currentData) {
+                return Single.just(true);
+            }
+
+            @NonNull
+            @Override
+            public Single<Byte> migrate(@NonNull Byte currentData) {
+                return incrementByte(currentData);
+            }
+
+            @NonNull
+            @Override
+            public Completable cleanUp() {
+                return Completable.complete();
+            }
+        };
+
+        DataStore<Byte> dataStore = new RxDataStoreBuilder<Byte>(
+                () -> tempFolder.newFile(), new TestingSerializer())
+                .addRxDataMigration(plusOneMigration)
+                .build();
+
         assertThat(RxDataStore.data(dataStore).blockingFirst()).isEqualTo(1);
     }
 
