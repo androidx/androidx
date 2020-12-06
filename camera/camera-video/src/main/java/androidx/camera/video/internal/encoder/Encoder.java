@@ -19,8 +19,8 @@ package androidx.camera.video.internal.encoder;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.camera.video.internal.BufferProvider;
 
-import java.nio.ByteBuffer;
 import java.util.concurrent.Executor;
 
 /**
@@ -108,18 +108,13 @@ public interface Encoder {
         }
     }
 
-    /** A ByteBufferInput provides {@link #putByteBuffer} method to send raw data. */
-    interface ByteBufferInput extends EncoderInput {
-
-        /**
-         * Puts an input raw {@link ByteBuffer} to the encoder.
-         *
-         * <p>The input {@code ByteBuffer} must be put when encoder is in started and not paused
-         * state, otherwise the {@code ByteBuffer} will be dropped directly. Then the encoded data
-         * will be sent via {@link EncoderCallback#onEncodedData} callback.
-         *
-         * @param byteBuffer the input byte buffer
-         */
-        void putByteBuffer(@NonNull ByteBuffer byteBuffer);
+    /**
+     * A ByteBufferInput is a {@link BufferProvider} implementation and provides
+     * {@link InputBuffer} to write input data to the encoder.
+     *
+     * @see BufferProvider
+     * @see InputBuffer
+     */
+    interface ByteBufferInput extends EncoderInput, BufferProvider<InputBuffer> {
     }
 }
