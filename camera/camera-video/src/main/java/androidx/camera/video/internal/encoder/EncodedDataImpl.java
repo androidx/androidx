@@ -88,7 +88,7 @@ public class EncodedDataImpl implements EncodedData {
         }
         try {
             mMediaCodec.releaseOutputBuffer(mBufferIndex, false);
-        } catch (MediaCodec.CodecException e) {
+        } catch (IllegalStateException e) {
             mClosedCompleter.setException(e);
             return;
         }

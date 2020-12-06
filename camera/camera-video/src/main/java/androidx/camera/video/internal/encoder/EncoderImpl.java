@@ -17,6 +17,7 @@
 package androidx.camera.video.internal.encoder;
 
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.CONFIGURED;
+import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.ERROR;
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.PAUSED;
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.PENDING_RELEASE;
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.PENDING_START;
@@ -36,24 +37,29 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.Observable;
+import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.core.util.Consumer;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * The encoder implementation.
@@ -106,20 +112,34 @@ public class EncoderImpl implements Encoder {
          */
         PENDING_RELEASE,
 
+        /**
+         * Then state is when the encoder encounter error. Error state is a transitional state
+         * where encoder user is supposed to wait for {@link EncoderCallback#onEncodeStop} or
+         * {@link EncoderCallback#onEncodeError}. Any method call during this state should be
+         * ignore except {@link #release}.
+         */
+        ERROR,
+
         /** The state is when the encoder is released. */
         RELEASED,
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Object mLock = new Object();
+    private final InternalStateObservable mStateObservable = new InternalStateObservable();
     private final MediaFormat mMediaFormat;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @GuardedBy("mLock")
     final MediaCodec mMediaCodec;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final EncoderInput mEncoderInput;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final Executor mExecutor;
+    final Executor mEncoderExecutor;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    final Queue<Integer> mFreeInputBufferIndexQueue = new ArrayDeque<>();
+    private final Queue<Completer<InputBuffer>> mAcquisitionQueue = new ArrayDeque<>();
+    private final Set<InputBuffer> mInputBufferSet = new HashSet<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    final Set<EncodedDataImpl> mEncodedDataSet = new HashSet<>();
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @GuardedBy("mLock")
@@ -128,7 +148,6 @@ public class EncoderImpl implements Encoder {
     @GuardedBy("mLock")
     Executor mEncoderCallbackExecutor = CameraXExecutors.mainThreadExecutor();
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @GuardedBy("mLock")
     InternalState mState;
 
     /**
@@ -143,10 +162,26 @@ public class EncoderImpl implements Encoder {
         Preconditions.checkNotNull(executor);
         Preconditions.checkNotNull(encoderConfig);
 
-        mExecutor = CameraXExecutors.newSequentialExecutor(executor);
+        mEncoderExecutor = CameraXExecutors.newSequentialExecutor(executor);
 
         if (encoderConfig instanceof AudioEncoderConfig) {
-            mEncoderInput = new ByteBufferInput();
+            ByteBufferInput byteBufferInput = new ByteBufferInput();
+            // State change will run on mEncoderExecutor, use direct executor to avoid delay.
+            mStateObservable.addObserver(CameraXExecutors.directExecutor(),
+                    new Observable.Observer<InternalState>() {
+                        @ExecutedBy("mEncoderExecutor")
+                        @Override
+                        public void onNewData(@Nullable InternalState value) {
+                            byteBufferInput.setActive(value == STARTED);
+                        }
+
+                        @ExecutedBy("mEncoderExecutor")
+                        @Override
+                        public void onError(@NonNull Throwable t) {
+                            // No defined. Ignore.
+                        }
+                    });
+            mEncoderInput = byteBufferInput;
         } else if (encoderConfig instanceof VideoEncoderConfig) {
             mEncoderInput = new SurfaceInput();
         } else {
@@ -171,18 +206,22 @@ public class EncoderImpl implements Encoder {
         setState(CONFIGURED);
     }
 
-    @SuppressWarnings("GuardedBy")
-    // It complains SurfaceInput#resetSurface and ByteBufferInput#clearFreeBuffers don't hold mLock
-    @GuardedBy("mLock")
+    @ExecutedBy("mEncoderExecutor")
     private void reset() {
+        mFreeInputBufferIndexQueue.clear();
+
+        // Cancel incomplete acquisitions if exists.
+        for (Completer<InputBuffer> completer : mAcquisitionQueue) {
+            completer.setCancelled();
+        }
+        mAcquisitionQueue.clear();
+
         mMediaCodec.reset();
         mMediaCodec.setCallback(new MediaCodecCallback());
         mMediaCodec.configure(mMediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
 
         if (mEncoderInput instanceof SurfaceInput) {
             ((SurfaceInput) mEncoderInput).resetSurface();
-        } else if (mEncoderInput instanceof ByteBufferInput) {
-            ((ByteBufferInput) mEncoderInput).clearFreeBuffers();
         }
     }
 
@@ -204,7 +243,7 @@ public class EncoderImpl implements Encoder {
      */
     @Override
     public void start() {
-        synchronized (mLock) {
+        mEncoderExecutor.execute(() -> {
             switch (mState) {
                 case CONFIGURED:
                     try {
@@ -222,6 +261,7 @@ public class EncoderImpl implements Encoder {
                     setState(STARTED);
                     break;
                 case STARTED:
+                case ERROR:
                 case PENDING_START:
                     // Do nothing
                     break;
@@ -235,7 +275,7 @@ public class EncoderImpl implements Encoder {
                 default:
                     throw new IllegalStateException("Unknown state: " + mState);
             }
-        }
+        });
     }
 
     /**
@@ -244,21 +284,26 @@ public class EncoderImpl implements Encoder {
      * <p>It will trigger {@link EncoderCallback#onEncodeStop} after the last encoded data. It can
      * call {@link #start} to start again.
      */
-    @SuppressWarnings("GuardedBy")
-    // It complains ByteBufferInput#signalEndOfInputStream doesn't hold mLock
     @Override
     public void stop() {
-        synchronized (mLock) {
+        mEncoderExecutor.execute(() -> {
             switch (mState) {
                 case CONFIGURED:
                 case STOPPING:
+                case ERROR:
                     // Do nothing
                     break;
                 case STARTED:
                 case PAUSED:
                     setState(STOPPING);
                     if (mEncoderInput instanceof ByteBufferInput) {
-                        ((ByteBufferInput) mEncoderInput).signalEndOfInputStream();
+                        // Wait for all issued input buffer done to avoid input loss.
+                        List<ListenableFuture<Void>> futures = new ArrayList<>();
+                        for (InputBuffer inputBuffer : mInputBufferSet) {
+                            futures.add(inputBuffer.getTerminationFuture());
+                        }
+                        Futures.successfulAsList(futures).addListener(this::signalEndOfInputStream,
+                                mEncoderExecutor);
                     } else if (mEncoderInput instanceof SurfaceInput) {
                         try {
                             mMediaCodec.signalEndOfInputStream();
@@ -277,7 +322,7 @@ public class EncoderImpl implements Encoder {
                 default:
                     throw new IllegalStateException("Unknown state: " + mState);
             }
-        }
+        });
     }
 
     /**
@@ -288,10 +333,11 @@ public class EncoderImpl implements Encoder {
      */
     @Override
     public void pause() {
-        synchronized (mLock) {
+        mEncoderExecutor.execute(() -> {
             switch (mState) {
                 case CONFIGURED:
                 case PAUSED:
+                case ERROR:
                 case STOPPING:
                 case PENDING_START_PAUSED:
                     // Do nothing
@@ -311,7 +357,7 @@ public class EncoderImpl implements Encoder {
                 default:
                     throw new IllegalStateException("Unknown state: " + mState);
             }
-        }
+        });
     }
 
     /**
@@ -324,11 +370,12 @@ public class EncoderImpl implements Encoder {
      */
     @Override
     public void release() {
-        synchronized (mLock) {
+        mEncoderExecutor.execute(() -> {
             switch (mState) {
                 case CONFIGURED:
                 case STARTED:
                 case PAUSED:
+                case ERROR:
                     mMediaCodec.release();
                     setState(RELEASED);
                     break;
@@ -344,7 +391,7 @@ public class EncoderImpl implements Encoder {
                 default:
                     throw new IllegalStateException("Unknown state: " + mState);
             }
-        }
+        });
     }
 
     /**
@@ -363,42 +410,142 @@ public class EncoderImpl implements Encoder {
         }
     }
 
-    @GuardedBy("mLock")
+    @ExecutedBy("mEncoderExecutor")
     private void setState(InternalState state) {
+        if (mState == state) {
+            return;
+        }
         Logger.d(TAG, "Transitioning encoder internal state: " + mState + " --> " + state);
         mState = state;
+        mStateObservable.notifyState();
     }
 
-    @GuardedBy("mLock")
+    @ExecutedBy("mEncoderExecutor")
     private void updatePauseToMediaCodec(boolean paused) {
         Bundle bundle = new Bundle();
         bundle.putBoolean(MediaCodec.PARAMETER_KEY_SUSPEND, paused);
         mMediaCodec.setParameters(bundle);
     }
 
+    @ExecutedBy("mEncoderExecutor")
+    private void signalEndOfInputStream() {
+        Futures.addCallback(acquireInputBuffer(),
+                new FutureCallback<InputBuffer>() {
+                    @Override
+                    public void onSuccess(InputBuffer inputBuffer) {
+                        inputBuffer.setPresentationTimeUs(generatePresentationTimeUs());
+                        inputBuffer.setEndOfStream(true);
+                        inputBuffer.submit();
+
+                        Futures.addCallback(inputBuffer.getTerminationFuture(),
+                                new FutureCallback<Void>() {
+                                    @ExecutedBy("mEncoderExecutor")
+                                    @Override
+                                    public void onSuccess(@Nullable Void result) {
+                                        // Do nothing.
+                                    }
+
+                                    @ExecutedBy("mEncoderExecutor")
+                                    @Override
+                                    public void onFailure(Throwable t) {
+                                        if (t instanceof MediaCodec.CodecException) {
+                                            handleEncodeError(
+                                                    (MediaCodec.CodecException) t);
+                                        } else {
+                                            handleEncodeError(EncodeException.ERROR_UNKNOWN,
+                                                    t.getMessage(), t);
+                                        }
+                                    }
+                                }, mEncoderExecutor);
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        handleEncodeError(EncodeException.ERROR_UNKNOWN,
+                                "Unable to acquire InputBuffer.", t);
+                    }
+                }, mEncoderExecutor);
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @GuardedBy("mLock")
+    @ExecutedBy("mEncoderExecutor")
     void handleEncodeError(@NonNull MediaCodec.CodecException e) {
         handleEncodeError(EncodeException.ERROR_CODEC, e.getMessage(), e);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @GuardedBy("mLock")
+    @ExecutedBy("mEncoderExecutor")
     void handleEncodeError(@EncodeException.ErrorType int error, @Nullable String message,
             @Nullable Throwable throwable) {
-        EncoderCallback encoderCallback = mEncoderCallback;
-        try {
-            mEncoderCallbackExecutor.execute(() -> encoderCallback.onEncodeError(
-                    new EncodeException(error, message, throwable)));
-        } catch (RejectedExecutionException re) {
-            Logger.e(TAG, "Unable to post to the supplied executor.", re);
+        switch (mState) {
+            case CONFIGURED:
+                // Unable to start MediaCodec. This is a fatal error. Try to reset the encoder.
+                notifyError(error, message, throwable);
+                reset();
+                break;
+            case STARTED:
+            case PAUSED:
+            case STOPPING:
+            case PENDING_START_PAUSED:
+            case PENDING_START:
+            case PENDING_RELEASE:
+                setState(ERROR);
+                stopMediaCodec(() -> notifyError(error, message, throwable));
+                break;
+            case ERROR:
+                Logger.w(TAG, "Get more than one error: " + message + "(" + error + ")",
+                        throwable);
+                break;
+            case RELEASED:
+                // Do nothing
+                break;
         }
-        mMediaCodec.stop();
-        handleStopped();
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @GuardedBy("mLock")
+    void notifyError(@EncodeException.ErrorType int error, @Nullable String message,
+            @Nullable Throwable throwable) {
+        EncoderCallback callback;
+        Executor executor;
+        synchronized (mLock) {
+            callback = mEncoderCallback;
+            executor = mEncoderCallbackExecutor;
+        }
+        try {
+            executor.execute(
+                    () -> callback.onEncodeError(new EncodeException(error, message, throwable)));
+        } catch (RejectedExecutionException e) {
+            Logger.e(TAG, "Unable to post to the supplied executor.", e);
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @ExecutedBy("mEncoderExecutor")
+    void stopMediaCodec(@Nullable Runnable afterStop) {
+        /*
+         * MediaCodec#close will free all its input/output ByteBuffers. Therefore, before calling
+         * MediaCodec#close, it must ensure all dispatched EncodedData(output ByteBuffers) and
+         * InputBuffer(input ByteBuffers) are complete. Otherwise, the ByteBuffer receiver will
+         * get buffer overflow when accessing the ByteBuffers.
+         */
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        for (EncodedDataImpl dataToClose : mEncodedDataSet) {
+            futures.add(dataToClose.getClosedFuture());
+        }
+        for (InputBuffer inputBuffer : mInputBufferSet) {
+            futures.add(inputBuffer.getTerminationFuture());
+        }
+        Futures.successfulAsList(futures).addListener(() -> {
+            mMediaCodec.stop();
+            if (afterStop != null) {
+                afterStop.run();
+            }
+            handleStopped();
+        }, mEncoderExecutor);
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @ExecutedBy("mEncoderExecutor")
     void handleStopped() {
         if (mState == PENDING_RELEASE) {
             mMediaCodec.release();
@@ -417,25 +564,115 @@ public class EncoderImpl implements Encoder {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @ExecutedBy("mEncoderExecutor")
+    @NonNull
+    ListenableFuture<InputBuffer> acquireInputBuffer() {
+        switch (mState) {
+            case CONFIGURED:
+                return Futures.immediateFailedFuture(new IllegalStateException(
+                        "Encoder is not started yet."));
+            case STARTED:
+            case PAUSED:
+            case STOPPING:
+            case PENDING_START:
+            case PENDING_START_PAUSED:
+            case PENDING_RELEASE:
+                AtomicReference<Completer<InputBuffer>> ref = new AtomicReference<>();
+                ListenableFuture<InputBuffer> future = CallbackToFutureAdapter.getFuture(
+                        completer -> {
+                            ref.set(completer);
+                            return "acquireInputBuffer";
+                        });
+                Completer<InputBuffer> completer = Preconditions.checkNotNull(ref.get());
+                mAcquisitionQueue.offer(completer);
+                completer.addCancellationListener(() -> mAcquisitionQueue.remove(completer),
+                        mEncoderExecutor);
+                matchAcquisitionsAndFreeBufferIndexes();
+                return future;
+            case ERROR:
+                return Futures.immediateFailedFuture(new IllegalStateException(
+                        "Encoder is in error state."));
+            case RELEASED:
+                return Futures.immediateFailedFuture(new IllegalStateException(
+                        "Encoder is released."));
+            default:
+                throw new IllegalStateException("Unknown state: " + mState);
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @ExecutedBy("mEncoderExecutor")
+    void matchAcquisitionsAndFreeBufferIndexes() {
+        while (!mAcquisitionQueue.isEmpty() && !mFreeInputBufferIndexQueue.isEmpty()) {
+            Completer<InputBuffer> completer = mAcquisitionQueue.poll();
+            int bufferIndex = mFreeInputBufferIndexQueue.poll();
+
+            InputBufferImpl inputBuffer;
+            try {
+                inputBuffer = new InputBufferImpl(mMediaCodec, bufferIndex);
+            } catch (MediaCodec.CodecException e) {
+                handleEncodeError(e);
+                return;
+            }
+            if (completer.set(inputBuffer)) {
+                mInputBufferSet.add(inputBuffer);
+                inputBuffer.getTerminationFuture().addListener(
+                        () -> mInputBufferSet.remove(inputBuffer), mEncoderExecutor);
+            } else {
+                inputBuffer.cancel();
+            }
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     static long generatePresentationTimeUs() {
         return System.nanoTime() / 1000L;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    class InternalStateObservable implements Observable<InternalState> {
+
+        private final Map<Observer<InternalState>, Executor> mObservers = new LinkedHashMap<>();
+
+        @ExecutedBy("mEncoderExecutor")
+        void notifyState() {
+            final InternalState state = mState;
+            for (Map.Entry<Observer<InternalState>, Executor> entry : mObservers.entrySet()) {
+                entry.getValue().execute(() -> entry.getKey().onNewData(state));
+            }
+        }
+
+        @ExecutedBy("mEncoderExecutor")
+        @NonNull
+        @Override
+        public ListenableFuture<InternalState> fetchData() {
+            return Futures.immediateFuture(mState);
+        }
+
+        @ExecutedBy("mEncoderExecutor")
+        @Override
+        public void addObserver(@NonNull Executor executor,
+                @NonNull Observer<InternalState> observer) {
+            final InternalState state = mState;
+            mObservers.put(observer, executor);
+            executor.execute(() -> observer.onNewData(state));
+        }
+
+        @ExecutedBy("mEncoderExecutor")
+        @Override
+        public void removeObserver(@NonNull Observer<InternalState> observer) {
+            mObservers.remove(observer);
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     class MediaCodecCallback extends MediaCodec.Callback {
 
-        @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-        @GuardedBy("mLock")
-        final Set<EncodedDataImpl> mEncodedDataSet = new HashSet<>();
-
-        @GuardedBy("mLock")
         private boolean mHasFirstData = false;
 
-        @SuppressWarnings("GuardedBy")
-        // It complains ByteBufferInput#putFreeBufferIndex doesn't hold mLock
         @Override
         public void onInputBufferAvailable(MediaCodec mediaCodec, int index) {
-            synchronized (mLock) {
+            mEncoderExecutor.execute(() -> {
                 switch (mState) {
                     case STARTED:
                     case PAUSED:
@@ -443,24 +680,24 @@ public class EncoderImpl implements Encoder {
                     case PENDING_START:
                     case PENDING_START_PAUSED:
                     case PENDING_RELEASE:
-                        if (mEncoderInput instanceof ByteBufferInput) {
-                            ((ByteBufferInput) mEncoderInput).putFreeBufferIndex(index);
-                        }
+                        mFreeInputBufferIndexQueue.offer(index);
+                        matchAcquisitionsAndFreeBufferIndexes();
                         break;
                     case CONFIGURED:
+                    case ERROR:
                     case RELEASED:
                         // Do nothing
                         break;
                     default:
                         throw new IllegalStateException("Unknown state: " + mState);
                 }
-            }
+            });
         }
 
         @Override
         public void onOutputBufferAvailable(@NonNull MediaCodec mediaCodec, int index,
                 @NonNull MediaCodec.BufferInfo bufferInfo) {
-            synchronized (mLock) {
+            mEncoderExecutor.execute(() -> {
                 switch (mState) {
                     case STARTED:
                     case PAUSED:
@@ -468,8 +705,12 @@ public class EncoderImpl implements Encoder {
                     case PENDING_START:
                     case PENDING_START_PAUSED:
                     case PENDING_RELEASE:
-                        final EncoderCallback encoderCallback = mEncoderCallback;
-                        final Executor executor = mEncoderCallbackExecutor;
+                        final EncoderCallback encoderCallback;
+                        final Executor executor;
+                        synchronized (mLock) {
+                            encoderCallback = mEncoderCallback;
+                            executor = mEncoderCallbackExecutor;
+                        }
 
                         // Handle start of stream
                         if (!mHasFirstData) {
@@ -507,25 +748,21 @@ public class EncoderImpl implements Encoder {
                                     new FutureCallback<Void>() {
                                         @Override
                                         public void onSuccess(@Nullable Void result) {
-                                            synchronized (mLock) {
-                                                mEncodedDataSet.remove(encodedData);
-                                            }
+                                            mEncodedDataSet.remove(encodedData);
                                         }
 
                                         @Override
                                         public void onFailure(Throwable t) {
-                                            synchronized (mLock) {
-                                                mEncodedDataSet.remove(encodedData);
-                                                if (t instanceof MediaCodec.CodecException) {
-                                                    handleEncodeError(
-                                                            (MediaCodec.CodecException) t);
-                                                } else {
-                                                    handleEncodeError(EncodeException.ERROR_UNKNOWN,
-                                                            t.getMessage(), t);
-                                                }
+                                            mEncodedDataSet.remove(encodedData);
+                                            if (t instanceof MediaCodec.CodecException) {
+                                                handleEncodeError(
+                                                        (MediaCodec.CodecException) t);
+                                            } else {
+                                                handleEncodeError(EncodeException.ERROR_UNKNOWN,
+                                                        t.getMessage(), t);
                                             }
                                         }
-                                    }, CameraXExecutors.directExecutor());
+                                    }, mEncoderExecutor);
                             try {
                                 executor.execute(() -> encoderCallback.onEncodedData(encodedData));
                             } catch (RejectedExecutionException e) {
@@ -543,56 +780,29 @@ public class EncoderImpl implements Encoder {
 
                         // Handle end of stream
                         if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-                            // Wait for all data closed
-                            List<ListenableFuture<Void>> waitForCloseFutures = new ArrayList<>();
-                            for (EncodedDataImpl dataToClose : mEncodedDataSet) {
-                                waitForCloseFutures.add(dataToClose.getClosedFuture());
-                            }
-                            Futures.addCallback(Futures.allAsList(waitForCloseFutures),
-                                    new FutureCallback<List<Void>>() {
-                                        @Override
-                                        public void onSuccess(@Nullable List<Void> result) {
-                                            synchronized (mLock) {
-                                                mMediaCodec.stop();
-                                                try {
-                                                    executor.execute(encoderCallback::onEncodeStop);
-                                                } catch (RejectedExecutionException e) {
-                                                    Logger.e(TAG,
-                                                            "Unable to post to the supplied "
-                                                                    + "executor.", e);
-                                                }
-                                                handleStopped();
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onFailure(Throwable t) {
-                                            synchronized (mLock) {
-                                                if (t instanceof MediaCodec.CodecException) {
-                                                    handleEncodeError(
-                                                            (MediaCodec.CodecException) t);
-                                                } else {
-                                                    handleEncodeError(EncodeException.ERROR_UNKNOWN,
-                                                            t.getMessage(), t);
-                                                }
-                                            }
-                                        }
-                                    }, CameraXExecutors.directExecutor());
+                            stopMediaCodec(() -> {
+                                try {
+                                    executor.execute(encoderCallback::onEncodeStop);
+                                } catch (RejectedExecutionException e) {
+                                    Logger.e(TAG, "Unable to post to the supplied executor.", e);
+                                }
+                            });
                         }
                         break;
                     case CONFIGURED:
+                    case ERROR:
                     case RELEASED:
                         // Do nothing
                         break;
                     default:
                         throw new IllegalStateException("Unknown state: " + mState);
                 }
-            }
+            });
         }
 
         @Override
         public void onError(@NonNull MediaCodec mediaCodec, @NonNull MediaCodec.CodecException e) {
-            synchronized (mLock) {
+            mEncoderExecutor.execute(() -> {
                 switch (mState) {
                     case STARTED:
                     case PAUSED:
@@ -603,19 +813,20 @@ public class EncoderImpl implements Encoder {
                         handleEncodeError(e);
                         break;
                     case CONFIGURED:
+                    case ERROR:
                     case RELEASED:
                         // Do nothing
                         break;
                     default:
                         throw new IllegalStateException("Unknown state: " + mState);
                 }
-            }
+            });
         }
 
         @Override
         public void onOutputFormatChanged(@NonNull MediaCodec mediaCodec,
                 @NonNull MediaFormat mediaFormat) {
-            synchronized (mLock) {
+            mEncoderExecutor.execute(() -> {
                 switch (mState) {
                     case STARTED:
                     case PAUSED:
@@ -623,27 +834,35 @@ public class EncoderImpl implements Encoder {
                     case PENDING_START:
                     case PENDING_START_PAUSED:
                     case PENDING_RELEASE:
-                        EncoderCallback encoderCallback = mEncoderCallback;
+                        EncoderCallback encoderCallback;
+                        Executor executor;
+                        synchronized (mLock) {
+                            encoderCallback = mEncoderCallback;
+                            executor = mEncoderCallbackExecutor;
+                        }
                         try {
-                            mEncoderCallbackExecutor.execute(
+                            executor.execute(
                                     () -> encoderCallback.onOutputConfigUpdate(() -> mediaFormat));
                         } catch (RejectedExecutionException e) {
                             Logger.e(TAG, "Unable to post to the supplied executor.", e);
                         }
                         break;
                     case CONFIGURED:
+                    case ERROR:
                     case RELEASED:
                         // Do nothing
                         break;
                     default:
                         throw new IllegalStateException("Unknown state: " + mState);
                 }
-            }
+            });
         }
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     class SurfaceInput implements Encoder.SurfaceInput {
+
+        private final Object mLock = new Object();
 
         @GuardedBy("mLock")
         private Surface mSurface;
@@ -663,42 +882,50 @@ public class EncoderImpl implements Encoder {
         @Override
         public void setOnSurfaceUpdateListener(@NonNull Executor executor,
                 @NonNull OnSurfaceUpdateListener listener) {
+            Surface surface;
             synchronized (mLock) {
                 mSurfaceUpdateListener = Preconditions.checkNotNull(listener);
                 mSurfaceUpdateExecutor = Preconditions.checkNotNull(executor);
-
-                if (mSurface != null) {
-                    notifySurfaceUpdate(mSurface);
-                }
-
+                surface = mSurface;
+            }
+            if (surface != null) {
+                notifySurfaceUpdate(executor, listener, surface);
             }
         }
 
-        @GuardedBy("mLock")
         @SuppressLint("UnsafeNewApiCall")
         void resetSurface() {
-            if (Build.VERSION.SDK_INT >= 23) {
-                if (mSurface == null) {
-                    mSurface = MediaCodec.createPersistentInputSurface();
-                    notifySurfaceUpdate(mSurface);
+            Surface surface;
+            Executor executor;
+            OnSurfaceUpdateListener listener;
+            synchronized (mLock) {
+                if (Build.VERSION.SDK_INT >= 23) {
+                    if (mSurface == null) {
+                        mSurface = MediaCodec.createPersistentInputSurface();
+                        surface = mSurface;
+                    } else {
+                        surface = null;
+                    }
+                    mMediaCodec.setInputSurface(mSurface);
+                } else {
+                    mSurface = mMediaCodec.createInputSurface();
+                    surface = mSurface;
                 }
-                mMediaCodec.setInputSurface(mSurface);
-            } else {
-                mSurface = mMediaCodec.createInputSurface();
-                notifySurfaceUpdate(mSurface);
+                listener = mSurfaceUpdateListener;
+                executor = mSurfaceUpdateExecutor;
+            }
+            if (surface != null && listener != null && executor != null) {
+                notifySurfaceUpdate(executor, listener, surface);
             }
         }
 
-        @GuardedBy("mLock")
-        private void notifySurfaceUpdate(@NonNull Surface surface) {
-            if (mSurfaceUpdateListener != null && mSurfaceUpdateExecutor != null) {
-                OnSurfaceUpdateListener listener = mSurfaceUpdateListener;
-                try {
-                    mSurfaceUpdateExecutor.execute(() -> listener.onSurfaceUpdate(surface));
-                } catch (RejectedExecutionException e) {
-                    Logger.e(TAG, "Unable to post to the supplied executor.", e);
-                    surface.release();
-                }
+        private void notifySurfaceUpdate(@NonNull Executor executor,
+                @NonNull OnSurfaceUpdateListener listener, @NonNull Surface surface) {
+            try {
+                executor.execute(() -> listener.onSurfaceUpdate(surface));
+            } catch (RejectedExecutionException e) {
+                Logger.e(TAG, "Unable to post to the supplied executor.", e);
+                surface.release();
             }
         }
     }
@@ -706,139 +933,91 @@ public class EncoderImpl implements Encoder {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     class ByteBufferInput implements Encoder.ByteBufferInput {
 
-        @GuardedBy("mLock")
-        private final Queue<Consumer<Integer>> mListenerQueue = new ArrayDeque<>();
+        private final Map<Observer<State>, Executor> mStateObservers = new LinkedHashMap<>();
 
-        @GuardedBy("mLock")
-        private final Queue<Integer> mFreeBufferIndexQueue = new ArrayDeque<>();
+        private State mBufferProviderState = State.INACTIVE;
+
+        private final List<ListenableFuture<InputBuffer>> mAcquisitionList = new ArrayList<>();
 
         /** {@inheritDoc} */
+        @NonNull
         @Override
-        public void putByteBuffer(@NonNull ByteBuffer byteBuffer) {
-            synchronized (mLock) {
-                switch (mState) {
-                    case STARTED:
-                        // Here it means the byteBuffer should definitely be queued into codec.
-                        acquireFreeBufferIndex(freeBufferIndex -> {
-                            ByteBuffer inputBuffer = null;
-                            synchronized (mLock) {
-                                if (mState == STARTED
-                                        || mState == PAUSED
-                                        || mState == STOPPING
-                                        || mState == PENDING_START
-                                        || mState == PENDING_START_PAUSED
-                                        || mState == PENDING_RELEASE) {
-                                    try {
-                                        inputBuffer = mMediaCodec.getInputBuffer(freeBufferIndex);
-                                    } catch (MediaCodec.CodecException e) {
-                                        handleEncodeError(e);
-                                        return;
-                                    }
-                                }
-                            }
-
-                            if (inputBuffer == null) {
-                                return;
-                            }
-                            inputBuffer.put(byteBuffer);
-
-                            synchronized (mLock) {
-                                if (mState == STARTED
-                                        || mState == PAUSED
-                                        || mState == STOPPING
-                                        || mState == PENDING_START
-                                        || mState == PENDING_START_PAUSED
-                                        || mState == PENDING_RELEASE) {
-                                    try {
-                                        mMediaCodec.queueInputBuffer(freeBufferIndex, 0,
-                                                inputBuffer.position(),
-                                                generatePresentationTimeUs(),
-                                                0);
-                                    } catch (MediaCodec.CodecException e) {
-                                        handleEncodeError(e);
-                                        return;
-                                    }
-                                }
-                            }
-                        });
-                        break;
-                    case PAUSED:
-                        // Drop the data
-                        break;
-                    case CONFIGURED:
-                    case STOPPING:
-                    case PENDING_START:
-                    case PENDING_RELEASE:
-                    case RELEASED:
-                        // Do nothing
-                        break;
-                    default:
-                        throw new IllegalStateException("Unknown state: " + mState);
-                }
-            }
-        }
-
-        @GuardedBy("mLock")
-        void signalEndOfInputStream() {
-            acquireFreeBufferIndex(freeBufferIndex -> {
-                synchronized (mLock) {
-                    switch (mState) {
-                        case STARTED:
-                        case PAUSED:
-                        case STOPPING:
-                        case PENDING_START:
-                        case PENDING_START_PAUSED:
-                        case PENDING_RELEASE:
-                            try {
-                                mMediaCodec.queueInputBuffer(freeBufferIndex, 0, 0,
-                                        generatePresentationTimeUs(),
-                                        MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-                            } catch (MediaCodec.CodecException e) {
-                                handleEncodeError(e);
-                            }
-                            break;
-                        case CONFIGURED:
-                        case RELEASED:
-                            // Do nothing
-                            break;
-                        default:
-                            throw new IllegalStateException("Unknown state: " + mState);
-                    }
-                }
+        public ListenableFuture<State> fetchData() {
+            return CallbackToFutureAdapter.getFuture(completer -> {
+                mEncoderExecutor.execute(() -> completer.set(mBufferProviderState));
+                return "fetchData";
             });
         }
 
-        @GuardedBy("mLock")
-        void putFreeBufferIndex(int index) {
-            mFreeBufferIndexQueue.offer(index);
-            match();
+        /** {@inheritDoc} */
+        @NonNull
+        @Override
+        public ListenableFuture<InputBuffer> acquireBuffer() {
+            return CallbackToFutureAdapter.getFuture(completer -> {
+                mEncoderExecutor.execute(() -> {
+                    if (mBufferProviderState == State.ACTIVE) {
+                        ListenableFuture<InputBuffer> future = acquireInputBuffer();
+                        Futures.propagate(future, completer);
+                        // Cancel by outer, also cancel internal future.
+                        completer.addCancellationListener(() -> future.cancel(true),
+                                CameraXExecutors.directExecutor());
+
+                        // Keep tracking the acquisition by internal future. Once the provider state
+                        // transition to inactive, cancel the internal future can also send signal
+                        // to outer future since we propagate the internal result to the completer.
+                        mAcquisitionList.add(future);
+                        future.addListener(() -> mAcquisitionList.remove(future), mEncoderExecutor);
+                    } else if (mBufferProviderState == State.INACTIVE) {
+                        completer.setException(
+                                new IllegalStateException("BufferProvider is not active."));
+                    } else {
+                        completer.setException(
+                                new IllegalStateException(
+                                        "Unknown state: " + mBufferProviderState));
+                    }
+                });
+                return "acquireBuffer";
+            });
         }
 
-        @GuardedBy("mLock")
-        void clearFreeBuffers() {
-            mListenerQueue.clear();
-            mFreeBufferIndexQueue.clear();
+        /** {@inheritDoc} */
+        @Override
+        public void addObserver(@NonNull Executor executor, @NonNull Observer<State> observer) {
+            mEncoderExecutor.execute(() -> {
+                mStateObservers.put(Preconditions.checkNotNull(observer),
+                        Preconditions.checkNotNull(executor));
+                final State state = mBufferProviderState;
+                executor.execute(() -> observer.onNewData(state));
+            });
         }
 
-        @GuardedBy("mLock")
-        private void acquireFreeBufferIndex(
-                @NonNull Consumer<Integer> onFreeBufferIndexListener) {
-            synchronized (mLock) {
-                mListenerQueue.offer(onFreeBufferIndexListener);
-                match();
+        /** {@inheritDoc} */
+        @Override
+        public void removeObserver(@NonNull Observer<State> observer) {
+            mEncoderExecutor.execute(
+                    () -> mStateObservers.remove(Preconditions.checkNotNull(observer)));
+        }
+
+        @ExecutedBy("mEncoderExecutor")
+        void setActive(boolean isActive) {
+            final State newState = isActive ? State.ACTIVE : State.INACTIVE;
+            if (mBufferProviderState == newState) {
+                return;
             }
-        }
+            mBufferProviderState = newState;
 
-        @GuardedBy("mLock")
-        private void match() {
-            if (!mListenerQueue.isEmpty() && !mFreeBufferIndexQueue.isEmpty()) {
-                Consumer<Integer> listener = mListenerQueue.poll();
-                Integer index = mFreeBufferIndexQueue.poll();
+            if (newState == State.INACTIVE) {
+                for (ListenableFuture<InputBuffer> future : mAcquisitionList) {
+                    future.cancel(true);
+                }
+                mAcquisitionList.clear();
+            }
+
+            for (Map.Entry<Observer<State>, Executor> entry : mStateObservers.entrySet()) {
                 try {
-                    mExecutor.execute(() -> listener.accept(index));
+                    entry.getValue().execute(() -> entry.getKey().onNewData(newState));
                 } catch (RejectedExecutionException e) {
                     Logger.e(TAG, "Unable to post to the supplied executor.", e);
-                    putFreeBufferIndex(index);
                 }
             }
         }
