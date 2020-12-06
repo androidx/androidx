@@ -41,7 +41,7 @@ class XmlTestConfigVerificationTest {
         builder = ConfigBuilder()
         builder.isBenchmark(false)
             .applicationId("com.androidx.placeholder.Placeholder")
-            .isFullTest(true)
+            .isPostsubmit(true)
             .minSdk("15")
             .tag("placeholder_tag")
             .testApkName("placeholder.apk")
@@ -93,20 +93,20 @@ class XmlTestConfigVerificationTest {
 
     @Test
     fun testValidTestConfigXml_presubmitWithAppApk() {
-        builder.isFullTest(false)
+        builder.isPostsubmit(false)
             .appApkName("Placeholder.apk")
         validate(builder.build())
     }
 
     @Test
     fun testValidTestConfigXml_presubmit() {
-        builder.isFullTest(false)
+        builder.isPostsubmit(false)
         validate(builder.build())
     }
 
     @Test
     fun testValidTestConfigXml_presubmitBenchmark() {
-        builder.isFullTest(false)
+        builder.isPostsubmit(false)
             .isBenchmark(true)
         validate(builder.build())
     }
@@ -118,7 +118,7 @@ class XmlTestConfigVerificationTest {
 
     @Test
     fun testValidMediaConfigXml_presubmit() {
-        mediaBuilder.isFullTest(false)
+        mediaBuilder.isPostsubmit(false)
         validate(mediaBuilder.build())
     }
 
