@@ -71,7 +71,7 @@ public class SidecarCompatDeviceTest extends WindowTestBase implements CompatDev
         mSidecarCompat.onDeviceStateListenersChanged(false);
 
 
-        verify(callbackInterface).onDeviceStateChanged(argThat(deviceState ->
+        verify(callbackInterface, atLeastOnce()).onDeviceStateChanged(argThat(deviceState ->
                 deviceState.getPosture() == getSidecarDevicePosture(sidecarDeviceState)));
     }
 
