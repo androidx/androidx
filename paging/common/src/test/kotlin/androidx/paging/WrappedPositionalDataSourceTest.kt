@@ -21,7 +21,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertTrue
 
-@OptIn(ExperimentalPagingApi::class)
 @RunWith(JUnit4::class)
 class WrappedPositionalDataSourceTest {
 
