@@ -33,6 +33,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import org.junit.AssumptionViolatedException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,10 +49,9 @@ public final class WindowBoundsHelperTest {
     @Test
     public void testGetCurrentWindowBounds_matchParentWindowSize_avoidCutouts_preR() {
         assumePlatformBeforeR();
+        assumeNotMultiWindow();
 
         testGetCurrentWindowBoundsMatchesRealDisplaySize(activity -> {
-            assumeFalse(isInMultiWindowMode(activity));
-
             WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
             lp.width = WindowManager.LayoutParams.MATCH_PARENT;
             lp.height = WindowManager.LayoutParams.MATCH_PARENT;
@@ -66,10 +66,9 @@ public final class WindowBoundsHelperTest {
     @Test
     public void testGetCurrentWindowBounds_fixedWindowSize_avoidCutouts_preR() {
         assumePlatformBeforeR();
+        assumeNotMultiWindow();
 
         testGetCurrentWindowBoundsMatchesRealDisplaySize(activity -> {
-            assumeFalse(isInMultiWindowMode(activity));
-
             WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
             lp.width = 100;
             lp.height = 100;
@@ -84,10 +83,9 @@ public final class WindowBoundsHelperTest {
     @Test
     public void testGetCurrentWindowBounds_matchParentWindowSize_layoutBehindCutouts_preR() {
         assumePlatformBeforeR();
+        assumeNotMultiWindow();
 
         testGetCurrentWindowBoundsMatchesRealDisplaySize(activity -> {
-            assumeFalse(isInMultiWindowMode(activity));
-
             WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
             lp.width = WindowManager.LayoutParams.MATCH_PARENT;
             lp.height = WindowManager.LayoutParams.MATCH_PARENT;
@@ -102,10 +100,9 @@ public final class WindowBoundsHelperTest {
     @Test
     public void testGetCurrentWindowBounds_fixedWindowSize_layoutBehindCutouts_preR() {
         assumePlatformBeforeR();
+        assumeNotMultiWindow();
 
         testGetCurrentWindowBoundsMatchesRealDisplaySize(activity -> {
-            assumeFalse(isInMultiWindowMode(activity));
-
             WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
             lp.width = 100;
             lp.height = 100;
@@ -132,10 +129,9 @@ public final class WindowBoundsHelperTest {
     @Test
     public void testGetMaximumWindowBounds_matchParentWindowSize_avoidCutouts_preR() {
         assumePlatformBeforeR();
+        assumeNotMultiWindow();
 
         testGetMaximumWindowBoundsMatchesRealDisplaySize(activity -> {
-            assumeFalse(isInMultiWindowMode(activity));
-
             WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
             lp.width = WindowManager.LayoutParams.MATCH_PARENT;
             lp.height = WindowManager.LayoutParams.MATCH_PARENT;
@@ -150,10 +146,9 @@ public final class WindowBoundsHelperTest {
     @Test
     public void testGetMaximumWindowBounds_fixedWindowSize_avoidCutouts_preR() {
         assumePlatformBeforeR();
+        assumeNotMultiWindow();
 
         testGetMaximumWindowBoundsMatchesRealDisplaySize(activity -> {
-            assumeFalse(isInMultiWindowMode(activity));
-
             WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
             lp.width = 100;
             lp.height = 100;
@@ -168,10 +163,9 @@ public final class WindowBoundsHelperTest {
     @Test
     public void testGetMaximumWindowBounds_matchParentWindowSize_layoutBehindCutouts_preR() {
         assumePlatformBeforeR();
+        assumeNotMultiWindow();
 
         testGetMaximumWindowBoundsMatchesRealDisplaySize(activity -> {
-            assumeFalse(isInMultiWindowMode(activity));
-
             WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
             lp.width = WindowManager.LayoutParams.MATCH_PARENT;
             lp.height = WindowManager.LayoutParams.MATCH_PARENT;
@@ -186,10 +180,9 @@ public final class WindowBoundsHelperTest {
     @Test
     public void testGetMaximumWindowBounds_fixedWindowSize_layoutBehindCutouts_preR() {
         assumePlatformBeforeR();
+        assumeNotMultiWindow();
 
         testGetMaximumWindowBoundsMatchesRealDisplaySize(activity -> {
-            assumeFalse(isInMultiWindowMode(activity));
-
             WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
             lp.width = 100;
             lp.height = 100;
@@ -248,6 +241,20 @@ public final class WindowBoundsHelperTest {
 
         scenario.moveToState(Lifecycle.State.RESUMED);
         scenario.onActivity(verifyAction);
+    }
+
+    private void assumeNotMultiWindow() {
+        ActivityScenario<TestActivity> scenario = mActivityScenarioRule.getScenario();
+        try {
+            scenario.onActivity(activity -> assumeFalse(isInMultiWindowMode(activity)));
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof AssumptionViolatedException) {
+                AssumptionViolatedException failedAssumption =
+                        (AssumptionViolatedException) e.getCause();
+                throw failedAssumption;
+            }
+            throw e;
+        }
     }
 
     private static boolean isInMultiWindowMode(Activity activity) {
