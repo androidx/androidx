@@ -156,6 +156,18 @@ final class AmbientDelegate {
     }
 
     /**
+     * Sets whether this activity's task should be moved to the front when the system exits
+     * ambient mode. If true, the activity's task may be moved to the front if it was the last
+     * activity to be running when ambient started, depending on how much time the system spent
+     * in ambient mode.
+     */
+    public void setAutoResumeEnabled(boolean enabled) {
+        if (mWearableController != null) {
+            mWearableController.setAutoResumeEnabled(enabled);
+        }
+    }
+
+    /**
      * @return {@code true} if the activity is currently in ambient.
      */
     boolean isAmbient() {
