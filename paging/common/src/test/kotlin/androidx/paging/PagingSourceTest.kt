@@ -256,7 +256,6 @@ class PagingSourceTest {
 
         private var error = false
 
-        @OptIn(ExperimentalPagingApi::class)
         override fun getRefreshKey(state: PagingState<Key, Item>): Key? {
             return state.anchorPosition
                 ?.let { anchorPosition -> state.closestItemToPosition(anchorPosition) }
