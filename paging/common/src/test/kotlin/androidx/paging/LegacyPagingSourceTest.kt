@@ -34,7 +34,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-@OptIn(ExperimentalPagingApi::class)
 @RunWith(JUnit4::class)
 class LegacyPagingSourceTest {
     private val fakePagingState = PagingState(
