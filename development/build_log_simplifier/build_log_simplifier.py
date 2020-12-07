@@ -146,45 +146,6 @@ def shorten_uninteresting_stack_frames(lines):
             prev_line_is_boring = False
     return result
 
-def remove_known_uninteresting_lines(lines):
-  skipLines = {
-      "A fine-grained performance profile is available: use the --scan option.",
-      "* Get more help at https://help.gradle.org",
-      "Use '--warning-mode all' to show the individual deprecation warnings.",
-      "See https://docs.gradle.org/6.5/userguide/command_line_interface.html#sec:command_line_warnings",
-
-      "Note: Some input files use or override a deprecated API.",
-      "Note: Recompile with -Xlint:deprecation for details.",
-      "Note: Some input files use unchecked or unsafe operations.",
-      "Note: Recompile with -Xlint:unchecked for details.",
-
-      "w: ATTENTION!",
-      "This build uses unsafe internal compiler arguments:",
-      "-XXLanguage:+InlineClasses",
-      "This mode is not recommended for production use,",
-      "as no stability/compatibility guarantees are given on",
-      "compiler or generated code. Use it at your own risk!"
-  }
-  skipPrefixes = [
-      "See the profiling report at:",
-
-      "Deprecated Gradle features were used in this build"
-  ]
-  result = []
-  for line in lines:
-      stripped = line.strip()
-      if stripped in skipLines:
-          continue
-      include = True
-      for prefix in skipPrefixes:
-          if stripped.startswith(prefix):
-              include = False
-              break
-      if include:
-          result.append(line)
-  return result
-
-
 # Returns the path of the config file holding exemptions for deterministic/consistent output.
 # These exemptions can be garbage collected via the `--gc` argument
 def get_deterministic_exemptions_path():
@@ -542,7 +503,6 @@ def main():
     if not validate:
         interesting_lines = select_failing_task_output(interesting_lines)
     interesting_lines = shorten_uninteresting_stack_frames(interesting_lines)
-    interesting_lines = remove_known_uninteresting_lines(interesting_lines)
     interesting_lines = remove_by_regexes(interesting_lines, exemption_regexes, validate)
     interesting_lines = collapse_tasks_having_no_output(interesting_lines)
     interesting_lines = collapse_consecutive_blank_lines(interesting_lines)
