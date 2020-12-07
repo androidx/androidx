@@ -43,6 +43,7 @@ import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.video.internal.workaround.EncoderFinder;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
 import androidx.core.util.Preconditions;
@@ -151,6 +152,7 @@ public class EncoderImpl implements Encoder {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     InternalState mState;
 
+    final EncoderFinder mEncoderFinder = new EncoderFinder();
     /**
      * Creates the encoder with a {@link EncoderConfig}
      *
@@ -563,22 +565,8 @@ public class EncoderImpl implements Encoder {
             throws InvalidConfigException {
         MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.ALL_CODECS);
         String encoderName;
-        // For API 21, before using findEncoderForFormat(), it needs to reset frame rate config to
-        // null. See <a href="https://developer.android
-        // .com/reference/android/media/MediaCodec#creation">MediaCodec's creation</a>
-        // But in the MediaCode.configure() phase, on API 21, the MediaFormat should includes frame
-        // rate value.
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP
-                && mediaFormat.containsKey(MediaFormat.KEY_FRAME_RATE)) {
-            int tempFrameRate  = mediaFormat.getInteger(MediaFormat.KEY_FRAME_RATE);
-            // Reset frame rate in API 21.
-            mediaFormat.setString(MediaFormat.KEY_FRAME_RATE, null);
-            encoderName = mediaCodecList.findEncoderForFormat(mediaFormat);
-            // Restore the frame rate value.
-            mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, tempFrameRate);
-        } else {
-            encoderName = mediaCodecList.findEncoderForFormat(mediaFormat);
-        }
+
+        encoderName = mEncoderFinder.findEncoderForFormat(mediaFormat, mediaCodecList);
 
         MediaCodec codec;
 
