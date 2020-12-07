@@ -363,6 +363,9 @@ else
   else
     failed
   fi
+  echo Copying minimal set of files into $fewestFilesOutputPath
+  rm -rf "$fewestFilesOutputPath"
+  cp -rT "$filtererStep1Output" "$fewestFilesOutputPath"
 fi
 
 if [ "$subfilePath" == "" ]; then
