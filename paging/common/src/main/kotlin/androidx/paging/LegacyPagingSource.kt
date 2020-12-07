@@ -119,7 +119,6 @@ internal class LegacyPagingSource<Key : Any, Value : Any>(
         }
     }
 
-    @OptIn(ExperimentalPagingApi::class)
     @Suppress("UNCHECKED_CAST")
     override fun getRefreshKey(state: PagingState<Key, Value>): Key? {
         return when (dataSource.type) {

@@ -87,7 +87,6 @@ internal class PageFetcher<Key : Any, Value : Any>(
                     previousPagingState = previousGeneration.state
                 }
 
-                @OptIn(ExperimentalPagingApi::class)
                 val initialKey: Key? = previousPagingState?.let { pagingSource.getRefreshKey(it) }
                     ?: initialKey
 
