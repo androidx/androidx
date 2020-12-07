@@ -30,6 +30,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraControlInternal;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.Config.Option;
@@ -164,6 +165,7 @@ public abstract class UseCase {
     /**
      * Create a merged {@link UseCaseConfig} from the UseCase, camera, and an extended config.
      *
+     * @param cameraInfo          info about the camera which may be used to resolve conflicts.
      * @param extendedConfig      configs that take priority over the UseCase's default config
      * @param cameraDefaultConfig configs that have lower priority than the UseCase's default.
      *                            This Config comes from the camera implementation.
@@ -175,6 +177,7 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public UseCaseConfig<?> mergeConfigs(
+            @NonNull CameraInfoInternal cameraInfo,
             @Nullable UseCaseConfig<?> extendedConfig,
             @Nullable UseCaseConfig<?> cameraDefaultConfig) {
         MutableOptionsBundle mergedConfig;
@@ -199,8 +202,7 @@ public abstract class UseCase {
 
         if (extendedConfig != null) {
             // If any options need special handling, this is the place to do it. For now we'll
-            // just copy
-            // over all options.
+            // just copy over all options.
             for (Option<?> opt : extendedConfig.listOptions()) {
                 @SuppressWarnings("unchecked") // Options/values are being copied directly
                         Option<Object> objectOpt = (Option<Object>) opt;
@@ -222,7 +224,7 @@ public abstract class UseCase {
             mergedConfig.removeOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO);
         }
 
-        return onMergeConfig(getUseCaseConfigBuilder(mergedConfig));
+        return onMergeConfig(cameraInfo, getUseCaseConfigBuilder(mergedConfig));
     }
 
     /**
@@ -231,8 +233,9 @@ public abstract class UseCase {
      * <p> This can be overridden by a UseCase which need to do additional verification of the
      * configs to make sure there are no conflicting options.
      *
-     * @param builder the builder containing the merged configs requiring addition conflict
-     *                resolution
+     * @param cameraInfo info about the camera which may be used to resolve conflicts.
+     * @param builder    the builder containing the merged configs requiring addition conflict
+     *                   resolution
      * @return the conflict resolved config
      * @throws IllegalArgumentException if there exists conflicts in the merged config that can
      * not be resolved
@@ -240,7 +243,8 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    UseCaseConfig<?> onMergeConfig(@NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
+    UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
+            @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
         return builder.getUseCaseConfig();
     }
 
@@ -263,7 +267,16 @@ public abstract class UseCase {
             UseCaseConfigUtil.updateTargetRotationAndRelatedConfigs(builder, targetRotation);
             mUseCaseConfig = builder.getUseCaseConfig();
 
-            mCurrentConfig = mergeConfigs(mExtendedConfig, mCameraConfig);
+            // Only merge configs if currently attached to a camera. Otherwise, set the current
+            // config to the use case config and mergeConfig() will be called once the use case
+            // is attached to a camera.
+            CameraInternal camera = getCamera();
+            if (camera == null) {
+                mCurrentConfig = mUseCaseConfig;
+            } else {
+                mCurrentConfig = mergeConfigs(camera.getCameraInfoInternal(), mExtendedConfig,
+                        mCameraConfig);
+            }
 
             return true;
         }
@@ -531,7 +544,8 @@ public abstract class UseCase {
 
         mExtendedConfig = extendedConfig;
         mCameraConfig = cameraConfig;
-        mCurrentConfig = mergeConfigs(mExtendedConfig, mCameraConfig);
+        mCurrentConfig = mergeConfigs(camera.getCameraInfoInternal(), mExtendedConfig,
+                mCameraConfig);
 
         EventCallback eventCallback = mCurrentConfig.getUseCaseEventCallback(null);
         if (eventCallback != null) {
