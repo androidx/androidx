@@ -110,7 +110,7 @@ public final class ExtensionTest extends WindowTestBase {
     }
 
     @Test
-    public void testWindowLayoutInfoCallback() {
+    public void testWindowLayoutCallback() {
         assumeExtensionV10_V01();
         ExtensionInterfaceCompat extension = initAndVerifyExtension(mContext);
         ExtensionCallbackInterface callbackInterface = mock(ExtensionCallbackInterface.class);
@@ -121,7 +121,7 @@ public final class ExtensionTest extends WindowTestBase {
 
         assertTrue("Layout must happen after launch", activity.waitForLayout());
 
-        verify(callbackInterface).onWindowLayoutChanged(any(), argThat(
+        verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(any(), argThat(
                 new WindowLayoutInfoValidator(activity)));
     }
 
@@ -271,7 +271,8 @@ public final class ExtensionTest extends WindowTestBase {
         Rect featureRect = feature.getBounds();
         WindowMetrics windowMetrics = new WindowManager(activity).getCurrentWindowMetrics();
 
-        if (featureRect.isEmpty() || featureRect.left < 0 || featureRect.top < 0) {
+        if ((featureRect.height() == 0 && featureRect.width() == 0) || featureRect.left < 0
+                || featureRect.top < 0) {
             return false;
         }
         if (featureRect.right < 1 || featureRect.right > windowMetrics.getBounds().width()) {

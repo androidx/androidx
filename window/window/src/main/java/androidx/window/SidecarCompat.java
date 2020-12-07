@@ -92,6 +92,17 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
             @SuppressLint("SyntheticAccessor")
             public void onDeviceStateChanged(@NonNull SidecarDeviceState newDeviceState) {
                 extensionCallback.onDeviceStateChanged(mSidecarAdapter.translate(newDeviceState));
+
+                for (int i = 0; i < mWindowListenerRegisteredContexts.size(); i++) {
+                    Activity activity = mWindowListenerRegisteredContexts.valueAt(i);
+                    IBinder windowToken = getActivityWindowToken(activity);
+                    if (windowToken == null) {
+                        continue;
+                    }
+                    SidecarWindowLayoutInfo layoutInfo = mSidecar.getWindowLayoutInfo(windowToken);
+                    extensionCallback.onWindowLayoutChanged(activity,
+                            mSidecarAdapter.translate(activity, layoutInfo, newDeviceState));
+                }
             }
 
             @Override
