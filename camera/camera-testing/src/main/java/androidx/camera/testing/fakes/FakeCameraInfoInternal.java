@@ -30,11 +30,15 @@ import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
+import androidx.camera.core.impl.Quirk;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.camera.core.internal.ImmutableZoomState;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -52,6 +56,9 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     private final MutableLiveData<ZoomState> mZoomLiveData;
     private String mImplementationType = IMPLEMENTATION_TYPE_FAKE;
+
+    @NonNull
+    private final List<Quirk> mCameraQuirks = new ArrayList<>();
 
     public FakeCameraInfoInternal() {
         this(/*sensorRotation=*/ 0, /*lensFacing=*/ CameraSelector.LENS_FACING_BACK);
@@ -165,6 +172,17 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     @Override
     public void removeSessionCaptureCallback(@NonNull CameraCaptureCallback callback) {
         throw new UnsupportedOperationException("Not Implemented");
+    }
+
+    @NonNull
+    @Override
+    public Quirks getCameraQuirks() {
+        return new Quirks(mCameraQuirks);
+    }
+
+    /** Adds a quirk to the list of this camera's quirks. */
+    public void addCameraQuirk(@NonNull final Quirk quirk) {
+        mCameraQuirks.add(quirk);
     }
 
     /**
