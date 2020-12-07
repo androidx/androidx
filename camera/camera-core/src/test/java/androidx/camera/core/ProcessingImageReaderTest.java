@@ -281,6 +281,16 @@ public final class ProcessingImageReaderTest {
                 CaptureBundles.createCaptureBundle(mCaptureStage1, mCaptureStage2, mCaptureStage3));
     }
 
+    @Test
+    public void imageReaderFormatIsOutputFormat() {
+        // Creates a ProcessingImageReader with input format YUV_420_888 and output JPEG
+        ProcessingImageReader processingImageReader = new ProcessingImageReader(100, 100,
+                ImageFormat.YUV_420_888, 2, AsyncTask.THREAD_POOL_EXECUTOR, mCaptureBundle,
+                mock(CaptureProcessor.class), ImageFormat.JPEG);
+
+        assertThat(processingImageReader.getImageFormat()).isEqualTo(ImageFormat.JPEG);
+    }
+
     private void triggerImageAvailable(int captureId, long timestamp) throws InterruptedException {
         TagBundle tagBundle = TagBundle.create(new Pair<>(mTagBundleKey, captureId));
         mImageReaderProxy.triggerImageAvailable(tagBundle, timestamp);
