@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -87,7 +88,7 @@ public class SidecarCompatDeviceTest extends WindowTestBase implements CompatDev
         SidecarWindowLayoutInfo sidecarWindowLayoutInfo =
                 mSidecarCompat.mSidecar.getWindowLayoutInfo(windowToken);
 
-        verify(callbackInterface).onWindowLayoutChanged(any(),
+        verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(any(),
                 argThat(new SidecarMatcher(sidecarWindowLayoutInfo)));
     }
 
