@@ -33,6 +33,7 @@ import static org.mockito.Mockito.verify;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Rect;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -151,11 +152,22 @@ public final class ExtensionTest extends WindowTestBase {
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         activity.waitForLayout();
+        if (activity.getResources().getConfiguration().orientation
+                != Configuration.ORIENTATION_PORTRAIT) {
+            // Orientation change did not occur on this device config. Skipping the test.
+            return;
+        }
 
         activity.resetLayoutCounter();
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
-        assertTrue("Layout must happen after orientation change", activity.waitForLayout());
+        boolean layoutHappened = activity.waitForLayout();
+        if (activity.getResources().getConfiguration().orientation
+                != Configuration.ORIENTATION_LANDSCAPE) {
+            // Orientation change did not occur on this device config. Skipping the test.
+            return;
+        }
+        assertTrue("Layout must happen after orientation change", layoutHappened);
 
         verify(callbackInterface, atLeastOnce())
                 .onWindowLayoutChanged(any(), argThat(new DistinctWindowLayoutInfoMatcher()));
@@ -177,6 +189,11 @@ public final class ExtensionTest extends WindowTestBase {
         activity = mActivityTestRule.getActivity();
 
         activity.waitForLayout();
+        if (activity.getResources().getConfiguration().orientation
+                != Configuration.ORIENTATION_PORTRAIT) {
+            // Orientation change did not occur on this device config. Skipping the test.
+            return;
+        }
 
         TestActivity.resetResumeCounter();
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -185,6 +202,11 @@ public final class ExtensionTest extends WindowTestBase {
         activity = mActivityTestRule.getActivity();
 
         activity.waitForLayout();
+        if (activity.getResources().getConfiguration().orientation
+                != Configuration.ORIENTATION_LANDSCAPE) {
+            // Orientation change did not occur on this device config. Skipping the test.
+            return;
+        }
 
         verify(callbackInterface, atLeastOnce())
                 .onWindowLayoutChanged(any(), argThat(new DistinctWindowLayoutInfoMatcher()));
