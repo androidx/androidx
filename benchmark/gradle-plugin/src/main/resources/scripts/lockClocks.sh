@@ -94,6 +94,19 @@ function_setup_go() {
     fi
 }
 
+# Disable CPU hotpluging by killing mpdecision service via ctl.stop system property.
+# This helper checks the state and existence of the mpdecision service via init.svc.
+# Possible values from init.svc: "stopped", "stopping", "running", "restarting"
+function_stop_mpdecision() {
+    MPDECISION_STATUS=`getprop init.svc.mpdecision`
+    while [ "$MPDECISION_STATUS" == "running" ] || [ "$MPDECISION_STATUS" == "restarting" ]; do
+        setprop ctl.stop mpdecision
+        # Give initrc some time to kill the mpdecision service.
+        sleep 0.1
+        MPDECISION_STATUS=`getprop init.svc.mpdecision`
+    done
+}
+
 # Find the min or max (little vs big) of CPU max frequency, and lock cores of the selected type to
 # an available frequency that's >= $CPU_TARGET_FREQ_PERCENT% of max. Disable other cores.
 function_lock_cpu() {
@@ -111,10 +124,14 @@ function_lock_cpu() {
     disableIndices=''
     cpu=0
 
+    # Stop mpdecision (CPU hotplug service) if it exists. Not available on all devices.
+    function_stop_mpdecision
+
     # Loop through all available cores; We have to check by the parent folder
     # "cpu#" instead of cpu#/online or cpu#/cpufreq directly, since they may
     # not be accessible yet.
     while [ -d ${CPU_BASE}/cpu${cpu} ]; do
+
         # Try to enable core, so we can find its frequencies.
         # Note: In cases where the online file is inaccessible, it represents a
         # core which cannot be turned off, so we simply assume it is enabled if
