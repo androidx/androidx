@@ -32,7 +32,7 @@ JETPACK_IMPL_ROOT = 'local-storage/src/main/java/androidx/appsearch'
 JETPACK_IMPL_TEST_ROOT = 'local-storage/src/androidTest/java/androidx/appsearch'
 
 # Framework paths relative to frameworks/base/apex/appsearch
-FRAMEWORK_API_ROOT = 'framework/java/android/app/appsearch'
+FRAMEWORK_API_ROOT = 'framework/java/external/android/app/appsearch'
 FRAMEWORK_API_TEST_ROOT = (
         '../../core/tests/coretests/src/'
         'android/app/appsearch/external')
@@ -52,18 +52,10 @@ class ExportToFramework:
         self._jetpack_appsearch_root = jetpack_appsearch_root
         self._framework_appsearch_root = framework_appsearch_root
 
-    def _PruneDir(self, dir_to_prune, allow_list=None):
-        all_files = []
+    def _PruneDir(self, dir_to_prune):
         for walk_path, walk_folders, walk_files in os.walk(dir_to_prune):
             for walk_filename in walk_files:
                 abs_path = os.path.join(walk_path, walk_filename)
-                all_files.append(abs_path)
-
-        for abs_path in all_files:
-            rel_path = os.path.relpath(abs_path, dir_to_prune)
-            if allow_list and rel_path in allow_list:
-                print('Prune: skip "%s"' % abs_path)
-            else:
                 print('Prune: remove "%s"' % abs_path)
                 os.remove(abs_path)
 
@@ -137,14 +129,7 @@ class ExportToFramework:
         api_test_dest_dir = os.path.join(self._framework_appsearch_root, FRAMEWORK_API_TEST_ROOT)
 
         # Prune existing files
-        self._PruneDir(api_dest_dir, allow_list=[
-            'AppSearchBatchResult.java',
-            'AppSearchManager.java',
-            'AppSearchManagerFrameworkInitializer.java',
-            'AppSearchResult.java',
-            'IAppSearchManager.aidl',
-            'SearchResults.java',
-        ])
+        self._PruneDir(api_dest_dir)
         self._PruneDir(api_test_dest_dir)
 
         # Copy api classes. We can't use _TransformAndCopyFolder here because we
