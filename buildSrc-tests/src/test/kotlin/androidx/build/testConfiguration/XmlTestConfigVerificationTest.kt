@@ -183,6 +183,7 @@ private val goldenMediaDefaultConfig = """
     <option name="min-api-level" value="15" />
     </object>
     <option name="test-suite-tag" value="placeholder_tag" />
+    <option name="test-suite-tag" value="media_compat" />
     <option name="config-descriptor:metadata" key="applicationId" value="com.androidx.client.Placeholder;com.androidx.service.Placeholder" />
     <option name="wifi:disable" value="true" />
     <include name="google/unbundled/common/setup" />
