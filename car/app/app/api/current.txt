@@ -16,12 +16,12 @@ package androidx.car.app {
 
   public abstract class CarAppService extends android.app.Service implements androidx.lifecycle.LifecycleOwner {
     ctor public CarAppService();
-    method @CallSuper public void dump(java.io.FileDescriptor, java.io.PrintWriter, String![]?);
-    method public void finish();
+    method @CallSuper public final void dump(java.io.FileDescriptor, java.io.PrintWriter, String![]?);
+    method public final void finish();
     method public final androidx.car.app.CarContext getCarContext();
-    method public androidx.car.app.HostInfo? getHostInfo();
-    method public androidx.lifecycle.Lifecycle getLifecycle();
-    method @CallSuper public android.os.IBinder? onBind(android.content.Intent);
+    method public final androidx.car.app.HostInfo? getHostInfo();
+    method public final androidx.lifecycle.Lifecycle getLifecycle();
+    method @CallSuper public final android.os.IBinder? onBind(android.content.Intent);
     method public void onCarAppFinished();
     method public void onCarConfigurationChanged(android.content.res.Configuration);
     method public abstract androidx.car.app.Screen onCreateScreen(android.content.Intent);
