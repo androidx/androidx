@@ -26,6 +26,12 @@ plugins {
     id("kotlin-android")
 }
 
+android {
+    defaultConfig {
+        multiDexEnabled true
+    }
+}
+
 dependencies {
     api(project(":paging:paging-common"))
     // Ensure that the -ktx dependency graph mirrors the Java dependency graph
@@ -46,9 +52,11 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
+    androidTestImplementation(TRUTH)
     androidTestImplementation(KOTLIN_TEST)
     androidTestImplementation(KOTLIN_COROUTINES_TEST)
     androidTestImplementation(JUNIT)
+    androidTestImplementation(MULTIDEX)
 }
 
 androidx {
