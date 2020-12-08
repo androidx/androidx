@@ -272,7 +272,8 @@ public abstract class ActivityResultRegistry {
                 new ArrayList<>(mRcToKey.keySet()));
         outState.putStringArrayList(KEY_COMPONENT_ACTIVITY_REGISTERED_KEYS,
                 new ArrayList<>(mRcToKey.values()));
-        outState.putBundle(KEY_COMPONENT_ACTIVITY_PENDING_RESULTS, mPendingResults);
+        outState.putBundle(KEY_COMPONENT_ACTIVITY_PENDING_RESULTS,
+                (Bundle) mPendingResults.clone());
         outState.putSerializable(KEY_COMPONENT_ACTIVITY_RANDOM_OBJECT, mRandom);
     }
 
