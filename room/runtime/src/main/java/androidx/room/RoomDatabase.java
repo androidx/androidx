@@ -620,6 +620,8 @@ public abstract class RoomDatabase {
         private final Context mContext;
         private ArrayList<Callback> mCallbacks;
         private PrepackagedDatabaseCallback mPrepackagedDatabaseCallback;
+        private QueryCallback mQueryCallback;
+        private Executor mQueryCallbackExecutor;
         private List<Object> mTypeConverters;
 
         /** The Executor used to run database queries. This should be background-threaded. */
@@ -1092,6 +1094,27 @@ public abstract class RoomDatabase {
         }
 
         /**
+         * Sets a {@link QueryCallback} to be invoked when queries are executed.
+         * <p>
+         * The callback is invoked whenever a query is executed, note that adding this callback
+         * has a small cost and should be avoided in production builds unless needed.
+         * <p>
+         * A use case for providing a callback is to allow logging executed queries. When the
+         * callback implementation logs then it is recommended to use an immediate executor.
+         *
+         * @param queryCallback The query callback.
+         * @param executor The executor on which the query callback will be invoked.
+         */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        @NonNull
+        public Builder<T> setQueryCallback(@NonNull QueryCallback queryCallback,
+                @NonNull Executor executor) {
+            mQueryCallback = queryCallback;
+            mQueryCallbackExecutor = executor;
+            return this;
+        }
+
+        /**
          * Adds a type converter instance to this database.
          *
          * @param typeConverter The converter. It must be an instance of a class annotated with
@@ -1173,6 +1196,12 @@ public abstract class RoomDatabase {
                 mFactory = new SQLiteCopyOpenHelperFactory(mCopyFromAssetPath, mCopyFromFile,
                         mCopyFromInputStream, mFactory);
             }
+
+            if (mQueryCallback != null) {
+                mFactory = new QueryInterceptorOpenHelperFactory(mFactory, mQueryCallback,
+                        mQueryCallbackExecutor);
+            }
+
             DatabaseConfiguration configuration =
                     new DatabaseConfiguration(
                             mContext,
@@ -1344,5 +1373,22 @@ public abstract class RoomDatabase {
          */
         public void onOpenPrepackagedDatabase(@NonNull SupportSQLiteDatabase db) {
         }
+    }
+
+    /**
+     * Callback interface for when SQLite queries are executed.
+     *
+     * @see RoomDatabase.Builder#setQueryCallback
+     */
+    public interface QueryCallback {
+
+        /**
+         * Called when a SQL query is executed.
+         *
+         * @param sqlQuery The SQLite query statement.
+         * @param bindArgs Arguments of the query if available, empty list otherwise.
+         */
+        void onQuery(@NonNull String sqlQuery, @NonNull List<Object>
+                bindArgs);
     }
 }

@@ -130,6 +130,7 @@ package androidx.room {
     method public androidx.room.RoomDatabase.Builder<T!> fallbackToDestructiveMigrationOnDowngrade();
     method public androidx.room.RoomDatabase.Builder<T!> openHelperFactory(androidx.sqlite.db.SupportSQLiteOpenHelper.Factory?);
     method public androidx.room.RoomDatabase.Builder<T!> setJournalMode(androidx.room.RoomDatabase.JournalMode);
+    method public androidx.room.RoomDatabase.Builder<T!> setQueryCallback(androidx.room.RoomDatabase.QueryCallback, java.util.concurrent.Executor);
     method public androidx.room.RoomDatabase.Builder<T!> setQueryExecutor(java.util.concurrent.Executor);
     method public androidx.room.RoomDatabase.Builder<T!> setTransactionExecutor(java.util.concurrent.Executor);
   }
@@ -156,6 +157,10 @@ package androidx.room {
   public abstract static class RoomDatabase.PrepackagedDatabaseCallback {
     ctor public RoomDatabase.PrepackagedDatabaseCallback();
     method public void onOpenPrepackagedDatabase(androidx.sqlite.db.SupportSQLiteDatabase);
+  }
+
+  public static interface RoomDatabase.QueryCallback {
+    method public void onQuery(String, java.util.List<java.lang.Object!>);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class RoomOpenHelper extends androidx.sqlite.db.SupportSQLiteOpenHelper.Callback {
