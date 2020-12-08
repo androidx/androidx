@@ -1,16 +1,48 @@
 #!/usr/bin/env bash
-if [ -n "$1" ]; then
-  export ANDROIDX_PROJECTS=${1^^}
-else
-  export ANDROIDX_PROJECTS=MAIN
-  echo "Supported projects sets include:"
-  echo "- MAIN for non-Compose Jetpack libraries"
-  echo "- COMPOSE for Compose and dependencies"
-  echo "- FLAN for Fragment, Lifecycle, Activity, and Navigation"
-  echo "- ALL for all libraries"
-  echo
-  echo "No project set specified, using MAIN..."
-fi
-shift
-source gradlew studio "$@"
 
+function usage() {
+  echo "Usage: studiow [<project subset>]"
+  echo
+  echo "Project subsets:"
+  echo " m, main"
+  echo "  Open the project subset MAIN: non-Compose Jetpack libraries"
+  echo
+  echo " c, compose"
+  echo "  Open the project subset COMPOSE"
+  echo
+  echo " f, flan"
+  echo "  Open the project subset FLAN: Fragment, Lifecycle, Activity, and Navigation"
+  echo
+  echo " a, all"
+  echo "  Open the project subset ALL"
+  echo
+  exit 1
+}
+
+subsetArg="$1"
+if [ "$subsetArg" == "" ]; then
+  usage
+fi
+if [ "$subsetArg" == "m" -o "$subsetArg" == "main" ]; then
+  export ANDROIDX_PROJECTS=MAIN
+fi
+if [ "$subsetArg" == "c" -o "$subsetArg" == "compose" ]; then
+  export ANDROIDX_PROJECTS=COMPOSE
+fi
+if [ "$subsetArg" == "f" -o "$subsetArg" == "flan" ]; then
+  export ANDROIDX_PROJECTS=FLAN
+fi
+if [ "$subsetArg" == "a" -o "$subsetArg" == "all" ]; then
+  export ANDROIDX_PROJECTS=ALL
+fi
+if [ "$ANDROIDX_PROJECTS" == "" ]; then
+  echo "Unrecognized project argument: '$subsetArg'"
+  usage
+fi
+
+shift
+if [ "$1" != "" ]; then
+  echo "Unrecognized argument: '$1'"
+  usage
+fi
+source gradlew studio
