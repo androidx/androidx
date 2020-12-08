@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.mapNotNull
 
@@ -25,7 +24,6 @@ import kotlinx.coroutines.flow.mapNotNull
  * * It allows not setting an initial value
  * * Sending duplicate values is allowed
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 internal class ConflatedEventBus<T : Any>(initialValue: T? = null) {
     private val state = MutableStateFlow(Pair(Integer.MIN_VALUE, initialValue))
 
