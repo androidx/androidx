@@ -86,7 +86,7 @@ public final class ExtensionTest extends WindowTestBase {
         extension.setExtensionCallback(callbackInterface);
         extension.onDeviceStateListenersChanged(false);
 
-        verify(callbackInterface).onDeviceStateChanged(any());
+        verify(callbackInterface, atLeastOnce()).onDeviceStateChanged(any());
     }
 
     @Test
