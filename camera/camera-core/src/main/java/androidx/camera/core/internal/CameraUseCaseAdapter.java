@@ -344,7 +344,8 @@ public final class CameraUseCaseAdapter implements Camera {
                 ConfigPair configPair = configPairMap.get(useCase);
                 // Combine with default configuration.
                 UseCaseConfig<?> combinedUseCaseConfig =
-                        useCase.mergeConfigs(configPair.mExtendedConfig, configPair.mCameraConfig);
+                        useCase.mergeConfigs(cameraInfoInternal, configPair.mExtendedConfig,
+                                configPair.mCameraConfig);
                 configToUseCaseMap.put(combinedUseCaseConfig, useCase);
             }
 
