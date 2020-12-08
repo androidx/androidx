@@ -2296,6 +2296,36 @@ package androidx.core.view {
     method public void onActionProviderVisibilityChanged(boolean);
   }
 
+  public final class ContentInfoCompat {
+    method public android.content.ClipData getClip();
+    method public android.os.Bundle? getExtras();
+    method @androidx.core.view.ContentInfoCompat.Flags public int getFlags();
+    method public android.net.Uri? getLinkUri();
+    method @androidx.core.view.ContentInfoCompat.Source public int getSource();
+    method public android.util.Pair<androidx.core.view.ContentInfoCompat!,androidx.core.view.ContentInfoCompat!> partition(androidx.core.util.Predicate<android.content.ClipData.Item!>);
+    field public static final int FLAG_CONVERT_TO_PLAIN_TEXT = 1; // 0x1
+    field public static final int SOURCE_APP = 0; // 0x0
+    field public static final int SOURCE_CLIPBOARD = 1; // 0x1
+    field public static final int SOURCE_INPUT_METHOD = 2; // 0x2
+  }
+
+  public static final class ContentInfoCompat.Builder {
+    ctor public ContentInfoCompat.Builder(androidx.core.view.ContentInfoCompat);
+    ctor public ContentInfoCompat.Builder(android.content.ClipData, @androidx.core.view.ContentInfoCompat.Source int);
+    method public androidx.core.view.ContentInfoCompat build();
+    method public androidx.core.view.ContentInfoCompat.Builder setClip(android.content.ClipData);
+    method public androidx.core.view.ContentInfoCompat.Builder setExtras(android.os.Bundle?);
+    method public androidx.core.view.ContentInfoCompat.Builder setFlags(@androidx.core.view.ContentInfoCompat.Flags int);
+    method public androidx.core.view.ContentInfoCompat.Builder setLinkUri(android.net.Uri?);
+    method public androidx.core.view.ContentInfoCompat.Builder setSource(@androidx.core.view.ContentInfoCompat.Source int);
+  }
+
+  @IntDef(flag=true, value={androidx.core.view.ContentInfoCompat.FLAG_CONVERT_TO_PLAIN_TEXT}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ContentInfoCompat.Flags {
+  }
+
+  @IntDef({androidx.core.view.ContentInfoCompat.SOURCE_APP, androidx.core.view.ContentInfoCompat.SOURCE_CLIPBOARD, androidx.core.view.ContentInfoCompat.SOURCE_INPUT_METHOD}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ContentInfoCompat.Source {
+  }
+
   public final class DisplayCompat {
     method public static androidx.core.view.DisplayCompat.ModeCompat![] getSupportedModes(android.content.Context, android.view.Display);
   }
@@ -2602,21 +2632,12 @@ package androidx.core.view {
     method public androidx.core.view.WindowInsetsCompat! onApplyWindowInsets(android.view.View!, androidx.core.view.WindowInsetsCompat!);
   }
 
-  public abstract class OnReceiveContentListener<T extends android.view.View> {
-    ctor public OnReceiveContentListener();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener buildOnCommitContentListener(T);
-    method public abstract java.util.Set<java.lang.String!> getSupportedMimeTypes();
-    method public abstract boolean onReceive(T, android.content.ClipData, @androidx.core.view.OnReceiveContentListener.Source int, @androidx.core.view.OnReceiveContentListener.Flags int);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final void populateEditorInfoContentMimeTypes(android.view.inputmethod.InputConnection?, android.view.inputmethod.EditorInfo?);
-    field public static final int FLAG_CONVERT_TO_PLAIN_TEXT = 1; // 0x1
-    field public static final int SOURCE_CLIPBOARD = 0; // 0x0
-    field public static final int SOURCE_INPUT_METHOD = 1; // 0x1
+  public interface OnReceiveContentListener {
+    method public androidx.core.view.ContentInfoCompat? onReceiveContent(android.view.View, androidx.core.view.ContentInfoCompat);
   }
 
-  @IntDef(flag=true, value={androidx.core.view.OnReceiveContentListener.FLAG_CONVERT_TO_PLAIN_TEXT}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface OnReceiveContentListener.Flags {
-  }
-
-  @IntDef({androidx.core.view.OnReceiveContentListener.SOURCE_CLIPBOARD, androidx.core.view.OnReceiveContentListener.SOURCE_INPUT_METHOD}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface OnReceiveContentListener.Source {
+  public interface OnReceiveContentViewBehavior {
+    method public androidx.core.view.ContentInfoCompat? onReceiveContent(androidx.core.view.ContentInfoCompat);
   }
 
   public final class OneShotPreDrawListener implements android.view.View.OnAttachStateChangeListener android.view.ViewTreeObserver.OnPreDrawListener {
@@ -2731,6 +2752,7 @@ package androidx.core.view {
     method public static int getMinimumHeight(android.view.View);
     method public static int getMinimumWidth(android.view.View);
     method public static int getNextClusterForwardId(android.view.View);
+    method public static String![]? getOnReceiveContentMimeTypes(android.view.View);
     method @Deprecated public static int getOverScrollMode(android.view.View!);
     method @Px public static int getPaddingEnd(android.view.View);
     method @Px public static int getPaddingStart(android.view.View);
@@ -2784,6 +2806,7 @@ package androidx.core.view {
     method public static void onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat!);
     method @Deprecated public static void onPopulateAccessibilityEvent(android.view.View!, android.view.accessibility.AccessibilityEvent!);
     method public static boolean performAccessibilityAction(android.view.View, int, android.os.Bundle!);
+    method public static androidx.core.view.ContentInfoCompat? performReceiveContent(android.view.View, androidx.core.view.ContentInfoCompat);
     method public static void postInvalidateOnAnimation(android.view.View);
     method public static void postInvalidateOnAnimation(android.view.View, int, int, int, int);
     method public static void postOnAnimation(android.view.View, Runnable!);
@@ -2822,6 +2845,7 @@ package androidx.core.view {
     method public static void setNestedScrollingEnabled(android.view.View, boolean);
     method public static void setNextClusterForwardId(android.view.View, int);
     method public static void setOnApplyWindowInsetsListener(android.view.View, androidx.core.view.OnApplyWindowInsetsListener?);
+    method public static void setOnReceiveContentListener(android.view.View, String![]?, androidx.core.view.OnReceiveContentListener?);
     method @Deprecated public static void setOverScrollMode(android.view.View!, int);
     method public static void setPaddingRelative(android.view.View, @Px int, @Px int, @Px int, @Px int);
     method @Deprecated public static void setPivotX(android.view.View!, float);
@@ -3851,10 +3875,9 @@ package androidx.core.widget {
   @IntDef({androidx.core.widget.TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE, androidx.core.widget.TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface TextViewCompat.AutoSizeTextType {
   }
 
-  public abstract class TextViewOnReceiveContentListener extends androidx.core.view.OnReceiveContentListener<android.widget.TextView> {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TextViewOnReceiveContentListener implements androidx.core.view.OnReceiveContentListener {
     ctor public TextViewOnReceiveContentListener();
-    method public java.util.Set<java.lang.String!> getSupportedMimeTypes();
-    method public boolean onReceive(android.widget.TextView, android.content.ClipData, @androidx.core.view.OnReceiveContentListener.Source int, @androidx.core.view.OnReceiveContentListener.Flags int);
+    method public androidx.core.view.ContentInfoCompat? onReceiveContent(android.view.View, androidx.core.view.ContentInfoCompat);
   }
 
   public interface TintableCompoundButton {
