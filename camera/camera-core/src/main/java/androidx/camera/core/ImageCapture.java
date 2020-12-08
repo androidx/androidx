@@ -112,6 +112,7 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.IoConfig;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.YuvToJpegProcessor;
+import androidx.camera.core.internal.compat.quirk.SoftwareJpegEncodingPreferredQuirk;
 import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability;
 import androidx.camera.core.internal.utils.ImageUtil;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -508,6 +509,19 @@ public final class ImageCapture extends UseCase {
     @Override
     UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
             @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
+        // Request software JPEG encoder if quirk exists on this device and the software JPEG
+        // option has not already been explicitly set.
+        if (cameraInfo.getCameraQuirks().contains(SoftwareJpegEncodingPreferredQuirk.class)) {
+            if (!builder.getMutableConfig().retrieveOption(OPTION_USE_SOFTWARE_JPEG_ENCODER,
+                    true)) {
+                Logger.w(TAG, "Device quirk suggests software JPEG encoder, but it has been "
+                        + "explicitly disabled.");
+            } else {
+                Logger.i(TAG, "Requesting software JPEG due to device quirk.");
+                builder.getMutableConfig().insertOption(OPTION_USE_SOFTWARE_JPEG_ENCODER, true);
+            }
+        }
+
         // If software JPEG is requested, disable if it can't be supported on current API level.
         boolean useSoftwareJpeg = enforceSoftwareJpegConstraints(builder.getMutableConfig());
 
