@@ -29,6 +29,7 @@ import static androidx.activity.result.contract.ActivityResultContracts.StartInt
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.EXTRA_INTENT_SENDER_REQUEST;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.EXTRA_SEND_INTENT_EXCEPTION;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -62,6 +63,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
@@ -684,5 +686,20 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @Override
     public final ActivityResultRegistry getActivityResultRegistry() {
         return mActivityResultRegistry;
+    }
+
+    @Override
+    public void reportFullyDrawn() {
+        if (Build.VERSION.SDK_INT > 19) {
+            super.reportFullyDrawn();
+        } else if (Build.VERSION.SDK_INT == 19 && ContextCompat.checkSelfPermission(this,
+                Manifest.permission.UPDATE_DEVICE_STATS) == PackageManager.PERMISSION_GRANTED) {
+            // On API 19, the Activity.reportFullyDrawn() method requires the UPDATE_DEVICE_STATS
+            // permission, otherwise it throws an exception. Instead of throwing, we fall back to
+            // a no-op call.
+            super.reportFullyDrawn();
+        }
+        // The Activity.reportFullyDrawn() got added in API 19, fall back to a no-op call if this
+        // method gets called on devices with an earlier version.
     }
 }

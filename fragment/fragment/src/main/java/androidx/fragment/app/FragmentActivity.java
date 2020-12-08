@@ -19,15 +19,12 @@ package androidx.fragment.app;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -55,7 +52,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.SharedElementCallback;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
@@ -647,19 +643,6 @@ public class FragmentActivity extends ComponentActivity implements
         // If for some reason this method is being called directly with a requestCode that is not
         // -1, redirect it to the fragment.startActivityForResult method
         fragment.startActivityForResult(intent, requestCode, options);
-    }
-
-    @Override
-    public void reportFullyDrawn() {
-        // On KitKat (API 19) the Activity.reportFullyDrawn() method requires the
-        // UPDATE_DEVICE_STATS permission, otherwise it throws an exception. Instead of throwing,
-        // we fall back to a no-op call here.
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT && ContextCompat
-                .checkSelfPermission(this, Manifest.permission.UPDATE_DEVICE_STATS)
-                != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        super.reportFullyDrawn();
     }
 
     /**
