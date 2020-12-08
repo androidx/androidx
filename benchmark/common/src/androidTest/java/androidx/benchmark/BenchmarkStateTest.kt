@@ -262,12 +262,16 @@ class BenchmarkStateTest {
             thermalThrottleSleepSeconds = 0,
             repeatIterations = 1
         )
-        val expectedReport = BenchmarkState.Report(
+        val expectedReport = BenchmarkResult(
             className = "className",
             testName = "testName",
             totalRunTimeNs = 900000000,
-            data = listOf(listOf(100L, 200L, 300L)),
-            stats = listOf(Stats(longArrayOf(100, 200, 300), "timeNs")),
+            metrics = listOf(
+                MetricResult(
+                    name = "timeNs",
+                    data = longArrayOf(100, 200, 300)
+                )
+            ),
             repeatIterations = 1,
             thermalThrottleSleepSeconds = 0,
             warmupIterations = 1
