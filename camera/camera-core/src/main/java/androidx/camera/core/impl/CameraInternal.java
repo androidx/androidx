@@ -153,10 +153,6 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
     @NonNull
     CameraInfoInternal getCameraInfoInternal();
 
-    /** Returns a list of quirks related to the camera. */
-    @NonNull
-    Quirks getCameraQuirks();
-
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Camera interface
     ////////////////////////////////////////////////////////////////////////////////////////////////
