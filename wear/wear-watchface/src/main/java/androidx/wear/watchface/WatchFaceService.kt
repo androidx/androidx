@@ -25,13 +25,13 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
 import android.os.RemoteException
 import android.os.Trace
-import android.os.UserManager
 import android.service.wallpaper.WallpaperService
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.IWatchFaceService
@@ -235,8 +235,9 @@ public abstract class WatchFaceService : WallpaperService() {
     // This is open for use by tests.
     internal open fun allowWatchFaceToAnimate() = true
 
+    // Whether or not the pre R style init flow (SET_BINDER wallpaper command) is expected.
     // This is open for use by tests.
-    internal open fun isUserUnlocked() = getSystemService(UserManager::class.java).isUserUnlocked
+    internal open fun expectPreRInitFlow() = Build.VERSION.SDK_INT < Build.VERSION_CODES.R
 
     /**
      * This is open for use by tests, it allows them to inject a custom [SurfaceHolder].
@@ -325,7 +326,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 InteractiveInstanceManager.takePendingWallpaperInteractiveWatchFaceInstance()
 
             // In a direct boot scenario attempt to load the previously serialized parameters.
-            if (pendingWallpaperInstance == null && !isUserUnlocked()) {
+            if (pendingWallpaperInstance == null && !expectPreRInitFlow()) {
                 val params = readDirectBootPrefs(_context, DIRECT_BOOT_PREFS)
                 if (params != null) {
                     createInteractiveInstance(params).createWCSApi()
