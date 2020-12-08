@@ -98,9 +98,9 @@ public class GridItem implements Item {
     }
 
     /** Returns the title of the grid item. */
-    @Nullable
+    @NonNull
     public CarText getTitle() {
-        return mTitle;
+        return requireNonNull(mTitle);
     }
 
     /** Returns the list of text below the title. */
@@ -208,10 +208,19 @@ public class GridItem implements Item {
         @Nullable
         private OnClickListenerWrapper mOnClickListener;
 
-        /** Sets the title of the grid item, or {@code null} to not show the title. */
+        /**
+         * Sets the title of the row.
+         *
+         * @throws NullPointerException     if {@code title} is {@code null}.
+         * @throws IllegalArgumentException if {@code title} is empty.
+         */
         @NonNull
-        public Builder setTitle(@Nullable CharSequence title) {
-            this.mTitle = title == null ? null : CarText.create(title);
+        public Builder setTitle(@NonNull CharSequence title) {
+            CarText titleText = CarText.create(requireNonNull(title));
+            if (titleText.isEmpty()) {
+                throw new IllegalArgumentException("The title cannot be null or empty");
+            }
+            this.mTitle = titleText;
             return this;
         }
 
@@ -221,9 +230,7 @@ public class GridItem implements Item {
          *
          * <h2>Text Wrapping</h2>
          *
-         * The string added with {@link #setText} is truncated at the end to fit in a single line
-         * below
-         * the title.
+         * This text is truncated at the end to fit in a single line below the title.
          */
         @NonNull
         public Builder setText(@Nullable CharSequence text) {
@@ -314,9 +321,8 @@ public class GridItem implements Item {
                 throw new IllegalStateException("An image must be set on the grid item");
             }
 
-            if (mTitle == null && mText != null) {
-                throw new IllegalStateException(
-                        "If a grid item doesn't have a title, it must not have a text set");
+            if (mTitle == null) {
+                throw new IllegalStateException("A title must be set on the grid item");
             }
 
             if (mToggle != null && mOnClickListener != null) {

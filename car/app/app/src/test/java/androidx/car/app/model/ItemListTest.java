@@ -84,8 +84,8 @@ public class ItemListTest {
 
     @Test
     public void createGridItems() {
-        GridItem gridItem1 = GridItem.builder().setImage(BACK).build();
-        GridItem gridItem2 = GridItem.builder().setImage(BACK).build();
+        GridItem gridItem1 = GridItem.builder().setTitle("title 1").setImage(BACK).build();
+        GridItem gridItem2 = GridItem.builder().setTitle("title 2").setImage(BACK).build();
         ItemList list = builder().addItem(gridItem1).addItem(gridItem2).build();
 
         assertThat(list.getItems()).containsExactly(gridItem1, gridItem2).inOrder();
