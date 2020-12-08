@@ -96,4 +96,13 @@ public class CameraXConfigTest {
         final Integer minLoggingLevel = cameraXConfig.getMinimumLoggingLevel();
         assertThat(minLoggingLevel).isEqualTo(Logger.DEFAULT_MIN_LOG_LEVEL);
     }
+
+    @Test
+    public void canGetAvailableCamerasSelector() {
+        CameraSelector cameraSelector = new CameraSelector.Builder().build();
+        CameraXConfig cameraXConfig = new CameraXConfig.Builder()
+                .setAvailableCamerasLimiter(cameraSelector)
+                .build();
+        assertThat(cameraXConfig.getAvailableCamerasLimiter(null)).isEqualTo(cameraSelector);
+    }
 }
