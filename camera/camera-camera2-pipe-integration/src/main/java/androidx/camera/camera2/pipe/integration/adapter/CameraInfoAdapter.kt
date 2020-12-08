@@ -21,6 +21,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.impl.Log
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
@@ -30,11 +31,14 @@ import androidx.camera.core.ExposureState
 import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.lifecycle.LiveData
 import java.util.concurrent.Executor
 import javax.inject.Inject
 import javax.inject.Provider
+
+internal val defaultQuirks = Quirks(emptyList())
 
 /**
  * Adapt the [CameraInfoInternal] interface to [CameraPipe].
@@ -88,4 +92,9 @@ class CameraInfoAdapter @Inject constructor(
 
     override fun getImplementationType(): String = "CameraPipe"
     override fun toString(): String = "CameraInfoAdapter<$cameraConfig.cameraId>"
+
+    override fun getCameraQuirks(): Quirks {
+        Log.warn { "TODO: Quirks are not yet supported." }
+        return defaultQuirks
+    }
 }

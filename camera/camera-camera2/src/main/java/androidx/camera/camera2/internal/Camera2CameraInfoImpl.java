@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.quirk.CameraQuirks;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraSelector;
@@ -36,6 +37,7 @@ import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
@@ -80,6 +82,9 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     @Nullable
     private List<Pair<CameraCaptureCallback, Executor>> mCameraCaptureCallbacks = null;
 
+    @NonNull
+    private final Quirks mCameraQuirks;
+
     /**
      * Constructs an instance. Before {@link #linkWithCameraControl(Camera2CameraControlImpl)} is
      * called, camera control related API (torch/exposure/zoom) will return default values.
@@ -89,6 +94,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         mCameraId = Preconditions.checkNotNull(cameraId);
         mCameraCharacteristicsCompat = cameraCharacteristicsCompat;
         mCamera2CameraInfo = new Camera2CameraInfo(this);
+        mCameraQuirks = CameraQuirks.get(cameraId, cameraCharacteristicsCompat);
     }
 
     /**
@@ -334,6 +340,13 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
             }
             mCamera2CameraControlImpl.removeSessionCameraCaptureCallback(callback);
         }
+    }
+
+    /** {@inheritDoc} */
+    @NonNull
+    @Override
+    public Quirks getCameraQuirks() {
+        return mCameraQuirks;
     }
 
     /**

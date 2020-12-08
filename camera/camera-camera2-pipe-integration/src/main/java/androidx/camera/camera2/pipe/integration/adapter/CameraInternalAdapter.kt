@@ -28,13 +28,11 @@ import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.LiveDataObservable
 import androidx.camera.core.impl.Observable
-import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.atomicfu.atomic
 import javax.inject.Inject
 
-internal val defaultQuirks = Quirks(emptyList())
 internal val cameraAdapterIds = atomic(0)
 
 /**
@@ -56,11 +54,6 @@ class CameraInternalAdapter @Inject constructor(
 
         debug { "Created $this for $cameraId" }
         // TODO: Consider preloading the list of camera ids and metadata.
-    }
-
-    override fun getCameraQuirks(): Quirks {
-        warn { "TODO: Quirks are not yet supported." }
-        return defaultQuirks
     }
 
     // Load / unload methods
