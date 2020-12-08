@@ -310,6 +310,41 @@ class ActivityResultRegistryTest {
     }
 
     @Test
+    fun testUnregisterAfterSavedState() {
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
+        var resultReturned = false
+        val activityResult = registry.register("key", lifecycleOwner, StartActivityForResult()) { }
+
+        activityResult.launch(null)
+
+        val savedState = Bundle()
+        registry.onSaveInstanceState(savedState)
+
+        registry.unregister("key")
+
+        val restoredRegistry = object : ActivityResultRegistry() {
+            override fun <I : Any?, O : Any?> onLaunch(
+                requestCode: Int,
+                contract: ActivityResultContract<I, O>,
+                input: I,
+                options: ActivityOptionsCompat?
+            ) {
+                dispatchResult(requestCode, RESULT_OK, Intent())
+            }
+        }
+
+        restoredRegistry.onRestoreInstanceState(savedState)
+
+        restoredRegistry.register("key", lifecycleOwner, StartActivityForResult()) {
+            resultReturned = true
+        }
+
+        lifecycleOwner.currentState = Lifecycle.State.STARTED
+
+        assertThat(resultReturned).isTrue()
+    }
+
+    @Test
     fun testOnRestoreInstanceState() {
         registry.register("key", StartActivityForResult()) {}
 
