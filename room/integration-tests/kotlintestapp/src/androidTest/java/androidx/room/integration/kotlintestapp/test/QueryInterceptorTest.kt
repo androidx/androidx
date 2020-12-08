@@ -182,6 +182,36 @@ class QueryInterceptorTest {
         )
     }
 
+    @Test
+    fun testCallbackCalledOnceAfterCloseAndReOpen() {
+        val dbBuilder = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(),
+            QueryInterceptorTestDatabase::class.java
+        ).setQueryCallback(
+            RoomDatabase.QueryCallback { sqlQuery, bindArgs ->
+                val argTrace = ArrayList<Any>()
+                argTrace.addAll(bindArgs)
+                queryAndArgs.add(Pair(sqlQuery, argTrace))
+            },
+            MoreExecutors.directExecutor()
+        )
+
+        dbBuilder.build().close()
+
+        mDatabase = dbBuilder.build()
+
+        mDatabase.queryInterceptorDao().insert(
+            QueryInterceptorEntity("Insert", "Inserted a placeholder query")
+        )
+
+        assertQueryLogged(
+            "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
+                "VALUES (?,?)",
+            listOf("Insert", "Inserted a placeholder query")
+        )
+        assertTransactionQueries()
+    }
+
     private fun assertQueryLogged(
         query: String,
         expectedArgs: List<String?>
