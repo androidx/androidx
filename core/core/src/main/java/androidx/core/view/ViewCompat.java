@@ -22,6 +22,7 @@ import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -53,6 +54,7 @@ import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.view.accessibility.AccessibilityNodeProvider;
+import android.view.inputmethod.InputConnection;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.IdRes;
@@ -65,6 +67,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.collection.SimpleArrayMap;
 import androidx.core.R;
+import androidx.core.util.Preconditions;
 import androidx.core.view.AccessibilityDelegateCompat.AccessibilityDelegateAdapter;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
@@ -78,6 +81,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -2666,6 +2670,129 @@ public class ViewCompat {
             return null;
         }
     }
+
+    /**
+     * Sets the listener to be used to handle insertion of content into the given view.
+     *
+     * <p>Depending on the type of view, this listener may be invoked for different scenarios. For
+     * example, for an AppCompatEditText, this listener will be invoked for the following scenarios:
+     * <ol>
+     *     <li>Paste from the clipboard (e.g. "Paste" or "Paste as plain text" action in the
+     *     insertion/selection menu)
+     *     <li>Content insertion from the keyboard (from {@link InputConnection#commitContent})
+     * </ol>
+     *
+     * <p>When setting a listener, clients should also declare the MIME types accepted by it.
+     * When invoked with other types of content, the listener may reject the content (defer to
+     * the default platform behavior) or execute some other fallback logic. The MIME types
+     * declared here allow different features to optionally alter their behavior. For example,
+     * the soft keyboard may choose to hide its UI for inserting GIFs for a particular input
+     * field if the MIME types set here for that field don't include "image/gif" or "image/*".
+     *
+     * <p>Note: MIME type matching in the Android framework is case-sensitive, unlike formal RFC
+     * MIME types. As a result, you should always write your MIME types with lowercase letters,
+     * or use {@link android.content.Intent#normalizeMimeType} to ensure that it is converted to
+     * lowercase.
+     *
+     * @param view The target view.
+     * @param mimeTypes The MIME types accepted by the given listener. These may use patterns
+     *                  such as "image/*", but may not start with a wildcard. This argument must
+     *                  not be null or empty if a non-null listener is passed in.
+     * @param listener The listener to use. This can be null to reset to the default behavior.
+     */
+    public static void setOnReceiveContentListener(@NonNull View view, @Nullable String[] mimeTypes,
+            @Nullable OnReceiveContentListener listener) {
+        mimeTypes = (mimeTypes == null || mimeTypes.length == 0) ? null : mimeTypes;
+        if (listener != null) {
+            Preconditions.checkArgument(mimeTypes != null,
+                    "When the listener is set, MIME types must also be set");
+        }
+        if (mimeTypes != null) {
+            boolean hasLeadingWildcard = false;
+            for (String mimeType : mimeTypes) {
+                if (mimeType.startsWith("*")) {
+                    hasLeadingWildcard = true;
+                    break;
+                }
+            }
+            Preconditions.checkArgument(!hasLeadingWildcard,
+                    "A MIME type set here must not start with *: " + Arrays.toString(mimeTypes));
+        }
+        view.setTag(R.id.tag_on_receive_content_mime_types, mimeTypes);
+        view.setTag(R.id.tag_on_receive_content_listener, listener);
+    }
+
+    /**
+     * Returns the MIME types accepted by the listener configured on the given view via
+     * {@link #setOnReceiveContentListener}. By default returns null.
+     *
+     * <p>Different features (e.g. pasting from the clipboard, inserting stickers from the soft
+     * keyboard, etc) may optionally use this metadata to conditionally alter their behavior. For
+     * example, a soft keyboard may choose to hide its UI for inserting GIFs for a particular
+     * input field if the MIME types returned here for that field don't include "image/gif" or
+     * "image/*".
+     *
+     * <p>Note: Comparisons of MIME types should be performed using utilities such as
+     * {@link ClipDescription#compareMimeTypes} rather than simple string equality, in order to
+     * correctly handle patterns such as "text/*", "image/*", etc. Note that MIME type matching
+     * in the Android framework is case-sensitive, unlike formal RFC MIME types. As a result,
+     * you should always write your MIME types with lowercase letters, or use
+     * {@link android.content.Intent#normalizeMimeType} to ensure that it is converted to
+     * lowercase.
+     *
+     * @param view The target view.
+     *
+     * @return The MIME types accepted by the {@link OnReceiveContentListener} for the given view
+     * (may include patterns such as "image/*").
+     */
+    @Nullable
+    public static String[] getOnReceiveContentMimeTypes(@NonNull View view) {
+        return (String[]) view.getTag(R.id.tag_on_receive_content_mime_types);
+    }
+
+    /**
+     * Receives the given content.
+     *
+     * <p>If a listener is set, invokes the listener. If the listener returns a non-null result,
+     * executes the fallback handling for the portion of the content returned by the listener.
+     *
+     * <p>If no listener is set, executes the fallback handling.
+     *
+     * <p>The fallback handling is defined by the target view if the view implements
+     * {@link OnReceiveContentViewBehavior}, or is simply a no-op.
+     *
+     * @param view The target view.
+     * @param payload The content to insert and related metadata.
+     *
+     * @return The portion of the passed-in content that was not handled (may be all, some, or none
+     * of the passed-in content).
+     */
+    @Nullable
+    public static ContentInfoCompat performReceiveContent(@NonNull View view,
+            @NonNull ContentInfoCompat payload) {
+        OnReceiveContentListener listener =
+                (OnReceiveContentListener) view.getTag(R.id.tag_on_receive_content_listener);
+        if (listener != null) {
+            ContentInfoCompat remaining = listener.onReceiveContent(view, payload);
+            return (remaining == null) ? null : getFallback(view).onReceiveContent(remaining);
+        }
+        return getFallback(view).onReceiveContent(payload);
+    }
+
+    private static OnReceiveContentViewBehavior getFallback(@NonNull View view) {
+        if (view instanceof OnReceiveContentViewBehavior) {
+            return ((OnReceiveContentViewBehavior) view);
+        }
+        return NO_OP_ON_RECEIVE_CONTENT_VIEW_BEHAVIOR;
+    }
+
+    private static final OnReceiveContentViewBehavior NO_OP_ON_RECEIVE_CONTENT_VIEW_BEHAVIOR =
+            new OnReceiveContentViewBehavior() {
+                @Override
+                public ContentInfoCompat onReceiveContent(@NonNull ContentInfoCompat payload) {
+                    return payload;
+                }
+            };
 
     /**
      * Controls whether the entire hierarchy under this view will save its
