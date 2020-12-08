@@ -80,6 +80,7 @@ import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraCaptureResult.EmptyCameraCaptureResult;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureConfig;
@@ -463,7 +464,8 @@ public final class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     @Override
-    UseCaseConfig<?> onMergeConfig(@NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
+    UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
+            @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
         // Update the input format base on the other options set (mainly whether processing
         // is done)
         Integer bufferFormat = builder.getMutableConfig().retrieveOption(OPTION_BUFFER_FORMAT,
