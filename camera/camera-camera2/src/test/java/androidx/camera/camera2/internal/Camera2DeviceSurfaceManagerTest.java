@@ -372,7 +372,9 @@ public final class Camera2DeviceSurfaceManagerTest {
         useCases.add(preview);
 
         Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
-                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases,
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
+                        mCameraFactory.getCamera(LEGACY_CAMERA_ID).getCameraInfoInternal(),
+                        useCases,
                         mUseCaseConfigFactory);
         // A legacy level camera device can't support JPEG (ImageCapture) + PRIV (VideoCapture) +
         // PRIV (Preview) combination. An IllegalArgumentException will be thrown when trying to
@@ -399,7 +401,9 @@ public final class Camera2DeviceSurfaceManagerTest {
         useCases.add(preview);
 
         Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
-                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases,
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
+                        mCameraFactory.getCamera(LIMITED_CAMERA_ID).getCameraInfoInternal(),
+                        useCases,
                         mUseCaseConfigFactory);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 mSurfaceManager.getSuggestedResolutions(LIMITED_CAMERA_ID, Collections.emptyList(),
