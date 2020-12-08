@@ -16,56 +16,51 @@
 
 package androidx.core.widget;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.core.view.ContentInfoCompat.FLAG_CONVERT_TO_PLAIN_TEXT;
+import static androidx.core.view.ContentInfoCompat.SOURCE_INPUT_METHOD;
+
 import android.content.ClipData;
 import android.content.Context;
 import android.os.Build;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.Spanned;
+import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.core.view.ContentInfoCompat;
+import androidx.core.view.ContentInfoCompat.Flags;
+import androidx.core.view.ContentInfoCompat.Source;
 import androidx.core.view.OnReceiveContentListener;
 
-import java.util.Collections;
-import java.util.Set;
-
 /**
- * Base implementation of {@link OnReceiveContentListener} for editable {@link TextView}
- * components.
+ * Default implementation inserting content into editable {@link TextView} components. This class
+ * handles insertion of text (plain text, styled text, HTML, etc) but not images or other content.
  *
- * <p>This class handles insertion of text (plain text, styled text, HTML, etc) but not images or
- * other rich content. It should be used as a base class when implementing a custom
- * {@link OnReceiveContentListener}, to provide consistent behavior for insertion of text
- * while implementing custom behavior for insertion of other content (images, etc).
- *
- * <p>See {@link OnReceiveContentListener} for an example of how to implement the listener.
+ * @hide
  */
-@SuppressWarnings("ListenerInterface")
-public abstract class TextViewOnReceiveContentListener extends
-        OnReceiveContentListener<TextView> {
+@RestrictTo(LIBRARY_GROUP_PREFIX)
+public final class TextViewOnReceiveContentListener implements OnReceiveContentListener {
+    private static final String LOG_TAG = "ReceiveContent";
 
-    private static final Set<String> MIME_TYPES_ALL_TEXT = Collections.singleton("text/*");
-
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("CallbackMethodName")
+    @Nullable
     @Override
-    @NonNull
-    public Set<String> getSupportedMimeTypes() {
-        return MIME_TYPES_ALL_TEXT;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean onReceive(@NonNull TextView textView, @NonNull ClipData clip,
-            @Source int source, @Flags int flags) {
-        if (source == SOURCE_INPUT_METHOD && !supports(clip.getDescription())) {
-            return false;
+    public ContentInfoCompat onReceiveContent(@NonNull View view,
+            @NonNull ContentInfoCompat payload) {
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
+            Log.d(LOG_TAG, "onReceive: " + payload);
+        }
+        final @Source int source = payload.getSource();
+        if (source == SOURCE_INPUT_METHOD) {
+            // InputConnection.commitContent() should only be used for non-text input which is not
+            // supported by the default implementation.
+            return payload;
         }
 
         // The code here follows the platform logic in TextView:
@@ -73,6 +68,9 @@ public abstract class TextViewOnReceiveContentListener extends
         // In particular, multiple items within the given ClipData will trigger separate calls to
         // replace/insert. This is to preserve the platform behavior with respect to TextWatcher
         // notifications fired from SpannableStringBuilder when replace/insert is called.
+        final ClipData clip = payload.getClip();
+        final @Flags int flags = payload.getFlags();
+        final TextView textView = (TextView) view;
         final Editable editable = (Editable) textView.getText();
         final Context context = textView.getContext();
         boolean didFirst = false;
@@ -98,7 +96,7 @@ public abstract class TextViewOnReceiveContentListener extends
                 }
             }
         }
-        return didFirst;
+        return null;
     }
 
     @RequiresApi(16) // For ClipData.Item.coerceToStyledText()

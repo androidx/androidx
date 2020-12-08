@@ -16,13 +16,11 @@
 
 package androidx.core.widget;
 
-import static androidx.core.view.OnReceiveContentListener.FLAG_CONVERT_TO_PLAIN_TEXT;
-import static androidx.core.view.OnReceiveContentListener.SOURCE_CLIPBOARD;
-import static androidx.core.view.OnReceiveContentListener.SOURCE_INPUT_METHOD;
+import static androidx.core.view.ContentInfoCompat.FLAG_CONVERT_TO_PLAIN_TEXT;
+import static androidx.core.view.ContentInfoCompat.SOURCE_CLIPBOARD;
+import static androidx.core.view.ContentInfoCompat.SOURCE_INPUT_METHOD;
 
 import static com.google.common.truth.Truth.assertThat;
-
-import static java.util.Collections.singleton;
 
 import android.content.ClipData;
 import android.net.Uri;
@@ -30,15 +28,13 @@ import android.text.Selection;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.UnderlineSpan;
-import android.view.inputmethod.BaseInputConnection;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.core.test.R;
+import androidx.core.view.ContentInfoCompat;
+import androidx.core.view.ContentInfoCompat.Flags;
+import androidx.core.view.ContentInfoCompat.Source;
 import androidx.core.view.OnReceiveContentListener;
-import androidx.core.view.inputmethod.EditorInfoCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -65,13 +61,7 @@ public class TextViewOnReceiveContentListenerTest {
     public void before() {
         ReceiveContentTestActivity activity = mActivityTestRule.getActivity();
         mEditText = activity.findViewById(R.id.edit_text);
-        mReceiver = new TextViewOnReceiveContentListener() {};
-    }
-
-    @UiThreadTest
-    @Test
-    public void testGetSupportedMimeTypes() throws Exception {
-        assertThat(mReceiver.getSupportedMimeTypes()).isEqualTo(singleton("text/*"));
+        mReceiver = new TextViewOnReceiveContentListener();
     }
 
     @UiThreadTest
@@ -248,44 +238,12 @@ public class TextViewOnReceiveContentListenerTest {
         assertTextAndCursorPosition("xz", 1);
     }
 
-    @UiThreadTest
-    @Test
-    public void testPopulateEditorInfoContentMimeTypes() throws Exception {
-        InputConnection ic = new BaseInputConnection(mEditText, true);
-        EditorInfo outAttrs = new EditorInfo();
-
-        // The field contentMimeTypes in outAttrs should be set to the MIME types of the receiver.
-        mReceiver.populateEditorInfoContentMimeTypes(ic, outAttrs);
-        assertThat(EditorInfoCompat.getContentMimeTypes(outAttrs)).isEqualTo(
-                new String[] {"text/*"});
-
-        // If the field contentMimeTypes in outAttrs already has a value assigned, it should be
-        // overwritten with the MIME types of the receiver.
-        EditorInfoCompat.setContentMimeTypes(outAttrs, new String[] {"video/mp4"});
-        mReceiver.populateEditorInfoContentMimeTypes(ic, outAttrs);
-        assertThat(EditorInfoCompat.getContentMimeTypes(outAttrs)).isEqualTo(
-                new String[] {"text/*"});
-    }
-
-    @UiThreadTest
-    @Test
-    public void testPopulateEditorInfoContentMimeTypes_nulls() throws Exception {
-        InputConnection ic = new BaseInputConnection(mEditText, true);
-        EditorInfo outAttrs = new EditorInfo();
-
-        // If the ic arg is null, outAttrs should not be populated.
-        mReceiver.populateEditorInfoContentMimeTypes(null, outAttrs);
-        assertThat(EditorInfoCompat.getContentMimeTypes(outAttrs)).isEqualTo(new String[0]);
-
-        // If the outAttrs arg is null, it should not be populated.
-        mReceiver.populateEditorInfoContentMimeTypes(ic, null);
-        assertThat(EditorInfoCompat.getContentMimeTypes(outAttrs)).isEqualTo(new String[0]);
-    }
-
-    private boolean onReceive(final OnReceiveContentListener<TextView> receiver,
-            final ClipData clip, @OnReceiveContentListener.Source final int source,
-            final int flags) {
-        return receiver.onReceive(mEditText, clip, source, flags);
+    private boolean onReceive(final OnReceiveContentListener receiver, ClipData clip,
+            @Source int source, @Flags int flags) {
+        ContentInfoCompat payload = new ContentInfoCompat.Builder(clip, source)
+                .setFlags(flags)
+                .build();
+        return receiver.onReceiveContent(mEditText, payload) == null;
     }
 
     private void setTextAndCursor(final String text, final int cursorPosition) {
