@@ -231,9 +231,10 @@ package androidx.wear.watchface.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class RenderParametersWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public RenderParametersWireFormat(int, java.util.List<androidx.wear.watchface.data.RenderParametersWireFormat.LayerParameterWireFormat!>, Integer?);
+    ctor public RenderParametersWireFormat(int, java.util.List<androidx.wear.watchface.data.RenderParametersWireFormat.LayerParameterWireFormat!>, Integer?, @ColorInt int);
     method public int describeContents();
     method public int getDrawMode();
+    method @ColorInt public int getHighlightTint();
     method public Integer? getHighlightedComplicationId();
     method public java.util.List<androidx.wear.watchface.data.RenderParametersWireFormat.LayerParameterWireFormat!> getLayerParameters();
     method public void writeToParcel(android.os.Parcel, int);

@@ -23,6 +23,7 @@ import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
 import android.support.wearable.complications.ComplicationData
+import androidx.annotation.ColorInt
 import androidx.annotation.UiThread
 import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.ComplicationHelperActivity
@@ -163,7 +164,7 @@ public open class CanvasComplicationDrawable(
                 if (renderParameters.highlightedComplicationId == null ||
                     renderParameters.highlightedComplicationId == idAndData?.complicationId
                 ) {
-                    drawOutline(canvas, bounds, calendar)
+                    drawOutline(canvas, bounds, calendar, renderParameters.highlightTint)
                 }
             }
             LayerMode.HIDE -> return
@@ -174,9 +175,14 @@ public open class CanvasComplicationDrawable(
     public open fun drawOutline(
         canvas: Canvas,
         bounds: Rect,
-        calendar: Calendar
+        calendar: Calendar,
+        @ColorInt color: Int
     ) {
-        ComplicationOutlineRenderer.drawComplicationSelectOutline(canvas, bounds)
+        ComplicationOutlineRenderer.drawComplicationSelectOutline(
+            canvas,
+            bounds,
+            color
+        )
     }
 
     /**
