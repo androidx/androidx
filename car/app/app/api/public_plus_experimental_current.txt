@@ -84,25 +84,13 @@ package androidx.car.app {
     method public int getUid();
   }
 
-  public interface OnCheckedChangeListenerWrapper {
-    method public void onCheckedChange(boolean, androidx.car.app.OnDoneCallback);
-  }
-
   public interface OnDoneCallback {
     method public void onFailure(androidx.car.app.serialization.Bundleable);
     method public void onSuccess(androidx.car.app.serialization.Bundleable?);
   }
 
-  public interface OnItemVisibilityChangedListenerWrapper {
-    method public void onItemVisibilityChanged(int, int, androidx.car.app.OnDoneCallback);
-  }
-
   public interface OnScreenResultCallback {
     method public void onScreenResult(Object?);
-  }
-
-  public interface OnSelectedListenerWrapper {
-    method public void onSelected(int, androidx.car.app.OnDoneCallback);
   }
 
   public abstract class Screen implements androidx.lifecycle.LifecycleOwner {
@@ -126,16 +114,6 @@ package androidx.car.app {
     method public void push(androidx.car.app.Screen);
     method public void pushForResult(androidx.car.app.Screen, androidx.car.app.OnScreenResultCallback);
     method public void remove(androidx.car.app.Screen);
-  }
-
-  public interface SearchListener {
-    method public void onSearchSubmitted(String);
-    method public void onSearchTextChanged(String);
-  }
-
-  public interface SearchListenerWrapper {
-    method public void onSearchSubmitted(String, androidx.car.app.OnDoneCallback);
-    method public void onSearchTextChanged(String, androidx.car.app.OnDoneCallback);
   }
 
   public abstract class Session implements androidx.lifecycle.LifecycleOwner {
@@ -387,8 +365,8 @@ package androidx.car.app.model {
     method public static androidx.car.app.model.ItemList.Builder builder();
     method public java.util.List<java.lang.Object!> getItems();
     method public androidx.car.app.model.CarText? getNoItemsMessage();
-    method public androidx.car.app.OnItemVisibilityChangedListenerWrapper? getOnItemsVisibilityChangedListener();
-    method public androidx.car.app.OnSelectedListenerWrapper? getOnSelectedListener();
+    method public androidx.car.app.model.OnItemVisibilityChangedListenerWrapper? getOnItemsVisibilityChangedListener();
+    method public androidx.car.app.model.OnSelectedListenerWrapper? getOnSelectedListener();
     method public int getSelectedIndex();
   }
 
@@ -472,6 +450,10 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Metadata.Builder setPlace(androidx.car.app.model.Place?);
   }
 
+  public interface OnCheckedChangeListenerWrapper {
+    method public void onCheckedChange(boolean, androidx.car.app.OnDoneCallback);
+  }
+
   public interface OnClickListener {
     method public void onClick();
   }
@@ -479,6 +461,14 @@ package androidx.car.app.model {
   public interface OnClickListenerWrapper {
     method public boolean isParkedOnly();
     method public void onClick(androidx.car.app.OnDoneCallback);
+  }
+
+  public interface OnItemVisibilityChangedListenerWrapper {
+    method public void onItemVisibilityChanged(int, int, androidx.car.app.OnDoneCallback);
+  }
+
+  public interface OnSelectedListenerWrapper {
+    method public void onSelected(int, androidx.car.app.OnDoneCallback);
   }
 
   public final class Pane {
@@ -601,14 +591,19 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Row.Builder setToggle(androidx.car.app.model.Toggle?);
   }
 
+  public interface SearchListenerWrapper {
+    method public void onSearchSubmitted(String, androidx.car.app.OnDoneCallback);
+    method public void onSearchTextChanged(String, androidx.car.app.OnDoneCallback);
+  }
+
   public final class SearchTemplate implements androidx.car.app.model.Template {
-    method public static androidx.car.app.model.SearchTemplate.Builder builder(androidx.car.app.SearchListener);
+    method public static androidx.car.app.model.SearchTemplate.Builder builder(androidx.car.app.model.SearchTemplate.SearchListener);
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public androidx.car.app.model.Action? getHeaderAction();
     method public String? getInitialSearchText();
     method public androidx.car.app.model.ItemList? getItemList();
     method public String? getSearchHint();
-    method public androidx.car.app.SearchListenerWrapper getSearchListener();
+    method public androidx.car.app.model.SearchListenerWrapper getSearchListener();
     method public boolean isLoading();
     method public boolean isShowKeyboardByDefault();
   }
@@ -622,6 +617,11 @@ package androidx.car.app.model {
     method public androidx.car.app.model.SearchTemplate.Builder setLoading(boolean);
     method public androidx.car.app.model.SearchTemplate.Builder setSearchHint(String?);
     method public androidx.car.app.model.SearchTemplate.Builder setShowKeyboardByDefault(boolean);
+  }
+
+  public static interface SearchTemplate.SearchListener {
+    method public void onSearchSubmitted(String);
+    method public void onSearchTextChanged(String);
   }
 
   public class SectionedItemList {
@@ -657,7 +657,7 @@ package androidx.car.app.model {
 
   public class Toggle {
     method public static androidx.car.app.model.Toggle.Builder builder(androidx.car.app.model.Toggle.OnCheckedChangeListener);
-    method public androidx.car.app.OnCheckedChangeListenerWrapper getOnCheckedChangeListener();
+    method public androidx.car.app.model.OnCheckedChangeListenerWrapper getOnCheckedChangeListener();
     method public boolean isChecked();
   }
 
