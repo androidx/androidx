@@ -35,6 +35,7 @@ import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.testing.CarAppServiceController;
 import androidx.car.app.testing.TestCarContext;
+import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ApplicationProvider;
@@ -42,6 +43,8 @@ import androidx.test.core.app.ApplicationProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
@@ -67,9 +70,11 @@ public final class CarAppServiceTest {
                     .build();
 
     private CarAppService mCarAppService;
-
+    private CarAppServiceController mCarAppServiceController;
     private Intent mIntentSet;
     private boolean mHasCarAppFinished;
+    @Captor
+    ArgumentCaptor<Bundleable> mBundleableArgumentCaptor;
 
     @Before
     public void setUp() {
@@ -104,7 +109,7 @@ public final class CarAppServiceTest {
                     }
                 };
 
-        CarAppServiceController.of(mCarContext, mCarAppService);
+        mCarAppServiceController = CarAppServiceController.of(mCarContext, mCarAppService);
         mCarAppService.onCreate();
     }
 
@@ -201,13 +206,74 @@ public final class CarAppServiceTest {
     }
 
     @Test
+    public void getAppInfo() throws RemoteException, BundlerException {
+        AppInfo appInfo = new AppInfo(3, 4, "foo");
+        mCarAppServiceController.setAppInfo(appInfo);
+        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
+        IOnDoneCallback callback = mock(IOnDoneCallback.class);
+
+        carApp.getAppInfo(callback);
+
+        verify(callback).onSuccess(mBundleableArgumentCaptor.capture());
+        AppInfo receivedAppInfo = (AppInfo) mBundleableArgumentCaptor.getValue().get();
+        assertThat(receivedAppInfo.getMinCarAppApiLevel())
+                .isEqualTo(appInfo.getMinCarAppApiLevel());
+        assertThat(receivedAppInfo.getLatestCarAppApiLevel())
+                .isEqualTo(appInfo.getLatestCarAppApiLevel());
+        assertThat(receivedAppInfo.getLibraryVersion()).isEqualTo(appInfo.getLibraryVersion());
+    }
+
+    @Test
     public void onHandshakeCompleted_updatesHostInfo() throws RemoteException, BundlerException {
         String hostPackageName = "com.google.projection.gearhead";
         ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName);
-        carApp.onHandshakeCompleted(Bundleable.create(handshakeInfo), mock(IOnDoneCallback
-                .class));
+        HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName, CarAppApiLevels.LEVEL_1);
+
+        carApp.onHandshakeCompleted(Bundleable.create(handshakeInfo), mock(IOnDoneCallback.class));
+
         assertThat(mCarAppService.getHostInfo().getPackageName()).isEqualTo(hostPackageName);
+    }
+
+    @Test
+    public void onHandshakeCompleted_updatesCarApiLevel() throws RemoteException, BundlerException {
+        String hostPackageName = "com.google.projection.gearhead";
+        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
+        int hostApiLevel = CarAppApiLevels.LEVEL_1;
+        HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName, hostApiLevel);
+
+        carApp.onHandshakeCompleted(Bundleable.create(handshakeInfo), mock(IOnDoneCallback.class));
+
+        assertThat(mCarAppService.getCarContext().getCarAppApiLevel()).isEqualTo(hostApiLevel);
+    }
+
+    @Test
+    public void onHandshakeCompleted_lowerThanMinApiLevel_throws() throws BundlerException,
+            RemoteException {
+        AppInfo appInfo = new AppInfo(3, 4, "foo");
+        mCarAppServiceController.setAppInfo(appInfo);
+        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
+
+        HandshakeInfo handshakeInfo = new HandshakeInfo("bar",
+                appInfo.getMinCarAppApiLevel() - 1);
+        IOnDoneCallback callback = mock(IOnDoneCallback.class);
+        carApp.onHandshakeCompleted(Bundleable.create(handshakeInfo), callback);
+
+        verify(callback).onFailure(any());
+    }
+
+    @Test
+    public void onHandshakeCompleted_higherThanCurrentApiLevel_throws() throws BundlerException,
+            RemoteException {
+        AppInfo appInfo = new AppInfo(3, 4, "foo");
+        mCarAppServiceController.setAppInfo(appInfo);
+        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
+
+        HandshakeInfo handshakeInfo = new HandshakeInfo("bar",
+                appInfo.getLatestCarAppApiLevel() + 1);
+        IOnDoneCallback callback = mock(IOnDoneCallback.class);
+        carApp.onHandshakeCompleted(Bundleable.create(handshakeInfo), callback);
+
+        verify(callback).onFailure(any());
     }
 
     @Test

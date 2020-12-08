@@ -97,7 +97,15 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
     private final CarContext mCarContext = CarContext.create(mRegistry);
 
     @Nullable
-    HostInfo mHostInfo;
+    private HostInfo mHostInfo;
+    @Nullable
+    private AppInfo mAppInfo;
+
+    @Override
+    @CallSuper
+    public void onCreate() {
+        mAppInfo = AppInfo.create(mCarContext);
+    }
 
     /**
      * Handles the host binding to this car app.
@@ -455,7 +463,7 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
                             RemoteUtils.sendSuccessResponse(
                                     callback,
                                     "getManager",
-                                    mCarContext.getCarService(
+                                    getCarContext().getCarService(
                                             NavigationManager.class).getIInterface());
                             return;
                         default:
@@ -467,9 +475,9 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
                 }
 
                 @Override
-                public void getCarAppVersion(IOnDoneCallback callback) {
+                public void getAppInfo(IOnDoneCallback callback) {
                     RemoteUtils.sendSuccessResponse(
-                            callback, "getCarAppVersion", CarAppVersion.INSTANCE.toString());
+                            callback, "getAppInfo", mAppInfo);
                 }
 
                 @Override
@@ -481,10 +489,12 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
                         String packageName = deserializedHandshakeInfo.getHostPackageName();
                         int uid = Binder.getCallingUid();
                         mHostInfo = new HostInfo(packageName, uid);
-                    } catch (BundlerException e) {
+                        mCarContext.onHandshakeComplete(deserializedHandshakeInfo);
+                        RemoteUtils.sendSuccessResponse(callback, "onHandshakeCompleted", null);
+                    } catch (BundlerException | IllegalArgumentException e) {
                         mHostInfo = null;
+                        RemoteUtils.sendFailureResponse(callback, "onHandshakeCompleted", e);
                     }
-                    RemoteUtils.sendSuccessResponse(callback, "onHandshakeCompleted", null);
                 }
 
                 // call to onNewIntent(android.content.Intent) not allowed on the given receiver.
