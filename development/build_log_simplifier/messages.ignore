@@ -412,8 +412,6 @@ WARNING: Illegal reflective access by org\.robolectric\.util\.ReflectionHelpers 
 WARNING: Please consider reporting this to the maintainers of org\.robolectric\.util\.ReflectionHelpers
 # > Task :compose:compiler:compiler-hosted:integration-tests:test
 wrote dependency log to \$DIST_DIR/affected_module_detector_log\.txt
-Deprecated Gradle features were used in this build\, making it incompatible with Gradle [0-9]+\.[0-9]+\.
-Use \'\-\-warning\-mode all\' to show the individual deprecation warnings\.
 # > Task :enterprise-feedback-testing:compileDebugUnitTestJavaWithJavac
 Note: \$SUPPORT/enterprise/feedback/testing/src/test/java/androidx/enterprise/feedback/FakeKeyedAppStatesReporterTest\.java uses or overrides a deprecated API\.
 # > Task :biometric:biometric:compileDebugUnitTestJavaWithJavac
