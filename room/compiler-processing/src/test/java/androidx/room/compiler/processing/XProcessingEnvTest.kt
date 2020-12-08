@@ -18,7 +18,6 @@ package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
-import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
@@ -34,7 +33,7 @@ import javax.tools.Diagnostic
 class XProcessingEnvTest {
     @Test
     fun getElement() {
-        runProcessorTestIncludingKsp(
+        runProcessorTest(
             listOf(
                 Source.java(
                     "foo.bar.Baz",
@@ -98,7 +97,7 @@ class XProcessingEnvTest {
 
     @Test
     fun basic() {
-        runProcessorTestIncludingKsp(
+        runProcessorTest(
             listOf(
                 Source.java(
                     "foo.bar.Baz",
@@ -138,7 +137,7 @@ class XProcessingEnvTest {
             }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(
+        runProcessorTest(
             listOf(source)
         ) { invocation ->
             PRIMITIVE_TYPES.flatMap {
@@ -163,7 +162,7 @@ class XProcessingEnvTest {
             }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(sources = listOf(src)) {
+        runProcessorTest(sources = listOf(src)) {
             it.processingEnv.requireTypeElement("foo.bar.Outer.Inner").let {
                 val className = it.className
                 assertThat(className.packageName()).isEqualTo("foo.bar")
@@ -175,7 +174,7 @@ class XProcessingEnvTest {
 
     @Test
     fun findGeneratedAnnotation() {
-        runProcessorTestIncludingKsp { invocation ->
+        runProcessorTest { invocation ->
             val generatedAnnotation = invocation.processingEnv.findGeneratedAnnotation()
             assertThat(generatedAnnotation?.name).isEqualTo("Generated")
         }
@@ -200,7 +199,7 @@ class XProcessingEnvTest {
             """.trimIndent()
         )
         listOf(javaSrc, kotlinSrc).forEach { src ->
-            runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
+            runProcessorTest(sources = listOf(src)) { invocation ->
                 val className = ClassName.get("foo.bar", "ToBeGenerated")
                 if (invocation.processingEnv.findTypeElement(className) == null) {
                     // generate only if it doesn't exist to handle multi-round
@@ -223,7 +222,6 @@ class XProcessingEnvTest {
             class Foo {}
             """.trimIndent()
         )
-        // TODO include KSP when https://github.com/google/ksp/issues/122 is fixed.
         runProcessorTest(
             sources = listOf(src)
         ) {

@@ -34,6 +34,9 @@ private fun runTests(
         if (runner.canRun(params)) {
             val compilationResult = runner.compile(params)
             val subject = CompilationResultSubject.assertThat(compilationResult)
+            // if any assertion failed, throw first those.
+            compilationResult.processor.throwIfFailed()
+
             compilationResult.processor.invocationInstances.forEach {
                 it.runPostCompilationChecks(subject)
             }
@@ -44,8 +47,6 @@ private fun runTests(
             ).isNotEmpty()
 
             subject.assertCompilationResult()
-
-            compilationResult.processor.throwIfFailed()
             true
         } else {
             false
@@ -55,7 +56,7 @@ private fun runTests(
     assertThat(runCount).isGreaterThan(0)
 }
 
-fun runProcessorTest(
+fun runProcessorTestWithoutKsp(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
     handler: (XTestInvocation) -> Unit
@@ -85,7 +86,7 @@ fun runProcessorTest(
  * assertion on [XTestInvocation.assertCompilationResult] which expects a failure (e.g. checking
  * errors).
  */
-fun runProcessorTestIncludingKsp(
+fun runProcessorTest(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
     handler: (XTestInvocation) -> Unit
@@ -105,7 +106,7 @@ fun runProcessorTestIncludingKsp(
 /**
  * Runs the test only with javac compilation backend.
  *
- * @see runProcessorTestIncludingKsp
+ * @see runProcessorTest
  */
 fun runJavaProcessorTest(
     sources: List<Source>,

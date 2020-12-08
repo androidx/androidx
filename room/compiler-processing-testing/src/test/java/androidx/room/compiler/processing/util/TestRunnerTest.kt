@@ -30,7 +30,7 @@ class TestRunnerTest {
     fun generatedBadCode_unexpected() = generatedBadCode(assertFailure = false)
 
     private fun generatedBadCode(assertFailure: Boolean) {
-        runProcessorTestIncludingKsp {
+        runProcessorTest {
             if (it.processingEnv.findTypeElement("foo.Foo") == null) {
                 val badCode = TypeSpec.classBuilder("Foo").apply {
                     addStaticBlock(
@@ -57,7 +57,7 @@ class TestRunnerTest {
     fun reportedError_unexpected() = reportedError(assertFailure = false)
 
     fun reportedError(assertFailure: Boolean) {
-        runProcessorTestIncludingKsp {
+        runProcessorTest {
             it.processingEnv.messager.printMessage(
                 kind = Diagnostic.Kind.ERROR,
                 msg = "reported error"

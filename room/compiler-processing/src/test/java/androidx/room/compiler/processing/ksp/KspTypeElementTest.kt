@@ -23,7 +23,7 @@ import androidx.room.compiler.processing.util.getAllFieldNames
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.runKspTest
-import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
+import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
@@ -227,7 +227,7 @@ class KspTypeElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val baseClass = invocation.processingEnv.requireTypeElement("BaseClass")
             assertThat(baseClass.getAllFieldNames()).containsExactly("genericProp")
             val subClass = invocation.processingEnv.requireTypeElement("SubClass")
@@ -519,7 +519,7 @@ class KspTypeElementTest {
             abstract class AbstractExplicit(x:Int)
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val subjects = listOf(
                 "MyInterface", "NoExplicitConstructor", "Base", "ExplicitConstructor",
                 "BaseWithSecondary", "Sub", "SubWith3Constructors",
@@ -622,7 +622,7 @@ class KspTypeElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val subjects = listOf(
                 "MyInterface", "NoExplicitConstructor", "Base", "ExplicitConstructor",
                 "BaseWithSecondary", "Sub", "SubWith3Constructors",

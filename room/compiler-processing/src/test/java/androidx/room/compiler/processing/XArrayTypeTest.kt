@@ -23,7 +23,6 @@ import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.kspResolver
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
-import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
 import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -43,7 +42,7 @@ class XArrayTypeTest {
             }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(
+        runProcessorTest(
             sources = listOf(source)
         ) { invocation ->
             val type = invocation.processingEnv
@@ -63,7 +62,7 @@ class XArrayTypeTest {
 
     @Test
     fun synthetic() {
-        runProcessorTestIncludingKsp {
+        runProcessorTest {
             val objArray = it.processingEnv.getArrayType(
                 TypeName.OBJECT
             )
@@ -89,7 +88,7 @@ class XArrayTypeTest {
             }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(
+        runProcessorTest(
             sources = listOf(source)
         ) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
@@ -140,7 +139,7 @@ class XArrayTypeTest {
             }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(listOf(src)) {
+        runProcessorTest(listOf(src)) {
             val subject = it.processingEnv.requireTypeElement("Subject")
             val types = subject.getAllFieldsIncludingPrivateSupers().map {
                 assertWithMessage(it.name).that(it.type.isArray()).isTrue()
