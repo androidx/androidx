@@ -31,6 +31,7 @@ import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -112,6 +113,11 @@ class ProcessingImageReader implements ImageReaderProxy {
                             mInputImageReader.close();
                             mSettableImageProxyBundle.close();
                             mOutputImageReader.close();
+
+                            if (mCloseCompleter != null) {
+                                // Notify listeners of close
+                                mCloseCompleter.set(null);
+                            }
                         }
                     }
                 }
@@ -141,6 +147,11 @@ class ProcessingImageReader implements ImageReaderProxy {
     @GuardedBy("mLock")
     @Nullable
     Executor mExecutor;
+
+    @GuardedBy("mLock")
+    CallbackToFutureAdapter.Completer<Void> mCloseCompleter;
+    @GuardedBy("mLock")
+    private ListenableFuture<Void> mCloseFuture;
 
     /** The Executor to execute the image post processing task. */
     @NonNull
@@ -262,10 +273,43 @@ class ProcessingImageReader implements ImageReaderProxy {
                 mInputImageReader.close();
                 mSettableImageProxyBundle.close();
                 mOutputImageReader.close();
+
+                if (mCloseCompleter != null) {
+                    mCloseCompleter.set(null);
+                }
             }
 
             mClosed = true;
         }
+    }
+
+    /**
+     * Returns a future that will complete when the ProcessingImageReader is actually closed.
+     *
+     * @return A future that signals when the ProcessingImageReader is actually closed
+     * (after all processing). Cancelling this future has no effect.
+     */
+    @NonNull
+    ListenableFuture<Void> getCloseFuture() {
+        ListenableFuture<Void> closeFuture;
+        synchronized (mLock) {
+            if (mClosed && !mProcessing) {
+                // Everything should be closed. Return immediate future.
+                closeFuture = Futures.immediateFuture(null);
+            } else {
+                if (mCloseFuture == null) {
+                    mCloseFuture = CallbackToFutureAdapter.getFuture(completer -> {
+                        // Should already be locked, but lock again to satisfy linter.
+                        synchronized (mLock) {
+                            mCloseCompleter = completer;
+                        }
+                        return "ProcessingImageReader-close";
+                    });
+                }
+                closeFuture = Futures.nonCancellationPropagating(mCloseFuture);
+            }
+        }
+        return closeFuture;
     }
 
     @Override
