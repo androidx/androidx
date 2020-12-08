@@ -24,6 +24,7 @@ import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.AppInfo;
 import androidx.car.app.CarAppService;
 import androidx.car.app.HostInfo;
 import androidx.car.app.ICarApp;
@@ -179,6 +180,17 @@ public class CarAppServiceController {
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException(
                     "Failed to set CarAppService hostInfo value for testing", e);
+        }
+    }
+
+    public void setAppInfo(@Nullable AppInfo appInfo) {
+        try {
+            Field appInfoField = CarAppService.class.getDeclaredField("mAppInfo");
+            appInfoField.setAccessible(true);
+            appInfoField.set(mCarAppService, appInfo);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(
+                    "Failed to set CarAppService appInfo value for testing", e);
         }
     }
 

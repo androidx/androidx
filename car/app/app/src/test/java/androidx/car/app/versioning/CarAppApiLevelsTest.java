@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.car.app;
+package androidx.car.app.versioning;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -25,14 +25,14 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-public final class HandshakeInfoTest {
+public class CarAppApiLevelsTest {
+    @Test
+    public void isValid_apiLowerThanOldest_notValid() {
+        assertThat(CarAppApiLevels.isValid(CarAppApiLevels.OLDEST - 1)).isFalse();
+    }
 
     @Test
-    public void construct_handshakeInfo() {
-        String hostPackageName = "com.google.host";
-        int hostApiLevel = 123;
-        HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName, hostApiLevel);
-        assertThat(handshakeInfo.getHostPackageName()).isEqualTo(hostPackageName);
-        assertThat(handshakeInfo.getHostCarAppApiLevel()).isEqualTo(hostApiLevel);
+    public void isValid_apiHigherThanLatest_notValid() {
+        assertThat(CarAppApiLevels.isValid(CarAppApiLevels.LATEST + 1)).isFalse();
     }
 }
