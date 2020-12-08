@@ -4,6 +4,34 @@ package androidx.benchmark {
   public final class ArgumentsKt {
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class BenchmarkResult {
+    ctor public BenchmarkResult(String className, String testName, long totalRunTimeNs, java.util.List<androidx.benchmark.MetricResult> metrics, int repeatIterations, long thermalThrottleSleepSeconds, int warmupIterations);
+    method public String component1();
+    method public String component2();
+    method public long component3();
+    method public java.util.List<androidx.benchmark.MetricResult> component4();
+    method public int component5();
+    method public long component6();
+    method public int component7();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.benchmark.BenchmarkResult copy(String className, String testName, long totalRunTimeNs, java.util.List<androidx.benchmark.MetricResult> metrics, int repeatIterations, long thermalThrottleSleepSeconds, int warmupIterations);
+    method public String getClassName();
+    method public java.util.List<androidx.benchmark.MetricResult> getMetrics();
+    method public int getRepeatIterations();
+    method public androidx.benchmark.Stats getStats(String which);
+    method public String getTestName();
+    method public int getWarmupIterations();
+    property public final String className;
+    property public final java.util.List<androidx.benchmark.MetricResult> metrics;
+    property public final int repeatIterations;
+    property public final String testName;
+    property public final int warmupIterations;
+    field public final long thermalThrottleSleepSeconds;
+    field public final long totalRunTimeNs;
+  }
+
+  public final class BenchmarkResultKt {
+  }
+
   public final class BenchmarkState {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public BenchmarkState();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public long getMinTimeNanos();
@@ -40,7 +68,24 @@ package androidx.benchmark {
   public final class MetricNameUtilsKt {
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class MetricResult {
+    ctor public MetricResult(java.util.List<java.lang.Long> data, androidx.benchmark.Stats stats);
+    ctor public MetricResult(String name, long[] data);
+    method public java.util.List<java.lang.Long> component1();
+    method public androidx.benchmark.Stats component2();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.benchmark.MetricResult copy(java.util.List<java.lang.Long> data, androidx.benchmark.Stats stats);
+    method public java.util.List<java.lang.Long> getData();
+    method public androidx.benchmark.Stats getStats();
+    property public final java.util.List<java.lang.Long> data;
+    property public final androidx.benchmark.Stats stats;
+  }
+
   public final class ProfilerKt {
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ResultWriter {
+    method public void appendReport(androidx.benchmark.BenchmarkResult benchmarkResult);
+    field public static final androidx.benchmark.ResultWriter INSTANCE;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class Stats {

@@ -18,8 +18,10 @@ package androidx.benchmark.macro
 
 import android.content.Intent
 import android.util.Log
+import androidx.benchmark.BenchmarkResult
 import androidx.benchmark.InstrumentationResults
-import androidx.benchmark.Stats
+import androidx.benchmark.MetricResult
+import androidx.benchmark.ResultWriter
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
@@ -93,12 +95,15 @@ data class MacrobenchmarkConfig(
  * This function is a building block for public testing APIs
  */
 fun macrobenchmark(
-    benchmarkName: String,
+    uniqueName: String,
+    className: String,
+    testName: String,
     config: MacrobenchmarkConfig,
     launchWithClearTask: Boolean,
     setupBlock: MacrobenchmarkScope.(Boolean) -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
 ) = withPermissiveSeLinuxPolicy {
+    val startTime = System.nanoTime()
     val scope = MacrobenchmarkScope(config.packageName, launchWithClearTask)
 
     // always kill the process at beginning of test
@@ -117,7 +122,7 @@ fun macrobenchmark(
             it.configure(config)
         }
         var isFirstRun = true
-        val results = List(config.iterations) { iteration ->
+        val metricResults = List(config.iterations) { iteration ->
             setupBlock(scope, isFirstRun)
             isFirstRun = false
             try {
@@ -130,7 +135,7 @@ fun macrobenchmark(
                 config.metrics.forEach {
                     it.stop()
                 }
-                perfettoCollector.stop(benchmarkName, iteration)
+                perfettoCollector.stop(uniqueName, iteration)
             }
 
             config.metrics
@@ -138,30 +143,53 @@ fun macrobenchmark(
                 .map { it.getMetrics(config.packageName) }
                 // merge into one map
                 .reduce { sum, element -> sum + element }
-        }
-
-        // merge each independent Map<String,Long> to one Map<String,List<Long>>
-        val setOfAllKeys = results.flatMap { it.keys }.toSet()
-        val listResults = setOfAllKeys.map { key ->
-            // b/174175947
-            key to results.mapNotNull {
-                if (key !in it) {
-                    Log.w(TAG, "Value $key missing from one iteration {$it}")
-                }
-                it[key]
-            }
-        }.toMap()
-        val statsList = listResults.map { (metricName, values) ->
-            Stats(values.toLongArray(), metricName)
-        }.sortedBy { it.name }
+        }.mergeToMetricResults()
 
         InstrumentationResults.instrumentationReport {
-            ideSummaryRecord(ideSummaryString(benchmarkName, statsList))
+            val statsList = metricResults.map { it.stats }
+            ideSummaryRecord(ideSummaryString(uniqueName, statsList))
             statsList.forEach { it.putInBundle(bundle, "") }
         }
+
+        val warmupIterations = if (config.compilationMode is CompilationMode.SpeedProfile) {
+            config.compilationMode.warmupIterations
+        } else {
+            0
+        }
+
+        ResultWriter.appendReport(
+            BenchmarkResult(
+                className = className,
+                testName = testName,
+                totalRunTimeNs = System.nanoTime() - startTime,
+                metrics = metricResults,
+                repeatIterations = config.iterations,
+                thermalThrottleSleepSeconds = 0,
+                warmupIterations = warmupIterations
+            )
+        )
     } finally {
         scope.killProcess()
     }
+}
+
+/**
+ * Merge the Map<String, Long> results from each iteration into one Map<MetricResult>
+ */
+private fun List<Map<String, Long>>.mergeToMetricResults(): List<MetricResult> {
+    val setOfAllKeys = flatMap { it.keys }.toSet()
+    val listResults = setOfAllKeys.map { key ->
+        // b/174175947
+        key to mapNotNull {
+            if (key !in it) {
+                Log.w(TAG, "Value $key missing from one iteration {$it}")
+            }
+            it[key]
+        }
+    }.toMap()
+    return listResults.map { (metricName, values) ->
+        MetricResult(metricName, values.toLongArray())
+    }.sortedBy { it.stats.name }
 }
 
 enum class StartupMode {
@@ -193,13 +221,17 @@ enum class StartupMode {
 }
 
 fun startupMacrobenchmark(
-    benchmarkName: String,
+    uniqueName: String,
+    className: String,
+    testName: String,
     config: MacrobenchmarkConfig,
     startupMode: StartupMode,
     performStartup: MacrobenchmarkScope.() -> Unit
 ) {
     macrobenchmark(
-        benchmarkName = benchmarkName,
+        uniqueName = uniqueName,
+        className = className,
+        testName = testName,
         config = config,
         setupBlock = { firstIterAfterCompile ->
             if (startupMode == StartupMode.COLD) {
