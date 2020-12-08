@@ -6,14 +6,18 @@ set -e
 # find script
 SCRIPT_DIR="$(cd $(dirname $0) && pwd)"
 
-# resolve DIST_DIR
+# resolve directories
 if [ "$DIST_DIR" == "" ]; then
   DIST_DIR="$SCRIPT_DIR/../../../../out/dist"
 fi
 mkdir -p "$DIST_DIR"
-
-# cd to checkout root
 cd "$SCRIPT_DIR/../../../.."
+OUT_DIR="$PWD/out"
+mkdir -p "$OUT_DIR"
+
+# record the build start time
+BUILD_START_MARKER="$OUT_DIR/build.sh.start"
+touch $BUILD_START_MARKER
 
 # runs a given command and prints its result if it fails
 function run() {
@@ -37,9 +41,12 @@ if [ "$ANDROIDX_PROJECTS" != "" ]; then
 fi
 # --no-watch-fs disables file system watch, because it does not work on busytown
 # due to our builders using OS that is too old.
-run $PROJECTS_ARG OUT_DIR=out DIST_DIR=$DIST_DIR ANDROID_HOME=./prebuilts/fullsdk-linux \
+run $PROJECTS_ARG OUT_DIR=$OUT_DIR DIST_DIR=$DIST_DIR ANDROID_HOME=./prebuilts/fullsdk-linux \
     frameworks/support/gradlew -p frameworks/support \
     --stacktrace \
     -Pandroidx.summarizeStderr \
     --no-watch-fs \
     "$@"
+
+# check that no unexpected modifications were made to the source repository, such as new cache directories
+$SCRIPT_DIR/verify_no_caches_in_source_repo.sh $BUILD_START_MARKER
