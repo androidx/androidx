@@ -53,6 +53,7 @@ import androidx.wear.watchface.samples.WATCH_HAND_LENGTH_STYLE_SETTING
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -543,6 +544,36 @@ class WatchFaceControlClientTest {
         } finally {
             interactiveInstance.close()
         }
+    }
+
+    @Test
+    fun getComplicationIdAt() {
+        val interactiveInstanceFuture =
+            service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+
+        Mockito.`when`(surfaceHolder.surfaceFrame)
+            .thenReturn(Rect(0, 0, 400, 400))
+
+        // Create the engine which triggers creation of InteractiveWatchFaceWcsClient.
+        createEngine()
+
+        val interactiveInstance =
+            interactiveInstanceFuture.get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
+
+        assertNull(interactiveInstance.getComplicationIdAt(0, 0))
+        assertThat(interactiveInstance.getComplicationIdAt(85, 165)).isEqualTo(
+            EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+        )
+        assertThat(interactiveInstance.getComplicationIdAt(255, 165)).isEqualTo(
+            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+        )
+        interactiveInstance.close()
     }
 }
 
