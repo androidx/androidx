@@ -29,7 +29,7 @@ dependencies {
     api(project(":room:room-compiler-processing"))
     implementation(KOTLIN_STDLIB)
     implementation(KOTLIN_KSP_API)
-    testImplementation(KOTLIN_KSP)
+    implementation(KOTLIN_KSP)
     implementation(GOOGLE_COMPILE_TESTING)
     implementation(KOTLIN_COMPILE_TESTING_KSP)
 }
