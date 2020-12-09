@@ -622,6 +622,7 @@ public final class VideoCapture extends UseCase {
                 if (isCurrentCamera(cameraId)) {
                     // Only reset the pipeline when the bound camera is the same.
                     setupEncoder(cameraId, resolution);
+                    notifyReset();
                 }
             }
         });
