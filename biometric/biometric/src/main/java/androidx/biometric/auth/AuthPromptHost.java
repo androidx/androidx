@@ -26,8 +26,8 @@ import androidx.fragment.app.FragmentActivity;
  * Fragment that hosts the AuthPrompt
  */
 public class AuthPromptHost {
-    @Nullable private Fragment mFragment = null;
-    @Nullable private FragmentActivity mActivity = null;
+    @Nullable private Fragment mFragment;
+    @Nullable private FragmentActivity mActivity;
 
     public AuthPromptHost(@NonNull Fragment fragment) {
         mFragment = fragment;
