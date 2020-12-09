@@ -25,8 +25,8 @@ import kotlin.reflect.KClass
 /**
  * Creates a [OneTimeWorkRequest] with the given [ListenableWorker].
  */
-public inline fun <reified W : ListenableWorker> OneTimeWorkRequestBuilder(
-): OneTimeWorkRequest.Builder = OneTimeWorkRequest.Builder(W::class.java)
+public inline fun <reified W : ListenableWorker> OneTimeWorkRequestBuilder():
+    OneTimeWorkRequest.Builder = OneTimeWorkRequest.Builder(W::class.java)
 
 /**
  * Sets an [InputMerger] on the [OneTimeWorkRequest.Builder].

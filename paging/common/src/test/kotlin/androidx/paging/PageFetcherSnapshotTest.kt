@@ -3261,8 +3261,7 @@ class PageFetcherSnapshotTest {
         job.cancel()
     }
 
-    internal fun <T : Any> PageFetcher<*, T>.pageEvents(
-    ): Flow<PageEvent<T>> {
+    internal fun <T : Any> PageFetcher<*, T>.pageEvents(): Flow<PageEvent<T>> {
         return flow.flatMapLatest {
             it.flow
         }
