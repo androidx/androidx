@@ -44,9 +44,7 @@ private fun getComponentName(context: Context) = ComponentName(
 
 /**
  * The [Complication]s associated with the [WatchFace]. Dynamic creation of complications isn't
- * supported, however complications can be enabled and disabled, perhaps as part of a
- * user style see [androidx.wear.watchface.style.UserStyleSetting] and
- * [ComplicationsUserStyleSetting].
+ * supported, however complications can be enabled and disabled by [ComplicationsUserStyleSetting].
  */
 public class ComplicationsManager(
     /** The complications associated with the watch face, may be empty. */
