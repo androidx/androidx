@@ -281,16 +281,9 @@ public final class NavDeepLink {
                     }
                     String argName = storedParam.getArgumentName(index);
                     NavArgument argument = arguments.get(argName);
-                    // Missing parameter so see if it has a default value or is Nullable
-                    if (argument != null
-                            && (value == null || value.replaceAll("[{}]", "").equals(argName))) {
-                        if (argument.getDefaultValue() != null) {
-                            value = argument.getDefaultValue().toString();
-                        } else if (argument.isNullable()) {
-                            value = null;
-                        }
-                    }
-                    if (parseArgument(bundle, argName, value, argument)) {
+                    if (value != null
+                            && !value.replaceAll("[{}]", "").equals(argName)
+                            && parseArgument(bundle, argName, value, argument)) {
                         return null;
                     }
                 }

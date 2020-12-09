@@ -31,6 +31,8 @@
 
     <test android:id="@+id/second_test">
         <argument android:name="arg2" app:argType="string" />
+        <argument android:name="defaultArg" app:argType="string"
+            android:defaultValue="defaultValue" />
         <action android:id="@+id/self" app:destination="@+id/second_test"
             app:launchSingleTop="true" />
         <action android:id="@+id/finish" app:popUpTo="@id/start_test" />
