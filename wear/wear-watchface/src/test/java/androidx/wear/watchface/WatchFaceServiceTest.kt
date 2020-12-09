@@ -26,6 +26,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.support.wearable.complications.ComplicationData
+import android.support.wearable.complications.ComplicationText
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.IWatchFaceService
 import android.support.wearable.watchface.WatchFaceStyle
@@ -43,6 +44,7 @@ import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.DeviceConfig
+import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyle
@@ -104,6 +106,7 @@ class WatchFaceServiceTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val complicationDrawableLeft = ComplicationDrawable(context)
     private val complicationDrawableRight = ComplicationDrawable(context)
+    private val complicationDrawableBackground = ComplicationDrawable(context)
 
     private val redStyleOption =
         ListUserStyleSetting.ListOption("red_style", "Red", icon = null)
@@ -195,7 +198,7 @@ class WatchFaceServiceTest {
         Complication.createBackgroundComplicationBuilder(
             BACKGROUND_COMPLICATION_ID,
             CanvasComplicationDrawable(
-                complicationDrawableRight,
+                complicationDrawableBackground,
                 watchState.asWatchState()
             ).apply {
                 idAndData = createIdAndComplicationData(BACKGROUND_COMPLICATION_ID)
@@ -299,7 +302,7 @@ class WatchFaceServiceTest {
         tapListener: WatchFace.TapListener? = null
     ) {
         userStyleRepository = UserStyleRepository(userStyleSchema)
-        this.complicationsManager = ComplicationsManager(complications, userStyleRepository)
+        complicationsManager = ComplicationsManager(complications, userStyleRepository)
         renderer = TestRenderer(
             surfaceHolder,
             userStyleRepository,
@@ -308,7 +311,7 @@ class WatchFaceServiceTest {
         )
         testWatchFaceService = TestWatchFaceService(
             watchFaceType,
-            this.complicationsManager,
+            complicationsManager,
             renderer,
             userStyleRepository,
             watchState,
@@ -334,7 +337,7 @@ class WatchFaceServiceTest {
         wallpaperInteractiveWatchFaceInstanceParams: WallpaperInteractiveWatchFaceInstanceParams
     ) {
         userStyleRepository = UserStyleRepository(userStyleSchema)
-        this.complicationsManager = ComplicationsManager(complications, userStyleRepository)
+        complicationsManager = ComplicationsManager(complications, userStyleRepository)
         renderer = TestRenderer(
             surfaceHolder,
             userStyleRepository,
@@ -343,7 +346,7 @@ class WatchFaceServiceTest {
         )
         testWatchFaceService = TestWatchFaceService(
             watchFaceType,
-            this.complicationsManager,
+            complicationsManager,
             renderer,
             userStyleRepository,
             watchState,
@@ -1734,5 +1737,127 @@ class WatchFaceServiceTest {
 
         assertTrue(leftComplication.enabled)
         assertTrue(rightComplication.enabled)
+    }
+
+    @Test
+    fun observeComplicationData() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "interactiveInstanceId",
+                DeviceConfig(
+                    false,
+                    false,
+                    DeviceConfig.SCREEN_SHAPE_ROUND,
+                    0,
+                    0
+                ),
+                SystemState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null
+            )
+        )
+
+        lateinit var leftComplicationData: ComplicationData
+        lateinit var rightComplicationData: ComplicationData
+
+        leftComplication.complicationData.addObserver {
+            leftComplicationData = it.asWireComplicationData()
+        }
+
+        rightComplication.complicationData.addObserver {
+            rightComplicationData = it.asWireComplicationData()
+        }
+
+        interactiveWatchFaceInstanceWCS.updateComplicationData(
+            listOf(
+                IdAndComplicationDataWireFormat(
+                    LEFT_COMPLICATION_ID,
+                    ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
+                        .setLongText(ComplicationText.plainText("TYPE_LONG_TEXT")).build()
+                ),
+                IdAndComplicationDataWireFormat(
+                    RIGHT_COMPLICATION_ID,
+                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(ComplicationText.plainText("TYPE_SHORT_TEXT")).build()
+                )
+            )
+        )
+
+        assertThat(leftComplicationData.type).isEqualTo(ComplicationData.TYPE_LONG_TEXT)
+        assertThat(leftComplicationData.longText?.getTextAt(context.resources, 0))
+            .isEqualTo("TYPE_LONG_TEXT")
+        assertThat(rightComplicationData.type).isEqualTo(ComplicationData.TYPE_SHORT_TEXT)
+        assertThat(rightComplicationData.shortText?.getTextAt(context.resources, 0))
+            .isEqualTo("TYPE_SHORT_TEXT")
+    }
+
+    @Test
+    fun complication_isActiveAt() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "interactiveInstanceId",
+                DeviceConfig(
+                    false,
+                    false,
+                    DeviceConfig.SCREEN_SHAPE_ROUND,
+                    0,
+                    0
+                ),
+                SystemState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null
+            )
+        )
+
+        interactiveWatchFaceInstanceWCS.updateComplicationData(
+            listOf(
+                IdAndComplicationDataWireFormat(
+                    LEFT_COMPLICATION_ID,
+                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(ComplicationText.plainText("TYPE_SHORT_TEXT"))
+                        .build()
+                )
+            )
+        )
+
+        // Initially the complication should be active.
+        assertThat(leftComplication.isActiveAt(0)).isTrue()
+
+        // Send empty data.
+        interactiveWatchFaceInstanceWCS.updateComplicationData(
+            listOf(
+                IdAndComplicationDataWireFormat(
+                    LEFT_COMPLICATION_ID,
+                    ComplicationData.Builder(ComplicationData.TYPE_EMPTY).build()
+                )
+            )
+        )
+
+        assertThat(leftComplication.isActiveAt(0)).isFalse()
+
+        // Send a complication that is active for a time range.
+        interactiveWatchFaceInstanceWCS.updateComplicationData(
+            listOf(
+                IdAndComplicationDataWireFormat(
+                    LEFT_COMPLICATION_ID,
+                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(ComplicationText.plainText("TYPE_SHORT_TEXT"))
+                        .setStartDateTimeMillis(1000000)
+                        .setEndDateTimeMillis(2000000)
+                        .build()
+                )
+            )
+        )
+
+        assertThat(leftComplication.isActiveAt(999999)).isFalse()
+        assertThat(leftComplication.isActiveAt(1000000)).isTrue()
+        assertThat(leftComplication.isActiveAt(2000000)).isTrue()
+        assertThat(leftComplication.isActiveAt(2000001)).isFalse()
     }
 }

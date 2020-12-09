@@ -68,6 +68,40 @@
         </service>
 
         <service
+            android:name=".ExampleCanvasDigitalWatchFaceService"
+            android:directBootAware="true"
+            android:exported="true"
+            android:label="@string/canvas_digital_watch_face_name"
+            android:permission="android.permission.BIND_WALLPAPER">
+            <intent-filter>
+                <action android:name="android.service.wallpaper.WallpaperService" />
+                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="com.google.android.wearable.libraries.steampack.watchface.MockTime" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+
+            <meta-data
+                android:name="com.google.android.wearable.standalone"
+                android:value="true" />
+            <meta-data
+                android:name="com.google.android.wearable.watchface.preview"
+                android:resource="@drawable/watch_preview" />
+            <meta-data
+                android:name="com.google.android.wearable.watchface.preview_circular"
+                android:resource="@drawable/watch_preview" />
+            <meta-data
+                android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
+                android:value="com.google.android.clockwork.watchfaces.complication.CONFIG_DIGITAL"/>
+            <meta-data
+                android:name="android.service.wallpaper"
+                android:resource="@xml/watch_face" />
+        </service>
+
+        <service
             android:name=".ExampleOpenGLWatchFaceService"
             android:directBootAware="true"
             android:exported="true"
