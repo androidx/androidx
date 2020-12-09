@@ -258,24 +258,25 @@ abstract class SpecialEffectsController {
             return;
         }
         synchronized (mPendingOperations) {
-            ArrayList<Operation> currentlyRunningOperations = new ArrayList<>(mRunningOperations);
-            mRunningOperations.clear();
-            for (Operation operation : currentlyRunningOperations) {
-                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                    Log.v(FragmentManager.TAG,
-                            "SpecialEffectsController: Cancelling operation " + operation);
-                }
-                operation.cancel();
-                if (!operation.isComplete()) {
-                    // Re-add any animations that didn't synchronously call complete()
-                    // to continue to track them as running operations
-                    mRunningOperations.add(operation);
-                }
-            }
-
-            updateFinalState();
-
             if (!mPendingOperations.isEmpty()) {
+                ArrayList<Operation> currentlyRunningOperations =
+                        new ArrayList<>(mRunningOperations);
+                mRunningOperations.clear();
+                for (Operation operation : currentlyRunningOperations) {
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(FragmentManager.TAG,
+                                "SpecialEffectsController: Cancelling operation " + operation);
+                    }
+                    operation.cancel();
+                    if (!operation.isComplete()) {
+                        // Re-add any animations that didn't synchronously call complete()
+                        // to continue to track them as running operations
+                        mRunningOperations.add(operation);
+                    }
+                }
+
+                updateFinalState();
+
                 ArrayList<Operation> newPendingOperations = new ArrayList<>(mPendingOperations);
                 mPendingOperations.clear();
                 mRunningOperations.addAll(newPendingOperations);

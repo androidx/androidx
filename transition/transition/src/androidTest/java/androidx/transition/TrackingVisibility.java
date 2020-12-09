@@ -54,6 +54,29 @@ public class TrackingVisibility extends Visibility implements TargetTracking {
         } else {
             mEpicenter[0] = null;
         }
+        if (mRealTransition) {
+            Animator animator = ObjectAnimator.ofFloat(view, "transitionAlpha", 0);
+            // We need to wait until the exiting Transition has completed. Just adding a listener
+            // is not enough because it will not be last listener to get an onTransitionEnd
+            // callback, so we have to add a listener on the Animator that runs the Transition
+            // and wait for that to end.
+            animator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    super.onAnimationStart(animation);
+                    animation.removeListener(this);
+                    animation.addListener(this);
+                    endAnimatorCountDownLatch = new CountDownLatch(1);
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    endAnimatorCountDownLatch.countDown();
+                    animation.removeListener(this);
+                }
+            });
+            return animator;
+        }
         return null;
     }
 
