@@ -16,7 +16,6 @@
 
 package androidx.car.app.model;
 
-import static androidx.car.app.model.CarIcon.ALERT;
 import static androidx.car.app.model.CarIcon.BACK;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -24,7 +23,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.car.app.TestUtils;
-import androidx.car.app.utils.Logger;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -35,9 +33,6 @@ import org.junit.runner.RunWith;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class GridTemplateTest {
-    private final Logger mLogger = message -> {
-    };
-
     @Test
     public void createInstance_emptyList_notLoading_throws() {
         assertThrows(
@@ -126,148 +121,6 @@ public class GridTemplateTest {
                         .setBackgroundImage(BACK)
                         .build();
         assertThat(template.getBackgroundImage()).isEqualTo(BACK);
-    }
-
-    @Test
-    public void validate_fromLoadingState_isRefresh() {
-        GridItem.Builder gridItem = GridItem.builder().setImage(BACK);
-        ItemList list = ItemList.builder().addItem(gridItem.build()).build();
-        GridTemplate template = GridTemplate.builder().setTitle("Title").setSingleList(
-                list).build();
-
-        // Going from loading state to new content is allowed.
-        assertThat(
-                template.isRefresh(
-                        GridTemplate.builder().setTitle("Title").setLoading(true).build(),
-                        mLogger))
-                .isTrue();
-    }
-
-    @Test
-    public void validate_mutableProperties_isRefresh() {
-        GridItem.Builder gridItem = GridItem.builder().setImage(BACK);
-        ItemList list = ItemList.builder().addItem(gridItem.build()).build();
-        GridTemplate template = GridTemplate.builder().setTitle("Title").setSingleList(
-                list).build();
-
-        // Ensure a template is a refresh of itself.
-        assertThat(template.isRefresh(template, mLogger)).isTrue();
-
-        // Allowed mutable states.
-        assertThat(
-                template.isRefresh(
-                        GridTemplate.builder()
-                                .setTitle("Title")
-                                .setSingleList(
-                                        ItemList.builder()
-                                                .addItem(gridItem.setOnClickListener(() -> {
-                                                }).setImage(BACK).build())
-                                                .build())
-                                .setHeaderAction(Action.BACK)
-                                .setActionStrip(
-                                        ActionStrip.builder().addAction(Action.APP_ICON).build())
-                                .build(),
-                        mLogger))
-                .isTrue();
-    }
-
-    @Test
-    public void validate_titleUpdate_isNotRefresh() {
-        ItemList list = ItemList.builder().build();
-        GridTemplate template = GridTemplate.builder().setTitle("Title").setSingleList(
-                list).build();
-
-        // Title updates are disallowed.
-        assertThat(
-                template.isRefresh(
-                        GridTemplate.builder().setSingleList(list).setTitle("Title2").build(),
-                        mLogger))
-                .isFalse();
-    }
-
-    @Test
-    public void validate_gridItemImageAndTextUpdates_isNotRefresh() {
-        GridItem.Builder gridItem =
-                GridItem.builder().setImage(BACK).setTitle("Title1").setText("Text1");
-        ItemList list = ItemList.builder().addItem(gridItem.build()).build();
-        GridTemplate template = GridTemplate.builder().setTitle("Title").setSingleList(
-                list).build();
-
-        // Ensure a template is a refresh of itself.
-        assertThat(template.isRefresh(template, mLogger)).isTrue();
-
-        // Image updates are disallowed.
-        assertThat(
-                template.isRefresh(
-                        GridTemplate.builder()
-                                .setTitle("Title")
-                                .setSingleList(
-                                        ItemList.builder().addItem(
-                                                gridItem.setImage(ALERT).build()).build())
-                                .build(),
-                        mLogger))
-                .isFalse();
-
-        // Text updates are disallowed
-        assertThat(
-                template.isRefresh(
-                        GridTemplate.builder()
-                                .setTitle("Title")
-                                .setSingleList(
-                                        ItemList.builder().addItem(
-                                                gridItem.setTitle("Title2").build()).build())
-                                .build(),
-                        mLogger))
-                .isFalse();
-        assertThat(
-                template.isRefresh(
-                        GridTemplate.builder()
-                                .setTitle("Title")
-                                .setSingleList(
-                                        ItemList.builder().addItem(
-                                                gridItem.setText("Text2").build()).build())
-                                .build(),
-                        mLogger))
-                .isFalse();
-    }
-
-    @Test
-    public void validate_newGridItem_isNotRefresh() {
-        GridItem.Builder gridItem = GridItem.builder().setImage(BACK);
-        ItemList list = ItemList.builder().addItem(gridItem.build()).build();
-        GridTemplate template = GridTemplate.builder().setTitle("Title").setSingleList(
-                list).build();
-
-        // Additional grid items are disallowed.
-        assertThat(
-                template.isRefresh(
-                        GridTemplate.builder()
-                                .setTitle("Title")
-                                .setSingleList(
-                                        ItemList.builder()
-                                                .addItem(gridItem.build())
-                                                .addItem(gridItem.build())
-                                                .build())
-                                .build(),
-                        mLogger))
-                .isFalse();
-    }
-
-    @Test
-    public void validate_toLoadingState_isNotRefresh() {
-        // Going from content to loading state is disallowed.
-        assertThat(
-                GridTemplate.builder()
-                        .setTitle("Title")
-                        .setLoading(true)
-                        .build()
-                        .isRefresh(
-                                GridTemplate.builder()
-                                        .setTitle("Title")
-                                        .setSingleList(ItemList.builder().build())
-                                        .build(),
-                                mLogger))
-                .isFalse();
     }
 
     @Test

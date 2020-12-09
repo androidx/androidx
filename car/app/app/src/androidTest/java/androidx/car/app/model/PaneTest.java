@@ -20,9 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import android.text.SpannableString;
-
-import androidx.car.app.utils.Logger;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -97,67 +94,6 @@ public class PaneTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> Pane.builder().setActions(Arrays.asList(action1, null)).build());
-    }
-
-    @Test
-    public void validate_isRefresh() {
-        Logger logger = message -> {
-        };
-        Row.Builder row = Row.builder().setTitle("Title1");
-
-        Pane.Builder builder = Pane.builder().setLoading(true);
-        Pane pane = builder.build();
-        assertThat(pane.isRefresh(builder.build(), logger)).isTrue();
-
-        // Going from loading state to new content is allowed.
-        Pane paneWithRows = Pane.builder().addRow(row.build()).build();
-        assertThat(paneWithRows.isRefresh(pane, logger)).isTrue();
-
-        // Text updates are disallowed.
-        Pane paneWithDifferentTitle = Pane.builder().addRow(row.setTitle("Title2").build()).build();
-        Pane paneWithDifferentText = Pane.builder().addRow(row.addText("Text").build()).build();
-        assertThat(paneWithDifferentTitle.isRefresh(paneWithRows, logger)).isFalse();
-        assertThat(paneWithDifferentText.isRefresh(paneWithRows, logger)).isFalse();
-
-        // Additional rows are disallowed.
-        Pane paneWithTwoRows = Pane.builder().addRow(row.build()).addRow(row.build()).build();
-        assertThat(paneWithTwoRows.isRefresh(paneWithRows, logger)).isFalse();
-
-        // Going from content to loading state is disallowed.
-        assertThat(pane.isRefresh(paneWithRows, logger)).isFalse();
-    }
-
-    @Test
-    public void validate_isRefresh_differentSpansAreIgnored() {
-        Logger logger = message -> {
-        };
-        SpannableString textWithDistanceSpan = new SpannableString("Text");
-        textWithDistanceSpan.setSpan(
-                DistanceSpan.create(Distance.create(1000, Distance.UNIT_KILOMETERS)),
-                /* start= */ 0,
-                /* end= */ 1,
-                /* flags= */ 0);
-        SpannableString textWithDurationSpan = new SpannableString("Text");
-        textWithDurationSpan.setSpan(DurationSpan.create(1), 0, /* end= */ 1, /* flags= */ 0);
-
-        Pane pane1 =
-                Pane.builder()
-                        .addRow(
-                                Row.builder().setTitle(textWithDistanceSpan).addText(
-                                        textWithDurationSpan).build())
-                        .build();
-        Pane pane2 =
-                Pane.builder()
-                        .addRow(
-                                Row.builder().setTitle(textWithDurationSpan).addText(
-                                        textWithDistanceSpan).build())
-                        .build();
-        Pane pane3 =
-                Pane.builder().addRow(Row.builder().setTitle("Text2").addText(
-                        "Text2").build()).build();
-
-        assertThat(pane2.isRefresh(pane1, logger)).isTrue();
-        assertThat(pane3.isRefresh(pane1, logger)).isFalse();
     }
 
     @Test

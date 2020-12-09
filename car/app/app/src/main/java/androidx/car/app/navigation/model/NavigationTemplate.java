@@ -33,7 +33,6 @@ import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.Template;
-import androidx.car.app.utils.Logger;
 
 import java.util.Objects;
 
@@ -116,14 +115,6 @@ public class NavigationTemplate implements Template {
     @NonNull
     public ActionStrip getActionStrip() {
         return requireNonNull(mActionStrip);
-    }
-
-    @Override
-    public boolean isRefresh(@NonNull Template oldTemplate, @NonNull Logger logger) {
-        requireNonNull(oldTemplate);
-
-        // Always allow updating on navigation templates.
-        return oldTemplate.getClass() == this.getClass();
     }
 
     @NonNull

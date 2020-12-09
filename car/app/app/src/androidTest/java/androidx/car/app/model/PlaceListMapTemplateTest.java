@@ -24,9 +24,6 @@ import android.content.Context;
 import android.text.SpannableString;
 
 import androidx.car.app.TestUtils;
-import androidx.car.app.test.R;
-import androidx.car.app.utils.Logger;
-import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -284,121 +281,6 @@ public class PlaceListMapTemplateTest {
         // Positive cases.
         PlaceListMapTemplate.builder().setTitle("Title").setItemList(itemList).build();
         PlaceListMapTemplate.builder().setHeaderAction(Action.BACK).setItemList(itemList).build();
-    }
-
-    @Test
-    public void validate_isRefresh() {
-        Logger logger = message -> {
-        };
-        SpannableString title = new SpannableString("Title");
-        title.setSpan(mDistanceSpan, 0, 1, 0);
-        Row.Builder row =
-                Row.builder().setTitle(title).setBrowsable(true).setOnClickListener(() -> {
-                });
-        PlaceListMapTemplate template =
-                PlaceListMapTemplate.builder()
-                        .setTitle("Title")
-                        .setItemList(ItemList.builder().addItem(row.build()).build())
-                        .build();
-
-        assertThat(template.isRefresh(template, logger)).isTrue();
-
-        // Going from loading state to new content is allowed.
-        assertThat(
-                template.isRefresh(
-                        PlaceListMapTemplate.builder().setTitle("Title").setLoading(true).build(),
-                        logger))
-                .isTrue();
-
-        // Other allowed mutable states.
-        SpannableString stringWithSpan = new SpannableString("Title");
-        stringWithSpan.setSpan(mDistanceSpan, 1, /* end= */ 2, /* flags= */ 0);
-        ItemList itemList = ItemList.builder()
-                .addItem(
-                        row.setOnClickListener(() -> {
-                        })
-                                .setBrowsable(false)
-                                .setTitle(stringWithSpan)
-                                .setImage(
-                                        CarIcon.of(
-                                                IconCompat.createWithResource(
-                                                        ApplicationProvider.getApplicationContext(),
-                                                        R.drawable.ic_test_1)))
-                                .setMetadata(
-                                        Metadata.ofPlace(
-                                                Place.builder(
-                                                        LatLng.create(
-                                                                1,
-                                                                1)).build()))
-                                .build())
-                .build();
-        assertThat(
-                template.isRefresh(
-                        PlaceListMapTemplate.builder()
-                                .setTitle("Title")
-                                .setItemList(itemList)
-                                .setHeaderAction(Action.BACK)
-                                .setActionStrip(
-                                        ActionStrip.builder().addAction(Action.APP_ICON).build())
-                                .build(),
-                        logger))
-                .isTrue();
-
-        // Title updates are disallowed.
-        assertThat(
-                template.isRefresh(
-                        PlaceListMapTemplate.builder()
-                                .setItemList(ItemList.builder().addItem(row.build()).build())
-                                .setTitle("Title2")
-                                .build(),
-                        logger))
-                .isFalse();
-
-        // Text updates are disallowed.
-        SpannableString title2 = new SpannableString("Title2");
-        title2.setSpan(mDistanceSpan, 0, 1, 0);
-        assertThat(
-                template.isRefresh(
-                        PlaceListMapTemplate.builder()
-                                .setTitle("Title")
-                                .setItemList(ItemList.builder().addItem(
-                                        row.setTitle(title2).build()).build())
-                                .build(),
-                        logger))
-                .isFalse();
-        assertThat(
-                template.isRefresh(
-                        PlaceListMapTemplate.builder()
-                                .setTitle("Title")
-                                .setItemList(
-                                        ItemList.builder()
-                                                .addItem(row.setTitle(title).addText(
-                                                        "Text").build())
-                                                .build())
-                                .build(),
-                        logger))
-                .isFalse();
-
-        // Additional rows are disallowed.
-        assertThat(
-                template.isRefresh(
-                        PlaceListMapTemplate.builder()
-                                .setTitle("Title")
-                                .setItemList(
-                                        ItemList.builder().addItem(row.build()).addItem(
-                                                row.build()).build())
-                                .build(),
-                        logger))
-                .isFalse();
-
-        // Going from content to loading state is disallowed.
-        assertThat(
-                PlaceListMapTemplate.builder()
-                        .setTitle("Title")
-                        .setLoading(true)
-                        .build()
-                        .isRefresh(template, logger))
-                .isFalse();
     }
 
     @Test

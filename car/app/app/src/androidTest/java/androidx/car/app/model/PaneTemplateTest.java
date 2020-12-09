@@ -20,13 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import android.text.SpannableString;
-
 import androidx.car.app.TestUtils;
-import androidx.car.app.test.R;
-import androidx.car.app.utils.Logger;
-import androidx.core.graphics.drawable.IconCompat;
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -138,94 +132,6 @@ public class PaneTemplateTest {
                 PaneTemplate.builder(getPane()).setTitle("Title").setActionStrip(
                         actionStrip).build();
         assertThat(template.getActionStrip()).isEqualTo(actionStrip);
-    }
-
-    @Test
-    public void validate_isRefresh() {
-        Logger logger = message -> {
-        };
-        Row.Builder row = Row.builder().setTitle("Row1");
-        PaneTemplate template =
-                PaneTemplate.builder(Pane.builder().addRow(row.build()).build()).setTitle(
-                        "Title").build();
-
-        assertThat(template.isRefresh(template, logger)).isTrue();
-
-        // Going from loading state to new content is allowed.
-        assertThat(
-                template.isRefresh(
-                        PaneTemplate.builder(Pane.builder().setLoading(true).build())
-                                .setTitle("Title")
-                                .build(),
-                        logger))
-                .isTrue();
-
-        // Other allowed mutable states.
-        SpannableString stringWithSpan = new SpannableString("Row1");
-        stringWithSpan.setSpan(DurationSpan.create(1), 0, /* end= */ 1, /* flags= */ 0);
-        IconCompat icon = IconCompat.createWithResource(
-                ApplicationProvider.getApplicationContext(), R.drawable.ic_test_1);
-        assertThat(
-                template.isRefresh(
-                        PaneTemplate.builder(
-                                Pane.builder()
-                                        .addRow(
-                                                row.setImage(CarIcon.of(icon))
-                                                        .setTitle(stringWithSpan)
-                                                        .build())
-                                        .build())
-                                .setTitle("Title")
-                                .setHeaderAction(Action.BACK)
-                                .setActionStrip(
-                                        ActionStrip.builder().addAction(Action.APP_ICON).build())
-                                .build(),
-                        logger))
-                .isTrue();
-
-        // Title updates are disallowed.
-        assertThat(
-                template.isRefresh(
-                        PaneTemplate.builder(Pane.builder().addRow(row.build()).build())
-                                .setTitle("Title2")
-                                .build(),
-                        logger))
-                .isFalse();
-
-        // Text updates are disallowed.
-        assertThat(
-                template.isRefresh(
-                        PaneTemplate.builder(
-                                Pane.builder().addRow(row.setTitle("Row2").build()).build())
-                                .setTitle("Title")
-                                .build(),
-                        logger))
-                .isFalse();
-        assertThat(
-                template.isRefresh(
-                        PaneTemplate.builder(
-                                Pane.builder().addRow(row.addText("Text").build()).build())
-                                .setTitle("Title")
-                                .build(),
-                        logger))
-                .isFalse();
-
-        // Additional rows are disallowed.
-        assertThat(
-                template.isRefresh(
-                        PaneTemplate.builder(Pane.builder().addRow(row.build()).addRow(
-                                row.build()).build())
-                                .setTitle("Title")
-                                .build(),
-                        logger))
-                .isFalse();
-
-        // Going from content to loading state is disallowed.
-        assertThat(
-                PaneTemplate.builder(Pane.builder().setLoading(true).build())
-                        .setTitle("Title")
-                        .build()
-                        .isRefresh(template, logger))
-                .isFalse();
     }
 
     @Test
