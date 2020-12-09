@@ -592,7 +592,6 @@ internal fun CoroutineScope.collectFetcherState(fetcher: PageFetcher<Int, Int>):
     val pageEventLists: ArrayList<ArrayList<PageEvent<Int>>> = ArrayList()
 
     val job = launch {
-        @OptIn(ExperimentalCoroutinesApi::class)
         fetcher.flow.collectIndexed { index, pagingData ->
             pagingDataList.add(index, pagingData)
             pageEventLists.add(index, ArrayList())
