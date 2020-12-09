@@ -58,7 +58,7 @@ public class ScreenManager {
      * @throws NullPointerException if the method is called before a {@link Screen} has been
      *                              pushed to the stack via {@link #push}, or
      *                              {@link #pushForResult}, or returning a {@link Screen} from
-     *                              {@link CarAppService#onCreateScreen}.
+     *                              {@link Session#onCreateScreen}.
      */
     @NonNull
     public Screen getTop() {

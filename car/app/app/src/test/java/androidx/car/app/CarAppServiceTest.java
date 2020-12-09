@@ -72,35 +72,22 @@ public final class CarAppServiceTest {
     private CarAppService mCarAppService;
     private CarAppServiceController mCarAppServiceController;
     private Intent mIntentSet;
-    private boolean mHasCarAppFinished;
     @Captor
     ArgumentCaptor<Bundleable> mBundleableArgumentCaptor;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-
         mCarContext = TestCarContext.createCarContext(
                 ApplicationProvider.getApplicationContext());
-
         mCarAppService =
                 new CarAppService() {
                     @Override
                     @NonNull
-                    public Screen onCreateScreen(@NonNull Intent intent) {
-                        mIntentSet = intent;
-                        return new Screen(getCarContext()) {
-                            @Override
-                            @NonNull
-                            public Template onGetTemplate() {
-                                return mTemplate;
-                            }
-                        };
-                    }
-
-                    @Override
-                    public void onCarAppFinished() {
-                        mHasCarAppFinished = true;
+                    public Session onCreateSession() {
+                        Session testSession = createTestSession();
+                        CarAppServiceController.of(mCarContext, testSession, mCarAppService);
+                        return testSession;
                     }
 
                     @Override
@@ -109,8 +96,26 @@ public final class CarAppServiceTest {
                     }
                 };
 
-        mCarAppServiceController = CarAppServiceController.of(mCarContext, mCarAppService);
         mCarAppService.onCreate();
+        mCarAppServiceController = CarAppServiceController.of(mCarContext, createTestSession(),
+                mCarAppService);
+    }
+
+    private Session createTestSession() {
+        return new Session() {
+            @NonNull
+            @Override
+            public Screen onCreateScreen(@NonNull Intent intent) {
+                mIntentSet = intent;
+                return new Screen(getCarContext()) {
+                    @Override
+                    @NonNull
+                    public Template onGetTemplate() {
+                        return mTemplate;
+                    }
+                };
+            }
+        };
     }
 
     @Test
@@ -120,6 +125,7 @@ public final class CarAppServiceTest {
 
         assertThat(
                 mCarAppService
+                        .getCurrentSession()
                         .getCarContext()
                         .getCarService(ScreenManager.class)
                         .getTopTemplate()
@@ -186,8 +192,8 @@ public final class CarAppServiceTest {
         ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
         carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
 
-        assertThat(
-                mCarAppService.getCarContext().getCarService(NavigationManager.class)).isNotNull();
+        assertThat(mCarAppService.getCurrentSession().getCarContext().getCarService(
+                NavigationManager.class)).isNotNull();
     }
 
     @Test
@@ -243,7 +249,9 @@ public final class CarAppServiceTest {
 
         carApp.onHandshakeCompleted(Bundleable.create(handshakeInfo), mock(IOnDoneCallback.class));
 
-        assertThat(mCarAppService.getCarContext().getCarAppApiLevel()).isEqualTo(hostApiLevel);
+        assertThat(
+                mCarAppService.getCurrentSession().getCarContext().getCarAppApiLevel()).isEqualTo(
+                hostApiLevel);
     }
 
     @Test
@@ -277,16 +285,16 @@ public final class CarAppServiceTest {
     }
 
     @Test
-    public void onUnbind_movesLifecycleStateToStopped() throws RemoteException {
+    public void onUnbind_movesLifecycleStateToDestroyed() throws RemoteException {
         ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
         carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
         carApp.onAppStart(mock(IOnDoneCallback.class));
 
-        mCarAppService.getLifecycle().addObserver(mLifecycleObserver);
+        mCarAppService.getCurrentSession().getLifecycle().addObserver(mLifecycleObserver);
 
         assertThat(mCarAppService.onUnbind(null)).isTrue();
 
-        verify(mLifecycleObserver).onStop(any());
+        verify(mLifecycleObserver).onDestroy(any());
     }
 
     @Test
@@ -295,21 +303,18 @@ public final class CarAppServiceTest {
         carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
         carApp.onAppStart(mock(IOnDoneCallback.class));
 
-        mCarAppService.getLifecycle().addObserver(mLifecycleObserver);
-
+        Session currentSession = mCarAppService.getCurrentSession();
+        currentSession.getLifecycle().addObserver(mLifecycleObserver);
         assertThat(mCarAppService.onUnbind(null)).isTrue();
-        assertThat(mHasCarAppFinished).isTrue();
 
         verify(mLifecycleObserver).onStop(any());
 
-        assertThat(
-                mCarAppService.getCarContext().getCarService(ScreenManager.class).getScreenStack())
-                .isEmpty();
+        assertThat(currentSession.getCarContext().getCarService(
+                ScreenManager.class).getScreenStack()).isEmpty();
 
         carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
-        assertThat(
-                mCarAppService.getCarContext().getCarService(ScreenManager.class).getScreenStack())
-                .hasSize(1);
+        assertThat(currentSession.getCarContext().getCarService(
+                ScreenManager.class).getScreenStack()).hasSize(1);
     }
 
     @Test
@@ -318,7 +323,8 @@ public final class CarAppServiceTest {
         carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
 
         Deque<Screen> screenStack =
-                mCarAppService.getCarContext().getCarService(ScreenManager.class).getScreenStack();
+                mCarAppService.getCurrentSession().getCarContext().getCarService(
+                        ScreenManager.class).getScreenStack();
         assertThat(screenStack).hasSize(1);
 
         Screen screen = screenStack.getFirst();
@@ -328,7 +334,6 @@ public final class CarAppServiceTest {
 
         assertThat(screenStack).isEmpty();
         assertThat(screen.getLifecycle().getCurrentState()).isEqualTo(Lifecycle.State.DESTROYED);
-        assertThat(mHasCarAppFinished).isTrue();
     }
 
     @Test
@@ -336,7 +341,7 @@ public final class CarAppServiceTest {
         ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
         carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
 
-        mCarAppService.finish();
+        mCarAppService.getCurrentSession().getCarContext().finishCarApp();
 
         assertThat(mCarContext.hasCalledFinishCarApp()).isTrue();
     }

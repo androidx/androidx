@@ -222,8 +222,7 @@ public class CarContext extends ContextWrapper {
     /**
      * Starts a car app on the car screen.
      *
-     * <p>The target application will get the {@link Intent} via
-     * {@link CarAppService#onCreateScreen}
+     * <p>The target application will get the {@link Intent} via {@link Session#onCreateScreen}
      * or {@link CarAppService#onNewIntent}.
      *
      * <p>Supported {@link Intent}s:
@@ -308,10 +307,10 @@ public class CarContext extends ContextWrapper {
     /**
      * Requests to finish the car app.
      *
-     * <p>Call this when your app is done and should be closed.
+     * <p>Call this when your app is done and should be closed. The {@link Session} corresponding
+     * to this {@link CarContext} will become {@code State.DESTROYED}.
      *
-     * <p>At some point after this call, {@link CarAppService#onCarAppFinished} will be called, and
-     * eventually the OS will destroy your {@link CarAppService}.
+     * <p>At some point after this call, the OS will destroy your {@link CarAppService}.
      */
     public void finishCarApp() {
         mHostDispatcher.dispatch(
@@ -477,7 +476,7 @@ public class CarContext extends ContextWrapper {
      * disconnect from the service before completing the handshake.
      *
      * @throws IllegalStateException if invoked before the connection handshake with the host has
-     * been completed (for example, before {@link CarAppService#onCreateScreen(Intent)}).
+     * been completed (for example, before {@link Session#onCreateScreen(Intent)}).
      */
     @CarAppApiLevel
     public int getCarAppApiLevel() {
