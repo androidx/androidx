@@ -60,8 +60,9 @@ import java.security.InvalidParameterException;
  * href="https://developer.android.com/guide/components/services?#Types-of-services">foreground
  * service</a>.
  */
+// This lint warning is triggered because this has a finish() API. Suppress because we are not
+// actually cleaning any held resources in that method.
 @SuppressWarnings("NotCloseable")
-// TODO(rampara): Implement AutoClosable and CloseGuard.
 public abstract class CarAppService extends Service implements LifecycleOwner {
     private static final String TAG = "CarAppService";
     private static final String AUTO_DRIVE = "AUTO_DRIVE";
