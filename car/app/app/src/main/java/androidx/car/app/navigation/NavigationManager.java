@@ -23,6 +23,7 @@ import static androidx.car.app.utils.ThreadUtils.checkMainThread;
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -53,6 +54,8 @@ import androidx.car.app.utils.RemoteUtils;
  * {@link NavigationManagerListener#stopNavigation()} issued by the host.
  */
 public class NavigationManager {
+    private static final String TAG = "NavigationManager";
+
     private final INavigationManager.Stub mNavigationmanager;
     private final HostDispatcher mHostDispatcher;
 
@@ -253,7 +256,10 @@ public class NavigationManager {
         checkMainThread();
         mIsAutoDriveEnabled = true;
         if (mListener != null) {
+            Log.d(TAG, "Executing onAutoDriveEnabled");
             mListener.onAutoDriveEnabled();
+        } else {
+            Log.w(TAG, "NavigationManagerListener not set, skipping onAutoDriveEnabled");
         }
     }
 
