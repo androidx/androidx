@@ -17,7 +17,6 @@
 package androidx.hilt.work;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.work.ListenableWorker;
 
 import java.util.Map;
@@ -32,15 +31,11 @@ import dagger.multibindings.Multibinds;
 
 /**
  * Hilt Modules for providing the Worker factory.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @Module
 @InstallIn(SingletonComponent.class)
-public abstract class WorkerFactoryModule {
+abstract class WorkerFactoryModule {
 
-    @SuppressWarnings("HiddenAbstractMethod")
     @NonNull
     @Multibinds
     abstract Map<String, WorkerAssistedFactory<? extends ListenableWorker>> workerFactoriesMap();
