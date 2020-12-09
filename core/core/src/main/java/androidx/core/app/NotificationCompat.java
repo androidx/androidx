@@ -3217,6 +3217,22 @@ public class NotificationCompat {
         /**
          * @hide
          */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
+        public void addCompatExtras(@NonNull Bundle extras) {
+            super.addCompatExtras(extras);
+            // Reminder: this method only needs to add fields which are not added by the platform
+            // builder (and only needs to work at all for API 19+).
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                // On KitKat, BixTextStyle populated EXTRA_TEXT instead of EXTRA_BIG_TEXT, so this
+                // needs to populate EXTRA_BIG_TEXT to fix style recovery on that platform version.
+                extras.putCharSequence(EXTRA_BIG_TEXT, mBigText);
+            }
+        }
+
+        /**
+         * @hide
+         */
         @Override
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         protected void clearCompatExtraKeys(@NonNull Bundle extras) {
