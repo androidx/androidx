@@ -36,11 +36,7 @@ class Listener3A @Inject constructor() : Request.Listener {
     private val listeners: CopyOnWriteArrayList<Result3AStateListener> = CopyOnWriteArrayList()
 
     override fun onRequestSequenceCreated(requestMetadata: RequestMetadata) {
-        var listenersCopy: List<Result3AStateListener>
-        synchronized(this) {
-            listenersCopy = listeners.toList()
-        }
-        for (listener in listenersCopy) {
+        for (listener in listeners) {
             listener.onRequestSequenceCreated(requestMetadata.requestNumber)
         }
     }
@@ -62,9 +58,11 @@ class Listener3A @Inject constructor() : Request.Listener {
     }
 
     fun addListener(listener: Result3AStateListener) {
-        synchronized(this) {
-            listeners.add(listener)
-        }
+        listeners.add(listener)
+    }
+
+    fun removeListener(listener: Result3AStateListener) {
+        listeners.remove(listener)
     }
 
     private fun updateListeners(requestNumber: RequestNumber, metadata: FrameMetadata) {

@@ -69,15 +69,15 @@ class CameraGraphSessionImpl(
         return controller3A.update3A(aeMode, afMode, awbMode, aeRegions, afRegions, awbRegions)
     }
 
-    override fun submit3A(
+    override suspend fun submit3A(
         aeMode: AeMode?,
         afMode: AfMode?,
         awbMode: AwbMode?,
         aeRegions: List<MeteringRectangle>?,
         afRegions: List<MeteringRectangle>?,
         awbRegions: List<MeteringRectangle>?
-    ): Deferred<FrameNumber> {
-        TODO("Implement submit3A")
+    ): Deferred<Result3A> {
+        return controller3A.submit3A(aeMode, afMode, awbMode, aeRegions, afRegions, awbRegions)
     }
 
     override fun setTorch(torchState: TorchState): Deferred<FrameNumber> {
