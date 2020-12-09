@@ -54,18 +54,12 @@ import androidx.lifecycle.LifecycleRegistry;
 // actually cleaning any held resources in that method.
 @SuppressWarnings("NotCloseable")
 public abstract class Screen implements LifecycleOwner {
-    /**
-     * A marker to use with {@link ScreenManager#popTo} when it should pop all the way to the root
-     * screen in the stack.
-     */
-    public static final String ROOT = "ROOT";
-
     private final CarContext mCarContext;
 
     @SuppressWarnings({"assignment.type.incompatible", "argument.type.incompatible"})
     private final LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
 
-    private OnScreenResultCallback mOnScreenResultCallback = (obj) -> {
+    private OnScreenResultListener mOnScreenResultListener = (obj) -> {
     };
 
     @Nullable
@@ -126,7 +120,7 @@ public abstract class Screen implements LifecycleOwner {
     }
 
     /**
-     * Sets the {@code result} that will be sent to the {@link OnScreenResultCallback} that was
+     * Sets the {@code result} that will be sent to the {@link OnScreenResultListener} that was
      * given when pushing this screen onto the stack using {@link ScreenManager#pushForResult}.
      *
      * <p>Only the final {@code result} set will be sent.
@@ -134,7 +128,7 @@ public abstract class Screen implements LifecycleOwner {
      * <p>The {@code result} will be propagated when this screen is being destroyed. This can be due
      * to being removed from the stack or explicitly calling {@link #finish}.
      *
-     * @param result the value to send to the {@link OnScreenResultCallback} that was given when
+     * @param result the value to send to the {@link OnScreenResultListener} that was given when
      *               pushing this screen onto the stack using {@link ScreenManager#pushForResult}
      */
     public void setResult(@Nullable Object result) {
@@ -306,9 +300,9 @@ public abstract class Screen implements LifecycleOwner {
     @NonNull
     public abstract Template onGetTemplate();
 
-    /** Sets a {@link OnScreenResultCallback} for this {@link Screen}. */
-    void setOnResultCallback(OnScreenResultCallback onScreenResultCallback) {
-        this.mOnScreenResultCallback = onScreenResultCallback;
+    /** Sets a {@link OnScreenResultListener} for this {@link Screen}. */
+    void setOnScreenResultListener(OnScreenResultListener onScreenResultListener) {
+        this.mOnScreenResultListener = onScreenResultListener;
     }
 
     /**
@@ -322,7 +316,7 @@ public abstract class Screen implements LifecycleOwner {
         ThreadUtils.runOnMain(
                 () -> {
                     if (event == Event.ON_DESTROY) {
-                        mOnScreenResultCallback.onScreenResult(mResult);
+                        mOnScreenResultListener.onScreenResult(mResult);
                     }
 
                     mLifecycleRegistry.handleLifecycleEvent(event);
