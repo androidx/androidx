@@ -39,6 +39,7 @@ import java.io.File
 
 @RunWith(Parameterized::class)
 class DaoProcessorTest(val enableVerification: Boolean) {
+
     companion object {
         const val DAO_PREFIX = """
             package foo.bar;
@@ -347,6 +348,40 @@ class DaoProcessorTest(val enableVerification: Boolean) {
             )
         }.compilesWithoutError()
             .withWarningCount(0)
+    }
+
+    @Test
+    fun testDeleteQueryWithVoidReturn() {
+        singleDao(
+            """
+                @Dao interface MyDao {
+                    @Query("DELETE FROM User")
+                    abstract void deleteAllIds();
+                }
+                """
+        ) { dao, _ ->
+            assertThat(dao.queryMethods.size, `is`(1))
+            val method = dao.queryMethods.first()
+            assertThat(method.name, `is`("deleteAllIds"))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testSelectQueryWithVoidReturn() {
+        singleDao(
+            """
+                @Dao interface MyDao {
+                    @Query("SELECT * FROM User")
+                    abstract void getAllIds();
+                }
+                """
+        ) { dao, _ ->
+            assertThat(dao.queryMethods.size, `is`(1))
+            val method = dao.queryMethods.first()
+            assertThat(method.name, `is`("getAllIds"))
+        }.failsToCompile().withErrorContaining(
+            "Not sure how to convert a Cursor to this method's return type (void)"
+        )
     }
 
     fun singleDao(
