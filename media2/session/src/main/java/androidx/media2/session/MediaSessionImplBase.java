@@ -1389,6 +1389,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
                 item.addOnMetadataChangedListener(session.mCallbackExecutor, this);
             }
             mMediaItem = item;
+            session.getCallback().onCurrentMediaItemChanged(session.getInstance());
 
             boolean notifyingPended = false;
             if (item != null) {
