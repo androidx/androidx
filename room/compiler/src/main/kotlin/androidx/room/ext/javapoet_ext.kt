@@ -131,6 +131,9 @@ object CommonTypeNames {
     val STRING = ClassName.get("java.lang", "String")
     val INTEGER = ClassName.get("java.lang", "Integer")
     val OPTIONAL = ClassName.get("java.util", "Optional")
+    val ILLEGAL_ARG_EXCEPTION = ClassName.get(
+        "java.lang", "IllegalArgumentException"
+    )
 }
 
 object GuavaBaseTypeNames {
