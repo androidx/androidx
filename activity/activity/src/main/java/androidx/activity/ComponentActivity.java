@@ -80,6 +80,7 @@ import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryController;
 import androidx.savedstate.SavedStateRegistryOwner;
 import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
+import androidx.tracing.Trace;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -690,16 +691,24 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     @Override
     public void reportFullyDrawn() {
-        if (Build.VERSION.SDK_INT > 19) {
-            super.reportFullyDrawn();
-        } else if (Build.VERSION.SDK_INT == 19 && ContextCompat.checkSelfPermission(this,
-                Manifest.permission.UPDATE_DEVICE_STATS) == PackageManager.PERMISSION_GRANTED) {
-            // On API 19, the Activity.reportFullyDrawn() method requires the UPDATE_DEVICE_STATS
-            // permission, otherwise it throws an exception. Instead of throwing, we fall back to
-            // a no-op call.
-            super.reportFullyDrawn();
+        try {
+            if (Trace.isEnabled()) {
+                Trace.beginSection("reportFullyDrawn() for " + getComponentName());
+            }
+
+            if (Build.VERSION.SDK_INT > 19) {
+                super.reportFullyDrawn();
+            } else if (Build.VERSION.SDK_INT == 19 && ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.UPDATE_DEVICE_STATS) == PackageManager.PERMISSION_GRANTED) {
+                // On API 19, the Activity.reportFullyDrawn() method requires the
+                // UPDATE_DEVICE_STATS permission, otherwise it throws an exception. Instead of
+                // throwing, we fall back to a no-op call.
+                super.reportFullyDrawn();
+            }
+            // The Activity.reportFullyDrawn() got added in API 19, fall back to a no-op call if
+            // this method gets called on devices with an earlier version.
+        } finally {
+            Trace.endSection();
         }
-        // The Activity.reportFullyDrawn() got added in API 19, fall back to a no-op call if this
-        // method gets called on devices with an earlier version.
     }
 }
