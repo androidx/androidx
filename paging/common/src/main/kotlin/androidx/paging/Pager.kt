@@ -38,13 +38,22 @@ import kotlinx.coroutines.flow.Flow
  * `androidx.paging:paging-rxjava2` artifact.
  */
 class Pager<Key : Any, Value : Any>
-@JvmOverloads constructor(
+// Experimental usage is propagated to public API via constructor argument.
+@ExperimentalPagingApi constructor(
     config: PagingConfig,
     initialKey: Key? = null,
-    @OptIn(ExperimentalPagingApi::class)
-    remoteMediator: RemoteMediator<Key, Value>? = null,
+    remoteMediator: RemoteMediator<Key, Value>?,
     pagingSourceFactory: () -> PagingSource<Key, Value>
 ) {
+    // Experimental usage is internal, so opt-in is allowed here.
+    @JvmOverloads
+    @OptIn(ExperimentalPagingApi::class)
+    constructor(
+        config: PagingConfig,
+        initialKey: Key? = null,
+        pagingSourceFactory: () -> PagingSource<Key, Value>
+    ) : this(config, initialKey, null, pagingSourceFactory)
+
     /**
      * A cold [Flow] of [PagingData], which emits new instances of [PagingData] once they become
      * invalidated by [PagingSource.invalidate] or calls to [AsyncPagingDataDiffer.refresh] or
