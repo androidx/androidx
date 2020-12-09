@@ -169,8 +169,13 @@ public final class ExtensionTest extends WindowTestBase {
         }
         assertTrue("Layout must happen after orientation change", layoutHappened);
 
-        verify(callbackInterface, atLeastOnce())
-                .onWindowLayoutChanged(any(), argThat(new DistinctWindowLayoutInfoMatcher()));
+        if (!isSidecar()) {
+            verify(callbackInterface, atLeastOnce())
+                    .onWindowLayoutChanged(any(), argThat(new DistinctWindowLayoutInfoMatcher()));
+        } else {
+            verify(callbackInterface, atLeastOnce())
+                    .onWindowLayoutChanged(any(), any());
+        }
     }
 
     @Test
@@ -208,8 +213,13 @@ public final class ExtensionTest extends WindowTestBase {
             return;
         }
 
-        verify(callbackInterface, atLeastOnce())
-                .onWindowLayoutChanged(any(), argThat(new DistinctWindowLayoutInfoMatcher()));
+        if (!isSidecar()) {
+            verify(callbackInterface, atLeastOnce())
+                    .onWindowLayoutChanged(any(), argThat(new DistinctWindowLayoutInfoMatcher()));
+        } else {
+            verify(callbackInterface, atLeastOnce())
+                    .onWindowLayoutChanged(any(), any());
+        }
     }
 
     @Test
@@ -228,6 +238,10 @@ public final class ExtensionTest extends WindowTestBase {
     private void assumeExtensionV10_V01() {
         assumeTrue(VERSION_1_0.equals(ExtensionCompat.getExtensionVersion())
                 || VERSION_0_1.equals(SidecarCompat.getSidecarVersion()));
+    }
+
+    private boolean isSidecar() {
+        return SidecarCompat.getSidecarVersion() != null;
     }
 
     /**
