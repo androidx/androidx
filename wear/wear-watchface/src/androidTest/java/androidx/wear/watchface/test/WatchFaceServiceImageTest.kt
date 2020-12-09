@@ -450,9 +450,9 @@ class WatchFaceServiceImageTest {
             // Simulate device shutting down.
             InteractiveInstanceManager.deleteInstance(INTERACTIVE_INSTANCE_ID)
 
-            // Simulate a direct boot scenario where a new service is created with a locked user
-            // but there's no pending PendingWallpaperInteractiveWatchFaceInstance and no
-            // wallpaper command. This should load the direct boot parameters which get saved.
+            // Simulate a R style direct boot scenario where a new service is created but there's no
+            // pending PendingWallpaperInteractiveWatchFaceInstance and no wallpaper command. This
+            // should load the direct boot parameters which get saved.
             val service2 = TestCanvasAnalogWatchFaceService(
                 ApplicationProvider.getApplicationContext<Context>(),
                 handler,
