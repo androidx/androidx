@@ -54,7 +54,7 @@ android {
         aidl = true
     }
     defaultConfig {
-        minSdkVersion 27
+        minSdkVersion 26
     }
 
     // Use Robolectric 4.+
