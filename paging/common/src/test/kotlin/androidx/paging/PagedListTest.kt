@@ -26,6 +26,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.concurrent.Executor
+import kotlin.concurrent.thread
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
@@ -53,10 +55,18 @@ class PagedListTest {
 
     @Test
     fun createLegacy() {
+        val slowFetchExecutor = Executor {
+            // just be slow to ensure `build()` really waited on fetch to complete.
+            // but still run it on another thread to ensure we are not blocking the test here
+            thread {
+                Thread.sleep(1000)
+                it.run()
+            }
+        }
         @Suppress("DEPRECATION")
         val pagedList = PagedList.Builder(TestPositionalDataSource(ITEMS), 100)
             .setNotifyExecutor(TestExecutor())
-            .setFetchExecutor(TestExecutor())
+            .setFetchExecutor(slowFetchExecutor)
             .build()
         // if build succeeds without flushing an executor, success!
         assertEquals(ITEMS, pagedList)

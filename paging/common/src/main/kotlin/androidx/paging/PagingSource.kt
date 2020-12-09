@@ -335,9 +335,7 @@ abstract class PagingSource<Key : Any, Value : Any> {
      * This method is idempotent. i.e., If [invalidate] has already been called, subsequent calls to
      * this method should have no effect.
      */
-    open fun invalidate() {
-        // TODO(b/137971356): Investigate making this not open when able to remove
-        //  LegacyPagingSource.
+    fun invalidate() {
         if (_invalid.compareAndSet(false, true)) {
             onInvalidatedCallbacks.forEach { it.invoke() }
         }

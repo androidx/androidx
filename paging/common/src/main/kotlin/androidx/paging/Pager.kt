@@ -60,9 +60,19 @@ class Pager<Key : Any, Value : Any>
      * [PagingDataAdapter.refresh].
      */
     val flow: Flow<PagingData<Value>> = PageFetcher(
-        pagingSourceFactory,
-        initialKey,
-        config,
-        remoteMediator
+        pagingSourceFactory = if (
+            pagingSourceFactory is SuspendingPagingSourceFactory<Key, Value>
+        ) {
+            pagingSourceFactory::create
+        } else {
+            // cannot pass it as is since it is not a suspend function. Hence, we wrap it in {}
+            // which means we are calling the original factory inside a suspend function
+            {
+                pagingSourceFactory()
+            }
+        },
+        initialKey = initialKey,
+        config = config,
+        remoteMediator = remoteMediator
     ).flow
 }

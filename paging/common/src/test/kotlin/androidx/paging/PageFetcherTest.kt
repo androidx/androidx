@@ -49,7 +49,7 @@ import kotlin.test.assertTrue
 @RunWith(JUnit4::class)
 class PageFetcherTest {
     private val testScope = TestCoroutineScope()
-    private val pagingSourceFactory = { TestPagingSource() }
+    private val pagingSourceFactory = suspend { TestPagingSource() }
     private val config = PagingConfig(
         pageSize = 1,
         prefetchDistance = 1,
@@ -91,7 +91,9 @@ class PageFetcherTest {
     @Test
     fun refresh_fromPagingSource() = testScope.runBlockingTest {
         var pagingSource: PagingSource<Int, Int>? = null
-        val pagingSourceFactory = { TestPagingSource().also { pagingSource = it } }
+        val pagingSourceFactory = suspend {
+            TestPagingSource().also { pagingSource = it }
+        }
         val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
@@ -114,7 +116,9 @@ class PageFetcherTest {
     @Test
     fun refresh_callsInvalidate() = testScope.runBlockingTest {
         var pagingSource: PagingSource<Int, Int>? = null
-        val pagingSourceFactory = { TestPagingSource().also { pagingSource = it } }
+        val pagingSourceFactory = suspend {
+            TestPagingSource().also { pagingSource = it }
+        }
         val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
@@ -303,7 +307,9 @@ class PageFetcherTest {
     fun jump() = testScope.runBlockingTest {
         pauseDispatcher {
             val pagingSources = mutableListOf<PagingSource<Int, Int>>()
-            val pagingSourceFactory = { TestPagingSource().also { pagingSources.add(it) } }
+            val pagingSourceFactory = suspend {
+                TestPagingSource().also { pagingSources.add(it) }
+            }
             val config = PagingConfig(
                 pageSize = 1,
                 prefetchDistance = 1,
@@ -382,7 +388,11 @@ class PageFetcherTest {
                 prefetchDistance = 1,
                 initialLoadSize = 2
             )
-            val pageFetcher = PageFetcher({ pagingSource }, 50, config)
+            val pageFetcher = PageFetcher(
+                pagingSourceFactory = suspend { pagingSource },
+                initialKey = 50,
+                config = config
+            )
             val job = testScope.launch {
                 assertFailsWith<IllegalStateException> {
                     pageFetcher.flow.collect { }
@@ -444,7 +454,7 @@ class PageFetcherTest {
             )
             val pagingSources = mutableListOf<TestPagingSource>()
             val pageFetcher = PageFetcher(
-                pagingSourceFactory = {
+                pagingSourceFactory = suspend {
                     TestPagingSource(loadDelay = 1000).also {
                         pagingSources.add(it)
                     }

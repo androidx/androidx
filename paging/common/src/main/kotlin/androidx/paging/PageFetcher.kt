@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 internal class PageFetcher<Key : Any, Value : Any>(
-    private val pagingSourceFactory: () -> PagingSource<Key, Value>,
+    private val pagingSourceFactory: suspend () -> PagingSource<Key, Value>,
     private val initialKey: Key?,
     private val config: PagingConfig,
     @OptIn(ExperimentalPagingApi::class)
@@ -207,7 +207,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
         refreshEvents.send(false)
     }
 
-    private fun generateNewPagingSource(
+    private suspend fun generateNewPagingSource(
         previousPagingSource: PagingSource<Key, Value>?
     ): PagingSource<Key, Value> {
         val pagingSource = pagingSourceFactory()

@@ -72,11 +72,12 @@ import kotlin.test.fail
 class PageFetcherSnapshotTest {
     private val testScope = TestCoroutineScope()
     private val retryBus = ConflatedEventBus<Unit>()
-    private val pagingSourceFactory = {
+    private val pagingSourceFactory = suspend {
         TestPagingSource(loadDelay = 1000).also {
             currentPagingSource = it
         }
     }
+
     private var currentPagingSource: TestPagingSource? = null
     private val config = PagingConfig(
         pageSize = 1,
@@ -1752,7 +1753,7 @@ class PageFetcherSnapshotTest {
         }
 
         var createdPagingSource = false
-        val factory = {
+        val factory = suspend {
             check(!createdPagingSource)
             createdPagingSource = true
             TestPagingSource(items = List(2) { it })
@@ -1801,7 +1802,7 @@ class PageFetcherSnapshotTest {
         }
 
         var createdPagingSource = false
-        val factory = {
+        val factory = suspend {
             check(!createdPagingSource)
             createdPagingSource = true
             TestPagingSource(items = List(2) { it })
