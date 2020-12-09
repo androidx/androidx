@@ -48,6 +48,7 @@
         <activity android:name="androidx.fragment.app.FragmentSavedStateActivity" />
         <activity android:name="androidx.fragment.app.FragmentFinishEarlyTestActivity" />
         <activity android:name="androidx.fragment.app.SimpleContainerActivity" />
+        <activity android:name="androidx.fragment.app.ReplaceInCreateActivity" />
         <activity android:name="androidx.fragment.app.DialogActivity"
                   android:theme="@style/DialogTheme"/>
         <activity android:name="androidx.fragment.app.TestAppCompatActivity"
