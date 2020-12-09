@@ -51,9 +51,3 @@ androidx {
     description = "Lint checks for the Experimental annotation library. Also enforces the " +
             "semantics of Kotlin @Experimental APIs from within Android Java source code."
 }
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-XXLanguage:-NewInference"]
-    }
-}
