@@ -121,6 +121,12 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
                 else -> false
             }
         }?.key
+
+    /**
+     * Requests the specified complication is highlighted for a short period to bring attention to
+     * it.
+     */
+    public fun bringAttentionToComplication(complicationId: Int)
 }
 
 /** Controls a stateful remote interactive watch face with an interface tailored for WCS. */
@@ -191,4 +197,8 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
     }
 
     override fun asBinder(): IBinder = iInteractiveWatchFaceWcs.asBinder()
+
+    override fun bringAttentionToComplication(complicationId: Int) {
+        iInteractiveWatchFaceWcs.bringAttentionToComplication(complicationId)
+    }
 }

@@ -115,4 +115,10 @@ internal class WCSApi(
         uiThreadHandler.runOnHandler {
             engine.watchFaceImpl.userStyleRepository.schema.toWireFormat()
         }
+
+    override fun bringAttentionToComplication(id: Int) {
+        uiThreadHandler.runOnHandler {
+            engine.watchFaceImpl.complicationsManager.bringAttentionToComplication(id)
+        }
+    }
 }
