@@ -23,6 +23,7 @@ import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticContinuationParameterElement
+import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -39,8 +40,15 @@ internal sealed class KspMethodElement(
 ),
     XMethodElement {
 
+    @OptIn(KspExperimental::class)
     override val name: String by lazy {
-        declaration.simpleName.asString()
+        try {
+            env.resolver.getJvmName(declaration)
+        } catch (ignored: ClassCastException) {
+            // TODO remove this catch once that issue is fixed.
+            // workaround for https://github.com/google/ksp/issues/164
+            declaration.simpleName.asString()
+        }
     }
 
     override val executableType: XMethodType by lazy {

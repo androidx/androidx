@@ -35,6 +35,7 @@ import androidx.room.compiler.processing.ksp.KspHasModifiers
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspTypeElement
 import androidx.room.compiler.processing.ksp.overrides
+import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.KSPropertyAccessor
 import java.util.Locale
 
@@ -117,7 +118,11 @@ internal sealed class KspSyntheticPropertyMethodElement(
             arrayOf(field, "getter")
         }
 
+        @OptIn(KspExperimental::class)
         override val name: String by lazy {
+            field.declaration.getter?.let {
+                return@lazy env.resolver.getJvmName(it)
+            }
             // see https://kotlinlang.org/docs/reference/java-to-kotlin-interop.html#properties
             val propName = field.name
             if (propName.startsWith("is")) {
@@ -168,7 +173,11 @@ internal sealed class KspSyntheticPropertyMethodElement(
             arrayOf(field, "setter")
         }
 
+        @OptIn(KspExperimental::class)
         override val name: String by lazy {
+            field.declaration.setter?.let {
+                return@lazy env.resolver.getJvmName(it)
+            }
             // see https://kotlinlang.org/docs/reference/java-to-kotlin-interop.html#properties
             val propName = field.name
             if (propName.startsWith("is")) {
