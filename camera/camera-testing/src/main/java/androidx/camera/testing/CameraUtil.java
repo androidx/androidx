@@ -218,7 +218,7 @@ public final class CameraUtil {
         /**
          * Blocks until the camera device has been closed.
          */
-        void close() throws ExecutionException, InterruptedException {
+        void close() throws ExecutionException, InterruptedException, TimeoutException {
             CameraDevice cameraDevice;
             synchronized (mLock) {
                 cameraDevice = mCameraDevice;
@@ -229,7 +229,7 @@ public final class CameraUtil {
                 cameraDevice.close();
             }
 
-            mCloseFuture.get();
+            mCloseFuture.get(10L, TimeUnit.SECONDS);
         }
 
         /**
@@ -250,7 +250,7 @@ public final class CameraUtil {
      *                           {@link #getCameraDevice(CameraDevice.StateCallback)}
      */
     public static void releaseCameraDevice(@NonNull CameraDeviceHolder cameraDeviceHolder)
-            throws ExecutionException, InterruptedException {
+            throws ExecutionException, InterruptedException, TimeoutException {
         cameraDeviceHolder.close();
     }
 
