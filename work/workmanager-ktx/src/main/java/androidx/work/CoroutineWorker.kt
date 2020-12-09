@@ -24,6 +24,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.lang.IllegalStateException
 
 /**
  * A [ListenableWorker] implementation that provides interop with Kotlin Coroutines.  Override
@@ -62,7 +63,6 @@ public abstract class CoroutineWorker(
 
     @Suppress("DEPRECATION")
     public final override fun startWork(): ListenableFuture<Result> {
-
         val coroutineScope = CoroutineScope(coroutineContext + job)
         coroutineScope.launch {
             try {
@@ -72,7 +72,6 @@ public abstract class CoroutineWorker(
                 future.setException(t)
             }
         }
-
         return future
     }
 
@@ -88,6 +87,17 @@ public abstract class CoroutineWorker(
      * dependent work will not execute if you return [ListenableWorker.Result.failure]
      */
     public abstract suspend fun doWork(): Result
+
+    /**
+     * @return The [ForegroundInfo] instance if the [WorkRequest] is marked as immediate.
+     *
+     * @throws [IllegalStateException] when not overridden. Override this method when the
+     * corresponding [WorkRequest] is marked immediate.
+     */
+    @ExperimentalImmediateWork
+    public open suspend fun getForegroundInfo(): ForegroundInfo {
+        throw IllegalStateException("Not implemented")
+    }
 
     /**
      * Updates the progress for the [CoroutineWorker]. This is a suspending function unlike the
@@ -106,8 +116,26 @@ public abstract class CoroutineWorker(
      *
      * @param foregroundInfo The [ForegroundInfo]
      */
+    @Deprecated(
+        message = "Use WorkRequest.Builder.setImmediate() and ListenableWorker.getForegroundInfo()",
+        replaceWith = ReplaceWith("TODO(\"Replace with getForegroundInfo()\")"),
+        level = DeprecationLevel.WARNING
+    )
+    @Suppress("DEPRECATION")
     public suspend fun setForeground(foregroundInfo: ForegroundInfo) {
         setForegroundAsync(foregroundInfo).await()
+    }
+
+    @Suppress("DEPRECATION")
+    @ExperimentalImmediateWork
+    public final override fun getForegroundInfoAsync(): ListenableFuture<ForegroundInfo> {
+        val job = Job()
+        val scope = CoroutineScope(coroutineContext + job)
+        val jobFuture = JobListenableFuture<ForegroundInfo>(job)
+        scope.launch {
+            jobFuture.complete(getForegroundInfo())
+        }
+        return jobFuture
     }
 
     public final override fun onStopped() {

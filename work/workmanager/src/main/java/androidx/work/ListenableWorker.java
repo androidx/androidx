@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -219,12 +220,39 @@ public abstract class ListenableWorker {
      * @param foregroundInfo The {@link ForegroundInfo}
      * @return A {@link ListenableFuture} which resolves after the {@link ListenableWorker}
      * transitions to running in the context of a foreground {@link android.app.Service}.
+     * @deprecated Use {@link WorkRequest.Builder#setImmediate()} and
+     * {@link ListenableWorker#getForegroundInfoAsync()} instead.
      */
     @NonNull
+    @Deprecated
     public final ListenableFuture<Void> setForegroundAsync(@NonNull ForegroundInfo foregroundInfo) {
         mRunInForeground = true;
         return mWorkerParams.getForegroundUpdater()
                 .setForegroundAsync(getApplicationContext(), getId(), foregroundInfo);
+    }
+
+    /**
+     * Return an instance of {@link  ForegroundInfo} if the {@link WorkRequest} is important to
+     * the user.  In this case, WorkManager provides a signal to the OS that the process should
+     * be kept alive while this work is executing.
+     * <p>
+     * Prior to Android S, WorkManager manages and runs a foreground service on your behalf to
+     * execute the WorkRequest, showing the notification provided in the {@link ForegroundInfo}.
+     * To update this notification subsequently, the application can use
+     * {@link android.app.NotificationManager}.
+     * <p>
+     * Starting in Android S and above, WorkManager manages this WorkRequest using an immediate job.
+     *
+     * @return A {@link ListenableFuture} of {@link ForegroundInfo} instance if the WorkRequest
+     * is marked immediate. For more information look at
+     * {@link WorkRequest.Builder#setImmediate()}.
+     */
+    @NonNull
+    @ExperimentalImmediateWork
+    public ListenableFuture<ForegroundInfo> getForegroundInfoAsync() {
+        SettableFuture<ForegroundInfo> future = SettableFuture.create();
+        future.setException(new IllegalStateException("Not implemented"));
+        return future;
     }
 
     /**
@@ -290,6 +318,14 @@ public abstract class ListenableWorker {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public boolean isRunInForeground() {
         return mRunInForeground;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void setRunInForeground(boolean runInForeground) {
+        mRunInForeground = runInForeground;
     }
 
     /**

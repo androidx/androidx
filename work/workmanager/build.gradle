@@ -63,6 +63,7 @@ dependencies {
     androidTestImplementation("androidx.room:room-testing:2.2.5")
     implementation("androidx.sqlite:sqlite:2.1.0")
     implementation("androidx.sqlite:sqlite-framework:2.1.0")
+    api("androidx.annotation:annotation-experimental:1.0.0")
     api(GUAVA_LISTENABLE_FUTURE)
     api("androidx.lifecycle:lifecycle-livedata:2.1.0")
     implementation("androidx.core:core:1.1.0")

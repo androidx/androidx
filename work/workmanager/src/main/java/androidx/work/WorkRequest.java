@@ -16,6 +16,7 @@
 package androidx.work;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -289,12 +290,36 @@ public abstract class WorkRequest {
         }
 
         /**
+         * Marks the {@link WorkRequest} as important to the user.  In this case, WorkManager
+         * provides an additional signal to the OS that this work is important.
+         */
+        @ExperimentalImmediateWork
+        @SuppressLint("MissingGetterMatchingBuilder")
+        public @NonNull B setImmediate() {
+            mWorkSpec.runImmediately = true;
+            return getThis();
+        }
+
+        /**
          * Builds a {@link WorkRequest} based on this {@link Builder}.
          *
          * @return A {@link WorkRequest} based on this {@link Builder}
          */
         public final @NonNull W build() {
             W returnValue = buildInternal();
+            // Check for immediate jobs.
+            Constraints constraints = mWorkSpec.constraints;
+            boolean hasNonNetworkConstraints =
+                    (Build.VERSION.SDK_INT >= 24 && constraints.hasContentUriTriggers())
+                            || constraints.requiresBatteryNotLow()
+                            || constraints.requiresCharging()
+                            || (Build.VERSION.SDK_INT >= 23 && constraints.requiresDeviceIdle())
+                            || constraints.requiresStorageNotLow();
+
+            if (mWorkSpec.runImmediately && hasNonNetworkConstraints) {
+                throw new IllegalArgumentException(
+                        "Immediate jobs only support network constraints");
+            }
             // Create a new id and WorkSpec so this WorkRequest.Builder can be used multiple times.
             mId = UUID.randomUUID();
             mWorkSpec = new WorkSpec(mWorkSpec);

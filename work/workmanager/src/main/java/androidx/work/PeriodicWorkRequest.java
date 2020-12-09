@@ -189,12 +189,6 @@ public final class PeriodicWorkRequest extends WorkRequest {
                 throw new IllegalArgumentException(
                         "Cannot set backoff criteria on an idle mode job");
             }
-            if (mWorkSpec.runInForeground
-                    && Build.VERSION.SDK_INT >= 23
-                    && mWorkSpec.constraints.requiresDeviceIdle()) {
-                throw new IllegalArgumentException(
-                        "Cannot run in foreground with an idle mode constraint");
-            }
             return new PeriodicWorkRequest(this);
         }
 
