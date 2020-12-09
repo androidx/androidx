@@ -48,6 +48,23 @@ import java.security.InvalidParameterException;
 /**
  * The base class for implementing a car app that runs in the car.
  *
+ * <h4>Service Declaration</h4>
+ *
+ * The app must extend the {@link CarAppService} to be bound by the car host. The service must also
+ * respond to {@link Intent} actions coming from the host, by adding an
+ * <code>intent-filter</code> to the service in the <code>AndroidManifest.xml</code> that handles
+ * the {@link #SERVICE_INTERFACE} action. For example:
+ *
+ * <pre>{@code
+ * <service
+ *   android:name=".YourAppService"
+ *   android:exported="true">
+ *   <intent-filter>
+ *     <action android:name="androidx.car.app.CarAppService" />
+ *   </intent-filter>
+ * </service>
+ * }</pre>
+ *
  * <h4>Accessing Location</h4>
  *
  * When the app is running in the car display, the system will not consider it as being in the
@@ -65,6 +82,11 @@ import java.security.InvalidParameterException;
 // actually cleaning any held resources in that method.
 @SuppressWarnings("NotCloseable")
 public abstract class CarAppService extends Service implements LifecycleOwner {
+    /**
+     * The {@link Intent} that must be declared as handled by the service.
+     */
+    public static final String SERVICE_INTERFACE = "androidx.car.app.CarAppService";
+
     private static final String TAG = "CarAppService";
     private static final String AUTO_DRIVE = "AUTO_DRIVE";
 
