@@ -19,6 +19,7 @@ package androidx.fragment.app
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
+import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -71,6 +72,31 @@ class FragmentFocusTest {
         }
     }
 
+    @Test
+    fun focusedViewRootView() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragment = RequestViewFragment()
+
+            withActivity {
+                setContentView(R.layout.simple_container)
+
+                supportFragmentManager.beginTransaction()
+                    .setCustomAnimations(1, 0)
+                    .replace(R.id.fragmentContainer, fragment)
+                    .setReorderingAllowed(true)
+                    .commitNow()
+            }
+
+            assertThat(fragment.endAnimationCountDownLatch.await(1000, TimeUnit.MILLISECONDS))
+                .isTrue()
+
+            withActivity {
+                val view = fragment.requireView()
+                assertThat(view.isFocused).isTrue()
+            }
+        }
+    }
+
     class RemoveEditViewFragment : StrictViewFragment(R.layout.with_edit_text) {
         val endAnimationCountDownLatch = CountDownLatch(1)
         override fun onCreateAnimator(transit: Int, enter: Boolean, nextAnim: Int): Animator? {
@@ -88,6 +114,30 @@ class FragmentFocusTest {
                     ).addView(editText)
                 }
 
+                override fun onAnimationEnd(animation: Animator?) {
+                    endAnimationCountDownLatch.countDown()
+                }
+            })
+            return animator
+        }
+    }
+
+    class RequestViewFragment : StrictViewFragment() {
+        val endAnimationCountDownLatch = CountDownLatch(1)
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+            view.isFocusable = true
+            view.isFocusableInTouchMode = true
+            view.requestFocus()
+        }
+
+        override fun onCreateAnimator(transit: Int, enter: Boolean, nextAnim: Int): Animator? {
+            if (nextAnim == 0) {
+                return null
+            }
+
+            val animator = ValueAnimator.ofFloat(0f, 1f).setDuration(1)
+            animator.addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator?) {
                     endAnimationCountDownLatch.countDown()
                 }
