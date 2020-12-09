@@ -74,7 +74,8 @@ public final class TravelEstimate {
             @NonNull Distance remainingDistance,
             long remainingTimeSeconds,
             @NonNull DateTimeWithZone arrivalTimeAtDestination) {
-        return builder(remainingDistance, remainingTimeSeconds, arrivalTimeAtDestination).build();
+        return builder(remainingDistance, arrivalTimeAtDestination).setRemainingTimeSeconds(
+                remainingTimeSeconds).build();
     }
 
     /**
@@ -100,7 +101,8 @@ public final class TravelEstimate {
             @NonNull Distance remainingDistance,
             @NonNull Duration remainingTime,
             @NonNull ZonedDateTime arrivalTimeAtDestination) {
-        return builder(remainingDistance, remainingTime, arrivalTimeAtDestination).build();
+        return builder(remainingDistance, arrivalTimeAtDestination).setRemainingTime(
+                remainingTime).build();
     }
 
     /**
@@ -108,22 +110,17 @@ public final class TravelEstimate {
      *
      * @param remainingDistance        The estimated remaining {@link Distance} until arriving at
      *                                 the destination.
-     * @param remainingTimeSeconds     The estimated time remaining until arriving at the
-     *                                 destination, in seconds.
      * @param arrivalTimeAtDestination The arrival time with the time zone information provided
      *                                 for the destination.
-     * @throws IllegalArgumentException if {@code remainingTimeSeconds} is a negative value.
-     * @throws NullPointerException     if {@code remainingDistance} is {@code null}
-     * @throws NullPointerException     if {@code arrivalTimeAtDestination} is {@code null}
+     * @throws NullPointerException if {@code remainingDistance} is {@code null}
+     * @throws NullPointerException if {@code arrivalTimeAtDestination} is {@code null}
      */
     @NonNull
     public static Builder builder(
             @NonNull Distance remainingDistance,
-            long remainingTimeSeconds,
             @NonNull DateTimeWithZone arrivalTimeAtDestination) {
         return new Builder(
                 requireNonNull(remainingDistance),
-                remainingTimeSeconds,
                 requireNonNull(arrivalTimeAtDestination));
     }
 
@@ -132,25 +129,19 @@ public final class TravelEstimate {
      *
      * @param remainingDistance        The estimated remaining {@link Distance} until arriving at
      *                                 the destination.
-     * @param remainingTime            The estimated time remaining until arriving at the
-     *                                 destination.
      * @param arrivalTimeAtDestination The arrival time with the time zone information provided for
      *                                 the destination.
-     * @throws IllegalArgumentException if {@code remainingTime} contains a negative duration.
-     * @throws NullPointerException     if {@code remainingDistance} is {@code null}
-     * @throws NullPointerException     if {@code remainingTime} is {@code null}
-     * @throws NullPointerException     if {@code arrivalTimeAtDestination} is {@code null}
+     * @throws NullPointerException if {@code remainingDistance} is {@code null}
+     * @throws NullPointerException if {@code arrivalTimeAtDestination} is {@code null}
      */
     @NonNull
     @RequiresApi(26)
     @SuppressWarnings("AndroidJdkLibsChecker")
     public static Builder builder(
             @NonNull Distance remainingDistance,
-            @NonNull Duration remainingTime,
             @NonNull ZonedDateTime arrivalTimeAtDestination) {
         return new Builder(
                 requireNonNull(remainingDistance),
-                requireNonNull(remainingTime),
                 requireNonNull(arrivalTimeAtDestination));
     }
 
@@ -243,17 +234,15 @@ public final class TravelEstimate {
     /** A builder of {@link TravelEstimate}. */
     public static final class Builder {
         private final Distance mRemainingDistance;
-        private final long mRemainingTimeSeconds;
+        private long mRemainingTimeSeconds = REMAINING_TIME_UNKNOWN;
         private final DateTimeWithZone mArrivalTimeAtDestination;
         private CarColor mRemainingTimeColor = CarColor.DEFAULT;
         private CarColor mRemainingDistanceColor = CarColor.DEFAULT;
 
         private Builder(
                 Distance remainingDistance,
-                long remainingTimeSeconds,
                 DateTimeWithZone arrivalTimeAtDestination) {
             this.mRemainingDistance = requireNonNull(remainingDistance);
-            this.mRemainingTimeSeconds = validateRemainingTime(remainingTimeSeconds);
             this.mArrivalTimeAtDestination = requireNonNull(arrivalTimeAtDestination);
         }
 
@@ -263,11 +252,43 @@ public final class TravelEstimate {
         @SuppressWarnings("AndroidJdkLibsChecker")
         private Builder(
                 Distance remainingDistance,
-                Duration remainingTime,
                 ZonedDateTime arrivalTimeAtDestination) {
             this.mRemainingDistance = remainingDistance;
-            this.mRemainingTimeSeconds = validateRemainingTime(remainingTime.getSeconds());
             this.mArrivalTimeAtDestination = DateTimeWithZone.create(arrivalTimeAtDestination);
+        }
+
+        /**
+         * Sets the estimated time remaining until arriving at the destination, in seconds.
+         *
+         * <p>If not set, {@link #REMAINING_TIME_UNKNOWN} will be used.
+         *
+         * @throws IllegalArgumentException if {@code remainingTimeSeconds} is a negative value
+         *                                  but not {@link #REMAINING_TIME_UNKNOWN}.
+         */
+        @NonNull
+        public Builder setRemainingTimeSeconds(long remainingTimeSeconds) {
+            this.mRemainingTimeSeconds = validateRemainingTime(remainingTimeSeconds);
+            return this;
+        }
+
+        /**
+         * Sets the estimated time remaining until arriving at the destination.
+         *
+         * <p>If not set, {@link #REMAINING_TIME_UNKNOWN} will be used.
+         *
+         * @throws IllegalArgumentException if {@code remainingTime} is a negative duration
+         *                                  but not {@link #REMAINING_TIME_UNKNOWN}.
+         * @throws NullPointerException     if {@code remainingTime} is {@code null}
+         */
+        @SuppressLint({"MissingGetterMatchingBuilder", "UnsafeNewApiCall"})
+        // TODO(rampara): Move API 26 calls into separate class.
+        @RequiresApi(26)
+        @SuppressWarnings("AndroidJdkLibsChecker")
+        @NonNull
+        public Builder setRemainingTime(@NonNull Duration remainingTime) {
+            requireNonNull(remainingTime);
+            this.mRemainingTimeSeconds = validateRemainingTime(remainingTime.getSeconds());
+            return this;
         }
 
         /**
