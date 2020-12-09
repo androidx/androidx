@@ -234,7 +234,7 @@ package androidx.wear.watchface {
   public final class WatchFaceKt {
   }
 
-  @RequiresApi(26) public abstract class WatchFaceService extends android.service.wallpaper.WallpaperService {
+  public abstract class WatchFaceService extends android.service.wallpaper.WallpaperService {
     ctor public WatchFaceService();
     method protected abstract androidx.wear.watchface.WatchFace createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState);
     method public final android.service.wallpaper.WallpaperService.Engine onCreateEngine();

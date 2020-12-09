@@ -38,6 +38,7 @@ import android.util.SparseArray
 import android.view.SurfaceHolder
 import android.view.animation.AnimationUtils
 import android.view.animation.PathInterpolator
+import androidx.annotation.ColorInt
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
@@ -193,6 +194,19 @@ private val DIGIT_OPACITY_INTERPOLATOR = mapOf(
 internal val CENTERING_ADJUSTMENT_INTERPOLATOR =
     PathInterpolator(0.4f, 0f, 0.2f, 1f)
 
+@ColorInt
+internal fun colorRgb(red: Float, green: Float, blue: Float) =
+    0xff000000.toInt() or
+        ((red * 255.0f + 0.5f).toInt() shl 16) or
+        ((green * 255.0f + 0.5f).toInt() shl 8) or
+        (blue * 255.0f + 0.5f).toInt()
+
+internal fun redFraction(@ColorInt color: Int) = Color.red(color).toFloat() / 255.0f
+
+internal fun greenFraction(@ColorInt color: Int) = Color.green(color).toFloat() / 255.0f
+
+internal fun blueFraction(@ColorInt color: Int) = Color.blue(color).toFloat() / 255.0f
+
 /**
  * Returns an RGB color that has the same effect as drawing `color` with `alphaFraction` over a
  * `backgroundColor` background.
@@ -201,11 +215,15 @@ internal val CENTERING_ADJUSTMENT_INTERPOLATOR =
  * @param alphaFraction the fraction of the alpha value, range from 0 to 1
  * @param backgroundColor the background color
  */
-internal fun getRGBColor(color: Color, alphaFraction: Float, backgroundColor: Color): Int {
-    return Color.rgb(
-        lerp(backgroundColor.red(), color.red(), alphaFraction),
-        lerp(backgroundColor.green(), color.green(), alphaFraction),
-        lerp(backgroundColor.blue(), color.blue(), alphaFraction)
+internal fun getRGBColor(
+    @ColorInt color: Int,
+    alphaFraction: Float,
+    @ColorInt backgroundColor: Int
+): Int {
+    return colorRgb(
+        lerp(redFraction(backgroundColor), redFraction(color), alphaFraction),
+        lerp(greenFraction(backgroundColor), greenFraction(color), alphaFraction),
+        lerp(blueFraction(backgroundColor), blueFraction(color), alphaFraction)
     )
 }
 
@@ -417,12 +435,11 @@ private class DrawProperties(
 
 /** Applies a multiplier to a color, e.g. to darken if it's < 1.0 */
 internal fun multiplyColor(colorInt: Int, multiplier: Float): Int {
-    val color = Color.valueOf(colorInt)
-    // NB color.red() etc return a value in the range [0..1]
-    return Color.rgb(
-        color.red() * multiplier,
-        color.green() * multiplier,
-        color.blue() * multiplier
+    val adjustedMultiplier = multiplier / 255.0f
+    return colorRgb(
+        Color.red(colorInt).toFloat() * adjustedMultiplier,
+        Color.green(colorInt).toFloat() * adjustedMultiplier,
+        Color.blue(colorInt).toFloat() * adjustedMultiplier,
     )
 }
 
@@ -1050,9 +1067,9 @@ class ExampleDigitalWatchCanvasRenderer(
         }
         canvas.drawColor(
             getRGBColor(
-                Color.valueOf(backgroundColor),
+                backgroundColor,
                 drawProperties.backgroundAlpha,
-                Color.valueOf(Color.BLACK)
+                Color.BLACK
             )
         )
     }
