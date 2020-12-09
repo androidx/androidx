@@ -41,6 +41,7 @@ import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSettin
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
+import androidx.wear.watchface.style.data.UserStyleWireFormat
 import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView
@@ -211,7 +212,8 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
         )
 
         userStyle = UserStyle(
-            ParcelUtils.fromParcelable(requireArguments().getParcelable(USER_STYLE)!!),
+            ParcelUtils.fromParcelable(requireArguments().getParcelable(USER_STYLE)!!) as
+                UserStyleWireFormat,
             styleSchema
         )
 

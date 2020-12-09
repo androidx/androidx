@@ -146,4 +146,45 @@ class UserStyleRepositoryTest {
                 DoubleRangeUserStyleSetting.DoubleRangeOption
         assertThat(watchHandLengthOption.value).isEqualTo(0.75)
     }
+
+    @Test
+    fun userStyle_mapConstructor() {
+        val userStyle = UserStyle(
+            mapOf(
+                "color_style_setting" to "bluestyle",
+                "hand_style_setting" to "gothic_style"
+            ),
+            userStyleRepository.schema
+        )
+
+        assertThat(userStyle.selectedOptions[colorStyleSetting]!!.id).isEqualTo("bluestyle")
+        assertThat(userStyle.selectedOptions[watchHandStyleSetting]!!.id).isEqualTo("gothic_style")
+    }
+
+    @Test
+    fun userStyle_mapConstructor_badColorStyle() {
+        val userStyle = UserStyle(
+            mapOf(
+                "color_style_setting" to "I DO NOT EXIST",
+                "hand_style_setting" to "gothic_style"
+            ),
+            userStyleRepository.schema
+        )
+
+        assertThat(userStyle.selectedOptions[colorStyleSetting]!!.id).isEqualTo("red_style")
+        assertThat(userStyle.selectedOptions[watchHandStyleSetting]!!.id).isEqualTo("gothic_style")
+    }
+
+    @Test
+    fun userStyle_mapConstructor_missingColorStyle() {
+        val userStyle = UserStyle(
+            mapOf(
+                "hand_style_setting" to "gothic_style"
+            ),
+            userStyleRepository.schema
+        )
+
+        assertThat(userStyle.selectedOptions[colorStyleSetting]!!.id).isEqualTo("red_style")
+        assertThat(userStyle.selectedOptions[watchHandStyleSetting]!!.id).isEqualTo("gothic_style")
+    }
 }

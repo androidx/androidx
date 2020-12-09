@@ -110,7 +110,8 @@ public interface WatchFaceControlClient : AutoCloseable {
      * @param id The ID for the requested [InteractiveWatchFaceWcsClient].
      * @param deviceConfig The [DeviceConfig] for the wearable.
      * @param systemState The initial [SystemState] for the wearable.
-     * @param userStyle The initial [UserStyle], or null if the default should be used.
+     * @param userStyle The initial style map (see [UserStyle]), or null if the default should be
+     *     used.
      * @param idToComplicationData The initial complication data, or null if unavailable.
      * @return a [ListenableFuture] for a [InteractiveWatchFaceWcsClient]
      */
@@ -118,7 +119,7 @@ public interface WatchFaceControlClient : AutoCloseable {
         id: String,
         deviceConfig: DeviceConfig,
         systemState: SystemState,
-        userStyle: UserStyle?,
+        userStyle: Map<String, String>?,
         idToComplicationData: Map<Int, ComplicationData>?
     ): ListenableFuture<InteractiveWatchFaceWcsClient>
 }
@@ -210,7 +211,7 @@ internal class WatchFaceControlClientImpl internal constructor(
         id: String,
         deviceConfig: DeviceConfig,
         systemState: SystemState,
-        userStyle: UserStyle?,
+        userStyle: Map<String, String>?,
         idToComplicationData: Map<Int, ComplicationData>?
     ): ListenableFuture<InteractiveWatchFaceWcsClient> {
         val resultFuture = ResolvableFuture.create<InteractiveWatchFaceWcsClient>()
@@ -234,7 +235,7 @@ internal class WatchFaceControlClientImpl internal constructor(
                                 systemState.inAmbientMode,
                                 systemState.interruptionFilter
                             ),
-                            userStyle?.toWireFormat() ?: UserStyleWireFormat(emptyMap()),
+                            UserStyleWireFormat(userStyle ?: emptyMap()),
                             idToComplicationData?.map {
                                 IdAndComplicationDataWireFormat(
                                     it.key,
