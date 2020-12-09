@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.os.Bundle
@@ -196,7 +197,8 @@ internal class ConfigView(
                     Layer.COMPLICATIONS to LayerMode.DRAW_HIGHLIGHTED,
                     Layer.TOP_LAYER to LayerMode.DRAW
                 ),
-                null
+                null,
+                Color.RED
             ).toWireFormat()
         )
         canvas.drawBitmap(bitmap, drawRect, drawRect, null)
