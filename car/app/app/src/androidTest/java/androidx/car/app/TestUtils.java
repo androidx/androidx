@@ -113,7 +113,7 @@ public class TestUtils {
         }
 
         if (isSelectable) {
-            builder.setSelectable(index -> {
+            builder.setOnSelectedListener(index -> {
             });
         }
 

@@ -108,7 +108,7 @@ public class RoutePreviewNavigationTemplateTest {
                         .setItemList(
                                 ItemList.builder()
                                         .addItem(rowExceedsMaxTexts)
-                                        .setSelectable(selectedIndex -> {
+                                        .setOnSelectedListener(selectedIndex -> {
                                         })
                                         .build()));
 
@@ -118,7 +118,7 @@ public class RoutePreviewNavigationTemplateTest {
                 .setItemList(
                         ItemList.builder()
                                 .addItem(rowMeetingMaxTexts)
-                                .setSelectable(selectedIndex -> {
+                                .setOnSelectedListener(selectedIndex -> {
                                 })
                                 .build());
     }
@@ -286,7 +286,7 @@ public class RoutePreviewNavigationTemplateTest {
                         .setItemList(ItemList.builder()
                                 .addItem(rowWithTime)
                                 .addItem(rowWithoutTime)
-                                .setSelectable(index -> {
+                                .setOnSelectedListener(index -> {
                                 })
                                 .build())
                         .setNavigateAction(navigateAction)
@@ -295,7 +295,7 @@ public class RoutePreviewNavigationTemplateTest {
         // Positive case
         RoutePreviewNavigationTemplate.builder()
                 .setTitle("Title")
-                .setItemList(ItemList.builder().setSelectable(index -> {
+                .setItemList(ItemList.builder().setOnSelectedListener(index -> {
                 }).addItem(rowWithTime).build())
                 .setNavigateAction(navigateAction)
                 .build();

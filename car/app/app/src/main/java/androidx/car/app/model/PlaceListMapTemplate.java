@@ -253,32 +253,27 @@ public final class PlaceListMapTemplate implements Template {
 
         /**
          * Sets an {@link ItemList} to show in a list view along with the map, or {@code null} to
-         * not
-         * display a list.
+         * not display a list.
          *
          * <p>To show a marker corresponding to a point of interest represented by a row, set the
-         * {@link
-         * Place} instance via {@link Row.Builder#setMetadata}. The host will display the {@link
-         * PlaceMarker} in both the map and the list view as the row becomes visible.
+         * {@link Place} instance via {@link Row.Builder#setMetadata}. The host will display the
+         * {@link PlaceMarker} in both the map and the list view as the row becomes visible.
          *
          * <h4>Requirements</h4>
          *
          * This template allows up to 6 {@link Row}s in the {@link ItemList}. The host will
-         * ignore any
-         * items over that limit. The list itself cannot be selectable as set via {@link
-         * ItemList.Builder#setSelectable}. Each {@link Row} can add up to 2 lines of texts via
-         * {@link
-         * Row.Builder#addText} and cannot contain a {@link Toggle}.
+         * ignore any items over that limit. The list itself cannot be selectable as set via {@link
+         * ItemList.Builder#setOnSelectedListener}. Each {@link Row} can add up to 2 lines of texts
+         * via {@link Row.Builder#addText} and cannot contain a {@link Toggle}.
          *
          * <p>Images of type {@link Row#IMAGE_TYPE_LARGE} are not allowed in this template.
          *
          * <p>Rows are not allowed to have both and an image and a place marker.
          *
          * <p>All non-browsable rows must have a {@link DistanceSpan} attached to either its
-         * title or
-         * texts to indicate the distance of the point of interest from the current location. A
-         * row is
-         * browsable when it's configured like so with {@link Row.Builder#setBrowsable(boolean)}.
+         * title or texts to indicate the distance of the point of interest from the current
+         * location. A row is browsable when it's configured like so with
+         * {@link Row.Builder#setBrowsable(boolean)}.
          *
          * @throws IllegalArgumentException if {@code itemList} does not meet the template's
          *                                  requirements.
