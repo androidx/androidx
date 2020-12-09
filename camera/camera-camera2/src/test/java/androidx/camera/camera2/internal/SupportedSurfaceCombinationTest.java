@@ -2076,6 +2076,37 @@ public final class SupportedSurfaceCombinationTest {
                 mMaximumVideoSize);
     }
 
+    @Test
+    public void canGet640x480_whenAnotherGroupMatchedInMod16Exists()
+            throws CameraUnavailableException {
+        Size[] supportedSizes = new Size[]{
+                new Size(4000, 3000),
+                new Size(3840, 2160),
+                new Size(1920, 1080),
+                new Size(1024, 738), // This will create a 512/269 aspect ratio group that
+                // 640x480 will be considered to match in mod16 condition.
+                new Size(800, 600),
+                new Size(640, 480),
+                new Size(320, 240)
+        };
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+                SENSOR_ORIENTATION_90, LANDSCAPE_PIXEL_ARRAY_SIZE, supportedSizes, null);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
+
+        // Sets the target resolution as 640x480 with target rotation as ROTATION_90 because the
+        // sensor orientation is 90.
+        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetResolution(
+                mAnalysisSize).setTargetRotation(Surface.ROTATION_90).build();
+
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        Collections.singletonList(useCase.getCurrentConfig()));
+
+        // Checks 640x480 is final selected for the use case.
+        assertThat(suggestedResolutionMap.get(useCase.getCurrentConfig())).isEqualTo(mAnalysisSize);
+    }
+
     private void setupCamera(int hardwareLevel) {
         setupCamera(hardwareLevel, SENSOR_ORIENTATION_90, LANDSCAPE_PIXEL_ARRAY_SIZE,
                 mSupportedSizes, null);
