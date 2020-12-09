@@ -25,6 +25,7 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -586,20 +587,31 @@ class FragmentStateManager {
             Log.d(TAG, "moveto RESUMED: " + mFragment);
         }
         View focusedView = mFragment.getFocusedView();
-        if (focusedView != null) {
+        if (focusedView != null && isFragmentViewChild(focusedView)) {
             boolean success = focusedView.requestFocus();
             if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                 Log.v(FragmentManager.TAG, "requestFocus: Restoring focused view "
                         + focusedView + " " + (success ? "succeeded" : "failed") + " on Fragment "
                         + mFragment + " resulting in focused view " + mFragment.mView.findFocus());
             }
-            mFragment.setFocusedView(null);
         }
+        mFragment.setFocusedView(null);
         mFragment.performResume();
         mDispatcher.dispatchOnFragmentResumed(mFragment, false);
         mFragment.mSavedFragmentState = null;
         mFragment.mSavedViewState = null;
         mFragment.mSavedViewRegistryState = null;
+    }
+
+    private boolean isFragmentViewChild(@NonNull View view) {
+        ViewParent parent = view.getParent();
+        while (parent != null) {
+            if (parent == mFragment.mView) {
+                return true;
+            }
+            parent = parent.getParent();
+        }
+        return false;
     }
 
     void pause() {
