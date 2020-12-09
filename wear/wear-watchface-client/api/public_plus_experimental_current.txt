@@ -84,6 +84,7 @@ package androidx.wear.watchface.client {
 
   public interface InteractiveWatchFaceWcsClient extends java.lang.AutoCloseable {
     method public android.os.IBinder asBinder();
+    method public void bringAttentionToComplication(int complicationId);
     method public default static androidx.wear.watchface.client.InteractiveWatchFaceWcsClient createFromBinder(android.os.IBinder binder);
     method public default Integer? getComplicationIdAt(@Px int x, @Px int y);
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationState();
