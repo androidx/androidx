@@ -19,6 +19,7 @@ package androidx.car.app.model;
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
+import android.os.Looper;
 import android.os.RemoteException;
 
 import androidx.annotation.Keep;
@@ -46,12 +47,15 @@ public class Toggle {
     private final boolean mIsChecked;
 
     /**
-     * Constructs a new builder of {@link Toggle}.
+     * Constructs a new builder of {@link Toggle} with the given {@link OnCheckedChangeListener}.
+     *
+     * <p>Note that the listener relates to UI events and will be executed on the main thread
+     * using {@link Looper#getMainLooper()}.z
      *
      * @throws NullPointerException if {@code onCheckedChangeListener} is {@code null}.
      */
     @NonNull
-    @SuppressLint("ExecutorRegistration") // this listener is for transport to the host only.
+    @SuppressLint("ExecutorRegistration")
     public static Builder builder(@NonNull OnCheckedChangeListener onCheckedChangeListener) {
         return new Builder(requireNonNull(onCheckedChangeListener));
     }
@@ -126,14 +130,14 @@ public class Toggle {
 
         /**
          * Sets the {@link OnCheckedChangeListener} to call when the checked state of the
-         * {@link Toggle}
-         * is changed.
+         * {@link Toggle} is changed.
+         *
+         * <p>Note that the listener relates to UI events and will be executed on the main thread
+         * using {@link Looper#getMainLooper()}.
          *
          * @throws NullPointerException if {@code onCheckedChangeListener} is {@code null}.
          */
         @NonNull
-        // Returned listener is a {@link OnCheckedChangeListenerWrapper}, which is required by
-        // the host to provide a success/failure callback for onCheckChange events.
         @SuppressLint({"ExecutorRegistration"})
         public Builder setOnCheckedChangeListener(
                 @NonNull OnCheckedChangeListener onCheckedChangeListener) {
