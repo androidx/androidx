@@ -24,16 +24,21 @@ import android.security.keystore.KeyProperties
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators
 import androidx.biometric.BiometricPrompt
+import androidx.biometric.integration.testapp.TestUtils.KEYSTORE_INSTANCE
+import androidx.biometric.integration.testapp.TestUtils.KEY_LOG_TEXT
+import androidx.biometric.integration.testapp.TestUtils.KEY_NAME
+import androidx.biometric.integration.testapp.TestUtils.PAYLOAD
+import androidx.biometric.integration.testapp.TestUtils.getCipher
+import androidx.biometric.integration.testapp.TestUtils.getSecretKey
+import androidx.biometric.integration.testapp.TestUtils.toAuthenticationStatusString
+import androidx.biometric.integration.testapp.TestUtils.toDataString
 import androidx.fragment.app.FragmentActivity
 import java.nio.charset.Charset
-import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator.getInstance
-import javax.crypto.SecretKey
 
 /**
  * Main activity for the AndroidX Biometric test app.
@@ -253,67 +258,5 @@ class BiometricTestActivity : FragmentActivity() {
     @SuppressLint("SetTextI18n")
     private fun log(message: CharSequence) {
         logView.text = "${message}\n${logView.text}"
-    }
-
-    companion object {
-        private const val KEY_LOG_TEXT = "key_log_text"
-        private const val KEY_NAME = "mySecretKey"
-        private const val KEYSTORE_INSTANCE = "AndroidKeyStore"
-        private const val PAYLOAD = "hello"
-
-        /**
-         * Converts an authentication result object to a string that represents its contents.
-         */
-        private fun BiometricPrompt.AuthenticationResult.toDataString(): String {
-            val typeString = authenticationType.toAuthenticationTypeString()
-            return "crypto = $cryptoObject, type = $typeString"
-        }
-
-        /**
-         * Converts an authentication status code to a string that represents the status.
-         */
-        private fun Int.toAuthenticationStatusString(): String = when (this) {
-            BiometricManager.BIOMETRIC_SUCCESS -> "SUCCESS"
-            BiometricManager.BIOMETRIC_STATUS_UNKNOWN -> "STATUS_UNKNOWN"
-            BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED -> "ERROR_UNSUPPORTED"
-            BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> "ERROR_HW_UNAVAILABLE"
-            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> "ERROR_NONE_ENROLLED"
-            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> "ERROR_NO_HARDWARE"
-            BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED ->
-                "ERROR_SECURITY_UPDATE_REQUIRED"
-            else -> "Unrecognized error: $this"
-        }
-
-        /**
-         * Converts an authentication result type to a string that represents the method of
-         * authentication.
-         */
-        private fun Int.toAuthenticationTypeString(): String = when (this) {
-            BiometricPrompt.AUTHENTICATION_RESULT_TYPE_UNKNOWN -> "UNKNOWN"
-            BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC -> "BIOMETRIC"
-            BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL -> "DEVICE_CREDENTIAL"
-            else -> "Unrecognized type: $this"
-        }
-
-        /**
-         * Returns the cipher that will be used for encryption.
-         */
-        @RequiresApi(Build.VERSION_CODES.M)
-        private fun getCipher(): Cipher {
-            return Cipher.getInstance(
-                KeyProperties.KEY_ALGORITHM_AES + "/" +
-                    KeyProperties.BLOCK_MODE_CBC + "/" +
-                    KeyProperties.ENCRYPTION_PADDING_PKCS7
-            )
-        }
-
-        /**
-         * Returns the previously generated secret key from keystore.
-         */
-        private fun getSecretKey(): SecretKey {
-            val keyStore = KeyStore.getInstance(KEYSTORE_INSTANCE)
-            keyStore.load(null)
-            return keyStore.getKey(KEY_NAME, null) as SecretKey
-        }
     }
 }
