@@ -35,6 +35,7 @@
 
         <service
             android:name=".ExampleCanvasAnalogWatchFaceService"
+            android:directBootAware="true"
             android:exported="true"
             android:label="@string/canvas_analog_watch_face_name"
             android:permission="android.permission.BIND_WALLPAPER">
@@ -68,6 +69,7 @@
 
         <service
             android:name=".ExampleOpenGLWatchFaceService"
+            android:directBootAware="true"
             android:exported="true"
             android:label="@string/gl_watch_face_name"
             android:permission="android.permission.BIND_WALLPAPER">
