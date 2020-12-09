@@ -956,6 +956,7 @@ package androidx.core.app {
   }
 
   public static class ShareCompat.IntentBuilder {
+    ctor public ShareCompat.IntentBuilder(android.content.Context);
     method public androidx.core.app.ShareCompat.IntentBuilder addEmailBcc(String);
     method public androidx.core.app.ShareCompat.IntentBuilder addEmailBcc(String![]);
     method public androidx.core.app.ShareCompat.IntentBuilder addEmailCc(String);
@@ -964,7 +965,7 @@ package androidx.core.app {
     method public androidx.core.app.ShareCompat.IntentBuilder addEmailTo(String![]);
     method public androidx.core.app.ShareCompat.IntentBuilder addStream(android.net.Uri);
     method public android.content.Intent createChooserIntent();
-    method public static androidx.core.app.ShareCompat.IntentBuilder from(android.app.Activity);
+    method @Deprecated public static androidx.core.app.ShareCompat.IntentBuilder from(android.app.Activity);
     method public android.content.Intent getIntent();
     method public androidx.core.app.ShareCompat.IntentBuilder setChooserTitle(CharSequence?);
     method public androidx.core.app.ShareCompat.IntentBuilder setChooserTitle(@StringRes int);
@@ -980,7 +981,9 @@ package androidx.core.app {
   }
 
   public static class ShareCompat.IntentReader {
-    method public static androidx.core.app.ShareCompat.IntentReader from(android.app.Activity);
+    ctor public ShareCompat.IntentReader(android.app.Activity);
+    ctor public ShareCompat.IntentReader(android.content.Context, android.content.Intent);
+    method @Deprecated public static androidx.core.app.ShareCompat.IntentReader from(android.app.Activity);
     method public android.content.ComponentName? getCallingActivity();
     method public android.graphics.drawable.Drawable? getCallingActivityIcon();
     method public android.graphics.drawable.Drawable? getCallingApplicationIcon();
