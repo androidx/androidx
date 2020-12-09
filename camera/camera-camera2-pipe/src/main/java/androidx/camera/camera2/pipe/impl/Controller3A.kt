@@ -87,6 +87,27 @@ class Controller3A(
         )
 
         private val result3ASubmitFailed = Result3A(FRAME_NUMBER_INVALID, Status3A.SUBMIT_FAILED)
+
+        private val aeUnlockedStateList = listOf(
+            CaptureResult.CONTROL_AE_STATE_INACTIVE,
+            CaptureResult.CONTROL_AE_STATE_SEARCHING,
+            CaptureResult.CONTROL_AE_STATE_CONVERGED,
+            CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED
+        )
+
+        private val afUnlockedStateList = listOf(
+            CaptureResult.CONTROL_AF_STATE_INACTIVE,
+            CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN,
+            CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
+            CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED,
+            CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED
+        )
+
+        private val awbUnlockedStateList = listOf(
+            CaptureResult.CONTROL_AWB_STATE_INACTIVE,
+            CaptureResult.CONTROL_AWB_STATE_SEARCHING,
+            CaptureResult.CONTROL_AWB_STATE_CONVERGED
+        )
     }
 
     // Keep track of the result associated with latest call to update3A. If update3A is called again
@@ -236,11 +257,11 @@ class Controller3A(
             graphProcessor.invalidate()
 
             debug {
-                """lock3A - waiting for
-                ${(if (aeLockBehavior.shouldWaitForAeToConverge()) " ae" else "")}
-                ${(if (afLockBehavior.shouldWaitForAfToConverge()) " af" else "")}
-                ${(if (awbLockBehavior.shouldWaitForAwbToConverge()) " awb" else "")}
-                to converge before locking them."""
+                "lock3A - waiting for" +
+                    (if (aeLockBehavior.shouldWaitForAeToConverge()) " ae" else "") +
+                    (if (afLockBehavior.shouldWaitForAfToConverge()) " af" else "") +
+                    (if (awbLockBehavior.shouldWaitForAwbToConverge()) " awb" else "") +
+                    " to converge before locking them."
             }
             val result = listener.getDeferredResult().await()
             debug {
@@ -255,6 +276,53 @@ class Controller3A(
         }
 
         return lock3ANow(aeLockBehavior, afLockBehavior, awbLockBehavior, frameLimit, timeLimitMsNs)
+    }
+
+    /**
+     * This method unlocks ae, af and awb, as specified by setting the corresponding parameter to
+     * true.
+     *
+     * There are two requests involved in this operation, (a) a single request with af trigger =
+     * cancel, to unlock af, and then (a) a repeating request to unlock ae, awb.
+     */
+    suspend fun unlock3A(
+        ae: Boolean? = null,
+        af: Boolean? = null,
+        awb: Boolean? = null
+    ): Deferred<Result3A> {
+        check(ae == true || af == true || awb == true) { "No parameter has value as true" }
+        // If we explicitly need to unlock af first before proceeding to lock it, we need to send
+        // a single request with TRIGGER = TRIGGER_CANCEL so that af can start a fresh scan.
+        if (af == true) {
+            debug { "unlock3A - sending a request to unlock af first." }
+            if (!graphProcessor.submit(parameterForAfTriggerCancel)) {
+                debug { "unlock3A - request to unlock af failed, returning early." }
+                return CompletableDeferred(result3ASubmitFailed)
+            }
+        }
+
+        // As needed unlock ae, awb and wait for ae, af and awb to converge.
+        val unlocked3AExitConditions = createUnLocked3AExitConditions(
+            ae == true,
+            af == true,
+            awb == true
+        )
+        val listener = Result3AStateListenerImpl(unlocked3AExitConditions)
+        graphListener3A.addListener(listener)
+
+        // Update the 3A state of the camera graph and invalidate the repeating request with the
+        // new state.
+        val aeLockValue = if (ae == true) false else null
+        val awbLockValue = if (awb == true) false else null
+        if (aeLockValue != null || awbLockValue != null) {
+            debug { "unlock3A - updating graph state, aeLock=$aeLockValue, awbLock=$awbLockValue" }
+            graphState3A.update(
+                aeLock = aeLockValue,
+                awbLock = awbLockValue
+            )
+        }
+        graphProcessor.invalidate()
+        return listener.getDeferredResult()
     }
 
     private suspend fun lock3ANow(
@@ -346,6 +414,27 @@ class Controller3A(
             exitConditionMapForLocked[CaptureResult.CONTROL_AWB_STATE] = awbLockedStateList
         }
         return exitConditionMapForLocked
+    }
+
+    private fun createUnLocked3AExitConditions(
+        ae: Boolean,
+        af: Boolean,
+        awb: Boolean
+    ): Map<CaptureResult.Key<*>, List<Any>> {
+        if (!ae && !af && !awb) {
+            return mapOf()
+        }
+        val exitConditionMapForUnLocked = mutableMapOf<CaptureResult.Key<*>, List<Any>>()
+        if (ae) {
+            exitConditionMapForUnLocked[CaptureResult.CONTROL_AE_STATE] = aeUnlockedStateList
+        }
+        if (af) {
+            exitConditionMapForUnLocked[CaptureResult.CONTROL_AF_STATE] = afUnlockedStateList
+        }
+        if (awb) {
+            exitConditionMapForUnLocked[CaptureResult.CONTROL_AWB_STATE] = awbUnlockedStateList
+        }
+        return exitConditionMapForUnLocked
     }
 
     // We create a map for the 3A modes and the desired values and leave out the keys
