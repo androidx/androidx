@@ -18,6 +18,7 @@ package androidx.wear.widget;
 
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -29,6 +30,7 @@ import androidx.wear.test.R;
 public class DismissibleFrameLayoutTestActivity extends LayoutTestActivity {
 
     public static final String EXTRA_LAYOUT_HORIZONTAL = "layout_horizontal";
+    public boolean mConsumeBackButtonUp = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,14 @@ public class DismissibleFrameLayoutTestActivity extends LayoutTestActivity {
                         horizontal ? LinearLayoutManager.HORIZONTAL : LinearLayoutManager.VERTICAL,
                         false));
         recyclerView.setAdapter(new MyRecyclerViewAdapter());
+    }
+
+    public boolean onKeyUp(int keyCode, KeyEvent evnet) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            mConsumeBackButtonUp = true;
+            return true;
+        }
+        return false;
     }
 
     private static class MyRecyclerViewAdapter
