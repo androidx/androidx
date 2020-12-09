@@ -20,6 +20,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.drawable.Icon;
+import android.os.Build;
 import android.service.notification.StatusBarNotification;
 
 import androidx.annotation.DrawableRes;
@@ -74,7 +75,14 @@ public final class OngoingActivity {
         private final Context mContext;
         private final int mNotificationId;
         private final NotificationCompat.Builder mNotificationBuilder;
-        private final OngoingActivityData mData = new OngoingActivityData();
+
+        // Ongoing Activity Data
+        private Icon mAnimatedIcon;
+        private Icon mStaticIcon;
+        private OngoingActivityStatus mStatus;
+        private PendingIntent mTouchIntent;
+        private LocusIdCompat mLocusId;
+        private int mOngoingActivityId = OngoingActivityData.DEFAULT_ID;
 
         /**
          * Construct a new empty {@link Builder}, associated with the given notification.
@@ -100,7 +108,7 @@ public final class OngoingActivity {
          */
         @NonNull
         public Builder setAnimatedIcon(@NonNull Icon animatedIcon) {
-            mData.setAnimatedIcon(animatedIcon);
+            mAnimatedIcon = animatedIcon;
             return this;
         }
 
@@ -111,7 +119,7 @@ public final class OngoingActivity {
          */
         @NonNull
         public Builder setAnimatedIcon(@DrawableRes int animatedIcon) {
-            mData.setAnimatedIcon(Icon.createWithResource(mContext, animatedIcon));
+            mAnimatedIcon = Icon.createWithResource(mContext, animatedIcon);
             return this;
         }
 
@@ -122,7 +130,7 @@ public final class OngoingActivity {
          */
         @NonNull
         public Builder setStaticIcon(@NonNull Icon staticIcon) {
-            mData.setStaticIcon(staticIcon);
+            mStaticIcon = staticIcon;
             return this;
         }
 
@@ -133,7 +141,7 @@ public final class OngoingActivity {
          */
         @NonNull
         public Builder setStaticIcon(@DrawableRes int staticIcon) {
-            mData.setStaticIcon(Icon.createWithResource(mContext, staticIcon));
+            mStaticIcon = Icon.createWithResource(mContext, staticIcon);
             return this;
         }
 
@@ -143,7 +151,7 @@ public final class OngoingActivity {
          */
         @NonNull
         public Builder setStatus(@NonNull OngoingActivityStatus status) {
-            mData.setStatus(status);
+            mStatus = status;
             return this;
         }
 
@@ -153,7 +161,7 @@ public final class OngoingActivity {
          */
         @NonNull
         public Builder setTouchIntent(@NonNull PendingIntent touchIntent) {
-            mData.setTouchIntent(touchIntent);
+            mTouchIntent = touchIntent;
             return this;
         }
 
@@ -163,7 +171,7 @@ public final class OngoingActivity {
          */
         @NonNull
         public Builder setLocusId(@NonNull LocusIdCompat locusId) {
-            mData.setLocusId(locusId);
+            mLocusId = locusId;
             return this;
         }
 
@@ -173,17 +181,54 @@ public final class OngoingActivity {
          */
         @NonNull
         public Builder setOngoingActivityId(int ongoingActivityId) {
-            mData.setOngoingActivityId(ongoingActivityId);
+            mOngoingActivityId = ongoingActivityId;
             return this;
         }
 
         /**
-         * Combine all options provided and return a new {@link OngoingActivity} object.
+         * Combine all options provided and the information in the notification if needed,
+         * return a new {@link OngoingActivity} object.
+         *
+         * @throws IllegalArgumentException if the static icon or the touch intent are not provided.
          */
         @SuppressWarnings("SyntheticAccessor")
         @NonNull
         public OngoingActivity build() {
-            return new OngoingActivity(mNotificationId, mNotificationBuilder, mData);
+            Notification notification = mNotificationBuilder.build();
+            Icon staticIcon = mStaticIcon == null ? notification.getSmallIcon() : mStaticIcon;
+            if (staticIcon == null) {
+                throw new IllegalArgumentException("Static icon should be specified.");
+            }
+
+            PendingIntent touchIntent = mTouchIntent == null
+                    ? notification.contentIntent
+                    : mTouchIntent;
+            if (touchIntent == null) {
+                throw new IllegalArgumentException("Touch intent should be specified.");
+            }
+
+            OngoingActivityStatus status = mStatus;
+            if (status == null) {
+                String text = notification.extras.getString(Notification.EXTRA_TEXT);
+                if (text != null) {
+                    status = new TextOngoingActivityStatus(text);
+                }
+            }
+
+            LocusIdCompat locusId = mLocusId;
+            if (locusId == null &&  Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                locusId = Api29Impl.getLocusId(notification);
+            }
+
+            return new OngoingActivity(mNotificationId, mNotificationBuilder,
+                    new OngoingActivityData(
+                        mAnimatedIcon,
+                        staticIcon,
+                        status,
+                        touchIntent,
+                        locusId,
+                        mOngoingActivityId
+                    ));
         }
     }
 
@@ -276,5 +321,20 @@ public final class OngoingActivity {
             int ongoingActivityId) {
         return fromExistingOngoingActivity(context,
                 (data) -> data.getOngoingActivityId() == ongoingActivityId);
+    }
+
+
+    // Inner class required to avoid VFY errors during class init.
+    @RequiresApi(29)
+    static class Api29Impl {
+        // Avoid instantiation.
+        private Api29Impl() {
+        }
+
+        @Nullable
+        private static LocusIdCompat getLocusId(@NonNull Notification notification) {
+            return notification.getLocusId() != null
+                    ? LocusIdCompat.toLocusIdCompat(notification.getLocusId()) : null;
+        }
     }
 }

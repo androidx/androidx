@@ -17,17 +17,20 @@
 package androidx.wear.ongoingactivity;
 
 import android.content.Context;
-import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.Objects;
 
 /**
  * {@link OngoingActivityStatus} representing a plain, static text.
  */
+@VersionedParcelize
 public class TextOngoingActivityStatus extends OngoingActivityStatus {
     @NonNull
+    @ParcelField(value = 1, defaultValue = "")
     private String mStr = "";
 
     public TextOngoingActivityStatus(@NonNull String str) {
@@ -49,11 +52,6 @@ public class TextOngoingActivityStatus extends OngoingActivityStatus {
     @Override
     public long getNextChangeTimeMillis(long fromTimeMillis) {
         return Long.MAX_VALUE;
-    }
-
-    @Override
-    void extend(Bundle bundle) {
-        bundle.putString(KEY_STATUS, mStr);
     }
 
     @Override
