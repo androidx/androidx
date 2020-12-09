@@ -166,6 +166,7 @@ class Main {
 
         val fileMappings = mutableSetOf<FileMapping>()
         if (rebuildTopOfTree) {
+            @Suppress("DEPRECATION")
             val tempFile = createTempFile(suffix = "zip")
             fileMappings.add(FileMapping(input, tempFile))
         } else {
