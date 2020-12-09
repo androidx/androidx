@@ -40,17 +40,17 @@ import java.util.Set;
  */
 public final class SetSchemaRequest {
     private final Set<AppSearchSchema> mSchemas;
-    private final Set<String> mSchemasNotPlatformSurfaceable;
-    private final Map<String, Set<PackageIdentifier>> mSchemasPackageAccessible;
+    private final Set<String> mSchemasNotVisibleToSystemUi;
+    private final Map<String, Set<PackageIdentifier>> mSchemasVisibleToPackages;
     private final boolean mForceOverride;
 
     SetSchemaRequest(@NonNull Set<AppSearchSchema> schemas,
-            @NonNull Set<String> schemasNotPlatformSurfaceable,
-            @NonNull Map<String, Set<PackageIdentifier>> schemasPackageAccessible,
+            @NonNull Set<String> schemasNotVisibleToSystemUi,
+            @NonNull Map<String, Set<PackageIdentifier>> schemasVisibleToPackages,
             boolean forceOverride) {
         mSchemas = Preconditions.checkNotNull(schemas);
-        mSchemasNotPlatformSurfaceable = Preconditions.checkNotNull(schemasNotPlatformSurfaceable);
-        mSchemasPackageAccessible = Preconditions.checkNotNull(schemasPackageAccessible);
+        mSchemasNotVisibleToSystemUi = Preconditions.checkNotNull(schemasNotVisibleToSystemUi);
+        mSchemasVisibleToPackages = Preconditions.checkNotNull(schemasVisibleToPackages);
         mForceOverride = forceOverride;
     }
 
@@ -62,13 +62,10 @@ public final class SetSchemaRequest {
 
     /**
      * Returns the set of schema types that have opted out of being visible on system UI surfaces.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    public Set<String> getSchemasNotPlatformSurfaceable() {
-        return Collections.unmodifiableSet(mSchemasNotPlatformSurfaceable);
+    public Set<String> getSchemasNotVisibleToSystemUi() {
+        return Collections.unmodifiableSet(mSchemasNotVisibleToSystemUi);
     }
 
     /**
@@ -77,15 +74,12 @@ public final class SetSchemaRequest {
      * name and byte[] certificate.
      *
      * This method is inefficient to call repeatedly.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    public Map<String, Set<PackageIdentifier>> getSchemasPackageAccessible() {
+    public Map<String, Set<PackageIdentifier>> getSchemasVisibleToPackages() {
         Map<String, Set<PackageIdentifier>> copy = new ArrayMap<>();
-        for (String key : mSchemasPackageAccessible.keySet()) {
-            copy.put(key, new ArraySet<>(mSchemasPackageAccessible.get(key)));
+        for (String key : mSchemasVisibleToPackages.keySet()) {
+            copy.put(key, new ArraySet<>(mSchemasVisibleToPackages.get(key)));
         }
         return copy;
     }
@@ -95,7 +89,7 @@ public final class SetSchemaRequest {
      * to that schema type. Each package is represented by a {@link PackageIdentifier}.
      * name and byte[] certificate.
      *
-     * A more efficient version of {@code #getSchemasPackageAccessible}, but it returns a
+     * A more efficient version of {@link #getSchemasVisibleToPackages}, but it returns a
      * modifiable map. This is not meant to be unhidden and should only be used by internal
      * classes.
      *
@@ -103,8 +97,8 @@ public final class SetSchemaRequest {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    public Map<String, Set<PackageIdentifier>> getSchemasPackageAccessibleInternal() {
-        return mSchemasPackageAccessible;
+    public Map<String, Set<PackageIdentifier>> getSchemasVisibleToPackagesInternal() {
+        return mSchemasVisibleToPackages;
     }
 
     /** Returns whether this request will force the schema to be overridden. */
@@ -115,8 +109,8 @@ public final class SetSchemaRequest {
     /** Builder for {@link SetSchemaRequest} objects. */
     public static final class Builder {
         private final Set<AppSearchSchema> mSchemas = new ArraySet<>();
-        private final Set<String> mSchemasNotPlatformSurfaceable = new ArraySet<>();
-        private final Map<String, Set<PackageIdentifier>> mSchemasPackageAccessible =
+        private final Set<String> mSchemasNotVisibleToSystemUi = new ArraySet<>();
+        private final Map<String, Set<PackageIdentifier>> mSchemasVisibleToPackages =
                 new ArrayMap<>();
         private boolean mForceOverride = false;
         private boolean mBuilt = false;
@@ -193,9 +187,9 @@ public final class SetSchemaRequest {
          *
          * @param schemaType The schema type to set visibility on.
          * @param visible    Whether the {@code schemaType} will be visible or not.
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        // Merged list available from getSchemasNotVisibleToSystemUi
+        @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder setSchemaTypeVisibilityForSystemUi(@NonNull String schemaType,
                 boolean visible) {
@@ -203,9 +197,9 @@ public final class SetSchemaRequest {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
 
             if (visible) {
-                mSchemasNotPlatformSurfaceable.remove(schemaType);
+                mSchemasNotVisibleToSystemUi.remove(schemaType);
             } else {
-                mSchemasNotPlatformSurfaceable.add(schemaType);
+                mSchemasNotVisibleToSystemUi.add(schemaType);
             }
             return this;
         }
@@ -216,9 +210,9 @@ public final class SetSchemaRequest {
          * @param schemaType        The schema type to set visibility on.
          * @param visible           Whether the {@code schemaType} will be visible or not.
          * @param packageIdentifier Represents the package that will be granted visibility.
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        // Merged list available from getSchemasVisibleToPackages
+        @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder setSchemaTypeVisibilityForPackage(@NonNull String schemaType,
                 boolean visible, @NonNull PackageIdentifier packageIdentifier) {
@@ -227,13 +221,13 @@ public final class SetSchemaRequest {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
 
             Set<PackageIdentifier> packageIdentifiers =
-                    mSchemasPackageAccessible.get(schemaType);
+                    mSchemasVisibleToPackages.get(schemaType);
             if (visible) {
                 if (packageIdentifiers == null) {
                     packageIdentifiers = new ArraySet<>();
                 }
                 packageIdentifiers.add(packageIdentifier);
-                mSchemasPackageAccessible.put(schemaType, packageIdentifiers);
+                mSchemasVisibleToPackages.put(schemaType, packageIdentifiers);
             } else {
                 if (packageIdentifiers == null) {
                     // Return early since there was nothing set to begin with.
@@ -242,7 +236,7 @@ public final class SetSchemaRequest {
                 packageIdentifiers.remove(packageIdentifier);
                 if (packageIdentifiers.isEmpty()) {
                     // Remove the entire key so that we don't have empty sets as values.
-                    mSchemasPackageAccessible.remove(schemaType);
+                    mSchemasVisibleToPackages.remove(schemaType);
                 }
             }
 
@@ -257,9 +251,9 @@ public final class SetSchemaRequest {
          * @return {@link SetSchemaRequest.Builder}
          * @throws AppSearchException if {@code androidx.appsearch.compiler.AppSearchCompiler}
          *                            has not generated a schema for the given data classes.
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        // Merged list available from getSchemasNotVisibleToSystemUi
+        @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder setDataClassVisibilityForSystemUi(@NonNull Class<?> dataClass,
                 boolean visible) throws AppSearchException {
@@ -279,9 +273,9 @@ public final class SetSchemaRequest {
          * @return {@link SetSchemaRequest.Builder}
          * @throws AppSearchException if {@code androidx.appsearch.compiler.AppSearchCompiler}
          *                            has not generated a schema for the given data classes.
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        // Merged list available from getSchemasVisibleToPackages
+        @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder setDataClassVisibilityForPackage(@NonNull Class<?> dataClass,
                 boolean visible, @NonNull PackageIdentifier packageIdentifier)
@@ -323,8 +317,8 @@ public final class SetSchemaRequest {
             // Verify that any schema types with visibility settings refer to a real schema.
             // Create a copy because we're going to remove from the set for verification purposes.
             Set<String> referencedSchemas = new ArraySet<>(
-                    mSchemasNotPlatformSurfaceable);
-            referencedSchemas.addAll(mSchemasPackageAccessible.keySet());
+                    mSchemasNotVisibleToSystemUi);
+            referencedSchemas.addAll(mSchemasVisibleToPackages.keySet());
 
             for (AppSearchSchema schema : mSchemas) {
                 referencedSchemas.remove(schema.getSchemaType());
@@ -337,8 +331,8 @@ public final class SetSchemaRequest {
                                 + " referenced, but were not added.");
             }
 
-            return new SetSchemaRequest(mSchemas, mSchemasNotPlatformSurfaceable,
-                    mSchemasPackageAccessible,
+            return new SetSchemaRequest(mSchemas, mSchemasNotVisibleToSystemUi,
+                    mSchemasVisibleToPackages,
                     mForceOverride);
         }
     }

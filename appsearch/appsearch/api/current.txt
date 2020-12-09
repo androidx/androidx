@@ -171,6 +171,12 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchResults query(String, androidx.appsearch.app.SearchSpec);
   }
 
+  public class PackageIdentifier {
+    ctor public PackageIdentifier(String, byte[]);
+    method public String getPackageName();
+    method public byte[] getSha256Certificate();
+  }
+
   public final class PutDocumentsRequest {
     method public java.util.List<androidx.appsearch.app.GenericDocument!> getDocuments();
   }
@@ -260,6 +266,8 @@ package androidx.appsearch.app {
 
   public final class SetSchemaRequest {
     method public java.util.Set<androidx.appsearch.app.AppSearchSchema!> getSchemas();
+    method public java.util.Set<java.lang.String!> getSchemasNotVisibleToSystemUi();
+    method public java.util.Map<java.lang.String!,java.util.Set<androidx.appsearch.app.PackageIdentifier!>!> getSchemasVisibleToPackages();
     method public boolean isForceOverride();
   }
 
@@ -270,7 +278,11 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SetSchemaRequest.Builder addSchema(androidx.appsearch.app.AppSearchSchema!...);
     method public androidx.appsearch.app.SetSchemaRequest.Builder addSchema(java.util.Collection<androidx.appsearch.app.AppSearchSchema!>);
     method public androidx.appsearch.app.SetSchemaRequest build();
+    method public androidx.appsearch.app.SetSchemaRequest.Builder setDataClassVisibilityForPackage(Class<?>, boolean, androidx.appsearch.app.PackageIdentifier) throws androidx.appsearch.exceptions.AppSearchException;
+    method public androidx.appsearch.app.SetSchemaRequest.Builder setDataClassVisibilityForSystemUi(Class<?>, boolean) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SetSchemaRequest.Builder setForceOverride(boolean);
+    method public androidx.appsearch.app.SetSchemaRequest.Builder setSchemaTypeVisibilityForPackage(String, boolean, androidx.appsearch.app.PackageIdentifier);
+    method public androidx.appsearch.app.SetSchemaRequest.Builder setSchemaTypeVisibilityForSystemUi(String, boolean);
   }
 
 }
