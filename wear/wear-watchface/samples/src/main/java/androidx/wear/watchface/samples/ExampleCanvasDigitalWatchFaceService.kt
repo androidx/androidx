@@ -42,12 +42,12 @@ import androidx.annotation.ColorInt
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
-import androidx.wear.watchface.CanvasRenderer
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.LayerMode
+import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
@@ -637,7 +637,7 @@ class ExampleDigitalWatchCanvasRenderer(
     private val watchState: WatchState,
     private val colorStyleSetting: UserStyleSetting.ListUserStyleSetting,
     private val complicationsManager: ComplicationsManager
-) : CanvasRenderer(
+) : Renderer.CanvasRenderer(
     surfaceHolder,
     userStyleRepository,
     watchState,

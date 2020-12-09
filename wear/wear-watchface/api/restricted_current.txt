@@ -30,11 +30,6 @@ package androidx.wear.watchface {
     property @UiThread public boolean isHighlighted;
   }
 
-  public abstract class CanvasRenderer extends androidx.wear.watchface.Renderer {
-    ctor public CanvasRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, int canvasType, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis);
-    method @UiThread public abstract void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar);
-  }
-
   public final class Complication {
     method public static androidx.wear.watchface.Complication.Builder createBackgroundComplicationBuilder(int id, androidx.wear.watchface.CanvasComplication renderer, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy);
     method public static androidx.wear.watchface.Complication.Builder createRoundRectComplicationBuilder(int id, androidx.wear.watchface.CanvasComplication renderer, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, android.graphics.RectF unitSquareBounds);
@@ -109,18 +104,6 @@ package androidx.wear.watchface {
     enum_constant public static final androidx.wear.watchface.DrawMode INTERACTIVE;
     enum_constant public static final androidx.wear.watchface.DrawMode LOW_BATTERY_INTERACTIVE;
     enum_constant public static final androidx.wear.watchface.DrawMode MUTE;
-  }
-
-  public abstract class GlesRenderer extends androidx.wear.watchface.Renderer {
-    ctor public GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis, int[] eglConfigAttribList, int[] eglSurfaceAttribList);
-    ctor public GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis, int[] eglConfigAttribList);
-    ctor public GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis);
-    method @UiThread public void onGlContextCreated();
-    method @UiThread public void onGlSurfaceCreated(int width, int height);
-    method @UiThread public abstract void render(android.icu.util.Calendar calendar);
-  }
-
-  public final class GlesRendererKt {
   }
 
   public final class GlesTextureComplication {
@@ -201,8 +184,7 @@ package androidx.wear.watchface {
   public static final class RenderParameters.Companion {
   }
 
-  public abstract class Renderer {
-    ctor public Renderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis);
+  public abstract sealed class Renderer {
     method public final float getCenterX();
     method public final float getCenterY();
     method public final long getInteractiveDrawModeUpdateDelayMillis();
@@ -222,6 +204,23 @@ package androidx.wear.watchface {
     property public final androidx.wear.watchface.RenderParameters renderParameters;
     property public final android.graphics.Rect screenBounds;
     property public final android.view.SurfaceHolder surfaceHolder;
+  }
+
+  public abstract static class Renderer.CanvasRenderer extends androidx.wear.watchface.Renderer {
+    ctor public Renderer.CanvasRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, int canvasType, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis);
+    method @UiThread public abstract void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar);
+  }
+
+  public abstract static class Renderer.GlesRenderer extends androidx.wear.watchface.Renderer {
+    ctor public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis, int[] eglConfigAttribList, int[] eglSurfaceAttribList);
+    ctor public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis, int[] eglConfigAttribList);
+    ctor public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis);
+    method @UiThread public void onGlContextCreated();
+    method @UiThread public void onGlSurfaceCreated(int width, int height);
+    method @UiThread public abstract void render(android.icu.util.Calendar calendar);
+  }
+
+  public final class RendererKt {
   }
 
   public final class WatchFace {
