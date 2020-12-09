@@ -50,7 +50,7 @@ public class ImageTest {
     @Test
     public fun backgroundImage() {
         val icon = Icon.createWithContentUri("icon")
-        val image = BackgroundImage.Builder(icon).build()
+        val image = PhotoImage.Builder(icon).build()
         assertThat(image.image).isEqualTo(icon)
     }
 }

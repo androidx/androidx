@@ -524,7 +524,7 @@ public class SmallImageComplicationData internal constructor(
 }
 
 /**
- * Type used for complications which consist only of a [BackgroundImage].
+ * Type used for complications which consist only of a [PhotoImage].
  *
  * The image is expected to always be displayed. The image may be shown as the background, any
  * other part of the watch face or within a complication. The image is large enough to be cover
@@ -535,21 +535,30 @@ public class SmallImageComplicationData internal constructor(
  * empty content description. If no content description is provided, a generic content
  * description will be used instead.
  */
-public class BackgroundImageComplicationData internal constructor(
-    public val image: BackgroundImage,
+public class PhotoImageComplicationData internal constructor(
+    public val image: PhotoImage,
     public val contentDescription: ComplicationText?,
+    tapAction: PendingIntent?,
     validTimeRange: TimeRange?
-) : ComplicationData(TYPE, null, validTimeRange) {
+) : ComplicationData(TYPE, tapAction, validTimeRange) {
     /**
-     * Builder for [BackgroundImageComplicationData].
+     * Builder for [PhotoImageComplicationData].
      *
      * You must at a minimum set the [icon] field.
      */
-    public class Builder(private val icon: BackgroundImage) {
+    public class Builder(private val icon: PhotoImage) {
+        private var tapAction: PendingIntent? = null
         private var validTimeRange: TimeRange? = null
         private var contentDescription: ComplicationText? = null
 
+        /** Sets optional pending intent to be invoked when the complication is tapped. */
+        @SuppressWarnings("MissingGetterMatchingBuilder") // See http://b/174052810
+        public fun setTapAction(tapAction: PendingIntent?): Builder = apply {
+            this.tapAction = tapAction
+        }
+
         /** Sets optional time range during which the complication has to be shown. */
+        @SuppressWarnings("MissingGetterMatchingBuilder") // See http://b/174052810
         public fun setValidTimeRange(validTimeRange: TimeRange?): Builder = apply {
             this.validTimeRange = validTimeRange
         }
@@ -559,9 +568,9 @@ public class BackgroundImageComplicationData internal constructor(
             this.contentDescription = contentDescription
         }
 
-        /** Builds the [BackgroundImageComplicationData]. */
-        public fun build(): BackgroundImageComplicationData =
-            BackgroundImageComplicationData(icon, contentDescription, validTimeRange)
+        /** Builds the [PhotoImageComplicationData]. */
+        public fun build(): PhotoImageComplicationData =
+            PhotoImageComplicationData(icon, contentDescription, tapAction, validTimeRange)
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -575,7 +584,7 @@ public class BackgroundImageComplicationData internal constructor(
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
-        public val TYPE: ComplicationType = ComplicationType.BACKGROUND_IMAGE
+        public val TYPE: ComplicationType = ComplicationType.PHOTO_IMAGE
     }
 }
 
@@ -698,8 +707,8 @@ public fun WireComplicationData.asApiComplicationData(): ComplicationData =
                 setContentDescription(contentDescription?.asApiComplicationText())
             }.build()
 
-        BackgroundImageComplicationData.TYPE.asWireComplicationType() ->
-            BackgroundImageComplicationData.Builder(parseLargeImage()!!).apply {
+        PhotoImageComplicationData.TYPE.asWireComplicationType() ->
+            PhotoImageComplicationData.Builder(parseLargeImage()!!).apply {
                 setValidTimeRange(parseTimeRange())
                 setContentDescription(contentDescription?.asApiComplicationText())
             }.build()
@@ -741,7 +750,7 @@ private fun WireComplicationData.parseSmallImage() =
     }
 
 private fun WireComplicationData.parseLargeImage() =
-    largeImage?.let { BackgroundImage.Builder(it).build() }
+    largeImage?.let { PhotoImage.Builder(it).build() }
 
 /** Some of the types, do not have any fields. This method provides a shorthard for that case. */
 internal fun asPlainWireComplicationData(type: ComplicationType) =
