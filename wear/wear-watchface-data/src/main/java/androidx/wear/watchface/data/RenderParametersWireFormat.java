@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -39,7 +40,6 @@ import java.util.List;
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public class RenderParametersWireFormat implements VersionedParcelable, Parcelable {
-    /** */
     private static final int NO_COMPLICATION_ID = -1;
 
     /** Wire format for {@link androidx.wear.watchface.DrawMode}. */
@@ -55,6 +55,12 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
     int mHighlightedComplicationId;
 
     /**
+     * Specifies the tint for any highlight.
+     */
+    @ParcelField(3)
+    int mHighlightTint;
+
+    /**
      * Wire format for Map<{@link androidx.wear.watchface.style.Layer},
      * {@link androidx.wear.watchface.LayerMode}>.
      *
@@ -66,18 +72,19 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
     @ParcelField(100)
     List<LayerParameterWireFormat> mLayerParameters;
 
-
     RenderParametersWireFormat() {
     }
 
     public RenderParametersWireFormat(
             int drawMode,
             @NonNull List<LayerParameterWireFormat> layerParameters,
-            @Nullable Integer highlightedComplicationId) {
+            @Nullable Integer highlightedComplicationId,
+            @ColorInt int highlightTint) {
         mDrawMode = drawMode;
         mLayerParameters = layerParameters;
         mHighlightedComplicationId = (highlightedComplicationId != null)
                 ? highlightedComplicationId : NO_COMPLICATION_ID;
+        mHighlightTint = highlightTint;
     }
 
     public int getDrawMode() {
@@ -88,6 +95,11 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
     public Integer getHighlightedComplicationId() {
         return (mHighlightedComplicationId == NO_COMPLICATION_ID) ? null :
                 mHighlightedComplicationId;
+    }
+
+    @ColorInt
+    public int getHighlightTint() {
+        return mHighlightTint;
     }
 
     @NonNull

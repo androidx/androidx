@@ -21,6 +21,7 @@ import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.Point
 import android.graphics.Rect
 import android.icu.util.Calendar
@@ -612,7 +613,12 @@ internal class WatchFaceImpl(
             newDrawMode = DrawMode.MUTE
         }
         renderer.renderParameters =
-            RenderParameters(newDrawMode, RenderParameters.DRAW_ALL_LAYERS, null)
+            RenderParameters(
+                newDrawMode,
+                RenderParameters.DRAW_ALL_LAYERS,
+                null,
+                Color.BLACK // Required by the constructor but unused.
+            )
     }
 
     /** @hide */

@@ -16,6 +16,8 @@
 
 package androidx.wear.watchface
 
+import android.graphics.Color
+import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.Layer
@@ -48,7 +50,8 @@ public enum class LayerMode {
     DRAW,
 
     /**
-     * This layer should be rendered with highlighting (used by the editor). See also
+     * This layer should be rendered with highlighting (used by the editor) using
+     * [RenderParameters.highlightTint]. See also
      * [RenderParameters.highlightedComplicationId] for use in combination with
      * [Layer.COMPLICATIONS].
      */
@@ -77,7 +80,11 @@ public class RenderParameters constructor(
      */
     @SuppressWarnings("AutoBoxing")
     @get:SuppressWarnings("AutoBoxing")
-    public val highlightedComplicationId: Int?
+    public val highlightedComplicationId: Int?,
+
+    /** Specifies the tint should be used for highlights. */
+    @ColorInt
+    public val highlightTint: Int
 ) {
     public companion object {
         /** A layerParameters map where all Layers have [LayerMode.DRAW]. */
@@ -88,7 +95,7 @@ public class RenderParameters constructor(
         /** Default RenderParameters which draws everything in interactive mode. */
         @JvmField
         public val DEFAULT_INTERACTIVE: RenderParameters =
-            RenderParameters(DrawMode.INTERACTIVE, DRAW_ALL_LAYERS, null)
+            RenderParameters(DrawMode.INTERACTIVE, DRAW_ALL_LAYERS, null, Color.RED)
     }
 
     /** @hide */
@@ -99,7 +106,8 @@ public class RenderParameters constructor(
             { Layer.values()[it.layer] },
             { LayerMode.values()[it.layerMode] }
         ),
-        wireFormat.highlightedComplicationId
+        wireFormat.highlightedComplicationId,
+        wireFormat.highlightTint
     )
 
     /** @hide */
@@ -112,6 +120,7 @@ public class RenderParameters constructor(
                 it.value.ordinal
             )
         },
-        highlightedComplicationId
+        highlightedComplicationId,
+        highlightTint
     )
 }
