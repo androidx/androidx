@@ -114,6 +114,7 @@ public abstract class CameraController {
      */
     @UseExperimental(markerClass = ExperimentalVideo.class)
     @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(flag = true, value = {IMAGE_CAPTURE, IMAGE_ANALYSIS, VIDEO_CAPTURE})
     public @interface UseCases {
     }
