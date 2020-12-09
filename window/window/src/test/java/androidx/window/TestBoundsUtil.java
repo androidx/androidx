@@ -24,11 +24,10 @@ import java.util.List;
 /**
  * A utility class to provide bounds for a display feature
  */
-class TestBoundUtil {
+class TestBoundsUtil {
 
     public static Rect validFoldBound(Rect windowBounds) {
-        int verticalMid = windowBounds.top + windowBounds.height() / 2;
-        return new Rect(windowBounds.left, verticalMid, windowBounds.right, verticalMid);
+        return new Rect(windowBounds.left, windowBounds.top, windowBounds.right, 0);
     }
 
     public static Rect invalidZeroBound() {
@@ -39,7 +38,7 @@ class TestBoundUtil {
         return new Rect(windowBounds.left, windowBounds.top, windowBounds.right / 2, 2);
     }
 
-    public static Rect invalidBoundShortHeight(Rect windowBounds) {
+    public static Rect invalidBoundShortHeightHeight(Rect windowBounds) {
         return new Rect(windowBounds.left, windowBounds.top, 2, windowBounds.bottom / 2);
     }
 
@@ -48,7 +47,7 @@ class TestBoundUtil {
 
         badBounds.add(invalidZeroBound());
         badBounds.add(invalidBoundShortWidth(windowBounds));
-        badBounds.add(invalidBoundShortHeight(windowBounds));
+        badBounds.add(invalidBoundShortHeightHeight(windowBounds));
 
         return badBounds;
     }
