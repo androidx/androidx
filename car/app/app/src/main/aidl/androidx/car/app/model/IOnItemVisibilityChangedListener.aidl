@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.car.app;
+package androidx.car.app.model;
 
-import androidx.annotation.NonNull;
+import androidx.car.app.IOnDoneCallback;
 
-/**
- * A host-side interface for reporting to clients that the checked state has changed.
- */
-public interface OnCheckedChangeListenerWrapper {
-    /**
-     * Notifies that checked state has changed.
-     *
-     * @param isChecked the updated checked state.
-     * @param callback  the {@link OnDoneCallback} to trigger when the client finishes handling
-     *                  the event.
-     */
-    void onCheckedChange(boolean isChecked, @NonNull OnDoneCallback callback);
+/** @hide */
+oneway interface IOnItemVisibilityChangedListener {
+  /**
+   * A callback for when the range of items that are visible in the UI changes.
+   */
+  void onItemVisibilityChanged(int startIndexInclusive, int endIndexExclusive,
+          IOnDoneCallback callback) = 1;
 }
