@@ -604,6 +604,9 @@ class FragmentStateManager {
     }
 
     private boolean isFragmentViewChild(@NonNull View view) {
+        if (view == mFragment.mView) {
+            return true;
+        }
         ViewParent parent = view.getParent();
         while (parent != null) {
             if (parent == mFragment.mView) {
