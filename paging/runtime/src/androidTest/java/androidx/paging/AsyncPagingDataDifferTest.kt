@@ -579,4 +579,69 @@ class AsyncPagingDataDifferTest {
             job.cancel()
         }
     }
+
+    @Test
+    fun listUpdateCallbackSynchronouslyUpdates() = testScope.runBlockingTest {
+        pauseDispatcher {
+            // Keep track of .snapshot() result within each ListUpdateCallback
+            val initialSnapshot: ItemSnapshotList<Int> = ItemSnapshotList(0, 0, emptyList())
+            var onInsertedSnapshot = initialSnapshot
+            var onRemovedSnapshot = initialSnapshot
+
+            val listUpdateCallback = object : ListUpdateCallback {
+                lateinit var differ: AsyncPagingDataDiffer<Int>
+
+                override fun onChanged(position: Int, count: Int, payload: Any?) {
+                    // TODO: Trigger this callback so we can assert state at this point as well
+                }
+
+                override fun onMoved(fromPosition: Int, toPosition: Int) {
+                    // TODO: Trigger this callback so we can assert state at this point as well
+                }
+
+                override fun onInserted(position: Int, count: Int) {
+                    onInsertedSnapshot = differ.snapshot()
+                }
+
+                override fun onRemoved(position: Int, count: Int) {
+                    onRemovedSnapshot = differ.snapshot()
+                }
+            }
+
+            val differ = AsyncPagingDataDiffer(
+                diffCallback = object : DiffUtil.ItemCallback<Int>() {
+                    override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+
+                    override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+                },
+                updateCallback = listUpdateCallback,
+                mainDispatcher = Dispatchers.Main,
+                workerDispatcher = Dispatchers.Main,
+            ).also {
+                listUpdateCallback.differ = it
+            }
+
+            // Initial insert; this only triggers onInserted
+            differ.submitData(PagingData.from(listOf(0)))
+            advanceUntilIdle()
+
+            val firstList = ItemSnapshotList(0, 0, listOf(0))
+            assertEquals(firstList, differ.snapshot())
+            assertEquals(firstList, onInsertedSnapshot)
+            assertEquals(initialSnapshot, onRemovedSnapshot)
+
+            // Switch item to 1; this triggers onInserted + onRemoved
+            differ.submitData(PagingData.from(listOf(1)))
+            advanceUntilIdle()
+
+            val secondList = ItemSnapshotList(0, 0, listOf(1))
+            assertEquals(secondList, differ.snapshot())
+            assertEquals(secondList, onInsertedSnapshot)
+            assertEquals(secondList, onRemovedSnapshot)
+        }
+    }
 }
