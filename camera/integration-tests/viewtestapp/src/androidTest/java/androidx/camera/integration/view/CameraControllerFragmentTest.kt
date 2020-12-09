@@ -24,6 +24,7 @@ import android.net.Uri
 import android.os.Build
 import android.view.Surface
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraX
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -107,6 +108,7 @@ class CameraControllerFragmentTest {
     fun tearDown() {
         if (::fragmentScenario.isInitialized) {
             fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
+            CameraX.shutdown().get(10, TimeUnit.SECONDS)
         }
     }
 
@@ -463,10 +465,7 @@ class CameraControllerFragmentTest {
         return FragmentScenario.launchInContainer(
             CameraControllerFragment::class.java, null, R.style.AppTheme,
             null
-        ).also {
-            it.moveToState(Lifecycle.State.CREATED)
-            it.moveToState(Lifecycle.State.RESUMED)
-        }
+        )
     }
 
     private fun FragmentScenario<CameraControllerFragment>.getFragment(): CameraControllerFragment {
