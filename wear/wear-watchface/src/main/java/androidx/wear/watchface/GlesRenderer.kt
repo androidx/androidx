@@ -53,12 +53,9 @@ private val EGL_CONTEXT_ATTRIB_LIST =
 
 internal val EGL_SURFACE_ATTRIB_LIST = intArrayOf(EGL14.EGL_NONE)
 
-/**
- * Watch faces that require [GLES20] rendering should extend their [Renderer] from this
- * class.
- */
+/** Watch faces that require [GLES20] rendering should extend their [Renderer] from this class. */
 public abstract class GlesRenderer @JvmOverloads constructor(
-    /** The [SurfaceHolder] that [render] will draw into. */
+    /** The [SurfaceHolder] whose [android.view.Surface] [render] will draw into. */
     surfaceHolder: SurfaceHolder,
 
     /** The associated [UserStyleRepository]. */
@@ -77,7 +74,7 @@ public abstract class GlesRenderer @JvmOverloads constructor(
     @IntRange(from = 0, to = 10000)
     interactiveDrawModeUpdateDelayMillis: Long,
 
-    /** Attributes for [EGL14.eglChooseConfig]. By default this selects an RGBAB8888 back buffer. */
+    /** Attributes for [EGL14.eglChooseConfig]. By default this selects an RGBA8888 back buffer. */
     private val eglConfigAttribList: IntArray = EGL_CONFIG_ATTRIB_LIST,
 
     /** The attributes to be passed to [EGL14.eglCreateWindowSurface]. By default this is empty. */
@@ -194,8 +191,8 @@ public abstract class GlesRenderer @JvmOverloads constructor(
     }
 
     /**
-     * Sets our GL context to be the current one. This method *must* be called before any
-     * OpenGL APIs are used.
+     * Sets our GL context to be the current one. This method *must* be called before any OpenGL
+     * APIs are used.
      */
     private fun makeContextCurrent() {
         if (!EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)) {
@@ -302,8 +299,8 @@ public abstract class GlesRenderer @JvmOverloads constructor(
 
     /**
      * Sub-classes should override this to implement their rendering logic which should respect
-     * the current [DrawMode]. For correct functioning watch faces must use the supplied
-     * [Calendar] and avoid using any other ways of getting the time.
+     * the current [DrawMode]. For correct functioning the GlesRenderer must use the supplied
+     * [Calendar] in favor of any other ways of getting the time.
      *
      * @param calendar The current [Calendar]
      */

@@ -35,13 +35,17 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
- * Connects to a watch face's WatchFaceControlService which allows the user to control the
- * watch face.
+ * Connects to a watch face's WatchFaceControlService which allows the user to control the watch
+ * face.
  */
 public interface WatchFaceControlClient : AutoCloseable {
 
     public companion object {
-        /** Constructs a client which connects to a watch face in the given android package. */
+        /**
+         * Constructs a [WatchFaceControlClient] which attempts to connect to a watch face in the
+         * android package [watchFacePackageName]. If this fails the [ListenableFuture]s returned by
+         * WatchFaceControlClient methods will fail with [ServiceNotBoundException].
+         */
         @JvmStatic
         public fun createWatchFaceControlClient(
             /** Calling application's [Context]. */

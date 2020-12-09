@@ -135,8 +135,8 @@ public abstract class Renderer(
     ): Bitmap
 
     /**
-     * Called when the [DrawMode] has been updated. Will always be called before the first
-     * call to onDraw().
+     * Called when the [RenderParameters] has been updated. Will always be called before the first
+     * call to [CanvasRenderer.render] or [GlesRenderer.render].
      */
     @UiThread
     protected open fun onRenderParametersChanged(renderParameters: RenderParameters) {
@@ -176,7 +176,10 @@ public abstract class Renderer(
     public open fun shouldAnimate(): Boolean =
         watchState.isVisible.value && !watchState.isAmbient.value
 
-    /** Schedules a call to [renderInternal] to draw the next frame. */
+    /**
+     * Schedules a call to either [CanvasRenderer.render] or [GlesRenderer.render] to draw the next
+     * frame.
+     */
     @UiThread
     public fun invalidate() {
         if (this::watchFaceHostApi.isInitialized) {
