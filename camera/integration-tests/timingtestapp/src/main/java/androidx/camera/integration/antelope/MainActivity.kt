@@ -38,21 +38,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.integration.antelope.cameracontrollers.camera2Abort
 import androidx.camera.integration.antelope.cameracontrollers.cameraXAbort
 import androidx.camera.integration.antelope.cameracontrollers.closeAllCameras
+import androidx.camera.integration.antelope.databinding.ActivityMainBinding
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.espresso.idling.CountingIdlingResource
-import kotlinx.android.synthetic.main.activity_main.button_abort
-import kotlinx.android.synthetic.main.activity_main.button_multi
-import kotlinx.android.synthetic.main.activity_main.button_single
-import kotlinx.android.synthetic.main.activity_main.progress_test
-import kotlinx.android.synthetic.main.activity_main.scroll_log
-import kotlinx.android.synthetic.main.activity_main.surface_preview
-import kotlinx.android.synthetic.main.activity_main.text_log
-import kotlinx.android.synthetic.main.activity_main.texture_preview
-
-private const val REQUEST_CAMERA_PERMISSION = 1
-private const val REQUEST_FILE_WRITE_PERMISSION = 2
 
 /**
  * Main Antelope Activity
@@ -120,12 +110,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    lateinit var binding: ActivityMainBinding
+
     /**
      * Check camera permissions and set up UI
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         camViewModel = ViewModelProvider(this)
             .get(CamViewModel::class.java)
@@ -137,7 +131,7 @@ class MainActivity : AppCompatActivity() {
             setupCameraNames()
         }
 
-        button_single.setOnClickListener {
+        binding.buttonSingle.setOnClickListener {
             val testDiag = SettingsDialog.newInstance(
                 SettingsDialog.DIALOG_TYPE_SINGLE,
                 getString(R.string.settings_single_test_dialog_title),
@@ -146,7 +140,7 @@ class MainActivity : AppCompatActivity() {
             testDiag.show(supportFragmentManager, SettingsDialog.DIALOG_TYPE_SINGLE)
         }
 
-        button_multi.setOnClickListener {
+        binding.buttonMulti.setOnClickListener {
             val testDiag = SettingsDialog.newInstance(
                 SettingsDialog.DIALOG_TYPE_MULTI,
                 getString(R.string.settings_multi_test_dialog_title),
@@ -155,16 +149,13 @@ class MainActivity : AppCompatActivity() {
             testDiag.show(supportFragmentManager, SettingsDialog.DIALOG_TYPE_MULTI)
         }
 
-        button_abort.setOnClickListener {
+        binding.buttonAbort.setOnClickListener {
             abortTests()
         }
 
         // Human readable report
-        val humanReadableReportObserver = object : Observer<String> {
-            override fun onChanged(newReport: String?) {
-                text_log.text = newReport ?: ""
-            }
-        }
+        val humanReadableReportObserver =
+            Observer<String> { newReport -> binding.textLog.text = newReport ?: "" }
         camViewModel.getHumanReadableReport().observe(this, humanReadableReportObserver)
     }
 
@@ -325,11 +316,11 @@ class MainActivity : AppCompatActivity() {
     fun showProgressBar(visible: Boolean = true, percentage: Int = PROGRESS_SINGLE_PERCENTAGE) {
         runOnUiThread {
             if (visible) {
-                progress_test.progress = percentage
-                progress_test.visibility = View.VISIBLE
+                binding.progressTest.progress = percentage
+                binding.progressTest.visibility = View.VISIBLE
             } else {
-                progress_test.progress = 0
-                progress_test.visibility = View.INVISIBLE
+                binding.progressTest.progress = 0
+                binding.progressTest.visibility = View.INVISIBLE
             }
         }
     }
@@ -337,10 +328,10 @@ class MainActivity : AppCompatActivity() {
     /** Enable/disable controls during a test run */
     fun toggleControls(enabled: Boolean = true) {
         runOnUiThread {
-            button_multi.isEnabled = enabled
-            button_single.isEnabled = enabled
-            button_single.isEnabled = enabled
-            button_abort.isEnabled = !enabled // note: inverse of others
+            binding.buttonMulti.isEnabled = enabled
+            binding.buttonSingle.isEnabled = enabled
+            binding.buttonSingle.isEnabled = enabled
+            binding.buttonAbort.isEnabled = !enabled // note: inverse of others
         }
     }
 
@@ -414,7 +405,7 @@ class MainActivity : AppCompatActivity() {
             toggleControls(true)
             toggleRotationLock(false)
             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            progress_test.progress = 0
+            binding.progressTest.progress = 0
             showProgressBar(false)
             updateLog("\nABORTED", true)
         }
@@ -454,17 +445,17 @@ class MainActivity : AppCompatActivity() {
                 MainActivity.camViewModel.getCurrentFocusMode().postValue(focusMode)
 
             if (CameraAPI.CAMERAX == api) {
-                surface_preview.visibility = View.INVISIBLE
-                texture_preview.visibility = View.VISIBLE
+                binding.surfacePreview.visibility = View.INVISIBLE
+                binding.texturePreview.visibility = View.VISIBLE
             } else {
-                surface_preview.visibility = View.VISIBLE
-                texture_preview.visibility = View.INVISIBLE
+                binding.surfacePreview.visibility = View.VISIBLE
+                binding.texturePreview.visibility = View.INVISIBLE
             }
 
             toggleControls(false)
             toggleRotationLock(true)
-            updateLog("Running: " + testName + "\n", append, false)
-            scroll_log.fullScroll(View.FOCUS_DOWN)
+            updateLog("Running: $testName\n", append, false)
+            binding.scrollLog.fullScroll(View.FOCUS_DOWN)
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
     }
