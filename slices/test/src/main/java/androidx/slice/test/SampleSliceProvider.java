@@ -111,6 +111,8 @@ public class SampleSliceProvider extends SliceProvider {
             "contact4",
             "picker",
             "gallery",
+            "galleryimagesizemovie",
+            "galleryimagesizethumbnail",
             "galleryoverlay",
             "indeterminaterange",
             "indeterminaterange2",
@@ -218,6 +220,10 @@ public class SampleSliceProvider extends SliceProvider {
                 return createPicker(sliceUri);
             case "/gallery":
                 return createGallery(sliceUri);
+            case "/galleryimagesizemovie":
+                return createGalleryImageSizeMovie(sliceUri);
+            case "/galleryimagesizethumbnail":
+                return createGalleryImageSizeThumbnails(sliceUri);
             case "/galleryoverlay":
                 return createGalleryOverlay(sliceUri);
             case "/weather":
@@ -412,6 +418,68 @@ public class SampleSliceProvider extends SliceProvider {
         grb.setPrimaryAction(primaryAction)
                 .setSeeMoreAction(getBroadcastIntent(ACTION_TOAST, "see your gallery"))
                 .setContentDescription("Images from your trip to Hawaii");
+        return lb.addGridRow(grb).build();
+    }
+
+    private Slice createGalleryImageSizeMovie(Uri sliceUri) {
+        SliceAction primaryAction = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "open movie list"),
+                IconCompat.createWithResource(getContext(), R.drawable.slices_1),
+                LARGE_IMAGE,
+                "Open movie list");
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY)
+                .setAccentColor(0xff4285F4);
+        lb.addRow(new RowBuilder()
+                .setTitle("These movies near you")
+                .setSubtitle("Top rated Movies")
+                .setPrimaryAction(primaryAction))
+                .addAction(SliceAction.create(
+                        getBroadcastIntent(ACTION_TOAST, ""),
+                        IconCompat.createWithResource(getContext(), R.drawable.ic_cast), ICON_IMAGE,
+                        "Share movie list"));
+        GridRowBuilder grb = new GridRowBuilder();
+        grb.addCell(new CellBuilder().addImage(IconCompat.createWithResource(getContext(),
+                R.drawable.portrait), RAW_IMAGE_LARGE)
+                .addTitleText("MovieName the movie"));
+        grb.addCell(new CellBuilder().addImage(IconCompat.createWithResource(getContext(),
+                R.drawable.portrait), RAW_IMAGE_LARGE)
+                .addTitleText("MovieName the movie2"));
+        grb.addCell(new CellBuilder().addImage(IconCompat.createWithResource(getContext(),
+                R.drawable.portrait), RAW_IMAGE_LARGE)
+                .addTitleText("Amazing movie"));
+        grb.addCell(new CellBuilder().addImage(IconCompat.createWithResource(getContext(),
+                R.drawable.portrait), RAW_IMAGE_LARGE)
+                .addTitleText("Cool movie").addText("The Sequel"));
+        return lb.addGridRow(grb).build();
+    }
+
+
+    private Slice createGalleryImageSizeThumbnails(Uri sliceUri) {
+        SliceAction primaryAction = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "open video list"),
+                IconCompat.createWithResource(getContext(), R.drawable.slices_1),
+                LARGE_IMAGE,
+                "Open video list");
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY)
+                .setAccentColor(0xff4285F4);
+        lb.addRow(new RowBuilder()
+                .setTitle("Recommended videos")
+                .setSubtitle("Top rated Videos")
+                .setPrimaryAction(primaryAction))
+                .addAction(SliceAction.create(
+                        getBroadcastIntent(ACTION_TOAST, ""),
+                        IconCompat.createWithResource(getContext(), R.drawable.ic_cast), ICON_IMAGE,
+                        "Share videos"));
+        GridRowBuilder grb = new GridRowBuilder();
+        grb.addCell(new CellBuilder().addImage(IconCompat.createWithResource(getContext(),
+                R.drawable.landscape), RAW_IMAGE_LARGE)
+                .addTitleText("You won't believe this movie"));
+        grb.addCell(new CellBuilder().addImage(IconCompat.createWithResource(getContext(),
+                R.drawable.landscape), RAW_IMAGE_LARGE)
+                .addTitleText("Amazing movie"));
+        grb.addCell(new CellBuilder().addImage(IconCompat.createWithResource(getContext(),
+                R.drawable.landscape), RAW_IMAGE_LARGE)
+                .addTitleText("kittens wow"));
         return lb.addGridRow(grb).build();
     }
 
