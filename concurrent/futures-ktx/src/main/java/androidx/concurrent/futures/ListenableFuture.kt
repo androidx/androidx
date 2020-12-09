@@ -100,6 +100,6 @@ private class ToContinuation<T>(
  * If this !! throws [NullPointerException], a Future is breaking its interface contract and losing
  * state - a serious fundamental bug.
  */
-private fun ExecutionException.nonNullCause(): Throwable {
+internal fun ExecutionException.nonNullCause(): Throwable {
     return this.cause!!
 }
