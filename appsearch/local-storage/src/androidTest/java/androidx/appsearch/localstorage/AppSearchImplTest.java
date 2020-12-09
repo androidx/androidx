@@ -36,6 +36,7 @@ import com.google.android.icing.proto.SchemaTypeConfigProto;
 import com.google.android.icing.proto.SearchSpecProto;
 import com.google.android.icing.proto.StringIndexingConfig;
 import com.google.android.icing.proto.TermMatchType;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 import org.junit.Before;
@@ -45,9 +46,7 @@ import org.junit.rules.TemporaryFolder;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class AppSearchImplTest {
     @Rule
@@ -279,16 +278,16 @@ public class AppSearchImplTest {
     @Test
     public void testOptimize() throws Exception {
         // Insert schema
-        Set<AppSearchSchema> schemas =
-                Collections.singleton(new AppSearchSchema.Builder("type").build());
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
         mAppSearchImpl.setSchema("database", schemas, /*schemasNotPlatformSurfaceable=*/
-                Collections.emptySet(), /*forceOverride=*/ false);
+                Collections.emptyList(), /*forceOverride=*/ false);
 
         // Insert enough documents.
         for (int i = 0; i < AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT
                 + AppSearchImpl.CHECK_OPTIMIZE_INTERVAL; i++) {
             GenericDocument document =
-                    new GenericDocument.Builder("uri" + i, "type").setNamespace(
+                    new GenericDocument.Builder<>("uri" + i, "type").setNamespace(
                             "namespace").build();
             mAppSearchImpl.putDocument("database", document);
         }
@@ -327,20 +326,19 @@ public class AppSearchImplTest {
                 SearchSpecProto.newBuilder().setQuery("");
 
         // Insert schema
-        Set<AppSearchSchema> schemas =
-                Collections.singleton(new AppSearchSchema.Builder("type").build());
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
         mAppSearchImpl.setSchema("database", schemas, /*schemasNotPlatformSurfaceable=*/
-                Collections.emptySet(), /*forceOverride=*/ false);
+                Collections.emptyList(), /*forceOverride=*/ false);
 
         // Insert document
-        GenericDocument document = new GenericDocument.Builder("uri", "type").setNamespace(
+        GenericDocument document = new GenericDocument.Builder<>("uri", "type").setNamespace(
                 "namespace").build();
         mAppSearchImpl.putDocument("database", document);
 
         // Rewrite SearchSpec
-        mAppSearchImpl.rewriteSearchSpecForDatabasesLocked(searchSpecProto,
-                Collections.singleton(
-                        "database"));
+        mAppSearchImpl.rewriteSearchSpecForDatabasesLocked(
+                searchSpecProto, Collections.singleton("database"));
         assertThat(searchSpecProto.getSchemaTypeFiltersList()).containsExactly("database/type");
         assertThat(searchSpecProto.getNamespaceFiltersList()).containsExactly("database/namespace");
     }
@@ -351,20 +349,20 @@ public class AppSearchImplTest {
                 SearchSpecProto.newBuilder().setQuery("");
 
         // Insert schema
-        Set<AppSearchSchema> schemas = Set.of(
+        List<AppSearchSchema> schemas = ImmutableList.of(
                 new AppSearchSchema.Builder("typeA").build(),
                 new AppSearchSchema.Builder("typeB").build());
         mAppSearchImpl.setSchema("database1", schemas, /*schemasNotPlatformSurfaceable=*/
-                Collections.emptySet(), /*forceOverride=*/ false);
+                Collections.emptyList(), /*forceOverride=*/ false);
         mAppSearchImpl.setSchema("database2", schemas, /*schemasNotPlatformSurfaceable=*/
-                Collections.emptySet(), /*forceOverride=*/ false);
+                Collections.emptyList(), /*forceOverride=*/ false);
 
         // Insert documents
-        GenericDocument document1 = new GenericDocument.Builder("uri", "typeA").setNamespace(
+        GenericDocument document1 = new GenericDocument.Builder<>("uri", "typeA").setNamespace(
                 "namespace").build();
         mAppSearchImpl.putDocument("database1", document1);
 
-        GenericDocument document2 = new GenericDocument.Builder("uri", "typeB").setNamespace(
+        GenericDocument document2 = new GenericDocument.Builder<>("uri", "typeB").setNamespace(
                 "namespace").build();
         mAppSearchImpl.putDocument("database2", document2);
 
@@ -417,11 +415,11 @@ public class AppSearchImplTest {
 
     @Test
     public void testSetSchema() throws Exception {
-        Set<AppSearchSchema> schemas =
-                Collections.singleton(new AppSearchSchema.Builder("Email").build());
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("Email").build());
         // Set schema Email to AppSearch database1
         mAppSearchImpl.setSchema("database1", schemas, /*schemasNotPlatformSurfaceable=*/
-                Collections.emptySet(), /*forceOverride=*/ false);
+                Collections.emptyList(), /*forceOverride=*/ false);
 
         // Create expected schemaType proto.
         SchemaProto expectedProto = SchemaProto.newBuilder()
@@ -437,19 +435,22 @@ public class AppSearchImplTest {
 
     @Test
     public void testSetSchema_existingSchemaRetainsVisibilitySetting() throws Exception {
-        mAppSearchImpl.setSchema("database", Collections.singleton(new AppSearchSchema.Builder(
+        mAppSearchImpl.setSchema("database", Collections.singletonList(new AppSearchSchema.Builder(
                         "schema1").build()), /*schemasNotPlatformSurfaceable=*/
-                Collections.singleton("schema1"), /*forceOverride=*/ false);
+                Collections.singletonList("schema1"), /*forceOverride=*/ false);
 
         // "schema1" is platform hidden now
         assertThat(mAppSearchImpl.getVisibilityStoreLocked().getSchemasNotPlatformSurfaceable(
                 "database")).containsExactly("database/schema1");
 
         // Add a new schema, and include the already-existing "schema1"
-        mAppSearchImpl.setSchema("database", Set.of(new AppSearchSchema.Builder(
-                        "schema1").build(), new AppSearchSchema.Builder(
-                        "schema2").build()), /*schemasNotPlatformSurfaceable=*/
-                Collections.singleton("schema1"), /*forceOverride=*/ false);
+        mAppSearchImpl.setSchema(
+                "database",
+                ImmutableList.of(
+                        new AppSearchSchema.Builder("schema1").build(),
+                        new AppSearchSchema.Builder("schema2").build()),
+                /*schemasNotPlatformSurfaceable=*/ Collections.singletonList("schema1"),
+                /*forceOverride=*/ false);
 
         // Check that "schema1" is still platform hidden, but "schema2" is the default platform
         // visible.
@@ -459,12 +460,12 @@ public class AppSearchImplTest {
 
     @Test
     public void testRemoveSchema() throws Exception {
-        Set<AppSearchSchema> schemas = new HashSet<>();
-        schemas.add(new AppSearchSchema.Builder("Email").build());
-        schemas.add(new AppSearchSchema.Builder("Document").build());
+        List<AppSearchSchema> schemas = ImmutableList.of(
+                new AppSearchSchema.Builder("Email").build(),
+                new AppSearchSchema.Builder("Document").build());
         // Set schema Email and Document to AppSearch database1
         mAppSearchImpl.setSchema("database1", schemas, /*schemasNotPlatformSurfaceable=*/
-                Collections.emptySet(), /*forceOverride=*/ false);
+                Collections.emptyList(), /*forceOverride=*/ false);
 
         // Create expected schemaType proto.
         SchemaProto expectedProto = SchemaProto.newBuilder()
@@ -479,19 +480,20 @@ public class AppSearchImplTest {
         assertThat(mAppSearchImpl.getSchemaProtoLocked().getTypesList())
                 .containsExactlyElementsIn(expectedTypes);
 
-        final Set<AppSearchSchema> finalSchemas = Collections.singleton(new AppSearchSchema.Builder(
-                "Email").build());
+        final List<AppSearchSchema> finalSchemas = Collections.singletonList(
+                new AppSearchSchema.Builder(
+                        "Email").build());
         // Check the incompatible error has been thrown.
         AppSearchException e = assertThrows(AppSearchException.class, () ->
                 mAppSearchImpl.setSchema("database1",
                         finalSchemas, /*schemasNotPlatformSurfaceable=*/
-                        Collections.emptySet(), /*forceOverride=*/ false));
+                        Collections.emptyList(), /*forceOverride=*/ false));
         assertThat(e).hasMessageThat().contains("Schema is incompatible");
         assertThat(e).hasMessageThat().contains("Deleted types: [database1/Document]");
 
         // ForceOverride to delete.
         mAppSearchImpl.setSchema("database1", finalSchemas, /*schemasNotPlatformSurfaceable=*/
-                Collections.emptySet(), /*forceOverride=*/ true);
+                Collections.emptyList(), /*forceOverride=*/ true);
 
         // Check Document schema is removed.
         expectedProto = SchemaProto.newBuilder()
@@ -508,15 +510,15 @@ public class AppSearchImplTest {
     @Test
     public void testRemoveSchema_differentDataBase() throws Exception {
         // Create schemas
-        Set<AppSearchSchema> schemas = new HashSet<>();
-        schemas.add(new AppSearchSchema.Builder("Email").build());
-        schemas.add(new AppSearchSchema.Builder("Document").build());
+        List<AppSearchSchema> schemas = ImmutableList.of(
+                new AppSearchSchema.Builder("Email").build(),
+                new AppSearchSchema.Builder("Document").build());
 
         // Set schema Email and Document to AppSearch database1 and 2
         mAppSearchImpl.setSchema("database1", schemas, /*schemasNotPlatformSurfaceable=*/
-                Collections.emptySet(), /*forceOverride=*/ false);
+                Collections.emptyList(), /*forceOverride=*/ false);
         mAppSearchImpl.setSchema("database2", schemas, /*schemasNotPlatformSurfaceable=*/
-                Collections.emptySet(), /*forceOverride=*/ false);
+                Collections.emptyList(), /*forceOverride=*/ false);
 
         // Create expected schemaType proto.
         SchemaProto expectedProto = SchemaProto.newBuilder()
@@ -534,9 +536,9 @@ public class AppSearchImplTest {
                 .containsExactlyElementsIn(expectedTypes);
 
         // Save only Email to database1 this time.
-        schemas = Collections.singleton(new AppSearchSchema.Builder("Email").build());
+        schemas = Collections.singletonList(new AppSearchSchema.Builder("Email").build());
         mAppSearchImpl.setSchema("database1", schemas, /*schemasNotPlatformSurfaceable=*/
-                Collections.emptySet(), /*forceOverride=*/ true);
+                Collections.emptyList(), /*forceOverride=*/ true);
 
         // Create expected schemaType list, database 1 should only contain Email but database 2
         // remains in same.
@@ -557,9 +559,9 @@ public class AppSearchImplTest {
 
     @Test
     public void testRemoveSchema_removedFromVisibilityStore() throws Exception {
-        mAppSearchImpl.setSchema("database", Collections.singleton(new AppSearchSchema.Builder(
+        mAppSearchImpl.setSchema("database", Collections.singletonList(new AppSearchSchema.Builder(
                         "schema1").build()), /*schemasNotPlatformSurfaceable=*/
-                Collections.singleton("schema1"), /*forceOverride=*/ false);
+                Collections.singletonList("schema1"), /*forceOverride=*/ false);
 
         // "schema1" is platform hidden now
         assertThat(mAppSearchImpl.getVisibilityStoreLocked().getSchemasNotPlatformSurfaceable(
@@ -567,8 +569,8 @@ public class AppSearchImplTest {
 
         // Remove "schema1" by force overriding
         mAppSearchImpl.setSchema("database",
-                Collections.emptySet(), /*schemasNotPlatformSurfaceable=*/
-                Collections.emptySet(), /*forceOverride=*/ true);
+                Collections.emptyList(), /*schemasNotPlatformSurfaceable=*/
+                Collections.emptyList(), /*forceOverride=*/ true);
 
         // Check that "schema1" is no longer considered platform hidden
         assertThat(
@@ -577,9 +579,9 @@ public class AppSearchImplTest {
 
         // Add "schema1" back, it gets default visibility settings which means it's not platform
         // hidden.
-        mAppSearchImpl.setSchema("database", Collections.singleton(new AppSearchSchema.Builder(
+        mAppSearchImpl.setSchema("database", Collections.singletonList(new AppSearchSchema.Builder(
                         "schema1").build()), /*schemasNotPlatformSurfaceable=*/
-                Collections.emptySet(), /*forceOverride=*/ false);
+                Collections.emptyList(), /*forceOverride=*/ false);
         assertThat(
                 mAppSearchImpl.getVisibilityStoreLocked().getSchemasNotPlatformSurfaceable(
                         "database")).isEmpty();
@@ -587,9 +589,9 @@ public class AppSearchImplTest {
 
     @Test
     public void testSetSchema_defaultPlatformVisible() throws Exception {
-        mAppSearchImpl.setSchema("database", Collections.singleton(new AppSearchSchema.Builder(
+        mAppSearchImpl.setSchema("database", Collections.singletonList(new AppSearchSchema.Builder(
                         "Schema").build()), /*schemasNotPlatformSurfaceable=*/
-                Collections.emptySet(), /*forceOverride=*/ false);
+                Collections.emptyList(), /*forceOverride=*/ false);
         assertThat(
                 mAppSearchImpl.getVisibilityStoreLocked().getSchemasNotPlatformSurfaceable(
                         "database")).isEmpty();
@@ -597,9 +599,9 @@ public class AppSearchImplTest {
 
     @Test
     public void testSetSchema_platformHidden() throws Exception {
-        mAppSearchImpl.setSchema("database", Collections.singleton(new AppSearchSchema.Builder(
+        mAppSearchImpl.setSchema("database", Collections.singletonList(new AppSearchSchema.Builder(
                         "Schema").build()), /*schemasNotPlatformSurfaceable=*/
-                Collections.singleton("Schema"), /*forceOverride=*/ false);
+                Collections.singletonList("Schema"), /*forceOverride=*/ false);
         assertThat(mAppSearchImpl.getVisibilityStoreLocked().getSchemasNotPlatformSurfaceable(
                 "database")).containsExactly("database/Schema");
     }
@@ -609,9 +611,9 @@ public class AppSearchImplTest {
         // Nothing exists yet
         assertThat(mAppSearchImpl.hasSchemaTypeLocked("database", "Schema")).isFalse();
 
-        mAppSearchImpl.setSchema("database", Collections.singleton(new AppSearchSchema.Builder(
+        mAppSearchImpl.setSchema("database", Collections.singletonList(new AppSearchSchema.Builder(
                         "Schema").build()), /*schemasNotPlatformSurfaceable=*/
-                Collections.emptySet(), /*forceOverride=*/ false);
+                Collections.emptyList(), /*forceOverride=*/ false);
         assertThat(mAppSearchImpl.hasSchemaTypeLocked("database", "Schema")).isTrue();
 
         assertThat(mAppSearchImpl.hasSchemaTypeLocked("database", "UnknownSchema")).isFalse();
@@ -624,16 +626,16 @@ public class AppSearchImplTest {
                 VisibilityStore.DATABASE_NAME);
 
         // Has database1
-        mAppSearchImpl.setSchema("database1", Collections.singleton(new AppSearchSchema.Builder(
+        mAppSearchImpl.setSchema("database1", Collections.singletonList(new AppSearchSchema.Builder(
                         "schema").build()), /*schemasNotPlatformSurfaceable=*/
-                Collections.emptySet(), /*forceOverride=*/ false);
+                Collections.emptyList(), /*forceOverride=*/ false);
         assertThat(mAppSearchImpl.getDatabasesLocked()).containsExactly(
                 VisibilityStore.DATABASE_NAME, "database1");
 
         // Has both databases
-        mAppSearchImpl.setSchema("database2", Collections.singleton(new AppSearchSchema.Builder(
+        mAppSearchImpl.setSchema("database2", Collections.singletonList(new AppSearchSchema.Builder(
                         "schema").build()), /*schemasNotPlatformSurfaceable=*/
-                Collections.emptySet(), /*forceOverride=*/ false);
+                Collections.emptyList(), /*forceOverride=*/ false);
         assertThat(mAppSearchImpl.getDatabasesLocked()).containsExactly(
                 VisibilityStore.DATABASE_NAME, "database1", "database2");
     }

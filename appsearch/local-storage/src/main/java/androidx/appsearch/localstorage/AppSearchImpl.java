@@ -61,6 +61,7 @@ import com.google.android.icing.proto.SetSchemaResultProto;
 import com.google.android.icing.proto.StatusProto;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -232,17 +233,19 @@ public final class AppSearchImpl {
      *                                      which do not comply with the new schema will be deleted.
      * @throws AppSearchException on IcingSearchEngine error.
      */
-    public void setSchema(@NonNull String databaseName, @NonNull Set<AppSearchSchema> schemas,
-            @NonNull Set<String> schemasNotPlatformSurfaceable,
+    public void setSchema(
+            @NonNull String databaseName,
+            @NonNull List<AppSearchSchema> schemas,
+            @NonNull List<String> schemasNotPlatformSurfaceable,
             boolean forceOverride) throws AppSearchException {
         mReadWriteLock.writeLock().lock();
         try {
             SchemaProto.Builder existingSchemaBuilder = getSchemaProtoLocked().toBuilder();
 
             SchemaProto.Builder newSchemaBuilder = SchemaProto.newBuilder();
-            for (AppSearchSchema schema : schemas) {
+            for (int i = 0; i < schemas.size(); i++) {
                 SchemaTypeConfigProto schemaTypeProto =
-                        SchemaToProtoConverter.toSchemaTypeConfigProto(schema);
+                        SchemaToProtoConverter.toSchemaTypeConfigProto(schemas.get(i));
                 newSchemaBuilder.addTypes(schemaTypeProto);
             }
 
@@ -281,8 +284,9 @@ public final class AppSearchImpl {
             String databasePrefix = getDatabasePrefix(databaseName);
             Set<String> qualifiedSchemasNotPlatformSurfaceable =
                     new ArraySet<>(schemasNotPlatformSurfaceable.size());
-            for (String schema : schemasNotPlatformSurfaceable) {
-                qualifiedSchemasNotPlatformSurfaceable.add(databasePrefix + schema);
+            for (int i = 0; i < schemasNotPlatformSurfaceable.size(); i++) {
+                qualifiedSchemasNotPlatformSurfaceable.add(
+                        databasePrefix + schemasNotPlatformSurfaceable.get(i));
             }
             mVisibilityStoreLocked.setVisibility(databaseName,
                     qualifiedSchemasNotPlatformSurfaceable);
@@ -310,7 +314,7 @@ public final class AppSearchImpl {
      * @throws AppSearchException on IcingSearchEngine error.
      */
     @NonNull
-    public Set<AppSearchSchema> getSchema(@NonNull String databaseName) throws AppSearchException {
+    public List<AppSearchSchema> getSchema(@NonNull String databaseName) throws AppSearchException {
         SchemaProto fullSchema;
         mReadWriteLock.readLock().lock();
         try {
@@ -319,7 +323,7 @@ public final class AppSearchImpl {
             mReadWriteLock.readLock().unlock();
         }
 
-        Set<AppSearchSchema> result = new ArraySet<>();
+        List<AppSearchSchema> result = new ArrayList<>();
         for (int i = 0; i < fullSchema.getTypesCount(); i++) {
             String typeDatabase = getDatabaseName(fullSchema.getTypes(i).getSchemaType());
             if (!databaseName.equals(typeDatabase)) {
