@@ -114,6 +114,7 @@ dependencies {
     implementation(INTELLIJ_ANNOTATIONS)
     testImplementation(GOOGLE_COMPILE_TESTING)
     testImplementation projectOrArtifact(":paging:paging-common")
+    testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(JUNIT)
     testImplementation(JSR250)
     testImplementation(MOCKITO_CORE)

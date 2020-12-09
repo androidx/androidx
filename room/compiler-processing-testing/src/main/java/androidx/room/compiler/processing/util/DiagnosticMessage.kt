@@ -14,22 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.room.compiler.processing.ksp
+package androidx.room.compiler.processing.util
 
 import androidx.room.compiler.processing.XElement
-import androidx.room.compiler.processing.XMessager
-import com.google.devtools.ksp.processing.KSPLogger
-import javax.tools.Diagnostic
 
-internal class KspMessager(
-    private val logger: KSPLogger
-) : XMessager() {
-    override fun onPrintMessage(kind: Diagnostic.Kind, msg: String, element: XElement?) {
-        val ksNode = (element as? KspElement)?.declaration
-        when (kind) {
-            Diagnostic.Kind.ERROR -> logger.error(msg, ksNode)
-            Diagnostic.Kind.WARNING -> logger.warn(msg, ksNode)
-            else -> logger.info(msg, ksNode)
-        }
-    }
-}
+/**
+ * Holder for diagnostics messages
+ */
+data class DiagnosticMessage(
+    val msg: String,
+    val element: XElement?
+)

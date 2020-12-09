@@ -20,7 +20,7 @@ import androidx.room.compiler.processing.util.CONTINUATION_CLASS_NAME
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.UNIT_CLASS_NAME
 import androidx.room.compiler.processing.util.getMethod
-import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ParameterizedTypeName
@@ -43,7 +43,7 @@ class XExecutableTypeTest {
             abstract class Subject : MyInterface<String>
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(
+        runProcessorTest(
             sources = listOf(src)
         ) { invocation ->
             val myInterface = invocation.processingEnv.requireTypeElement("MyInterface")
@@ -112,7 +112,7 @@ class XExecutableTypeTest {
             abstract class NullableSubject: MyInterface<String?>
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val myInterface = invocation.processingEnv.requireTypeElement("MyInterface")
 
             // helper method to get executable types both from sub class and also as direct child of
