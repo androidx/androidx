@@ -21,11 +21,16 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
+import com.google.devtools.ksp.symbol.Modifier
 
 /**
  * Returns the type of a property as if it is member of the given [ksType].
  */
 internal fun KSPropertyDeclaration.typeAsMemberOf(resolver: Resolver, ksType: KSType): KSType {
+    // see: https://github.com/google/ksp/issues/166
+    if (this.hasJvmStaticAnnotation() || modifiers.contains(Modifier.JAVA_STATIC)) {
+        return type.resolve()
+    }
     return resolver.asMemberOf(
         property = this,
         containing = ksType
@@ -51,6 +56,10 @@ internal fun KSFunctionDeclaration.returnTypeAsMemberOf(
     resolver: Resolver,
     ksType: KSType
 ): KSType {
+    // see: https://github.com/google/ksp/issues/166
+    if (this.hasJvmStaticAnnotation() || modifiers.contains(Modifier.JAVA_STATIC)) {
+        return returnType?.resolve() ?: error("cannot find return type for $this")
+    }
     return resolver.asMemberOf(
         function = this,
         containing = ksType

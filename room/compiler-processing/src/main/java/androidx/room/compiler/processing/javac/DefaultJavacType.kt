@@ -56,4 +56,13 @@ internal class DefaultJavacType private constructor(
     override val equalityItems by lazy {
         arrayOf(typeMirror)
     }
+
+    override fun copyWithNullability(nullability: XNullability): JavacType {
+        return DefaultJavacType(
+            env = env,
+            typeMirror = typeMirror,
+            kotlinType = kotlinType,
+            nullability = nullability
+        )
+    }
 }
