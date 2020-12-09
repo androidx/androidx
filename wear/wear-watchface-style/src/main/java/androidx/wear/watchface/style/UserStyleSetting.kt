@@ -163,6 +163,7 @@ public sealed class UserStyleSetting(
         }
 
         /** @hide */
+        @Suppress("HiddenAbstractMethod")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         public abstract fun toWireFormat(): UserStyleSettingWireFormat.OptionWireFormat
     }

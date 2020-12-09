@@ -40,6 +40,7 @@ import dagger.multibindings.Multibinds;
 @InstallIn(SingletonComponent.class)
 public abstract class WorkerFactoryModule {
 
+    @SuppressWarnings("HiddenAbstractMethod")
     @NonNull
     @Multibinds
     abstract Map<String, WorkerAssistedFactory<? extends ListenableWorker>> workerFactoriesMap();
