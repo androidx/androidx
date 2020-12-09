@@ -60,7 +60,7 @@ public final class ScreenManagerTest {
     @Mock
     private Screen mMockScreen3;
     @Mock
-    private OnScreenResultCallback mOnScreenResultCallback;
+    private OnScreenResultListener mOnScreenResultListener;
 
     @Mock
     private AppManager mMockAppManager;
@@ -221,10 +221,10 @@ public final class ScreenManagerTest {
     public void pushForResult_addsToStack_callsProperLifecycleMethods() {
         mLifecycleOwner.mRegistry.handleLifecycleEvent(Event.ON_RESUME);
         InOrder inOrder = inOrder(mMockScreen1, mMockScreen2, mMockAppManager,
-                mOnScreenResultCallback);
+                mOnScreenResultListener);
 
         mScreenManager.push(mScreen1);
-        mScreenManager.pushForResult(mScreen2, mOnScreenResultCallback);
+        mScreenManager.pushForResult(mScreen2, mOnScreenResultListener);
 
         inOrder.verify(mMockScreen1).dispatchLifecycleEvent(Event.ON_CREATE);
         inOrder.verify(mMockAppManager).invalidate();
@@ -249,26 +249,26 @@ public final class ScreenManagerTest {
         mLifecycleOwner.mRegistry.handleLifecycleEvent(Event.ON_RESUME);
 
         mScreenManager.push(mScreen1);
-        mScreenManager.pushForResult(mScreen2, mOnScreenResultCallback);
+        mScreenManager.pushForResult(mScreen2, mOnScreenResultListener);
 
         String result = "done";
         mScreen2.setResult(result);
 
-        verify(mOnScreenResultCallback, never()).onScreenResult(any());
+        verify(mOnScreenResultListener, never()).onScreenResult(any());
 
         mScreenManager.remove(mScreen2);
 
-        verify(mOnScreenResultCallback).onScreenResult(result);
+        verify(mOnScreenResultListener).onScreenResult(result);
     }
 
     @Test
     public void pushForResult_screenSetsResult_firstScreenGetsCalled_callsProperLifecycleMethods() {
         mLifecycleOwner.mRegistry.handleLifecycleEvent(Event.ON_RESUME);
         InOrder inOrder = inOrder(mMockScreen1, mMockScreen2, mMockAppManager,
-                mOnScreenResultCallback);
+                mOnScreenResultListener);
 
         mScreenManager.push(mScreen1);
-        mScreenManager.pushForResult(mScreen2, mOnScreenResultCallback);
+        mScreenManager.pushForResult(mScreen2, mOnScreenResultListener);
 
         String result = "foo";
         mScreen2.setResult(result);
@@ -297,7 +297,7 @@ public final class ScreenManagerTest {
         inOrder.verify(mMockScreen2).dispatchLifecycleEvent(Event.ON_PAUSE);
         inOrder.verify(mMockScreen2).dispatchLifecycleEvent(Event.ON_STOP);
 
-        inOrder.verify(mOnScreenResultCallback).onScreenResult(result);
+        inOrder.verify(mOnScreenResultListener).onScreenResult(result);
         inOrder.verify(mMockScreen2).dispatchLifecycleEvent(Event.ON_DESTROY);
         inOrder.verify(mMockScreen1).dispatchLifecycleEvent(Event.ON_RESUME);
 
@@ -634,7 +634,7 @@ public final class ScreenManagerTest {
         mLifecycleOwner.mRegistry.handleLifecycleEvent(Event.ON_RESUME);
         InOrder inOrder = inOrder(mMockScreen1, mMockAppManager);
 
-        mScreenManager.popTo(Screen.ROOT);
+        mScreenManager.popToRoot();
 
         inOrder.verifyNoMoreInteractions();
 
@@ -648,7 +648,7 @@ public final class ScreenManagerTest {
 
         mScreenManager.push(mScreen1);
 
-        mScreenManager.popTo(Screen.ROOT);
+        mScreenManager.popToRoot();
 
         // Pushing screen1
         inOrder.verify(mMockScreen1).dispatchLifecycleEvent(Event.ON_CREATE);
@@ -669,7 +669,7 @@ public final class ScreenManagerTest {
         mScreenManager.push(mScreen1);
         mScreenManager.push(mScreen2);
 
-        mScreenManager.popTo(Screen.ROOT);
+        mScreenManager.popToRoot();
 
         // Pushing screen1
         inOrder.verify(mMockScreen1).dispatchLifecycleEvent(Event.ON_CREATE);
@@ -707,7 +707,7 @@ public final class ScreenManagerTest {
         mScreenManager.push(mScreen2);
         mScreenManager.push(mScreen3);
 
-        mScreenManager.popTo(Screen.ROOT);
+        mScreenManager.popToRoot();
 
         // Pushing screen1
         inOrder.verify(mMockScreen1).dispatchLifecycleEvent(Event.ON_CREATE);
@@ -753,19 +753,19 @@ public final class ScreenManagerTest {
         mLifecycleOwner.mRegistry.handleLifecycleEvent(Event.ON_RESUME);
         InOrder inOrder =
                 inOrder(mMockScreen1, mMockScreen2, mMockScreen3, mMockAppManager,
-                        mOnScreenResultCallback);
+                        mOnScreenResultListener);
 
         mScreenManager.push(mScreen1);
 
-        mScreenManager.pushForResult(mScreen2, mOnScreenResultCallback);
+        mScreenManager.pushForResult(mScreen2, mOnScreenResultListener);
         Object result1 = "foo";
         mScreen2.setResult(result1);
 
-        mScreenManager.pushForResult(mScreen3, mOnScreenResultCallback);
+        mScreenManager.pushForResult(mScreen3, mOnScreenResultListener);
         Object result2 = "bar";
         mScreen3.setResult(result2);
 
-        mScreenManager.popTo(Screen.ROOT);
+        mScreenManager.popToRoot();
 
         // Pushing screen1
         inOrder.verify(mMockScreen1).dispatchLifecycleEvent(Event.ON_CREATE);
@@ -795,10 +795,10 @@ public final class ScreenManagerTest {
 
         inOrder.verify(mMockScreen3).dispatchLifecycleEvent(Event.ON_PAUSE);
         inOrder.verify(mMockScreen3).dispatchLifecycleEvent(Event.ON_STOP);
-        inOrder.verify(mOnScreenResultCallback).onScreenResult(result2);
+        inOrder.verify(mOnScreenResultListener).onScreenResult(result2);
         inOrder.verify(mMockScreen3).dispatchLifecycleEvent(Event.ON_DESTROY);
 
-        inOrder.verify(mOnScreenResultCallback).onScreenResult(result1);
+        inOrder.verify(mOnScreenResultListener).onScreenResult(result1);
         inOrder.verify(mMockScreen2).dispatchLifecycleEvent(Event.ON_DESTROY);
 
         inOrder.verify(mMockScreen1).dispatchLifecycleEvent(Event.ON_RESUME);
