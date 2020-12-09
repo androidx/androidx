@@ -38,7 +38,6 @@ import android.util.SparseArray;
 
 import androidx.annotation.ChecksSdkIntAtLeast;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
@@ -69,7 +68,7 @@ public final class Checksums {
      * Trust any Installer to provide checksums for the package.
      * @see #getChecksums
      */
-    public static final @Nullable List<Certificate> TRUST_ALL = Collections.singletonList(null);
+    public static final @NonNull List<Certificate> TRUST_ALL = Collections.singletonList(null);
 
     /**
      * Don't trust any Installer to provide checksums for the package.
