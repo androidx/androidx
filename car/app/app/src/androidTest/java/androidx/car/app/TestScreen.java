@@ -31,8 +31,8 @@ public class TestScreen extends Screen {
 
     @NonNull
     @Override
-    public Template getTemplate() {
-        return mScreenForMocking.getTemplate();
+    public Template onGetTemplate() {
+        return mScreenForMocking.onGetTemplate();
     }
 
     @Override

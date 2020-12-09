@@ -41,8 +41,8 @@ import androidx.car.app.serialization.Bundleable;
  * <p>This fake allows sending a {@link PendingIntent} as if the user clicked on a notification
  * action.
  *
- * <p>It will also perform expected host behaviors such as calling {@link Screen#getTemplate} after
- * {@link AppManager#invalidate} is called.
+ * <p>It will also perform expected host behaviors such as calling {@link Screen#onGetTemplate}
+ * after {@link AppManager#invalidate} is called.
  */
 public class FakeHost {
     private final ICarHost.Stub mCarHost = new TestCarHost();
@@ -122,7 +122,7 @@ public class FakeHost {
             Screen top = mTestCarContext.getCarService(TestScreenManager.class).getTop();
             mTestCarContext
                     .getCarService(TestAppManager.class)
-                    .addTemplateReturned(top, top.getTemplate());
+                    .addTemplateReturned(top, top.onGetTemplate());
         }
 
         @Override

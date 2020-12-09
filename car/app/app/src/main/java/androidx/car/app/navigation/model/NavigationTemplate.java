@@ -60,7 +60,7 @@ import java.util.Objects;
  *
  * <h4>Template Restrictions</h4>
  *
- * In regard to template refreshes, as described in {@link Screen#getTemplate()}, this template
+ * In regard to template refreshes, as described in {@link Screen#onGetTemplate()}, this template
  * supports any content changes as refreshes. This allows apps to interactively update the
  * turn-by-turn instructions without the templates being counted against the template quota.
  *
