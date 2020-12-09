@@ -18,6 +18,7 @@ package androidx.car.app.navigation.model;
 
 import static androidx.car.app.TestUtils.assertDateTimeWithZoneEquals;
 import static androidx.car.app.TestUtils.createDateTimeWithZone;
+import static androidx.car.app.navigation.model.TravelEstimate.REMAINING_TIME_UNKNOWN;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -79,6 +80,45 @@ public class TravelEstimateTest {
                 TimeUnit.MILLISECONDS.toSeconds(remainingTime));
         assertThat(travelEstimate.getArrivalTimeAtDestination()).isEqualTo(arrivalTime);
         assertThat(travelEstimate.getRemainingTimeColor()).isEqualTo(CarColor.DEFAULT);
+    }
+
+    @Test
+    public void create_unknown_remaining_time_in_seconds() {
+        DateTimeWithZone arrivalTime = createDateTimeWithZone("2020-04-14T15:57:00", "US/Pacific");
+        Distance remainingDistance = Distance.create(/* displayDistance= */ 100,
+                Distance.UNIT_METERS);
+        TravelEstimate travelEstimate =
+                TravelEstimate.create(remainingDistance, REMAINING_TIME_UNKNOWN, arrivalTime);
+
+        assertThat(travelEstimate.getRemainingDistance()).isEqualTo(remainingDistance);
+        assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(REMAINING_TIME_UNKNOWN);
+        assertThat(travelEstimate.getArrivalTimeAtDestination()).isEqualTo(arrivalTime);
+        assertThat(travelEstimate.getRemainingTimeColor()).isEqualTo(CarColor.DEFAULT);
+    }
+
+    @Test
+    public void create_unknown_remaining_time() {
+        ZonedDateTime arrivalTime = ZonedDateTime.parse("2020-05-14T19:57:00-07:00[US/Pacific]");
+        Distance remainingDistance = Distance.create(/* displayDistance= */ 100,
+                Distance.UNIT_METERS);
+        TravelEstimate travelEstimate =
+                TravelEstimate.create(
+                        remainingDistance, Duration.ofSeconds(REMAINING_TIME_UNKNOWN), arrivalTime);
+
+        assertThat(travelEstimate.getRemainingDistance()).isEqualTo(remainingDistance);
+        assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(REMAINING_TIME_UNKNOWN);
+        assertDateTimeWithZoneEquals(arrivalTime, travelEstimate.getArrivalTimeAtDestination());
+        assertThat(travelEstimate.getRemainingTimeColor()).isEqualTo(CarColor.DEFAULT);
+    }
+
+    @Test
+    public void create_invalid_remaining_time() {
+        DateTimeWithZone arrivalTime = createDateTimeWithZone("2020-04-14T15:57:00", "US/Pacific");
+        Distance remainingDistance = Distance.create(/* displayDistance= */ 100,
+                Distance.UNIT_METERS);
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> TravelEstimate.builder(remainingDistance, -2, arrivalTime));
     }
 
     @Test

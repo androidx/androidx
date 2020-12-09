@@ -39,6 +39,9 @@ import java.util.Objects;
  */
 @SuppressWarnings("MissingSummary")
 public final class TravelEstimate {
+    /** A value used to represent an unknown remaining amount of time. */
+    public static final long REMAINING_TIME_UNKNOWN = -1L;
+
     @Keep
     @Nullable
     private final Distance mRemainingDistance;
@@ -59,7 +62,7 @@ public final class TravelEstimate {
      * @param remainingDistance        The estimated remaining {@link Distance} until arriving at
      *                                 the destination.
      * @param remainingTimeSeconds     The estimated time remaining until arriving at the
-     *                                 destination, in seconds.
+     *                                 destination, in seconds, or {@link #REMAINING_TIME_UNKNOWN}.
      * @param arrivalTimeAtDestination The arrival time with the time zone information provided
      *                                 for the destination.
      * @throws IllegalArgumentException if {@code remainingTimeSeconds} is a negative value.
@@ -81,7 +84,8 @@ public final class TravelEstimate {
      * @param remainingDistance        The estimated remaining {@link Distance} until arriving at
      *                                 the destination.
      * @param remainingTime            The estimated time remaining until arriving at the
-     *                                 destination.
+     *                                 destination, or {@code Duration.ofSeconds
+     *                                 (REMAINING_TIME_UNKNOWN)}.
      * @param arrivalTimeAtDestination The arrival time with the time zone information provided for
      *                                 the destination.
      * @throws IllegalArgumentException if {@code remainingTime} contains a negative duration.
@@ -158,7 +162,7 @@ public final class TravelEstimate {
     // TODO(rampara): Returned time values must be in milliseconds
     @SuppressWarnings("MethodNameUnits")
     public long getRemainingTimeSeconds() {
-        return mRemainingTimeSeconds;
+        return mRemainingTimeSeconds >= 0 ? mRemainingTimeSeconds : REMAINING_TIME_UNKNOWN;
     }
 
     @Nullable
@@ -312,9 +316,10 @@ public final class TravelEstimate {
         }
 
         private static long validateRemainingTime(long remainingTimeSeconds) {
-            if (remainingTimeSeconds < 0) {
+            if (remainingTimeSeconds < 0 && remainingTimeSeconds != REMAINING_TIME_UNKNOWN) {
                 throw new IllegalArgumentException(
-                        "Remaining time must be a larger than or equal to zero");
+                        "Remaining time must be a larger than or equal to zero, or set to"
+                                + " REMAINING_TIME_UNKNOWN");
             }
             return remainingTimeSeconds;
         }
