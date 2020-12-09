@@ -166,7 +166,7 @@ public class DetailsSupportFragment extends BaseSupportFragment {
      * Start this task when first DetailsOverviewRow is created, if there is no entrance transition
      * started, it will clear PF_ENTRANCE_TRANSITION_PENDING.
      */
-    static class WaitEnterTransitionTimeout implements Runnable {
+    static final class WaitEnterTransitionTimeout implements Runnable {
         static final long WAIT_ENTERTRANSITION_START = 200;
 
         final WeakReference<DetailsSupportFragment> mRef;
@@ -295,33 +295,65 @@ public class DetailsSupportFragment extends BaseSupportFragment {
         }
     }
 
-    TransitionListener mEnterTransitionListener = new TransitionListener() {
+    static final class EnterTransitionListener extends TransitionListener {
+        final WeakReference<DetailsSupportFragment> mFragment;
+
+        EnterTransitionListener(DetailsSupportFragment fragment) {
+            mFragment = new WeakReference<>(fragment);
+        }
+
         @Override
         public void onTransitionStart(Object transition) {
-            if (mWaitEnterTransitionTimeout != null) {
+            DetailsSupportFragment fragment = mFragment.get();
+            if (fragment == null) {
+                return;
+            }
+            if (fragment.mWaitEnterTransitionTimeout != null) {
                 // cancel task of WaitEnterTransitionTimeout, we will clearPendingEnterTransition
                 // when transition finishes.
-                mWaitEnterTransitionTimeout.mRef.clear();
+                fragment.mWaitEnterTransitionTimeout.mRef.clear();
             }
         }
 
         @Override
         public void onTransitionCancel(Object transition) {
-            mStateMachine.fireEvent(EVT_ENTER_TRANSIITON_DONE);
+            DetailsSupportFragment fragment = mFragment.get();
+            if (fragment == null) {
+                return;
+            }
+            fragment.mStateMachine.fireEvent(fragment.EVT_ENTER_TRANSIITON_DONE);
         }
 
         @Override
         public void onTransitionEnd(Object transition) {
-            mStateMachine.fireEvent(EVT_ENTER_TRANSIITON_DONE);
+            DetailsSupportFragment fragment = mFragment.get();
+            if (fragment == null) {
+                return;
+            }
+            fragment.mStateMachine.fireEvent(fragment.EVT_ENTER_TRANSIITON_DONE);
         }
-    };
+    }
 
-    TransitionListener mReturnTransitionListener = new TransitionListener() {
+    final TransitionListener mEnterTransitionListener = new EnterTransitionListener(this);
+
+    static final class ReturnTransitionListener extends TransitionListener {
+        final WeakReference<DetailsSupportFragment> mFragment;
+
+        ReturnTransitionListener(DetailsSupportFragment fragment) {
+            mFragment = new WeakReference<>(fragment);
+        }
+
         @Override
         public void onTransitionStart(Object transition) {
-            onReturnTransitionStart();
+            DetailsSupportFragment fragment = mFragment.get();
+            if (fragment == null) {
+                return;
+            }
+            fragment.onReturnTransitionStart();
         }
-    };
+    }
+
+    final TransitionListener mReturnTransitionListener = new ReturnTransitionListener(this);
 
     BrowseFrameLayout mRootView;
     View mBackgroundView;
@@ -482,6 +514,20 @@ public class DetailsSupportFragment extends BaseSupportFragment {
             });
         }
         return mRootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (mDetailsParallax != null) {
+            mDetailsParallax.setRecyclerView(null);
+        }
+        mRootView = null;
+        mBackgroundView = null;
+        mBackgroundDrawable = null;
+        mRowsSupportFragment = null;
+        mVideoSupportFragment = null;
+        mSceneAfterEntranceTransition = null;
+        super.onDestroyView();
     }
 
     /**
