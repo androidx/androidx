@@ -28,6 +28,12 @@ import javax.inject.Inject
  *
  * This object is used to maintain the key-value pairs for the most recent 3A state that is used
  * when building the requests that are sent to a CameraCaptureSession.
+ *
+ * The state is comprised of the modes, metering regions for ae, af and awb, and locks for ae and
+ * awb. We don't track the lock for af since af lock is achieved by setting 'af trigger = start' in
+ * in a request and then omitting the af trigger field in the subsequent requests doesn't disturb
+ * the af state. However for ae and awb, the lock type is boolean and should be explicitly set to
+ * 'true' in the subsequent requests once we have locked ae/awb and want them to stay locked.
  */
 @CameraGraphScope
 class GraphState3A @Inject constructor() {
@@ -37,14 +43,18 @@ class GraphState3A @Inject constructor() {
     private var aeRegions: List<MeteringRectangle>? = null
     private var afRegions: List<MeteringRectangle>? = null
     private var awbRegions: List<MeteringRectangle>? = null
+    private var aeLock: Boolean? = null
+    private var awbLock: Boolean? = null
 
     fun update(
-        aeMode: AeMode?,
-        afMode: AfMode?,
-        awbMode: AwbMode?,
-        aeRegions: List<MeteringRectangle>?,
-        afRegions: List<MeteringRectangle>?,
-        awbRegions: List<MeteringRectangle>?
+        aeMode: AeMode? = null,
+        afMode: AfMode? = null,
+        awbMode: AwbMode? = null,
+        aeRegions: List<MeteringRectangle>? = null,
+        afRegions: List<MeteringRectangle>? = null,
+        awbRegions: List<MeteringRectangle>? = null,
+        aeLock: Boolean? = null,
+        awbLock: Boolean? = null
     ) {
         synchronized(this) {
             aeMode?.let { this.aeMode = it }
@@ -53,6 +63,8 @@ class GraphState3A @Inject constructor() {
             aeRegions?.let { this.aeRegions = it }
             afRegions?.let { this.afRegions = it }
             awbRegions?.let { this.awbRegions = it }
+            aeLock?.let { this.aeLock = it }
+            awbLock?.let { this.awbLock = it }
         }
     }
 
@@ -65,6 +77,8 @@ class GraphState3A @Inject constructor() {
             aeRegions?.let { map.put(CaptureRequest.CONTROL_AE_REGIONS, it.toTypedArray()) }
             afRegions?.let { map.put(CaptureRequest.CONTROL_AF_REGIONS, it.toTypedArray()) }
             awbRegions?.let { map.put(CaptureRequest.CONTROL_AWB_REGIONS, it.toTypedArray()) }
+            aeLock?.let { map.put(CaptureRequest.CONTROL_AE_LOCK, it) }
+            awbLock?.let { map.put(CaptureRequest.CONTROL_AWB_LOCK, it) }
             return map
         }
     }
@@ -77,6 +91,8 @@ class GraphState3A @Inject constructor() {
             aeRegions?.let { builder.set(CaptureRequest.CONTROL_AE_REGIONS, it.toTypedArray()) }
             afRegions?.let { builder.set(CaptureRequest.CONTROL_AF_REGIONS, it.toTypedArray()) }
             awbRegions?.let { builder.set(CaptureRequest.CONTROL_AWB_REGIONS, it.toTypedArray()) }
+            aeLock?.let { builder.set(CaptureRequest.CONTROL_AE_LOCK, it) }
+            awbLock?.let { builder.set(CaptureRequest.CONTROL_AWB_LOCK, it) }
         }
     }
 }
