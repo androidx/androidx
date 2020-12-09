@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window;
+package androidx.window.extensions;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -23,7 +23,6 @@ import android.view.View;
 import androidx.annotation.Nullable;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class TestActivity extends Activity implements View.OnLayoutChangeListener {
 
@@ -52,49 +51,5 @@ public class TestActivity extends Activity implements View.OnLayoutChangeListene
     protected void onResume() {
         super.onResume();
         sResumeLatch.countDown();
-    }
-
-    /**
-     * Resets layout counter when waiting for a layout to happen before calling
-     * {@link #waitForLayout()}.
-     */
-    public void resetLayoutCounter() {
-        mLayoutLatch = new CountDownLatch(1);
-    }
-
-    /**
-     * Blocks and waits for the next layout to happen. {@link #resetLayoutCounter()} must be called
-     * before calling this method.
-     * @return {@code true} if the layout happened before the timeout count reached zero and
-     *         {@code false} if the waiting time elapsed before the layout happened.
-     */
-    public boolean waitForLayout() {
-        try {
-            return mLayoutLatch.await(3, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Resets layout counter when waiting for a layout to happen before calling
-     * {@link #waitForOnResume()}.
-     */
-    public static void resetResumeCounter() {
-        sResumeLatch = new CountDownLatch(1);
-    }
-
-    /**
-     * Same as {@link #waitForLayout()}, but waits for onResume() to be called for any activity of
-     * this class. This can be used to track activity re-creation.
-     * @return {@code true} if the onResume() happened before the timeout count reached zero and
-     *         {@code false} if the waiting time elapsed before the onResume() happened.
-     */
-    public static boolean waitForOnResume() {
-        try {
-            return sResumeLatch.await(3, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            return false;
-        }
     }
 }

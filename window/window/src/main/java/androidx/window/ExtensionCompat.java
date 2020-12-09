@@ -25,8 +25,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.window.extensions.ExtensionDeviceState;
 import androidx.window.extensions.ExtensionDisplayFeature;
+import androidx.window.extensions.ExtensionFoldingFeature;
 import androidx.window.extensions.ExtensionInterface;
 import androidx.window.extensions.ExtensionProvider;
 import androidx.window.extensions.ExtensionWindowLayoutInfo;
@@ -137,23 +137,20 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
                                 + rtUnregisterWindowLayoutChangeListener);
             }
 
-            // ExtensionDeviceState constructor
-            ExtensionDeviceState deviceState = new ExtensionDeviceState(
-                    ExtensionDeviceState.POSTURE_UNKNOWN);
+            // {@link ExtensionFoldingFeature} constructor
+            ExtensionFoldingFeature displayFoldingFeature =
+                    new ExtensionFoldingFeature(new Rect(0, 0, 100, 0),
+                            ExtensionFoldingFeature.TYPE_FOLD,
+                            ExtensionFoldingFeature.STATE_FLAT);
 
-            // deviceState.getPosture();
-            int tmpPosture = deviceState.getPosture();
+            // displayFoldFeature.getBounds()
+            Rect tmpRect = displayFoldingFeature.getBounds();
 
-            // ExtensionDisplayFeature constructor
-            ExtensionDisplayFeature displayFeature =
-                    new ExtensionDisplayFeature(new Rect(0, 0, 0, 0),
-                            ExtensionDisplayFeature.TYPE_FOLD);
+            // displayFoldFeature.getState()
+            int tmpState = displayFoldingFeature.getState();
 
-            // displayFeature.getBounds()
-            Rect tmpRect = displayFeature.getBounds();
-
-            // displayFeature.getType()
-            int tmpType = displayFeature.getType();
+            // displayFoldFeature.getType()
+            int tmpType = displayFoldingFeature.getType();
 
             // ExtensionWindowLayoutInfo constructor
             ExtensionWindowLayoutInfo windowLayoutInfo =

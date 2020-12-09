@@ -46,7 +46,7 @@ final class SidecarAdapter {
 
     @NonNull
     List<DisplayFeature> translate(SidecarWindowLayoutInfo sidecarWindowLayoutInfo,
-            Rect windowBounds) {
+            SidecarDeviceState deviceState, Rect windowBounds) {
         List<DisplayFeature> displayFeatures = new ArrayList<>();
         List<SidecarDisplayFeature> sidecarDisplayFeatures =
                 getSidecarDisplayFeatures(sidecarWindowLayoutInfo);
@@ -54,8 +54,9 @@ final class SidecarAdapter {
             return displayFeatures;
         }
 
-        for (SidecarDisplayFeature sidecarFeature : sidecarDisplayFeatures) {
-            final DisplayFeature displayFeature = translate(sidecarFeature, windowBounds);
+        for (SidecarDisplayFeature sidecarFeature : sidecarWindowLayoutInfo.displayFeatures) {
+            final DisplayFeature displayFeature = translate(sidecarFeature, deviceState,
+                    windowBounds);
             if (displayFeature != null) {
                 displayFeatures.add(displayFeature);
             }
@@ -123,22 +124,21 @@ final class SidecarAdapter {
 
     @NonNull
     WindowLayoutInfo translate(@NonNull Activity activity,
-            @Nullable SidecarWindowLayoutInfo extensionInfo) {
+            @Nullable SidecarWindowLayoutInfo extensionInfo, @NonNull SidecarDeviceState state) {
         if (extensionInfo == null) {
             return new WindowLayoutInfo(new ArrayList<>());
         }
 
+        SidecarDeviceState deviceState = new SidecarDeviceState();
+        deviceState.posture = state.posture;
+
         Rect windowBounds = WindowBoundsHelper.getInstance().computeCurrentWindowBounds(activity);
-        List<DisplayFeature> displayFeatures = translate(extensionInfo, windowBounds);
+        List<DisplayFeature> displayFeatures = translate(extensionInfo, deviceState, windowBounds);
         return new WindowLayoutInfo(displayFeatures);
     }
 
     @NonNull
-    DeviceState translate(@Nullable SidecarDeviceState sidecarDeviceState) {
-        if (sidecarDeviceState == null) {
-            return new DeviceState(POSTURE_UNKNOWN);
-        }
-
+    DeviceState translate(@NonNull SidecarDeviceState sidecarDeviceState) {
         int posture = postureFromSidecar(sidecarDeviceState);
         return new DeviceState(posture);
     }
@@ -214,7 +214,8 @@ final class SidecarAdapter {
      * with the value passed from extension.
      */
     @Nullable
-    private static DisplayFeature translate(SidecarDisplayFeature feature, Rect windowBounds) {
+    private static DisplayFeature translate(SidecarDisplayFeature feature,
+            SidecarDeviceState deviceState, Rect windowBounds) {
         Rect bounds = feature.getRect();
         if (bounds.width() == 0 && bounds.height() == 0) {
             if (DEBUG) {
@@ -248,6 +249,30 @@ final class SidecarAdapter {
             }
         }
 
-        return new DisplayFeature(feature.getRect(), feature.getType());
+        final int type;
+        if (feature.getType() == SidecarDisplayFeature.TYPE_HINGE) {
+            type = FoldingFeature.TYPE_HINGE;
+        } else {
+            type = FoldingFeature.TYPE_FOLD;
+        }
+
+        final int state;
+        switch (deviceState.posture) {
+            case SidecarDeviceState.POSTURE_CLOSED:
+            case SidecarDeviceState.POSTURE_UNKNOWN:
+                return null;
+            case SidecarDeviceState.POSTURE_FLIPPED:
+                state = FoldingFeature.STATE_FLIPPED;
+                break;
+            case SidecarDeviceState.POSTURE_HALF_OPENED:
+                state = FoldingFeature.STATE_HALF_OPENED;
+                break;
+            case SidecarDeviceState.POSTURE_OPENED:
+            default:
+                state = FoldingFeature.STATE_FLAT;
+                break;
+        }
+
+        return new FoldingFeature(feature.getRect(), type, state);
     }
 }

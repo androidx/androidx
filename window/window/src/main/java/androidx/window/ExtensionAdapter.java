@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.window.extensions.ExtensionDeviceState;
 import androidx.window.extensions.ExtensionDisplayFeature;
+import androidx.window.extensions.ExtensionFoldingFeature;
 import androidx.window.extensions.ExtensionWindowLayoutInfo;
 
 import java.util.ArrayList;
@@ -37,9 +38,6 @@ final class ExtensionAdapter {
     DeviceState translate(ExtensionDeviceState deviceState) {
         final int posture;
         switch (deviceState.getPosture()) {
-            case ExtensionDeviceState.POSTURE_CLOSED:
-                posture = DeviceState.POSTURE_CLOSED;
-                break;
             case ExtensionDeviceState.POSTURE_FLIPPED:
                 posture = DeviceState.POSTURE_FLIPPED;
                 break;
@@ -49,7 +47,6 @@ final class ExtensionAdapter {
             case ExtensionDeviceState.POSTURE_OPENED:
                 posture = DeviceState.POSTURE_OPENED;
                 break;
-            case ExtensionDeviceState.POSTURE_UNKNOWN:
             default:
                 posture = DeviceState.POSTURE_UNKNOWN;
         }
@@ -79,39 +76,62 @@ final class ExtensionAdapter {
     }
 
     @Nullable
-    DisplayFeature translate(Activity activity, ExtensionDisplayFeature feature) {
-        final Rect windowBounds = WindowBoundsHelper.getInstance()
-                .computeCurrentWindowBounds(activity);
-        if (!isValid(feature, windowBounds)) {
+    DisplayFeature translate(Activity activity, ExtensionDisplayFeature displayFeature) {
+        if (!(displayFeature instanceof ExtensionFoldingFeature)) {
             return null;
         }
-        int type = DisplayFeature.TYPE_FOLD;
-        switch (feature.getType()) {
-            case ExtensionDisplayFeature.TYPE_FOLD:
-                type = DisplayFeature.TYPE_FOLD;
-                break;
-            case ExtensionDisplayFeature.TYPE_HINGE:
-                type = DisplayFeature.TYPE_HINGE;
-                break;
-        }
-        return new DisplayFeature(feature.getBounds(), type);
+        ExtensionFoldingFeature feature = (ExtensionFoldingFeature) displayFeature;
+        final Rect windowBounds = WindowBoundsHelper.getInstance()
+                .computeCurrentWindowBounds(activity);
+        return translateFoldFeature(windowBounds, feature);
     }
 
-    boolean isValid(ExtensionDisplayFeature feature, Rect windowBounds) {
+    @Nullable
+    private static DisplayFeature translateFoldFeature(@NonNull Rect windowBounds,
+            @NonNull ExtensionFoldingFeature feature) {
+        if (!isValid(windowBounds, feature)) {
+            return null;
+        }
+        int type = FoldingFeature.TYPE_FOLD;
+        switch (feature.getType()) {
+            case ExtensionFoldingFeature.TYPE_FOLD:
+                type = FoldingFeature.TYPE_FOLD;
+                break;
+            case ExtensionFoldingFeature.TYPE_HINGE:
+                type = FoldingFeature.TYPE_HINGE;
+                break;
+        }
+        int state = FoldingFeature.STATE_FLAT;
+        switch (feature.getState()) {
+            case ExtensionFoldingFeature.STATE_FLAT:
+                state = FoldingFeature.STATE_FLAT;
+                break;
+            case ExtensionFoldingFeature.STATE_FLIPPED:
+                state = FoldingFeature.STATE_FLIPPED;
+                break;
+            case ExtensionFoldingFeature.STATE_HALF_OPENED:
+                state = FoldingFeature.STATE_HALF_OPENED;
+                break;
+        }
+        return new FoldingFeature(feature.getBounds(), type, state);
+    }
+
+    private static boolean isValid(Rect windowBounds, ExtensionFoldingFeature feature) {
         if (feature.getBounds().width() == 0 && feature.getBounds().height() == 0) {
             return false;
         }
-        if (feature.getType() == ExtensionDisplayFeature.TYPE_FOLD
+        if (feature.getType() == ExtensionFoldingFeature.TYPE_FOLD
                 && !feature.getBounds().isEmpty()) {
             return false;
         }
-        if (!hasMatchingDimension(feature.getBounds(), windowBounds)) {
+        if (feature.getType() != ExtensionFoldingFeature.TYPE_FOLD
+                && feature.getType() != ExtensionFoldingFeature.TYPE_HINGE) {
             return false;
         }
-        return true;
+        return hasMatchingDimension(feature.getBounds(), windowBounds);
     }
 
-    private boolean hasMatchingDimension(Rect lhs, Rect rhs) {
+    private static boolean hasMatchingDimension(Rect lhs, Rect rhs) {
         boolean matchesWidth = lhs.left == rhs.left && lhs.right == rhs.right;
         boolean matchesHeight = lhs.top == rhs.top && lhs.bottom == rhs.bottom;
         return matchesWidth || matchesHeight;
