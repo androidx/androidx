@@ -19,30 +19,36 @@ package androidx.camera.integration.uiwidgets
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.integration.uiwidgets.databinding.ActivityMainBinding
 import androidx.camera.integration.uiwidgets.rotations.LockedOrientationActivity
 import androidx.camera.integration.uiwidgets.rotations.OrientationConfigChangesOverriddenActivity
 import androidx.camera.integration.uiwidgets.rotations.UnlockedOrientationActivity
 import androidx.camera.integration.uiwidgets.viewpager.ViewPager2Activity
 import androidx.camera.integration.uiwidgets.viewpager.ViewPagerActivity
-import kotlinx.android.synthetic.main.activity_main.rotationConfigChanges
-import kotlinx.android.synthetic.main.activity_main.rotationLocked
-import kotlinx.android.synthetic.main.activity_main.rotationUnlocked
-import kotlinx.android.synthetic.main.activity_main.viewpager
-import kotlinx.android.synthetic.main.activity_main.viewpager2
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        rotationUnlocked.setOnClickListener { launch(UnlockedOrientationActivity::class.java) }
-        rotationLocked.setOnClickListener { launch(LockedOrientationActivity::class.java) }
-        rotationConfigChanges.setOnClickListener {
+        val binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        binding.rotationUnlocked.setOnClickListener {
+            launch(UnlockedOrientationActivity::class.java)
+        }
+        binding.rotationLocked.setOnClickListener {
+            launch(LockedOrientationActivity::class.java)
+        }
+        binding.rotationConfigChanges.setOnClickListener {
             launch(OrientationConfigChangesOverriddenActivity::class.java)
         }
-        viewpager.setOnClickListener { launch(ViewPagerActivity::class.java) }
-        viewpager2.setOnClickListener { launch(ViewPager2Activity::class.java) }
+        binding.viewpager.setOnClickListener {
+            launch(ViewPagerActivity::class.java)
+        }
+        binding.viewpager2.setOnClickListener {
+            launch(ViewPager2Activity::class.java)
+        }
     }
 
     private fun <A : AppCompatActivity> launch(activityClass: Class<A>) {

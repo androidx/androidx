@@ -21,13 +21,12 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import androidx.camera.integration.uiwidgets.R
+import androidx.camera.integration.uiwidgets.databinding.ActivityViewpager2Binding
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import kotlinx.android.synthetic.main.activity_viewpager2.viewPager2
 
 /** A activity uses ViewPager2 as container to include {@link CameraFragment} and
  * {@link TextViewFragment} */
@@ -41,10 +40,14 @@ class ViewPager2Activity : BaseActivity() {
         private const val REQUEST_CODE_PERMISSIONS = 6
     }
 
+    private lateinit var binding: ActivityViewpager2Binding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate.")
-        setContentView(R.layout.activity_viewpager2)
+
+        binding = ActivityViewpager2Binding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (allPermissionsGranted()) {
@@ -62,7 +65,7 @@ class ViewPager2Activity : BaseActivity() {
     }
 
     private fun setupAdapter() {
-        viewPager2.adapter = ViewPager2Adapter(this@ViewPager2Activity)
+        binding.viewPager2.adapter = ViewPager2Adapter(this@ViewPager2Activity)
     }
 
     override fun onRequestPermissionsResult(
@@ -100,11 +103,8 @@ class ViewPager2Activity : BaseActivity() {
         }
 
         override fun createFragment(position: Int): Fragment = when (position) {
-            0 ->
-                CameraFragment.newInstance()
-            1 ->
-                TextViewFragment.newInstance()
-
+            0 -> CameraFragment.newInstance()
+            1 -> TextViewFragment.newInstance()
             else -> throw IllegalArgumentException()
         }
     }

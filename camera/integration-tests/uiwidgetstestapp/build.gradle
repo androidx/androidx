@@ -20,7 +20,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("kotlin-android")
-    id("kotlin-android-extensions")
 }
 
 android {
@@ -50,10 +49,14 @@ android {
         }
     }
 
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
     // Internal library
+    implementation(KOTLIN_STDLIB)
     implementation(project(":camera:camera-camera2"))
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-view"))
