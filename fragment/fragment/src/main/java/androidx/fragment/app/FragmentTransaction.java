@@ -459,6 +459,9 @@ public abstract class FragmentTransaction {
      * provided fragment has already moved beyond {@link Lifecycle.State#INITIALIZED}, an
      * {@link IllegalArgumentException} will be thrown.</p>
      *
+     * <p>If the {@link Lifecycle.State#DESTROYED} is passed in as the {@link Lifecycle.State} an
+     * {@link IllegalArgumentException} will be thrown.</p>
+     *
      * @param fragment the fragment to have it's state capped.
      * @param state the ceiling state for the fragment.
      * @return the same FragmentTransaction instance
