@@ -37,7 +37,6 @@ import com.google.crypto.tink.aead.AeadConfig;
 import com.google.crypto.tink.aead.AesGcmKeyManager;
 import com.google.crypto.tink.daead.AesSivKeyManager;
 import com.google.crypto.tink.daead.DeterministicAeadConfig;
-import com.google.crypto.tink.daead.DeterministicAeadFactory;
 import com.google.crypto.tink.integration.android.AndroidKeysetManager;
 import com.google.crypto.tink.subtle.Base64;
 
@@ -376,8 +375,8 @@ public class EncryptedSharedPreferencesTest {
                 .withMasterKeyUri(KEYSTORE_PATH_URI + "_androidx_security_master_key_")
                 .build().getKeysetHandle();
 
-        DeterministicAead deterministicAead = DeterministicAeadFactory.getPrimitive(
-                daeadKeysetHandle);
+        DeterministicAead deterministicAead =
+                daeadKeysetHandle.getPrimitive(DeterministicAead.class);
         byte[] encryptedKey = deterministicAead.encryptDeterministically(testKey.getBytes(UTF_8),
                 tinkTestPrefs.getBytes());
         String encodedKey = Base64.encode(encryptedKey);
