@@ -219,7 +219,6 @@ package androidx.car.app.model {
     ctor public ActionStrip.Builder();
     method public androidx.car.app.model.ActionStrip.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.ActionStrip build();
-    method public androidx.car.app.model.ActionStrip.Builder clearActions();
   }
 
   public class CarColor {
@@ -434,7 +433,6 @@ package androidx.car.app.model {
   public static final class ListTemplate.Builder {
     method public androidx.car.app.model.ListTemplate.Builder addList(androidx.car.app.model.ItemList, CharSequence);
     method public androidx.car.app.model.ListTemplate build();
-    method public androidx.car.app.model.ListTemplate.Builder clearAllLists();
     method public androidx.car.app.model.ListTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip?);
     method public androidx.car.app.model.ListTemplate.Builder setHeaderAction(androidx.car.app.model.Action?);
     method public androidx.car.app.model.ListTemplate.Builder setLoading(boolean);
@@ -496,7 +494,6 @@ package androidx.car.app.model {
     ctor public Pane.Builder();
     method public androidx.car.app.model.Pane.Builder addRow(androidx.car.app.model.Row);
     method public androidx.car.app.model.Pane build();
-    method public androidx.car.app.model.Pane.Builder clearRows();
     method public androidx.car.app.model.Pane.Builder setActions(java.util.List<androidx.car.app.model.Action!>);
     method public androidx.car.app.model.Pane.Builder setLoading(boolean);
   }
@@ -597,7 +594,6 @@ package androidx.car.app.model {
   public static final class Row.Builder {
     method public androidx.car.app.model.Row.Builder addText(CharSequence);
     method public androidx.car.app.model.Row build();
-    method public androidx.car.app.model.Row.Builder clearText();
     method public androidx.car.app.model.Row.Builder setBrowsable(boolean);
     method public androidx.car.app.model.Row.Builder setImage(androidx.car.app.model.CarIcon?);
     method public androidx.car.app.model.Row.Builder setImage(androidx.car.app.model.CarIcon?, int);
@@ -1081,7 +1077,6 @@ package androidx.car.app.notification {
     ctor public CarAppExtender.Builder();
     method public androidx.car.app.notification.CarAppExtender.Builder addAction(@DrawableRes int, CharSequence, android.app.PendingIntent);
     method public androidx.car.app.notification.CarAppExtender build();
-    method public androidx.car.app.notification.CarAppExtender.Builder clearActions();
     method public androidx.car.app.notification.CarAppExtender.Builder setContentIntent(android.app.PendingIntent?);
     method public androidx.car.app.notification.CarAppExtender.Builder setContentText(CharSequence?);
     method public androidx.car.app.notification.CarAppExtender.Builder setContentTitle(CharSequence?);

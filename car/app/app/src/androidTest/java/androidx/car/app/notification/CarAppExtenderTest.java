@@ -210,31 +210,6 @@ public final class CarAppExtenderTest {
     }
 
     @Test
-    public void notification_extended_clearActions() {
-        int icon1 = R.drawable.ic_test_1;
-        CharSequence title1 = "FirstAction";
-        Intent intent1 = new Intent(INTENT_PRIMARY_ACTION);
-        PendingIntent actionIntent1 = PendingIntent.getBroadcast(mContext, 0, intent1, 0);
-
-        int icon2 = R.drawable.ic_test_2;
-        CharSequence title2 = "SecondAction";
-        Intent intent2 = new Intent(INTENT_SECONDARY_ACTION);
-        PendingIntent actionIntent2 = PendingIntent.getBroadcast(mContext, 0, intent2, 0);
-
-        NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(mContext, NOTIFICATION_CHANNEL_ID)
-                        .extend(
-                                CarAppExtender.builder()
-                                        .addAction(icon1, title1, actionIntent1)
-                                        .addAction(icon2, title2, actionIntent2)
-                                        .clearActions()
-                                        .build());
-
-        List<Action> actions = new CarAppExtender(builder.build()).getActions();
-        assertThat(actions).isEmpty();
-    }
-
-    @Test
     public void notification_extended_setImportance() {
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(mContext, NOTIFICATION_CHANNEL_ID)
