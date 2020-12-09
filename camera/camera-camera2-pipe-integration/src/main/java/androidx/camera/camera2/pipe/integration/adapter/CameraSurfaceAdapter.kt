@@ -13,22 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.camera.camera2.pipe.integration.impl
+package androidx.camera.camera2.pipe.integration.adapter
 
 import android.content.Context
+import android.graphics.ImageFormat
 import android.util.Size
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.impl.Log.debug
+import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
 import androidx.camera.core.impl.SurfaceConfig
+import androidx.camera.core.impl.SurfaceConfig.ConfigSize
 import androidx.camera.core.impl.UseCaseConfig
 
+internal val MAXIMUM_PREVIEW_SIZE = Size(1920, 1080)
+
 /**
- * Provide utilities for interacting with the set of guaranteed stream combinations.
+ * Adapt the [CameraDeviceSurfaceManager] interface to [CameraPipe].
+ *
+ * This class provides Context-specific utility methods for querying and computing supported
+ * outputs.
  */
-class StreamConfigurationMap(context: Context, cameraManager: Any?) : CameraDeviceSurfaceManager {
-    private val cameraPipe: CameraPipe = cameraManager as CameraPipe
+class CameraSurfaceAdapter(context: Context, cameraComponent: Any?) :
+    CameraDeviceSurfaceManager {
+    private val component = cameraComponent as CameraAppComponent
 
     init {
         debug { "Created StreamConfigurationMap from $context" }
@@ -37,7 +45,7 @@ class StreamConfigurationMap(context: Context, cameraManager: Any?) : CameraDevi
     override fun checkSupported(cameraId: String, surfaceConfigList: List<SurfaceConfig>): Boolean {
         // TODO: This method needs to check to see if the list of SurfaceConfig's is in the map of
         //   guaranteed stream configurations for this camera's support level.
-        return cameraPipe.cameras().findAll().contains(CameraId(cameraId))
+        return component.getAvailableCameraIds().contains(cameraId)
     }
 
     override fun transformSurfaceConfig(
@@ -48,7 +56,15 @@ class StreamConfigurationMap(context: Context, cameraManager: Any?) : CameraDevi
         // TODO: Many of the "find a stream combination that will work" is already provided by the
         //   existing camera2 implementation, and this implementation should leverage that work.
 
-        TODO("Not Implemented")
+        val configType = when (imageFormat) {
+            ImageFormat.YUV_420_888 -> SurfaceConfig.ConfigType.YUV
+            ImageFormat.JPEG -> SurfaceConfig.ConfigType.JPEG
+            ImageFormat.RAW_SENSOR -> SurfaceConfig.ConfigType.RAW
+            else -> SurfaceConfig.ConfigType.PRIV
+        }
+
+        val configSize = ConfigSize.PREVIEW
+        return SurfaceConfig.create(configType, configSize)
     }
 
     override fun getSuggestedResolutions(
@@ -59,6 +75,10 @@ class StreamConfigurationMap(context: Context, cameraManager: Any?) : CameraDevi
         // TODO: Many of the "find a stream combination that will work" is already provided by the
         //   existing camera2 implementation, and this implementation should leverage that work.
 
-        TODO("Not Implemented")
+        val sizes: MutableMap<UseCaseConfig<*>, Size> = mutableMapOf()
+        for (config in newUseCaseConfigs) {
+            sizes[config as UseCaseConfig<*>] = MAXIMUM_PREVIEW_SIZE
+        }
+        return sizes
     }
 }
