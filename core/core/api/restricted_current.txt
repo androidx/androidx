@@ -2226,6 +2226,7 @@ package androidx.core.util {
     method public static int checkArgumentInRange(int, int, int, String);
     method @IntRange(from=0) public static int checkArgumentNonnegative(int, String?);
     method @IntRange(from=0) public static int checkArgumentNonnegative(int);
+    method public static int checkFlagsArgument(int, int);
     method public static <T> T checkNotNull(T?);
     method public static <T> T checkNotNull(T?, Object);
     method public static void checkState(boolean, String?);
