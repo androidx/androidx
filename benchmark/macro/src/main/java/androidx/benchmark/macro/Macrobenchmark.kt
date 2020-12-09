@@ -17,6 +17,7 @@
 package androidx.benchmark.macro
 
 import android.content.Intent
+import android.util.Log
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Stats
 import androidx.test.platform.app.InstrumentationRegistry
@@ -69,6 +70,7 @@ public class MacrobenchmarkScope(
     }
 
     fun killProcess() {
+        Log.d(TAG, "Killing process $packageName")
         device.executeShellCommand("am force-stop $packageName")
     }
 }
@@ -121,10 +123,10 @@ fun macrobenchmark(
                     it.start()
                 }
                 measureBlock(scope)
+            } finally {
                 config.metrics.forEach {
                     it.stop()
                 }
-            } finally {
                 val iterString = iteration.toString().padStart(3, '0')
                 perfettoCollector.stop("${benchmarkName}_iter$iterString.trace")
             }
@@ -139,9 +141,14 @@ fun macrobenchmark(
         // merge each independent Map<String,Long> to one Map<String,List<Long>>
         val setOfAllKeys = results.flatMap { it.keys }.toSet()
         val listResults = setOfAllKeys.map { key ->
-            key to results.map { it[key] ?: error("Value $key missing from one iteration") }
+            // b/174175947
+            key to results.mapNotNull {
+                if (key !in it) {
+                    Log.w(TAG, "Value $key missing from one iteration {$it}")
+                }
+                it[key]
+            }
         }.toMap()
-
         val statsList = listResults.map { (metricName, values) ->
             Stats(values.toLongArray(), metricName)
         }.sortedBy { it.name }
