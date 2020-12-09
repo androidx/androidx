@@ -16,6 +16,13 @@
 
 package androidx.exifinterface.media;
 
+import static androidx.exifinterface.media.ExifInterfaceUtils.byteArrayToHexString;
+import static androidx.exifinterface.media.ExifInterfaceUtils.convertToLongArray;
+import static androidx.exifinterface.media.ExifInterfaceUtils.copy;
+import static androidx.exifinterface.media.ExifInterfaceUtils.isSupportedFormatForSavingAttributes;
+import static androidx.exifinterface.media.ExifInterfaceUtils.parseSubSeconds;
+import static androidx.exifinterface.media.ExifInterfaceUtils.startsWith;
+
 import android.annotation.SuppressLint;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -3835,21 +3842,21 @@ public class ExifInterface {
     static final byte MARKER_EOI = (byte) 0xd9;
 
     // Supported Image File Types
-    private static final int IMAGE_TYPE_UNKNOWN = 0;
-    private static final int IMAGE_TYPE_ARW = 1;
-    private static final int IMAGE_TYPE_CR2 = 2;
-    private static final int IMAGE_TYPE_DNG = 3;
-    private static final int IMAGE_TYPE_JPEG = 4;
-    private static final int IMAGE_TYPE_NEF = 5;
-    private static final int IMAGE_TYPE_NRW = 6;
-    private static final int IMAGE_TYPE_ORF = 7;
-    private static final int IMAGE_TYPE_PEF = 8;
-    private static final int IMAGE_TYPE_RAF = 9;
-    private static final int IMAGE_TYPE_RW2 = 10;
-    private static final int IMAGE_TYPE_SRW = 11;
-    private static final int IMAGE_TYPE_HEIF = 12;
-    private static final int IMAGE_TYPE_PNG = 13;
-    private static final int IMAGE_TYPE_WEBP = 14;
+    static final int IMAGE_TYPE_UNKNOWN = 0;
+    static final int IMAGE_TYPE_ARW = 1;
+    static final int IMAGE_TYPE_CR2 = 2;
+    static final int IMAGE_TYPE_DNG = 3;
+    static final int IMAGE_TYPE_JPEG = 4;
+    static final int IMAGE_TYPE_NEF = 5;
+    static final int IMAGE_TYPE_NRW = 6;
+    static final int IMAGE_TYPE_ORF = 7;
+    static final int IMAGE_TYPE_PEF = 8;
+    static final int IMAGE_TYPE_RAF = 9;
+    static final int IMAGE_TYPE_RW2 = 10;
+    static final int IMAGE_TYPE_SRW = 11;
+    static final int IMAGE_TYPE_HEIF = 12;
+    static final int IMAGE_TYPE_PNG = 13;
+    static final int IMAGE_TYPE_WEBP = 14;
 
     static {
         sFormatterPrimary = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss", Locale.US);
@@ -4694,7 +4701,7 @@ public class ExifInterface {
      * </p>
      */
     public void saveAttributes() throws IOException {
-        if (!isSupportedFormatForSavingAttributes()) {
+        if (!isSupportedFormatForSavingAttributes(mMimeType)) {
             throw new IOException("ExifInterface only supports saving attributes on JPEG, PNG, "
                     + "or WebP formats.");
         }
@@ -5152,6 +5159,10 @@ public class ExifInterface {
     /**
      * Returns parsed {@link ExifInterface#TAG_DATETIME} value as number of milliseconds since
      * Jan. 1, 1970, midnight local time.
+     *
+     * <p>Note: The return value includes the first three digits (or less depending on the length
+     * of the string) of {@link ExifInterface#TAG_SUBSEC_TIME}.
+     *
      * @return null if date time information is unavailable or invalid.
      *
      * @hide
@@ -5167,6 +5178,10 @@ public class ExifInterface {
     /**
      * Returns parsed {@link ExifInterface#TAG_DATETIME_DIGITIZED} value as number of
      * milliseconds since Jan. 1, 1970, midnight local time.
+     *
+     * <p>Note: The return value includes the first three digits (or less depending on the length
+     * of the string) of {@link ExifInterface#TAG_SUBSEC_TIME_DIGITIZED}.
+     *
      * @return null if digitized date time information is unavailable or invalid.
      *
      * @hide
@@ -5182,6 +5197,10 @@ public class ExifInterface {
     /**
      * Returns parsed {@link ExifInterface#TAG_DATETIME_ORIGINAL} value as number of
      * milliseconds since Jan. 1, 1970, midnight local time.
+     *
+     * <p>Note: The return value includes the first three digits (or less depending on the length
+     * of the string) of {@link ExifInterface#TAG_SUBSEC_TIME_ORIGINAL}.
+     *
      * @return null if original date time information is unavailable or invalid.
      *
      * @hide
@@ -5224,15 +5243,7 @@ public class ExifInterface {
             }
 
             if (subSecs != null) {
-                try {
-                    long sub = Long.parseLong(subSecs);
-                    while (sub > 1000) {
-                        sub /= 10;
-                    }
-                    msecs += sub;
-                } catch (NumberFormatException e) {
-                    // Ignored
-                }
+                msecs += parseSubSeconds(subSecs);
             }
             return msecs;
         } catch (IllegalArgumentException e) {
@@ -8072,88 +8083,5 @@ public class ExifInterface {
         } else {
             Log.e(TAG, "closeFileDescriptor is called in API < 21, which must be wrong.");
         }
-    }
-
-    /**
-     * Copies all of the bytes from {@code in} to {@code out}. Neither stream is closed.
-     * Returns the total number of bytes transferred.
-     */
-    private static int copy(InputStream in, OutputStream out) throws IOException {
-        int total = 0;
-        byte[] buffer = new byte[8192];
-        int c;
-        while ((c = in.read(buffer)) != -1) {
-            total += c;
-            out.write(buffer, 0, c);
-        }
-        return total;
-    }
-
-    /**
-     * Copies the given number of the bytes from {@code in} to {@code out}. Neither stream is
-     * closed.
-     */
-    private static void copy(InputStream in, OutputStream out, int numBytes) throws IOException {
-        int remainder = numBytes;
-        byte[] buffer = new byte[8192];
-        while (remainder > 0) {
-            int bytesToRead = Math.min(remainder, 8192);
-            int bytesRead = in.read(buffer, 0, bytesToRead);
-            if (bytesRead != bytesToRead) {
-                throw new IOException("Failed to copy the given amount of bytes from the input"
-                        + "stream to the output stream.");
-            }
-            remainder -= bytesRead;
-            out.write(buffer, 0, bytesRead);
-        }
-    }
-
-    /**
-     * Convert given int[] to long[]. If long[] is given, just return it.
-     * Return null for other types of input.
-     */
-    private static long[] convertToLongArray(Object inputObj) {
-        if (inputObj instanceof int[]) {
-            int[] input = (int[]) inputObj;
-            long[] result = new long[input.length];
-            for (int i = 0; i < input.length; i++) {
-                result[i] = input[i];
-            }
-            return result;
-        } else if (inputObj instanceof long[]) {
-            return (long[]) inputObj;
-        }
-        return null;
-    }
-
-    private static boolean startsWith(byte[] cur, byte[] val) {
-        if (cur == null || val == null) {
-            return false;
-        }
-        if (cur.length < val.length) {
-            return false;
-        }
-        for (int i = 0; i < val.length; i++) {
-            if (cur[i] != val[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static String byteArrayToHexString(byte[] bytes) {
-        StringBuilder sb = new StringBuilder(bytes.length * 2);
-        for (int i = 0; i < bytes.length; i++) {
-            sb.append(String.format("%02x", bytes[i]));
-        }
-        return sb.toString();
-    }
-
-    private boolean isSupportedFormatForSavingAttributes() {
-        if (mMimeType == IMAGE_TYPE_JPEG || mMimeType == IMAGE_TYPE_PNG
-                || mMimeType == IMAGE_TYPE_WEBP) {
-            return true;
-        }
-        return false;
     }
 }
