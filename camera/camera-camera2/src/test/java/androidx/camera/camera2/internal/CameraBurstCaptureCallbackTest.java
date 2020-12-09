@@ -117,4 +117,28 @@ public final class CameraBurstCaptureCallbackTest {
         burstCaptureCallback.onCaptureStarted(mSession, mRequest0, 0, 0);
         // No listener called.
     }
+
+    @Test
+    public void captureSequenceCallback_calledWhenSequenceCompleted() {
+        CameraBurstCaptureCallback burstCaptureCallback = new CameraBurstCaptureCallback();
+        CameraBurstCaptureCallback.CaptureSequenceCallback sequenceCallback = mock(
+                CameraBurstCaptureCallback.CaptureSequenceCallback.class);
+        burstCaptureCallback.setCaptureSequenceCallback(sequenceCallback);
+
+        burstCaptureCallback.onCaptureSequenceCompleted(mSession, 0, 0);
+
+        verify(sequenceCallback).onCaptureSequenceCompletedOrAborted(mSession, 0, false);
+    }
+
+    @Test
+    public void captureSequenceCallback_calledWhenSequenceAborted() {
+        CameraBurstCaptureCallback burstCaptureCallback = new CameraBurstCaptureCallback();
+        CameraBurstCaptureCallback.CaptureSequenceCallback sequenceCallback = mock(
+                CameraBurstCaptureCallback.CaptureSequenceCallback.class);
+        burstCaptureCallback.setCaptureSequenceCallback(sequenceCallback);
+
+        burstCaptureCallback.onCaptureSequenceAborted(mSession, 0);
+
+        verify(sequenceCallback).onCaptureSequenceCompletedOrAborted(mSession, 0, true);
+    }
 }
