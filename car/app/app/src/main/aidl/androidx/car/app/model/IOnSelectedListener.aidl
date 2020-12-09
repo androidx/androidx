@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.car.app;
+package androidx.car.app.model;
 
 import androidx.car.app.IOnDoneCallback;
 

@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.car.app;
+package androidx.car.app.model;
 
 import androidx.annotation.NonNull;
+import androidx.car.app.OnDoneCallback;
 
 /**
- * A host-side interface for reporting to clients that an item was selected.
+ * A host-side interface for reporting to clients that the checked state has changed.
  */
-public interface OnSelectedListenerWrapper {
+public interface OnCheckedChangeListenerWrapper {
     /**
-     * Notifies that an item was selected.
+     * Notifies that checked state has changed.
      *
-     * <p>This event is called even if the selection did not change, for example, if the user
-     * selected an already selected item.
-     *
-     * @param selectedIndex the index of the selected item.
-     * @param callback      the {@link OnDoneCallback} to trigger when the client finishes handling
-     *                      the event.
+     * @param isChecked the updated checked state.
+     * @param callback  the {@link OnDoneCallback} to trigger when the client finishes handling
+     *                  the event.
      */
-    void onSelected(int selectedIndex, @NonNull OnDoneCallback callback);
+    void onCheckedChange(boolean isChecked, @NonNull OnDoneCallback callback);
 }
