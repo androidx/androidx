@@ -46,6 +46,10 @@ object KspTypeMapper {
         "kotlin.Double" to TypeName.DOUBLE,
         "kotlin.Boolean" to TypeName.BOOLEAN
     )
+    private val javaPrimitiveQNames = kotlinTypeToJavaPrimitiveMapping
+        .values.mapTo(mutableSetOf()) {
+            it.toString()
+        }
 
     init {
         // https://kotlinlang.org/docs/reference/java-interop.html#mapped-types
@@ -84,7 +88,5 @@ object KspTypeMapper {
 
     fun getPrimitiveJavaTypeName(kotlinType: String) = kotlinTypeToJavaPrimitiveMapping[kotlinType]
 
-    fun isJavaPrimitiveType(qName: String) = mapping[qName]?.let {
-        kotlinTypeToJavaPrimitiveMapping[it]
-    } != null
+    fun isJavaPrimitiveType(qName: String) = javaPrimitiveQNames.contains(qName)
 }
