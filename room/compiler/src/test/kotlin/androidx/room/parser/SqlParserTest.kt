@@ -228,46 +228,104 @@ class SqlParserTest {
     }
 
     @Test
+    fun selectMultipleBindingParameter() {
+        SqlParser.parse("SELECT * FROM Foo WHERE id IN (:param1) AND bar = :param2").let {
+            assertThat(it.inputs.size, `is`(2))
+            assertThat(it.inputs[0].isMultiple, `is`(true))
+            assertThat(it.inputs[1].isMultiple, `is`(false))
+        }
+        SqlParser.parse("SELECT * FROM Foo WHERE id NOT IN (:param1)").let {
+            assertThat(it.inputs.size, `is`(1))
+            assertThat(it.inputs[0].isMultiple, `is`(true))
+        }
+        SqlParser.parse("SELECT * FROM Foo WHERE id IN ('a', :param1, 'c')").let {
+            assertThat(it.inputs.size, `is`(1))
+            assertThat(it.inputs[0].isMultiple, `is`(true))
+        }
+        SqlParser.parse("SELECT (:param1), ifnull(:param2, data) FROM Foo").let {
+            assertThat(it.inputs.size, `is`(2))
+            assertThat(it.inputs[0].isMultiple, `is`(true))
+            assertThat(it.inputs[1].isMultiple, `is`(false))
+        }
+        SqlParser.parse("SELECT max(:param1) FROM Foo").let {
+            assertThat(it.inputs.size, `is`(1))
+            assertThat(it.inputs[0].isMultiple, `is`(true))
+        }
+        SqlParser.parse("SELECT * FROM Foo JOIN Bar ON (Foo.id = Bar.id) GROUP BY (:param1)").let {
+            assertThat(it.inputs.size, `is`(1))
+            assertThat(it.inputs[0].isMultiple, `is`(true))
+        }
+        SqlParser.parse("SELECT MAX(:param1) AS num FROM Foo WHERE num > ABS(:param2)").let {
+            assertThat(it.inputs.size, `is`(2))
+            assertThat(it.inputs[0].isMultiple, `is`(true))
+            assertThat(it.inputs[1].isMultiple, `is`(false))
+        }
+        SqlParser.parse("SELECT * FROM Foo WHERE num > customFun(:param)").let {
+            assertThat(it.inputs.size, `is`(1))
+            assertThat(it.inputs[0].isMultiple, `is`(true))
+        }
+    }
+
+    @Test
+    fun insertMultipleBindingParameter() {
+        val query = SqlParser.parse("INSERT INTO Foo VALUES (:param)")
+        assertThat(query.inputs.size, `is`(1))
+        assertThat(query.inputs.first().isMultiple, `is`(true))
+    }
+
+    @Test
     fun foo() {
         assertSections(
             "select * from users where name like ?",
             Section.text("select * from users where name like "),
-            Section.bindVar("?")
+            Section.bindVar("?", false)
         )
         assertSections(
             "select * from users where name like :name AND last_name like :lastName",
             Section.text("select * from users where name like "),
-            Section.bindVar(":name"),
+            Section.bindVar(":name", false),
             Section.text(" AND last_name like "),
-            Section.bindVar(":lastName")
+            Section.bindVar(":lastName", false)
         )
         assertSections(
             "select * from users where name \nlike :name AND last_name like :lastName",
             Section.text("select * from users where name "),
             Section.newline(),
             Section.text("like "),
-            Section.bindVar(":name"),
+            Section.bindVar(":name", false),
             Section.text(" AND last_name like "),
-            Section.bindVar(":lastName")
+            Section.bindVar(":lastName", false)
         )
         assertSections(
             "select * from users where name like :name \nAND last_name like :lastName",
             Section.text("select * from users where name like "),
-            Section.bindVar(":name"),
+            Section.bindVar(":name", false),
             Section.text(" "),
             Section.newline(),
             Section.text("AND last_name like "),
-            Section.bindVar(":lastName")
+            Section.bindVar(":lastName", false)
         )
         assertSections(
             "select * from users where name like :name \nAND last_name like \n:lastName",
             Section.text("select * from users where name like "),
-            Section.bindVar(":name"),
+            Section.bindVar(":name", false),
             Section.text(" "),
             Section.newline(),
             Section.text("AND last_name like "),
             Section.newline(),
-            Section.bindVar(":lastName")
+            Section.bindVar(":lastName", false)
+        )
+        assertSections(
+            "select * from users where name in (?)",
+            Section.text("select * from users where name in ("),
+            Section.bindVar("?", true),
+            Section.text(")")
+        )
+        assertSections(
+            "select * from users where name in (:names)",
+            Section.text("select * from users where name in ("),
+            Section.bindVar(":names", true),
+            Section.text(")")
         )
     }
 

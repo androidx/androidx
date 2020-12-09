@@ -24,7 +24,6 @@ import androidx.room.ext.T
 import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.Section
-import androidx.room.parser.SectionType
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.QueryMethod
 import androidx.room.vo.QueryParameter
@@ -81,14 +80,11 @@ class QueryWriter constructor(
                     ClassName.get(StringBuilder::class.java), stringBuilderVar, STRING_UTIL
                 )
                 query.sections.forEach {
-                    when (it.type) {
-                        SectionType.TEXT -> addStatement(
-                            "$L.append($S)", stringBuilderVar,
-                            it
-                                .text
-                        )
-                        SectionType.NEWLINE -> addStatement("$L.append($S)", stringBuilderVar, "\n")
-                        SectionType.BIND_VAR -> {
+                    @Suppress("UNUSED_VARIABLE")
+                    val exhaustive = when (it) {
+                        is Section.Text -> addStatement("$L.append($S)", stringBuilderVar, it.text)
+                        is Section.NewLine -> addStatement("$L.append($S)", stringBuilderVar, "\n")
+                        is Section.BindVar -> {
                             // If it is null, will be reported as error before. We just try out
                             // best to generate as much code as possible.
                             sectionToParamMapping.firstOrNull { mapping ->

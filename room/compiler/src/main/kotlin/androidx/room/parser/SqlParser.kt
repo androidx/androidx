@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.TypeName
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
+import java.util.Locale
 
 @Suppress("FunctionName")
 class QueryVisitor(
@@ -30,7 +31,7 @@ class QueryVisitor(
     statement: ParseTree,
     private val forRuntimeQuery: Boolean
 ) : SQLiteBaseVisitor<Void?>() {
-    private val bindingExpressions = arrayListOf<TerminalNode>()
+    private val bindingExpressions = arrayListOf<BindParameterNode>()
     // table name alias mappings
     private val tableNames = mutableSetOf<Table>()
     private val withClauseNames = mutableSetOf<String>()
@@ -66,9 +67,36 @@ class QueryVisitor(
     override fun visitExpr(ctx: SQLiteParser.ExprContext): Void? {
         val bindParameter = ctx.BIND_PARAMETER()
         if (bindParameter != null) {
-            bindingExpressions.add(bindParameter)
+            val parentContext = ctx.parent
+            val isMultiple = parentContext is SQLiteParser.Comma_separated_exprContext &&
+                !isFixedParamFunctionExpr(parentContext)
+            bindingExpressions.add(
+                BindParameterNode(
+                    node = bindParameter,
+                    isMultiple = isMultiple
+                )
+            )
         }
         return super.visitExpr(ctx)
+    }
+
+    /**
+     * Check if a comma separated expression (where multiple binding parameters are accepted) is
+     * part of a function expression that receives a fixed number of parameters. This is
+     * important for determining the priority of type converters used when binding a collection
+     * into a binding parameters and specifically if the function takes a fixed number of
+     * parameter, the collection should not be expanded.
+     */
+    private fun isFixedParamFunctionExpr(
+        ctx: SQLiteParser.Comma_separated_exprContext
+    ): Boolean {
+        if (ctx.parent is SQLiteParser.ExprContext) {
+            val parentExpr = ctx.parent as SQLiteParser.ExprContext
+            val functionName = parentExpr.function_name() ?: return false
+            return fixedParamFunctions.contains(functionName.text.toLowerCase(Locale.US))
+        } else {
+            return false
+        }
     }
 
     fun createParsedQuery(): ParsedQuery {
@@ -120,6 +148,41 @@ class QueryVisitor(
 
     companion object {
         private val ESCAPE_LITERALS = listOf("\"", "'", "`")
+
+        // List of built-in SQLite functions that take a fixed non-zero number of parameters
+        // See: https://sqlite.org/lang_corefunc.html
+        val fixedParamFunctions = setOf(
+            "abs",
+            "glob",
+            "hex",
+            "ifnull",
+            "iif",
+            "instr",
+            "length",
+            "like",
+            "likelihood",
+            "likely",
+            "load_extension",
+            "lower",
+            "ltrim",
+            "nullif",
+            "quote",
+            "randomblob",
+            "replace",
+            "round",
+            "rtrim",
+            "soundex",
+            "sqlite_compileoption_get",
+            "sqlite_compileoption_used",
+            "sqlite_offset",
+            "substr",
+            "trim",
+            "typeof",
+            "unicode",
+            "unlikely",
+            "upper",
+            "zeroblob"
+        )
     }
 }
 
@@ -167,6 +230,11 @@ class SqlParser {
         }
     }
 }
+
+data class BindParameterNode(
+    private val node: TerminalNode,
+    val isMultiple: Boolean // true if this is a multi-param node
+) : TerminalNode by node
 
 enum class QueryType {
     UNKNOWN,

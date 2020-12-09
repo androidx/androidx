@@ -20,6 +20,8 @@ import COMMON
 import androidx.paging.DataSource
 import androidx.paging.PagingSource
 import androidx.room.Entity
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.asDeclaredType
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.LifecyclesTypeNames
@@ -30,8 +32,6 @@ import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.T
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.compiler.processing.XProcessingEnv
-import androidx.room.compiler.processing.asDeclaredType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.binderprovider.DataSourceFactoryQueryResultBinderProvider
@@ -44,6 +44,7 @@ import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureInsertM
 import androidx.room.solver.shortcut.binderprovider.RxCallableDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxCallableInsertMethodBinderProvider
 import androidx.room.solver.types.CompositeAdapter
+import androidx.room.solver.types.EnumColumnTypeAdapter
 import androidx.room.solver.types.TypeConverter
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
@@ -99,6 +100,30 @@ class TypeAdapterStoreTest {
                 composite.columnTypeAdapter.out.typeName,
                 `is`(TypeName.INT.box())
             )
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testJavaLangEnumCompilesWithoutError() {
+        simpleRun(
+            JavaFileObjects.forSourceString(
+                "foo.bar.Fruit",
+                """ package foo.bar;
+                import androidx.room.*;
+                enum Fruit {
+                    APPLE,
+                    BANANA,
+                    STRAWBERRY}
+                """.trimMargin()
+            )
+        ) { invocation ->
+            val store = TypeAdapterStore.create(Context(invocation.processingEnv))
+            val enum = invocation
+                .processingEnv
+                .requireType("foo.bar.Fruit")
+            val adapter = store.findColumnTypeAdapter(enum, null)
+            assertThat(adapter, notNullValue())
+            assertThat(adapter, instanceOf(EnumColumnTypeAdapter::class.java))
         }.compilesWithoutError()
     }
 

@@ -18,18 +18,23 @@ package androidx.room.processor
 
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XVariableElement
+import androidx.room.parser.Section
 import androidx.room.vo.QueryParameter
 
 class QueryParameterProcessor(
     baseContext: Context,
     val containing: XDeclaredType,
     val element: XVariableElement,
-    private val sqlName: String? = null
+    private val sqlName: String,
+    private val bindVarSection: Section.BindVar?
 ) {
     val context = baseContext.fork(element)
     fun process(): QueryParameter {
         val asMember = element.asMemberOf(containing)
-        val parameterAdapter = context.typeAdapterStore.findQueryParameterAdapter(asMember)
+        val parameterAdapter = context.typeAdapterStore.findQueryParameterAdapter(
+            typeMirror = asMember,
+            isMultipleParameter = bindVarSection?.isMultiple ?: false
+        )
         context.checker.check(
             parameterAdapter != null, element,
             ProcessorErrors.CANNOT_BIND_QUERY_PARAMETER_INTO_STMT
@@ -42,7 +47,7 @@ class QueryParameterProcessor(
         )
         return QueryParameter(
             name = name,
-            sqlName = sqlName ?: name,
+            sqlName = sqlName,
             type = asMember,
             queryParamAdapter = parameterAdapter
         )
