@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.car.app;
+package androidx.car.app.model;
 
 import androidx.annotation.NonNull;
+import androidx.car.app.OnDoneCallback;
 
 /**
  * A host-side interface for reporting to clients that the visibility state has changed.

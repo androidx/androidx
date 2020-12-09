@@ -28,11 +28,8 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.IOnDoneCallback;
-import androidx.car.app.ISearchListener;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.Screen;
-import androidx.car.app.SearchListener;
-import androidx.car.app.SearchListenerWrapper;
 import androidx.car.app.WrappedRuntimeException;
 import androidx.car.app.utils.RemoteUtils;
 
@@ -49,6 +46,29 @@ import java.util.Objects;
  * results as the user types without the templates being counted against the quota.
  */
 public final class SearchTemplate implements Template {
+
+    /** A listener for search updates. */
+    public interface SearchListener {
+        /**
+         * Notifies the current {@code searchText}.
+         *
+         * <p>The host may invoke this callback as the user types a search text. The frequency of
+         * these updates is not guaranteed to be after every individual keystroke. The host may
+         * decide to wait for several keystrokes before sending a single update.
+         *
+         * @param searchText the current search text that the user has typed.
+         */
+        void onSearchTextChanged(@NonNull String searchText);
+
+        /**
+         * Notifies that the user has submitted the search and the given {@code searchText} is
+         * the final term.
+         *
+         * @param searchText the search text that the user typed.
+         */
+        void onSearchSubmitted(@NonNull String searchText);
+    }
+
     @Keep
     private final boolean mIsLoading;
     @Keep
