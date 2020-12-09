@@ -27,14 +27,9 @@ plugins {
 }
 
 android {
-    buildTypes{
-        debug {
-            multiDexEnabled = true
-        }
-    }
-
     sourceSets {
         test.java.srcDirs += 'src/test-common/java'
+        androidTest.java.srcDirs += 'src/test-common/java'
     }
 }
 
@@ -53,6 +48,11 @@ dependencies {
     testImplementation(KOTLIN_COROUTINES_TEST)
     testImplementation(TRUTH)
     testImplementation(project(":internal-testutils-truth"))
+
+    androidTestImplementation(JUNIT)
+    androidTestImplementation(project(":internal-testutils-truth"))
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
 }
 
 androidx {
@@ -62,11 +62,4 @@ androidx {
     inceptionYear = "2020"
     description = "Android DataStore Core - contains wrappers for using DataStore using RxJava2"
     legacyDisableKotlinStrictApiMode = true
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
-    }
 }
