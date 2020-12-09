@@ -42,7 +42,6 @@ import java.util.concurrent.atomic.AtomicBoolean
  * An intermediate flow producer that flattens previous page events and gives any new downstream
  * just those events instead of the full history.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 internal class CachedPageEventFlow<T : Any>(
     src: Flow<PageEvent<T>>,
     scope: CoroutineScope
@@ -81,6 +80,7 @@ internal class CachedPageEventFlow<T : Any>(
         multicastedSrc.close()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val downstreamFlow = channelFlow {
         // get a new snapshot. this will immediately hook us to the upstream channel
         val snapshot = pageController.createTemporaryDownstream()
@@ -141,7 +141,6 @@ private class TemporaryDownstream<T : Any> {
      */
     private val historyChannel: Channel<IndexedValue<PageEvent<T>>> = Channel(Channel.UNLIMITED)
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun consumeHistory() = historyChannel.consumeAsFlow()
 
     /**
