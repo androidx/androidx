@@ -302,7 +302,7 @@ public class Row implements Item {
          *
          * <h4>Text Wrapping</h4>
          *
-         * Each string added with {@link #addText} will not wrap more than 1 line in the UI, with
+         * Each string added with this method will not wrap more than 1 line in the UI, with
          * one exception: if the template allows a maximum number of text strings larger than 1, and
          * the app adds a single text string, then this string will wrap up to the maximum.
          *

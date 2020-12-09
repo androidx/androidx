@@ -162,7 +162,7 @@ public class GridTemplateTest {
         ItemList itemList = ItemList.builder().build();
 
         GridTemplate template =
-                GridTemplate.builder().setTitle("Title").setSingleList(itemList).build();
+                GridTemplate.builder().setTitle("Title 1").setSingleList(itemList).build();
 
         assertThat(template)
                 .isNotEqualTo(
@@ -170,7 +170,8 @@ public class GridTemplateTest {
                                 .setTitle("Title")
                                 .setSingleList(
                                         ItemList.builder().addItem(
-                                                GridItem.builder().setImage(BACK).build()).build())
+                                                GridItem.builder().setTitle("Title 2").setImage(
+                                                        BACK).build()).build())
                                 .build());
     }
 
