@@ -62,13 +62,26 @@ fun BasicNav() {
 
 @Sampled
 @Composable
-fun NestedNav() {
+fun NestedNavStartDestination() {
     val navController = rememberNavController()
     NavHost(navController, startDestination = "nested") {
         navigation(startDestination = Screen.Profile.route, route = "nested") {
             composable(Screen.Profile.route) { Profile(navController) }
         }
         composable(Screen.Dashboard.route) { Dashboard(navController) }
+        composable(Screen.Scrollable.route) { Scrollable(navController) }
+    }
+}
+
+@Sampled
+@Composable
+fun NestedNavInGraph() {
+    val navController = rememberNavController()
+    NavHost(navController, startDestination = Screen.Profile.route) {
+        composable(Screen.Profile.route) { Profile(navController) }
+        navigation(startDestination = "nested", route = Screen.Dashboard.route) {
+            composable("nested") { Dashboard(navController) }
+        }
         composable(Screen.Scrollable.route) { Scrollable(navController) }
     }
 }
