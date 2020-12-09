@@ -20,6 +20,8 @@ import android.app.PendingIntent;
 import android.os.Bundle;
 import android.os.SystemClock;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.util.TimeUtils;
 
 /**
@@ -121,6 +123,7 @@ public final class MediaSessionStatus {
      * The extras will be ignored by the media router but they may be used
      * by applications.
      */
+    @Nullable
     public Bundle getExtras() {
         return mBundle.getBundle(KEY_EXTRAS);
     }
@@ -156,6 +159,7 @@ public final class MediaSessionStatus {
      *
      * @return The contents of the object represented as a bundle.
      */
+    @NonNull
     public Bundle asBundle() {
         return mBundle;
     }
@@ -166,7 +170,8 @@ public final class MediaSessionStatus {
      * @param bundle The bundle, or null if none.
      * @return The new instance, or null if the bundle was null.
      */
-    public static MediaSessionStatus fromBundle(Bundle bundle) {
+    @Nullable
+    public static MediaSessionStatus fromBundle(@Nullable Bundle bundle) {
         return bundle != null ? new MediaSessionStatus(bundle) : null;
     }
 
@@ -192,7 +197,7 @@ public final class MediaSessionStatus {
          * Creates a media session status builder whose initial contents are
          * copied from an existing status.
          */
-        public Builder(MediaSessionStatus status) {
+        public Builder(@NonNull MediaSessionStatus status) {
             if (status == null) {
                 throw new IllegalArgumentException("status must not be null");
             }
@@ -204,6 +209,7 @@ public final class MediaSessionStatus {
          * Sets the timestamp associated with the status information in
          * milliseconds since boot in the {@link SystemClock#elapsedRealtime} time base.
          */
+        @NonNull
         public Builder setTimestamp(long elapsedRealtimeTimestamp) {
             mBundle.putLong(KEY_TIMESTAMP, elapsedRealtimeTimestamp);
             return this;
@@ -212,6 +218,7 @@ public final class MediaSessionStatus {
         /**
          * Sets the session state.
          */
+        @NonNull
         public Builder setSessionState(int sessionState) {
             mBundle.putInt(KEY_SESSION_STATE, sessionState);
             return this;
@@ -220,6 +227,7 @@ public final class MediaSessionStatus {
         /**
          * Sets whether the queue is paused.
          */
+        @NonNull
         public Builder setQueuePaused(boolean queuePaused) {
             mBundle.putBoolean(KEY_QUEUE_PAUSED, queuePaused);
             return this;
@@ -230,14 +238,20 @@ public final class MediaSessionStatus {
          * The extras will be ignored by the media router but they may be used
          * by applications.
          */
-        public Builder setExtras(Bundle extras) {
-            mBundle.putBundle(KEY_EXTRAS, extras);
+        @NonNull
+        public Builder setExtras(@Nullable Bundle extras) {
+            if (extras == null) {
+                mBundle.putBundle(KEY_EXTRAS, null);
+            } else {
+                mBundle.putBundle(KEY_EXTRAS, new Bundle(extras));
+            }
             return this;
         }
 
         /**
          * Builds the {@link MediaSessionStatus media session status object}.
          */
+        @NonNull
         public MediaSessionStatus build() {
             return new MediaSessionStatus(mBundle);
         }

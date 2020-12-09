@@ -20,6 +20,8 @@ import android.app.PendingIntent;
 import android.os.Bundle;
 import android.os.SystemClock;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.util.TimeUtils;
 
 /**
@@ -248,6 +250,7 @@ public final class MediaItemStatus {
      * The extras will be ignored by the media router but they may be used
      * by applications.
      */
+    @Nullable
     public Bundle getExtras() {
         return mBundle.getBundle(KEY_EXTRAS);
     }
@@ -294,6 +297,7 @@ public final class MediaItemStatus {
      *
      * @return The contents of the object represented as a bundle.
      */
+    @NonNull
     public Bundle asBundle() {
         return mBundle;
     }
@@ -304,7 +308,8 @@ public final class MediaItemStatus {
      * @param bundle The bundle, or null if none.
      * @return The new instance, or null if the bundle was null.
      */
-    public static MediaItemStatus fromBundle(Bundle bundle) {
+    @Nullable
+    public static MediaItemStatus fromBundle(@Nullable Bundle bundle) {
         return bundle != null ? new MediaItemStatus(bundle) : null;
     }
 
@@ -330,7 +335,7 @@ public final class MediaItemStatus {
          * Creates a media item status builder whose initial contents are
          * copied from an existing status.
          */
-        public Builder(MediaItemStatus status) {
+        public Builder(@NonNull MediaItemStatus status) {
             if (status == null) {
                 throw new IllegalArgumentException("status must not be null");
             }
@@ -342,6 +347,7 @@ public final class MediaItemStatus {
          * Sets the timestamp associated with the status information in
          * milliseconds since boot in the {@link SystemClock#elapsedRealtime} time base.
          */
+        @NonNull
         public Builder setTimestamp(long elapsedRealtimeTimestamp) {
             mBundle.putLong(KEY_TIMESTAMP, elapsedRealtimeTimestamp);
             return this;
@@ -350,6 +356,7 @@ public final class MediaItemStatus {
         /**
          * Sets the playback state of the media item.
          */
+        @NonNull
         public Builder setPlaybackState(int playbackState) {
             mBundle.putInt(KEY_PLAYBACK_STATE, playbackState);
             return this;
@@ -359,6 +366,7 @@ public final class MediaItemStatus {
          * Sets the content playback position as a long integer number of milliseconds
          * from the beginning of the content.
          */
+        @NonNull
         public Builder setContentPosition(long positionMilliseconds) {
             mBundle.putLong(KEY_CONTENT_POSITION, positionMilliseconds);
             return this;
@@ -368,6 +376,7 @@ public final class MediaItemStatus {
          * Sets the total duration of the content to be played as a long integer number
          * of milliseconds.
          */
+        @NonNull
         public Builder setContentDuration(long durationMilliseconds) {
             mBundle.putLong(KEY_CONTENT_DURATION, durationMilliseconds);
             return this;
@@ -378,14 +387,20 @@ public final class MediaItemStatus {
          * The extras will be ignored by the media router but they may be used
          * by applications.
          */
-        public Builder setExtras(Bundle extras) {
-            mBundle.putBundle(KEY_EXTRAS, extras);
+        @NonNull
+        public Builder setExtras(@Nullable Bundle extras) {
+            if (extras == null) {
+                mBundle.putBundle(KEY_EXTRAS, null);
+            } else {
+                mBundle.putBundle(KEY_EXTRAS, new Bundle(extras));
+            }
             return this;
         }
 
         /**
          * Builds the {@link MediaItemStatus media item status object}.
          */
+        @NonNull
         public MediaItemStatus build() {
             return new MediaItemStatus(mBundle);
         }
