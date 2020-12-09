@@ -16,6 +16,7 @@
 
 package androidx.core.view
 
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.view.View
@@ -26,6 +27,7 @@ import androidx.core.graphics.Insets
 import androidx.core.test.R
 import androidx.core.view.WindowInsetsCompat.Type
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -33,6 +35,7 @@ import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.espresso.matcher.ViewMatchers.hasFocus
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -179,6 +182,54 @@ public class WindowInsetsCompatActivityTest(
             assertThat(insets.isVisible(Type.ime()), `is`(false))
             assertEquals(Insets.NONE, insets.getInsets(Type.ime()))
         }
+    }
+
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 29)
+    @Test
+    @Ignore("IME tests are inherently flaky, but still useful for local testing.")
+    public fun ime_insets_cleared_on_back() {
+        // Test do not currently work on Cuttlefish
+        assumeNotCuttlefish()
+        assumeSoftInputMode(SOFT_INPUT_ADJUST_RESIZE)
+
+        val expectedListenerPasses = 2
+        val latch = CountDownLatch(expectedListenerPasses)
+        val received = AtomicReference<WindowInsetsCompat>()
+        val container: View = scenario.withActivity { findViewById(R.id.container) }
+
+        // Tell the window that our view will fit system windows
+        scenario.onActivity { activity ->
+            WindowCompat.setDecorFitsSystemWindows(activity.window, false)
+        }
+
+        onView(withId(R.id.edittext))
+            .perform(click())
+            .check(matches(hasFocus()))
+
+        // Set a listener to catch WindowInsets
+        ViewCompat
+            .setOnApplyWindowInsetsListener(container.rootView) { _, insets: WindowInsetsCompat ->
+                received.set(insets)
+                latch.countDown()
+                WindowInsetsCompat.CONSUMED
+            }
+
+        scenario.onActivity { activity ->
+            activity.startActivity(Intent(activity, activity::class.java))
+        }
+
+        Espresso.pressBackUnconditionally()
+        onView(withId(R.id.edittext))
+            .check(matches(isDisplayed()))
+        assertThat(
+            "OnApplyWindowListener should have been called $expectedListenerPasses times but was " +
+                "called ${expectedListenerPasses - latch.count} times",
+            latch.await(2, TimeUnit.SECONDS), `is`(true)
+        )
+
+        // Check that the IME insets is equal to 0
+        val insets = received.get()
+        assertEquals(0, insets.getInsets(Type.ime()).bottom)
     }
 
     @SdkSuppress(minSdkVersion = 23)
