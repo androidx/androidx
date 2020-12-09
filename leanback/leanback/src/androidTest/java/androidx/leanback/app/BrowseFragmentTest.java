@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Instrumentation;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,11 +34,15 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.app.Fragment;
+import androidx.leanback.test.R;
+import androidx.leanback.testutils.LeakDetector;
 import androidx.leanback.testutils.PollingCheck;
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.ItemBridgeAdapter;
@@ -45,9 +50,11 @@ import androidx.leanback.widget.ListRowPresenter;
 import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
+import androidx.leanback.widget.VerticalGridView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -339,6 +346,66 @@ public class BrowseFragmentTest {
                         && mActivity.getBrowseTestFragment().getGridView().getChildCount() > 0;
             }
         });
+    }
+
+    public static final class EmptyFragment extends Fragment {
+        EditText mEditText;
+
+        @Override
+        public View onCreateView(
+                final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            return mEditText = new EditText(container.getContext());
+        }
+
+        @Override
+        public void onStart() {
+            super.onStart();
+            // focus IME on the new fragment because there is a memory leak that IME remembers
+            // last editable view, which will cause a false reporting of leaking View.
+            InputMethodManager imm =
+                    (InputMethodManager) getActivity()
+                            .getSystemService(Context.INPUT_METHOD_SERVICE);
+            mEditText.requestFocus();
+            imm.showSoftInput(mEditText, 0);
+        }
+
+        @Override
+        public void onDestroyView() {
+            mEditText = null;
+            super.onDestroyView();
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP) // API 17 retains local Variable
+    @Test
+    public void viewLeakTest() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(BrowseFragmentTestActivity.EXTRA_HEADERS_STATE,
+                BrowseFragment.HEADERS_DISABLED);
+        mActivity = activityTestRule.launchActivity(intent);
+        waitForEntranceTransitionFinished();
+
+        VerticalGridView gridView = mActivity.getBrowseTestFragment().getGridView();
+        LeakDetector leakDetector = new LeakDetector();
+        leakDetector.observeObject(gridView);
+        leakDetector.observeObject(gridView.getRecycledViewPool());
+        for (int i = 0; i < gridView.getChildCount(); i++) {
+            leakDetector.observeObject(gridView.getChildAt(i));
+        }
+        gridView = null;
+        EmptyFragment emptyFragment = new EmptyFragment();
+        mActivity.getFragmentManager().beginTransaction()
+                .replace(R.id.main_frame, emptyFragment)
+                .addToBackStack("BK")
+                .commit();
+
+        PollingCheck.waitFor(1000, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return emptyFragment.isResumed();
+            }
+        });
+        leakDetector.assertNoLeak();
     }
 
     static void tapView(View v) {
