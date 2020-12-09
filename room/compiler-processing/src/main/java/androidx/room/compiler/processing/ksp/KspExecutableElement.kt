@@ -23,6 +23,7 @@ import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.Modifier
 
 internal abstract class KspExecutableElement(
     env: KspProcessingEnv,
@@ -59,8 +60,11 @@ internal abstract class KspExecutableElement(
     }
 
     override fun isVarArgs(): Boolean {
-        return declaration.parameters.any {
-            it.isVararg
-        }
+        // in java, only the last argument can be a vararg so for suspend functions, it is never
+        // a vararg function. this would change if room generated kotlin code
+        return !declaration.modifiers.contains(Modifier.SUSPEND) &&
+            declaration.parameters.any {
+                it.isVararg
+            }
     }
 }

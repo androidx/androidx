@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.ksp
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
+import com.google.devtools.ksp.symbol.Modifier
 
 /**
  * Finds the class that contains this declaration and throws [IllegalStateException] if it cannot
@@ -48,4 +49,8 @@ internal fun KSDeclaration.findEnclosingAncestorClassDeclaration(): KSClassDecla
         parent = parent.parentDeclaration
     }
     return parent as? KSClassDeclaration
+}
+
+internal fun KSDeclaration.isStatic(): Boolean {
+    return modifiers.contains(Modifier.JAVA_STATIC) || hasJvmStaticAnnotation()
 }
