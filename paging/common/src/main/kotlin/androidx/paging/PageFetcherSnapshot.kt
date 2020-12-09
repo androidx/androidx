@@ -285,7 +285,6 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         key = key,
         loadSize = if (loadType == REFRESH) config.initialLoadSize else config.pageSize,
         placeholdersEnabled = config.enablePlaceholders,
-        pageSize = config.pageSize
     )
 
     private suspend fun doInitialLoad() {

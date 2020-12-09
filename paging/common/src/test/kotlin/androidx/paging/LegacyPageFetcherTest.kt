@@ -122,7 +122,6 @@ class LegacyPageFetcherTest {
                     key = start,
                     loadSize = end - start,
                     placeholdersEnabled = config.enablePlaceholders,
-                    pageSize = config.pageSize
                 )
             )
         }

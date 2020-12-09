@@ -32,7 +32,6 @@ fun <Key : Any> PagedList.Config.toRefreshLoadParams(key: Key?): PagingSource.Lo
         key,
         initialLoadSizeHint,
         enablePlaceholders,
-        pageSize
     )
 
 /**
@@ -100,15 +99,6 @@ abstract class PagingSource<Key : Any, Value : Any> {
          * [LoadResult.Page.itemsAfter] if possible.
          */
         val placeholdersEnabled: Boolean,
-        /**
-         * From [PagingConfig.pageSize], the configured page size.
-         */
-        @Deprecated(
-            message = "PagingConfig.pageSize will be removed in future versions, use " +
-                "PagingConfig.loadSize instead.",
-            replaceWith = ReplaceWith("loadSize")
-        )
-        val pageSize: Int = loadSize
     ) {
         /**
          * Key for the page to be loaded.
@@ -131,45 +121,39 @@ abstract class PagingSource<Key : Any, Value : Any> {
          * Params for an initial load request on a [PagingSource] from [PagingSource.load] or a
          * refresh triggered by [invalidate].
          */
-        class Refresh<Key : Any> @JvmOverloads constructor(
+        class Refresh<Key : Any> constructor(
             override val key: Key?,
             loadSize: Int,
             placeholdersEnabled: Boolean,
-            pageSize: Int = loadSize
         ) : LoadParams<Key>(
             loadSize = loadSize,
             placeholdersEnabled = placeholdersEnabled,
-            pageSize = pageSize
         )
 
         /**
          * Params to load a page of data from a [PagingSource] via [PagingSource.load] to be
          * appended to the end of the list.
          */
-        class Append<Key : Any> @JvmOverloads constructor(
+        class Append<Key : Any> constructor(
             override val key: Key,
             loadSize: Int,
             placeholdersEnabled: Boolean,
-            pageSize: Int = loadSize
         ) : LoadParams<Key>(
             loadSize = loadSize,
             placeholdersEnabled = placeholdersEnabled,
-            pageSize = pageSize
         )
 
         /**
          * Params to load a page of data from a [PagingSource] via [PagingSource.load] to be
          * prepended to the start of the list.
          */
-        class Prepend<Key : Any> @JvmOverloads constructor(
+        class Prepend<Key : Any> constructor(
             override val key: Key,
             loadSize: Int,
             placeholdersEnabled: Boolean,
-            pageSize: Int = loadSize
         ) : LoadParams<Key>(
             loadSize = loadSize,
             placeholdersEnabled = placeholdersEnabled,
-            pageSize = pageSize
         )
 
         internal companion object {
@@ -178,13 +162,11 @@ abstract class PagingSource<Key : Any, Value : Any> {
                 key: Key?,
                 loadSize: Int,
                 placeholdersEnabled: Boolean,
-                pageSize: Int
             ): LoadParams<Key> = when (loadType) {
                 LoadType.REFRESH -> Refresh(
                     key = key,
                     loadSize = loadSize,
                     placeholdersEnabled = placeholdersEnabled,
-                    pageSize = pageSize
                 )
                 LoadType.PREPEND -> Prepend(
                     loadSize = loadSize,
@@ -192,7 +174,6 @@ abstract class PagingSource<Key : Any, Value : Any> {
                         "key cannot be null for prepend"
                     },
                     placeholdersEnabled = placeholdersEnabled,
-                    pageSize = pageSize
                 )
                 LoadType.APPEND -> Append(
                     loadSize = loadSize,
@@ -200,7 +181,6 @@ abstract class PagingSource<Key : Any, Value : Any> {
                         "key cannot be null for append"
                     },
                     placeholdersEnabled = placeholdersEnabled,
-                    pageSize = pageSize
                 )
             }
         }
