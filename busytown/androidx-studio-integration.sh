@@ -38,7 +38,7 @@ function buildAndroidx() {
   LOG_PROCESSOR="$SCRIPT_DIR/../development/build_log_processor.sh"
   properties="-Pandroidx.summarizeStderr --no-daemon -Pandroidx.allWarningsAsErrors"
   "$LOG_PROCESSOR"                   $gw $properties -p frameworks/support    listTaskOutputs && \
-  "$LOG_PROCESSOR"                   $gw $properties -p frameworks/support    bOS -x lintDebug --stacktrace -PverifyUpToDate
+  "$LOG_PROCESSOR"                   $gw $properties -p frameworks/support    bOS -x lintDebug -x lint --stacktrace -PverifyUpToDate
 }
 
 function exportTransformsDir() {
