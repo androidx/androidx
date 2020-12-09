@@ -31,6 +31,7 @@ import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
@@ -233,7 +234,7 @@ internal class WatchFaceControlClientImpl internal constructor(
                                 systemState.inAmbientMode,
                                 systemState.interruptionFilter
                             ),
-                            userStyle?.toWireFormat(),
+                            userStyle?.toWireFormat() ?: UserStyleWireFormat(emptyMap()),
                             idToComplicationData?.map {
                                 IdAndComplicationDataWireFormat(
                                     it.key,

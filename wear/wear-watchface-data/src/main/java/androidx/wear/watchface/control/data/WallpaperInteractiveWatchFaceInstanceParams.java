@@ -61,9 +61,9 @@ public class WallpaperInteractiveWatchFaceInstanceParams
     @NonNull
     SystemState mSystemState;
 
-    /** The initial {UserStyleWireFormat} if known, or null otherwise. */
+    /** The initial {@link UserStyleWireFormat}. */
     @ParcelField(4)
-    @Nullable
+    @NonNull
     UserStyleWireFormat mUserStyle;
 
     /** The initial state of the complications if known, or null otherwise. */
@@ -78,7 +78,7 @@ public class WallpaperInteractiveWatchFaceInstanceParams
             @NonNull String instanceId,
             @NonNull DeviceConfig deviceConfig,
             @NonNull SystemState systemState,
-            @Nullable UserStyleWireFormat userStyle,
+            @NonNull UserStyleWireFormat userStyle,
             @Nullable List<IdAndComplicationDataWireFormat> idAndComplicationDataWireFormats) {
         mInstanceId = instanceId;
         mDeviceConfig = deviceConfig;
@@ -102,7 +102,7 @@ public class WallpaperInteractiveWatchFaceInstanceParams
         return mSystemState;
     }
 
-    @Nullable
+    @NonNull
     public UserStyleWireFormat getUserStyle() {
         return mUserStyle;
     }

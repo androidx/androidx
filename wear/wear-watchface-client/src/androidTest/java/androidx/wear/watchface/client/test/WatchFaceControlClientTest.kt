@@ -44,6 +44,7 @@ import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATIO
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -53,6 +54,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 private const val CONNECT_TIMEOUT_MILLIS = 500L
@@ -70,10 +72,23 @@ class WatchFaceControlClientTest {
 
     @Mock
     private lateinit var surfaceHolder: SurfaceHolder
+    private lateinit var engine: WallpaperService.Engine
+    private val handler = Handler(Looper.getMainLooper())
+    private val engineLatch = CountDownLatch(1)
+    private lateinit var wallpaperService: TestExampleCanvasAnalogWatchFaceService
 
     @Before
     fun setUp() {
         MockitoAnnotations.initMocks(this)
+        wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
+    }
+
+    @After
+    fun tearDown() {
+        if (this::engine.isInitialized) {
+            engine.onDestroy()
+        }
+        service.close()
     }
 
     @get:Rule
@@ -105,6 +120,14 @@ class WatchFaceControlClientTest {
                 .build()
     )
 
+    private fun createEngine() {
+        handler.post {
+            engine = wallpaperService.onCreateEngine()
+            engineLatch.countDown()
+        }
+        engineLatch.await(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
+    }
+
     @Test
     fun headlessScreenshot() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
@@ -133,7 +156,6 @@ class WatchFaceControlClientTest {
         bitmap.assertAgainstGolden(screenshotRule, "headlessScreenshot")
 
         headlessInstance.close()
-        service.close()
     }
 
     @Test
@@ -188,7 +210,6 @@ class WatchFaceControlClientTest {
         assertTrue(rightComplicationDetails.isEnabled)
 
         headlessInstance.close()
-        service.close()
     }
 
     @Test
@@ -215,7 +236,6 @@ class WatchFaceControlClientTest {
         )
 
         headlessInstance.close()
-        service.close()
     }
 
     @Test
@@ -232,12 +252,8 @@ class WatchFaceControlClientTest {
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, 400, 400))
 
-        val wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
-
         // Create the engine which triggers creation of InteractiveWatchFaceWcsClient.
-        val handler = Handler(Looper.getMainLooper())
-        lateinit var engine: WallpaperService.Engine
-        handler.post { engine = wallpaperService.onCreateEngine() }
+        createEngine()
 
         val interactiveInstance =
             interactiveInstanceFuture.get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
@@ -253,9 +269,7 @@ class WatchFaceControlClientTest {
         try {
             bitmap.assertAgainstGolden(screenshotRule, "interactiveScreenshot")
         } finally {
-            engine.onDestroy()
             interactiveInstance.close()
-            service.close()
         }
     }
 
@@ -273,12 +287,8 @@ class WatchFaceControlClientTest {
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, 400, 400))
 
-        val wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
-
         // Create the engine which triggers creation of InteractiveWatchFaceWcsClient.
-        val handler = Handler(Looper.getMainLooper())
-        lateinit var engine: WallpaperService.Engine
-        handler.post { engine = wallpaperService.onCreateEngine() }
+        createEngine()
 
         val interactiveInstance =
             interactiveInstanceFuture.get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
@@ -325,34 +335,24 @@ class WatchFaceControlClientTest {
         )
         assertTrue(rightComplicationDetails.isEnabled)
 
-        engine.onDestroy()
         interactiveInstance.close()
-        service.close()
     }
 
     @Test
     fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient_existingOpenInstance() {
-        val interactiveInstanceFuture =
-            service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(
-                "testId",
-                deviceConfig,
-                systemState,
-                null,
-                complications
-            )
+        service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(
+            "testId",
+            deviceConfig,
+            systemState,
+            null,
+            complications
+        )
 
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, 400, 400))
 
-        val wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
-
         // Create the engine which triggers creation of InteractiveWatchFaceWcsClient.
-        val handler = Handler(Looper.getMainLooper())
-        lateinit var engine: WallpaperService.Engine
-        handler.post { engine = wallpaperService.onCreateEngine() }
-
-        // Wait for the instance to be created.
-        interactiveInstanceFuture.get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
+        createEngine()
 
         val existingInstance =
             service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(
@@ -363,12 +363,7 @@ class WatchFaceControlClientTest {
                 complications
             )
 
-        try {
-            assertTrue(existingInstance.isDone)
-        } finally {
-            engine.onDestroy()
-            service.close()
-        }
+        assertTrue(existingInstance.isDone)
     }
 
     @Test
@@ -385,12 +380,8 @@ class WatchFaceControlClientTest {
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, 400, 400))
 
-        val wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
-
         // Create the engine which triggers creation of InteractiveWatchFaceWcsClient.
-        val handler = Handler(Looper.getMainLooper())
-        lateinit var engine: WallpaperService.Engine
-        handler.post { engine = wallpaperService.onCreateEngine() }
+        createEngine()
 
         // Wait for the instance to be created.
         val interactiveInstance =
@@ -410,16 +401,11 @@ class WatchFaceControlClientTest {
                 complications
             )
 
-        try {
-            assertFalse(existingInstance.isDone)
+        assertFalse(existingInstance.isDone)
 
-            // We don't want to leave a pending request or it'll mess up subsequent tests.
-            handler.post { engine = wallpaperService.onCreateEngine() }
-            existingInstance.get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
-        } finally {
-            engine.onDestroy()
-            service.close()
-        }
+        // We don't want to leave a pending request or it'll mess up subsequent tests.
+        handler.post { engine = wallpaperService.onCreateEngine() }
+        existingInstance.get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
     }
 
     @Test
@@ -436,12 +422,8 @@ class WatchFaceControlClientTest {
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, 400, 400))
 
-        val wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
-
         // Create the engine which triggers creation of InteractiveWatchFaceWcsClient.
-        val handler = Handler(Looper.getMainLooper())
-        lateinit var engine: WallpaperService.Engine
-        handler.post { engine = wallpaperService.onCreateEngine() }
+        createEngine()
 
         // Wait for the instance to be created.
         interactiveInstanceFuture.get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
@@ -449,27 +431,22 @@ class WatchFaceControlClientTest {
         val sysUiInterface = service.getInteractiveWatchFaceSysUiClientInstance("testId")
             .get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
 
-        try {
-            val contentDescriptionLabels = sysUiInterface.contentDescriptionLabels
-            assertThat(contentDescriptionLabels.size).isEqualTo(3)
-            // Central clock element. Note we don't know the timezone this test will be running in
-            // so we can't assert the contents of the clock's test.
-            assertThat(contentDescriptionLabels[0].bounds).isEqualTo(Rect(100, 100, 300, 300))
-            assertThat(contentDescriptionLabels[0].getTextAt(context.resources, 0).isNotEmpty())
+        val contentDescriptionLabels = sysUiInterface.contentDescriptionLabels
+        assertThat(contentDescriptionLabels.size).isEqualTo(3)
+        // Central clock element. Note we don't know the timezone this test will be running in
+        // so we can't assert the contents of the clock's test.
+        assertThat(contentDescriptionLabels[0].bounds).isEqualTo(Rect(100, 100, 300, 300))
+        assertThat(contentDescriptionLabels[0].getTextAt(context.resources, 0).isNotEmpty())
 
-            // Left complication.
-            assertThat(contentDescriptionLabels[1].bounds).isEqualTo(Rect(80, 160, 160, 240))
-            assertThat(contentDescriptionLabels[1].getTextAt(context.resources, 0))
-                .isEqualTo("ID Left")
+        // Left complication.
+        assertThat(contentDescriptionLabels[1].bounds).isEqualTo(Rect(80, 160, 160, 240))
+        assertThat(contentDescriptionLabels[1].getTextAt(context.resources, 0))
+            .isEqualTo("ID Left")
 
-            // Right complication.
-            assertThat(contentDescriptionLabels[2].bounds).isEqualTo(Rect(240, 160, 320, 240))
-            assertThat(contentDescriptionLabels[2].getTextAt(context.resources, 0))
-                .isEqualTo("ID Right")
-        } finally {
-            engine.onDestroy()
-            service.close()
-        }
+        // Right complication.
+        assertThat(contentDescriptionLabels[2].bounds).isEqualTo(Rect(240, 160, 320, 240))
+        assertThat(contentDescriptionLabels[2].getTextAt(context.resources, 0))
+            .isEqualTo("ID Right")
     }
 }
 
