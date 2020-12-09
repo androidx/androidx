@@ -185,6 +185,7 @@ final class Camera2CameraImpl implements CameraInternal {
      */
     Camera2CameraImpl(@NonNull CameraManagerCompat cameraManager,
             @NonNull String cameraId,
+            @NonNull Camera2CameraInfoImpl cameraInfoImpl,
             @NonNull CameraStateRegistry cameraStateRegistry,
             @NonNull Executor executor,
             @NonNull Handler schedulerHandler) throws CameraUnavailableException {
@@ -206,10 +207,8 @@ final class Camera2CameraImpl implements CameraInternal {
             mCameraControlInternal = new Camera2CameraControlImpl(cameraCharacteristicsCompat,
                     executorScheduler, mExecutor, new ControlUpdateListenerInternal(),
                     mCameraQuirks);
-            mCameraInfoInternal = new Camera2CameraInfoImpl(
-                    cameraId,
-                    cameraCharacteristicsCompat,
-                    mCameraControlInternal);
+            mCameraInfoInternal = cameraInfoImpl;
+            mCameraInfoInternal.linkWithCameraControl(mCameraControlInternal);
         } catch (CameraAccessExceptionCompat e) {
             throw CameraUnavailableExceptionHelper.createFrom(e);
         }

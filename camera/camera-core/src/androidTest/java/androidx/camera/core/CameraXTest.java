@@ -165,9 +165,11 @@ public final class CameraXTest {
     @Test
     public void init_withDifferentCameraXConfig() throws ExecutionException, InterruptedException {
         CameraFactory cameraFactory0 = new FakeCameraFactory();
-        CameraFactory.Provider cameraFactoryProvider0 = (ignored0, ignored1) -> cameraFactory0;
+        CameraFactory.Provider cameraFactoryProvider0 =
+                (ignored0, ignored1, ignored2) -> cameraFactory0;
         CameraFactory cameraFactory1 = new FakeCameraFactory();
-        CameraFactory.Provider cameraFactoryProvider1 = (ignored0, ignored1) -> cameraFactory1;
+        CameraFactory.Provider cameraFactoryProvider1 =
+                (ignored0, ignored1, ignored2) -> cameraFactory1;
 
         mConfigBuilder.setCameraFactoryProvider(cameraFactoryProvider0);
         CameraX.initialize(mContext, mConfigBuilder.build());
