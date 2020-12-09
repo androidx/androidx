@@ -17,7 +17,6 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -74,37 +73,19 @@ public interface AppSearchSession {
      * <p>It is a no-op to set the same schema as has been previously set; this is handled
      * efficiently.
      *
+     * <p>By default, documents are visible on platform surfaces. To opt out, call {@code
+     * SetSchemaRequest.Builder#setPlatformSurfaceable} with {@code surfaceable} as false. Any
+     * visibility settings apply only to the schemas that are included in the {@code request}.
+     * Visibility settings for a schema type do not apply or persist across
+     * {@link SetSchemaRequest}s.
+     *
      * @param request The schema update request.
      * @return The pending result of performing this operation.
      */
+    // TODO(b/169883602): Change @code references to @link when setPlatformSurfaceable APIs are
+    //  exposed.
     @NonNull
     ListenableFuture<AppSearchResult<Void>> setSchema(@NonNull SetSchemaRequest request);
-
-    /**
-     * Sets visibility settings for documents in AppSearch.
-     *
-     * <p>Visibility settings are not carried over from previous {@code SetVisibilityRequest}s.
-     * The entire set of visibility settings must be specified on each {@code SetVisibilityRequest}.
-     *
-     * <p>The visibility settings apply to the schema instance that currently exists. If a schema
-     * is deleted and then re-added, the visibility setting will no longer apply to the new
-     * instance of the schema.
-     *
-     * <p>An {@link AppSearchResult#RESULT_NOT_FOUND} will be returned if a specified schema
-     * doesn't exist.
-     *
-     * <p>The default visibility settings are that all documents can be shown on platform
-     * surfaces. Documents can be opted out of being shown on platform surfaces by specifying
-     * their schema type in {@link SetVisibilityRequest.Builder#addHiddenFromPlatformSurfaces}.
-     *
-     * @param request The visibility settings request
-     * @return The pending result of performing this operation.
-     * @hide
-     */
-    // TODO(b/169883602): Add integration tests for this API in the platform.
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @NonNull
-    ListenableFuture<AppSearchResult<Void>> setVisibility(@NonNull SetVisibilityRequest request);
 
     /**
      * Indexes documents into AppSearch.
