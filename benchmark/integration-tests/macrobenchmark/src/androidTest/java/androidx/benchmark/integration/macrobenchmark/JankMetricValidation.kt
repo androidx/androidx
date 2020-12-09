@@ -70,8 +70,10 @@ class JankMetricValidation(
             val recycler = device.findObject(By.res(PACKAGE_NAME, RESOURCE_ID))
             // Setting a gesture margin is important otherwise gesture nav is triggered.
             recycler.setGestureMargin(device.displayWidth / 5)
-            recycler.fling(Direction.DOWN)
-            device.waitForIdle()
+            for (i in 1..10) {
+                recycler.scroll(Direction.DOWN, 2f)
+                device.waitForIdle()
+            }
         }
     }
 
