@@ -17,7 +17,7 @@
 package androidx.car.app.testing;
 
 import androidx.annotation.NonNull;
-import androidx.car.app.OnScreenResultCallback;
+import androidx.car.app.OnScreenResultListener;
 import androidx.car.app.Screen;
 import androidx.car.app.ScreenManager;
 import androidx.lifecycle.Lifecycle.State;
@@ -92,9 +92,9 @@ public class TestScreenManager extends ScreenManager {
 
     @Override
     public void pushForResult(
-            @NonNull Screen screen, @NonNull OnScreenResultCallback onScreenResultCallback) {
+            @NonNull Screen screen, @NonNull OnScreenResultListener onScreenResultListener) {
         mScreensPushed.add(screen);
-        super.pushForResult(screen, onScreenResultCallback);
+        super.pushForResult(screen, onScreenResultListener);
     }
 
     @Override

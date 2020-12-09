@@ -48,7 +48,7 @@ public final class ScreenTest {
     private TestCarContext mCarContext;
 
     @Mock
-    OnScreenResultCallback mMockOnScreenResultCallback;
+    OnScreenResultListener mMockOnScreenResultListener;
 
     private Screen mScreen;
 
@@ -129,16 +129,16 @@ public final class ScreenTest {
 
     @Test
     public void setResult_callsThemockOnScreenResultCallback() {
-        mScreen.setOnResultCallback(mMockOnScreenResultCallback);
+        mScreen.setOnScreenResultListener(mMockOnScreenResultListener);
 
         String foo = "yo";
         mScreen.setResult(foo);
 
-        verify(mMockOnScreenResultCallback, never()).onScreenResult(any());
+        verify(mMockOnScreenResultListener, never()).onScreenResult(any());
 
         mScreen.dispatchLifecycleEvent(Event.ON_DESTROY);
 
-        verify(mMockOnScreenResultCallback).onScreenResult(foo);
+        verify(mMockOnScreenResultListener).onScreenResult(foo);
     }
 
     @Test
