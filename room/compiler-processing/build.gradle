@@ -26,12 +26,13 @@ plugins {
 }
 
 dependencies {
+    api(KOTLIN_STDLIB)
+    api(JAVAPOET)
     implementation("androidx.annotation:annotation:1.1.0")
     implementation(GUAVA)
-    implementation(KOTLIN_STDLIB)
     implementation(AUTO_COMMON)
     implementation(AUTO_VALUE_ANNOTATIONS)
-    implementation(JAVAPOET)
+
     implementation(KOTLIN_METADATA_JVM)
     implementation(INTELLIJ_ANNOTATIONS)
     implementation(KOTLIN_KSP_API) {

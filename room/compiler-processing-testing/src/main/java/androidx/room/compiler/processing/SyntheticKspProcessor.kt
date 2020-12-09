@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.processing.util.RecordingXMessager
 import androidx.room.compiler.processing.util.XTestInvocation
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
@@ -24,11 +25,14 @@ import com.google.devtools.ksp.processing.SymbolProcessor
 
 class SyntheticKspProcessor(
     private val handler: (XTestInvocation) -> Unit
-) : SymbolProcessor {
+) : SymbolProcessor, SyntheticProcessor {
+    override val invocationInstances = mutableListOf<XTestInvocation>()
     private var result: Result<Unit>? = null
     private lateinit var options: Map<String, String>
     private lateinit var codeGenerator: CodeGenerator
     private lateinit var logger: KSPLogger
+    override val messageWatcher = RecordingXMessager()
+
     override fun finish() {
     }
 
@@ -44,21 +48,25 @@ class SyntheticKspProcessor(
     }
 
     override fun process(resolver: Resolver) {
+        val xEnv = XProcessingEnv.create(
+            options,
+            resolver,
+            codeGenerator,
+            logger
+        )
+        xEnv.messager.addMessageWatcher(messageWatcher)
         result = kotlin.runCatching {
             handler(
                 XTestInvocation(
-                    processingEnv = XProcessingEnv.create(
-                        options,
-                        resolver,
-                        codeGenerator,
-                        logger
-                    )
-                )
+                    processingEnv = xEnv
+                ).also {
+                    invocationInstances.add(it)
+                }
             )
         }
     }
 
-    fun throwIfFailed() {
+    override fun throwIfFailed() {
         val result = checkNotNull(result) {
             "did not compile"
         }

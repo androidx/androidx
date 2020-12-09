@@ -23,8 +23,8 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.getParameter
+import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
 import androidx.room.compiler.processing.util.runProcessorTest
-import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.TypeName
 import org.junit.Test
@@ -69,7 +69,7 @@ class XNullabilityTest {
             """.trimIndent()
         )
         // TODO run with KSP once https://github.com/google/ksp/issues/167 is fixed
-        runProcessorTest(
+        runProcessorTestWithoutKsp(
             sources = listOf(source)
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
@@ -164,7 +164,7 @@ class XNullabilityTest {
             }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(
+        runProcessorTest(
             sources = listOf(source)
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
@@ -257,7 +257,7 @@ class XNullabilityTest {
 
     @Test
     fun changeNullability_primitives() {
-        runProcessorTestIncludingKsp { invocation ->
+        runProcessorTest { invocation ->
             PRIMITIVE_TYPES.forEach { primitiveTypeName ->
                 val primitive = invocation.processingEnv.requireType(primitiveTypeName)
                 assertThat(primitive.nullability).isEqualTo(NONNULL)
@@ -295,7 +295,7 @@ class XNullabilityTest {
                 }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(sources = listOf(javaSrc, kotlinSrc)) { invocation ->
+        runProcessorTest(sources = listOf(javaSrc, kotlinSrc)) { invocation ->
             listOf("KotlinClass", "JavaClass").forEach {
                 val subject = invocation.processingEnv.requireTypeElement(it)
                     .getField("subject").type
@@ -316,7 +316,7 @@ class XNullabilityTest {
 
     @Test
     fun changeNullability_declared() {
-        runProcessorTestIncludingKsp { invocation ->
+        runProcessorTest { invocation ->
             val subject = invocation.processingEnv.requireType("java.util.List")
             subject.makeNullable().let {
                 assertThat(it.nullability).isEqualTo(NULLABLE)
@@ -337,7 +337,7 @@ class XNullabilityTest {
 
     @Test
     fun changeNullability_arrayTypes() {
-        runProcessorTestIncludingKsp { invocation ->
+        runProcessorTest { invocation ->
             val subject = invocation.processingEnv.getArrayType(
                 invocation.processingEnv.requireType("java.util.List")
             )
@@ -368,7 +368,7 @@ class XNullabilityTest {
             }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val voidType = invocation.processingEnv.requireTypeElement("Foo")
                 .getMethod("subject").returnType
             assertThat(voidType.typeName).isEqualTo(TypeName.VOID)

@@ -14,22 +14,30 @@
  * limitations under the License.
  */
 
-package androidx.room.compiler.processing.ksp
+package androidx.room.compiler.processing.util
 
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMessager
-import com.google.devtools.ksp.processing.KSPLogger
 import javax.tools.Diagnostic
 
-internal class KspMessager(
-    private val logger: KSPLogger
-) : XMessager() {
+/**
+ * An XMessager implementation that holds onto dispatched diagnostics.
+ */
+class RecordingXMessager : XMessager() {
+    private val diagnostics = mutableMapOf<Diagnostic.Kind, MutableList<DiagnosticMessage>>()
+
+    fun diagnostics(): Map<Diagnostic.Kind, List<DiagnosticMessage>> = diagnostics
+
     override fun onPrintMessage(kind: Diagnostic.Kind, msg: String, element: XElement?) {
-        val ksNode = (element as? KspElement)?.declaration
-        when (kind) {
-            Diagnostic.Kind.ERROR -> logger.error(msg, ksNode)
-            Diagnostic.Kind.WARNING -> logger.warn(msg, ksNode)
-            else -> logger.info(msg, ksNode)
-        }
+        diagnostics.getOrPut(
+            kind
+        ) {
+            mutableListOf()
+        }.add(
+            DiagnosticMessage(
+                msg = msg,
+                element = element
+            )
+        )
     }
 }
