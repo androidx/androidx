@@ -232,15 +232,20 @@ public class WearableRecyclerView extends RecyclerView {
     }
 
     /**
-     * Use this method to configure the {@link WearableRecyclerView} to always align the first and
-     * last items with the vertical center of the screen. This effectively moves the start and end
-     * of the list to the middle of the screen if the user has scrolled so far. It takes the height
-     * of the children into account so that they are correctly centered.
+     * Use this method to configure the {@link WearableRecyclerView} on round watches to always
+     * align the first and last items with the vertical center of the screen. This effectively moves
+     * the start and end of the list to the middle of the screen if the user has scrolled so far.
+     * It takes the height of the children into account so that they are correctly centered.
+     * On nonRound watches, this method has no effect and original padding is used.
      *
      * @param isEnabled set to true if you wish to align the edge children (first and last)
      *                        with the center of the screen.
      */
     public void setEdgeItemsCenteringEnabled(boolean isEnabled) {
+        if (!getResources().getConfiguration().isScreenRound()) {
+            mEdgeItemsCenteringEnabled = false;
+            return;
+        }
         mEdgeItemsCenteringEnabled = isEnabled;
         if (mEdgeItemsCenteringEnabled) {
             if (getChildCount() > 0) {
