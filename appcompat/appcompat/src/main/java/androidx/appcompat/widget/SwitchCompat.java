@@ -775,9 +775,11 @@ public class SwitchCompat extends CompoundButton {
     public void setTextOn(CharSequence textOn) {
         mTextOn = textOn;
         requestLayout();
-        // Default state is derived from on/off-text, so state has to be updated when on/off-text
-        // are updated.
-        setOnStateDescription();
+        if (isChecked()) {
+            // Default state is derived from on/off-text, so state has to be updated when
+            // on/off-text are updated.
+            setOnStateDescriptionOnRAndAbove();
+        }
     }
 
     /**
@@ -797,9 +799,11 @@ public class SwitchCompat extends CompoundButton {
     public void setTextOff(CharSequence textOff) {
         mTextOff = textOff;
         requestLayout();
-        // Default state is derived from on/off-text, so state has to be updated when on/off-text
-        // are updated.
-        setOffStateDescription();
+        if (!isChecked()) {
+            // Default state is derived from on/off-text, so state has to be updated when
+            // on/off-text are updated.
+            setOffStateDescriptionOnRAndAbove();
+        }
     }
 
     /**
@@ -1095,9 +1099,9 @@ public class SwitchCompat extends CompoundButton {
         checked = isChecked();
 
         if (checked) {
-            setOnStateDescription();
+            setOnStateDescriptionOnRAndAbove();
         } else {
-            setOffStateDescription();
+            setOffStateDescriptionOnRAndAbove();
         }
 
         if (getWindowToken() != null && ViewCompat.isLaidOut(this)) {
@@ -1433,6 +1437,19 @@ public class SwitchCompat extends CompoundButton {
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
         super.onInitializeAccessibilityNodeInfo(info);
         info.setClassName(ACCESSIBILITY_EVENT_CLASS_NAME);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            CharSequence switchText = isChecked() ? mTextOn : mTextOff;
+            if (!TextUtils.isEmpty(switchText)) {
+                CharSequence oldText = info.getText();
+                if (TextUtils.isEmpty(oldText)) {
+                    info.setText(switchText);
+                } else {
+                    StringBuilder newText = new StringBuilder();
+                    newText.append(oldText).append(' ').append(switchText);
+                    info.setText(newText);
+                }
+            }
+        }
     }
 
     /**
@@ -1452,17 +1469,21 @@ public class SwitchCompat extends CompoundButton {
         return amount < low ? low : (amount > high ? high : amount);
     }
 
-    private void setOnStateDescription() {
-        ViewCompat.setStateDescription(
-                this,
-                mTextOn == null ? getResources().getString(R.string.abc_capital_on) : mTextOn
-        );
+    private void setOnStateDescriptionOnRAndAbove() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            ViewCompat.setStateDescription(
+                    this,
+                    mTextOn == null ? getResources().getString(R.string.abc_capital_on) : mTextOn
+            );
+        }
     }
 
-    private void setOffStateDescription() {
-        ViewCompat.setStateDescription(
-                this,
-                mTextOff == null ? getResources().getString(R.string.abc_capital_off) : mTextOff
-        );
+    private void setOffStateDescriptionOnRAndAbove() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            ViewCompat.setStateDescription(
+                    this,
+                    mTextOff == null ? getResources().getString(R.string.abc_capital_off) : mTextOff
+            );
+        }
     }
 }
