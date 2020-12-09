@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.impl.MutableTagBundle;
 import androidx.camera.core.impl.TagBundle;
+import androidx.camera.core.impl.utils.ExifData;
 
 /**
  * A fake implementation of {@link ImageInfo} where the values are settable.
@@ -61,5 +62,10 @@ public final class FakeImageInfo implements ImageInfo {
     @Override
     public int getRotationDegrees() {
         return mRotationDegrees;
+    }
+
+    @Override
+    public void populateExifData(@NonNull ExifData.Builder exifBuilder) {
+        exifBuilder.setOrientationDegrees(mRotationDegrees);
     }
 }
