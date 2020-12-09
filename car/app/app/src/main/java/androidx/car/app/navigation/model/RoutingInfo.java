@@ -214,10 +214,8 @@ public class RoutingInfo implements NavigationInfo {
          *
          * @see #build
          */
-        // TODO(rampara): Consider renaming to setLoading()
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         @NonNull
-        public Builder setIsLoading(boolean isLoading) {
+        public Builder setLoading(boolean isLoading) {
             this.mIsLoading = isLoading;
             return this;
         }
@@ -228,7 +226,7 @@ public class RoutingInfo implements NavigationInfo {
          * <h4>Requirements</h4>
          *
          * The {@link RoutingInfo} can be in a loading state by passing {@code true} to {@link
-         * #setIsLoading(boolean)}, in which case no other fields may be set. Otherwise, the current
+         * #setLoading(boolean)}, in which case no other fields may be set. Otherwise, the current
          * step and distance must be set. If the lane information is set with {@link
          * Step.Builder#addLane(Lane)}, then the lane image must also be set with {@link
          * Step.Builder#setLanesImage(CarIcon)}.

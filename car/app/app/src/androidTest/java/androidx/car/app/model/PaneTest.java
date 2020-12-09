@@ -78,7 +78,7 @@ public class PaneTest {
         Pane pane =
                 Pane.builder().addRow(Row.builder().setTitle("Title").build()).setActions(
                         actions).build();
-        assertActions(pane.getActionList(), actions);
+        assertActions(pane.getActions(), actions);
     }
 
     @Test

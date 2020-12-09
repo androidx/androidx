@@ -58,7 +58,7 @@ import java.util.Objects;
  *
  * <ul>
  *   <li>The template title has not changed, and
- *   <li>The previous template is in a loading state (see {@link Builder#setIsLoading}, or the
+ *   <li>The previous template is in a loading state (see {@link Builder#setLoading}, or the
  *       number of rows and the string contents (title, texts, not counting spans) of each row
  *       between the previous and new {@link ItemList}s have not changed.
  * </ul>
@@ -191,10 +191,8 @@ public final class PlaceListNavigationTemplate implements Template {
          * once the data is ready. If set to {@code false}, the UI shows the {@link ItemList}
          * contents added via {@link #setItemList}.
          */
-        // TODO(rampara): Consider renaming to setLoading()
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         @NonNull
-        public Builder setIsLoading(boolean isLoading) {
+        public Builder setLoading(boolean isLoading) {
             this.mIsLoading = isLoading;
             return this;
         }

@@ -71,7 +71,7 @@ public class TripTest {
                         .addDestinationTravelEstimate(mDestinationTravelEstimate)
                         .addStepTravelEstimate(mStepTravelEstimate)
                         .setCurrentRoad(ROAD)
-                        .setIsLoading(false)
+                        .setLoading(false)
                         .build();
 
         assertThat(trip.getDestinations()).hasSize(1);
@@ -112,7 +112,7 @@ public class TripTest {
                         .addDestination(mDestination)
                         .addDestinationTravelEstimate(mDestinationTravelEstimate)
                         .setCurrentRoad(ROAD)
-                        .setIsLoading(true)
+                        .setLoading(true)
                         .build();
 
         assertThat(trip.getDestinations()).hasSize(1);
@@ -129,17 +129,17 @@ public class TripTest {
     public void createInstance_loading_with_steps() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> Trip.builder().addStep(mStep).setIsLoading(true).build());
+                () -> Trip.builder().addStep(mStep).setLoading(true).build());
         assertThrows(
                 IllegalArgumentException.class,
-                () -> Trip.builder().addStepTravelEstimate(mStepTravelEstimate).setIsLoading(
+                () -> Trip.builder().addStepTravelEstimate(mStepTravelEstimate).setLoading(
                         true).build());
         assertThrows(
                 IllegalArgumentException.class,
                 () -> Trip.builder()
                         .addStep(mStep)
                         .addStepTravelEstimate(mStepTravelEstimate)
-                        .setIsLoading(true)
+                        .setLoading(true)
                         .build());
     }
 }
