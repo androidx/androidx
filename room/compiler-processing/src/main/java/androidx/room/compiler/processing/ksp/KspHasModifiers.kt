@@ -18,10 +18,10 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XHasModifiers
 import com.google.devtools.ksp.getVisibility
+import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.isOpen
 import com.google.devtools.ksp.isPrivate
 import com.google.devtools.ksp.isProtected
-import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -48,7 +48,13 @@ sealed class KspHasModifiers(
     }
 
     override fun isAbstract(): Boolean {
-        return declaration.modifiers.contains(Modifier.ABSTRACT)
+        return declaration.modifiers.contains(Modifier.ABSTRACT) ||
+            when (declaration) {
+                is KSPropertyDeclaration -> declaration.isAbstract()
+                is KSClassDeclaration -> declaration.isAbstract()
+                is KSFunctionDeclaration -> declaration.isAbstract
+                else -> false
+            }
     }
 
     override fun isPrivate(): Boolean {

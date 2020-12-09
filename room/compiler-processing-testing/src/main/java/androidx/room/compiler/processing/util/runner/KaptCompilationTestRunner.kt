@@ -41,6 +41,8 @@ internal object KaptCompilationTestRunner : CompilationTestRunner {
         compilation.sources = params.sources.map {
             it.toKotlinSourceFile()
         }
+        compilation.jvmDefault = "enable"
+        compilation.jvmTarget = "1.8"
         compilation.annotationProcessors = listOf(syntheticJavacProcessor)
         compilation.inheritClassPath = true
         compilation.verbose = false
