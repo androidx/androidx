@@ -32,8 +32,10 @@ import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 import androidx.wear.complications.SystemProviders;
+import androidx.wear.complications.data.ComplicationType;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Wire format for {@link androidx.wear.watchface.style.ComplicationsUserStyleSetting}.
@@ -80,7 +82,7 @@ public class ComplicationsUserStyleSettingWireFormat extends UserStyleSettingWir
 
         @ParcelField(3)
         @Nullable
-        public RectF mBounds;
+        public Map<ComplicationType, RectF> mPerComplicationTypeBounds;
 
         @ParcelField(4)
         @Nullable
@@ -111,7 +113,7 @@ public class ComplicationsUserStyleSettingWireFormat extends UserStyleSettingWir
         public ComplicationOverlayWireFormat(
                 int complicationId,
                 @Nullable Boolean enabled,
-                @Nullable RectF bounds,
+                @Nullable Map<ComplicationType, RectF> perComplicationTypeBounds,
                 @Nullable int[] supportedTypes,
                 @Nullable List<ComponentName> defaultProviders,
                 @Nullable Integer systemProviderFallback,
@@ -123,7 +125,7 @@ public class ComplicationsUserStyleSettingWireFormat extends UserStyleSettingWir
             } else {
                 mEnabled = ENABLED_UNKNOWN;
             }
-            mBounds = bounds;
+            mPerComplicationTypeBounds = perComplicationTypeBounds;
             mSupportedTypes = supportedTypes;
             mDefaultProviders = defaultProviders;
             if (systemProviderFallback != null) {

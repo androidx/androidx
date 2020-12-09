@@ -20,12 +20,12 @@ import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.RectF
 import android.icu.util.Calendar
 import android.support.wearable.watchface.accessibility.AccessibilityUtils
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
+import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.data.ComplicationData
@@ -87,7 +87,7 @@ public class ComplicationsManager(
         complicationCollection.associateBy(Complication::id)
 
     private class InitialComplicationConfig(
-        val unitSquareBounds: RectF,
+        val complicationBounds: ComplicationBounds,
         val enabled: Boolean,
         val supportedTypes: List<ComplicationType>,
         val defaultProviderPolicy: DefaultComplicationProviderPolicy,
@@ -102,7 +102,7 @@ public class ComplicationsManager(
             { it.id },
             {
                 InitialComplicationConfig(
-                    it.unitSquareBounds,
+                    it.complicationBounds,
                     it.enabled,
                     it.supportedTypes,
                     it.defaultProviderPolicy,
@@ -174,8 +174,8 @@ public class ComplicationsManager(
             val override = styleOption.complicationOverlays.find { it.complicationId == id }
             val initialConfig = initialComplicationConfigs[id]!!
             // Apply styleOption overrides.
-            complication.unitSquareBounds =
-                override?.bounds ?: initialConfig.unitSquareBounds
+            complication.complicationBounds =
+                override?.complicationBounds ?: initialConfig.complicationBounds
             complication.enabled =
                 override?.enabled ?: initialConfig.enabled
             complication.supportedTypes =
@@ -245,7 +245,8 @@ public class ComplicationsManager(
                 activeKeys.add(id)
 
                 labelsDirty =
-                    labelsDirty || complication.dataDirty || complication.unitSquareBoundsDirty
+                    labelsDirty || complication.dataDirty ||
+                    complication.complicationBoundsDirty
 
                 if (complication.defaultProviderPolicyDirty ||
                     complication.defaultProviderTypeDirty
@@ -259,7 +260,7 @@ public class ComplicationsManager(
                 }
 
                 complication.dataDirty = false
-                complication.unitSquareBoundsDirty = false
+                complication.complicationBoundsDirty = false
                 complication.supportedTypesDirty = false
                 complication.defaultProviderPolicyDirty = false
                 complication.defaultProviderTypeDirty = false
