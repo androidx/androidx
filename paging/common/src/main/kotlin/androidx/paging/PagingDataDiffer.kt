@@ -103,6 +103,13 @@ abstract class PagingDataDiffer<T : Any>(
     }
 
     /**
+     * @param onListPresentable Call this synchronously right before dispatching updates to signal
+     * that this [PagingDataDiffer] should now consider [newList] as the presented list for
+     * presenter-level APIs such as [snapshot] and [peek]. This should be called before notifying
+     * any callbacks that the user would expect to be synchronous with presenter updates, such as
+     * `ListUpdateCallback`, in case it's desirable to inspect presenter state within those
+     * callbacks.
+     *
      * @return Transformed result of [lastAccessedIndex] as an index of [newList] using the diff
      * result between [previousList] and [newList]. Null if [newList] or [previousList] lists are
      * empty, where it does not make sense to transform [lastAccessedIndex].
@@ -111,7 +118,8 @@ abstract class PagingDataDiffer<T : Any>(
         previousList: NullPaddedList<T>,
         newList: NullPaddedList<T>,
         newCombinedLoadStates: CombinedLoadStates,
-        lastAccessedIndex: Int
+        lastAccessedIndex: Int,
+        onListPresentable: () -> Unit,
     ): Int?
 
     open fun postEvents(): Boolean = false
@@ -126,13 +134,23 @@ abstract class PagingDataDiffer<T : Any>(
                     lastAccessedIndexUnfulfilled = false
 
                     val newPresenter = PagePresenter(event)
+                    var onListPresentableCalled = false
                     val transformedLastAccessedIndex = presentNewList(
                         previousList = presenter,
                         newList = newPresenter,
                         newCombinedLoadStates = event.combinedLoadStates,
-                        lastAccessedIndex = lastAccessedIndex
+                        lastAccessedIndex = lastAccessedIndex,
+                        onListPresentable = {
+                            presenter = newPresenter
+                            onListPresentableCalled = true
+                        }
                     )
-                    presenter = newPresenter
+                    check(onListPresentableCalled) {
+                        "Missing call to onListPresentable after new list was presented. If you " +
+                            "are seeing this exception, it is generally an indication of an " +
+                            "issue with Paging. Please file a bug so we can fix it at: " +
+                            "https://issuetracker.google.com/issues/new?component=413106"
+                    }
 
                     // Dispatch LoadState updates as soon as we are done diffing, but after setting
                     // presenter.

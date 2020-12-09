@@ -28,8 +28,12 @@ class TestPagingDataDiffer<T : Any>(mainDispatcher: CoroutineDispatcher = Dispat
         previousList: NullPaddedList<T>,
         newList: NullPaddedList<T>,
         newCombinedLoadStates: CombinedLoadStates,
-        lastAccessedIndex: Int
-    ): Int? = null
+        lastAccessedIndex: Int,
+        onListPresentable: () -> Unit,
+    ): Int? {
+        onListPresentable()
+        return null
+    }
 
     companion object {
         private val noopDifferCallback = object : DifferCallback {
