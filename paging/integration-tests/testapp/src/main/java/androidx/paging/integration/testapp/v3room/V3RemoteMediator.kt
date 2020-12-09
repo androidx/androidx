@@ -36,7 +36,9 @@ internal class V3RemoteMediator(
         loadType: LoadType,
         state: PagingState<Int, Customer>
     ): MediatorResult {
-        if (loadType == LoadType.PREPEND) return MediatorResult.Success(false)
+        if (loadType == LoadType.PREPEND) {
+            return MediatorResult.Success(endOfPaginationReached = true)
+        }
 
         // TODO: Move this to be a more fully featured sample which demonstrated key translation
         //  between two types of PagingSources where the keys do not map 1:1.
