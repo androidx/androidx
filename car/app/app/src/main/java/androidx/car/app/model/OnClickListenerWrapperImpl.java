@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.car.app.host.model;
+package androidx.car.app.model;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
@@ -26,11 +26,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
+import androidx.car.app.OnDoneCallback;
 import androidx.car.app.WrappedRuntimeException;
-import androidx.car.app.host.OnDoneCallback;
-import androidx.car.app.model.IOnClickListener;
-import androidx.car.app.model.OnClickListener;
-import androidx.car.app.model.ParkedOnlyOnClickListener;
 import androidx.car.app.utils.RemoteUtils;
 
 /**

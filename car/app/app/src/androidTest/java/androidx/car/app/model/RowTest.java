@@ -25,7 +25,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import androidx.car.app.host.OnDoneCallback;
+import androidx.car.app.OnDoneCallback;
 import androidx.car.app.test.R;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.annotation.UiThreadTest;
