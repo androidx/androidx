@@ -21,6 +21,7 @@ import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
@@ -29,6 +30,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -39,12 +41,16 @@ import java.util.Set;
 public final class SetSchemaRequest {
     private final Set<AppSearchSchema> mSchemas;
     private final Set<String> mSchemasNotPlatformSurfaceable;
+    private final Map<String, Set<PackageIdentifier>> mSchemasPackageAccessible;
     private final boolean mForceOverride;
 
     SetSchemaRequest(@NonNull Set<AppSearchSchema> schemas,
-            @NonNull Set<String> schemasNotPlatformSurfaceable, boolean forceOverride) {
+            @NonNull Set<String> schemasNotPlatformSurfaceable,
+            @NonNull Map<String, Set<PackageIdentifier>> schemasPackageAccessible,
+            boolean forceOverride) {
         mSchemas = Preconditions.checkNotNull(schemas);
         mSchemasNotPlatformSurfaceable = Preconditions.checkNotNull(schemasNotPlatformSurfaceable);
+        mSchemasPackageAccessible = Preconditions.checkNotNull(schemasPackageAccessible);
         mForceOverride = forceOverride;
     }
 
@@ -65,6 +71,42 @@ public final class SetSchemaRequest {
         return Collections.unmodifiableSet(mSchemasNotPlatformSurfaceable);
     }
 
+    /**
+     * Returns a mapping of schema types to the set of packages that have access
+     * to that schema type. Each package is represented by a {@link PackageIdentifier}.
+     * name and byte[] certificate.
+     *
+     * This method is inefficient to call repeatedly.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public Map<String, Set<PackageIdentifier>> getSchemasPackageAccessible() {
+        Map<String, Set<PackageIdentifier>> copy = new ArrayMap<>();
+        for (String key : mSchemasPackageAccessible.keySet()) {
+            copy.put(key, new ArraySet<>(mSchemasPackageAccessible.get(key)));
+        }
+        return copy;
+    }
+
+    /**
+     * Returns a mapping of schema types to the set of packages that have access
+     * to that schema type. Each package is represented by a {@link PackageIdentifier}.
+     * name and byte[] certificate.
+     *
+     * A more efficient version of {@code #getSchemasPackageAccessible}, but it returns a
+     * modifiable map. This is not meant to be unhidden and should only be used by internal
+     * classes.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public Map<String, Set<PackageIdentifier>> getSchemasPackageAccessibleInternal() {
+        return mSchemasPackageAccessible;
+    }
+
     /** Returns whether this request will force the schema to be overridden. */
     public boolean isForceOverride() {
         return mForceOverride;
@@ -74,6 +116,8 @@ public final class SetSchemaRequest {
     public static final class Builder {
         private final Set<AppSearchSchema> mSchemas = new ArraySet<>();
         private final Set<String> mSchemasNotPlatformSurfaceable = new ArraySet<>();
+        private final Map<String, Set<PackageIdentifier>> mSchemasPackageAccessible =
+                new ArrayMap<>();
         private boolean mForceOverride = false;
         private boolean mBuilt = false;
 
@@ -145,75 +189,109 @@ public final class SetSchemaRequest {
         }
 
         /**
-         * Sets visibility on system UI surfaces for schema types.
+         * Sets visibility on system UI surfaces for the given {@code schemaType}.
          *
+         * @param schemaType The schema type to set visibility on.
+         * @param visible    Whether the {@code schemaType} will be visible or not.
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
-        public Builder setSchemaTypeVisibilityForSystemUi(boolean visible,
-                @NonNull String... schemaTypes) {
-            Preconditions.checkNotNull(schemaTypes);
-            return this.setSchemaTypeVisibilityForSystemUi(visible, Arrays.asList(schemaTypes));
-        }
-
-        /**
-         * Sets visibility on system UI surfaces for schema types.
-         *
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @NonNull
-        public Builder setSchemaTypeVisibilityForSystemUi(boolean visible,
-                @NonNull Collection<String> schemaTypes) {
+        public Builder setSchemaTypeVisibilityForSystemUi(@NonNull String schemaType,
+                boolean visible) {
+            Preconditions.checkNotNull(schemaType);
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(schemaTypes);
+
             if (visible) {
-                mSchemasNotPlatformSurfaceable.removeAll(schemaTypes);
+                mSchemasNotPlatformSurfaceable.remove(schemaType);
             } else {
-                mSchemasNotPlatformSurfaceable.addAll(schemaTypes);
+                mSchemasNotPlatformSurfaceable.add(schemaType);
             }
             return this;
         }
 
         /**
-         * Sets visibility on system UI surfaces for schema types.
+         * Sets visibility for a package for the given {@code schemaType}.
          *
-         * @throws AppSearchException if {@code androidx.appsearch.compiler.AppSearchCompiler}
-         *                            has not generated a schema for the given data classes.
+         * @param schemaType        The schema type to set visibility on.
+         * @param visible           Whether the {@code schemaType} will be visible or not.
+         * @param packageIdentifier Represents the package that will be granted visibility.
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
-        public Builder setDataClassVisibilityForSystemUi(boolean visible,
-                @NonNull Class<?>... dataClasses) throws AppSearchException {
-            Preconditions.checkNotNull(dataClasses);
-            return setDataClassVisibilityForSystemUi(visible, Arrays.asList(dataClasses));
-        }
-
-        /**
-         * Sets visibility on system UI surfaces for schema types.
-         *
-         * @throws AppSearchException if {@code androidx.appsearch.compiler.AppSearchCompiler}
-         *                            has not generated a schema for the given data classes.
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @NonNull
-        public Builder setDataClassVisibilityForSystemUi(boolean visible,
-                @NonNull Collection<Class<?>> dataClasses) throws AppSearchException {
+        public Builder setSchemaTypeVisibilityForPackage(@NonNull String schemaType,
+                boolean visible, @NonNull PackageIdentifier packageIdentifier) {
+            Preconditions.checkNotNull(schemaType);
+            Preconditions.checkNotNull(packageIdentifier);
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(dataClasses);
-            DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
-            for (Class<?> dataClass : dataClasses) {
-                DataClassFactory<?> factory = registry.getOrCreateFactory(dataClass);
-                if (visible) {
-                    mSchemasNotPlatformSurfaceable.remove(factory.getSchemaType());
-                } else {
-                    mSchemasNotPlatformSurfaceable.add(factory.getSchemaType());
+
+            Set<PackageIdentifier> packageIdentifiers =
+                    mSchemasPackageAccessible.get(schemaType);
+            if (visible) {
+                if (packageIdentifiers == null) {
+                    packageIdentifiers = new ArraySet<>();
+                }
+                packageIdentifiers.add(packageIdentifier);
+                mSchemasPackageAccessible.put(schemaType, packageIdentifiers);
+            } else {
+                if (packageIdentifiers == null) {
+                    // Return early since there was nothing set to begin with.
+                    return this;
+                }
+                packageIdentifiers.remove(packageIdentifier);
+                if (packageIdentifiers.isEmpty()) {
+                    // Remove the entire key so that we don't have empty sets as values.
+                    mSchemasPackageAccessible.remove(schemaType);
                 }
             }
+
             return this;
+        }
+
+        /**
+         * Sets visibility on system UI surfaces for the given {@code dataClass}.
+         *
+         * @param dataClass The schema to set visibility on.
+         * @param visible   Whether the {@code schemaType} will be visible or not.
+         * @return {@link SetSchemaRequest.Builder}
+         * @throws AppSearchException if {@code androidx.appsearch.compiler.AppSearchCompiler}
+         *                            has not generated a schema for the given data classes.
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setDataClassVisibilityForSystemUi(@NonNull Class<?> dataClass,
+                boolean visible) throws AppSearchException {
+            Preconditions.checkNotNull(dataClass);
+
+            DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
+            DataClassFactory<?> factory = registry.getOrCreateFactory(dataClass);
+            return setSchemaTypeVisibilityForSystemUi(factory.getSchemaType(), visible);
+        }
+
+        /**
+         * Sets visibility for a package for the given {@code dataClass}.
+         *
+         * @param dataClass         The schema to set visibility on.
+         * @param visible           Whether the {@code schemaType} will be visible or not.
+         * @param packageIdentifier Represents the package that will be granted visibility
+         * @return {@link SetSchemaRequest.Builder}
+         * @throws AppSearchException if {@code androidx.appsearch.compiler.AppSearchCompiler}
+         *                            has not generated a schema for the given data classes.
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setDataClassVisibilityForPackage(@NonNull Class<?> dataClass,
+                boolean visible, @NonNull PackageIdentifier packageIdentifier)
+                throws AppSearchException {
+            Preconditions.checkNotNull(dataClass);
+
+            DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
+            DataClassFactory<?> factory = registry.getOrCreateFactory(dataClass);
+            return setSchemaTypeVisibilityForPackage(factory.getSchemaType(), visible,
+                    packageIdentifier);
         }
 
         /**
@@ -244,20 +322,23 @@ public final class SetSchemaRequest {
 
             // Verify that any schema types with visibility settings refer to a real schema.
             // Create a copy because we're going to remove from the set for verification purposes.
-            Set<String> schemasNotPlatformSurfaceableCopy = new ArraySet<>(
+            Set<String> referencedSchemas = new ArraySet<>(
                     mSchemasNotPlatformSurfaceable);
+            referencedSchemas.addAll(mSchemasPackageAccessible.keySet());
+
             for (AppSearchSchema schema : mSchemas) {
-                schemasNotPlatformSurfaceableCopy.remove(schema.getSchemaType());
+                referencedSchemas.remove(schema.getSchemaType());
             }
-            if (!schemasNotPlatformSurfaceableCopy.isEmpty()) {
+            if (!referencedSchemas.isEmpty()) {
                 // We still have schema types that weren't seen in our mSchemas set. This means
                 // there wasn't a corresponding AppSearchSchema.
                 throw new IllegalArgumentException(
-                        "Schema types " + schemasNotPlatformSurfaceableCopy
+                        "Schema types " + referencedSchemas
                                 + " referenced, but were not added.");
             }
 
             return new SetSchemaRequest(mSchemas, mSchemasNotPlatformSurfaceable,
+                    mSchemasPackageAccessible,
                     mForceOverride);
         }
     }
