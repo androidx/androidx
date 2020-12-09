@@ -34,7 +34,7 @@ open class BoxedPrimitiveColumnTypeAdapter(
 
             return primitiveAdapters.map {
                 BoxedPrimitiveColumnTypeAdapter(
-                    it.out.boxed(),
+                    it.out.boxed().makeNullable(),
                     it
                 )
             }

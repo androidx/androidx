@@ -25,8 +25,8 @@ import androidx.room.solver.CodeGenScope
  */
 object BoxedBooleanToBoxedIntConverter {
     fun create(processingEnvironment: XProcessingEnv): List<TypeConverter> {
-        val tBoolean = processingEnvironment.requireType("java.lang.Boolean")
-        val tInt = processingEnvironment.requireType("java.lang.Integer")
+        val tBoolean = processingEnvironment.requireType("java.lang.Boolean").makeNullable()
+        val tInt = processingEnvironment.requireType("java.lang.Integer").makeNullable()
         return listOf(
             object : TypeConverter(tBoolean, tInt) {
                 override fun convert(

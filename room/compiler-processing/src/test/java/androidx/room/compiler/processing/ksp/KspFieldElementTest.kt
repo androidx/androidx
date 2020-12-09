@@ -25,7 +25,7 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getField
-import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -152,7 +152,7 @@ class KspFieldElementTest {
             class Sub1 : Base<Int, String>()
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val sub = invocation.processingEnv.requireTypeElement("Sub1")
             val base = invocation.processingEnv.requireTypeElement("Base")
             val t = base.getField("t")
@@ -197,13 +197,13 @@ class KspFieldElementTest {
     private fun runModifierTest(vararg inputs: ModifierTestInput) {
         // we'll run the test twice. once it is in source and once it is coming from a dependency.
         val sources = inputs.map(ModifierTestInput::source)
-        runProcessorTestIncludingKsp(
+        runProcessorTest(
             sources = sources
         ) { invocation ->
             assertModifiers(invocation, inputs)
         }
         val classpath = compileFiles(sources)
-        runProcessorTestIncludingKsp(
+        runProcessorTest(
             sources = emptyList(),
             classpath = listOf(classpath)
         ) { invocation ->

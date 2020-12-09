@@ -18,7 +18,7 @@ package androidx.room.compiler.processing.javac.kotlin
 
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.compiler.processing.util.runKaptTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.AssumptionViolatedException
 import org.junit.Test
@@ -478,7 +478,7 @@ class KotlinMetadataElementTest {
         sources: List<Source> = emptyList(),
         handler: (ProcessingEnvironment) -> Unit
     ) {
-        runProcessorTest(sources) {
+        runKaptTest(sources) {
             val processingEnv = it.processingEnv
             if (processingEnv !is JavacProcessingEnv) {
                 throw AssumptionViolatedException("This test only works for java/kapt compilation")

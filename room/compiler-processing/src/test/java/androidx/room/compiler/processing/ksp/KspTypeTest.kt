@@ -50,7 +50,7 @@ class KspTypeTest {
             interface MyInterface {}
             """.trimIndent()
         )
-        runKspTest(listOf(src), succeed = true) {
+        runKspTest(listOf(src)) {
             val subject = it.processingEnv.requireType("foo.bar.Baz")
             assertThat(subject.typeName).isEqualTo(
                 ClassName.get("foo.bar", "Baz")
@@ -89,8 +89,7 @@ class KspTypeTest {
             """.trimIndent()
         )
         runKspTest(
-            listOf(src),
-            succeed = false
+            listOf(src)
         ) { invocation ->
             invocation.requireDeclaredPropertyType("errorType").let { type ->
                 assertThat(type.isError()).isTrue()
@@ -107,6 +106,9 @@ class KspTypeTest {
                     assertThat(typeArg.typeName).isEqualTo(ERROR_TYPE_NAME)
                 }
             }
+            invocation.assertCompilationResult {
+                compilationDidFail()
+            }
         }
     }
 
@@ -121,8 +123,7 @@ class KspTypeTest {
             """.trimIndent()
         )
         runKspTest(
-            listOf(src),
-            succeed = true
+            listOf(src)
         ) { invocation ->
             invocation.requireDeclaredPropertyType("listOfNullableStrings").let { type ->
                 assertThat(type.nullability).isEqualTo(NONNULL)
@@ -173,8 +174,7 @@ class KspTypeTest {
             """.trimIndent()
         )
         runKspTest(
-            listOf(src),
-            succeed = true
+            listOf(src)
         ) { invocation ->
             val nullableStringList = invocation
                 .requireDeclaredPropertyType("listOfNullableStrings")
@@ -220,8 +220,7 @@ class KspTypeTest {
             """.trimIndent()
         )
         runKspTest(
-            listOf(src),
-            succeed = true
+            listOf(src)
         ) { invocation ->
             invocation.requirePropertyType("simple").let {
                 assertThat(it.rawType.typeName).isEqualTo(TypeName.INT)
@@ -257,7 +256,7 @@ class KspTypeTest {
             }
             """.trimIndent()
         )
-        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+        runKspTest(sources = listOf(src)) { invocation ->
             val resolver = (invocation.processingEnv as KspProcessingEnv).resolver
             val voidMethod = resolver.getClassDeclarationByName("foo.bar.Baz")!!
                 .getDeclaredFunctions()
@@ -289,8 +288,7 @@ class KspTypeTest {
             """.trimIndent()
         )
         runKspTest(
-            listOf(src),
-            succeed = false
+            listOf(src)
         ) { invocation ->
             fun mapProp(name: String) = invocation.requirePropertyType(name).let {
                 listOf(
@@ -313,6 +311,9 @@ class KspTypeTest {
             assertThat(mapProp("nullableByteProp")).containsExactly("isByte")
             assertThat(mapProp("errorProp")).containsExactly("isError")
             assertThat(mapProp("nullableErrorProp")).containsExactly("isError")
+            invocation.assertCompilationResult {
+                compilationDidFail()
+            }
         }
     }
 
@@ -334,8 +335,7 @@ class KspTypeTest {
             """.trimIndent()
         )
         runKspTest(
-            listOf(src),
-            succeed = false
+            listOf(src)
         ) { invocation ->
             fun getDefaultValue(name: String) = invocation.requirePropertyType(name).defaultValue()
             // javac types do not check nullability but checking it is more correct
@@ -351,6 +351,9 @@ class KspTypeTest {
             assertThat(getDefaultValue("errorProp")).isEqualTo("null")
             assertThat(getDefaultValue("nullableErrorProp")).isEqualTo("null")
             assertThat(getDefaultValue("stringProp")).isEqualTo("null")
+            invocation.assertCompilationResult {
+                compilationDidFail()
+            }
         }
     }
 
@@ -366,8 +369,7 @@ class KspTypeTest {
             """.trimIndent()
         )
         runKspTest(
-            listOf(src),
-            succeed = true
+            listOf(src)
         ) { invocation ->
             assertThat(
                 invocation.requirePropertyType("stringProp").isTypeOf(
@@ -418,8 +420,7 @@ class KspTypeTest {
             """.trimIndent()
         )
         runKspTest(
-            listOf(src),
-            succeed = true
+            listOf(src)
         ) { invocation ->
             fun check(prop1: String, prop2: String): Boolean {
                 return invocation.requirePropertyType(prop1).isSameType(
@@ -450,8 +451,7 @@ class KspTypeTest {
             """.trimIndent()
         )
         runKspTest(
-            listOf(src),
-            succeed = true
+            listOf(src)
         ) { invocation ->
             val env = (invocation.processingEnv as KspProcessingEnv)
             val classNames = listOf("Bar", "Bar_NullableFoo")
@@ -491,8 +491,7 @@ class KspTypeTest {
             """.trimIndent()
         )
         runKspTest(
-            listOf(src),
-            succeed = true
+            listOf(src)
         ) { invocation ->
             val env = (invocation.processingEnv as KspProcessingEnv)
             val method = env.resolver

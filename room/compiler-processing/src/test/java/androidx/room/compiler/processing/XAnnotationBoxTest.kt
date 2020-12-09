@@ -25,7 +25,7 @@ import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runProcessorTest
-import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
+import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
 import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -48,7 +48,6 @@ class XAnnotationBoxTest {
             }
             """.trimIndent()
         )
-        // TODO add KSP once https://github.com/google/ksp/issues/96 is fixed.
         runProcessorTest(
             sources = listOf(source)
         ) {
@@ -87,7 +86,8 @@ class XAnnotationBoxTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(
+        // re-enable after fixing b/175144186
+        runProcessorTestWithoutKsp(
             listOf(mySource)
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
@@ -129,7 +129,7 @@ class XAnnotationBoxTest {
             }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(
+        runProcessorTest(
             sources = listOf(source)
         ) {
             val element = it.processingEnv.requireTypeElement("Subject")
@@ -169,7 +169,7 @@ class XAnnotationBoxTest {
             }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(
+        runProcessorTest(
             listOf(mySource)
         ) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("Subject")
@@ -229,7 +229,7 @@ class XAnnotationBoxTest {
             }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("Subject")
 
             subject.getField("prop1").assertHasSuppressWithValue("onProp1")
@@ -280,7 +280,7 @@ class XAnnotationBoxTest {
             }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("Subject")
             subject.getMethod("noAnnotations").let { method ->
                 method.assertDoesNotHaveAnnotation()
@@ -309,7 +309,7 @@ class XAnnotationBoxTest {
             )
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("Subject")
             subject.assertHasSuppressWithValue("onClass")
             val constructor = subject.getConstructors().single()
@@ -338,7 +338,7 @@ class XAnnotationBoxTest {
             class JavaClass {}
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
+        runProcessorTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
             listOf("KotlinClass", "JavaClass")
                 .map {
                     invocation.processingEnv.requireTypeElement(it)
