@@ -16,71 +16,128 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.XFieldElement
+import androidx.room.compiler.processing.ksp.KspFieldElementTest.TestModifier.PRIVATE
+import androidx.room.compiler.processing.ksp.KspFieldElementTest.TestModifier.PROTECTED
+import androidx.room.compiler.processing.ksp.KspFieldElementTest.TestModifier.PUBLIC
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.TestInvocation
 import androidx.room.compiler.processing.util.className
+import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getField
-import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
 import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
 import org.junit.Test
 
 class KspFieldElementTest {
+
     @Test
-    fun simple() {
-        val src = Source.kotlin(
-            "Foo.kt",
-            """
-            class Foo {
-                val intField: Int = 0
-                @JvmField
-                val jvmField: Int = 0
-                protected val protectedField: Int = 0
-                @JvmField
-                protected val protectedJvmField: Int = 0
-            }
-            """.trimIndent()
+    fun kotlinSrcModifiers() {
+        runModifierTest(
+            ModifierTestInput(
+                qName = "Foo",
+                source = Source.kotlin(
+                    "Foo.kt",
+                    """
+                    class Foo {
+                        val intField: Int = 0
+                        @JvmField
+                        val jvmField: Int = 0
+                        protected val protectedField: Int = 0
+                        @JvmField
+                        protected val protectedJvmField: Int = 0
+                        // Cannot add @JvmField to private property, compiler does not allow it.
+                        // @JvmField
+                        // private val privateJvmField: Int = 0
+                    }
+                    """.trimIndent()
+                ),
+                expected = mapOf(
+                    "intField" to PRIVATE,
+                    "jvmField" to PUBLIC,
+                    "protectedField" to PRIVATE,
+                    "protectedJvmField" to PROTECTED
+                )
+            )
         )
-        runKspTest(sources = listOf(src), succeed = true) { invocation ->
-            val fooElement = invocation.processingEnv.requireTypeElement("Foo")
-            fooElement.getField("intField").let { field ->
-                assertThat(field.name).isEqualTo("intField")
-                assertThat(field.kindName()).isEqualTo("property")
-                assertThat(field.enclosingTypeElement).isEqualTo(fooElement)
-                assertThat(field.isPublic()).isFalse()
-                assertThat(field.isProtected()).isFalse()
-                // from java, it is private
-                assertThat(field.isPrivate()).isTrue()
-            }
-            fooElement.getField("jvmField").let { field ->
-                assertThat(field.name).isEqualTo("jvmField")
-                assertThat(field.kindName()).isEqualTo("property")
-                assertThat(field.enclosingTypeElement).isEqualTo(fooElement)
-                assertThat(field.isPublic()).isTrue()
-                assertThat(field.isProtected()).isFalse()
-                assertThat(field.isPrivate()).isFalse()
-            }
-            fooElement.getField("protectedField").let { field ->
-                assertThat(field.name).isEqualTo("protectedField")
-                assertThat(field.kindName()).isEqualTo("property")
-                assertThat(field.enclosingTypeElement).isEqualTo(fooElement)
-                assertThat(field.isPublic()).isFalse()
-                assertThat(field.isProtected()).isFalse()
-                // from java, it is private
-                assertThat(field.isPrivate()).isTrue()
-            }
-            fooElement.getField("protectedJvmField").let { field ->
-                assertThat(field.name).isEqualTo("protectedJvmField")
-                assertThat(field.kindName()).isEqualTo("property")
-                assertThat(field.enclosingTypeElement).isEqualTo(fooElement)
-                assertThat(field.isPublic()).isFalse()
-                assertThat(field.isProtected()).isTrue()
-                assertThat(field.isPrivate()).isFalse()
-            }
-        }
+    }
+
+    @Test
+    fun javaSrcModifiers() {
+        runModifierTest(
+            ModifierTestInput(
+                qName = "JavaClassWithFields",
+                source = Source.java(
+                    "JavaClassWithFields",
+                    """
+                    public class JavaClassWithFields {
+                        public Long javaPublic;
+                        protected Long javaProtected;
+                        Long javaPackage;
+                        private Long javaPrivate;
+                    }
+                    """.trimIndent()
+                ),
+                expected = mapOf(
+                    "javaPublic" to PUBLIC,
+                    "javaProtected" to PROTECTED,
+                    "javaPackage" to null,
+                    "javaPrivate" to PRIVATE
+                )
+            )
+        )
+    }
+
+    @Test
+    fun javaSrcModifiers_withAccessors() {
+        runModifierTest(
+            ModifierTestInput(
+                qName = "JavaClassWithAccessors",
+                source = Source.java(
+                    "JavaClassWithAccessors",
+                    """
+                    public class JavaClassWithAccessors {
+                        public int javaPublic;
+                        protected int javaProtected;
+                        int javaPackage;
+                        private int javaPrivate;
+
+                        public Long getJavaPublic() {
+                            return 1L;
+                        }
+                        public void setJavaPublic(int value) {
+                        }
+                        public Long getJavaProtected() {
+                            return 1L;
+                        }
+                        public void setJavaProtected(int value) {
+                        }
+                        public Long getJavaPackage() {
+                            return 1L;
+                        }
+                        public void setJavaPackage(int value) {
+                        }
+                        public Long getJavaPrivate() {
+                            return 1L;
+                        }
+                        public void setJavaPrivate(int value) {
+                        }
+                    }
+                    """.trimIndent()
+                ),
+                expected = mapOf(
+                    "javaPublic" to PUBLIC,
+                    "javaProtected" to PROTECTED,
+                    "javaPackage" to null,
+                    "javaPrivate" to PRIVATE
+                )
+            )
+        )
     }
 
     @Test
@@ -136,4 +193,75 @@ class KspFieldElementTest {
                 )
         }
     }
+
+    private fun runModifierTest(vararg inputs: ModifierTestInput) {
+        // we'll run the test twice. once it is in source and once it is coming from a dependency.
+        val sources = inputs.map(ModifierTestInput::source)
+        runProcessorTestIncludingKsp(
+            sources = sources
+        ) { invocation ->
+            assertModifiers(invocation, inputs)
+        }
+        val classpath = compileFiles(sources)
+        runProcessorTestIncludingKsp(
+            sources = emptyList(),
+            classpath = listOf(classpath)
+        ) { invocation ->
+            if (invocation.isKsp) {
+                // TODO: https://github.com/google/ksp/issues/159
+                // KSP has a bug in java package private modifier from .class files
+                // for now, revert them to make the test happy
+                assertModifiers(
+                    invocation = invocation,
+                    inputs = inputs.map {
+                        it.copy(
+                            expected = it.expected.mapValues { (_, modifier) ->
+                                modifier ?: PUBLIC
+                            }
+                        )
+                    }.toTypedArray()
+                )
+            } else {
+                assertModifiers(invocation, inputs)
+            }
+        }
+    }
+
+    private fun assertModifiers(invocation: TestInvocation, inputs: Array<out ModifierTestInput>) {
+        inputs.forEach { input ->
+            val element = invocation.processingEnv.requireTypeElement(input.qName)
+            input.expected.forEach { (name, modifier) ->
+                val field = element.getField(name)
+                assertWithMessage("${input.qName}:$name")
+                    .that(field.modifiers)
+                    .containsExactlyElementsIn(
+                        listOfNotNull(modifier)
+                    )
+                assertThat(field.enclosingTypeElement).isEqualTo(element)
+            }
+        }
+    }
+
+    /**
+     * To avoid any confusion while reading the code, we use another class instead of java's or
+     * kotlin's modifiers (XProcessing does not have a modifier class).
+     */
+    private enum class TestModifier {
+        PUBLIC,
+        PRIVATE,
+        PROTECTED,
+    }
+
+    private val XFieldElement.modifiers
+        get() = sequence {
+            if (isPrivate()) yield(PRIVATE)
+            if (isProtected()) yield(PROTECTED)
+            if (isPublic()) yield(PUBLIC)
+        }.toList()
+
+    private data class ModifierTestInput(
+        val qName: String,
+        val source: Source,
+        val expected: Map<String, TestModifier?>
+    )
 }
