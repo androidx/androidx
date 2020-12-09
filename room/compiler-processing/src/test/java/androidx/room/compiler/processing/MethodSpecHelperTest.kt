@@ -16,8 +16,11 @@
 
 package androidx.room.compiler.processing
 
-import androidx.room.compiler.processing.javac.JavacProcessingEnv
+import androidx.room.compiler.processing.javac.JavacMethodElement
+import androidx.room.compiler.processing.javac.JavacTypeElement
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.javaTypeUtils
 import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
 import com.google.auto.common.MoreTypes
@@ -27,7 +30,6 @@ import org.junit.Test
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.type.DeclaredType
-import javax.lang.model.util.ElementFilter
 import javax.lang.model.util.Types
 
 class MethodSpecHelperTest {
@@ -180,7 +182,7 @@ class MethodSpecHelperTest {
     }
 
     @Test
-    fun inheritedVariance() {
+    fun inheritedVariance_openType() {
         val source = Source.kotlin(
             "Foo.kt",
             """
@@ -189,7 +191,7 @@ class MethodSpecHelperTest {
                 fun receiveList(argsInParent : List<T>):Unit
                 suspend fun suspendReturnList(arg1:Int, arg2:String):List<T>
             }
-            data class Book(val id:Int)
+            open class Book(val id:Int)
             interface Baz : MyInterface<Book> {
                 fun myList(args: List<Book>):Unit
                 override fun receiveList(argsInParent : List<Book>):Unit
@@ -215,7 +217,7 @@ class MethodSpecHelperTest {
             }
             """.trimIndent()
         )
-        overridesCheck(source)
+        overridesCheck(source, ignoreInheritedMethods = true)
     }
 
     @Test
@@ -235,6 +237,26 @@ class MethodSpecHelperTest {
             interface Baz : MyInterface<EnumType> {
                 fun myList(args: List<EnumType>):Unit
                 override fun receiveList(argsInParent : List<EnumType>):Unit
+            }
+            """.trimIndent()
+        )
+        overridesCheck(source)
+    }
+
+    @Test
+    fun inheritedVariance_multiLevel() {
+        val source = Source.kotlin(
+            "Foo.kt",
+            """
+            package foo.bar;
+            interface GrandParent<T> {
+                fun receiveList(list : List<T>): Unit
+                suspend fun suspendReceiveList(list : List<T>): Unit
+                suspend fun suspendReturnList(): List<T>
+            }
+            interface Parent: GrandParent<Number> {
+            }
+            interface Baz : Parent {
             }
             """.trimIndent()
         )
@@ -266,44 +288,80 @@ class MethodSpecHelperTest {
         overridesCheck(source)
     }
 
-    private fun overridesCheck(source: Source) {
+    private fun overridesCheck(source: Source, ignoreInheritedMethods: Boolean = false) {
         // first build golden image with Java processor so we can use JavaPoet's API
-        val golden = buildMethodsViaJavaPoet(source)
+        val golden = buildMethodsViaJavaPoet(source, ignoreInheritedMethods)
         runProcessorTestIncludingKsp(
             sources = listOf(source)
         ) { invocation ->
-            val element = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
-            element.getDeclaredMethods().filter {
-                // TODO b/171572318
-                !invocation.isKsp || it.name != "throwsException"
-            }.forEachIndexed { index, method ->
-                val subject = MethodSpecHelper.overridingWithFinalParams(
-                    method,
-                    element.type
-                ).build().toString()
-                assertThat(subject).isEqualTo(golden[index])
+            val (target, methods) = invocation.getOverrideTestTargets(ignoreInheritedMethods)
+            methods.forEachIndexed { index, method ->
+
+                if (invocation.isKsp && method.name == "throwsException") {
+                    // TODO b/171572318
+                } else {
+                    val subject = MethodSpecHelper.overridingWithFinalParams(
+                        method,
+                        target.type
+                    ).build().toString()
+                    assertThat(subject).isEqualTo(golden[index])
+                }
             }
         }
     }
 
-    private fun buildMethodsViaJavaPoet(source: Source): List<String> {
+    private fun buildMethodsViaJavaPoet(
+        source: Source,
+        ignoreInheritedMethods: Boolean
+    ): List<String> {
         lateinit var result: List<String>
         runKaptTest(
             sources = listOf(source),
             succeed = true
-        ) {
-            val processingEnv = (it.processingEnv as JavacProcessingEnv)
-            val element = processingEnv.elementUtils.getTypeElement("foo.bar.Baz")
-            result = ElementFilter.methodsIn(element.enclosedElements)
+        ) { invocation ->
+            val (target, methods) = invocation.getOverrideTestTargets(
+                ignoreInheritedMethods
+            )
+            val element = (target as JavacTypeElement).element
+            result = methods
                 .map {
+                    (it as JavacMethodElement).element
+                }.map {
                     generateFromJavapoet(
                         it,
                         MoreTypes.asDeclared(element.asType()),
-                        processingEnv.typeUtils
+                        invocation.javaTypeUtils
                     ).build().toString()
                 }
         }
         return result
+    }
+
+    /**
+     * Get test targets. There is an edge case where it is not possible to implement an interface
+     * in java, b/174313780. [ignoreInheritedMethods] helps avoid that case.
+     */
+    private fun XTestInvocation.getOverrideTestTargets(
+        ignoreInheritedMethods: Boolean
+    ): Pair<XTypeElement, List<XMethodElement>> {
+        val objectMethodNames = processingEnv
+            .requireTypeElement("java.lang.Object")
+            .getAllNonPrivateInstanceMethods()
+            .map {
+                it.name
+            }
+        val target = processingEnv.requireTypeElement("foo.bar.Baz")
+        val methods = if (ignoreInheritedMethods) {
+            target.getDeclaredMethods().filter { !it.isStatic() }
+        } else {
+            target.getAllNonPrivateInstanceMethods()
+        }
+        val selectedMethods = methods.filter {
+            it.isOverrideableIgnoringContainer()
+        }.filterNot {
+            it.name in objectMethodNames
+        }
+        return target to selectedMethods
     }
 
     private fun generateFromJavapoet(
