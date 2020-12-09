@@ -1172,8 +1172,12 @@ public abstract class RoomDatabase {
                 }
             }
 
+            SupportSQLiteOpenHelper.Factory factory;
+
             if (mFactory == null) {
-                mFactory = new FrameworkSQLiteOpenHelperFactory();
+                factory = new FrameworkSQLiteOpenHelperFactory();
+            } else {
+                factory = mFactory;
             }
 
             if (mCopyFromAssetPath != null
@@ -1193,12 +1197,12 @@ public abstract class RoomDatabase {
                             + "Builder, but the database can only be created using one of the "
                             + "three configurations.");
                 }
-                mFactory = new SQLiteCopyOpenHelperFactory(mCopyFromAssetPath, mCopyFromFile,
-                        mCopyFromInputStream, mFactory);
+                factory = new SQLiteCopyOpenHelperFactory(mCopyFromAssetPath, mCopyFromFile,
+                        mCopyFromInputStream, factory);
             }
 
             if (mQueryCallback != null) {
-                mFactory = new QueryInterceptorOpenHelperFactory(mFactory, mQueryCallback,
+                factory = new QueryInterceptorOpenHelperFactory(factory, mQueryCallback,
                         mQueryCallbackExecutor);
             }
 
@@ -1206,7 +1210,7 @@ public abstract class RoomDatabase {
                     new DatabaseConfiguration(
                             mContext,
                             mName,
-                            mFactory,
+                            factory,
                             mMigrationContainer,
                             mCallbacks,
                             mAllowMainThreadQueries,
