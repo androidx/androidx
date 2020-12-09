@@ -239,6 +239,29 @@ package androidx.wear.widget {
     method public void onLayoutFinished(android.view.View!, androidx.recyclerview.widget.RecyclerView!);
   }
 
+  @UiThread public class DismissibleFrameLayout extends android.widget.FrameLayout {
+    ctor public DismissibleFrameLayout(android.content.Context);
+    ctor public DismissibleFrameLayout(android.content.Context, android.util.AttributeSet?);
+    ctor public DismissibleFrameLayout(android.content.Context, android.util.AttributeSet?, int);
+    ctor public DismissibleFrameLayout(android.content.Context, android.util.AttributeSet?, int, int);
+    method protected void executeDismissCanceledCallbacks();
+    method protected void executeDismissStartedCallbacks();
+    method protected void executeDismissedCallbacks();
+    method public boolean isBackButtonDismissible();
+    method public boolean isSwipeDismissible();
+    method @UiThread public void registerCallback(androidx.wear.widget.DismissibleFrameLayout.Callback);
+    method public void setBackButtonDismissible(boolean);
+    method public void setSwipeDismissible(boolean);
+    method @UiThread public void unregisterCallback(androidx.wear.widget.DismissibleFrameLayout.Callback);
+  }
+
+  @UiThread public abstract static class DismissibleFrameLayout.Callback {
+    ctor public DismissibleFrameLayout.Callback();
+    method public void onDismissCanceled(androidx.wear.widget.DismissibleFrameLayout);
+    method public void onDismissStarted(androidx.wear.widget.DismissibleFrameLayout);
+    method public void onDismissed(androidx.wear.widget.DismissibleFrameLayout);
+  }
+
   public class RoundedDrawable extends android.graphics.drawable.Drawable {
     ctor public RoundedDrawable();
     method public void draw(android.graphics.Canvas);
@@ -255,7 +278,7 @@ package androidx.wear.widget {
     method public void setRadius(int);
   }
 
-  @UiThread public class SwipeDismissFrameLayout extends android.widget.FrameLayout {
+  @UiThread public class SwipeDismissFrameLayout extends androidx.wear.widget.DismissibleFrameLayout {
     ctor public SwipeDismissFrameLayout(android.content.Context!);
     ctor public SwipeDismissFrameLayout(android.content.Context!, android.util.AttributeSet!);
     ctor public SwipeDismissFrameLayout(android.content.Context!, android.util.AttributeSet!, int);
