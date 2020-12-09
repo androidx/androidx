@@ -46,8 +46,10 @@ import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.SystemState
+import androidx.wear.watchface.samples.COLOR_STYLE_SETTING
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+import androidx.wear.watchface.samples.GREEN_STYLE
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import org.junit.After
@@ -304,7 +306,7 @@ class WatchFaceServiceImageTest {
         initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         handler.post {
             interactiveWatchFaceInstanceWCS.setCurrentUserStyle(
-                UserStyleWireFormat(mapOf("color_style_setting" to "green_style"))
+                UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE))
             )
             engineWrapper.draw()
         }
@@ -442,7 +444,7 @@ class WatchFaceServiceImageTest {
         handler.post {
             // Change the style
             interactiveWatchFaceInstanceWCS.setCurrentUserStyle(
-                UserStyleWireFormat(mapOf("color_style_setting" to "green_style"))
+                UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE))
             )
 
             // Simulate device shutting down.
