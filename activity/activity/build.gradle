@@ -27,6 +27,7 @@ dependencies {
     api(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
     api(projectOrArtifact(":savedstate:savedstate"))
     api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate"))
+    implementation("androidx.tracing:tracing:1.0.0")
 
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(KOTLIN_STDLIB)
