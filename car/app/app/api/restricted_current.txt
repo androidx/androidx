@@ -591,7 +591,6 @@ package androidx.car.app.model {
 
   public class Row implements androidx.car.app.model.Item {
     method public static androidx.car.app.model.Row.Builder builder();
-    method public int getFlags();
     method public androidx.car.app.model.CarIcon? getImage();
     method public androidx.car.app.model.Metadata getMetadata();
     method public androidx.car.app.host.model.OnClickListenerWrapper? getOnClickListener();
@@ -605,9 +604,6 @@ package androidx.car.app.model {
     field public static final int IMAGE_TYPE_ICON = 4; // 0x4
     field public static final int IMAGE_TYPE_LARGE = 2; // 0x2
     field public static final int IMAGE_TYPE_SMALL = 1; // 0x1
-    field public static final int ROW_FLAG_NONE = 1; // 0x1
-    field public static final int ROW_FLAG_SECTION_HEADER = 4; // 0x4
-    field public static final int ROW_FLAG_SHOW_DIVIDERS = 2; // 0x2
   }
 
   public static final class Row.Builder {
@@ -615,7 +611,6 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Row build();
     method public androidx.car.app.model.Row.Builder clearText();
     method public androidx.car.app.model.Row.Builder setBrowsable(boolean);
-    method public androidx.car.app.model.Row.Builder setFlags(int);
     method public androidx.car.app.model.Row.Builder setImage(androidx.car.app.model.CarIcon?);
     method public androidx.car.app.model.Row.Builder setImage(androidx.car.app.model.CarIcon?, int);
     method public androidx.car.app.model.Row.Builder setMetadata(androidx.car.app.model.Metadata);
@@ -736,7 +731,6 @@ package androidx.car.app.model.constraints {
   public class RowConstraints {
     method public static androidx.car.app.model.constraints.RowConstraints.Builder builder();
     method public androidx.car.app.model.constraints.CarIconConstraints getCarIconConstraints();
-    method public int getFlagOverrides();
     method public int getMaxActionsExclusive();
     method public int getMaxTextLinesPerRow();
     method public boolean isImageAllowed();
@@ -754,7 +748,6 @@ package androidx.car.app.model.constraints {
   public static final class RowConstraints.Builder {
     method public androidx.car.app.model.constraints.RowConstraints build();
     method public androidx.car.app.model.constraints.RowConstraints.Builder setCarIconConstraints(androidx.car.app.model.constraints.CarIconConstraints);
-    method public androidx.car.app.model.constraints.RowConstraints.Builder setFlagOverrides(int);
     method public androidx.car.app.model.constraints.RowConstraints.Builder setImageAllowed(boolean);
     method public androidx.car.app.model.constraints.RowConstraints.Builder setMaxActionsExclusive(int);
     method public androidx.car.app.model.constraints.RowConstraints.Builder setMaxTextLinesPerRow(int);
