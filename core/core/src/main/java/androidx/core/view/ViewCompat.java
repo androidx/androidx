@@ -2513,12 +2513,36 @@ public class ViewCompat {
             }
 
             v.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+                WindowInsetsCompat mLastInsets = null;
+                WindowInsets mReturnedInsets = null;
+
                 @Override
-                public WindowInsets onApplyWindowInsets(View view, WindowInsets insets) {
+                public WindowInsets onApplyWindowInsets(final View view,
+                        final WindowInsets insets) {
                     WindowInsetsCompat compatInsets = WindowInsetsCompat
                             .toWindowInsetsCompat(insets, view);
+                    if (Build.VERSION.SDK_INT < 30) {
+                        if (compatInsets.equals(mLastInsets)) {
+                            // We got the same insets we just return the previously computed insets.
+                            return mReturnedInsets;
+                        }
+                        mLastInsets = compatInsets;
+                    }
                     compatInsets = listener.onApplyWindowInsets(view, compatInsets);
-                    return compatInsets.toWindowInsets();
+
+                    if (Build.VERSION.SDK_INT >= 30) {
+                        return compatInsets.toWindowInsets();
+                    }
+
+                    // On API < 30, the visibleInsets, used to built WindowInsetsCompat, are
+                    // updated after the insets dispatch so we don't have the updated visible
+                    // insets at that point. As a workaround, we req-apply the insets so we know
+                    // that we'll have the right value the next time it's called.
+                    requestApplyInsets(view);
+                    // Keep a copy in case the insets haven't changed on the next call so we don't
+                    // need to call the listener again.
+                    mReturnedInsets = compatInsets.toWindowInsets();
+                    return mReturnedInsets;
                 }
             });
         }
