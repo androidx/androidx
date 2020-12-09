@@ -300,11 +300,16 @@ internal class SingleProcessDataStore<T>(
             }
 
             if (!scratchFile.renameTo(file)) {
-                throw IOException("$scratchFile could not be renamed to $file")
+                throw IOException(
+                    "Unable to rename $scratchFile." +
+                        "This likely means that there are multiple instances of DataStore " +
+                        "for this file. Ensure that you are only creating a single instance of " +
+                        "datastore for this file."
+                )
             }
         } catch (ex: IOException) {
             if (scratchFile.exists()) {
-                scratchFile.delete()
+                scratchFile.delete() // Swallow failure to delete
             }
             throw ex
         }
