@@ -35,26 +35,13 @@ dependencies {
 
     implementation(KOTLIN_METADATA_JVM)
     implementation(INTELLIJ_ANNOTATIONS)
-    implementation(KOTLIN_KSP_API) {
-        version {
-            // TODO remove after KSP versions are fixed
-            //  KSP 1.4 versions are not properly ordered due to rc vs dev versions (dev is latest
-            //  but gradle thinks rc is latest).
-            //  We have to enforce it to ensure the correct version is used.
-            strictly KSP_VERSION
-        }
-    }
+    implementation(KOTLIN_KSP_API)
 
     testImplementation(GOOGLE_COMPILE_TESTING)
     testImplementation(JUNIT)
     testImplementation(JSR250)
     testImplementation(KOTLIN_COMPILE_TESTING_KSP)
-    testImplementation(KOTLIN_KSP) {
-        version {
-            // TODO remove after KSP versions are fixed
-            strictly KSP_VERSION
-        }
-    }
+    testImplementation(KOTLIN_KSP)
     testImplementation(project(":room:room-compiler-processing-testing"))
 }
 

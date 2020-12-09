@@ -400,6 +400,8 @@ w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-s
 Html results of .* zipped into.*\.zip
 # > Task :annotation:annotation-experimental-lint:test
 WARNING: An illegal reflective access operation has occurred
+WARNING\: Illegal reflective access by org\.jetbrains\.kotlin\.com\.intellij\.util\.ReflectionUtil \(file\:\$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-compiler\-embeddable\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-compiler\-embeddable\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
+WARNING\: Please consider reporting this to the maintainers of org\.jetbrains\.kotlin\.com\.intellij\.util\.ReflectionUtil
 WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-compiler/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-compiler\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion\$isFromCompiledClass\$[0-9]+ \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\.jar\) to field com\.sun\.tools\.javac\.code\.Symbol\.owner
 WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-compiler/[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+/kotlin\-compiler\-[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
@@ -412,8 +414,6 @@ WARNING: Illegal reflective access by org\.robolectric\.util\.ReflectionHelpers 
 WARNING: Please consider reporting this to the maintainers of org\.robolectric\.util\.ReflectionHelpers
 # > Task :compose:compiler:compiler-hosted:integration-tests:test
 wrote dependency log to \$DIST_DIR/affected_module_detector_log\.txt
-Deprecated Gradle features were used in this build\, making it incompatible with Gradle [0-9]+\.[0-9]+\.
-Use \'\-\-warning\-mode all\' to show the individual deprecation warnings\.
 # > Task :enterprise-feedback-testing:compileDebugUnitTestJavaWithJavac
 Note: \$SUPPORT/enterprise/feedback/testing/src/test/java/androidx/enterprise/feedback/FakeKeyedAppStatesReporterTest\.java uses or overrides a deprecated API\.
 # > Task :biometric:biometric:compileDebugUnitTestJavaWithJavac
