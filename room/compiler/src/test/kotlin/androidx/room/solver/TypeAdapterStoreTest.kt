@@ -20,7 +20,6 @@ import COMMON
 import androidx.paging.DataSource
 import androidx.paging.PagingSource
 import androidx.room.compiler.processing.XProcessingEnv
-import androidx.room.compiler.processing.asDeclaredType
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -73,7 +72,7 @@ class TypeAdapterStoreTest {
         runProcessorTest { invocation ->
             val store = TypeAdapterStore.create(Context(invocation.processingEnv))
             val primitiveType = invocation.processingEnv.requireType(TypeName.INT)
-            val adapter = store.findColumnTypeAdapter(primitiveType, null)
+            val adapter = store.findColumnTypeAdapter(primitiveType, null, false)
             assertThat(adapter, notNullValue())
         }
     }
@@ -88,7 +87,7 @@ class TypeAdapterStoreTest {
                 .processingEnv
                 .requireType("java.lang.Boolean")
                 .makeNullable()
-            val adapter = store.findColumnTypeAdapter(boolean, null)
+            val adapter = store.findColumnTypeAdapter(boolean, null, false)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
             val composite = adapter as CompositeAdapter
@@ -122,7 +121,7 @@ class TypeAdapterStoreTest {
             val enum = invocation
                 .processingEnv
                 .requireType("foo.bar.Fruit")
-            val adapter = store.findColumnTypeAdapter(enum, null)
+            val adapter = store.findColumnTypeAdapter(enum, null, false)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(EnumColumnTypeAdapter::class.java))
         }
@@ -133,7 +132,7 @@ class TypeAdapterStoreTest {
         runProcessorTest { invocation ->
             val store = TypeAdapterStore.create(Context(invocation.processingEnv))
             val booleanType = invocation.processingEnv.requireType(TypeName.BOOLEAN)
-            val adapter = store.findColumnTypeAdapter(booleanType, null)
+            val adapter = store.findColumnTypeAdapter(booleanType, null, false)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
             val bindScope = testCodeGenScope()
@@ -195,7 +194,7 @@ class TypeAdapterStoreTest {
                 pointTypeConverters(invocation.processingEnv)
             )
             val pointType = invocation.processingEnv.requireType("foo.bar.Point")
-            val adapter = store.findColumnTypeAdapter(pointType, null)
+            val adapter = store.findColumnTypeAdapter(pointType, null, false)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
 
@@ -270,7 +269,7 @@ class TypeAdapterStoreTest {
                 binders[1]
             )
 
-            val adapter = store.findColumnTypeAdapter(binders[0].from, null)
+            val adapter = store.findColumnTypeAdapter(binders[0].from, null, false)
             assertThat(adapter, notNullValue())
 
             val bindScope = testCodeGenScope()
@@ -304,7 +303,7 @@ class TypeAdapterStoreTest {
         runProcessorTest { invocation ->
             val binders = createIntListToStringBinders(invocation)
             val store = TypeAdapterStore.create(Context(invocation.processingEnv), binders[0])
-            val adapter = store.findColumnTypeAdapter(binders[0].from, null)
+            val adapter = store.findColumnTypeAdapter(binders[0].from, null, false)
             assertThat(adapter, nullValue())
 
             val stmtBinder = store.findStatementValueBinder(binders[0].from, null)
@@ -588,7 +587,7 @@ class TypeAdapterStoreTest {
             assertThat(pagingSourceIntIntType, notNullValue())
             assertThat(
                 PagingSourceQueryResultBinderProvider(invocation.context)
-                    .matches(pagingSourceIntIntType.asDeclaredType()),
+                    .matches(pagingSourceIntIntType),
                 `is`(true)
             )
         }
@@ -606,7 +605,7 @@ class TypeAdapterStoreTest {
             assertThat(pagingSourceIntIntType, notNullValue())
             assertThat(
                 PagingSourceQueryResultBinderProvider(invocation.context)
-                    .matches(pagingSourceIntIntType.asDeclaredType()),
+                    .matches(pagingSourceIntIntType),
                 `is`(true)
             )
             invocation.assertCompilationResult {
