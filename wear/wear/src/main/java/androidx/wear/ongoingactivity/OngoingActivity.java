@@ -21,6 +21,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.os.Build;
+import android.os.SystemClock;
 import android.service.notification.StatusBarNotification;
 
 import androidx.annotation.DrawableRes;
@@ -83,6 +84,7 @@ public final class OngoingActivity {
         private PendingIntent mTouchIntent;
         private LocusIdCompat mLocusId;
         private int mOngoingActivityId = OngoingActivityData.DEFAULT_ID;
+        private String mCategory;
 
         /**
          * Construct a new empty {@link Builder}, associated with the given notification.
@@ -106,6 +108,8 @@ public final class OngoingActivity {
          * {@link OngoingActivity}. For example, in the WatchFace.
          * Should be white with a transparent background, preferably an AnimatedVectorDrawable.
          */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        // No getters needed on OngoingActivity - receiver will consume from OngoingActivityData.
         @NonNull
         public Builder setAnimatedIcon(@NonNull Icon animatedIcon) {
             mAnimatedIcon = animatedIcon;
@@ -117,6 +121,8 @@ public final class OngoingActivity {
          * {@link OngoingActivity}. For example, in the WatchFace.
          * Should be white with a transparent background, preferably an AnimatedVectorDrawable.
          */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        // No getters needed on OngoingActivity - receiver will consume from OngoingActivityData.
         @NonNull
         public Builder setAnimatedIcon(@DrawableRes int animatedIcon) {
             mAnimatedIcon = Icon.createWithResource(mContext, animatedIcon);
@@ -128,6 +134,8 @@ public final class OngoingActivity {
          * {@link OngoingActivity}, for example in the WatchFace in ambient mode.
          * Should be white with a transparent background, preferably an VectorDrawable.
          */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        // No getters needed on OngoingActivity - receiver will consume from OngoingActivityData.
         @NonNull
         public Builder setStaticIcon(@NonNull Icon staticIcon) {
             mStaticIcon = staticIcon;
@@ -139,6 +147,8 @@ public final class OngoingActivity {
          * {@link OngoingActivity}, for example in the WatchFace in ambient mode.
          * Should be white with a transparent background, preferably an VectorDrawable.
          */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        // No getters needed on OngoingActivity - receiver will consume from OngoingActivityData.
         @NonNull
         public Builder setStaticIcon(@DrawableRes int staticIcon) {
             mStaticIcon = Icon.createWithResource(mContext, staticIcon);
@@ -149,6 +159,8 @@ public final class OngoingActivity {
          * Set the initial status of this ongoing activity, the status may be displayed on the UI to
          * show progress of the Ongoing Activity.
          */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        // No getters needed on OngoingActivity - receiver will consume from OngoingActivityData.
         @NonNull
         public Builder setStatus(@NonNull OngoingActivityStatus status) {
             mStatus = status;
@@ -159,6 +171,8 @@ public final class OngoingActivity {
          * Set the intent to be used to go back to the activity when the user interacts with the
          * Ongoing Activity in other surfaces (for example, taps the Icon on the WatchFace)
          */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        // No getters needed on OngoingActivity - receiver will consume from OngoingActivityData.
         @NonNull
         public Builder setTouchIntent(@NonNull PendingIntent touchIntent) {
             mTouchIntent = touchIntent;
@@ -169,6 +183,8 @@ public final class OngoingActivity {
          * Set the corresponding LocusId of this {@link OngoingActivity}, this will be used by the
          * launcher to identify the corresponding launcher item and display it accordingly.
          */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        // No getters needed on OngoingActivity - receiver will consume from OngoingActivityData.
         @NonNull
         public Builder setLocusId(@NonNull LocusIdCompat locusId) {
             mLocusId = locusId;
@@ -179,9 +195,23 @@ public final class OngoingActivity {
          * Give an id to this {@link OngoingActivity}, as a way to reference it in
          * {@link OngoingActivity#fromExistingOngoingActivity(Context, int)}
          */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        // No getters needed on OngoingActivity - receiver will consume from OngoingActivityData.
         @NonNull
         public Builder setOngoingActivityId(int ongoingActivityId) {
             mOngoingActivityId = ongoingActivityId;
+            return this;
+        }
+
+        /**
+         * Set the category of this {@link OngoingActivity}, this may be used by the system to
+         * prioritize it.
+         */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        // No getters needed on OngoingActivity - receiver will consume from OngoingActivityData.
+        @NonNull
+        public Builder setCategory(@NonNull String category) {
+            mCategory = category;
             return this;
         }
 
@@ -220,6 +250,8 @@ public final class OngoingActivity {
                 locusId = Api29Impl.getLocusId(notification);
             }
 
+            String category = mCategory == null ? notification.category : mCategory;
+
             return new OngoingActivity(mNotificationId, mNotificationBuilder,
                     new OngoingActivityData(
                         mAnimatedIcon,
@@ -227,7 +259,9 @@ public final class OngoingActivity {
                         status,
                         touchIntent,
                         locusId,
-                        mOngoingActivityId
+                        mOngoingActivityId,
+                        category,
+                        SystemClock.elapsedRealtime()
                     ));
         }
     }
@@ -278,8 +312,8 @@ public final class OngoingActivity {
         StatusBarNotification[] notifications =
                 context.getSystemService(NotificationManager.class).getActiveNotifications();
         for (StatusBarNotification statusBarNotification : notifications) {
-            OngoingActivityData data = OngoingActivityData.create(
-                    statusBarNotification.getNotification());
+            OngoingActivityData data =
+                    OngoingActivityData.create(statusBarNotification.getNotification());
             if (data != null && filter.test(data)) {
                 return new OngoingActivity(statusBarNotification.getId(),
                         new NotificationCompat.Builder(context,
