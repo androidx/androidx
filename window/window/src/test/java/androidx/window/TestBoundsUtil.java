@@ -38,7 +38,7 @@ class TestBoundsUtil {
         return new Rect(windowBounds.left, windowBounds.top, windowBounds.right / 2, 2);
     }
 
-    public static Rect invalidBoundShortHeightHeight(Rect windowBounds) {
+    public static Rect invalidBoundShortHeight(Rect windowBounds) {
         return new Rect(windowBounds.left, windowBounds.top, 2, windowBounds.bottom / 2);
     }
 
@@ -47,7 +47,7 @@ class TestBoundsUtil {
 
         badBounds.add(invalidZeroBound());
         badBounds.add(invalidBoundShortWidth(windowBounds));
-        badBounds.add(invalidBoundShortHeightHeight(windowBounds));
+        badBounds.add(invalidBoundShortHeight(windowBounds));
 
         return badBounds;
     }
