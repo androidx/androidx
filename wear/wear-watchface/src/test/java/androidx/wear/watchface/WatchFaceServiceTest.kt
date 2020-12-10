@@ -329,6 +329,7 @@ class WatchFaceServiceTest {
         sendImmutableProperties(engineWrapper, hasLowBitAmbient, hasBurnInProtection)
 
         watchFaceImpl = engineWrapper.watchFaceImpl
+        testWatchFaceService.setIsVisible(true)
     }
 
     private fun initWallpaperInteractiveWatchFaceInstance(
@@ -378,6 +379,7 @@ class WatchFaceServiceTest {
         // The [SurfaceHolder] must be sent before binding.
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         watchFaceImpl = engineWrapper.watchFaceImpl
+        testWatchFaceService.setIsVisible(true)
     }
 
     private fun sendBinder(engine: WatchFaceService.EngineWrapper, apiVersion: Int) {
@@ -518,8 +520,7 @@ class WatchFaceServiceTest {
         watchState.isAmbient.value = false
         testWatchFaceService.mockSystemTimeMillis = 1000L
 
-        watchFaceImpl.mockTimeReceiver.onReceive(
-            context,
+        BroadcastReceivers.sendOnMockTimeForTesting(
             Intent(WatchFaceImpl.MOCK_TIME_INTENT).apply {
                 putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_SPEED_MULTIPLIER, 2.0f)
                 putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_WRAPPING_MIN_TIME, -1L)
@@ -546,8 +547,7 @@ class WatchFaceServiceTest {
         watchState.isAmbient.value = false
         testWatchFaceService.mockSystemTimeMillis = 1000L
 
-        watchFaceImpl.mockTimeReceiver.onReceive(
-            context,
+        BroadcastReceivers.sendOnMockTimeForTesting(
             Intent(WatchFaceImpl.MOCK_TIME_INTENT).apply {
                 putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_SPEED_MULTIPLIER, 2.0f)
                 putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_WRAPPING_MIN_TIME, 1000L)
@@ -875,19 +875,13 @@ class WatchFaceServiceTest {
         )
 
         // The delay should change when battery is low.
-        watchFaceImpl.batteryLevelReceiver.onReceive(
-            context,
-            Intent(Intent.ACTION_BATTERY_LOW)
-        )
+        BroadcastReceivers.sendOnActionBatteryChangedForTesting(Intent(Intent.ACTION_BATTERY_LOW))
         assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
             WatchFaceImpl.MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS
         )
 
         // And go back to normal when battery is OK.
-        watchFaceImpl.batteryLevelReceiver.onReceive(
-            context,
-            Intent(Intent.ACTION_BATTERY_OKAY)
-        )
+        BroadcastReceivers.sendOnActionBatteryChangedForTesting(Intent(Intent.ACTION_BATTERY_OKAY))
         assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
             INTERACTIVE_UPDATE_RATE_MS
         )
