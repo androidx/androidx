@@ -38,17 +38,44 @@ import java.io.PrintWriter;
  * The application that uses this should add the {@link android.Manifest.permission#WAKE_LOCK}
  * permission to its manifest.
  * <p>
+ * The following describes the general use of this class:
+ * <p>
+ * Create a subclass of one of the {@link FragmentActivity} classes and implement the
+ * {@link AmbientCallbackProvider} interface. Override the
+ * {@link AmbientCallbackProvider#getAmbientCallback()} method to provide the callbacks required
+ * for reacting to the ambient events from the Android system. If a valid
+ * {@link AmbientCallback} is not provided (either no implementation of the
+ * {@link AmbientCallbackProvider} interface, or returning null from
+ * {@link AmbientCallbackProvider#getAmbientCallback()}), then ambient mode will NOT be enabled.
+ * <p>
  * The primary entry  point for this code is the {@link #attach(FragmentActivity)} method.
  * It should be called with an {@link FragmentActivity} as an argument and that
  * {@link FragmentActivity} will then be able to receive ambient lifecycle events through
  * an {@link AmbientCallback}. The {@link FragmentActivity} will also receive a
  * {@link AmbientController} object from the attachment which can be used to query the current
- * status of the ambient mode. An example of how to attach {@link AmbientModeSupport} to your
- * {@link FragmentActivity} and use the {@link AmbientController} can be found below:
+ * status of the ambient mode.
  * <p>
- * <pre class="prettyprint">{@code
- *     AmbientModeSupport.AmbientController controller = AmbientModeSupport.attach(this);
- *     boolean isAmbient = controller.isAmbient();
+ * An example of how to implement the {@link AmbientCallbackProvider} interface, attach
+ * {@link AmbientModeSupport} to your {@link FragmentActivity} and use the
+ * {@link AmbientController} can be found below:
+ *
+ * <pre class="prettyprint">
+ * public class MyActivity extends FragmentActivity
+ *     implements AmbientModeSupport.AmbientCallbackProvider {
+ *     {@literal @}Override
+ *     public void onCreate(Bundle savedInstanceState) {
+ *         super.onCreate(savedInstanceState)
+ *         ...
+ *         AmbientModeSupport.AmbientController controller = AmbientModeSupport.attach(this);
+ *         boolean isAmbient = controller.isAmbient();
+ *     }
+ *     {@literal @}Override
+ *     AmbientModeSupport.AmbientCallback getAmbientCallback() {
+ *         return new AmbientModeSupport.AmbientCallback() {
+ *             public void onEnterAmbient(Bundle ambientDetails) {...}
+ *             public void onExitAmbient(Bundle ambientDetails) {...}
+ *         }
+ *     }
  * }</pre>
  */
 public final class AmbientModeSupport extends Fragment {
