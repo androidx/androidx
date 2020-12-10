@@ -111,6 +111,7 @@ public class CallbackToFutureAdapterTest {
      */
     private static void createUnreachableLatchFinalizer(final CountDownLatch latch) {
         new Object() {
+            @SuppressWarnings("deprecation")
             @Override
             protected void finalize() {
                 latch.countDown();

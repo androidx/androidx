@@ -32,7 +32,6 @@ import android.graphics.RectF;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -46,9 +45,11 @@ import org.mockito.Mock;
  */
 @RunWith(AndroidJUnit4.class)
 public class CircularProgressDrawableTest {
+    @SuppressWarnings("deprecation")
     @Rule
-    public final ActivityTestRule<CircularProgressDrawableActivity> mActivityTestRule =
-            new ActivityTestRule<>(CircularProgressDrawableActivity.class);
+    public final androidx.test.rule.ActivityTestRule<CircularProgressDrawableActivity>
+            mActivityTestRule =
+                new androidx.test.rule.ActivityTestRule<>(CircularProgressDrawableActivity.class);
 
     private CircularProgressDrawable mDrawableUnderTest;
 

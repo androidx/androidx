@@ -139,6 +139,7 @@ public class DeferrableSurfaceTest {
         mDeferrableSurface.decrementUseCount();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void closedSurfaceContainsSurfaceClosedException() {
         mDeferrableSurface.close();

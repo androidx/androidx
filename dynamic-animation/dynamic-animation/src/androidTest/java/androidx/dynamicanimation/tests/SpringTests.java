@@ -47,7 +47,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -55,18 +54,21 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
+@SuppressWarnings("unchecked")
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class SpringTests {
-    @Rule public final ActivityTestRule<AnimationActivity> mActivityTestRule;
+    @SuppressWarnings("deprecation")
+    @Rule public final androidx.test.rule.ActivityTestRule<AnimationActivity> mActivityTestRule;
     public View mView1;
     public View mView2;
 
     @Rule
     public ExpectedException mExpectedException = ExpectedException.none();
 
+    @SuppressWarnings("deprecation")
     public SpringTests() {
-        mActivityTestRule = new ActivityTestRule<>(AnimationActivity.class);
+        mActivityTestRule = new androidx.test.rule.ActivityTestRule<>(AnimationActivity.class);
     }
 
     @Before

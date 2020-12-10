@@ -132,6 +132,7 @@ public class GridActivity extends Activity {
         return view;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Intent intent = getIntent();

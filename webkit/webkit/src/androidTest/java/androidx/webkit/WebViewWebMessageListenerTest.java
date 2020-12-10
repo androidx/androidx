@@ -58,7 +58,7 @@ public class WebViewWebMessageListenerTest {
             + "        myObject.postMessage('hello');"
             + "    </script>"
             + "</body></html>";
-    private static final Set<String> MATCH_EXAMPLE_COM = new HashSet(Arrays.asList(BASE_URI));
+    private static final Set<String> MATCH_EXAMPLE_COM = new HashSet<>(Arrays.asList(BASE_URI));
 
     private WebViewOnUiThread mWebViewOnUiThread;
     private TestWebMessageListener mListener = new TestWebMessageListener();

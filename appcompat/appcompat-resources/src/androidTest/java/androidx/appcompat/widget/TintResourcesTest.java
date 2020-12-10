@@ -25,18 +25,18 @@ import android.graphics.drawable.Drawable;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+@SuppressWarnings("deprecation")
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class TintResourcesTest {
     @Rule
-    public final ActivityTestRule<Activity> mActivityTestRule =
-            new ActivityTestRule<>(Activity.class);
+    public final androidx.test.rule.ActivityTestRule<Activity> mActivityTestRule =
+            new androidx.test.rule.ActivityTestRule<>(Activity.class);
 
     @Test
     public void testTintResourcesDelegateBackToOriginalResources() {

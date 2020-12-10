@@ -202,6 +202,7 @@ public class MediaControllerCompatCallbackTest {
     /**
      * Tests {@link MediaSessionCompat#setFlags}.
      */
+    @SuppressWarnings("deprecation")
     @Test
     @SmallTest
     public void testSetFlags() throws Exception {

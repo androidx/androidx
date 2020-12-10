@@ -104,6 +104,7 @@ import org.mockito.ArgumentCaptor;
  *     is rendered by a single <code>CheckedTextView</code>.</li>
  * </ul>
  */
+@SuppressWarnings("unchecked")
 @LargeTest
 public class AlertDialogTest {
     @Rule

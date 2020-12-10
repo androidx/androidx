@@ -51,7 +51,6 @@ import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController;
 import androidx.media2.widget.test.R;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
 import org.junit.Before;
@@ -82,9 +81,10 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     private MediaItem mMediaItem;
     private SynchronousPixelCopy mPixelCopyHelper;
 
+    @SuppressWarnings("deprecation")
     @Rule
-    public ActivityTestRule<VideoViewTestActivity> mActivityRule =
-            new ActivityTestRule<>(VideoViewTestActivity.class);
+    public androidx.test.rule.ActivityTestRule<VideoViewTestActivity> mActivityRule =
+            new androidx.test.rule.ActivityTestRule<>(VideoViewTestActivity.class);
 
     public VideoView_WithPlayerTest(String playerType) {
         mPlayerType = playerType;

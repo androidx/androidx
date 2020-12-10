@@ -219,23 +219,23 @@ public class ExifInterfaceTest {
     private static final HashMap<Integer, Pair> FLIP_STATE_AND_ROTATION_DEGREES = new HashMap<>();
     static {
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_UNDEFINED, new Pair(false, 0));
+                ExifInterface.ORIENTATION_UNDEFINED, new Pair<>(false, 0));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_NORMAL, new Pair(false, 0));
+                ExifInterface.ORIENTATION_NORMAL, new Pair<>(false, 0));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_ROTATE_90, new Pair(false, 90));
+                ExifInterface.ORIENTATION_ROTATE_90, new Pair<>(false, 90));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_ROTATE_180, new Pair(false, 180));
+                ExifInterface.ORIENTATION_ROTATE_180, new Pair<>(false, 180));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_ROTATE_270, new Pair(false, 270));
+                ExifInterface.ORIENTATION_ROTATE_270, new Pair<>(false, 270));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL, new Pair(true, 0));
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL, new Pair<>(true, 0));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_TRANSVERSE, new Pair(true, 90));
+                ExifInterface.ORIENTATION_TRANSVERSE, new Pair<>(true, 90));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_FLIP_VERTICAL, new Pair(true, 180));
+                ExifInterface.ORIENTATION_FLIP_VERTICAL, new Pair<>(true, 180));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_TRANSPOSE, new Pair(true, 270));
+                ExifInterface.ORIENTATION_TRANSPOSE, new Pair<>(true, 270));
     }
 
     private static final String[] EXIF_TAGS = {
@@ -919,6 +919,7 @@ public class ExifInterfaceTest {
 
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     @SmallTest
     public void testInterchangeabilityBetweenTwoIsoSpeedTags() throws IOException {

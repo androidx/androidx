@@ -41,7 +41,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 import androidx.testutils.SwipeInjector;
 
 import org.junit.Before;
@@ -52,8 +51,8 @@ public class SwipeRefreshLayoutWithHorizontallyScrollingChildTest {
 
     @Rule
     @SuppressWarnings("deprecation")
-    public final ActivityTestRule<ComponentActivity>
-            mActivityTestRule = new ActivityTestRule<>(ComponentActivity.class);
+    public final androidx.test.rule.ActivityTestRule<ComponentActivity>
+            mActivityTestRule = new androidx.test.rule.ActivityTestRule<>(ComponentActivity.class);
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;

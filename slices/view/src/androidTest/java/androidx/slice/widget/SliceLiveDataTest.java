@@ -60,6 +60,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.concurrent.CountDownLatch;
 
+@SuppressWarnings("unchecked")
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 @SdkSuppress(minSdkVersion = 19)

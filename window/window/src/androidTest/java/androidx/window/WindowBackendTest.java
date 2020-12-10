@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /** Tests for {@link WindowBackend} class. */
+@SuppressWarnings("unchecked")
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class WindowBackendTest extends WindowTestBase {

@@ -203,8 +203,8 @@ public class BrowseSupportFragmentTest {
 
     public static class MyFragment extends Fragment implements
             BrowseSupportFragment.MainFragmentAdapterProvider {
-        BrowseSupportFragment.MainFragmentAdapter mMainFragmentAdapter = new BrowseSupportFragment
-                .MainFragmentAdapter(this);
+        BrowseSupportFragment.MainFragmentAdapter<MyFragment> mMainFragmentAdapter =
+                new BrowseSupportFragment.MainFragmentAdapter<>(this);
 
         @Nullable
         @Override
@@ -214,7 +214,7 @@ public class BrowseSupportFragmentTest {
         }
 
         @Override
-        public BrowseSupportFragment.MainFragmentAdapter getMainFragmentAdapter() {
+        public BrowseSupportFragment.MainFragmentAdapter<MyFragment> getMainFragmentAdapter() {
             return mMainFragmentAdapter;
         }
     }
