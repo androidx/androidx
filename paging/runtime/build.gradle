@@ -37,9 +37,11 @@ dependencies {
     // Ensure that the -ktx dependency graph mirrors the Java dependency graph
     api(project(":paging:paging-common-ktx"))
 
-    api("androidx.lifecycle:lifecycle-runtime-ktx:2.2.0")
+
     api("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
-    api("androidx.recyclerview:recyclerview:1.2.0-alpha04")
+    api("androidx.lifecycle:lifecycle-runtime-ktx:2.2.0")
+    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0")
+    api("androidx.recyclerview:recyclerview:1.2.0-beta01")
     api(KOTLIN_STDLIB)
     api(KOTLIN_COROUTINES_ANDROID)
     implementation("androidx.core:core-ktx:1.2.0")
