@@ -48,7 +48,7 @@ class KSAsMemberOfTest {
             """.trimIndent()
         )
 
-        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+        runKspTest(sources = listOf(src)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("BaseClass")
             val sub = invocation.processingEnv.requireType("SubClass").asDeclaredType()
             base.getField("normalInt").let { prop ->
@@ -121,7 +121,7 @@ class KSAsMemberOfTest {
             abstract class NullableSubject: MyInterface<String?>()
             """.trimIndent()
         )
-        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+        runKspTest(sources = listOf(src)) { invocation ->
             val myInterface = invocation.processingEnv.requireTypeElement("MyInterface")
             val nonNullSubject = invocation.processingEnv.requireType("NonNullSubject")
                 .asDeclaredType()

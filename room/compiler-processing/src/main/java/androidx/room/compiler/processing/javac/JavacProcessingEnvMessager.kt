@@ -27,8 +27,8 @@ import javax.tools.Diagnostic
 
 internal class JavacProcessingEnvMessager(
     private val processingEnv: ProcessingEnvironment
-) : XMessager {
-    override fun printMessage(kind: Diagnostic.Kind, msg: String, element: XElement?) {
+) : XMessager() {
+    override fun onPrintMessage(kind: Diagnostic.Kind, msg: String, element: XElement?) {
         val javacElement = (element as? JavacElement)?.element
         processingEnv.messager.printMessage(
             kind,

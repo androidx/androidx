@@ -75,9 +75,9 @@ class RLog(
         messager.printMessage(WARNING, msg.safeFormat(args), defaultElement)
     }
 
-    class CollectingMessager : XMessager {
+    class CollectingMessager : XMessager() {
         private val messages = mutableMapOf<Diagnostic.Kind, MutableList<Pair<String, XElement?>>>()
-        override fun printMessage(kind: Diagnostic.Kind, msg: String, element: XElement?) {
+        override fun onPrintMessage(kind: Diagnostic.Kind, msg: String, element: XElement?) {
             messages.getOrPut(
                 kind,
                 {
