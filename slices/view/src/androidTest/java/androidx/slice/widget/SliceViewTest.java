@@ -584,9 +584,9 @@ public class SliceViewTest {
 
         // Expected colors for checked items.
         int checkedTitleColor = mContext.getResources().getColor(
-                R.color.checkedItemTitleColor, mContext.getTheme());
+                R.color.checkedItemTitleColor);
         int checkedSubtitleColor = mContext.getResources().getColor(
-                R.color.checkedItemSubtitleColor, mContext.getTheme());
+                R.color.checkedItemSubtitleColor);
 
         // Expected colors for unchecked items (the default theme colors).
         int themeTitleColor = getThemeColor(android.R.attr.textColorPrimary);
@@ -698,10 +698,7 @@ public class SliceViewTest {
     }
 
     private int getThemeColor(int colorRes) {
-        TypedValue typedValue = new TypedValue();
-        mContext.getTheme().resolveAttribute(colorRes, typedValue, true);
-        TypedArray arr = mContext.obtainStyledAttributes(typedValue.data, new int[]{
-                colorRes});
+        TypedArray arr = mContext.getTheme().obtainStyledAttributes(new int[] {colorRes});
         int themeColor = arr.getColor(0, -1);
         assertNotSame(-1, themeColor);
         return themeColor;
