@@ -27,7 +27,6 @@ import static org.mockito.Mockito.verify;
 import android.os.RemoteException;
 
 import androidx.car.app.OnDoneCallback;
-import androidx.car.app.SearchListener;
 import androidx.car.app.TestUtils;
 import androidx.car.app.WrappedRuntimeException;
 
@@ -48,7 +47,7 @@ public class SearchTemplateTest {
     public final MockitoRule mockito = MockitoJUnit.rule();
 
     @Mock
-    SearchListener mMockSearchListener;
+    SearchTemplate.SearchListener mMockSearchListener;
 
     @Test
     public void createInstance_isLoading_hasList_Throws() {
