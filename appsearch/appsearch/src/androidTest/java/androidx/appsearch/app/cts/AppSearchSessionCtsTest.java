@@ -40,9 +40,11 @@ import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.cts.customer.EmailDataClass;
+import androidx.appsearch.app.util.AppSearchTestUtils;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -53,23 +55,26 @@ import java.util.Set;
 
 public class AppSearchSessionCtsTest {
     private AppSearchSession mDb1;
+    private final String mDbName1 = AppSearchTestUtils.DEFAULT_DATABASE;
     private AppSearchSession mDb2;
+    private final String mDbName2 = AppSearchTestUtils.DB_2;
 
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
+        AppSearchTestUtils.cleanup(context);
+
         mDb1 = checkIsResultSuccess(LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context)
-                        .setDatabaseName("testDb1").build()));
+                        .setDatabaseName(mDbName1).build()));
         mDb2 = checkIsResultSuccess(LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context)
-                        .setDatabaseName("testDb2").build()));
+                        .setDatabaseName(mDbName2).build()));
+    }
 
-        // Remove all documents from any instances that may have been created in the tests.
-        checkIsResultSuccess(
-                mDb1.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()));
-        checkIsResultSuccess(
-                mDb2.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()));
+    @After
+    public void tearDown() throws Exception {
+        AppSearchTestUtils.cleanup(ApplicationProvider.getApplicationContext());
     }
 
     @Test
@@ -284,7 +289,7 @@ public class AppSearchSessionCtsTest {
         assertThat(failResult1.isSuccess()).isFalse();
         assertThat(failResult1.getErrorMessage()).contains("Schema is incompatible");
         assertThat(failResult1.getErrorMessage())
-                .contains("Deleted types: [testDb1/builtin:Email]");
+                .contains("Deleted types: [" + mDbName1 + "/builtin:Email]");
 
         // Try to remove the email schema again, which should now work as we set forceOverride to
         // be true.
@@ -307,10 +312,10 @@ public class AppSearchSessionCtsTest {
                 .setSubject("testPut example")
                 .build();
         AppSearchBatchResult<String, Void> failResult2 = mDb1.putDocuments(
-                        new PutDocumentsRequest.Builder().addGenericDocument(email2).build()).get();
+                new PutDocumentsRequest.Builder().addGenericDocument(email2).build()).get();
         assertThat(failResult2.isSuccess()).isFalse();
         assertThat(failResult2.getFailures().get("email2").getErrorMessage())
-                .isEqualTo("Schema type config 'testDb1/builtin:Email' not found");
+                .isEqualTo("Schema type config '" + mDbName1 + "/builtin:Email' not found");
     }
 
     @Test
@@ -363,7 +368,7 @@ public class AppSearchSessionCtsTest {
         assertThat(failResult1.isSuccess()).isFalse();
         assertThat(failResult1.getErrorMessage()).contains("Schema is incompatible");
         assertThat(failResult1.getErrorMessage())
-                .contains("Deleted types: [testDb1/builtin:Email]");
+                .contains("Deleted types: [" + mDbName1 + "/builtin:Email]");
 
         // Try to remove the email schema again, which should now work as we set forceOverride to
         // be true.
@@ -387,7 +392,7 @@ public class AppSearchSessionCtsTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(email3).build()).get();
         assertThat(failResult2.isSuccess()).isFalse();
         assertThat(failResult2.getFailures().get("email3").getErrorMessage())
-                .isEqualTo("Schema type config 'testDb1/builtin:Email' not found");
+                .isEqualTo("Schema type config '" + mDbName1 + "/builtin:Email' not found");
 
         // Make sure email in database 2 still present.
         outDocuments = doGet(mDb2, GenericDocument.DEFAULT_NAMESPACE, "email2");
@@ -698,7 +703,7 @@ public class AppSearchSessionCtsTest {
                 new GenericDocument.Builder<>("uri", "Generic")
                         .setNamespace("document")
                         .setPropertyString("subject", "A commonly used fake word is foo. "
-                                        + "Another nonsense word that’s used a lot is bar")
+                                + "Another nonsense word that’s used a lot is bar")
                         .build();
         checkIsBatchResultSuccess(mDb1.putDocuments(
                 new PutDocumentsRequest.Builder().addGenericDocument(document).build()));
