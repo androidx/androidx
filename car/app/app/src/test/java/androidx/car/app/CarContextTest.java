@@ -58,9 +58,9 @@ import java.util.Locale;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class CarContextTest {
-    private static final String APP_SERVICE = "app_manager";
-    private static final String NAVIGATION_SERVICE = "navigation_manager";
-    private static final String SCREEN_MANAGER_SERVICE = "screen_manager";
+    private static final String APP_SERVICE = "app";
+    private static final String NAVIGATION_SERVICE = "navigation";
+    private static final String SCREEN_SERVICE = "screen";
 
     @Mock
     private ICarHost mMockCarHost;
@@ -101,7 +101,7 @@ public class CarContextTest {
         TestStartCarAppStub startCarAppStub = new TestStartCarAppStub(mMockStartCarApp);
 
         Bundle extras = new Bundle(1);
-        extras.putBinder(CarContext.START_CAR_APP_BINDER_KEY, startCarAppStub.asBinder());
+        extras.putBinder(CarContext.EXTRA_START_CAR_APP_BINDER_KEY, startCarAppStub.asBinder());
         mIntentFromNotification = new Intent().putExtras(extras);
 
         mCarContext = CarContext.create(mLifecycleOwner.mRegistry);
@@ -130,9 +130,9 @@ public class CarContextTest {
 
     @Test
     public void getCarService_screenManager() {
-        assertThat(mCarContext.getCarService(CarContext.SCREEN_MANAGER_SERVICE))
+        assertThat(mCarContext.getCarService(CarContext.SCREEN_SERVICE))
                 .isEqualTo(mCarContext.getCarService(ScreenManager.class));
-        assertThat(mCarContext.getCarService(CarContext.SCREEN_MANAGER_SERVICE)).isNotNull();
+        assertThat(mCarContext.getCarService(CarContext.SCREEN_SERVICE)).isNotNull();
     }
 
     @Test
@@ -161,7 +161,7 @@ public class CarContextTest {
     @Test
     public void getCarServiceName_screenManager() {
         assertThat(mCarContext.getCarServiceName(ScreenManager.class)).isEqualTo(
-                SCREEN_MANAGER_SERVICE);
+                SCREEN_SERVICE);
     }
 
     @Test

@@ -17,11 +17,9 @@
 package androidx.customview.widget;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -61,70 +59,94 @@ public class ExploreByTouchHelperTest {
 
     @Test
     @UiThreadTest
-    public void testBoundsInScreen() {
-        final ExploreByTouchHelper helper = new ParentBoundsHelper(mHost);
+    public void testAssignBoundsInParent() {
+        final TwoNestedViewHelper boundsInParentOnlyHelper = new ParentBoundsHelper(mHost);
+        testBounds(boundsInParentOnlyHelper);
+    }
+
+    @Test
+    @UiThreadTest
+    public void testAssignBoundsInScreen() {
+        final TwoNestedViewHelper boundsInScreenOnlyHelper = new ScreenBoundsHelper(mHost);
+        testBounds(boundsInScreenOnlyHelper);
+    }
+
+    @Test
+    @UiThreadTest
+    public void testAssignBoundsInScreenAndParent() {
+        final TwoNestedViewHelper boundsInScreenAndParentHelper =
+                new ParentAndScreenBoundsHelper(mHost);
+        testBounds(boundsInScreenAndParentHelper);
+    }
+
+    private void testBounds(TwoNestedViewHelper helper) {
         ViewCompat.setAccessibilityDelegate(mHost, helper);
-
-        final AccessibilityNodeInfoCompat node =
-                helper.getAccessibilityNodeProvider(mHost).createAccessibilityNodeInfo(1);
-        assertNotNull(node);
-
-        final Rect hostBounds = new Rect();
-        mHost.getLocalVisibleRect(hostBounds);
-        assertFalse("Host has not been laid out", hostBounds.isEmpty());
-
-        final Rect nodeBoundsInParent = new Rect();
-        node.getBoundsInParent(nodeBoundsInParent);
-        assertEquals("Wrong bounds in parent", hostBounds, nodeBoundsInParent);
-
-        final Rect hostBoundsOnScreen = getBoundsOnScreen(mHost);
-        final Rect nodeBoundsInScreen = new Rect();
-        node.getBoundsInScreen(nodeBoundsInScreen);
-        assertEquals("Wrong bounds in screen", hostBoundsOnScreen, nodeBoundsInScreen);
-
-        final int scrollX = 100;
-        final int scrollY = 50;
-        mHost.scrollTo(scrollX, scrollY);
-
-        // Generate a node for the new position.
-        final AccessibilityNodeInfoCompat scrolledNode =
-                helper.getAccessibilityNodeProvider(mHost).createAccessibilityNodeInfo(1);
-        assertNotNull(scrolledNode);
-
-        // Bounds in parent should not be affected by visibility.
-        final Rect scrolledNodeBoundsInParent = new Rect();
-        scrolledNode.getBoundsInParent(scrolledNodeBoundsInParent);
-        assertEquals("Wrong bounds in parent after scrolling",
-                hostBounds, scrolledNodeBoundsInParent);
-
-        final Rect expectedBoundsInScreen = new Rect(hostBoundsOnScreen);
-        expectedBoundsInScreen.offset(-scrollX, -scrollY);
-        expectedBoundsInScreen.intersect(hostBoundsOnScreen);
-        scrolledNode.getBoundsInScreen(nodeBoundsInScreen);
-        assertEquals("Wrong bounds in screen after scrolling",
-                expectedBoundsInScreen, nodeBoundsInScreen);
-
+        testBounds(helper, 0);
+        testBounds(helper, 1);
+        mHost.scrollTo(100, 50);
+        testBounds(helper, 0);
+        testBounds(helper, 1);
+        mHost.scrollTo(0, 0);
         ViewCompat.setAccessibilityDelegate(mHost, null);
     }
+
+    private void testBounds(TwoNestedViewHelper helper, int virtualViewId) {
+        AccessibilityNodeInfoCompat node =
+                helper.getAccessibilityNodeProvider(mHost).createAccessibilityNodeInfo(
+                        virtualViewId);
+        assertNotNull(node);
+
+        VirtualItem item = helper.mVirtualItems[virtualViewId];
+        final Rect nodeBoundsInParent = new Rect();
+        node.getBoundsInParent(nodeBoundsInParent);
+        assertEquals("Wrong bounds in parent", item.mBoundsInParent, nodeBoundsInParent);
+
+        final Rect expectedNodeBoundsInScreen = getBoundsOnScreen(helper, virtualViewId,
+                item.mParentId);
+        final Rect nodeBoundsInScreen = new Rect();
+        node.getBoundsInScreen(nodeBoundsInScreen);
+        assertEquals("Wrong bounds in screen", expectedNodeBoundsInScreen,
+                nodeBoundsInScreen);
+
+        node.recycle();
+    }
+
+    private Rect getBoundsOnScreen(TwoNestedViewHelper helper, int virtualViewId,
+            int virtualParentId) {
+        final Rect boundsOnScreen = new Rect();
+        boundsOnScreen.set(helper.mVirtualItems[virtualViewId].mBoundsInParent);
+        if (virtualParentId != ExploreByTouchHelper.HOST_ID) {
+            boundsOnScreen.offset(helper.mVirtualItems[virtualParentId].mBoundsInParent.left,
+                    helper.mVirtualItems[virtualParentId].mBoundsInParent.top);
+        }
+        final int[] tempLocation = new int[2];
+        mHost.getLocationOnScreen(tempLocation);
+        boundsOnScreen.offset(tempLocation[0] - mHost.getScrollX(),
+                tempLocation[1] - mHost.getScrollY());
+        final Rect tempVisibleRect = new Rect();
+        mHost.getLocalVisibleRect(tempVisibleRect);
+        tempVisibleRect.offset(tempLocation[0] - mHost.getScrollX(),
+                tempLocation[1] - mHost.getScrollY());
+        boundsOnScreen.intersect(tempVisibleRect);
+        return boundsOnScreen;
+    }
+
     @Test
     @UiThreadTest
     public void testMoveFocusToNextVirtualId() {
-        final ExploreByTouchHelper helper = new FocusTouchHelper(mHost);
-
+        final ExploreByTouchHelper helper = new TwoNestedViewHelper(mHost);
         ViewCompat.setAccessibilityDelegate(mHost, helper);
+
+        boolean moveFocusToId0 = helper.dispatchKeyEvent(
+                new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB));
+        assertEquals(0, helper.getKeyboardFocusedVirtualViewId());
+        assertEquals(true, moveFocusToId0);
 
         boolean moveFocusToId1 = helper.dispatchKeyEvent(
                 new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB));
         assertEquals(1, helper.getKeyboardFocusedVirtualViewId());
         assertEquals(true, moveFocusToId1);
 
-        // moveFocus should move focus to the node with id 5
-        boolean moveFocusToId5 = helper.dispatchKeyEvent(
-                new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB));
-        assertEquals(5, helper.getKeyboardFocusedVirtualViewId());
-        assertEquals(true, moveFocusToId5);
-
-        // moveFocus should not return true if the node has id INVALID_ID.
         boolean moveFocusToInvalidId = helper.dispatchKeyEvent(
                 new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB));
         assertEquals(ExploreByTouchHelper.INVALID_ID, helper.getKeyboardFocusedVirtualViewId());
@@ -133,95 +155,151 @@ public class ExploreByTouchHelperTest {
         ViewCompat.setAccessibilityDelegate(mHost, null);
     }
 
-    private static Rect getBoundsOnScreen(View v) {
-        final int[] tempLocation = new int[2];
-        final Rect hostBoundsOnScreen = new Rect(0, 0, v.getWidth(), v.getHeight());
-        v.getLocationOnScreen(tempLocation);
-        hostBoundsOnScreen.offset(tempLocation[0], tempLocation[1]);
-        return hostBoundsOnScreen;
+    @Test
+    @UiThreadTest
+    public void testMoveFocusDirection() {
+        final ExploreByTouchHelper helper = new TwoNestedViewHelper(mHost);
+        ViewCompat.setAccessibilityDelegate(mHost, helper);
+        helper.requestKeyboardFocusForVirtualView(0);
+
+        boolean moveFocusUp = helper.dispatchKeyEvent(
+                new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_UP));
+        assertEquals(ExploreByTouchHelper.INVALID_ID, helper.getKeyboardFocusedVirtualViewId());
+        assertEquals(false, moveFocusUp);
+
+        boolean moveFocusDown = helper.dispatchKeyEvent(
+                new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_DOWN));
+        assertEquals(0, helper.getKeyboardFocusedVirtualViewId());
+        assertEquals(true, moveFocusDown);
+
+        ViewCompat.setAccessibilityDelegate(mHost, null);
     }
 
     /**
-     * An extension of ExploreByTouchHelper that contains a single virtual view
-     * whose bounds match the host view.
+     * An extension of ExploreByTouchHelper that contains 2 nested virtual view
+     * and specify {@link AccessibilityNodeInfoCompat#setBoundsInParent}.
      */
-    private static class ParentBoundsHelper extends ExploreByTouchHelper {
-        private final View mHost;
+    private static class ParentBoundsHelper extends TwoNestedViewHelper {
 
         ParentBoundsHelper(View host) {
             super(host);
-
-            mHost = host;
         }
 
         @Override
-        protected int getVirtualViewAt(float x, float y) {
-            return 1;
-        }
-
-        @Override
-        protected void getVisibleVirtualViews(List<Integer> virtualViewIds) {
-            virtualViewIds.add(1);
-        }
-
-        @Override
-        protected void onPopulateNodeForVirtualView(int virtualViewId,
-                @NonNull AccessibilityNodeInfoCompat node) {
-            if (virtualViewId == 1) {
-                node.setContentDescription("test");
-
-                final Rect hostBounds = new Rect(0, 0, mHost.getWidth(), mHost.getHeight());
-                node.setBoundsInParent(hostBounds);
-            }
-        }
-
-        @Override
-        protected boolean onPerformActionForVirtualView(int virtualViewId, int action,
-                Bundle arguments) {
-            return false;
+        protected void onPopulateNodeForVirtualView(
+                int virtualViewId, @NonNull AccessibilityNodeInfoCompat node) {
+            populateNodeForVirtualView(/* setBoundsFromParent= */true,
+                    /* setBoundsFromScreen= */ false, virtualViewId, node);
         }
     }
 
     /**
-     * An extension of ExploreByTouchHelper that contains two virtual views to test moving focus.
+     * An extension of ExploreByTouchHelper that contains 2 nested virtual view
+     * and specify {@link AccessibilityNodeInfoCompat#setBoundsInScreen} by calling
+     * {@link ExploreByTouchHelper#setBoundsInScreenFromBoundsInParent}.
      */
-    private static class FocusTouchHelper extends ExploreByTouchHelper {
-        private final View mHost;
+    private static class ScreenBoundsHelper extends TwoNestedViewHelper {
 
-        FocusTouchHelper(View host) {
+        ScreenBoundsHelper(View host) {
+            super(host);
+        }
+
+        @Override
+        protected void onPopulateNodeForVirtualView(
+                int virtualViewId, @NonNull AccessibilityNodeInfoCompat node) {
+            populateNodeForVirtualView(/* setBoundsFromParent= */false,
+                    /* setBoundsFromScreen= */ true, virtualViewId, node);
+        }
+    }
+
+    /**
+     * An extension of ExploreByTouchHelper that contains 2 nested virtual view
+     * and specify {@link AccessibilityNodeInfoCompat#setBoundsInParent}
+     * and {@link AccessibilityNodeInfoCompat#setBoundsInScreen} by calling
+     * {@link ExploreByTouchHelper#setBoundsInScreenFromBoundsInParent}.
+     */
+    private static class ParentAndScreenBoundsHelper extends TwoNestedViewHelper {
+
+        ParentAndScreenBoundsHelper(View host) {
+            super(host);
+        }
+
+        @Override
+        protected void onPopulateNodeForVirtualView(
+                int virtualViewId, @NonNull AccessibilityNodeInfoCompat node) {
+            populateNodeForVirtualView(/* setBoundsFromParent= */true,
+                    /* setBoundsFromScreen= */ true, virtualViewId, node);
+        }
+    }
+
+    private static class VirtualItem {
+        private int mParentId;
+        private Rect mBoundsInParent;
+        private String mText;
+
+        VirtualItem(int parentId, String text, Rect boundsInParent) {
+            this.mParentId = parentId;
+            this.mBoundsInParent = boundsInParent;
+            this.mText = text;
+        }
+    }
+
+    /**
+     * An extension of ExploreByTouchHelper that contains 2 nested virtual views.
+     * Host view contains 1 child "bottom" and "bottom" contains one child
+     * "nested-bottom-right".
+     */
+    private static class TwoNestedViewHelper extends ExploreByTouchHelper {
+        private final View mHost;
+        protected VirtualItem[] mVirtualItems = new VirtualItem[2];
+
+        TwoNestedViewHelper(View host) {
             super(host);
             mHost = host;
+            mVirtualItems[0] = new VirtualItem(ExploreByTouchHelper.HOST_ID, "bottom",
+                    new Rect(0, mHost.getHeight() / 2,
+                            mHost.getWidth(), mHost.getHeight()));
+            mVirtualItems[1] = new VirtualItem(0, "nested-bottom-right",
+                    new Rect(mHost.getWidth() / 2, 0,
+                            mHost.getWidth(), mHost.getHeight() / 2));
         }
 
         @Override
         protected int getVirtualViewAt(float x, float y) {
-            RectF topHalf = new RectF();
-            topHalf.set(0, 0, mHost.getWidth(), mHost.getHeight() / 2);
-            if (topHalf.contains(x, y)) {
+            if (x < mHost.getWidth() / 2 && y > mHost.getHeight() / 2) {
+                return 0;
+            } else if (x > mHost.getWidth() / 2 && y > mHost.getHeight() / 2) {
                 return 1;
             }
-            return 5;
+            return -1;
         }
 
         @Override
         protected void getVisibleVirtualViews(List<Integer> virtualViewIds) {
+            virtualViewIds.add(0);
             virtualViewIds.add(1);
-            virtualViewIds.add(5);
         }
 
         @Override
-        protected void onPopulateNodeForVirtualView(int virtualViewId,
+        protected void onPopulateNodeForVirtualView(
+                int virtualViewId, @NonNull AccessibilityNodeInfoCompat node) {
+            populateNodeForVirtualView(/* setBoundsFromParent= */false,
+                    /* setBoundsFromScreen= */ true, virtualViewId, node);
+        }
+
+        protected void populateNodeForVirtualView(boolean setBoundsFromParent,
+                boolean setBoundsFromScreen, int virtualViewId,
                 @NonNull AccessibilityNodeInfoCompat node) {
-            if (virtualViewId == 1) {
-                node.setContentDescription("test 1");
-                final Rect hostBounds = new Rect(0, 0, mHost.getWidth(), mHost.getHeight() / 2);
-                node.setBoundsInParent(hostBounds);
-            }
-            if (virtualViewId == 5) {
-                node.setContentDescription("test 5");
-                final Rect hostBounds =
-                        new Rect(0, mHost.getHeight() / 2, mHost.getWidth(), mHost.getHeight());
-                node.setBoundsInParent(hostBounds);
+            if (virtualViewId <= mVirtualItems.length) {
+                int index = virtualViewId;
+                node.setContentDescription(mVirtualItems[index].mText);
+                node.setParent(mHost, mVirtualItems[index].mParentId);
+                if (setBoundsFromParent) {
+                    node.setBoundsInParent(mVirtualItems[index].mBoundsInParent);
+                }
+                if (setBoundsFromScreen) {
+                    setBoundsInScreenFromBoundsInParent(node, mVirtualItems[index].mBoundsInParent);
+                }
             }
         }
 
@@ -230,6 +308,5 @@ public class ExploreByTouchHelperTest {
                 Bundle arguments) {
             return false;
         }
-
     }
 }

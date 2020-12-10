@@ -30,7 +30,9 @@ public final class HandshakeInfoTest {
     @Test
     public void construct_handshakeInfo() {
         String hostPackageName = "com.google.host";
-        HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName);
+        int hostApiLevel = 123;
+        HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName, hostApiLevel);
         assertThat(handshakeInfo.getHostPackageName()).isEqualTo(hostPackageName);
+        assertThat(handshakeInfo.getHostCarAppApiLevel()).isEqualTo(hostApiLevel);
     }
 }

@@ -20,11 +20,13 @@ import android.graphics.Bitmap
 import android.os.IBinder
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.IntRange
+import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
+import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
@@ -107,6 +109,24 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
 
     /** Returns the associated [IBinder]. Allows this interface to be passed over AIDL. */
     public fun asBinder(): IBinder
+
+    /** Returns the ID of the complication at the given coordinates or `null` if there isn't one.*/
+    @SuppressWarnings("AutoBoxing")
+    public fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int? =
+        complicationState.asSequence().firstOrNull {
+            it.value.isEnabled && when (it.value.boundsType) {
+                ComplicationBoundsType.ROUND_RECT -> it.value.bounds.contains(x, y)
+                ComplicationBoundsType.BACKGROUND -> false
+                ComplicationBoundsType.EDGE -> false
+                else -> false
+            }
+        }?.key
+
+    /**
+     * Requests the specified complication is highlighted for a short period to bring attention to
+     * it.
+     */
+    public fun bringAttentionToComplication(complicationId: Int)
 }
 
 /** Controls a stateful remote interactive watch face with an interface tailored for WCS. */
@@ -177,4 +197,8 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
     }
 
     override fun asBinder(): IBinder = iInteractiveWatchFaceWcs.asBinder()
+
+    override fun bringAttentionToComplication(complicationId: Int) {
+        iInteractiveWatchFaceWcs.bringAttentionToComplication(complicationId)
+    }
 }

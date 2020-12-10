@@ -25,7 +25,6 @@ import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyAccessor
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.google.devtools.ksp.symbol.Origin
 
 internal fun Resolver.findClass(qName: String) = getClassDeclarationByName(
     getKSNameFromString(qName)
@@ -92,12 +91,7 @@ private fun KSFunctionDeclaration.overrides(other: KSFunctionDeclaration): Boole
 }
 
 private fun KSPropertyDeclaration.overrides(other: KSPropertyDeclaration): Boolean {
-    val overridee = try {
-        findOverridee()
-    } catch (ex: NoSuchElementException) {
-        // workaround for https://github.com/google/ksp/issues/174
-        null
-    }
+    val overridee = findOverridee()
     if (overridee == other) {
         return true
     }
@@ -108,10 +102,6 @@ private fun KSPropertyDeclaration.overrides(other: KSPropertyDeclaration): Boole
 internal fun Resolver.safeGetJvmName(
     declaration: KSFunctionDeclaration
 ): String {
-    if (declaration.origin == Origin.JAVA) {
-        // https://github.com/google/ksp/issues/170
-        return declaration.simpleName.asString()
-    }
     return try {
         getJvmName(declaration)
     } catch (ignored: ClassCastException) {
@@ -126,10 +116,6 @@ internal fun Resolver.safeGetJvmName(
     accessor: KSPropertyAccessor,
     fallback: () -> String
 ): String {
-    if (accessor.origin == Origin.JAVA) {
-        // https://github.com/google/ksp/issues/170
-        return fallback()
-    }
     return try {
         getJvmName(accessor)
     } catch (ignored: ClassCastException) {

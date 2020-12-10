@@ -73,6 +73,7 @@ package androidx.wear.ambient {
   public final class AmbientModeSupport.AmbientController {
     method public boolean isAmbient();
     method public void setAmbientOffloadEnabled(boolean);
+    method public void setAutoResumeEnabled(boolean);
   }
 
 }

@@ -122,6 +122,7 @@ package androidx.slice.widget {
     method public int getAccentColor();
     method public CharSequence? getContentDescription();
     method public androidx.slice.SliceItem? getContentIntent();
+    method public android.graphics.Point getFirstImageSize(android.content.Context);
     method public java.util.ArrayList<androidx.slice.widget.GridContent.CellContent!> getGridContent();
     method public int getHeight(androidx.slice.widget.SliceStyle!, androidx.slice.widget.SliceViewPolicy!);
     method public boolean getIsLastIndex();
@@ -143,10 +144,11 @@ package androidx.slice.widget {
     ctor public GridContent.CellContent(androidx.slice.SliceItem!);
     method public java.util.ArrayList<androidx.slice.SliceItem!> getCellItems();
     method public CharSequence? getContentDescription();
-    method public androidx.slice.SliceItem! getContentIntent();
+    method public androidx.slice.SliceItem? getContentIntent();
+    method public androidx.core.graphics.drawable.IconCompat? getImageIcon();
     method public int getImageMode();
     method public androidx.slice.SliceItem? getOverlayItem();
-    method public androidx.slice.SliceItem! getPicker();
+    method public androidx.slice.SliceItem? getPicker();
     method public int getTextCount();
     method public androidx.slice.SliceItem? getTitleItem();
     method public boolean hasImage();

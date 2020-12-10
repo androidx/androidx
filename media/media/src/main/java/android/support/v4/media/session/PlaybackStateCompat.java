@@ -55,7 +55,8 @@ public final class PlaybackStateCompat implements Parcelable {
             ACTION_SEEK_TO, ACTION_PLAY_PAUSE, ACTION_PLAY_FROM_MEDIA_ID, ACTION_PLAY_FROM_SEARCH,
             ACTION_SKIP_TO_QUEUE_ITEM, ACTION_PLAY_FROM_URI, ACTION_PREPARE,
             ACTION_PREPARE_FROM_MEDIA_ID, ACTION_PREPARE_FROM_SEARCH, ACTION_PREPARE_FROM_URI,
-            ACTION_SET_REPEAT_MODE, ACTION_SET_SHUFFLE_MODE, ACTION_SET_CAPTIONING_ENABLED})
+            ACTION_SET_REPEAT_MODE, ACTION_SET_SHUFFLE_MODE, ACTION_SET_CAPTIONING_ENABLED,
+            ACTION_SET_PLAYBACK_SPEED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Actions {}
 
@@ -223,6 +224,13 @@ public final class PlaybackStateCompat implements Parcelable {
      * @see Builder#setActions(long)
      */
     public static final long ACTION_SET_SHUFFLE_MODE = 1 << 21;
+
+    /**
+     * Indicates this session supports the set playback speed command.
+     *
+     * @see Builder#setActions(long)
+     */
+    public static final long ACTION_SET_PLAYBACK_SPEED = 1 << 22;
 
     /**
      * @hide
@@ -717,6 +725,7 @@ public final class PlaybackStateCompat implements Parcelable {
      * <li> {@link PlaybackStateCompat#ACTION_SET_REPEAT_MODE}</li>
      * <li> {@link PlaybackStateCompat#ACTION_SET_SHUFFLE_MODE}</li>
      * <li> {@link PlaybackStateCompat#ACTION_SET_CAPTIONING_ENABLED}</li>
+     * <li> {@link PlaybackStateCompat#ACTION_SET_PLAYBACK_SPEED}</li>
      * </ul>
      */
     @Actions
@@ -1255,6 +1264,7 @@ public final class PlaybackStateCompat implements Parcelable {
          * <li> {@link PlaybackStateCompat#ACTION_SET_REPEAT_MODE}</li>
          * <li> {@link PlaybackStateCompat#ACTION_SET_SHUFFLE_MODE}</li>
          * <li> {@link PlaybackStateCompat#ACTION_SET_CAPTIONING_ENABLED}</li>
+         * <li> {@link PlaybackStateCompat#ACTION_SET_PLAYBACK_SPEED}</li>
          * </ul>
          *
          * @return this

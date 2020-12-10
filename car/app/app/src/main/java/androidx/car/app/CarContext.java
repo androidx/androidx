@@ -40,9 +40,12 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.car.app.utils.ThreadUtils;
+import androidx.car.app.versioning.CarAppApiLevel;
+import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -81,22 +84,22 @@ public class CarContext extends ContextWrapper {
      *
      * @hide
      */
-    @StringDef({APP_SERVICE, CAR_SERVICE, NAVIGATION_SERVICE, SCREEN_MANAGER_SERVICE})
+    @StringDef({APP_SERVICE, CAR_SERVICE, NAVIGATION_SERVICE, SCREEN_SERVICE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface CarServiceType {
     }
 
     /** Manages all app events such as invalidating the UI, showing a toast, etc. */
-    public static final String APP_SERVICE = "app_manager";
+    public static final String APP_SERVICE = "app";
 
     /**
      * Manages all navigation events such as starting navigation when focus is granted, abandoning
      * navigation when focus is lost, etc.
      */
-    public static final String NAVIGATION_SERVICE = "navigation_manager";
+    public static final String NAVIGATION_SERVICE = "navigation";
 
     /** Manages the screens of the app, including the screen stack. */
-    public static final String SCREEN_MANAGER_SERVICE = "screen_manager";
+    public static final String SCREEN_SERVICE = "screen";
 
     /**
      * Internal usage only. Top level binder to host.
@@ -107,7 +110,8 @@ public class CarContext extends ContextWrapper {
      * Key for including a IStartCarApp in the notification {@link Intent}, for starting the app
      * if it has not been opened yet.
      */
-    public static final String START_CAR_APP_BINDER_KEY = "StartCarAppBinderKey";
+    public static final String EXTRA_START_CAR_APP_BINDER_KEY = "androidx.car.app.extra"
+            + ".START_CAR_APP_BINDER_KEY";
 
     /**
      * Standard action for navigating to a location.
@@ -121,8 +125,11 @@ public class CarContext extends ContextWrapper {
     private final NavigationManager mNavigationManager;
     private final ScreenManager mScreenManager;
     private final OnBackPressedDispatcher mOnBackPressedDispatcher;
-
     private final HostDispatcher mHostDispatcher;
+
+    /** API level, updated once host connection handshake is completed. */
+    @CarAppApiLevel
+    private int mCarAppApiLevel = CarAppApiLevels.UNKNOWN;
 
     /** @hide */
     @NonNull
@@ -143,13 +150,13 @@ public class CarContext extends ContextWrapper {
      *   <dd>An {@link AppManager} for communication between the app and the host.
      *   <dt>{@link #NAVIGATION_SERVICE}
      *   <dd>A {@link NavigationManager} for management of navigation updates.
-     *   <dt>{@link #SCREEN_MANAGER_SERVICE}
+     *   <dt>{@link #SCREEN_SERVICE}
      *   <dd>A {@link ScreenManager} for management of {@link Screen}s.
      * </dl>
      *
      * @param name The name of the car service requested. This should be one of
      *             {@link #APP_SERVICE},
-     *             {@link #NAVIGATION_SERVICE} or {@link #SCREEN_MANAGER_SERVICE}.
+     *             {@link #NAVIGATION_SERVICE} or {@link #SCREEN_SERVICE}.
      * @return The car service instance.
      * @throws IllegalArgumentException if {@code name} does not refer to a valid car service.
      * @throws NullPointerException     if {@code name} is {@code null}.
@@ -162,7 +169,7 @@ public class CarContext extends ContextWrapper {
                 return mAppManager;
             case NAVIGATION_SERVICE:
                 return mNavigationManager;
-            case SCREEN_MANAGER_SERVICE:
+            case SCREEN_SERVICE:
                 return mScreenManager;
             default: // fall out
         }
@@ -206,7 +213,7 @@ public class CarContext extends ContextWrapper {
         } else if (serviceClass.isInstance(mNavigationManager)) {
             return NAVIGATION_SERVICE;
         } else if (serviceClass.isInstance(mScreenManager)) {
-            return SCREEN_MANAGER_SERVICE;
+            return SCREEN_SERVICE;
         }
 
         throw new IllegalArgumentException("The class does not correspond to a car service.");
@@ -215,8 +222,7 @@ public class CarContext extends ContextWrapper {
     /**
      * Starts a car app on the car screen.
      *
-     * <p>The target application will get the {@link Intent} via
-     * {@link CarAppService#onCreateScreen}
+     * <p>The target application will get the {@link Intent} via {@link Session#onCreateScreen}
      * or {@link CarAppService#onNewIntent}.
      *
      * <p>Supported {@link Intent}s:
@@ -282,7 +288,7 @@ public class CarContext extends ContextWrapper {
         IBinder binder = null;
         Bundle extras = notificationIntent.getExtras();
         if (extras != null) {
-            binder = extras.getBinder(START_CAR_APP_BINDER_KEY);
+            binder = extras.getBinder(EXTRA_START_CAR_APP_BINDER_KEY);
         }
         if (binder == null) {
             throw new IllegalArgumentException("Notification intent missing expected extra");
@@ -301,10 +307,10 @@ public class CarContext extends ContextWrapper {
     /**
      * Requests to finish the car app.
      *
-     * <p>Call this when your app is done and should be closed.
+     * <p>Call this when your app is done and should be closed. The {@link Session} corresponding
+     * to this {@link CarContext} will become {@code State.DESTROYED}.
      *
-     * <p>At some point after this call, {@link CarAppService#onCarAppFinished} will be called, and
-     * eventually the OS will destroy your {@link CarAppService}.
+     * <p>At some point after this call, the OS will destroy your {@link CarAppService}.
      */
     public void finishCarApp() {
         mHostDispatcher.dispatch(
@@ -374,6 +380,22 @@ public class CarContext extends ContextWrapper {
     }
 
     /**
+     * Updates context information based on the information provided during connection handshake
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @MainThread
+    void onHandshakeComplete(HandshakeInfo handshakeInfo) {
+        int carAppApiLevel = handshakeInfo.getHostCarAppApiLevel();
+        if (!CarAppApiLevels.isValid(carAppApiLevel)) {
+            throw new IllegalArgumentException("Invalid Car App API level received: "
+                    + carAppApiLevel);
+        }
+        mCarAppApiLevel = carAppApiLevel;
+    }
+
+    /**
      * Attaches the base {@link Context} for this {@link CarContext} by creating a new display
      * context using {@link #createDisplayContext} with a {@link VirtualDisplay} created using
      * the metrics from the provided {@link Configuration}, and then also calling {@link
@@ -429,6 +451,39 @@ public class CarContext extends ContextWrapper {
     void resetHosts() {
         ThreadUtils.checkMainThread();
         mHostDispatcher.resetHosts();
+    }
+
+    /**
+     * Retrieves the API level negotiated with the host.
+     * <p>
+     * API levels are used during client and host connection handshake to negotiate a common set of
+     * elements that both processes can understand. Different devices might have different host
+     * versions. Each of these hosts will support a
+     * range of API levels, as a way to provide backwards compatibility.
+     * <p>
+     * Applications can also provide forward compatibility, by declaring support for a
+     * {@link AppInfo#getMinCarAppApiLevel()} lower than {@link AppInfo#getLatestCarAppApiLevel()}.
+     * See {@link AppInfo#getMinCarAppApiLevel()} for more details.
+     * <p>
+     * Clients must ensure no elements annotated with a {@link RequiresCarApi} value higher
+     * than {@link #getCarAppApiLevel()} is used at runtime.
+     * <p>
+     * Please refer to {@link RequiresCarApi} description for more details on how to
+     * implement forward compatibility.
+     *
+     * @return a value between {@link AppInfo#getMinCarAppApiLevel()} and
+     * {@link AppInfo#getLatestCarAppApiLevel()}. In case of incompatibility, the host will
+     * disconnect from the service before completing the handshake.
+     *
+     * @throws IllegalStateException if invoked before the connection handshake with the host has
+     * been completed (for example, before {@link Session#onCreateScreen(Intent)}).
+     */
+    @CarAppApiLevel
+    public int getCarAppApiLevel() {
+        if (mCarAppApiLevel == CarAppApiLevels.UNKNOWN) {
+            throw new IllegalStateException("Car App API level hasn't been established yet");
+        }
+        return mCarAppApiLevel;
     }
 
     /** @hide */

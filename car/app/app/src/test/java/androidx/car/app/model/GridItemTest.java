@@ -41,12 +41,18 @@ public class GridItemTest {
 
     @Test
     public void create_defaultValues() {
-        GridItem gridItem = GridItem.builder().setImage(BACK).build();
+        GridItem gridItem = GridItem.builder().setTitle("Title").setImage(BACK).build();
 
         assertThat(BACK).isEqualTo(gridItem.getImage());
         assertThat(gridItem.getImageType()).isEqualTo(GridItem.IMAGE_TYPE_LARGE);
-        assertThat(gridItem.getTitle()).isNull();
+        assertThat(gridItem.getTitle()).isNotNull();
         assertThat(gridItem.getText()).isNull();
+    }
+
+    @Test
+    public void create_isLoading() {
+        GridItem gridItem = GridItem.builder().setTitle("Title").setLoading(true).build();
+        assertThat(gridItem.isLoading()).isTrue();
     }
 
     @Test
@@ -55,6 +61,17 @@ public class GridItemTest {
         GridItem gridItem = GridItem.builder().setTitle(title).setImage(BACK).build();
 
         assertThat(CarText.create(title)).isEqualTo(gridItem.getTitle());
+    }
+
+    @Test
+    public void title_throwsIfNotSet() {
+        // Not set
+        assertThrows(IllegalStateException.class, () -> GridItem.builder().setImage(BACK).build());
+
+        // Not set
+        assertThrows(
+                IllegalArgumentException.class, () -> GridItem.builder().setTitle("").setImage(
+                        BACK).build());
     }
 
     @Test
@@ -74,7 +91,14 @@ public class GridItemTest {
     }
 
     @Test
-    public void create_noImage_throwsException() {
+    public void setIsLoading_contentsSet_throws() {
+        assertThrows(
+                IllegalStateException.class,
+                () -> GridItem.builder().setLoading(true).setTitle("foo").setImage(BACK).build());
+    }
+
+    @Test
+    public void create_noImage_throws() {
         assertThrows(IllegalStateException.class, () -> GridItem.builder().setTitle("foo").build());
     }
 
@@ -109,20 +133,9 @@ public class GridItemTest {
 
     @Test
     public void notEquals_differentImage() {
-        GridItem gridItem = GridItem.builder().setImage(BACK).build();
+        GridItem gridItem = GridItem.builder().setTitle("Title").setImage(BACK).build();
 
-        assertThat(GridItem.builder().setImage(ALERT).build()).isNotEqualTo(gridItem);
-    }
-
-    @Test
-    public void notEquals_differentToggle() {
-        Toggle toggle1 = Toggle.builder(isChecked -> {
-        }).setChecked(true).build();
-        Toggle toggle2 = Toggle.builder(isChecked -> {
-        }).setChecked(false).build();
-        GridItem gridItem = GridItem.builder().setImage(BACK).setToggle(toggle1).build();
-
-        assertThat(GridItem.builder().setImage(BACK).setToggle(toggle2).build()).isNotEqualTo(
+        assertThat(GridItem.builder().setImage(ALERT).setTitle("Title").build()).isNotEqualTo(
                 gridItem);
     }
 
@@ -130,33 +143,11 @@ public class GridItemTest {
     public void clickListener() throws RemoteException {
         OnClickListener onClickListener = mock(OnClickListener.class);
         GridItem gridItem =
-                GridItem.builder().setImage(BACK).setOnClickListener(onClickListener).build();
+                GridItem.builder().setTitle("Title").setImage(BACK).setOnClickListener(
+                        onClickListener).build();
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
         gridItem.getOnClickListener().onClick(onDoneCallback);
         verify(onClickListener).onClick();
         verify(onDoneCallback).onSuccess(null);
-    }
-
-    @Test
-    public void setToggle() {
-        Toggle toggle = Toggle.builder(isChecked -> {
-        }).build();
-        GridItem gridItem = GridItem.builder().setImage(BACK).setToggle(toggle).build();
-        assertThat(toggle).isEqualTo(gridItem.getToggle());
-    }
-
-    @Test
-    public void setOnClickListenerAndToggle_throws() {
-        Toggle toggle = Toggle.builder(isChecked -> {
-        }).build();
-        assertThrows(
-                IllegalStateException.class,
-                () ->
-                        GridItem.builder()
-                                .setImage(BACK)
-                                .setOnClickListener(() -> {
-                                })
-                                .setToggle(toggle)
-                                .build());
     }
 }

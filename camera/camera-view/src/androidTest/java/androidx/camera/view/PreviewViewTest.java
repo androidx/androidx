@@ -66,11 +66,11 @@ import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.view.test.R;
 import androidx.core.content.ContextCompat;
 import androidx.test.annotation.UiThreadTest;
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObjectNotFoundException;
 import androidx.test.uiautomator.UiSelector;
@@ -107,37 +107,16 @@ public class PreviewViewTest {
     public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
-    @Rule
-    public final ActivityTestRule<FakeActivity> mActivityRule = new ActivityTestRule<>(
-            FakeActivity.class, false, false);
+    private ActivityScenario<FakeActivity> mActivityScenario;
     private final Context mContext = ApplicationProvider.getApplicationContext();
-    private List<SurfaceRequest> mSurfaceRequestList = new ArrayList<>();
+    private final List<SurfaceRequest> mSurfaceRequestList = new ArrayList<>();
     private PreviewView mPreviewView;
     private MeteringPointFactory mMeteringPointFactory;
-
-    private SurfaceRequest createSurfaceRequest(CameraInfo cameraInfo,
-            boolean isRGBA8888Required) {
-        return createSurfaceRequest(DEFAULT_SURFACE_SIZE, cameraInfo, isRGBA8888Required);
-    }
-
-    private SurfaceRequest createSurfaceRequest(CameraInfo cameraInfo) {
-        return createSurfaceRequest(DEFAULT_SURFACE_SIZE, cameraInfo, false);
-    }
-
-    private SurfaceRequest createSurfaceRequest(Size size, CameraInfo cameraInfo,
-            boolean isRGBA8888Required) {
-        FakeCamera fakeCamera = spy(new FakeCamera());
-        when(fakeCamera.getCameraInfo()).thenReturn(cameraInfo);
-
-        SurfaceRequest surfaceRequest = new SurfaceRequest(size, fakeCamera, isRGBA8888Required);
-        mSurfaceRequestList.add(surfaceRequest);
-        return surfaceRequest;
-    }
 
     @Before
     public void setUp() throws CoreAppTestUtil.ForegroundOccupiedError {
         CoreAppTestUtil.prepareDeviceUI(mInstrumentation);
-        mActivityRule.launchActivity(null);
+        mActivityScenario = ActivityScenario.launch(FakeActivity.class);
     }
 
     @After
@@ -147,20 +126,6 @@ public class PreviewViewTest {
             // Ensure all successful requests have their returned future finish.
             surfaceRequest.getDeferrableSurface().close();
         }
-    }
-
-    private CameraInfo createCameraInfo(String implementationType) {
-        FakeCameraInfoInternal cameraInfoInternal = new FakeCameraInfoInternal();
-        cameraInfoInternal.setImplementationType(implementationType);
-        return cameraInfoInternal;
-    }
-
-    private CameraInfo createCameraInfo(int rotationDegrees, String implementationType,
-            @CameraSelector.LensFacing int lensFacing) {
-        FakeCameraInfoInternal cameraInfoInternal = new FakeCameraInfoInternal(rotationDegrees,
-                lensFacing);
-        cameraInfoInternal.setImplementationType(implementationType);
-        return cameraInfoInternal;
     }
 
     @Test
@@ -173,7 +138,7 @@ public class PreviewViewTest {
         // Arrange.
         CountDownLatch countDownLatch = new CountDownLatch(1);
         Semaphore semaphore = new Semaphore(0);
-        CameraController fakeController = new CameraController(mInstrumentation.getContext()) {
+        CameraController fakeController = new CameraController(mContext) {
             @Override
             void onPinchToZoom(float pinchToZoomScale) {
                 semaphore.release();
@@ -209,7 +174,7 @@ public class PreviewViewTest {
         // Arrange.
         CountDownLatch countDownLatch = new CountDownLatch(1);
         Semaphore semaphore = new Semaphore(0);
-        CameraController fakeController = new CameraController(mInstrumentation.getContext()) {
+        CameraController fakeController = new CameraController(mContext) {
             @Override
             void onTapToFocus(MeteringPointFactory meteringPointFactory, float x, float y) {
                 semaphore.release();
@@ -368,20 +333,16 @@ public class PreviewViewTest {
     @Test
     public void correctSurfacePixelFormat_whenRGBA8888IsRequired() throws Throwable {
         final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
-        SurfaceRequest surfaceRequest = createSurfaceRequest(cameraInfo, true);
+        SurfaceRequest surfaceRequest = createRgb8888SurfaceRequest(cameraInfo);
         ListenableFuture<Surface> future = surfaceRequest.getDeferrableSurface().getSurface();
 
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+        mActivityScenario.onActivity(activity -> {
+            final PreviewView previewView = new PreviewView(mContext);
+            setContentView(previewView);
 
-                final PreviewView previewView = new PreviewView(mContext);
-                setContentView(previewView);
-
-                previewView.setImplementationMode(PERFORMANCE);
-                Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
-                surfaceProvider.onSurfaceRequested(surfaceRequest);
-            }
+            previewView.setImplementationMode(PERFORMANCE);
+            Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
+            surfaceProvider.onSurfaceRequested(surfaceRequest);
         });
         final Surface[] surface = new Surface[1];
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -657,12 +618,12 @@ public class PreviewViewTest {
     }
 
     @Test
-    public void redrawsPreview_whenLayoutResized() throws Throwable {
+    public void redrawsPreview_whenLayoutResized() {
         final AtomicReference<PreviewView> previewView = new AtomicReference<>();
         final AtomicReference<FrameLayout> container = new AtomicReference<>();
         final PreviewViewImplementation implementation = mock(TestPreviewViewImplementation.class);
 
-        mActivityRule.runOnUiThread(() -> {
+        mActivityScenario.onActivity(activity -> {
             previewView.set(new PreviewView(mContext));
             previewView.get().mImplementation = implementation;
 
@@ -681,12 +642,12 @@ public class PreviewViewTest {
     }
 
     @Test
-    public void doesNotRedrawPreview_whenDetachedFromWindow() throws Throwable {
+    public void doesNotRedrawPreview_whenDetachedFromWindow() {
         final AtomicReference<PreviewView> previewView = new AtomicReference<>();
         final AtomicReference<FrameLayout> container = new AtomicReference<>();
         final PreviewViewImplementation implementation = mock(TestPreviewViewImplementation.class);
 
-        mActivityRule.runOnUiThread(() -> {
+        mActivityScenario.onActivity(activity -> {
             previewView.set(new PreviewView(mContext));
             previewView.get().mImplementation = implementation;
 
@@ -707,12 +668,12 @@ public class PreviewViewTest {
     }
 
     @Test
-    public void redrawsPreview_whenReattachedToWindow() throws Throwable {
+    public void redrawsPreview_whenReattachedToWindow() {
         final AtomicReference<PreviewView> previewView = new AtomicReference<>();
         final AtomicReference<FrameLayout> container = new AtomicReference<>();
         final PreviewViewImplementation implementation = mock(TestPreviewViewImplementation.class);
 
-        mActivityRule.runOnUiThread(() -> {
+        mActivityScenario.onActivity(activity -> {
             previewView.set(new PreviewView(mContext));
             previewView.get().mImplementation = implementation;
 
@@ -793,7 +754,39 @@ public class PreviewViewTest {
     }
 
     private void setContentView(View view) {
-        mActivityRule.getActivity().setContentView(view);
+        mActivityScenario.onActivity(activity -> activity.setContentView(view));
+    }
+
+    private SurfaceRequest createRgb8888SurfaceRequest(CameraInfo cameraInfo) {
+        return createSurfaceRequest(cameraInfo, true);
+    }
+
+    private SurfaceRequest createSurfaceRequest(CameraInfo cameraInfo) {
+        return createSurfaceRequest(cameraInfo, false);
+    }
+
+    private SurfaceRequest createSurfaceRequest(CameraInfo cameraInfo, boolean isRGBA8888Required) {
+        final FakeCamera fakeCamera = spy(new FakeCamera());
+        when(fakeCamera.getCameraInfo()).thenReturn(cameraInfo);
+
+        final SurfaceRequest surfaceRequest = new SurfaceRequest(DEFAULT_SURFACE_SIZE, fakeCamera,
+                isRGBA8888Required);
+        mSurfaceRequestList.add(surfaceRequest);
+        return surfaceRequest;
+    }
+
+    private CameraInfo createCameraInfo(String implementationType) {
+        FakeCameraInfoInternal cameraInfoInternal = new FakeCameraInfoInternal();
+        cameraInfoInternal.setImplementationType(implementationType);
+        return cameraInfoInternal;
+    }
+
+    private CameraInfo createCameraInfo(int rotationDegrees, String implementationType,
+            @CameraSelector.LensFacing int lensFacing) {
+        FakeCameraInfoInternal cameraInfoInternal = new FakeCameraInfoInternal(rotationDegrees,
+                lensFacing);
+        cameraInfoInternal.setImplementationType(implementationType);
+        return cameraInfoInternal;
     }
 
     private void updateCropRectAndWaitForIdle(Rect cropRect) {

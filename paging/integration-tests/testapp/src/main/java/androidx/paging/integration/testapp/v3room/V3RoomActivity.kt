@@ -23,7 +23,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.integration.testapp.R
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -39,7 +38,6 @@ class V3RoomActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
 
         lifecycleScope.launch {
-            @OptIn(ExperimentalCoroutinesApi::class)
             viewModel.flow.collectLatest {
                 adapter.submitData(it)
             }

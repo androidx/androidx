@@ -58,7 +58,7 @@ public class ScreenManager {
      * @throws NullPointerException if the method is called before a {@link Screen} has been
      *                              pushed to the stack via {@link #push}, or
      *                              {@link #pushForResult}, or returning a {@link Screen} from
-     *                              {@link CarAppService#onCreateScreen}.
+     *                              {@link Session#onCreateScreen}.
      */
     @NonNull
     public Screen getTop() {
@@ -81,7 +81,7 @@ public class ScreenManager {
      * Pushes a {@link Screen}, for which you would like a result from, onto the stack.
      *
      * <p>When the given {@code screen} finishes, the {@code onScreenResultCallback} will receive a
-     * callback to {@link OnScreenResultCallback#onScreenResult} with the result that the pushed
+     * callback to {@link OnScreenResultListener#onScreenResult} with the result that the pushed
      * {@code screen} set via {@link Screen#setResult}.
      *
      * @throws NullPointerException if either the {@code screen} or the {@code
@@ -90,8 +90,8 @@ public class ScreenManager {
     // TODO(rampara): Add Executor parameter.
     @SuppressLint("ExecutorRegistration")
     public void pushForResult(
-            @NonNull Screen screen, @NonNull OnScreenResultCallback onScreenResultCallback) {
-        requireNonNull(screen).setOnResultCallback(requireNonNull(onScreenResultCallback));
+            @NonNull Screen screen, @NonNull OnScreenResultListener onScreenResultListener) {
+        requireNonNull(screen).setOnScreenResultListener(requireNonNull(onScreenResultListener));
         pushInternal(screen);
     }
 
@@ -110,8 +110,6 @@ public class ScreenManager {
      * Removes screens from the top of the stack until a {@link Screen} which has the given {@code
      * marker} is found, or the root has been reached.
      *
-     * <p>To pop to root use {@link Screen#ROOT} as the {@code marker}.
-     *
      * <p>The root {@link Screen} will not be popped.
      *
      * @throws NullPointerException if {@code marker} is {@code null}.
@@ -129,6 +127,23 @@ public class ScreenManager {
 
         if (screensToPop.isEmpty()) {
             return;
+        }
+
+        popInternal(screensToPop);
+    }
+
+    /**
+     * Removes all screens from the stack until the root has been reached.
+     */
+    public void popToRoot() {
+        if (mScreenStack.size() <= 1) {
+            return;
+        }
+
+        // Pop all screens, except until found root or the provided screen.
+        List<Screen> screensToPop = new ArrayList<>();
+        while (mScreenStack.size() > 1) {
+            screensToPop.add(mScreenStack.pop());
         }
 
         popInternal(screensToPop);
@@ -202,10 +217,6 @@ public class ScreenManager {
     }
 
     private boolean foundMarker(String marker) {
-        if (Screen.ROOT.equals(marker)) {
-            return mScreenStack.size() < 2;
-        }
-
         return marker.equals(getTop().getMarker());
     }
 

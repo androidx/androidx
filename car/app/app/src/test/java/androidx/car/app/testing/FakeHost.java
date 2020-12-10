@@ -73,7 +73,7 @@ public class FakeHost {
 
         Bundle extras = new Bundle(1);
         extras.putBinder(
-                CarContext.START_CAR_APP_BINDER_KEY,
+                CarContext.EXTRA_START_CAR_APP_BINDER_KEY,
                 mTestCarContext.getStartCarAppStub().asBinder());
         Intent extraData = new Intent().putExtras(extras);
 

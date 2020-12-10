@@ -26,12 +26,18 @@ plugins {
 
 dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
-    implementation(project(":room:room-compiler-processing"))
+    api(project(":room:room-compiler-processing"))
     implementation(KOTLIN_STDLIB)
     implementation(KOTLIN_KSP_API)
-    testImplementation(KOTLIN_KSP)
+    implementation(KOTLIN_KSP)
     implementation(GOOGLE_COMPILE_TESTING)
     implementation(KOTLIN_COMPILE_TESTING_KSP)
+    // specify these because KSP do not specify them and we might get an older version from kotlin
+    // compile testing
+    // https://github.com/google/ksp/issues/187
+    implementation(KOTLIN_COMPILER_EMBEDDABLE)
+    implementation(KOTLIN_COMPILER_DAEMON_EMBEDDABLE)
+    implementation(KOTLIN_ANNOTATION_PROCESSING_EMBEDDABLE)
 }
 
 androidx {

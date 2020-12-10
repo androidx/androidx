@@ -16,9 +16,7 @@
 
 package androidx.camera.view
 
-import android.app.Activity
 import android.content.Context
-import android.view.View
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
@@ -32,6 +30,7 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
@@ -49,18 +48,19 @@ import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(Parameterized::class)
-class PreviewViewStreamStateTest(private val implMode: PreviewView.ImplementationMode) {
-    companion object {
+public class PreviewViewStreamStateTest(private val implMode: PreviewView.ImplementationMode) {
+
+    public companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() = arrayOf(
+        public fun data(): Array<PreviewView.ImplementationMode> = arrayOf(
             PreviewView.ImplementationMode.COMPATIBLE,
             PreviewView.ImplementationMode.PERFORMANCE
         )
 
         @BeforeClass
         @JvmStatic
-        fun classSetUp() {
+        public fun classSetUp() {
             CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
         }
     }
@@ -72,49 +72,37 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
     private lateinit var mCameraProvider: ProcessCameraProvider
 
     @get:Rule
-    val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    public val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
 
-    @Suppress("DEPRECATION")
     @get:Rule
-    var mActivityRule = androidx.test.rule.ActivityTestRule(
-        FakeActivity::class.java
-    )
-
-    @Throws(Throwable::class)
-    private fun setContentView(view: View) {
-        val activity: Activity = mActivityRule.activity
-        mActivityRule.runOnUiThread { activity.setContentView(view) }
-    }
+    public val mActivityRule: ActivityScenarioRule<FakeActivity> =
+        ActivityScenarioRule(FakeActivity::class.java)
 
     @Before
-    fun setUp() {
+    public fun setUp() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
         CoreAppTestUtil.assumeCompatibleDevice()
-
-        mIsSetup = true
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         val config = Camera2Config.defaultConfig()
         CameraX.initialize(context, config)
-        mLifecycle = FakeLifecycleOwner()
-        mInstrumentation.runOnMainSync {
-            mPreviewView = PreviewView(context)
-        }
-        setContentView(mPreviewView)
-        mInstrumentation.runOnMainSync {
-            mPreviewView.implementationMode = implMode
-        }
 
+        mLifecycle = FakeLifecycleOwner()
+        mActivityRule.scenario.onActivity { activity ->
+            mPreviewView = PreviewView(context)
+            mPreviewView.implementationMode = implMode
+            activity.setContentView(mPreviewView)
+        }
         mCameraProvider = ProcessCameraProvider.getInstance(context).get()
+        mIsSetup = true
     }
 
     @After
-    fun tearDown() {
+    public fun tearDown() {
         if (mIsSetup) {
-            mInstrumentation.runOnMainSync {
-                mCameraProvider.unbindAll()
-            }
+            mInstrumentation.runOnMainSync { mCameraProvider.unbindAll() }
             mCameraProvider.shutdown().get()
+            mIsSetup = false
         }
     }
 
@@ -134,7 +122,7 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
     }
 
     @Test
-    fun streamState_IDLE_TO_STREAMING_startPreview() {
+    public fun streamState_IDLE_TO_STREAMING_startPreview() {
         assertStreamState(PreviewView.StreamState.IDLE)
 
         startPreview(mLifecycle, mPreviewView, CameraSelector.DEFAULT_BACK_CAMERA)
@@ -144,7 +132,7 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
     }
 
     @Test
-    fun streamState_STREAMING_TO_IDLE_TO_STREAMING_lifecycleStopAndStart() {
+    public fun streamState_STREAMING_TO_IDLE_TO_STREAMING_lifecycleStopAndStart() {
         startPreview(mLifecycle, mPreviewView, CameraSelector.DEFAULT_BACK_CAMERA)
         mLifecycle.startAndResume()
         assertStreamState(PreviewView.StreamState.STREAMING)
@@ -157,7 +145,7 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
     }
 
     @Test
-    fun streamState_STREAMING_TO_IDLE_unbindAll() {
+    public fun streamState_STREAMING_TO_IDLE_unbindAll() {
         startPreview(mLifecycle, mPreviewView, CameraSelector.DEFAULT_BACK_CAMERA)
         mLifecycle.startAndResume()
         assertStreamState(PreviewView.StreamState.STREAMING)
@@ -167,7 +155,7 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
     }
 
     @Test
-    fun streamState_STREAMING_TO_IDLE_unbindPreviewOnly() {
+    public fun streamState_STREAMING_TO_IDLE_unbindPreviewOnly() {
         val preview = startPreview(mLifecycle, mPreviewView, CameraSelector.DEFAULT_BACK_CAMERA)
 
         mLifecycle.startAndResume()
@@ -178,7 +166,7 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
     }
 
     @Test
-    fun streamState_STREAMING_TO_IDLE_TO_STREAMING_switchCamera() {
+    public fun streamState_STREAMING_TO_IDLE_TO_STREAMING_switchCamera() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT))
 
         startPreview(mLifecycle, mPreviewView, CameraSelector.DEFAULT_BACK_CAMERA)

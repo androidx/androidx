@@ -524,8 +524,12 @@ private class SimpleDiffer(differCallback: DifferCallback) : PagingDataDiffer<In
         previousList: NullPaddedList<Int>,
         newList: NullPaddedList<Int>,
         newCombinedLoadStates: CombinedLoadStates,
-        lastAccessedIndex: Int
-    ): Int? = null
+        lastAccessedIndex: Int,
+        onListPresentable: () -> Unit
+    ): Int? {
+        onListPresentable()
+        return null
+    }
 }
 
 internal val dummyReceiver = object : UiReceiver {

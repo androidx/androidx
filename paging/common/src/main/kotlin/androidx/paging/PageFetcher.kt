@@ -31,7 +31,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+@OptIn(FlowPreview::class)
 internal class PageFetcher<Key : Any, Value : Any>(
     private val pagingSourceFactory: suspend () -> PagingSource<Key, Value>,
     private val initialKey: Key?,
@@ -53,6 +53,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
 
     // The object built by paging builder can maintain the scope so that on rotation we don't stop
     // the paging.
+    @OptIn(ExperimentalCoroutinesApi::class)
     val flow: Flow<PagingData<Value>> = channelFlow {
         val remoteMediatorAccessor = remoteMediator?.let {
             RemoteMediatorAccessor(this, it)
@@ -87,7 +88,6 @@ internal class PageFetcher<Key : Any, Value : Any>(
                     previousPagingState = previousGeneration.state
                 }
 
-                @OptIn(ExperimentalPagingApi::class)
                 val initialKey: Key? = previousPagingState?.let { pagingSource.getRefreshKey(it) }
                     ?: initialKey
 
@@ -127,6 +127,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
     ): Flow<PageEvent<Value>> {
         if (accessor == null) return pageEventFlow
 
+        @OptIn(ExperimentalCoroutinesApi::class)
         return channelFlow {
             val loadStates = MutableLoadStateCollection()
 

@@ -32,7 +32,7 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat;
 interface IInteractiveWatchFaceWCS {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 12
+    // Next Id: 13
 
     /**
      * API version number. This should be incremented every time a new method is added.
@@ -114,4 +114,12 @@ interface IInteractiveWatchFaceWCS {
      * @since API version 1.
      */
     oneway void release() = 11;
+
+    /**
+     * Requests the specified complication is highlighted for a short period to bring attention to
+     * it.
+     *
+     * @since API version 1.
+     */
+    oneway void bringAttentionToComplication(in int complicationId) = 12;
 }

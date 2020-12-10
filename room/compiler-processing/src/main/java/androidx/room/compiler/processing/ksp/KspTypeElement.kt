@@ -317,4 +317,8 @@ internal class KspTypeElement(
         .filter {
             it.simpleName == this.simpleName
         }
+
+    override fun toString(): String {
+        return declaration.toString()
+    }
 }

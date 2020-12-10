@@ -2,15 +2,17 @@
 package androidx.wear.watchface.client {
 
   public final class ComplicationState {
-    ctor public ComplicationState(android.graphics.Rect bounds, int boundsType, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.data.ComplicationType defaultProviderType, boolean isEnabled);
+    ctor public ComplicationState(android.graphics.Rect bounds, int boundsType, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.data.ComplicationType defaultProviderType, boolean isEnabled, androidx.wear.complications.data.ComplicationType currentType);
     method public android.graphics.Rect getBounds();
     method public int getBoundsType();
+    method public androidx.wear.complications.data.ComplicationType getCurrentType();
     method public androidx.wear.complications.DefaultComplicationProviderPolicy getDefaultProviderPolicy();
     method public androidx.wear.complications.data.ComplicationType getDefaultProviderType();
     method public java.util.List<androidx.wear.complications.data.ComplicationType> getSupportedTypes();
     method public boolean isEnabled();
     property public final android.graphics.Rect bounds;
     property public final int boundsType;
+    property public final androidx.wear.complications.data.ComplicationType currentType;
     property public final androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy;
     property public final androidx.wear.complications.data.ComplicationType defaultProviderType;
     property public final boolean isEnabled;
@@ -84,7 +86,9 @@ package androidx.wear.watchface.client {
 
   public interface InteractiveWatchFaceWcsClient extends java.lang.AutoCloseable {
     method public android.os.IBinder asBinder();
+    method public void bringAttentionToComplication(int complicationId);
     method public default static androidx.wear.watchface.client.InteractiveWatchFaceWcsClient createFromBinder(android.os.IBinder binder);
+    method public default Integer? getComplicationIdAt(@Px int x, @Px int y);
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationState();
     method public String getInstanceId();
     method public long getPreviewReferenceTimeMillis();

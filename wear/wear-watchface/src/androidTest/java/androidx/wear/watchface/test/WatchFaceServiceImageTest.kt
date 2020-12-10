@@ -19,6 +19,7 @@ package androidx.wear.watchface.test
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.os.Handler
@@ -248,7 +249,8 @@ class WatchFaceServiceImageTest {
                         RenderParameters(
                             DrawMode.AMBIENT,
                             RenderParameters.DRAW_ALL_LAYERS,
-                            null
+                            null,
+                            Color.RED
                         ).toWireFormat(),
                         100,
                         123456789,
@@ -281,7 +283,8 @@ class WatchFaceServiceImageTest {
                         RenderParameters(
                             DrawMode.INTERACTIVE,
                             RenderParameters.DRAW_ALL_LAYERS,
-                            null
+                            null,
+                            Color.RED
                         ).toWireFormat(),
                         100,
                         123456789,
@@ -333,7 +336,8 @@ class WatchFaceServiceImageTest {
                                 Layer.COMPLICATIONS to LayerMode.DRAW_HIGHLIGHTED,
                                 Layer.TOP_LAYER to LayerMode.DRAW
                             ),
-                            null
+                            null,
+                            Color.RED
                         ).toWireFormat(),
                         100,
                         123456789,
@@ -370,7 +374,8 @@ class WatchFaceServiceImageTest {
                                 Layer.COMPLICATIONS to LayerMode.DRAW_HIGHLIGHTED,
                                 Layer.TOP_LAYER to LayerMode.DRAW
                             ),
-                            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+                            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
+                            Color.RED
                         ).toWireFormat(),
                         100,
                         123456789,
@@ -418,7 +423,8 @@ class WatchFaceServiceImageTest {
                         RenderParameters(
                             DrawMode.INTERACTIVE,
                             RenderParameters.DRAW_ALL_LAYERS,
-                            null
+                            null,
+                            Color.RED
                         ).toWireFormat(),
                         100,
                         123456789,
@@ -450,9 +456,9 @@ class WatchFaceServiceImageTest {
             // Simulate device shutting down.
             InteractiveInstanceManager.deleteInstance(INTERACTIVE_INSTANCE_ID)
 
-            // Simulate a direct boot scenario where a new service is created with a locked user
-            // but there's no pending PendingWallpaperInteractiveWatchFaceInstance and no
-            // wallpaper command. This should load the direct boot parameters which get saved.
+            // Simulate a R style direct boot scenario where a new service is created but there's no
+            // pending PendingWallpaperInteractiveWatchFaceInstance and no wallpaper command. This
+            // should load the direct boot parameters which get saved.
             val service2 = TestCanvasAnalogWatchFaceService(
                 ApplicationProvider.getApplicationContext<Context>(),
                 handler,

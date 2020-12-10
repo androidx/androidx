@@ -288,9 +288,8 @@ public class NavigationManager {
     }
 
     /**
-     * Signifies that from this point, until {@link
-     * androidx.car.app.CarAppService#onCarAppFinished} is called, any navigation
-     * should automatically start driving to the destination as if the user was moving.
+     * Signifies that from this point, until {@link CarContext#finishCarApp()} is called, any
+     * navigation should automatically start driving to the destination as if the user was moving.
      *
      * <p>This is used in a testing environment, allowing testing the navigation app's navigation
      * capabilities without being in a car.

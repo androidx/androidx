@@ -445,27 +445,11 @@ public class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) construc
             " Call BenchmarkState.resumeTiming() before BenchmarkState.keepRunning()."
     }
 
-    internal data class Report(
-        val className: String,
-        val testName: String,
-        val totalRunTimeNs: Long,
-        val data: List<List<Long>>,
-        val stats: List<Stats>,
-        val repeatIterations: Int,
-        val thermalThrottleSleepSeconds: Long,
-        val warmupIterations: Int
-    ) {
-        fun getStats(which: String): Stats {
-            return stats.first { it.name == which }
-        }
-    }
-
-    private fun getReport(testName: String, className: String) = Report(
+    private fun getReport(testName: String, className: String) = BenchmarkResult(
         className = className,
         testName = testName,
         totalRunTimeNs = totalRunTimeNs,
-        data = allData.map { it.toList() },
-        stats = stats,
+        metrics = metricResultList(stats, allData),
         repeatIterations = iterationsPerRepeat,
         thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
         warmupIterations = warmupRepeats
@@ -609,12 +593,14 @@ public class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) construc
         ) {
             val metricsContainer = MetricsContainer(REPEAT_COUNT = dataNs.size)
             metricsContainer.data[metricsContainer.data.lastIndex] = dataNs.toLongArray()
-            val report = Report(
+            val report = BenchmarkResult(
                 className = className,
                 testName = testName,
                 totalRunTimeNs = totalRunTimeNs,
-                data = metricsContainer.data.map { it.toList() },
-                stats = metricsContainer.captureFinished(maxIterations = 1),
+                metrics = metricResultList(
+                    stats = metricsContainer.captureFinished(maxIterations = 1),
+                    data = metricsContainer.data.toList()
+                ),
                 repeatIterations = repeatIterations,
                 thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
                 warmupIterations = warmupIterations

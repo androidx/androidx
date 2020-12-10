@@ -26,11 +26,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.IOnDoneCallback;
-import androidx.car.app.IOnItemVisibilityChangedListener;
-import androidx.car.app.IOnSelectedListener;
 import androidx.car.app.OnDoneCallback;
-import androidx.car.app.OnItemVisibilityChangedListenerWrapper;
-import androidx.car.app.OnSelectedListenerWrapper;
 import androidx.car.app.WrappedRuntimeException;
 import androidx.car.app.utils.RemoteUtils;
 
@@ -352,8 +348,6 @@ public final class ItemList {
     private static Toggle getToggle(Object item) {
         if (item instanceof Row) {
             return ((Row) item).getToggle();
-        } else if (item instanceof GridItem) {
-            return ((GridItem) item).getToggle();
         }
 
         return null;

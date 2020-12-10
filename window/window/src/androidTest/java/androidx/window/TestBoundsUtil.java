@@ -28,7 +28,7 @@ class TestBoundsUtil {
 
     public static Rect validFoldBound(Rect windowBounds) {
         int verticalMid = windowBounds.top + windowBounds.height() / 2;
-        return new Rect(windowBounds.left, verticalMid, windowBounds.right, verticalMid);
+        return new Rect(0, verticalMid, windowBounds.width(), verticalMid);
     }
 
     public static Rect invalidZeroBound() {
@@ -36,11 +36,11 @@ class TestBoundsUtil {
     }
 
     public static Rect invalidBoundShortWidth(Rect windowBounds) {
-        return new Rect(windowBounds.left, windowBounds.top, windowBounds.right / 2, 2);
+        return new Rect(0, 0, windowBounds.width() / 2, 2);
     }
 
     public static Rect invalidBoundShortHeight(Rect windowBounds) {
-        return new Rect(windowBounds.left, windowBounds.top, 2, windowBounds.bottom / 2);
+        return new Rect(0, 0, 2, windowBounds.height() / 2);
     }
 
     private static List<Rect> coreInvalidBounds(Rect windowBounds) {

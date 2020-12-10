@@ -30,7 +30,6 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 
-@OptIn(ExperimentalCoroutinesApi::class)
 private class MulticastedPagingData<T : Any>(
     val scope: CoroutineScope,
     val parent: PagingData<T>,

@@ -24,9 +24,11 @@ import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.AppInfo;
 import androidx.car.app.CarAppService;
 import androidx.car.app.HostInfo;
 import androidx.car.app.ICarApp;
+import androidx.car.app.Session;
 import androidx.lifecycle.Lifecycle.State;
 
 import java.lang.reflect.Field;
@@ -39,7 +41,7 @@ import java.util.Objects;
  *
  * <ul>
  *   <li>Sending different {@link Intent}s to the {@link CarAppService}'s {@link
- *       CarAppService#onCreateScreen} and {@link CarAppService#onNewIntent} methods.
+ *       Session#onCreateScreen} and {@link CarAppService#onNewIntent} methods.
  *   <li>Moving a {@link CarAppService} through its different {@link State}s.
  * </ul>
  */
@@ -50,15 +52,18 @@ public class CarAppServiceController {
 
     /** Creates a {@link CarAppServiceController} to control the provided {@link CarAppService}. */
     public static CarAppServiceController of(
-            @NonNull TestCarContext testCarContext, @NonNull CarAppService carAppService) {
+            @NonNull TestCarContext testCarContext,
+            @NonNull Session session, @NonNull CarAppService carAppService) {
         return new CarAppServiceController(
-                requireNonNull(carAppService), requireNonNull(testCarContext));
+                requireNonNull(carAppService), requireNonNull(session),
+                requireNonNull(testCarContext));
     }
 
     /**
      * Initializes the {@link CarAppService} that is being controlled.
      *
-     * <p>This will send an empty {@link Intent} to {@link CarAppService#onCreateScreen}.
+     * <p>This will send an empty {@link Intent} to the {@link Session} returned from
+     * {@link CarAppService#onCreateSession}.
      */
     public CarAppServiceController create() {
         return create(
@@ -69,7 +74,7 @@ public class CarAppServiceController {
     /**
      * Initializes the {@link CarAppService} that is being controlled.
      *
-     * <p>This will send the provided {@link Intent} to {@link CarAppService#onCreateScreen}.
+     * <p>This will send the provided {@link Intent} to {@link Session#onCreateScreen}.
      */
     public CarAppServiceController create(@NonNull Intent intent) {
         Objects.requireNonNull(intent);
@@ -103,7 +108,7 @@ public class CarAppServiceController {
     /**
      * Starts the {@link CarAppService} that is being controlled.
      *
-     * @see CarAppService#getLifecycle
+     * @see Session#getLifecycle
      */
     public CarAppServiceController start() {
         try {
@@ -118,7 +123,7 @@ public class CarAppServiceController {
     /**
      * Resumes the {@link CarAppService} that is being controlled.
      *
-     * @see CarAppService#getLifecycle
+     * @see Session#getLifecycle
      */
     public CarAppServiceController resume() {
         try {
@@ -133,7 +138,7 @@ public class CarAppServiceController {
     /**
      * Pauses the {@link CarAppService} that is being controlled.
      *
-     * @see CarAppService#getLifecycle
+     * @see Session#getLifecycle
      */
     public CarAppServiceController pause() {
         try {
@@ -148,7 +153,7 @@ public class CarAppServiceController {
     /**
      * Stops the {@link CarAppService} that is being controlled.
      *
-     * @see CarAppService#getLifecycle
+     * @see Session#getLifecycle
      */
     public CarAppServiceController stop() {
         try {
@@ -162,11 +167,10 @@ public class CarAppServiceController {
     /**
      * Destroys the {@link CarAppService} that is being controlled.
      *
-     * @see CarAppService#getLifecycle
+     * @see Session#getLifecycle
      */
     public CarAppServiceController destroy() {
         mCarAppService.onUnbind(new Intent());
-        mCarAppService.onCarAppFinished();
         mCarAppService.onDestroy();
         return this;
     }
@@ -182,6 +186,17 @@ public class CarAppServiceController {
         }
     }
 
+    public void setAppInfo(@Nullable AppInfo appInfo) {
+        try {
+            Field appInfoField = CarAppService.class.getDeclaredField("mAppInfo");
+            appInfoField.setAccessible(true);
+            appInfoField.set(mCarAppService, appInfo);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(
+                    "Failed to set CarAppService appInfo value for testing", e);
+        }
+    }
+
     /** Retrieves the {@link CarAppService} that is being controlled. */
     @NonNull
     public CarAppService get() {
@@ -189,19 +204,24 @@ public class CarAppServiceController {
     }
 
     private CarAppServiceController(
-            CarAppService carAppService, @NonNull TestCarContext testCarContext) {
+            CarAppService carAppService,
+            @NonNull Session session, @NonNull TestCarContext testCarContext) {
         this.mCarAppService = carAppService;
         this.mTestCarContext = testCarContext;
 
-        // Use reflection to inject the TestCarContext into the Screen.
+        // Use reflection to inject the Session and TestCarContext into the CarAppService.
         try {
-            Field registry = CarAppService.class.getDeclaredField("mRegistry");
-            registry.setAccessible(true);
-            registry.set(carAppService, testCarContext.getLifecycleOwner().mRegistry);
+            Field currentSession = CarAppService.class.getDeclaredField("mCurrentSession");
+            currentSession.setAccessible(true);
+            currentSession.set(carAppService, session);
 
-            Field carContext = CarAppService.class.getDeclaredField("mCarContext");
+            Field registry = Session.class.getDeclaredField("mRegistry");
+            registry.setAccessible(true);
+            registry.set(session, testCarContext.getLifecycleOwner().mRegistry);
+
+            Field carContext = Session.class.getDeclaredField("mCarContext");
             carContext.setAccessible(true);
-            carContext.set(carAppService, testCarContext);
+            carContext.set(session, testCarContext);
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException(
                     "Failed to set internal CarAppService values for testing", e);

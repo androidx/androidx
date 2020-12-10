@@ -127,7 +127,8 @@ class VisibilityStore {
 
                 String[] schemas = document.getPropertyStringArray(
                         NOT_PLATFORM_SURFACEABLE_PROPERTY);
-                mNotPlatformSurfaceableMap.put(database, new ArraySet<>(Arrays.asList(schemas)));
+                mNotPlatformSurfaceableMap.put(database,
+                        new ArraySet<>(Arrays.asList(schemas)));
             } catch (AppSearchException e) {
                 if (e.getResultCode() == AppSearchResult.RESULT_NOT_FOUND) {
                     // TODO(b/172068212): This indicates some desync error. We were expecting a

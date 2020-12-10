@@ -23,7 +23,7 @@ import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.getDeclaredMethod
 import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.getParameter
-import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
@@ -38,7 +38,7 @@ import org.junit.runners.JUnit4
 class XExecutableElementTest {
     @Test
     fun basic() {
-        runProcessorTestIncludingKsp(
+        runProcessorTest(
             sources = listOf(
                 Source.java(
                     "foo.bar.Baz",
@@ -89,7 +89,7 @@ class XExecutableElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(
+        runProcessorTest(
             sources = listOf(subject)
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
@@ -108,7 +108,7 @@ class XExecutableElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(
+        runProcessorTest(
             sources = listOf(subject)
         ) {
             val element = it.processingEnv.requireTypeElement("Subject")
@@ -138,7 +138,7 @@ class XExecutableElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(
+        runProcessorTest(
             sources = listOf(subject)
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
@@ -182,7 +182,7 @@ class XExecutableElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(
+        runProcessorTest(
             sources = listOf(src)
         ) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("Subject")
@@ -269,7 +269,7 @@ class XExecutableElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val klass = invocation.processingEnv.requireTypeElement("MyDataClass")
             val methodNames = klass.getAllMethods().map {
                 it.name
@@ -323,7 +323,7 @@ class XExecutableElementTest {
             class NullableSubject: Base<String?>()
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(sources = listOf(source)) { invocation ->
+        runProcessorTest(sources = listOf(source)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("Base")
             val subject = invocation.processingEnv.requireType("Subject")
                 .asDeclaredType()
@@ -386,7 +386,7 @@ class XExecutableElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTestIncludingKsp(sources = listOf(src, javaSrc)) { invocation ->
+        runProcessorTest(sources = listOf(src, javaSrc)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("MyInterface")
             val impl = invocation.processingEnv.requireTypeElement("MyImpl")
             val javaImpl = invocation.processingEnv.requireTypeElement("JavaImpl")

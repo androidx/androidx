@@ -22,7 +22,7 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.javaTypeUtils
 import androidx.room.compiler.processing.util.runKaptTest
-import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
+import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.MethodSpec
@@ -291,7 +291,7 @@ class MethodSpecHelperTest {
     private fun overridesCheck(source: Source, ignoreInheritedMethods: Boolean = false) {
         // first build golden image with Java processor so we can use JavaPoet's API
         val golden = buildMethodsViaJavaPoet(source, ignoreInheritedMethods)
-        runProcessorTestIncludingKsp(
+        runProcessorTest(
             sources = listOf(source)
         ) { invocation ->
             val (target, methods) = invocation.getOverrideTestTargets(ignoreInheritedMethods)
@@ -316,8 +316,7 @@ class MethodSpecHelperTest {
     ): List<String> {
         lateinit var result: List<String>
         runKaptTest(
-            sources = listOf(source),
-            succeed = true
+            sources = listOf(source)
         ) { invocation ->
             val (target, methods) = invocation.getOverrideTestTargets(
                 ignoreInheritedMethods

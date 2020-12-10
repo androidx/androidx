@@ -32,7 +32,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
- * A set of requirements and priorities used to select a camera.
+ * A set of requirements and priorities used to select a camera or return a filtered set of
+ * cameras.
  */
 public final class CameraSelector {
 
