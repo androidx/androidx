@@ -36,9 +36,9 @@ import org.junit.runner.RunWith
  */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class PreviewTransformationDeviceTest {
+public class PreviewTransformationDeviceTest {
 
-    companion object {
+    public companion object {
         // Size of the PreviewView. Aspect ratio 2:1.
         private val PREVIEW_VIEW_SIZE = Size(400, 200)
         private val PIVOTED_PREVIEW_VIEW_SIZE =
@@ -71,13 +71,13 @@ class PreviewTransformationDeviceTest {
     private lateinit var mView: View
 
     @Before
-    fun setUp() {
+    public fun setUp() {
         mPreviewTransform = PreviewTransformation()
         mView = View(ApplicationProvider.getApplicationContext())
     }
 
     @Test
-    fun cropRectWidthOffByOnePixel_match() {
+    public fun cropRectWidthOffByOnePixel_match() {
         assertThat(
             isCropRectAspectRatioMatchPreviewView(
                 Rect(
@@ -91,7 +91,7 @@ class PreviewTransformationDeviceTest {
     }
 
     @Test
-    fun cropRectWidthOffByTwoPixels_mismatch() {
+    public fun cropRectWidthOffByTwoPixels_mismatch() {
         assertThat(
             isCropRectAspectRatioMatchPreviewView(
                 Rect(
@@ -115,7 +115,7 @@ class PreviewTransformationDeviceTest {
     }
 
     @Test
-    fun correctTextureViewWith0Rotation() {
+    public fun correctTextureViewWith0Rotation() {
         assertThat(getTextureViewCorrection(Surface.ROTATION_0)).isEqualTo(
             floatArrayOf(
                 0f,
@@ -131,7 +131,7 @@ class PreviewTransformationDeviceTest {
     }
 
     @Test
-    fun correctTextureViewWith90Rotation() {
+    public fun correctTextureViewWith90Rotation() {
         assertThat(getTextureViewCorrection(Surface.ROTATION_90)).isEqualTo(
             floatArrayOf(
                 0f,
@@ -147,7 +147,7 @@ class PreviewTransformationDeviceTest {
     }
 
     @Test
-    fun correctTextureViewWith180Rotation() {
+    public fun correctTextureViewWith180Rotation() {
         assertThat(getTextureViewCorrection(Surface.ROTATION_180)).isEqualTo(
             floatArrayOf(
                 SURFACE_SIZE.width.toFloat(),
@@ -163,7 +163,7 @@ class PreviewTransformationDeviceTest {
     }
 
     @Test
-    fun correctTextureViewWith270Rotation() {
+    public fun correctTextureViewWith270Rotation() {
         assertThat(getTextureViewCorrection(Surface.ROTATION_270)).isEqualTo(
             floatArrayOf(
                 SURFACE_SIZE.width.toFloat(),
@@ -196,7 +196,7 @@ class PreviewTransformationDeviceTest {
     }
 
     @Test
-    fun ratioMatch_surfaceIsScaledToFillPreviewView() {
+    public fun ratioMatch_surfaceIsScaledToFillPreviewView() {
         // Arrange.
         mPreviewTransform.setTransformationInfo(
             SurfaceRequest.TransformationInfo.of(
@@ -225,7 +225,7 @@ class PreviewTransformationDeviceTest {
     }
 
     @Test
-    fun mismatchedCropRect_fitStart() {
+    public fun mismatchedCropRect_fitStart() {
         assertForMismatchedCropRect(
             PreviewView.ScaleType.FIT_START,
             LayoutDirection.LTR,
@@ -237,7 +237,7 @@ class PreviewTransformationDeviceTest {
     }
 
     @Test
-    fun mismatchedCropRect_fitCenter() {
+    public fun mismatchedCropRect_fitCenter() {
         assertForMismatchedCropRect(
             PreviewView.ScaleType.FIT_CENTER,
             LayoutDirection.LTR,
@@ -249,7 +249,7 @@ class PreviewTransformationDeviceTest {
     }
 
     @Test
-    fun mismatchedCropRect_fitEnd() {
+    public fun mismatchedCropRect_fitEnd() {
         assertForMismatchedCropRect(
             PreviewView.ScaleType.FIT_END,
             LayoutDirection.LTR,
@@ -261,7 +261,7 @@ class PreviewTransformationDeviceTest {
     }
 
     @Test
-    fun mismatchedCropRectFrontCamera_fitStart() {
+    public fun mismatchedCropRectFrontCamera_fitStart() {
         assertForMismatchedCropRect(
             PreviewView.ScaleType.FIT_START,
             LayoutDirection.LTR,
@@ -273,7 +273,7 @@ class PreviewTransformationDeviceTest {
     }
 
     @Test
-    fun mismatchedCropRect_fillStart() {
+    public fun mismatchedCropRect_fillStart() {
         assertForMismatchedCropRect(
             PreviewView.ScaleType.FILL_START,
             LayoutDirection.LTR,
@@ -285,7 +285,7 @@ class PreviewTransformationDeviceTest {
     }
 
     @Test
-    fun mismatchedCropRect_fillCenter() {
+    public fun mismatchedCropRect_fillCenter() {
         assertForMismatchedCropRect(
             PreviewView.ScaleType.FILL_CENTER,
             LayoutDirection.LTR,
@@ -297,7 +297,7 @@ class PreviewTransformationDeviceTest {
     }
 
     @Test
-    fun mismatchedCropRect_fillEnd() {
+    public fun mismatchedCropRect_fillEnd() {
         assertForMismatchedCropRect(
             PreviewView.ScaleType.FILL_END,
             LayoutDirection.LTR,
@@ -309,7 +309,7 @@ class PreviewTransformationDeviceTest {
     }
 
     @Test
-    fun mismatchedCropRect_fitStartWithRtl_actsLikeFitEnd() {
+    public fun mismatchedCropRect_fitStartWithRtl_actsLikeFitEnd() {
         assertForMismatchedCropRect(
             PreviewView.ScaleType.FIT_START,
             LayoutDirection.RTL,
@@ -347,7 +347,7 @@ class PreviewTransformationDeviceTest {
     }
 
     @Test
-    fun frontCamera0_transformationIsMirrored() {
+    public fun frontCamera0_transformationIsMirrored() {
         testOffCenterCropRectMirroring(FRONT_CAMERA, CROP_RECT_0, PREVIEW_VIEW_SIZE, 0)
 
         // Assert:
@@ -358,7 +358,7 @@ class PreviewTransformationDeviceTest {
     }
 
     @Test
-    fun backCamera0_transformationIsNotMirrored() {
+    public fun backCamera0_transformationIsNotMirrored() {
         testOffCenterCropRectMirroring(BACK_CAMERA, CROP_RECT_0, PREVIEW_VIEW_SIZE, 0)
 
         // Assert:
@@ -369,7 +369,7 @@ class PreviewTransformationDeviceTest {
     }
 
     @Test
-    fun frontCameraRotated90_transformationIsMirrored() {
+    public fun frontCameraRotated90_transformationIsMirrored() {
         testOffCenterCropRectMirroring(
             FRONT_CAMERA, CROP_RECT_90, PIVOTED_PREVIEW_VIEW_SIZE, 90
         )
@@ -382,7 +382,7 @@ class PreviewTransformationDeviceTest {
     }
 
     @Test
-    fun backCameraRotated90_transformationIsNotMirrored() {
+    public fun backCameraRotated90_transformationIsNotMirrored() {
         testOffCenterCropRectMirroring(BACK_CAMERA, CROP_RECT_90, PIVOTED_PREVIEW_VIEW_SIZE, 90)
 
         // Assert:

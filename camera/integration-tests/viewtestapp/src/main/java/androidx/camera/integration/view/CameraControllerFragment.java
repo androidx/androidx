@@ -115,11 +115,6 @@ public class CameraControllerFragment extends Fragment {
         image.close();
     };
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-    }
-
     @NonNull
     @Override
     @UseExperimental(markerClass = ExperimentalVideo.class)
@@ -241,7 +236,7 @@ public class CameraControllerFragment extends Fragment {
         view.findViewById(R.id.video_record).setOnClickListener(v -> {
             try {
                 String videoFileName = "video_" + System.currentTimeMillis();
-                ContentResolver resolver = getContext().getContentResolver();
+                ContentResolver resolver = requireContext().getContentResolver();
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
                 contentValues.put(MediaStore.Video.Media.TITLE, videoFileName);
@@ -326,7 +321,9 @@ public class CameraControllerFragment extends Fragment {
         if (mExecutorService != null) {
             mExecutorService.shutdown();
         }
-        mSensorRotationListener.disable();
+        if (mSensorRotationListener != null) {
+            mSensorRotationListener.disable();
+        }
     }
 
     void checkFailedFuture(ListenableFuture<Void> voidFuture) {
@@ -347,7 +344,7 @@ public class CameraControllerFragment extends Fragment {
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     void toast(String message) {
-        getActivity().runOnUiThread(
+        requireActivity().runOnUiThread(
                 () -> Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show());
     }
 
@@ -373,8 +370,9 @@ public class CameraControllerFragment extends Fragment {
     @UseExperimental(markerClass = ExperimentalVideo.class)
     private void updateUiText() {
         mFlashMode.setText(getFlashModeTextResId());
-        mCameraToggle.setChecked(mCameraController.getCameraSelector().getLensFacing()
-                == CameraSelector.LENS_FACING_BACK);
+        final Integer lensFacing = mCameraController.getCameraSelector().getLensFacing();
+        mCameraToggle.setChecked(
+                lensFacing != null && lensFacing == CameraSelector.LENS_FACING_BACK);
         mVideoEnabledToggle.setChecked(mCameraController.isVideoCaptureEnabled());
         mPinchToZoomToggle.setChecked(mCameraController.isPinchToZoomEnabled());
         mTapToFocusToggle.setChecked(mCameraController.isTapToFocusEnabled());
@@ -510,7 +508,7 @@ public class CameraControllerFragment extends Fragment {
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
         ImageCapture.OutputFileOptions outputFileOptions =
                 new ImageCapture.OutputFileOptions.Builder(
-                        getContext().getContentResolver(),
+                        requireContext().getContentResolver(),
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                         contentValues).build();
         mCameraController.takePicture(outputFileOptions, mExecutorService, callback);
