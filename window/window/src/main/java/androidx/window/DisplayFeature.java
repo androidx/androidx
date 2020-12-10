@@ -18,11 +18,7 @@ package androidx.window;
 
 import android.graphics.Rect;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 
 /**
  * Description of a physical feature on the display.
@@ -31,162 +27,15 @@ import java.lang.annotation.RetentionPolicy;
  * the device. It can intrude into the application window space and create a visual distortion,
  * visual or touch discontinuity, make some area invisible or create a logical divider or separation
  * in the screen space.
- *
- * @see #TYPE_FOLD
- * @see #TYPE_HINGE
  */
-public final class DisplayFeature {
-    private final Rect mBounds;
-    @Type
-    private int mType;
-
-    DisplayFeature(@NonNull Rect bounds, @Type int type) {
-        assertValidBounds(bounds, type);
-        mBounds = new Rect(bounds);
-        mType = type;
-    }
+public interface DisplayFeature {
 
     /**
-     * Gets bounding rectangle of the physical display feature in the coordinate space of the
-     * window. The rectangle provides information about the location of the feature in the window
-     * and its size.
+     * The bounding rectangle of the feature within the application window
+     * in the window coordinate space.
      *
-     * <p>The bounds for features of type {@link #TYPE_FOLD fold} are guaranteed to be zero-high
-     * (for horizontal folds) or zero-wide (for vertical folds) and span the entire window.
-     *
-     * <p>The bounds for features of type {@link #TYPE_HINGE hinge} are guaranteed to span the
-     * entire window but, unlike folds, can have a non-zero area.
+     * @return bounds of display feature.
      */
     @NonNull
-    public Rect getBounds() {
-        return new Rect(mBounds);
-    }
-
-    /**
-     * Gets type of the physical display feature.
-     */
-    @Type
-    public int getType() {
-        return mType;
-    }
-
-    /**
-     * A fold in the flexible screen without a physical gap.
-     */
-    public static final int TYPE_FOLD = 1;
-
-    /**
-     * A physical separation with a hinge that allows two display panels to fold.
-     */
-    public static final int TYPE_HINGE = 2;
-
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({
-            TYPE_FOLD,
-            TYPE_HINGE,
-    })
-    @interface Type{}
-
-    private static String typeToString(@Type int type) {
-        switch (type) {
-            case TYPE_FOLD:
-                return "FOLD";
-            case TYPE_HINGE:
-                return "HINGE";
-            default:
-                return "Unknown feature type (" + type + ")";
-        }
-    }
-
-    @NonNull
-    @Override
-    public String toString() {
-        return "DisplayFeature{ bounds=" + mBounds + ", type=" + typeToString(mType) + " }";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        DisplayFeature that = (DisplayFeature) o;
-
-        return mType == that.mType && mBounds.equals(that.mBounds);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = mBounds.hashCode();
-        result = 31 * result + mType;
-        return result;
-    }
-
-    /**
-     * Builder for {@link DisplayFeature} objects.
-     */
-    public static final class Builder {
-        private Rect mBounds = new Rect();
-        @Type
-        private int mType = TYPE_FOLD;
-
-        /**
-         * Creates an initially empty builder.
-         */
-        public Builder() {
-        }
-
-        /**
-         * Sets the bounds for the {@link DisplayFeature} instance.
-         */
-        @NonNull
-        public Builder setBounds(@NonNull Rect bounds) {
-            mBounds = bounds;
-            return this;
-        }
-
-        /**
-         * Sets the type for the {@link DisplayFeature} instance.
-         */
-        @NonNull
-        public Builder setType(@Type int type) {
-            mType = type;
-            return this;
-        }
-
-        /**
-         * Creates a {@link DisplayFeature} instance with the specified fields.
-         * @return A DisplayFeature instance.
-         */
-        @NonNull
-        public DisplayFeature build() {
-            return new DisplayFeature(mBounds, mType);
-        }
-    }
-
-    /**
-     * Throws runtime exceptions if the bounds are invalid or incompatible with the supplied type.
-     */
-    private static void assertValidBounds(Rect bounds, @Type int type) {
-        if (bounds.height() == 0 && bounds.width() == 0) {
-            throw new IllegalArgumentException("Bounding rectangle must not be empty: " + bounds);
-        }
-
-        if (type == TYPE_FOLD) {
-            if (bounds.width() != 0 && bounds.height() != 0) {
-                throw new IllegalArgumentException("Bounding rectangle must be either zero-wide "
-                        + "or zero-high for features of type " + typeToString(type));
-            }
-
-            if ((bounds.width() != 0 && bounds.left != 0)
-                    || (bounds.height() != 0 && bounds.top != 0)) {
-                throw new IllegalArgumentException("Bounding rectangle must span the entire "
-                        + "window space for features of type " + typeToString(type));
-            }
-        } else if (type == TYPE_HINGE) {
-            if (bounds.left != 0 && bounds.top != 0) {
-                throw new IllegalArgumentException("Bounding rectangle must span the entire "
-                        + "window space for features of type " + typeToString(type));
-            }
-        }
-    }
+    Rect getBounds();
 }

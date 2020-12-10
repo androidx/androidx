@@ -23,7 +23,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
-import androidx.compose.material.ButtonConstants
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -74,7 +74,7 @@ fun ProfileWithDeepLink(navController: NavController, uri: String) {
         Divider(color = Color.Black)
         Button(
             onClick = { navController.navigate(Uri.parse(uri + state.value)) },
-            colors = ButtonConstants.defaultButtonColors(backgroundColor = Color.LightGray),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Navigate By DeepLink")

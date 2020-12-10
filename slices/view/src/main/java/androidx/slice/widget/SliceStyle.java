@@ -17,6 +17,7 @@
 package androidx.slice.widget;
 
 import static androidx.slice.core.SliceHints.ICON_IMAGE;
+import static androidx.slice.core.SliceHints.RAW_IMAGE_LARGE;
 import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
 import static androidx.slice.widget.SliceView.MODE_LARGE;
 import static androidx.slice.widget.SliceView.MODE_SMALL;
@@ -74,6 +75,7 @@ public class SliceStyle {
     private final int mGridBigPicMaxHeight;
     private final int mGridAllImagesHeight;
     private final int mGridImageTextHeight;
+    private final int mGridRawImageTextHeight;
     private final int mGridMaxHeight;
     private final int mGridMinHeight;
 
@@ -88,6 +90,8 @@ public class SliceStyle {
     private RowStyleFactory mRowStyleFactory;
 
     private final Context mContext;
+
+    private final float mImageCornerRadius;
 
     public SliceStyle(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SliceView,
@@ -155,6 +159,8 @@ public class SliceStyle {
             mHideHeaderRow = a.getBoolean(R.styleable.SliceView_hideHeaderRow, false);
 
             mContext = context;
+
+            mImageCornerRadius = a.getDimension(R.styleable.SliceView_imageCornerRadius, 0);
         } finally {
             a.recycle();
         }
@@ -175,6 +181,8 @@ public class SliceStyle {
         mGridBigPicMaxHeight = r.getDimensionPixelSize(R.dimen.abc_slice_big_pic_max_height);
         mGridAllImagesHeight = r.getDimensionPixelSize(R.dimen.abc_slice_grid_image_only_height);
         mGridImageTextHeight = r.getDimensionPixelSize(R.dimen.abc_slice_grid_image_text_height);
+        mGridRawImageTextHeight = r.getDimensionPixelSize(
+                R.dimen.abc_slice_grid_raw_image_text_offset);
         mGridMinHeight = r.getDimensionPixelSize(R.dimen.abc_slice_grid_min_height);
         mGridMaxHeight = r.getDimensionPixelSize(R.dimen.abc_slice_grid_max_height);
 
@@ -304,6 +312,14 @@ public class SliceStyle {
         return mHideHeaderRow;
     }
 
+    public boolean getApplyCornerRadiusToLargeImages() {
+        return mImageCornerRadius > 0;
+    }
+
+    public float getImageCornerRadius() {
+        return mImageCornerRadius;
+    }
+
     public int getRowHeight(RowContent row, SliceViewPolicy policy) {
         int maxHeight = policy.getMaxSmallHeight() > 0 ? policy.getMaxSmallHeight() : mRowMaxHeight;
 
@@ -350,18 +366,30 @@ public class SliceStyle {
         int largestImageMode = grid.getLargestImageMode();
         int height;
         if (grid.isAllImages()) {
-            height = grid.getGridContent().size() == 1
-                    ? isSmall ? mGridBigPicMinHeight : mGridBigPicMaxHeight
-                    : largestImageMode == ICON_IMAGE ? mGridMinHeight
-                            : mGridAllImagesHeight;
+            height = (grid.getGridContent().size() == 1)
+                    ? (isSmall
+                    ? mGridBigPicMinHeight
+                    : mGridBigPicMaxHeight)
+                    : (largestImageMode == ICON_IMAGE
+                            ? mGridMinHeight
+                            : (largestImageMode == RAW_IMAGE_LARGE
+                                    ? grid.getFirstImageSize(mContext).y
+                                    : mGridAllImagesHeight));
         } else {
             boolean twoLines = grid.getMaxCellLineCount() > 1;
             boolean hasImage = grid.hasImage();
             boolean iconImagesOrNone = largestImageMode == ICON_IMAGE
                     || largestImageMode == UNKNOWN_IMAGE;
-            height = (twoLines && !isSmall)
-                    ? hasImage ? mGridMaxHeight : mGridMinHeight
-                    : iconImagesOrNone ? mGridMinHeight : mGridImageTextHeight;
+            height = largestImageMode == RAW_IMAGE_LARGE
+                    ? (grid.getFirstImageSize(mContext).y
+                        + (twoLines ? 2 : 1) * mGridRawImageTextHeight)
+                    : (twoLines && !isSmall)
+                            ? (hasImage
+                            ? mGridMaxHeight
+                            : mGridMinHeight)
+                            : (iconImagesOrNone
+                                    ? mGridMinHeight
+                                    : mGridImageTextHeight);
         }
         int topPadding = grid.isAllImages() && grid.getRowIndex() == 0
                 ? mGridTopPadding : 0;

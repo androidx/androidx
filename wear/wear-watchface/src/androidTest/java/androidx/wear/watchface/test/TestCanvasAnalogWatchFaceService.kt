@@ -31,7 +31,7 @@ internal class TestCanvasAnalogWatchFaceService(
     private val handler: Handler,
     var mockSystemTimeMillis: Long,
     var surfaceHolderOverride: SurfaceHolder,
-    var userUnlocked: Boolean
+    var preRInitFlow: Boolean
 ) : WatchFaceService() {
 
     private val mutableWatchState = MutableWatchState().apply {
@@ -68,5 +68,5 @@ internal class TestCanvasAnalogWatchFaceService(
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 
-    override fun isUserUnlocked() = userUnlocked
+    override fun expectPreRInitFlow() = preRInitFlow
 }

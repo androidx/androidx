@@ -89,8 +89,10 @@ public class LazyPagingItems<T : Any> internal constructor(
             previousList: NullPaddedList<T>,
             newList: NullPaddedList<T>,
             newCombinedLoadStates: CombinedLoadStates,
-            lastAccessedIndex: Int
+            lastAccessedIndex: Int,
+            onListPresentable: () -> Unit,
         ): Int? {
+            onListPresentable()
             // TODO: This logic may be changed after the implementation of an async model which
             //  composes the offscreen elements
             recomposerPlaceholder.value++
@@ -166,7 +168,12 @@ public class LazyPagingItems<T : Any> internal constructor(
      * A [CombinedLoadStates] object which represents the current loading state.
      */
     public var loadState: CombinedLoadStates by mutableStateOf(
-        CombinedLoadStates(InitialLoadStates)
+        CombinedLoadStates(
+            refresh = InitialLoadStates.refresh,
+            prepend = InitialLoadStates.prepend,
+            append = InitialLoadStates.append,
+            source = InitialLoadStates,
+        )
     )
         private set
 

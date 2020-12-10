@@ -106,6 +106,10 @@ internal class TestWatchFaceService(
     override fun getHandler() = handler
 
     override fun getMutableWatchState() = watchState
+
+    fun setIsVisible(isVisible: Boolean) {
+        watchState.isVisible.value = isVisible
+    }
 }
 
 /**
@@ -169,7 +173,7 @@ open class TestRenderer(
     userStyleRepository: UserStyleRepository,
     watchState: WatchState,
     interactiveFrameRateMs: Long
-) : CanvasRenderer(
+) : Renderer.CanvasRenderer(
     surfaceHolder,
     userStyleRepository,
     watchState,

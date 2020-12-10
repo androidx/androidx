@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @file:Suppress("DEPRECATION")
 
 package androidx.paging
@@ -62,9 +61,9 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
      * and alignment restrictions. These tests were written before positional+contiguous enforced
      * these behaviors.
      */
-    private inner class TestPagingSource(val listData: List<Item> = ITEMS) :
-        PagingSource<Int, Item>() {
-        @OptIn(ExperimentalPagingApi::class)
+    private inner class TestPagingSource(
+        val listData: List<Item> = ITEMS
+    ) : PagingSource<Int, Item>() {
         override fun getRefreshKey(state: PagingState<Int, Item>): Int? {
             return state.anchorPosition
                 ?.let { anchorPosition -> state.closestItemToPosition(anchorPosition)?.pos }
@@ -189,15 +188,13 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
 
     private fun PagingSource<Int, Item>.getInitialPage(
         initialKey: Int,
-        loadSize: Int,
-        pageSize: Int
+        loadSize: Int
     ): Page<Int, Item> = runBlocking {
         val result = load(
             PagingSource.LoadParams.Refresh(
                 initialKey,
                 loadSize,
                 placeholdersEnabled,
-                pageSize
             )
         )
 
@@ -216,8 +213,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     ): PagedList<Item> {
         val initialPage = pagingSource.getInitialPage(
             initialPosition ?: 0,
-            initLoadSize,
-            pageSize
+            initLoadSize
         )
 
         val config = Config.Builder()
@@ -314,10 +310,6 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         } else {
             verify(callback).onRemoved(uncountedPosition, 20)
         }
-    }
-
-    private fun verifyDropCallback(callback: Callback, position: Int) {
-        verifyDropCallback(callback, position, position)
     }
 
     @Test
@@ -466,7 +458,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         drain()
         verifyRange(20, 60, pagedList)
         verifyCallback(callback, 60)
-        verifyDropCallback(callback, 0)
+        verifyDropCallback(callback, 0, 0)
         verifyNoMoreInteractions(callback)
     }
 
@@ -1053,10 +1045,10 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
 
         assertTrue { mainThread.queue.isEmpty() }
 
-        pagedList.dispatchStateChangeAsync(LoadType.REFRESH, LoadState.Loading)
+        pagedList.dispatchStateChangeAsync(LoadType.REFRESH, Loading)
         assertEquals(1, mainThread.queue.size)
 
-        pagedList.dispatchStateChangeAsync(LoadType.REFRESH, LoadState.NotLoading.Incomplete)
+        pagedList.dispatchStateChangeAsync(LoadType.REFRESH, NotLoading.Incomplete)
         assertEquals(2, mainThread.queue.size)
     }
 

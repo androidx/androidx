@@ -42,7 +42,7 @@ class Main {
             isRequired = false
         )
 
-        private fun createOption(
+        internal fun createOption(
             argName: String,
             desc: String,
             isRequired: Boolean = true,

@@ -17,23 +17,21 @@
 package androidx.wear.watchface
 
 import android.annotation.SuppressLint
-import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
 import android.os.RemoteException
 import android.os.Trace
-import android.os.UserManager
 import android.service.wallpaper.WallpaperService
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.IWatchFaceService
@@ -121,22 +119,19 @@ private class PendingComplicationData(val complicationId: Int, val data: Complic
 /**
  * WatchFaceService and [WatchFace] are a pair of classes intended to handle much of
  * the boilerplate needed to implement a watch face without being too opinionated. The suggested
- * structure of an WatchFaceService based watch face is:
+ * structure of a WatchFaceService based watch face is:
  *
  * @sample androidx.wear.watchface.samples.kDocCreateExampleWatchFaceService
  *
- * Base classes for complications and styles are provided along with a default UI for configuring
- * them. Complications are optional, however if required, WatchFaceService assumes all
- * complications can be enumerated up front and passed as a collection into [ComplicationsManager]'s
- * constructor which is passed to [WatchFace]'s constructor. Some watch faces support different
- * configurations (number & position) of complications and this can be achieved by rendering a
- * subset and only marking the ones you need as enabled (see
- * [UserStyleSetting.ComplicationsUserStyleSetting]).
+ * Sub classes of WatchFaceService are expected to implement [createWatchFace] which is the
+ * factory for making [WatchFace]s. All [Complication]s are assumed to be enumerated up upfront and
+ * passed as a collection into [ComplicationsManager]'s constructor which is in turn passed to
+ * [WatchFace]'s constructor. Complications can be enabled and disabled via [UserStyleSetting
+ * .ComplicationsUserStyleSetting].
  *
- * Many watch faces support styles, typically controlling the color and visual look of watch face
- * elements such as numeric fonts, watch hands and ticks. WatchFaceService doesn't take an
- * an opinion on what comprises a style beyond it should be representable as a map of categories to
- * options.
+ * Watch face styling (color and visual look of watch face elements such as numeric fonts, watch
+ * hands and ticks, etc...) is directly supported via [UserStyleSetting] and
+ * [UserStyleRepository].
  *
  * To aid debugging watch face animations, WatchFaceService allows you to speed up or slow down
  * time, and to loop between two instants.  This is controlled by MOCK_TIME_INTENT intents
@@ -199,7 +194,6 @@ private class PendingComplicationData(val complicationId: Int, val data: Complic
  *
  * Multiple watch faces can be defined in the same package, requiring multiple <service> tags.
  */
-@RequiresApi(26)
 public abstract class WatchFaceService : WallpaperService() {
 
     /** @hide */
@@ -241,8 +235,9 @@ public abstract class WatchFaceService : WallpaperService() {
     // This is open for use by tests.
     internal open fun allowWatchFaceToAnimate() = true
 
+    // Whether or not the pre R style init flow (SET_BINDER wallpaper command) is expected.
     // This is open for use by tests.
-    internal open fun isUserUnlocked() = getSystemService(UserManager::class.java).isUserUnlocked
+    internal open fun expectPreRInitFlow() = Build.VERSION.SDK_INT < Build.VERSION_CODES.R
 
     /**
      * This is open for use by tests, it allows them to inject a custom [SurfaceHolder].
@@ -265,14 +260,6 @@ public abstract class WatchFaceService : WallpaperService() {
 
         internal val mutableWatchState = getMutableWatchState().apply {
             isVisible.value = this@EngineWrapper.isVisible
-        }
-
-        private var timeTickRegistered = false
-        private val timeTickReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-            @SuppressWarnings("SyntheticAccessor")
-            override fun onReceive(context: Context, intent: Intent) {
-                watchFaceImpl.renderer.invalidate()
-            }
         }
 
         /**
@@ -307,16 +294,6 @@ public abstract class WatchFaceService : WallpaperService() {
 
         private val invalidateRunnable = Runnable(this::invalidate)
 
-        private val ambientTimeTickFilter = IntentFilter().apply {
-            addAction(Intent.ACTION_DATE_CHANGED)
-            addAction(Intent.ACTION_TIME_CHANGED)
-            addAction(Intent.ACTION_TIMEZONE_CHANGED)
-        }
-
-        private val interactiveTimeTickFilter = IntentFilter(ambientTimeTickFilter).apply {
-            addAction(Intent.ACTION_TIME_TICK)
-        }
-
         // TODO(alexclarke): Figure out if we can remove this.
         private var pendingBackgroundAction: Bundle? = null
         private var pendingProperties: Bundle? = null
@@ -349,7 +326,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 InteractiveInstanceManager.takePendingWallpaperInteractiveWatchFaceInstance()
 
             // In a direct boot scenario attempt to load the previously serialized parameters.
-            if (pendingWallpaperInstance == null && !isUserUnlocked()) {
+            if (pendingWallpaperInstance == null && !expectPreRInitFlow()) {
                 val params = readDirectBootPrefs(_context, DIRECT_BOOT_PREFS)
                 if (params != null) {
                     createInteractiveInstance(params).createWCSApi()
@@ -403,7 +380,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 systemState.inAmbientMode != mutableWatchState.isAmbient.value
             ) {
                 mutableWatchState.isAmbient.value = systemState.inAmbientMode
-                updateTimeTickReceiver()
             }
 
             if (firstSetSystemState ||
@@ -462,7 +438,10 @@ public abstract class WatchFaceService : WallpaperService() {
                             it.value.defaultProviderPolicy.providersAsList(),
                             it.value.defaultProviderPolicy.systemProviderFallback,
                             it.value.defaultProviderType.asWireComplicationType(),
-                            it.value.enabled
+                            it.value.enabled,
+                            it.value.renderer.idAndData?.complicationData?.type
+                                ?.asWireComplicationType()
+                                ?: ComplicationType.NO_DATA.asWireComplicationType()
                         )
                     )
                 }
@@ -662,11 +641,6 @@ public abstract class WatchFaceService : WallpaperService() {
             uiThreadHandler.removeCallbacks(invalidateRunnable)
             if (this::choreographer.isInitialized) {
                 choreographer.removeFrameCallback(frameCallback)
-            }
-
-            if (timeTickRegistered) {
-                timeTickRegistered = false
-                unregisterReceiver(timeTickReceiver)
             }
 
             if (this::watchFaceImpl.isInitialized) {
@@ -928,41 +902,6 @@ public abstract class WatchFaceService : WallpaperService() {
             pendingSetWatchFaceStyle = false
         }
 
-        /**
-         * Registers [timeTickReceiver] if it should be registered and isn't currently, or
-         * unregisters it if it shouldn't be registered but currently is. It also applies the right
-         * intent filter depending on whether we are in ambient mode or not.
-         */
-        internal fun updateTimeTickReceiver() {
-            // Separate calls are issued to deliver the state of isAmbient and isVisible, so during
-            // init we might not yet know the state of both.
-            if (!mutableWatchState.isAmbient.hasValue() ||
-                !mutableWatchState.isVisible.hasValue()
-            ) {
-                return
-            }
-
-            if (timeTickRegistered) {
-                unregisterReceiver(timeTickReceiver)
-                timeTickRegistered = false
-            }
-
-            // We only register if we are visible, otherwise it doesn't make sense to waste cycles.
-            if (mutableWatchState.isVisible.value) {
-                if (mutableWatchState.isAmbient.value) {
-                    registerReceiver(timeTickReceiver, ambientTimeTickFilter)
-                } else {
-                    registerReceiver(timeTickReceiver, interactiveTimeTickFilter)
-                }
-                timeTickRegistered = true
-
-                // In case we missed a tick while transitioning from ambient to interactive, we
-                // want to make sure the watch face doesn't show stale time when in interactive
-                // mode.
-                watchFaceImpl.renderer.invalidate()
-            }
-        }
-
         override fun onVisibilityChanged(visible: Boolean) {
             super.onVisibilityChanged(visible)
 
@@ -983,7 +922,6 @@ public abstract class WatchFaceService : WallpaperService() {
             }
 
             mutableWatchState.isVisible.value = visible
-            updateTimeTickReceiver()
             pendingVisibilityChanged = null
         }
 

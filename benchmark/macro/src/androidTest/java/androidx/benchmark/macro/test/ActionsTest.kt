@@ -37,7 +37,7 @@ class ActionsTest {
     @Test
     @Ignore("Figure out why we can't launch the default activity.")
     fun killTest() {
-        val scope = MacrobenchmarkScope(PACKAGE_NAME)
+        val scope = MacrobenchmarkScope(PACKAGE_NAME, launchWithClearTask = true)
         scope.pressHome()
         scope.launchPackageAndWait()
         assertTrue(isProcessAlive(PACKAGE_NAME))
@@ -48,7 +48,7 @@ class ActionsTest {
     @Test
     @Ignore("Compilation modes are a bit flaky")
     fun compile_speedProfile() {
-        val scope = MacrobenchmarkScope(PACKAGE_NAME)
+        val scope = MacrobenchmarkScope(PACKAGE_NAME, launchWithClearTask = true)
         val iterations = 1
         var executions = 0
         val compilation = CompilationMode.SpeedProfile(warmupIterations = iterations)

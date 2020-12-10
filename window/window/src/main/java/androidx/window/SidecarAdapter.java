@@ -20,16 +20,20 @@ import static androidx.window.DeviceState.POSTURE_MAX_KNOWN;
 import static androidx.window.DeviceState.POSTURE_UNKNOWN;
 import static androidx.window.ExtensionCompat.DEBUG;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Rect;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.window.sidecar.SidecarDeviceState;
 import androidx.window.sidecar.SidecarDisplayFeature;
 import androidx.window.sidecar.SidecarWindowLayoutInfo;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,14 +46,17 @@ final class SidecarAdapter {
 
     @NonNull
     List<DisplayFeature> translate(SidecarWindowLayoutInfo sidecarWindowLayoutInfo,
-            Rect windowBounds) {
+            SidecarDeviceState deviceState, Rect windowBounds) {
         List<DisplayFeature> displayFeatures = new ArrayList<>();
-        if (sidecarWindowLayoutInfo.displayFeatures == null) {
+        List<SidecarDisplayFeature> sidecarDisplayFeatures =
+                getSidecarDisplayFeatures(sidecarWindowLayoutInfo);
+        if (sidecarDisplayFeatures == null) {
             return displayFeatures;
         }
 
-        for (SidecarDisplayFeature sidecarFeature : sidecarWindowLayoutInfo.displayFeatures) {
-            final DisplayFeature displayFeature = translate(sidecarFeature, windowBounds);
+        for (SidecarDisplayFeature sidecarFeature : sidecarDisplayFeatures) {
+            final DisplayFeature displayFeature = translate(sidecarFeature, deviceState,
+                    windowBounds);
             if (displayFeature != null) {
                 displayFeatures.add(displayFeature);
             }
@@ -57,32 +64,89 @@ final class SidecarAdapter {
         return displayFeatures;
     }
 
+    // TODO(b/172620880): Workaround for Sidecar API implementation issue.
+    @SuppressLint("BanUncheckedReflection")
+    @SuppressWarnings("unchecked")
+    @VisibleForTesting
+    @Nullable
+    static List<SidecarDisplayFeature> getSidecarDisplayFeatures(SidecarWindowLayoutInfo info) {
+        try {
+            return info.displayFeatures;
+        } catch (NoSuchFieldError error) {
+            try {
+                Method methodGetFeatures = SidecarWindowLayoutInfo.class.getMethod(
+                        "getDisplayFeatures");
+                return (List<SidecarDisplayFeature>) methodGetFeatures.invoke(info);
+            } catch (NoSuchMethodException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            } catch (IllegalAccessException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            } catch (InvocationTargetException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
+    }
+
+    // TODO(b/172620880): Workaround for Sidecar API implementation issue.
+    @SuppressLint("BanUncheckedReflection")
+    @VisibleForTesting
+    static void setSidecarDisplayFeatures(SidecarWindowLayoutInfo info,
+            List<SidecarDisplayFeature> displayFeatures) {
+        try {
+            info.displayFeatures = displayFeatures;
+        } catch (NoSuchFieldError error) {
+            try {
+                Method methodSetFeatures = SidecarWindowLayoutInfo.class.getMethod(
+                        "setDisplayFeatures", List.class);
+                methodSetFeatures.invoke(info, displayFeatures);
+            } catch (NoSuchMethodException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            } catch (IllegalAccessException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            } catch (InvocationTargetException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     @NonNull
     WindowLayoutInfo translate(@NonNull Activity activity,
-            @Nullable SidecarWindowLayoutInfo extensionInfo) {
+            @Nullable SidecarWindowLayoutInfo extensionInfo, @NonNull SidecarDeviceState state) {
         if (extensionInfo == null) {
             return new WindowLayoutInfo(new ArrayList<>());
         }
 
+        SidecarDeviceState deviceState = new SidecarDeviceState();
+        int devicePosture = getSidecarDevicePosture(state);
+        setSidecarDevicePosture(deviceState, devicePosture);
+
         Rect windowBounds = WindowBoundsHelper.getInstance().computeCurrentWindowBounds(activity);
-        List<DisplayFeature> displayFeatures = translate(extensionInfo, windowBounds);
+        List<DisplayFeature> displayFeatures = translate(extensionInfo, deviceState, windowBounds);
         return new WindowLayoutInfo(displayFeatures);
     }
 
     @NonNull
-    DeviceState translate(@Nullable SidecarDeviceState sidecarDeviceState) {
-        if (sidecarDeviceState == null) {
-            return new DeviceState(POSTURE_UNKNOWN);
-        }
-
+    DeviceState translate(@NonNull SidecarDeviceState sidecarDeviceState) {
         int posture = postureFromSidecar(sidecarDeviceState);
         return new DeviceState(posture);
     }
 
-
     @DeviceState.Posture
     private static int postureFromSidecar(SidecarDeviceState sidecarDeviceState) {
-        int sidecarPosture = sidecarDeviceState.posture;
+        int sidecarPosture = getSidecarDevicePosture(sidecarDeviceState);
         if (sidecarPosture > POSTURE_MAX_KNOWN) {
             if (DEBUG) {
                 Log.d(TAG, "Unknown posture reported, WindowManager library should be updated");
@@ -92,12 +156,67 @@ final class SidecarAdapter {
         return sidecarPosture;
     }
 
+    // TODO(b/172620880): Workaround for Sidecar API implementation issue.
+    @SuppressLint("BanUncheckedReflection")
+    @VisibleForTesting
+    static int getSidecarDevicePosture(SidecarDeviceState sidecarDeviceState) {
+        try {
+            return sidecarDeviceState.posture;
+        } catch (NoSuchFieldError error) {
+            try {
+                Method methodGetPosture = SidecarDeviceState.class.getMethod("getPosture");
+                return (int) methodGetPosture.invoke(sidecarDeviceState);
+            } catch (NoSuchMethodException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            } catch (IllegalAccessException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            } catch (InvocationTargetException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return SidecarDeviceState.POSTURE_UNKNOWN;
+    }
+
+    // TODO(b/172620880): Workaround for Sidecar API implementation issue.
+    @SuppressLint("BanUncheckedReflection")
+    @VisibleForTesting
+    static void setSidecarDevicePosture(SidecarDeviceState sidecarDeviceState, int posture) {
+        try {
+            sidecarDeviceState.posture = posture;
+        } catch (NoSuchFieldError error) {
+            try {
+                Method methodSetPosture = SidecarDeviceState.class.getMethod("setPosture",
+                        int.class);
+                methodSetPosture.invoke(sidecarDeviceState, posture);
+            } catch (NoSuchMethodException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            } catch (IllegalAccessException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            } catch (InvocationTargetException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     /**
      * Converts the display feature from extension. Can return {@code null} if there is an issue
      * with the value passed from extension.
      */
     @Nullable
-    private static DisplayFeature translate(SidecarDisplayFeature feature, Rect windowBounds) {
+    private static DisplayFeature translate(SidecarDisplayFeature feature,
+            SidecarDeviceState deviceState, Rect windowBounds) {
         Rect bounds = feature.getRect();
         if (bounds.width() == 0 && bounds.height() == 0) {
             if (DEBUG) {
@@ -131,6 +250,31 @@ final class SidecarAdapter {
             }
         }
 
-        return new DisplayFeature(feature.getRect(), feature.getType());
+        final int type;
+        if (feature.getType() == SidecarDisplayFeature.TYPE_HINGE) {
+            type = FoldingFeature.TYPE_HINGE;
+        } else {
+            type = FoldingFeature.TYPE_FOLD;
+        }
+
+        final int state;
+        final int devicePosture = getSidecarDevicePosture(deviceState);
+        switch (devicePosture) {
+            case SidecarDeviceState.POSTURE_CLOSED:
+            case SidecarDeviceState.POSTURE_UNKNOWN:
+                return null;
+            case SidecarDeviceState.POSTURE_FLIPPED:
+                state = FoldingFeature.STATE_FLIPPED;
+                break;
+            case SidecarDeviceState.POSTURE_HALF_OPENED:
+                state = FoldingFeature.STATE_HALF_OPENED;
+                break;
+            case SidecarDeviceState.POSTURE_OPENED:
+            default:
+                state = FoldingFeature.STATE_FLAT;
+                break;
+        }
+
+        return new FoldingFeature(feature.getRect(), type, state);
     }
 }

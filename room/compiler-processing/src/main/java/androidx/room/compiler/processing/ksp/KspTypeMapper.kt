@@ -75,7 +75,7 @@ object KspTypeMapper {
         mapping["java.lang.Boolean"] = "kotlin.Boolean"
         // collections. default to mutable ones since java types are always mutable
         mapping["java.util.Iterator"] = "kotlin.collections.MutableIterator"
-        mapping["java.util.Iterable"] = "kotlin.collections.Iterable"
+        mapping["java.lang.Iterable"] = "kotlin.collections.Iterable"
         mapping["java.util.Collection"] = "kotlin.collections.MutableCollection"
         mapping["java.util.Set"] = "kotlin.collections.MutableSet"
         mapping["java.util.List"] = "kotlin.collections.MutableList"

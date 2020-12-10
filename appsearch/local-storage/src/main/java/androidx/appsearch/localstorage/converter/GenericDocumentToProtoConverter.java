@@ -39,7 +39,7 @@ public final class GenericDocumentToProtoConverter {
     /** Converts a {@link GenericDocument} into a {@link DocumentProto}. */
     @NonNull
     @SuppressWarnings("unchecked")
-    public static DocumentProto convert(@NonNull GenericDocument document) {
+    public static DocumentProto toDocumentProto(@NonNull GenericDocument document) {
         Preconditions.checkNotNull(document);
         DocumentProto.Builder mProtoBuilder = DocumentProto.newBuilder();
         mProtoBuilder.setUri(document.getUri())
@@ -81,7 +81,7 @@ public final class GenericDocumentToProtoConverter {
                 }
             } else if (documentValues != null) {
                 for (int j = 0; j < documentValues.length; j++) {
-                    DocumentProto proto = convert(documentValues[j]);
+                    DocumentProto proto = toDocumentProto(documentValues[j]);
                     propertyProto.addDocumentValues(proto);
                 }
             } else {
@@ -95,7 +95,7 @@ public final class GenericDocumentToProtoConverter {
 
     /** Converts a {@link DocumentProto} into a {@link GenericDocument}. */
     @NonNull
-    public static GenericDocument convert(@NonNull DocumentProto proto) {
+    public static GenericDocument toGenericDocument(@NonNull DocumentProto proto) {
         Preconditions.checkNotNull(proto);
         GenericDocument.Builder<?> documentBuilder =
                 new GenericDocument.Builder<>(proto.getUri(), proto.getSchema())
@@ -140,7 +140,7 @@ public final class GenericDocumentToProtoConverter {
             } else if (property.getDocumentValuesCount() > 0) {
                 GenericDocument[] values = new GenericDocument[property.getDocumentValuesCount()];
                 for (int j = 0; j < values.length; j++) {
-                    values[j] = convert(property.getDocumentValues(j));
+                    values[j] = toGenericDocument(property.getDocumentValues(j));
                 }
                 documentBuilder.setPropertyDocument(name, values);
             } else {

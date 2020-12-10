@@ -20,8 +20,6 @@ import static androidx.window.ExtensionInterfaceCompat.ExtensionCallbackInterfac
 import static androidx.window.ExtensionWindowBackend.initAndVerifyExtension;
 import static androidx.window.Version.VERSION_0_1;
 import static androidx.window.Version.VERSION_1_0;
-import static androidx.window.extensions.ExtensionDisplayFeature.TYPE_FOLD;
-import static androidx.window.extensions.ExtensionDisplayFeature.TYPE_HINGE;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -35,6 +33,7 @@ import static org.mockito.Mockito.verify;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Rect;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -42,7 +41,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.window.extensions.ExtensionDeviceState;
-import androidx.window.extensions.ExtensionDisplayFeature;
+import androidx.window.extensions.ExtensionFoldingFeature;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -79,8 +78,6 @@ public final class ExtensionTest extends WindowTestBase {
     public void testDeviceStateCallback() {
         assumeExtensionV10_V01();
         final Set<Integer> validValues = new HashSet<>();
-        validValues.add(ExtensionDeviceState.POSTURE_UNKNOWN);
-        validValues.add(ExtensionDeviceState.POSTURE_CLOSED);
         validValues.add(ExtensionDeviceState.POSTURE_FLIPPED);
         validValues.add(ExtensionDeviceState.POSTURE_HALF_OPENED);
         validValues.add(ExtensionDeviceState.POSTURE_OPENED);
@@ -89,8 +86,7 @@ public final class ExtensionTest extends WindowTestBase {
         extension.setExtensionCallback(callbackInterface);
         extension.onDeviceStateListenersChanged(false);
 
-        verify(callbackInterface).onDeviceStateChanged(argThat(
-                deviceState -> validValues.contains(deviceState.getPosture())));
+        verify(callbackInterface, atLeastOnce()).onDeviceStateChanged(any());
     }
 
     @Test
@@ -106,15 +102,16 @@ public final class ExtensionTest extends WindowTestBase {
     public void testDisplayFeatureDataClass() {
         assumeExtensionV10_V01();
 
-        Rect rect = new Rect(1, 2, 3, 4);
+        Rect rect = new Rect(0, 100, 100, 100);
         int type = 1;
-        ExtensionDisplayFeature displayFeature = new ExtensionDisplayFeature(rect, type);
+        int state = 1;
+        ExtensionFoldingFeature displayFeature =
+                new ExtensionFoldingFeature(rect, type, state);
         assertEquals(rect, displayFeature.getBounds());
-        assertEquals(type, displayFeature.getType());
     }
 
     @Test
-    public void testWindowLayoutInfoCallback() {
+    public void testWindowLayoutCallback() {
         assumeExtensionV10_V01();
         ExtensionInterfaceCompat extension = initAndVerifyExtension(mContext);
         ExtensionCallbackInterface callbackInterface = mock(ExtensionCallbackInterface.class);
@@ -125,7 +122,7 @@ public final class ExtensionTest extends WindowTestBase {
 
         assertTrue("Layout must happen after launch", activity.waitForLayout());
 
-        verify(callbackInterface).onWindowLayoutChanged(any(), argThat(
+        verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(any(), argThat(
                 new WindowLayoutInfoValidator(activity)));
     }
 
@@ -155,14 +152,30 @@ public final class ExtensionTest extends WindowTestBase {
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         activity.waitForLayout();
+        if (activity.getResources().getConfiguration().orientation
+                != Configuration.ORIENTATION_PORTRAIT) {
+            // Orientation change did not occur on this device config. Skipping the test.
+            return;
+        }
 
         activity.resetLayoutCounter();
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
-        assertTrue("Layout must happen after orientation change", activity.waitForLayout());
+        boolean layoutHappened = activity.waitForLayout();
+        if (activity.getResources().getConfiguration().orientation
+                != Configuration.ORIENTATION_LANDSCAPE) {
+            // Orientation change did not occur on this device config. Skipping the test.
+            return;
+        }
+        assertTrue("Layout must happen after orientation change", layoutHappened);
 
-        verify(callbackInterface, atLeastOnce())
-                .onWindowLayoutChanged(any(), argThat(new DistinctWindowLayoutInfoMatcher()));
+        if (!isSidecar()) {
+            verify(callbackInterface, atLeastOnce())
+                    .onWindowLayoutChanged(any(), argThat(new DistinctWindowLayoutInfoMatcher()));
+        } else {
+            verify(callbackInterface, atLeastOnce())
+                    .onWindowLayoutChanged(any(), any());
+        }
     }
 
     @Test
@@ -181,6 +194,11 @@ public final class ExtensionTest extends WindowTestBase {
         activity = mActivityTestRule.getActivity();
 
         activity.waitForLayout();
+        if (activity.getResources().getConfiguration().orientation
+                != Configuration.ORIENTATION_PORTRAIT) {
+            // Orientation change did not occur on this device config. Skipping the test.
+            return;
+        }
 
         TestActivity.resetResumeCounter();
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -189,9 +207,19 @@ public final class ExtensionTest extends WindowTestBase {
         activity = mActivityTestRule.getActivity();
 
         activity.waitForLayout();
+        if (activity.getResources().getConfiguration().orientation
+                != Configuration.ORIENTATION_LANDSCAPE) {
+            // Orientation change did not occur on this device config. Skipping the test.
+            return;
+        }
 
-        verify(callbackInterface, atLeastOnce())
-                .onWindowLayoutChanged(any(), argThat(new DistinctWindowLayoutInfoMatcher()));
+        if (!isSidecar()) {
+            verify(callbackInterface, atLeastOnce())
+                    .onWindowLayoutChanged(any(), argThat(new DistinctWindowLayoutInfoMatcher()));
+        } else {
+            verify(callbackInterface, atLeastOnce())
+                    .onWindowLayoutChanged(any(), any());
+        }
     }
 
     @Test
@@ -210,6 +238,10 @@ public final class ExtensionTest extends WindowTestBase {
     private void assumeExtensionV10_V01() {
         assumeTrue(VERSION_1_0.equals(ExtensionCompat.getExtensionVersion())
                 || VERSION_0_1.equals(SidecarCompat.getSidecarVersion()));
+    }
+
+    private boolean isSidecar() {
+        return SidecarCompat.getSidecarVersion() != null;
     }
 
     /**
@@ -253,26 +285,38 @@ public final class ExtensionTest extends WindowTestBase {
                 return true;
             }
 
-            for (DisplayFeature displayFeature :
-                    windowLayoutInfo.getDisplayFeatures()) {
-                int featureType = displayFeature.getType();
-                if (featureType != TYPE_FOLD && featureType != TYPE_HINGE) {
-                    return false;
-                }
-
-                Rect featureRect = displayFeature.getBounds();
-
-                if (featureRect.isEmpty() || featureRect.left < 0 || featureRect.top < 0) {
-                    return false;
-                }
-                if (featureRect.right < 1 || featureRect.right > mActivity.getWidth()) {
-                    return false;
-                }
-                if (featureRect.bottom < 1 || featureRect.bottom > mActivity.getHeight()) {
+            for (DisplayFeature displayFeature : windowLayoutInfo.getDisplayFeatures()) {
+                if (!isValid(mActivity, displayFeature)) {
                     return false;
                 }
             }
             return true;
         }
+    }
+
+    private static boolean isValid(TestActivity activity, DisplayFeature displayFeature) {
+        if (!(displayFeature instanceof FoldingFeature)) {
+            return false;
+        }
+        FoldingFeature feature = (FoldingFeature) displayFeature;
+        int featureType = feature.getType();
+        if (featureType != FoldingFeature.TYPE_FOLD && featureType != FoldingFeature.TYPE_HINGE) {
+            return false;
+        }
+
+        Rect featureRect = feature.getBounds();
+        WindowMetrics windowMetrics = new WindowManager(activity).getCurrentWindowMetrics();
+
+        if ((featureRect.height() == 0 && featureRect.width() == 0) || featureRect.left < 0
+                || featureRect.top < 0) {
+            return false;
+        }
+        if (featureRect.right < 1 || featureRect.right > windowMetrics.getBounds().width()) {
+            return false;
+        }
+        if (featureRect.bottom < 1 || featureRect.bottom > windowMetrics.getBounds().height()) {
+            return false;
+        }
+        return true;
     }
 }

@@ -277,7 +277,7 @@ class StandardRequestProcessor(
 
                 val surface = surfaceMap[stream]
                 if (surface != null) {
-                    Log.debug { "  Binding $surface to $stream" }
+                    Log.debug { "  Binding $stream to $surface" }
 
                     // TODO(codelogic) There should be a more efficient way to do these lookups than
                     // having two maps.

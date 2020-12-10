@@ -19,6 +19,7 @@ import androidx.room.Entity
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.util.Source
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
@@ -315,3 +316,24 @@ private fun getSystemClasspathFiles(): Set<File> {
 }
 
 fun String.toJFO(qName: String): JavaFileObject = JavaFileObjects.forSourceLines(qName, this)
+
+/**
+ * Convenience method to convert JFO's to the Source objects in XProcessing so that we can
+ * convert room tests to the common API w/o major code refactor
+ */
+fun JavaFileObject.toSource(): Source {
+    val uri = this.toUri()
+    // parse name from uri
+    val contents = this.openReader(true).use {
+        it.readText()
+    }
+    val qName = uri.path.replace('/', '.')
+    val javaExt = ".java"
+    check(qName.endsWith(javaExt)) {
+        "expected a java source file, $qName does not seem like one"
+    }
+
+    return Source.java(qName.dropLast(javaExt.length), contents)
+}
+
+fun Collection<JavaFileObject>.toSources() = map { it.toSource() }

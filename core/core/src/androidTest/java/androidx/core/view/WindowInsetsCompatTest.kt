@@ -22,6 +22,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.hamcrest.Matchers.notNullValue
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertThat
 import org.junit.Assert.assertTrue
@@ -218,16 +219,34 @@ class WindowInsetsCompatTest {
     }
 
     @Test
-    fun test_equals() {
+    public fun test_equals() {
         val result = WindowInsetsCompat.Builder()
             .setInsets(Type.systemBars(), Insets.of(1, 2, 3, 4))
             .setInsetsIgnoringVisibility(Type.systemBars(), Insets.of(11, 12, 13, 14))
             .build()
+        result.setRootViewData(Insets.of(0, 0, 0, 15))
         val result2 = WindowInsetsCompat.Builder()
             .setInsets(Type.systemBars(), Insets.of(1, 2, 3, 4))
             .setInsetsIgnoringVisibility(Type.systemBars(), Insets.of(11, 12, 13, 14))
             .build()
+        result2.setRootViewData(Insets.of(0, 0, 0, 15))
         assertEquals(result, result2)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 20)
+    public fun test_not_equals_root_visible_insets() {
+        val result = WindowInsetsCompat.Builder()
+            .setInsets(Type.systemBars(), Insets.of(1, 2, 3, 4))
+            .setInsetsIgnoringVisibility(Type.systemBars(), Insets.of(11, 12, 13, 14))
+            .build()
+        result.setRootViewData(Insets.of(0, 0, 0, 15))
+        val result2 = WindowInsetsCompat.Builder()
+            .setInsets(Type.systemBars(), Insets.of(1, 2, 3, 4))
+            .setInsetsIgnoringVisibility(Type.systemBars(), Insets.of(11, 12, 13, 14))
+            .build()
+        result2.setRootViewData(Insets.of(0, 0, 0, 16))
+        assertNotEquals(result, result2)
     }
 
     @Test

@@ -192,7 +192,7 @@ public class DismissibleFrameLayout extends FrameLayout {
                 mBackButtonDismissController.setOnDismissListener(mDismissListener);
             }
         } else if (mBackButtonDismissController != null) {
-            mBackButtonDismissController.setOnDismissListener(null);
+            mBackButtonDismissController.disable(this);
             mBackButtonDismissController = null;
         }
     }

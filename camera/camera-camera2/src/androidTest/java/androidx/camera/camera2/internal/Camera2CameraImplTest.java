@@ -46,14 +46,12 @@ import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraUnavailableException;
+import androidx.camera.core.InitializationException;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
-import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraStateRegistry;
-import androidx.camera.core.impl.CameraThreadConfig;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
@@ -112,7 +110,6 @@ public final class Camera2CameraImplTest {
             CameraInternal.State.OPEN,
             CameraInternal.State.RELEASED));
 
-    private static CameraFactory sCameraFactory;
     static ExecutorService sCameraExecutor;
 
     @Rule
@@ -130,13 +127,11 @@ public final class Camera2CameraImplTest {
     SemaphoreReleasingCamera2Callbacks.SessionStateCallback mSessionStateCallback;
 
     @BeforeClass
-    public static void classSetup() {
+    public static void classSetup() throws InitializationException {
         sCameraHandlerThread = new HandlerThread("cameraThread");
         sCameraHandlerThread.start();
         sCameraHandler = HandlerCompat.createAsync(sCameraHandlerThread.getLooper());
         sCameraExecutor = CameraXExecutors.newHandlerExecutor(sCameraHandler);
-        sCameraFactory = new Camera2CameraFactory(ApplicationProvider.getApplicationContext(),
-                CameraThreadConfig.create(sCameraExecutor, sCameraHandler));
     }
 
     @AfterClass
@@ -145,14 +140,18 @@ public final class Camera2CameraImplTest {
     }
 
     @Before
-    public void setup() throws CameraUnavailableException {
+    public void setup() throws Exception {
         mMockOnImageAvailableListener = Mockito.mock(ImageReader.OnImageAvailableListener.class);
         mSessionStateCallback = new SemaphoreReleasingCamera2Callbacks.SessionStateCallback();
         mCameraId = CameraUtil.getCameraIdWithLensFacing(DEFAULT_LENS_FACING);
         mSemaphore = new Semaphore(0);
         mCameraStateRegistry = new CameraStateRegistry(DEFAULT_AVAILABLE_CAMERA_COUNT);
-        mCamera2CameraImpl = new Camera2CameraImpl(
-                CameraManagerCompat.from(ApplicationProvider.getApplicationContext()), mCameraId,
+        CameraManagerCompat cameraManagerCompat =
+                CameraManagerCompat.from(ApplicationProvider.getApplicationContext());
+        Camera2CameraInfoImpl camera2CameraInfo = new Camera2CameraInfoImpl(
+                mCameraId, cameraManagerCompat.getCameraCharacteristicsCompat(mCameraId));
+        mCamera2CameraImpl = new Camera2CameraImpl(cameraManagerCompat, mCameraId,
+                camera2CameraInfo,
                 mCameraStateRegistry, sCameraExecutor, sCameraHandler);
     }
 
@@ -513,7 +512,7 @@ public final class Camera2CameraImplTest {
     @Test
     public void cameraTransitionsThroughPendingState_whenNoCamerasAvailable() {
         @SuppressWarnings("unchecked") // Cannot mock generic type inline
-                Observable.Observer<CameraInternal.State> mockObserver =
+        Observable.Observer<CameraInternal.State> mockObserver =
                 mock(Observable.Observer.class);
 
         // Ensure real camera can't open due to max cameras being open

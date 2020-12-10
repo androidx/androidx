@@ -45,7 +45,6 @@ import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.ImageCapture;
@@ -132,7 +131,7 @@ public class ExposureDeviceTest {
     }
 
     @Before
-    public void setup() throws CameraUnavailableException {
+    public void setup() throws Exception {
         // TODO(b/162296654): Workaround the google_3a specific behavior.
         assumeFalse("Cuttlefish uses google_3a v1 or v2 it might fail to set EV before "
                 + "first AE converge.", android.os.Build.MODEL.contains("Cuttlefish"));
@@ -147,8 +146,13 @@ public class ExposureDeviceTest {
         mCameraId = CameraUtil.getCameraIdWithLensFacing(DEFAULT_LENS_FACING);
         mSemaphore = new Semaphore(0);
         mCameraStateRegistry = new CameraStateRegistry(DEFAULT_AVAILABLE_CAMERA_COUNT);
+        CameraManagerCompat cameraManagerCompat =
+                CameraManagerCompat.from(ApplicationProvider.getApplicationContext());
+        Camera2CameraInfoImpl camera2CameraInfo = new Camera2CameraInfoImpl(
+                mCameraId, cameraManagerCompat.getCameraCharacteristicsCompat(mCameraId));
         mCamera2CameraImpl = new Camera2CameraImpl(
                 CameraManagerCompat.from(ApplicationProvider.getApplicationContext()), mCameraId,
+                camera2CameraInfo,
                 mCameraStateRegistry, sCameraExecutor, sCameraHandler);
 
         mCameraInfoInternal = mCamera2CameraImpl.getCameraInfoInternal();

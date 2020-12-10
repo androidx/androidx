@@ -27,7 +27,6 @@ import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PagingConfig.Companion.MAX_SIZE_UNBOUNDED
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -109,13 +108,11 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
     internal var sourceLoadStates = LoadStates.IDLE
         private set
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun consumePrependGenerationIdAsFlow(): Flow<Int> {
         return prependGenerationIdCh.consumeAsFlow()
             .onStart { prependGenerationIdCh.offer(prependGenerationId) }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun consumeAppendGenerationIdAsFlow(): Flow<Int> {
         return appendGenerationIdCh.consumeAsFlow()
             .onStart { appendGenerationIdCh.offer(appendGenerationId) }
@@ -152,24 +149,33 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
                 placeholdersBefore = placeholdersBefore,
                 placeholdersAfter = placeholdersAfter,
                 combinedLoadStates = CombinedLoadStates(
+                    refresh = sourceLoadStates.refresh,
+                    prepend = sourceLoadStates.prepend,
+                    append = sourceLoadStates.append,
                     source = sourceLoadStates,
-                    mediator = null
+                    mediator = null,
                 )
             )
             PREPEND -> Prepend(
                 pages = pages,
                 placeholdersBefore = placeholdersBefore,
                 combinedLoadStates = CombinedLoadStates(
+                    refresh = sourceLoadStates.refresh,
+                    prepend = sourceLoadStates.prepend,
+                    append = sourceLoadStates.append,
                     source = sourceLoadStates,
-                    mediator = null
+                    mediator = null,
                 )
             )
             APPEND -> Append(
                 pages = pages,
                 placeholdersAfter = placeholdersAfter,
                 combinedLoadStates = CombinedLoadStates(
+                    refresh = sourceLoadStates.refresh,
+                    prepend = sourceLoadStates.prepend,
+                    append = sourceLoadStates.append,
                     source = sourceLoadStates,
-                    mediator = null
+                    mediator = null,
                 )
             )
         }

@@ -102,7 +102,7 @@ class Main {
             isRequired = false
         )
 
-        private fun createOption(
+        internal fun createOption(
             argName: String,
             argNameLong: String,
             desc: String,
@@ -166,7 +166,7 @@ class Main {
 
         val fileMappings = mutableSetOf<FileMapping>()
         if (rebuildTopOfTree) {
-            @Suppress("DEPRECATION")
+            @Suppress("DEPRECATION") // b/174695914
             val tempFile = createTempFile(suffix = "zip")
             fileMappings.add(FileMapping(input, tempFile))
         } else {

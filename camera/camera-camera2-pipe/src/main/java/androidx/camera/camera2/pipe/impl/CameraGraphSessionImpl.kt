@@ -30,6 +30,7 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Deferred
 
 internal val cameraGraphSessionIds = atomic(0)
+
 class CameraGraphSessionImpl(
     private val token: TokenLock.Token,
     private val graphProcessor: GraphProcessor,
@@ -84,14 +85,20 @@ class CameraGraphSessionImpl(
         TODO("Implement setTorch")
     }
 
-    override fun lock3A(
+    override suspend fun lock3A(
         aeLockBehavior: Lock3ABehavior?,
         afLockBehavior: Lock3ABehavior?,
         awbLockBehavior: Lock3ABehavior?,
         frameLimit: Int,
-        timeLimitMs: Int
+        timeLimitNs: Long
     ): Deferred<Result3A> {
-        TODO("Implement lock3A")
+        // TODO(sushilnath): check if the device or the current mode supports lock for each of
+        // ae, af and awb respectively. If not supported return an exception or return early with
+        // the right status code.
+        return controller3A.lock3A(
+            aeLockBehavior, afLockBehavior, awbLockBehavior, frameLimit,
+            timeLimitNs
+        )
     }
 
     override fun lock3A(

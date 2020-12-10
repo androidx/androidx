@@ -16,13 +16,14 @@
 
 package androidx.benchmark.integration.macrobenchmark
 
-import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.MacrobenchmarkConfig
+import androidx.benchmark.macro.MacrobenchmarkRule
+import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingMetric
-import androidx.benchmark.macro.macrobenchmark
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -32,42 +33,36 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class ProcessSpeedProfileValidation(
     private val compilationMode: CompilationMode,
-    private val killProcess: Boolean
+    private val startupMode: StartupMode
 ) {
+    @get:Rule
+    val benchmarkRule = MacrobenchmarkRule()
+
     @Test
-    fun start() {
-        val benchmarkName = "speed_profile_process_validation"
-        val config = MacrobenchmarkConfig(
+    fun start() = benchmarkRule.measureStartupRepeated(
+        MacrobenchmarkConfig(
             packageName = PACKAGE_NAME,
             metrics = listOf(StartupTimingMetric()),
             compilationMode = compilationMode,
-            killProcessEachIteration = killProcess,
-            iterations = 10
-        )
-        macrobenchmark(
-            benchmarkName = benchmarkName,
-            config = config
-        ) {
-            pressHome()
-            launchPackageAndWait { launchIntent ->
-                // Clear out any previous instances
-                launchIntent.flags =
-                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            }
-        }
+            iterations = 3
+        ),
+        startupMode
+    ) {
+        pressHome()
+        launchPackageAndWait()
     }
 
     companion object {
         private const val PACKAGE_NAME = "androidx.benchmark.integration.macrobenchmark.target"
 
-        @Parameterized.Parameters(name = "compilation_mode={0}, kill_process={1}")
+        @Parameterized.Parameters(name = "compilation_mode={0}, startup_mode={1}")
         @JvmStatic
         fun kilProcessParameters(): List<Array<Any>> {
             val compilationModes = listOf(
                 CompilationMode.None,
                 CompilationMode.SpeedProfile(warmupIterations = 3)
             )
-            val processKillOptions = listOf(true, false)
+            val processKillOptions = listOf(StartupMode.WARM, StartupMode.COLD)
             return compilationModes.zip(processKillOptions).map {
                 arrayOf(it.first, it.second)
             }

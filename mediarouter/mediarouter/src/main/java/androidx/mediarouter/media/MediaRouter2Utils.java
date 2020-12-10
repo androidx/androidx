@@ -33,6 +33,7 @@ import android.media.RouteDiscoveryPreference;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.ArraySet;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,9 +43,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 //TODO: Remove SuppressLInt
 @SuppressLint("NewApi")
@@ -185,14 +184,26 @@ class MediaRouter2Utils {
         if (features == null) {
             return new ArrayList<>();
         }
-        return features.stream().distinct().map(f -> {
+
+        List<IntentFilter> controlFilters = new ArrayList<>();
+        Set<String> featuresSet = new ArraySet<>();
+        for (String feature : features) {
+            // A feature should be unique.
+            if (featuresSet.contains(feature)) {
+                continue;
+            }
+            featuresSet.add(feature);
+
             IntentFilter filter = new IntentFilter();
-            filter.addCategory(toControlCategory(f));
+            filter.addCategory(toControlCategory(feature));
             // TODO: Add actions by using extras. (see RemotePlaybackClient#detectFeatures())
             // filter.addAction(MediaControlIntent.ACTION_PLAY);
             // filter.addAction(MediaControlIntent.ACTION_SEEK);
-            return filter;
-        }).collect(Collectors.toList());
+
+            controlFilters.add(filter);
+        }
+
+        return controlFilters;
     }
 
     @NonNull
@@ -200,8 +211,29 @@ class MediaRouter2Utils {
         if (routes == null) {
             return new ArrayList<>();
         }
-        return routes.stream().filter(Objects::nonNull)
-                .map(MediaRoute2Info::getId).collect(Collectors.toList());
+
+        List<String> routeIds = new ArrayList<>();
+        for (MediaRoute2Info route : routes) {
+            if (route == null) {
+                continue;
+            }
+            routeIds.add(route.getId());
+        }
+        return routeIds;
+    }
+
+    @NonNull
+    static MediaRouteDiscoveryRequest toMediaRouteDiscoveryRequest(
+            @NonNull RouteDiscoveryPreference preference) {
+        List<String> controlCategories = new ArrayList<>();
+        for (String feature : preference.getPreferredFeatures()) {
+            controlCategories.add(MediaRouter2Utils.toControlCategory(feature));
+        }
+        MediaRouteSelector selector = new MediaRouteSelector.Builder()
+                .addControlCategories(controlCategories)
+                .build();
+
+        return new MediaRouteDiscoveryRequest(selector, preference.shouldPerformActiveScan());
     }
 
     @NonNull
@@ -211,9 +243,11 @@ class MediaRouter2Utils {
             return new RouteDiscoveryPreference.Builder(new ArrayList<>(), false).build();
         }
         boolean activeScan = discoveryRequest.isActiveScan();
-        List<String> routeFeatures = discoveryRequest.getSelector().getControlCategories()
-                .stream().map(MediaRouter2Utils::toRouteFeature)
-                .collect(Collectors.toList());
+
+        List<String> routeFeatures = new ArrayList<>();
+        for (String controlCategory : discoveryRequest.getSelector().getControlCategories()) {
+            routeFeatures.add(MediaRouter2Utils.toRouteFeature(controlCategory));
+        }
         return new RouteDiscoveryPreference.Builder(routeFeatures, activeScan).build();
     }
 

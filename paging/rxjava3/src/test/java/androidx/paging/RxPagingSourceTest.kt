@@ -53,14 +53,14 @@ class RxPagingSourceTest {
 
     @Test
     fun basic() = runBlocking {
-        val params = PagingSource.LoadParams.Refresh(0, 2, false, 2)
+        val params = PagingSource.LoadParams.Refresh(0, 2, false)
         assertEquals(pagingSource.load(params), rxPagingSource.load(params))
     }
 
     @Test
     fun error() {
         runBlocking {
-            val params = PagingSource.LoadParams.Refresh<Int>(null, 2, false, 2)
+            val params = PagingSource.LoadParams.Refresh<Int>(null, 2, false)
             assertFailsWith<NullPointerException> { pagingSource.load(params) }
             assertFailsWith<NullPointerException> { rxPagingSource.load(params) }
         }

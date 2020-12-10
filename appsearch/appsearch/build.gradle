@@ -56,8 +56,8 @@ android.libraryVariants.all { variant ->
     def suffix = name.capitalize()
     project.tasks.create(name: "jar${suffix}", type: Jar) {
         dependsOn variant.javaCompileProvider.get()
-        from variant.javaCompileProvider.get().destinationDir
-        destinationDir new File(project.buildDir, "libJar")
+        from variant.javaCompileProvider.get().destinationDirectory
+        destinationDirectory.set(new File(project.buildDir, "libJar"))
     }
 }
 

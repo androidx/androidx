@@ -42,3 +42,35 @@ enum class Lock3ABehavior {
      */
     AFTER_NEW_SCAN,
 }
+
+fun Lock3ABehavior?.shouldUnlockAe() =
+    this == Lock3ABehavior.AFTER_NEW_SCAN
+
+fun Lock3ABehavior?.shouldUnlockAf() =
+    this == Lock3ABehavior.AFTER_NEW_SCAN
+
+fun Lock3ABehavior?.shouldUnlockAwb() =
+    this == Lock3ABehavior.AFTER_NEW_SCAN
+
+// For ae and awb if we set the lock = true in the capture request the camera device
+// locks them immediately. So when we want to wait for ae to converge we have to explicitly
+// wait for it to converge.
+fun Lock3ABehavior?.shouldWaitForAeToConverge() =
+    this != null && this != Lock3ABehavior.IMMEDIATE
+
+fun Lock3ABehavior?.shouldWaitForAwbToConverge() =
+    this != null && this != Lock3ABehavior.IMMEDIATE
+
+// TODO(sushilnath@): add the optimization to not wait for af to converge before sending the
+// trigger for modes other than CONTINUOUS_VIDEO. The paragraph below explains the reasoning.
+//
+// For af, if the mode is MACRO, AUTO or CONTINUOUS_PICTURE and we send a capture request to
+// start an af trigger then camera device starts a new scan(for AUTO mode) or waits for the
+// current scan to finish(for CONTINUOUS_PICTURE) and then locks the auto-focus, so if we want
+// to wait for af to converge before locking it, we don't have to explicitly wait for
+// convergence, we can send the trigger right away, but if the mode is CONTINUOUS_VIDEO then
+// sending a request to start a trigger locks the auto focus immediately, so if we want af to
+// converge first then we have to explicitly wait for it.
+// Ref: https://developer.android.com/reference/android/hardware/camera2/CaptureResult#CONTROL_AF_STATE
+fun Lock3ABehavior?.shouldWaitForAfToConverge() =
+    this != null && this != Lock3ABehavior.IMMEDIATE

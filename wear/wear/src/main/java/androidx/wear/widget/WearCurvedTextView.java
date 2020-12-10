@@ -77,12 +77,8 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     private float mPathRadius = 0f;
     private float mTextSweepDegrees = 0f;
     private float mBackgroundSweepDegrees = MAX_SWEEP_DEGREE;
-    private boolean mHasParentArcLayout = false;
-    private boolean mParentClockwise = true;
     private int mLastUsedTextAlignment = -1;
     private float mLocalRotateAngle = 0f;
-    private float mParentRotateAngle = 0f;
-    private boolean mParentRotateAngleSet = false;
 
     private int mAnchorType = UNSET_ANCHOR_TYPE;
     private float mAnchorAngleDegrees = UNSET_ANCHOR_DEGREE;
@@ -215,10 +211,7 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
      *                                  were set for a widget in WearArcLayout
      */
     @Override
-    public void checkInvalidAttributeAsChild(boolean parentClockwise) {
-        this.mHasParentArcLayout = true;
-        this.mParentClockwise = parentClockwise;
-
+    public void checkInvalidAttributeAsChild() {
         if (mAnchorType != UNSET_ANCHOR_TYPE) {
             throw new IllegalArgumentException(
                     "WearCurvedTextView shall not set anchorType value when added into"
@@ -232,18 +225,6 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
                             + "WearArcLayout"
             );
         }
-    }
-
-    @Override
-    public boolean handleLayoutRotate(float angle) {
-        mParentRotateAngleSet = true;
-
-        // Ensure we are redrawn when the parent rotates.
-        if (mParentRotateAngle != angle) {
-            doRedraw();
-        }
-        mParentRotateAngle = angle;
-        return true;
     }
 
     @Override
@@ -340,8 +321,6 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         }
 
         float clockwiseFactor = mClockwise ? 1f : -1f;
-        float parentClockwiseFactor =
-                mHasParentArcLayout ? (mParentClockwise ? 1f : -1f) : clockwiseFactor;
 
         float alignmentFactor = 0.5f;
         switch (getTextAlignment()) {
@@ -357,31 +336,25 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
                 alignmentFactor = 0.5f; // TEXT_ALIGNMENT_CENTER
         }
 
-        float anchorTypeFactor = 0f;
+        float anchorTypeFactor;
         switch (mAnchorType) {
             case WearArcLayout.ANCHOR_START:
-                anchorTypeFactor = 0f;
-                break;
-            case WearArcLayout.ANCHOR_CENTER:
                 anchorTypeFactor = 0.5f;
                 break;
             case WearArcLayout.ANCHOR_END:
-                anchorTypeFactor = 1f;
+                anchorTypeFactor = -0.5f;
                 break;
+            case WearArcLayout.ANCHOR_CENTER: // Center is the default.
             default:
-                anchorTypeFactor = parentClockwiseFactor == clockwiseFactor ? 0f : -1f;
+                anchorTypeFactor = 0f;
         }
 
-        float actualAnchorDegree =
-                (mAnchorAngleDegrees == UNSET_ANCHOR_DEGREE ? 0f : mAnchorAngleDegrees)
-                        + ANCHOR_DEGREE_OFFSET;
+        mLocalRotateAngle = (mAnchorAngleDegrees == UNSET_ANCHOR_DEGREE ? 0f : mAnchorAngleDegrees)
+                + clockwiseFactor * anchorTypeFactor * mBackgroundSweepDegrees;
 
         // Always draw the curved text on top center, then rotate the canvas to the right position
         float backgroundStartAngle =
                 -clockwiseFactor * 0.5f * mBackgroundSweepDegrees + ANCHOR_DEGREE_OFFSET;
-        mLocalRotateAngle =
-                actualAnchorDegree - backgroundStartAngle
-                        - parentClockwiseFactor * anchorTypeFactor * mBackgroundSweepDegrees;
 
         float textStartAngle =
                 backgroundStartAngle + clockwiseFactor * (float) (
@@ -462,20 +435,15 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
             return false;
         }
 
-        float x0 = event.getX();
-        float y0 = event.getY();
-        if (!mParentRotateAngleSet) {
-            // If we are a stand-alone widget, we have to handle our rotation / anchor placement,
-            // if we are part of an arc container, it's handled by it.
-            double rotAngle = -Math.toRadians(mLocalRotateAngle);
+        float x0 = event.getX() - getWidth() / 2;
+        float y0 = event.getY() - getHeight() / 2;
 
-            x0 -= getWidth() / 2;
-            y0 -= getHeight() / 2;
-            float tempX = (float)
-                    ((x0 * cos(rotAngle) - y0 * sin(rotAngle)) + getWidth() / 2);
-            y0 = (float) ((x0 * sin(rotAngle) + y0 * cos(rotAngle)) + getHeight() / 2);
-            x0 = tempX;
-        }
+        double rotAngle = -Math.toRadians(mLocalRotateAngle);
+
+        float tempX = (float)
+                ((x0 * cos(rotAngle) - y0 * sin(rotAngle)) + getWidth() / 2);
+        y0 = (float) ((x0 * sin(rotAngle) + y0 * cos(rotAngle)) + getHeight() / 2);
+        x0 = tempX;
 
         // Should we start handling the touch events?
         if (!mHandlingTouch && insideClickArea(x0, y0)) {
@@ -503,7 +471,7 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         boolean withBackground = getBackground() != null;
         updatePathsIfNeeded(withBackground);
         canvas.rotate(
-                mLocalRotateAngle + mParentRotateAngle,
+                mLocalRotateAngle,
                 getWidth() / 2f,
                 getHeight() / 2f);
 

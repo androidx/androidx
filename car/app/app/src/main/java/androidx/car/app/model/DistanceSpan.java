@@ -38,7 +38,7 @@ import java.util.Objects;
  * the string before the interpunct:
  *
  * <pre>{@code
- * String interpunct = "\u00b7";
+ * String interpunct = "\\u00b7";
  * SpannableString string = new SpannableString("  " + interpunct + " Point-of-Interest 1");
  * string.setSpan(
  *   DistanceSpan.create(
@@ -52,7 +52,7 @@ import java.util.Objects;
  * apply styling to the text, such as changing colors:
  *
  * <pre>{@code
- * String interpunct = "\u00b7";
+ * String interpunct = "\\u00b7";
  * SpannableString string = new SpannableString("  " + interpunct + " Point-of-Interest 1");
  * string.setSpan(
  *   DistanceSpan.create(

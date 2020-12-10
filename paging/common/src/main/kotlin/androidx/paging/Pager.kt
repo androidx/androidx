@@ -38,22 +38,41 @@ import kotlinx.coroutines.flow.Flow
  * `androidx.paging:paging-rxjava2` artifact.
  */
 class Pager<Key : Any, Value : Any>
-@JvmOverloads constructor(
+// Experimental usage is propagated to public API via constructor argument.
+@ExperimentalPagingApi constructor(
     config: PagingConfig,
     initialKey: Key? = null,
-    @OptIn(ExperimentalPagingApi::class)
-    remoteMediator: RemoteMediator<Key, Value>? = null,
+    remoteMediator: RemoteMediator<Key, Value>?,
     pagingSourceFactory: () -> PagingSource<Key, Value>
 ) {
+    // Experimental usage is internal, so opt-in is allowed here.
+    @JvmOverloads
+    @OptIn(ExperimentalPagingApi::class)
+    constructor(
+        config: PagingConfig,
+        initialKey: Key? = null,
+        pagingSourceFactory: () -> PagingSource<Key, Value>
+    ) : this(config, initialKey, null, pagingSourceFactory)
+
     /**
      * A cold [Flow] of [PagingData], which emits new instances of [PagingData] once they become
      * invalidated by [PagingSource.invalidate] or calls to [AsyncPagingDataDiffer.refresh] or
      * [PagingDataAdapter.refresh].
      */
     val flow: Flow<PagingData<Value>> = PageFetcher(
-        pagingSourceFactory,
-        initialKey,
-        config,
-        remoteMediator
+        pagingSourceFactory = if (
+            pagingSourceFactory is SuspendingPagingSourceFactory<Key, Value>
+        ) {
+            pagingSourceFactory::create
+        } else {
+            // cannot pass it as is since it is not a suspend function. Hence, we wrap it in {}
+            // which means we are calling the original factory inside a suspend function
+            {
+                pagingSourceFactory()
+            }
+        },
+        initialKey = initialKey,
+        config = config,
+        remoteMediator = remoteMediator
     ).flow
 }

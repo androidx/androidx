@@ -16,12 +16,9 @@
 
 package androidx.car.app.model.constraints;
 
-import static androidx.car.app.model.Row.ROW_FLAG_SHOW_DIVIDERS;
-
 import androidx.annotation.NonNull;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Row;
-import androidx.car.app.model.Row.RowFlags;
 
 /**
  * Encapsulates the constraints to apply when rendering a {@link
@@ -57,7 +54,6 @@ public class RowConstraints {
     @NonNull
     public static final RowConstraints ROW_CONSTRAINTS_SIMPLE =
             RowConstraints.builder()
-                    .setFlagOverrides(ROW_FLAG_SHOW_DIVIDERS)
                     .setMaxActionsExclusive(0)
                     .setImageAllowed(true)
                     .setMaxTextLinesPerRow(2)
@@ -75,8 +71,6 @@ public class RowConstraints {
     private final boolean mIsImageAllowed;
     private final boolean mIsToggleAllowed;
     private final boolean mIsOnClickListenerAllowed;
-    @RowFlags
-    private final int mFlagOverrides;
     private final CarIconConstraints mCarIconConstraints;
 
     /**
@@ -118,15 +112,6 @@ public class RowConstraints {
     /** Returns whether an image can be added to the row. */
     public boolean isImageAllowed() {
         return mIsImageAllowed;
-    }
-
-    /**
-     * The flags that will be forced on each row, on top of whatever flags come from the client
-     * side.
-     */
-    @RowFlags
-    public int getFlagOverrides() {
-        return mFlagOverrides;
     }
 
     /** Returns the {@link CarIconConstraints} enforced for the row images. */
@@ -173,7 +158,6 @@ public class RowConstraints {
         mMaxActionsExclusive = builder.mMaxActionsExclusive;
         mIsToggleAllowed = builder.mIsToggleAllowed;
         mIsImageAllowed = builder.mIsImageAllowed;
-        mFlagOverrides = builder.mFlagOverrides;
         mCarIconConstraints = builder.mCarIconConstraints;
     }
 
@@ -184,8 +168,6 @@ public class RowConstraints {
         private int mMaxTextLines = Integer.MAX_VALUE;
         private int mMaxActionsExclusive = Integer.MAX_VALUE;
         private boolean mIsImageAllowed = true;
-        @RowFlags
-        private int mFlagOverrides;
         private CarIconConstraints mCarIconConstraints = CarIconConstraints.UNCONSTRAINED;
 
         /** Sets whether the row can have a click listener associated with it. */
@@ -223,16 +205,6 @@ public class RowConstraints {
             return this;
         }
 
-        /**
-         * Sets the flags that will be forced on each row, on top of whatever flags come from
-         * the client side.
-         */
-        @NonNull
-        public Builder setFlagOverrides(@RowFlags int flagOverrides) {
-            this.mFlagOverrides = flagOverrides;
-            return this;
-        }
-
         /** Sets the {@link CarIconConstraints} enforced for the row images. */
         @NonNull
         public Builder setCarIconConstraints(@NonNull CarIconConstraints carIconConstraints) {
@@ -257,7 +229,6 @@ public class RowConstraints {
             mMaxActionsExclusive = constraints.mMaxActionsExclusive;
             mIsToggleAllowed = constraints.mIsToggleAllowed;
             mIsImageAllowed = constraints.mIsImageAllowed;
-            mFlagOverrides = constraints.mFlagOverrides;
             mCarIconConstraints = constraints.mCarIconConstraints;
         }
     }

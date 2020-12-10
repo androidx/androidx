@@ -23,8 +23,8 @@ import javax.tools.Diagnostic
 
 internal class KspMessager(
     private val logger: KSPLogger
-) : XMessager {
-    override fun printMessage(kind: Diagnostic.Kind, msg: String, element: XElement?) {
+) : XMessager() {
+    override fun onPrintMessage(kind: Diagnostic.Kind, msg: String, element: XElement?) {
         val ksNode = (element as? KspElement)?.declaration
         when (kind) {
             Diagnostic.Kind.ERROR -> logger.error(msg, ksNode)

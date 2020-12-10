@@ -18,20 +18,21 @@ package androidx.wear.watchface.ui
 
 import android.content.ComponentName
 import android.content.Context
-import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.RectF
 import android.icu.util.Calendar
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.CanvasComplicationDrawable
+import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.MutableWatchState
-import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFaceTestRunner
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
@@ -135,7 +136,7 @@ class WatchFaceConfigUiTest {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET),
-            RectF(0.2f, 0.4f, 0.4f, 0.6f)
+            ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
@@ -156,7 +157,7 @@ class WatchFaceConfigUiTest {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
-            RectF(0.6f, 0.4f, 0.8f, 0.6f)
+            ComplicationBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
@@ -196,20 +197,14 @@ class WatchFaceConfigUiTest {
         val complicationSet = ComplicationsManager(
             complications,
             userStyleRepository,
-            object : Renderer(
+            object : Renderer.CanvasRenderer(
                 surfaceHolder,
                 userStyleRepository,
                 watchState.asWatchState(),
+                CanvasType.SOFTWARE,
                 INTERACTIVE_UPDATE_RATE_MS
             ) {
-                override fun renderInternal(calendar: Calendar) {}
-
-                override fun takeScreenshot(
-                    calendar: Calendar,
-                    renderParameters: RenderParameters
-                ): Bitmap {
-                    throw RuntimeException("Not Implemented!")
-                }
+                override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {}
             }
         )
 

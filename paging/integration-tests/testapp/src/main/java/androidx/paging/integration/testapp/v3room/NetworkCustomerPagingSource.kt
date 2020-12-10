@@ -16,7 +16,6 @@
 
 package androidx.paging.integration.testapp.v3room
 
-import androidx.paging.ExperimentalPagingApi
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.paging.integration.testapp.room.Customer
@@ -28,20 +27,27 @@ import java.util.UUID
 internal class NetworkCustomerPagingSource : PagingSource<Int, Customer>() {
     private fun createCustomer(i: Int): Customer {
         val customer = Customer()
-        customer.name = UUID.randomUUID().toString()
+        customer.name = "customer_$i"
         customer.lastName = "${"%04d".format(i)}_${UUID.randomUUID()}"
         return customer
     }
 
-    @OptIn(ExperimentalPagingApi::class)
-    override fun getRefreshKey(state: PagingState<Int, Customer>): Int? = state.anchorPosition
+    override fun getRefreshKey(
+        state: PagingState<Int, Customer>
+    ): Int? = state.anchorPosition?.let {
+        maxOf(0, it - 5)
+    }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Customer> {
         val key = params.key ?: 0
-        val data = List(params.loadSize) { createCustomer(it + key) }
+        val data = if (params is LoadParams.Prepend) {
+            List(params.loadSize) { createCustomer(it + key - params.loadSize) }
+        } else {
+            List(params.loadSize) { createCustomer(it + key) }
+        }
         return LoadResult.Page(
             data = data,
-            prevKey = if (key > 0) key - 1 else null,
+            prevKey = if (key > 0) key else null,
             nextKey = key + data.size
         )
     }

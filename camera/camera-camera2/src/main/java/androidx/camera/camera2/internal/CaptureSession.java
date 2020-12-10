@@ -32,6 +32,7 @@ import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
+import androidx.camera.camera2.internal.compat.workaround.StillCaptureFlow;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureCallback;
@@ -120,6 +121,7 @@ final class CaptureSession {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @GuardedBy("mStateLock")
     CallbackToFutureAdapter.Completer<Void> mReleaseCompleter;
+    final StillCaptureFlow mStillCaptureFlow = new StillCaptureFlow();
 
     /**
      * Constructor for CaptureSession.
@@ -633,6 +635,7 @@ final class CaptureSession {
         try {
             CameraBurstCaptureCallback callbackAggregator = new CameraBurstCaptureCallback();
             List<CaptureRequest> captureRequests = new ArrayList<>();
+            boolean isStillCapture = false;
             Logger.d(TAG, "Issuing capture request.");
             for (CaptureConfig captureConfig : captureConfigs) {
                 if (captureConfig.getSurfaces().isEmpty()) {
@@ -657,6 +660,9 @@ final class CaptureSession {
                     continue;
                 }
 
+                if (captureConfig.getTemplateType() == CameraDevice.TEMPLATE_STILL_CAPTURE) {
+                    isStillCapture = true;
+                }
                 CaptureConfig.Builder captureConfigBuilder = CaptureConfig.Builder.from(
                         captureConfig);
 
@@ -692,6 +698,18 @@ final class CaptureSession {
             }
 
             if (!captureRequests.isEmpty()) {
+                if (mStillCaptureFlow
+                        .shouldStopRepeatingBeforeCapture(captureRequests, isStillCapture)) {
+                    mSynchronizedCaptureSession.stopRepeating();
+                    callbackAggregator.setCaptureSequenceCallback(
+                            (session, sequenceId, isAborted) -> {
+                                synchronized (mStateLock) {
+                                    if (mState == State.OPENED) {
+                                        issueRepeatingCaptureRequests();
+                                    }
+                                }
+                            });
+                }
                 mSynchronizedCaptureSession.captureBurstRequests(captureRequests,
                         callbackAggregator);
             } else {

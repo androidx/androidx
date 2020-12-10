@@ -36,8 +36,8 @@ import org.robolectric.annotation.Config
 class GraphProcessorTest {
     private val globalListener = FakeRequestListener()
 
-    private val fakeProcessor1 = FakeRequestProcessor()
-    private val fakeProcessor2 = FakeRequestProcessor()
+    private val fakeProcessor1 = FakeRequestProcessor(GraphState3A())
+    private val fakeProcessor2 = FakeRequestProcessor(GraphState3A())
 
     private val requestListener1 = FakeRequestListener()
     private val request1 = Request(listOf(StreamId(0)), listeners = listOf(requestListener1))

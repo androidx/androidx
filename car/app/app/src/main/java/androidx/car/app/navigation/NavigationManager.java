@@ -23,6 +23,8 @@ import static androidx.car.app.utils.ThreadUtils.checkMainThread;
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
+import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -37,6 +39,9 @@ import androidx.car.app.navigation.model.Trip;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.utils.RemoteUtils;
+import androidx.core.content.ContextCompat;
+
+import java.util.concurrent.Executor;
 
 /**
  * Manager for communicating navigation related events with the host.
@@ -50,15 +55,20 @@ import androidx.car.app.utils.RemoteUtils;
  * called.
  *
  * <p>Navigation apps must also register a {@link NavigationManagerListener} to handle callbacks to
- * {@link NavigationManagerListener#stopNavigation()} issued by the host.
+ * {@link NavigationManagerListener#onStopNavigation()} issued by the host.
  */
 public class NavigationManager {
-    private final INavigationManager.Stub mNavigationmanager;
+    private static final String TAG = "NavigationManager";
+
+    private final CarContext mCarContext;
+    private final INavigationManager.Stub mNavigationManager;
     private final HostDispatcher mHostDispatcher;
 
     // Guarded by main thread access.
     @Nullable
-    private NavigationManagerListener mListener;
+    private NavigationManagerListener mNavigationManagerListener;
+    @Nullable
+    private Executor mNavigationManagerListenerExecutor;
     private boolean mIsNavigating;
     private boolean mIsAutoDriveEnabled;
 
@@ -71,7 +81,7 @@ public class NavigationManager {
      * <p>This method should only be invoked once the navigation app has called {@link
      * #navigationStarted()}, or else the updates will be dropped by the host. Once the app has
      * called {@link #navigationEnded()} or received
-     * {@link NavigationManagerListener#stopNavigation()} it should stop sending updates.
+     * {@link NavigationManagerListener#onStopNavigation()} it should stop sending updates.
      *
      * <p>As the location changes, and in accordance with speed and rounded distance changes, the
      * {@link TravelEstimate}s in the provided {@link Trip} should be rebuilt and this method called
@@ -83,13 +93,15 @@ public class NavigationManager {
      * androidx.car.app.navigation.model.Maneuver}s of unknown type may be skipped while on other
      * displays the associated icon may be shown.
      *
+     * @param trip destination, steps, and trip estimates to be sent to the host
+     *
      * @throws HostException            if the call is invoked by an app that is not declared as
-     *                                  a navigation app in the manifest.
+     *                                  a navigation app in the manifest
      * @throws IllegalStateException    if the call occurs when navigation is not started. See
-     *                                  {@link #navigationStarted()} for more info.
+     *                                  {@link #navigationStarted()} for more info
      * @throws IllegalArgumentException if any of the destinations, steps, or trip position is
-     *                                  not well formed.
-     * @throws IllegalStateException    if the current thread is not the main thread.
+     *                                  not well formed
+     * @throws IllegalStateException    if the current thread is not the main thread
      */
     @MainThread
     public void updateTrip(@NonNull Trip trip) {
@@ -115,25 +127,59 @@ public class NavigationManager {
     }
 
     /**
-     * Sets a listener to start receiving navigation manager events, or {@code null} to clear the
-     * listener.
+     * Sets a listener to start receiving navigation manager events.
      *
-     * @throws IllegalStateException if {@code null} is passed in while navigation is started. See
+     * Note that the listener will be executed on the main thread using
+     * {@link Looper#getMainLooper()}. To specify the execution thread, use
+     * {@link #setNavigationManagerListener(Executor, NavigationManagerListener)}.
+     *
+     * @param listener the {@link NavigationManagerListener} to use
+     *
+     * @throws IllegalStateException if the current thread is not the main thread
+     */
+    @SuppressLint("ExecutorRegistration")
+    @MainThread
+    public void setNavigationManagerListener(@NonNull NavigationManagerListener listener) {
+        checkMainThread();
+        Executor executor = ContextCompat.getMainExecutor(mCarContext);
+        setNavigationManagerListener(executor, listener);
+    }
+
+    /**
+     * Sets a listener to start receiving navigation manager events.
+     *
+     * @param executor the executor which will be used for invoking the listener
+     * @param listener the {@link NavigationManagerListener} to use
+     *
+     * @throws IllegalStateException if the current thread is not the main thread.
+     */
+    @MainThread
+    public void setNavigationManagerListener(@NonNull /* @CallbackExecutor */ Executor executor,
+            @NonNull NavigationManagerListener listener) {
+        checkMainThread();
+
+        mNavigationManagerListenerExecutor = executor;
+        mNavigationManagerListener = listener;
+        if (mIsAutoDriveEnabled) {
+            onAutoDriveEnabled();
+        }
+    }
+
+    /**
+     * Clears the listener for receiving navigation manager events.
+     *
+     * @throws IllegalStateException if navigation is started. See
      *                               {@link #navigationStarted()} for more info.
      * @throws IllegalStateException if the current thread is not the main thread.
      */
-    // TODO(rampara): Add Executor parameter.
-    @SuppressLint("ExecutorRegistration")
     @MainThread
-    public void setListener(@Nullable NavigationManagerListener listener) {
+    public void clearNavigationManagerListener() {
         checkMainThread();
-        if (mIsNavigating && listener == null) {
+        if (mIsNavigating) {
             throw new IllegalStateException("Removing listener while navigating");
         }
-        this.mListener = listener;
-        if (mIsAutoDriveEnabled && listener != null) {
-            listener.onAutoDriveEnabled();
-        }
+        mNavigationManagerListenerExecutor = null;
+        mNavigationManagerListener = null;
     }
 
     /**
@@ -143,10 +189,11 @@ public class NavigationManager {
      * the host. The app must call this method to inform the system that it has started
      * navigation in response to user action.
      *
-     * <p>This function can only called if {@link #setListener(NavigationManagerListener)} has been
+     * <p>This function can only called if
+     * {@link #setNavigationManagerListener(NavigationManagerListener)} has been
      * called with a non-{@code null} value. The listener is required so that a signal to stop
      * navigation from the host can be handled using
-     * {@link NavigationManagerListener#stopNavigation()}.
+     * {@link NavigationManagerListener#onStopNavigation()}.
      *
      * <p>This method is idempotent.
      *
@@ -159,7 +206,7 @@ public class NavigationManager {
         if (mIsNavigating) {
             return;
         }
-        if (mListener == null) {
+        if (mNavigationManagerListener == null) {
             throw new IllegalStateException("No listener has been set");
         }
         mIsNavigating = true;
@@ -206,8 +253,9 @@ public class NavigationManager {
      */
     @RestrictTo(LIBRARY)
     @NonNull
-    public static NavigationManager create(@NonNull HostDispatcher hostDispatcher) {
-        return new NavigationManager(hostDispatcher);
+    public static NavigationManager create(@NonNull CarContext carContext,
+            @NonNull HostDispatcher hostDispatcher) {
+        return new NavigationManager(carContext, hostDispatcher);
     }
 
     /**
@@ -218,7 +266,7 @@ public class NavigationManager {
     @RestrictTo(LIBRARY)
     @NonNull
     public INavigationManager.Stub getIInterface() {
-        return mNavigationmanager;
+        return mNavigationManager;
     }
 
     /**
@@ -228,19 +276,20 @@ public class NavigationManager {
      */
     @RestrictTo(LIBRARY)
     @MainThread
-    public void stopNavigation() {
+    public void onStopNavigation() {
         checkMainThread();
         if (!mIsNavigating) {
             return;
         }
         mIsNavigating = false;
-        requireNonNull(mListener).stopNavigation();
+        requireNonNull(mNavigationManagerListenerExecutor).execute(() -> {
+            requireNonNull(mNavigationManagerListener).onStopNavigation();
+        });
     }
 
     /**
-     * Signifies that from this point, until {@link
-     * androidx.car.app.CarAppService#onCarAppFinished} is called, any navigation
-     * should automatically start driving to the destination as if the user was moving.
+     * Signifies that from this point, until {@link CarContext#finishCarApp()} is called, any
+     * navigation should automatically start driving to the destination as if the user was moving.
      *
      * <p>This is used in a testing environment, allowing testing the navigation app's navigation
      * capabilities without being in a car.
@@ -252,22 +301,30 @@ public class NavigationManager {
     public void onAutoDriveEnabled() {
         checkMainThread();
         mIsAutoDriveEnabled = true;
-        if (mListener != null) {
-            mListener.onAutoDriveEnabled();
+        if (mNavigationManagerListener != null) {
+            Log.d(TAG, "Executing onAutoDriveEnabled");
+            requireNonNull(mNavigationManagerListenerExecutor).execute(() -> {
+                mNavigationManagerListener.onAutoDriveEnabled();
+            });
+        } else {
+            Log.w(TAG, "NavigationManagerListener not set, skipping onAutoDriveEnabled");
         }
     }
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
     @SuppressWarnings({"methodref.receiver.bound.invalid"})
-    protected NavigationManager(@NonNull HostDispatcher hostDispatcher) {
-        this.mHostDispatcher = requireNonNull(hostDispatcher);
-        mNavigationmanager =
+    protected NavigationManager(@NonNull CarContext carContext,
+            @NonNull HostDispatcher hostDispatcher) {
+        mCarContext = carContext;
+        mHostDispatcher = requireNonNull(hostDispatcher);
+        mNavigationManager =
                 new INavigationManager.Stub() {
                     @Override
-                    public void stopNavigation(IOnDoneCallback callback) {
+                    public void onStopNavigation(IOnDoneCallback callback) {
                         RemoteUtils.dispatchHostCall(
-                                NavigationManager.this::stopNavigation, callback, "stopNavigation");
+                                NavigationManager.this::onStopNavigation, callback,
+                                "onStopNavigation");
                     }
                 };
     }

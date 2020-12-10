@@ -31,9 +31,9 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+@OptIn(FlowPreview::class)
 internal class PageFetcher<Key : Any, Value : Any>(
-    private val pagingSourceFactory: () -> PagingSource<Key, Value>,
+    private val pagingSourceFactory: suspend () -> PagingSource<Key, Value>,
     private val initialKey: Key?,
     private val config: PagingConfig,
     @OptIn(ExperimentalPagingApi::class)
@@ -53,6 +53,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
 
     // The object built by paging builder can maintain the scope so that on rotation we don't stop
     // the paging.
+    @OptIn(ExperimentalCoroutinesApi::class)
     val flow: Flow<PagingData<Value>> = channelFlow {
         val remoteMediatorAccessor = remoteMediator?.let {
             RemoteMediatorAccessor(this, it)
@@ -87,7 +88,6 @@ internal class PageFetcher<Key : Any, Value : Any>(
                     previousPagingState = previousGeneration.state
                 }
 
-                @OptIn(ExperimentalPagingApi::class)
                 val initialKey: Key? = previousPagingState?.let { pagingSource.getRefreshKey(it) }
                     ?: initialKey
 
@@ -110,11 +110,10 @@ internal class PageFetcher<Key : Any, Value : Any>(
             }
             .filterNotNull()
             .mapLatest { generation ->
-                val downstreamFlow = if (remoteMediatorAccessor == null) {
-                    generation.snapshot.pageEventFlow
-                } else {
-                    generation.snapshot.injectRemoteEvents(remoteMediatorAccessor)
-                }
+                val downstreamFlow = generation.snapshot
+                    .injectRemoteEvents(remoteMediatorAccessor)
+                // .mapRemoteCompleteAsTrailingInsertForSeparators()
+
                 PagingData(
                     flow = downstreamFlow,
                     receiver = PagerUiReceiver(generation.snapshot, retryEvents)
@@ -124,47 +123,79 @@ internal class PageFetcher<Key : Any, Value : Any>(
     }
 
     private fun PageFetcherSnapshot<Key, Value>.injectRemoteEvents(
-        accessor: RemoteMediatorAccessor<Key, Value>
-    ): Flow<PageEvent<Value>> = channelFlow {
-        suspend fun dispatchIfValid(type: LoadType, state: LoadState) {
-            // not loading events are sent w/ insert-drop events.
-            if (PageEvent.LoadStateUpdate.canDispatchWithoutInsert(state, fromMediator = true)) {
-                send(
-                    PageEvent.LoadStateUpdate<Value>(type, true, state)
-                )
-            } else {
-                // ignore. Some invalidation will happened and we'll send the event there instead
-            }
-        }
-        launch {
-            var prev = LoadStates.IDLE
-            accessor.state.collect {
-                if (prev.refresh != it.refresh) {
-                    dispatchIfValid(REFRESH, it.refresh)
-                }
-                if (prev.prepend != it.prepend) {
-                    dispatchIfValid(PREPEND, it.prepend)
-                }
-                if (prev.append != it.append) {
-                    dispatchIfValid(APPEND, it.append)
-                }
-                prev = it
-            }
-        }
+        accessor: RemoteMediatorAccessor<Key, Value>?
+    ): Flow<PageEvent<Value>> {
+        if (accessor == null) return pageEventFlow
 
-        this@injectRemoteEvents.pageEventFlow.collect {
-            // only insert events have combinedLoadStates.
-            if (it is PageEvent.Insert<Value>) {
-                send(
-                    it.copy(
-                        combinedLoadStates = CombinedLoadStates(
-                            it.combinedLoadStates.source,
-                            accessor.state.value
+        @OptIn(ExperimentalCoroutinesApi::class)
+        return channelFlow {
+            val loadStates = MutableLoadStateCollection()
+
+            suspend fun dispatchIfValid(type: LoadType, state: LoadState) {
+                // not loading events are sent w/ insert-drop events.
+                if (PageEvent.LoadStateUpdate.canDispatchWithoutInsert(
+                        state,
+                        fromMediator = true
+                    )
+                ) {
+                    send(
+                        PageEvent.LoadStateUpdate<Value>(
+                            loadType = type,
+                            fromMediator = true,
+                            loadState = state
                         )
                     )
-                )
-            } else {
-                send(it)
+                } else {
+                    // Wait for invalidation to set state to NotLoading via Insert to prevent any
+                    // potential for flickering.
+                }
+            }
+
+            launch {
+                var prev = LoadStates.IDLE
+                accessor.state.collect {
+                    if (prev.refresh != it.refresh) {
+                        loadStates.set(REFRESH, true, it.refresh)
+                        dispatchIfValid(REFRESH, it.refresh)
+                    }
+                    if (prev.prepend != it.prepend) {
+                        loadStates.set(PREPEND, true, it.prepend)
+                        dispatchIfValid(PREPEND, it.prepend)
+                    }
+                    if (prev.append != it.append) {
+                        loadStates.set(APPEND, true, it.append)
+                        dispatchIfValid(APPEND, it.append)
+                    }
+                    prev = it
+                }
+            }
+
+            this@injectRemoteEvents.pageEventFlow.collect { event ->
+                when (event) {
+                    is PageEvent.Insert -> {
+                        loadStates.set(
+                            sourceLoadStates = event.combinedLoadStates.source,
+                            remoteLoadStates = accessor.state.value
+                        )
+                        send(event.copy(combinedLoadStates = loadStates.snapshot()))
+                    }
+                    is PageEvent.Drop -> {
+                        loadStates.set(
+                            type = event.loadType,
+                            remote = false,
+                            state = LoadState.NotLoading.Incomplete
+                        )
+                        send(event)
+                    }
+                    is PageEvent.LoadStateUpdate -> {
+                        loadStates.set(
+                            type = event.loadType,
+                            remote = event.fromMediator,
+                            state = event.loadState
+                        )
+                        send(event)
+                    }
+                }
             }
         }
     }
@@ -177,11 +208,13 @@ internal class PageFetcher<Key : Any, Value : Any>(
         refreshEvents.send(false)
     }
 
-    private fun generateNewPagingSource(
+    private suspend fun generateNewPagingSource(
         previousPagingSource: PagingSource<Key, Value>?
     ): PagingSource<Key, Value> {
         val pagingSource = pagingSourceFactory()
-
+        if (pagingSource is LegacyPagingSource) {
+            pagingSource.setPageSize(config.pageSize)
+        }
         // Ensure pagingSourceFactory produces a new instance of PagingSource.
         check(pagingSource !== previousPagingSource) {
             """

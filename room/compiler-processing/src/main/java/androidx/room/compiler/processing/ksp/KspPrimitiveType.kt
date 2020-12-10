@@ -16,7 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.tryUnbox
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.javapoet.TypeName
@@ -35,10 +35,27 @@ internal class KspPrimitiveType(
     override val typeName: TypeName
         get() = ksType.typeName(env.resolver).tryUnbox()
 
-    override fun boxed(): XType {
+    override fun boxed(): KspType {
         return env.wrap(
             ksType = ksType,
             allowPrimitives = false
         )
+    }
+
+    override fun copyWithNullability(nullability: XNullability): KspType {
+        return when (nullability) {
+            XNullability.NONNULL -> {
+                this
+            }
+            XNullability.NULLABLE -> {
+                // primitive types cannot be nullable hence we box them.
+                boxed().makeNullable()
+            }
+            else -> {
+                // this should actually never happens as the only time this is called is from
+                // make nullable-make nonnull but we have this error here for completeness.
+                error("cannot set nullability to unknown in KSP")
+            }
+        }
     }
 }

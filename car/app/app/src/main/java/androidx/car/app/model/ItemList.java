@@ -26,16 +26,9 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.IOnDoneCallback;
-import androidx.car.app.IOnItemVisibilityChangedListener;
-import androidx.car.app.IOnSelectedListener;
+import androidx.car.app.OnDoneCallback;
 import androidx.car.app.WrappedRuntimeException;
-import androidx.car.app.host.OnDoneCallback;
-import androidx.car.app.host.OnItemVisibilityChangedListenerWrapper;
-import androidx.car.app.host.OnSelectedListenerWrapper;
-import androidx.car.app.host.model.OnClickListenerWrapper;
-import androidx.car.app.utils.Logger;
 import androidx.car.app.utils.RemoteUtils;
-import androidx.car.app.utils.ValidationUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,7 +44,7 @@ public final class ItemList {
     /**
      * A listener for handling selection events for lists with selectable items.
      *
-     * @see Builder#setSelectable(OnSelectedListener)
+     * @see Builder#setOnSelectedListener(OnSelectedListener)
      */
     public interface OnSelectedListener {
         /**
@@ -126,7 +119,7 @@ public final class ItemList {
      * items in the list changes.
      */
     @Nullable
-    public OnItemVisibilityChangedListenerWrapper getOnItemsVisibilityChangeListener() {
+    public OnItemVisibilityChangedListenerWrapper getOnItemsVisibilityChangedListener() {
         return mOnItemVisibilityChangedListener;
     }
 
@@ -134,30 +127,6 @@ public final class ItemList {
     @NonNull
     public List<Object> getItems() {
         return mItems;
-    }
-
-    /**
-     * Returns {@code true} if this {@link ItemList} instance is determined to be a refresh of the
-     * given list, or {@code false} otherwise.
-     *
-     * <p>A list is considered a refresh if:
-     *
-     * <ul>
-     *   <li>The other list is in a loading state, or
-     *   <li>The item size and string contents of the two lists are the same. For rows that
-     *   contain a
-     *       {@link Toggle}, the string contents can be updated if the toggle state has changed
-     *       between the previous and new rows. For grid items that contain a {@link Toggle}, string
-     *       contents and images can be updated if the toggle state has changed.
-     * </ul>
-     */
-    public boolean isRefresh(@Nullable ItemList other, @NonNull Logger logger) {
-        if (other == null) {
-            return false;
-        }
-
-        return ValidationUtils.itemsHaveSameContent(
-                other.getItems(), other.getSelectedIndex(), getItems(), getSelectedIndex(), logger);
     }
 
     @Override
@@ -238,7 +207,7 @@ public final class ItemList {
          */
         @NonNull
         @SuppressLint("ExecutorRegistration")
-        public Builder setOnItemsVisibilityChangeListener(
+        public Builder setOnItemsVisibilityChangedListener(
                 @Nullable OnItemVisibilityChangedListener itemVisibilityChangedListener) {
             this.mOnItemVisibilityChangedListener =
                     itemVisibilityChangedListener == null
@@ -248,28 +217,24 @@ public final class ItemList {
         }
 
         /**
-         * Marks the list as selectable and sets the {@link OnSelectedListener} to call when an
-         * item is selected by the user. Set to {@code null} to mark the list as non-selectable.
+         * Marks the list as selectable by setting the {@link OnSelectedListener} to call when an
+         * item is selected by the user, or set to {@code null} to mark the list as non-selectable.
          *
          * <p>Selectable lists, where allowed by the template they are added to, automatically
-         * display
-         * an item in a selected state when selected by the user.
+         * display an item in a selected state when selected by the user.
          *
          * <p>The items in the list define a mutually exclusive selection scope: only a single
-         * item will
-         * be selected at any given time.
+         * item will be selected at any given time.
          *
          * <p>The specific way in which the selection will be visualized depends on the template
-         * and the
-         * host implementation. For example, some templates may display the list as a radio button
-         * group, while others may highlight the selected item's background.
+         * and the host implementation. For example, some templates may display the list as a
+         * radio button group, while others may highlight the selected item's background.
          *
          * @see #setSelectedIndex(int)
          */
         @NonNull
-        // TODO(rampara): Review if API should be updated to match getter.
-        @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
-        public Builder setSelectable(@Nullable OnSelectedListener onSelectedListener) {
+        @SuppressLint("ExecutorRegistration")
+        public Builder setOnSelectedListener(@Nullable OnSelectedListener onSelectedListener) {
             this.mOnSelectedListener =
                     onSelectedListener == null ? null : createOnSelectedListener(
                             onSelectedListener);
@@ -281,8 +246,8 @@ public final class ItemList {
          *
          * <p>By default and unless explicitly set with this method, the first item is selected.
          *
-         * <p>If the list is not a selectable list set with {@link #setSelectable}, this value is
-         * ignored.
+         * <p>If the list is not a selectable list set with {@link #setOnSelectedListener}, this
+         * value is ignored.
          */
         @NonNull
         public Builder setSelectedIndex(int selectedIndex) {
@@ -298,8 +263,7 @@ public final class ItemList {
          * Sets the text to display if the list is empty.
          *
          * <p>If the list is empty and the app does not explicitly set the message with this
-         * method, the
-         * host will show a default message.
+         * method, the host will show a default message.
          */
         @NonNull
         public Builder setNoItemsMessage(@Nullable CharSequence noItemsMessage) {
@@ -330,8 +294,7 @@ public final class ItemList {
          *
          * @throws IllegalStateException if the list is selectable but does not have any items.
          * @throws IllegalStateException if the selected index is greater or equal to the size of
-         *                               the
-         *                               list.
+         *                               the list.
          * @throws IllegalStateException if the list is selectable and any items have either one of
          *                               their {@link OnClickListener} or {@link Toggle} set.
          */
@@ -355,8 +318,8 @@ public final class ItemList {
                     if (getOnClickListener(item) != null) {
                         throw new IllegalStateException(
                                 "Items that belong to selectable lists can't have an "
-                                        + "onClickListener. Use the"
-                                        + " OnSelectedListener of the list instead");
+                                        + "onClickListener. Use the OnSelectedListener of the list "
+                                        + "instead");
                     }
 
                     if (getToggle(item) != null) {

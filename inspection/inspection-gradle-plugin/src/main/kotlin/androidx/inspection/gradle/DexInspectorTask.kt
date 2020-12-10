@@ -19,7 +19,6 @@ package androidx.inspection.gradle
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.LibraryVariant
-import org.anarres.gradle.plugin.jarjar.JarjarTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
@@ -30,6 +29,7 @@ import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.api.tasks.bundling.Jar
 import java.io.File
 
 abstract class DexInspectorTask : DefaultTask() {
@@ -73,13 +73,13 @@ fun Project.registerUnzipTask(variant: LibraryVariant): TaskProvider<Copy> {
 fun Project.registerDexInspectorTask(
     variant: BaseVariant,
     extension: BaseExtension,
-    jarJar: TaskProvider<JarjarTask>
+    jar: TaskProvider<out Jar>
 ): TaskProvider<DexInspectorTask> {
     return tasks.register(variant.taskName("dexInspector"), DexInspectorTask::class.java) {
         it.setDx(extension.sdkDirectory, extension.buildToolsVersion)
-        it.jars.from(jarJar.get().destinationPath)
+        it.jars.from(jar.get().destinationDirectory)
         val out = File(taskWorkingDir(variant, "dexedInspector"), "${project.name}.jar")
         it.outputFile.set(out)
-        it.dependsOn(jarJar)
+        it.dependsOn(jar)
     }
 }

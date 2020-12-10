@@ -34,7 +34,6 @@ import android.app.PendingIntent.CanceledException;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -51,8 +50,8 @@ import android.view.SurfaceHolder;
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.wear.complications.ComplicationHelperActivity;
+import androidx.wear.watchface.CanvasType;
 import androidx.wear.watchface.ComplicationsManager;
-import androidx.wear.watchface.RenderParameters;
 import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchFace;
 import androidx.wear.watchface.WatchFaceService;
@@ -720,18 +719,13 @@ public class ComplicationDrawableTest {
                     WatchFaceType.ANALOG,
                     userStyleRepository,
                     new ComplicationsManager(new ArrayList<>(), userStyleRepository),
-                    new Renderer(surfaceHolder, userStyleRepository, watchState, 16L) {
-                        @NotNull
+                    new Renderer.CanvasRenderer(
+                            surfaceHolder, userStyleRepository, watchState, CanvasType.SOFTWARE,
+                            16L) {
                         @Override
-                        public Bitmap takeScreenshot$wear_watchface_debug(
-                                @NotNull Calendar calendar,
-                                @NonNull RenderParameters renderParameters) {
-                            return null;
-                        }
+                        public void render(@NonNull Canvas canvas, @NonNull Rect bounds,
+                                @NonNull Calendar calendar) {
 
-                        @Override
-                        public void renderInternal$wear_watchface_debug(
-                                @NotNull Calendar calendar) {
                         }
                     }
             );

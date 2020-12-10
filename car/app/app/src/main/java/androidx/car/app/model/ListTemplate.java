@@ -30,7 +30,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.Screen;
-import androidx.car.app.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,7 +41,7 @@ import java.util.Objects;
  *
  * <h4>Template Restrictions</h4>
  *
- * In regards to template refreshes, as described in {@link Screen#getTemplate()}, this
+ * In regards to template refreshes, as described in {@link Screen#onGetTemplate()}, this
  * template is considered a refresh of a previous one if:
  *
  * <ul>
@@ -107,49 +106,6 @@ public final class ListTemplate implements Template {
     @Nullable
     public ActionStrip getActionStrip() {
         return mActionStrip;
-    }
-
-    @Override
-    public boolean isRefresh(@NonNull Template oldTemplate, @NonNull Logger logger) {
-        requireNonNull(oldTemplate);
-
-        if (oldTemplate.getClass() != this.getClass()) {
-            return false;
-        }
-
-        ListTemplate old = (ListTemplate) oldTemplate;
-
-        if (!Objects.equals(old.getTitle(), getTitle())) {
-            return false;
-        }
-
-        if (old.mIsLoading) {
-            // Transition from a previous loading state is allowed.
-            return true;
-        } else if (mIsLoading) {
-            // Transition to a loading state is disallowed.
-            return false;
-        }
-
-        if (mSingleList != null && old.mSingleList != null) {
-            return mSingleList.isRefresh(old.mSingleList, logger);
-        } else {
-            if (mSectionLists.size() != old.mSectionLists.size()) {
-                return false;
-            }
-
-            for (int i = 0; i < mSectionLists.size(); i++) {
-                SectionedItemList section = mSectionLists.get(i);
-                SectionedItemList oldSection = old.mSectionLists.get(i);
-
-                if (!section.getHeader().equals(oldSection.getHeader())
-                        || !section.getItemList().isRefresh(oldSection.getItemList(), logger)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     @NonNull
@@ -266,15 +222,6 @@ public final class ListTemplate implements Template {
             return this;
         }
 
-        /** Resets any list(s) that were added via {@link #setSingleList} or {@link #addList}. */
-        @NonNull
-        public Builder clearAllLists() {
-            mSingleList = null;
-            mSectionLists.clear();
-            mHasSelectableList = false;
-            return this;
-        }
-
         /**
          * Sets a single {@link ItemList} to show in the template.
          *
@@ -335,7 +282,7 @@ public final class ListTemplate implements Template {
                 throw new IllegalArgumentException("List cannot be empty");
             }
 
-            if (list.getOnItemsVisibilityChangeListener() != null) {
+            if (list.getOnItemsVisibilityChangedListener() != null) {
                 throw new IllegalArgumentException(
                         "OnItemVisibilityChangedListener in the list is disallowed");
             }

@@ -16,6 +16,9 @@
 
 package androidx.window;
 
+import static androidx.window.SidecarAdapter.setSidecarDevicePosture;
+import static androidx.window.SidecarAdapter.setSidecarDisplayFeatures;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -62,14 +65,13 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
     private static SidecarWindowLayoutInfo sidecarWindowLayoutInfo(
             List<SidecarDisplayFeature> features) {
         SidecarWindowLayoutInfo layoutInfo = new SidecarWindowLayoutInfo();
-        layoutInfo.displayFeatures = new ArrayList<>();
-        layoutInfo.displayFeatures.addAll(features);
+        setSidecarDisplayFeatures(layoutInfo, features);
         return layoutInfo;
     }
 
     private static SidecarDeviceState sidecarDeviceState(int posture) {
         SidecarDeviceState deviceState = new SidecarDeviceState();
-        deviceState.posture = posture;
+        setSidecarDevicePosture(deviceState, posture);
         return deviceState;
     }
 
@@ -85,19 +87,21 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
         sidecarDisplayFeatures.add(foldFeature);
         SidecarWindowLayoutInfo windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures);
 
+        SidecarDeviceState state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED);
+
         List<DisplayFeature> expectedFeatures = new ArrayList<>();
-        expectedFeatures.add(new DisplayFeature(foldFeature.getRect(), DisplayFeature.TYPE_FOLD));
+        expectedFeatures.add(new FoldingFeature(foldFeature.getRect(), FoldingFeature.TYPE_FOLD,
+                FoldingFeature.STATE_FLAT));
         WindowLayoutInfo expected = new WindowLayoutInfo(expectedFeatures);
 
         SidecarAdapter sidecarAdapter = new SidecarAdapter();
 
-        WindowLayoutInfo actual = sidecarAdapter.translate(mockActivity, windowLayoutInfo);
+        WindowLayoutInfo actual = sidecarAdapter.translate(mockActivity, windowLayoutInfo, state);
 
         assertEquals(expected, actual);
     }
 
     @Test
-    @Override
     public void testTranslateWindowLayoutInfo_filterRemovesEmptyBoundsFeature() {
         List<SidecarDisplayFeature> sidecarDisplayFeatures = new ArrayList<>();
         sidecarDisplayFeatures.add(
@@ -106,15 +110,15 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
         SidecarAdapter sidecarAdapter = new SidecarAdapter();
         SidecarWindowLayoutInfo windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures);
         Activity mockActivity = mock(Activity.class);
+        SidecarDeviceState state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED);
 
-        WindowLayoutInfo actual = sidecarAdapter.translate(mockActivity, windowLayoutInfo);
+        WindowLayoutInfo actual = sidecarAdapter.translate(mockActivity, windowLayoutInfo, state);
 
         assertTrue(actual.getDisplayFeatures().isEmpty());
     }
 
 
     @Test
-    @Override
     public void testTranslateWindowLayoutInfo_filterRemovesNonEmptyAreaFoldFeature() {
         List<SidecarDisplayFeature> sidecarDisplayFeatures = new ArrayList<>();
         Rect fullWidthBounds = new Rect(0, 1, WINDOW_BOUNDS.width(), 2);
@@ -130,7 +134,10 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
         SidecarWindowLayoutInfo windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures);
         Activity mockActivity = mock(Activity.class);
 
-        WindowLayoutInfo actual = sidecarCallbackAdapter.translate(mockActivity, windowLayoutInfo);
+        SidecarDeviceState state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED);
+
+        WindowLayoutInfo actual = sidecarCallbackAdapter.translate(mockActivity, windowLayoutInfo,
+                state);
 
         assertTrue(actual.getDisplayFeatures().isEmpty());
     }
@@ -151,10 +158,11 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
 
         SidecarAdapter sidecarAdapter = new SidecarAdapter();
         SidecarWindowLayoutInfo windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures);
+        SidecarDeviceState state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED);
 
         Activity mockActivity = mock(Activity.class);
 
-        WindowLayoutInfo actual = sidecarAdapter.translate(mockActivity, windowLayoutInfo);
+        WindowLayoutInfo actual = sidecarAdapter.translate(mockActivity, windowLayoutInfo, state);
 
         assertTrue(actual.getDisplayFeatures().isEmpty());
     }
@@ -175,10 +183,12 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
         SidecarAdapter sidecarCallbackAdapter = new SidecarAdapter();
         SidecarWindowLayoutInfo windowLayoutInfo = sidecarWindowLayoutInfo(
                 extensionDisplayFeatures);
+        SidecarDeviceState state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED);
 
         Activity mockActivity = mock(Activity.class);
 
-        WindowLayoutInfo actual = sidecarCallbackAdapter.translate(mockActivity, windowLayoutInfo);
+        WindowLayoutInfo actual = sidecarCallbackAdapter.translate(mockActivity, windowLayoutInfo,
+                state);
 
         assertTrue(actual.getDisplayFeatures().isEmpty());
     }
@@ -186,8 +196,6 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
     @Test
     @Override
     public void testTranslateDeviceState() {
-        ExtensionInterfaceCompat.ExtensionCallbackInterface mockCallback = mock(
-                ExtensionInterfaceCompat.ExtensionCallbackInterface.class);
         SidecarAdapter sidecarCallbackAdapter = new SidecarAdapter();
         List<DeviceState> values = new ArrayList<>();
 

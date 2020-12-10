@@ -130,8 +130,6 @@ public class GuidedStepSupportFragmentTest extends GuidedStepSupportFragmentTest
 
         sendKey(KeyEvent.KEYCODE_BACK);
         PollingCheck.waitFor(new PollingCheck.ActivityStop(activity));
-        verify(first, timeout(ON_DESTROY_TIMEOUT).times(1)).onDestroy();
-        assertTrue(activity.isDestroyed());
     }
 
     @Test
@@ -368,7 +366,6 @@ public class GuidedStepSupportFragmentTest extends GuidedStepSupportFragmentTest
 
         sendKey(KeyEvent.KEYCODE_BACK);
         PollingCheck.waitFor(new PollingCheck.ActivityStop(activity));
-        verify(first, timeout(ON_DESTROY_TIMEOUT).times(1)).onDestroy();
     }
 
     @Test

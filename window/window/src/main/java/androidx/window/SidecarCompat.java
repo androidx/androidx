@@ -32,7 +32,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.SimpleArrayMap;
-import androidx.core.util.Consumer;
 import androidx.window.sidecar.SidecarDeviceState;
 import androidx.window.sidecar.SidecarDisplayFeature;
 import androidx.window.sidecar.SidecarInterface;
@@ -40,6 +39,7 @@ import androidx.window.sidecar.SidecarProvider;
 import androidx.window.sidecar.SidecarWindowLayoutInfo;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 /** Extension interface compatibility wrapper for v0.1 sidecar. */
@@ -53,7 +53,7 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
             new SimpleArrayMap<>();
 
     private ExtensionCallbackInterface mExtensionCallback;
-    private SidecarAdapter mSidecarAdapter;
+    private final SidecarAdapter mSidecarAdapter;
 
     @VisibleForTesting
     final SidecarInterface mSidecar;
@@ -92,6 +92,17 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
             @SuppressLint("SyntheticAccessor")
             public void onDeviceStateChanged(@NonNull SidecarDeviceState newDeviceState) {
                 extensionCallback.onDeviceStateChanged(mSidecarAdapter.translate(newDeviceState));
+
+                for (int i = 0; i < mWindowListenerRegisteredContexts.size(); i++) {
+                    Activity activity = mWindowListenerRegisteredContexts.valueAt(i);
+                    IBinder windowToken = getActivityWindowToken(activity);
+                    if (windowToken == null) {
+                        continue;
+                    }
+                    SidecarWindowLayoutInfo layoutInfo = mSidecar.getWindowLayoutInfo(windowToken);
+                    extensionCallback.onWindowLayoutChanged(activity,
+                            mSidecarAdapter.translate(activity, layoutInfo, newDeviceState));
+                }
             }
 
             @Override
@@ -106,7 +117,7 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
                 }
 
                 extensionCallback.onWindowLayoutChanged(activity,
-                        mSidecarAdapter.translate(activity, newLayout));
+                        mSidecarAdapter.translate(activity, newLayout, mSidecar.getDeviceState()));
             }
         });
     }
@@ -117,7 +128,7 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
         IBinder windowToken = getActivityWindowToken(activity);
 
         SidecarWindowLayoutInfo windowLayoutInfo = mSidecar.getWindowLayoutInfo(windowToken);
-        return mSidecarAdapter.translate(activity, windowLayoutInfo);
+        return mSidecarAdapter.translate(activity, windowLayoutInfo, mSidecar.getDeviceState());
     }
 
     @Override
@@ -127,7 +138,8 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
         if (windowToken != null) {
             register(windowToken, activity);
         } else {
-            FirstAttachAdapter attachAdapter = new FirstAttachAdapter((token) -> {
+            FirstAttachAdapter attachAdapter = new FirstAttachAdapter(() -> {
+                IBinder token = getActivityWindowToken(activity);
                 register(token, activity);
             });
             activity.getWindow().getDecorView().addOnAttachStateChangeListener(attachAdapter);
@@ -159,6 +171,7 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
         mSidecar.onDeviceStateListenersChanged(isEmpty);
     }
 
+    @SuppressLint("BanUncheckedReflection")
     @Override
     @SuppressWarnings("unused")
     public boolean validateExtensionInterface() {
@@ -215,7 +228,24 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
             tmpDeviceState = new SidecarDeviceState();
 
             // deviceState.posture
-            tmpDeviceState.posture = SidecarDeviceState.POSTURE_OPENED;
+            // TODO(b/172620880): Workaround for Sidecar API implementation issue.
+            try {
+                tmpDeviceState.posture = SidecarDeviceState.POSTURE_OPENED;
+            } catch (NoSuchFieldError error) {
+                if (DEBUG) {
+                    Log.w(TAG, "Sidecar implementation doesn't conform to primary interface "
+                            + "version, continue to check for the secondary one "
+                            + VERSION_0_1 + ", error: " + error);
+                }
+                Method methodSetPosture = SidecarDeviceState.class.getMethod("setPosture",
+                        int.class);
+                methodSetPosture.invoke(tmpDeviceState, SidecarDeviceState.POSTURE_OPENED);
+                Method methodGetPosture = SidecarDeviceState.class.getMethod("getPosture");
+                int posture = (int) methodGetPosture.invoke(tmpDeviceState);
+                if (posture != SidecarDeviceState.POSTURE_OPENED) {
+                    throw new Exception("Invalid device posture getter/setter");
+                }
+            }
 
             // SidecarDisplayFeature constructor
             SidecarDisplayFeature displayFeature = new SidecarDisplayFeature();
@@ -232,13 +262,36 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
             SidecarWindowLayoutInfo windowLayoutInfo = new SidecarWindowLayoutInfo();
 
             // windowLayoutInfo.displayFeatures
-            final List<SidecarDisplayFeature> tmpDisplayFeatures = windowLayoutInfo.displayFeatures;
+            try {
+                final List<SidecarDisplayFeature> tmpDisplayFeatures =
+                        windowLayoutInfo.displayFeatures;
+                // TODO(b/172620880): Workaround for Sidecar API implementation issue.
+            } catch (NoSuchFieldError error) {
+                if (DEBUG) {
+                    Log.w(TAG, "Sidecar implementation doesn't conform to primary interface "
+                            + "version, continue to check for the secondary one "
+                            + VERSION_0_1 + ", error: " + error);
+                }
+                List<SidecarDisplayFeature> featureList = new ArrayList<>();
+                featureList.add(displayFeature);
+                Method methodSetFeatures = SidecarWindowLayoutInfo.class.getMethod(
+                        "setDisplayFeatures", List.class);
+                methodSetFeatures.invoke(windowLayoutInfo, featureList);
+                Method methodGetFeatures = SidecarWindowLayoutInfo.class.getMethod(
+                        "getDisplayFeatures");
+                @SuppressWarnings("unchecked")
+                final List<SidecarDisplayFeature> resultDisplayFeatures =
+                        (List<SidecarDisplayFeature>) methodGetFeatures.invoke(windowLayoutInfo);
+                if (!featureList.equals(resultDisplayFeatures)) {
+                    throw new Exception("Invalid display feature getter/setter");
+                }
+            }
 
             return true;
-        } catch (Exception e) {
+        } catch (Throwable t) {
             if (DEBUG) {
-                Log.e(TAG, "Extension implementation doesn't conform to interface version "
-                        + VERSION_0_1 + ", error: " + e);
+                Log.e(TAG, "Sidecar implementation doesn't conform to interface version "
+                        + VERSION_0_1 + ", error: " + t);
             }
             return false;
         }
@@ -273,15 +326,15 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
      */
     private static class FirstAttachAdapter implements View.OnAttachStateChangeListener {
 
-        private final Consumer<IBinder> mCallback;
+        private final Runnable mCallback;
 
-        FirstAttachAdapter(Consumer<IBinder> callback) {
+        FirstAttachAdapter(Runnable callback) {
             mCallback = callback;
         }
 
         @Override
         public void onViewAttachedToWindow(View view) {
-            mCallback.accept(view.getWindowToken());
+            mCallback.run();
             view.removeOnAttachStateChangeListener(this);
         }
 

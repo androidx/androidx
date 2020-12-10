@@ -302,7 +302,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
             ?: dataSourceFactory?.asPagingSourceFactory(fetchDispatcher)
 
         check(pagingSourceFactory != null) {
-            "LivePagedList cannot be built without a PagingSourceFactory or DataSource.Factory"
+            "RxPagedList cannot be built without a PagingSourceFactory or DataSource.Factory"
         }
 
         return Observable
@@ -356,10 +356,12 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
 
         init {
             currentData = InitialPagedList(
-                pagingSourceFactory(),
-                GlobalScope,
-                config,
-                initialLoadKey
+                pagingSource = pagingSourceFactory(),
+                coroutineScope = GlobalScope,
+                notifyDispatcher = notifyDispatcher,
+                backgroundDispatcher = fetchDispatcher,
+                config = config,
+                initialLastKey = initialLoadKey
             )
             currentData.setRetryCallback(refreshRetryCallback)
         }

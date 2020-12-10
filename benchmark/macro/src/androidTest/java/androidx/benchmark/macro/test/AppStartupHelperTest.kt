@@ -56,7 +56,7 @@ class AppStartupHelperTest {
         val packageName = "androidx.benchmark.macro.test"
         val helper = AppStartupHelper()
         helper.startCollecting()
-        val scope = MacrobenchmarkScope(packageName)
+        val scope = MacrobenchmarkScope(packageName, launchWithClearTask = false)
         // note: don't killProcess first, that's our process too!
         // additionally, skip pressHome, since it's not needed, and skipping saves significant time
         scope.launchPackageAndWait {

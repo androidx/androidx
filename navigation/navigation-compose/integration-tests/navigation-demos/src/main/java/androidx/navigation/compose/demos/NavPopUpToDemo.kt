@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
-import androidx.compose.material.ButtonConstants
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -53,7 +53,7 @@ fun NumberedScreen(navController: NavController, number: Int) {
         if (number < 5) {
             Button(
                 onClick = { navController.navigate("$next") },
-                colors = ButtonConstants.defaultButtonColors(backgroundColor = Color.LightGray),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Navigate to Screen $next")
@@ -63,7 +63,7 @@ fun NumberedScreen(navController: NavController, number: Int) {
         if (navController.previousBackStackEntry != null) {
             Button(
                 onClick = { navController.navigate("1") { popUpTo("1") { inclusive = true } } },
-                colors = ButtonConstants.defaultButtonColors(backgroundColor = Color.LightGray),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "PopUpTo Screen 1")

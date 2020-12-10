@@ -122,7 +122,6 @@ class LegacyPageFetcherTest {
                     key = start,
                     loadSize = end - start,
                     placeholdersEnabled = config.enablePlaceholders,
-                    pageSize = config.pageSize
                 )
             )
         }
@@ -140,7 +139,7 @@ class LegacyPageFetcherTest {
             GlobalScope,
             config,
             pagingSource,
-            DirectDispatcher,
+            testDispatcher,
             testDispatcher,
             consumer,
             storage as LegacyPageFetcher.KeyProvider<Int>

@@ -91,13 +91,20 @@ internal fun <T : Annotation> AnnotationMirror.box(
             }
             returnType.isArray && returnType.componentType.isAnnotation -> {
                 @Suppress("UNCHECKED_CAST")
-                ListVisitor(env, returnType.componentType as Class<out Annotation>).visit(value)
+                AnnotationListVisitor(env, returnType.componentType as Class<out Annotation>)
+                    .visit(value)
+            }
+            returnType.isArray && returnType.componentType.isEnum -> {
+                @Suppress("UNCHECKED_CAST")
+                EnumListVisitor(returnType.componentType as Class<out Enum<*>>).visit(value)
             }
             returnType.isEnum -> {
                 @Suppress("UNCHECKED_CAST")
                 value.getAsEnum(returnType as Class<out Enum<*>>)
             }
-            else -> throw UnsupportedOperationException("$returnType isn't supported")
+            else -> {
+                throw UnsupportedOperationException("$returnType isn't supported")
+            }
         }
         method.name to result
     }
@@ -230,7 +237,7 @@ private fun AnnotationValue.toClassType(env: JavacProcessingEnv): XType? {
 }
 
 @Suppress("DEPRECATION")
-private class ListVisitor<T : Annotation>(
+private class AnnotationListVisitor<T : Annotation>(
     private val env: JavacProcessingEnv,
     private val annotationClass: Class<T>
 ) :
@@ -245,6 +252,24 @@ private class ListVisitor<T : Annotation>(
 }
 
 @Suppress("DEPRECATION")
+private class EnumListVisitor<T : Enum<T>>(private val enumClass: Class<T>) :
+    SimpleAnnotationValueVisitor6<Array<T>, Void?>() {
+    override fun visitArray(
+        values: MutableList<out AnnotationValue>?,
+        void: Void?
+    ): Array<T> {
+        val result = values?.map { it.getAsEnum(enumClass) }
+        @Suppress("UNCHECKED_CAST")
+        val resultArray = java.lang.reflect.Array
+            .newInstance(enumClass, result?.size ?: 0) as Array<T>
+        result?.forEachIndexed { index, value ->
+            resultArray[index] = value
+        }
+        return resultArray
+    }
+}
+
+@Suppress("DEPRECATION")
 private class AnnotationClassVisitor<T : Annotation>(
     private val env: JavacProcessingEnv,
     private val annotationClass: Class<T>
@@ -253,7 +278,7 @@ private class AnnotationClassVisitor<T : Annotation>(
     override fun visitAnnotation(a: AnnotationMirror?, v: Void?) = a?.box(env, annotationClass)
 }
 
-@Suppress("UNCHECKED_CAST", "DEPRECATION")
+@Suppress("UNCHECKED_CAST", "DEPRECATION", "BanUncheckedReflection")
 private fun <T : Enum<*>> AnnotationValue.getAsEnum(enumClass: Class<T>): T {
     return object : SimpleAnnotationValueVisitor6<T, Void>() {
         override fun visitEnumConstant(value: VariableElement?, p: Void?): T {

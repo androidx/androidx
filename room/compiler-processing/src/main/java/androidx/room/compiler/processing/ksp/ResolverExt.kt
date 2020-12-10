@@ -17,11 +17,14 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XExecutableElement
+import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
-import com.google.devtools.ksp.closestClassDeclaration
-import com.google.devtools.ksp.getAllSuperTypes
+import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyAccessor
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 
 internal fun Resolver.findClass(qName: String) = getClassDeclarationByName(
     getKSNameFromString(qName)
@@ -42,8 +45,8 @@ private fun XExecutableElement.getDeclarationForOverride(): KSDeclaration = when
 }
 
 internal fun Resolver.overrides(
-    overriderElement: XExecutableElement,
-    overrideeElement: XExecutableElement
+    overriderElement: XMethodElement,
+    overrideeElement: XMethodElement
 ): Boolean {
     // in addition to functions declared in kotlin, we also synthesize getter/setter functions for
     // properties which means we cannot simply send the declaration to KSP for override check
@@ -55,16 +58,69 @@ internal fun Resolver.overrides(
     if (overriderElement.parameters.size != overrideeElement.parameters.size) {
         return false
     }
-    val ksOverrider = overriderElement.getDeclarationForOverride()
-    val ksOverridee = overrideeElement.getDeclarationForOverride()
-    if (!overrides(ksOverrider, ksOverridee)) {
+    // do a quick check on name before doing the more expensive operations
+    if (overriderElement.name != overrideeElement.name) {
         return false
     }
-    // TODO Workaround for https://github.com/google/ksp/issues/123
-    //  remove once that bug is fixed
-    val subClass = ksOverrider.closestClassDeclaration() ?: return false
-    val superClass = ksOverridee.closestClassDeclaration() ?: return false
-    return subClass.getAllSuperTypes().any {
-        it.declaration.closestClassDeclaration() == superClass
+    val ksOverrider = overriderElement.getDeclarationForOverride()
+    val ksOverridee = overrideeElement.getDeclarationForOverride()
+    if (overrides(ksOverrider, ksOverridee)) {
+        return true
+    }
+    // workaround for: https://github.com/google/ksp/issues/175
+    if (ksOverrider is KSFunctionDeclaration && ksOverridee is KSFunctionDeclaration) {
+        return ksOverrider.overrides(ksOverridee)
+    }
+    if (ksOverrider is KSPropertyDeclaration && ksOverridee is KSPropertyDeclaration) {
+        return ksOverrider.overrides(ksOverridee)
+    }
+    return false
+}
+
+private fun KSFunctionDeclaration.overrides(other: KSFunctionDeclaration): Boolean {
+    val overridee = try {
+        findOverridee()
+    } catch (ignored: ClassCastException) {
+        // workaround for https://github.com/google/ksp/issues/164
+        null
+    }
+    if (overridee == other) {
+        return true
+    }
+    return overridee?.overrides(other) ?: false
+}
+
+private fun KSPropertyDeclaration.overrides(other: KSPropertyDeclaration): Boolean {
+    val overridee = findOverridee()
+    if (overridee == other) {
+        return true
+    }
+    return overridee?.overrides(other) ?: false
+}
+
+@OptIn(KspExperimental::class)
+internal fun Resolver.safeGetJvmName(
+    declaration: KSFunctionDeclaration
+): String {
+    return try {
+        getJvmName(declaration)
+    } catch (ignored: ClassCastException) {
+        // TODO remove this catch once that issue is fixed.
+        // workaround for https://github.com/google/ksp/issues/164
+        return declaration.simpleName.asString()
+    }
+}
+
+@OptIn(KspExperimental::class)
+internal fun Resolver.safeGetJvmName(
+    accessor: KSPropertyAccessor,
+    fallback: () -> String
+): String {
+    return try {
+        getJvmName(accessor)
+    } catch (ignored: ClassCastException) {
+        // TODO remove this catch once that issue is fixed.
+        // workaround for https://github.com/google/ksp/issues/164
+        return fallback()
     }
 }

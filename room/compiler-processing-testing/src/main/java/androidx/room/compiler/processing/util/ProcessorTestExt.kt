@@ -16,275 +16,147 @@
 
 package androidx.room.compiler.processing.util
 
-import androidx.room.compiler.processing.SyntheticJavacProcessor
-import androidx.room.compiler.processing.SyntheticKspProcessor
-import com.google.common.truth.Truth
+import androidx.room.compiler.processing.util.runner.CompilationTestRunner
+import androidx.room.compiler.processing.util.runner.JavacCompilationTestRunner
+import androidx.room.compiler.processing.util.runner.KaptCompilationTestRunner
+import androidx.room.compiler.processing.util.runner.KspCompilationTestRunner
+import androidx.room.compiler.processing.util.runner.TestCompilationParameters
 import com.google.common.truth.Truth.assertThat
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaSourcesSubjectFactory
+import com.google.common.truth.Truth.assertWithMessage
 import com.tschuchort.compiletesting.KotlinCompilation
-import com.tschuchort.compiletesting.SourceFile
-import com.tschuchort.compiletesting.kspSourcesDir
-import com.tschuchort.compiletesting.symbolProcessors
 import java.io.File
 
-// TODO get rid of these once kotlin compile testing supports two step compilation for KSP.
-//  https://github.com/tschuchortdev/kotlin-compile-testing/issues/72
-private val KotlinCompilation.kspJavaSourceDir: File
-    get() = kspSourcesDir.resolve("java")
+private fun runTests(
+    params: TestCompilationParameters,
+    vararg runners: CompilationTestRunner
+) {
+    val runCount = runners.count { runner ->
+        if (runner.canRun(params)) {
+            val compilationResult = runner.compile(params)
+            val subject = CompilationResultSubject.assertThat(compilationResult)
+            // if any assertion failed, throw first those.
+            compilationResult.processor.throwIfFailed()
 
-private val KotlinCompilation.kspKotlinSourceDir: File
-    get() = kspSourcesDir.resolve("kotlin")
+            compilationResult.processor.invocationInstances.forEach {
+                it.runPostCompilationChecks(subject)
+            }
+            assertWithMessage(
+                "compilation should've run the processor callback at least once"
+            ).that(
+                compilationResult.processor.invocationInstances
+            ).isNotEmpty()
 
-private fun compileSources(
-    sources: List<Source>,
-    classpath: List<File>,
+            subject.assertCompilationResult()
+            true
+        } else {
+            false
+        }
+    }
+    // make sure some tests did run
+    assertThat(runCount).isGreaterThan(0)
+}
+
+fun runProcessorTestWithoutKsp(
+    sources: List<Source> = emptyList(),
+    classpath: List<File> = emptyList(),
     handler: (XTestInvocation) -> Unit
-): Pair<SyntheticJavacProcessor, CompileTester> {
-    val syntheticJavacProcessor = SyntheticJavacProcessor(handler)
-    return syntheticJavacProcessor to Truth.assertAbout(
-        JavaSourcesSubjectFactory.javaSources()
-    ).that(
-        sources.map {
-            it.toJFO()
-        }
-    ).apply {
-        if (classpath.isNotEmpty()) {
-            withClasspath(classpath)
-        }
-    }.processedWith(
-        syntheticJavacProcessor
+) {
+    runTests(
+        params = TestCompilationParameters(
+            sources = sources,
+            classpath = classpath,
+            handler = handler
+        ),
+        JavacCompilationTestRunner,
+        KaptCompilationTestRunner
     )
 }
 
-private fun compileWithKapt(
-    sources: List<Source>,
-    classpath: List<File>,
-    handler: (XTestInvocation) -> Unit
-): Pair<SyntheticJavacProcessor, KotlinCompilation> {
-    val syntheticJavacProcessor = SyntheticJavacProcessor(handler)
-    val compilation = KotlinCompilation()
-    sources.forEach {
-        compilation.workingDir.resolve("sources")
-            .resolve(it.relativePath())
-            .parentFile
-            .mkdirs()
-    }
-    compilation.sources = sources.map {
-        it.toKotlinSourceFile()
-    }
-    compilation.annotationProcessors = listOf(syntheticJavacProcessor)
-    compilation.inheritClassPath = true
-    compilation.verbose = false
-    compilation.classpaths += classpath
-
-    return syntheticJavacProcessor to compilation
-}
-
-private fun compileWithKsp(
-    sources: List<Source>,
-    classpath: List<File>,
-    handler: (XTestInvocation) -> Unit
-): Pair<SyntheticKspProcessor, KotlinCompilation.Result> {
-    @Suppress("NAME_SHADOWING")
-    val sources = if (sources.none { it is Source.KotlinSource }) {
-        // looks like this requires a kotlin source file
-        // see: https://github.com/tschuchortdev/kotlin-compile-testing/issues/57
-        sources + Source.kotlin("placeholder.kt", "")
-    } else {
-        sources
-    }
-    val syntheticKspProcessor = SyntheticKspProcessor(handler)
-    fun prepareCompilation(): KotlinCompilation {
-        val compilation = KotlinCompilation()
-        sources.forEach {
-            compilation.workingDir.resolve("sources")
-                .resolve(it.relativePath())
-                .parentFile
-                .mkdirs()
-        }
-        compilation.sources = sources.map {
-            it.toKotlinSourceFile()
-        }
-        compilation.jvmDefault = "enable"
-        compilation.jvmTarget = "1.8"
-        compilation.inheritClassPath = true
-        compilation.verbose = false
-        compilation.classpaths += classpath
-        return compilation
-    }
-
-    val kspCompilation = prepareCompilation()
-    kspCompilation.symbolProcessors = listOf(syntheticKspProcessor)
-    kspCompilation.compile()
-    // ignore KSP result for now because KSP stops compilation, which might create false negatives
-    // when java code accesses kotlin code.
-    // TODO:  fix once https://github.com/tschuchortdev/kotlin-compile-testing/issues/72 is fixed
-
-    // after ksp, compile without ksp with KSP's output as input
-    val finalCompilation = prepareCompilation()
-    // build source files from generated code
-    finalCompilation.sources += kspCompilation.kspJavaSourceDir.collectSourceFiles() +
-        kspCompilation.kspKotlinSourceDir.collectSourceFiles()
-    return syntheticKspProcessor to finalCompilation.compile()
-}
-
-private fun File.collectSourceFiles(): List<SourceFile> {
-    return walkTopDown().filter {
-        it.isFile
-    }.map { file ->
-        SourceFile.fromPath(file)
-    }.toList()
-}
-
+/**
+ * Runs the compilation test with all 3 backends (javac, kapt, ksp) if possible (e.g. javac
+ * cannot test kotlin sources).
+ *
+ * The [handler] will be invoked for each compilation hence it should be repeatable.
+ *
+ * To assert on the compilation results, [handler] can call
+ * [XTestInvocation.assertCompilationResult] where it will receive a subject for post compilation
+ * assertions.
+ *
+ * By default, the compilation is expected to succeed. If it should fail, there must be an
+ * assertion on [XTestInvocation.assertCompilationResult] which expects a failure (e.g. checking
+ * errors).
+ */
 fun runProcessorTest(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
     handler: (XTestInvocation) -> Unit
 ) {
-    @Suppress("NAME_SHADOWING")
-    val sources = if (sources.isEmpty()) {
-        // synthesize a source to trigger compilation
-        listOf(
-            Source.java(
-                "foo.bar.SyntheticSource",
-                """
-            package foo.bar;
-            public class SyntheticSource {}
-                """.trimIndent()
-            )
-        )
-    } else {
-        sources
-    }
-    // we can compile w/ javac only if all code is in java
-    if (sources.canCompileWithJava()) {
-        runJavaProcessorTest(
+    runTests(
+        params = TestCompilationParameters(
             sources = sources,
             classpath = classpath,
-            handler = handler,
-            succeed = true
-        )
-    }
-    runKaptTest(
-        sources = sources,
-        classpath = classpath,
-        handler = handler,
-        succeed = true
+            handler = handler
+        ),
+        JavacCompilationTestRunner,
+        KaptCompilationTestRunner,
+        KspCompilationTestRunner
     )
 }
 
 /**
- * This method is oddly named instead of being an overload on runProcessorTest to easily track
- * which tests started to support KSP.
+ * Runs the test only with javac compilation backend.
  *
- * Eventually, it will be merged with runProcessorTest when all tests pass with KSP.
+ * @see runProcessorTest
  */
-fun runProcessorTestIncludingKsp(
-    sources: List<Source> = emptyList(),
-    classpath: List<File> = emptyList(),
-    handler: (XTestInvocation) -> Unit
-) {
-    runProcessorTest(
-        sources = sources,
-        classpath = classpath,
-        handler = handler
-    )
-    runKspTest(
-        sources = sources,
-        classpath = classpath,
-        succeed = true,
-        handler = handler
-    )
-}
-
-fun runProcessorTestForFailedCompilation(
-    sources: List<Source>,
-    classpath: List<File> = emptyList(),
-    handler: (XTestInvocation) -> Unit
-) {
-    if (sources.canCompileWithJava()) {
-        // run with java processor
-        runJavaProcessorTest(
-            sources = sources,
-            classpath = classpath,
-            handler = handler,
-            succeed = false
-        )
-    }
-    // now run with kapt
-    runKaptTest(
-        sources = sources,
-        classpath = classpath,
-        handler = handler,
-        succeed = false
-    )
-}
-
-fun runProcessorTestForFailedCompilationIncludingKsp(
-    sources: List<Source>,
-    classpath: List<File>,
-    handler: (XTestInvocation) -> Unit
-) {
-    runProcessorTestForFailedCompilation(
-        sources = sources,
-        classpath = classpath,
-        handler = handler
-    )
-    // now run with ksp
-    runKspTest(
-        sources = sources,
-        classpath = classpath,
-        handler = handler,
-        succeed = false
-    )
-}
-
 fun runJavaProcessorTest(
     sources: List<Source>,
     classpath: List<File>,
-    succeed: Boolean,
     handler: (XTestInvocation) -> Unit
 ) {
-    val (syntheticJavacProcessor, compileTester) = compileSources(sources, classpath, handler)
-    if (succeed) {
-        compileTester.compilesWithoutError()
-    } else {
-        compileTester.failsToCompile()
-    }
-    syntheticJavacProcessor.throwIfFailed()
+    runTests(
+        params = TestCompilationParameters(
+            sources = sources,
+            classpath = classpath,
+            handler = handler
+        ),
+        JavacCompilationTestRunner
+    )
 }
 
+/**
+ * Runs the test only with kapt compilation backend
+ */
 fun runKaptTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
-    succeed: Boolean = true,
     handler: (XTestInvocation) -> Unit
 ) {
-    // now run with kapt
-    val (kaptProcessor, kotlinCompilation) = compileWithKapt(sources, classpath, handler)
-    val compilationResult = kotlinCompilation.compile()
-    if (succeed) {
-        assertThat(compilationResult.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
-    } else {
-        assertThat(compilationResult.exitCode).isNotEqualTo(KotlinCompilation.ExitCode.OK)
-    }
-    kaptProcessor.throwIfFailed()
+    runTests(
+        params = TestCompilationParameters(
+            sources = sources,
+            classpath = classpath,
+            handler = handler
+        ),
+        KaptCompilationTestRunner
+    )
 }
 
+/**
+ * Runs the test only with ksp compilation backend
+ */
 fun runKspTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
-    succeed: Boolean = true,
     handler: (XTestInvocation) -> Unit
 ) {
-    val (kspProcessor, compilationResult) = compileWithKsp(sources, classpath, handler)
-    if (succeed) {
-        assertThat(compilationResult.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
-    } else {
-        assertThat(compilationResult.exitCode).isNotEqualTo(KotlinCompilation.ExitCode.OK)
-    }
-    kspProcessor.throwIfFailed()
+    runTests(
+        params = TestCompilationParameters(
+            sources = sources,
+            classpath = classpath,
+            handler = handler
+        ),
+        KspCompilationTestRunner
+    )
 }
 
 /**
@@ -314,5 +186,3 @@ fun compileFiles(
     }
     return compilation.classesDir
 }
-
-private fun List<Source>.canCompileWithJava() = all { it is Source.JavaSource }

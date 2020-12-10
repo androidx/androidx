@@ -37,6 +37,7 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -188,7 +189,10 @@ public class UseCaseTest {
 
         TestUseCase testUseCase = new TestUseCase(useCaseConfig);
 
-        UseCaseConfig<?> mergedConfig = testUseCase.mergeConfigs(extendedConfig, defaultConfig);
+        FakeCameraInfoInternal cameraInfo = new FakeCameraInfoInternal();
+
+        UseCaseConfig<?> mergedConfig = testUseCase.mergeConfigs(cameraInfo, extendedConfig,
+                defaultConfig);
 
         assertThat(mergedConfig.getSurfaceOccupancyPriority()).isEqualTo(cameraDefaultPriority);
         assertThat(mergedConfig.getInputFormat()).isEqualTo(useCaseImageFormat);

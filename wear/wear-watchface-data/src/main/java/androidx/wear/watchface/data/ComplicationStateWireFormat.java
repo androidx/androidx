@@ -69,6 +69,10 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
     @ParcelField(7)
     boolean mIsEnabled;
 
+    @ParcelField(8)
+    @ComplicationData.ComplicationType
+    int mCurrentType;
+
     /** Used by VersionedParcelable. */
     ComplicationStateWireFormat() {
     }
@@ -80,7 +84,8 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
             @Nullable List<ComponentName> defaultProvidersToTry,
             int fallbackSystemProvider,
             @ComplicationData.ComplicationType int defaultProviderType,
-            boolean isEnabled) {
+            boolean isEnabled,
+            @ComplicationData.ComplicationType int currentType) {
         mBounds = bounds;
         mBoundsType = boundsType;
         mSupportedTypes = supportedTypes;
@@ -88,6 +93,7 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
         mFallbackSystemProvider = fallbackSystemProvider;
         mDefaultProviderType = defaultProviderType;
         mIsEnabled = isEnabled;
+        mCurrentType = currentType;
     }
 
     @NonNull
@@ -130,6 +136,12 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
 
     public boolean isEnabled() {
         return mIsEnabled;
+    }
+
+    @NonNull
+    @ComplicationData.ComplicationType
+    public int getCurrentType() {
+        return mCurrentType;
     }
 
     /** Serializes this ComplicationDetails to the specified {@link Parcel}. */

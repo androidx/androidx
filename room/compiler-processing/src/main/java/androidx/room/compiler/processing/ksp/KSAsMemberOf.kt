@@ -26,6 +26,11 @@ import com.google.devtools.ksp.symbol.KSValueParameter
  * Returns the type of a property as if it is member of the given [ksType].
  */
 internal fun KSPropertyDeclaration.typeAsMemberOf(resolver: Resolver, ksType: KSType): KSType {
+    if (isStatic()) {
+        // calling as member with a static would throw as it might be a member of the companion
+        // object
+        return type.resolve()
+    }
     return resolver.asMemberOf(
         property = this,
         containing = ksType
@@ -37,6 +42,11 @@ internal fun KSValueParameter.typeAsMemberOf(
     functionDeclaration: KSFunctionDeclaration,
     ksType: KSType
 ): KSType {
+    if (functionDeclaration.isStatic()) {
+        // calling as member with a static would throw as it might be a member of the companion
+        // object
+        return type.resolve()
+    }
     val asMember = resolver.asMemberOf(
         function = functionDeclaration,
         containing = ksType
@@ -51,8 +61,15 @@ internal fun KSFunctionDeclaration.returnTypeAsMemberOf(
     resolver: Resolver,
     ksType: KSType
 ): KSType {
-    return resolver.asMemberOf(
-        function = this,
-        containing = ksType
-    ).returnType ?: returnType?.resolve() ?: error("cannot find return type for $this")
+    val returnType = if (isStatic()) {
+        // calling as member with a static would throw as it might be a member of the companion
+        // object
+        returnType?.resolve()
+    } else {
+        resolver.asMemberOf(
+            function = this,
+            containing = ksType
+        ).returnType
+    }
+    return returnType ?: error("cannot find return type for $this")
 }

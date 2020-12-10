@@ -267,10 +267,8 @@ public final class Trip {
          * <p>If set to {@code true}, the UI may show a loading indicator, and adding any steps
          * or step travel estimates will throw an {@link IllegalArgumentException}.
          */
-        // TODO(rampara): Consider renaming to setLoading()
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         @NonNull
-        public Builder setIsLoading(boolean isLoading) {
+        public Builder setLoading(boolean isLoading) {
             this.mIsLoading = isLoading;
             return this;
         }

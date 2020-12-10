@@ -48,6 +48,7 @@ import java.util.concurrent.Executor;
  */
 final class TorchControl {
     private static final String TAG = "TorchControl";
+    static final int DEFAULT_TORCH_STATE = TorchState.OFF;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     private final Camera2CameraControlImpl mCamera2CameraControlImpl;
@@ -77,7 +78,7 @@ final class TorchControl {
         Boolean hasFlashUnit =
                 cameraCharacteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
         mHasFlashUnit = hasFlashUnit != null && hasFlashUnit.booleanValue();
-        mTorchState = new MutableLiveData<>(TorchState.OFF);
+        mTorchState = new MutableLiveData<>(DEFAULT_TORCH_STATE);
         mCamera2CameraControlImpl.addCaptureResultListener(mCaptureResultListener);
     }
 

@@ -49,7 +49,8 @@ import java.util.Objects;
  *
  * <p>Similar to Android devices, car screens cover a wide range of pixel densities. To ensure that
  * icons and images render well across all car screens, use vector assets whenever possible to avoid
- * scaling issues.
+ * scaling issues. If you use a bitmap instead, ensure that you have resources that address multiple
+ * pixel density buckets.
  *
  * <p>In order to support all car screen sizes and pixel density, you can use configuration
  * qualifiers in your resource files (e.g. "mdpi", "hdpi", etc). See
@@ -111,7 +112,6 @@ public class CarIcon {
                     TYPE_ALERT,
                     TYPE_APP,
                     TYPE_ERROR,
-                    TYPE_WILLIAM_ALERT,
             })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CarIconType {
@@ -156,13 +156,6 @@ public class CarIcon {
     public static final int TYPE_ERROR = 6;
 
     /**
-     * An alerting William.
-     *
-     * @see #WILLIAM_ALERT
-     */
-    public static final int TYPE_WILLIAM_ALERT = 7;
-
-    /**
      * Represents the app's icon, as defined in the app's manifest by the {@code android:icon}
      * attribute of the {@code application} element.
      */
@@ -177,10 +170,6 @@ public class CarIcon {
 
     @NonNull
     public static final CarIcon ERROR = CarIcon.forStandardType(TYPE_ERROR);
-
-    @NonNull
-    public static final CarIcon WILLIAM_ALERT =
-            CarIcon.forStandardType(TYPE_WILLIAM_ALERT, /* tint= */ null);
 
     @Keep
     @CarIconType
@@ -344,8 +333,6 @@ public class CarIcon {
                 return "APP";
             case TYPE_ERROR:
                 return "ERROR";
-            case TYPE_WILLIAM_ALERT:
-                return "WILLIAM_ALERT";
             case TYPE_BACK:
                 return "BACK";
             case TYPE_CUSTOM:
