@@ -54,6 +54,9 @@ public enum class LayerMode {
      * [RenderParameters.highlightTint]. See also
      * [RenderParameters.highlightedComplicationId] for use in combination with
      * [Layer.COMPLICATIONS].
+     *
+     * Note a highlight for background complications won't be drawn since this would typically be
+     * off screen.
      */
     DRAW_HIGHLIGHTED,
 
