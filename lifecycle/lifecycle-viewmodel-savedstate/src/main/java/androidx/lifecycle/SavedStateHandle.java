@@ -32,8 +32,8 @@ import androidx.savedstate.SavedStateRegistry.SavedStateProvider;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -217,11 +217,17 @@ public final class SavedStateHandle {
 
     /**
      * Returns all keys contained in this {@link SavedStateHandle}
+     * <p>
+     * Returned set contains all keys: keys used to get LiveData-s, to set SavedStateProviders and
+     * keys used in regular {@link #set(String, Object)}.
      */
     @MainThread
     @NonNull
     public Set<String> keys() {
-        return Collections.unmodifiableSet(mRegular.keySet());
+        HashSet<String> allKeys = new HashSet<>(mRegular.keySet());
+        allKeys.addAll(mSavedStateProviders.keySet());
+        allKeys.addAll(mLiveDatas.keySet());
+        return allKeys;
     }
 
     /**
