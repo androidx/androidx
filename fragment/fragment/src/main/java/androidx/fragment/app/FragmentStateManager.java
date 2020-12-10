@@ -247,6 +247,10 @@ class FragmentStateManager {
         if (mFragment.mDeferStart && mFragment.mState < Fragment.STARTED) {
             maxState = Math.min(maxState, Fragment.ACTIVITY_CREATED);
         }
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG, "computeExpectedState() of " + maxState + " for "
+                    + mFragment);
+        }
         return maxState;
     }
 
@@ -335,10 +339,11 @@ class FragmentStateManager {
                             mFragment.mState = Fragment.AWAITING_EXIT_EFFECTS;
                             break;
                         case Fragment.VIEW_CREATED:
-                            destroyFragmentView();
+                            mFragment.mInLayout = false;
                             mFragment.mState = Fragment.VIEW_CREATED;
                             break;
                         case Fragment.CREATED:
+                            destroyFragmentView();
                             mFragment.mState = Fragment.CREATED;
                             break;
                         case Fragment.ATTACHED:
@@ -724,6 +729,12 @@ class FragmentStateManager {
     void destroyFragmentView() {
         if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
             Log.d(TAG, "movefrom CREATE_VIEW: " + mFragment);
+        }
+        // In cases where we never got up to AWAITING_EXIT_EFFECTS, we
+        // need to manually remove the view from the container to reverse
+        // what we did in createView()
+        if (mFragment.mContainer != null && mFragment.mView != null) {
+            mFragment.mContainer.removeView(mFragment.mView);
         }
         mFragment.performDestroyView();
         mDispatcher.dispatchOnFragmentViewDestroyed(mFragment, false);

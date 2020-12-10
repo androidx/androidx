@@ -127,7 +127,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
         super.onActivityCreated(savedInstanceState)
         checkActivityNotDestroyed()
         calledOnActivityCreated = true
-        checkState("onActivityCreated", State.ATTACHED, State.CREATED)
+        checkState("onActivityCreated", State.ATTACHED, State.CREATED, State.VIEW_CREATED)
         val fromState = currentState
         currentState = State.ACTIVITY_CREATED
         onStateChanged(fromState)
@@ -198,6 +198,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
         DETACHED,
         ATTACHED,
         CREATED,
+        VIEW_CREATED,
         ACTIVITY_CREATED,
         STARTED,
         RESUMED
