@@ -32,6 +32,7 @@ import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
@@ -339,6 +340,15 @@ class WatchFaceControlClientTest {
         val interactiveInstance =
             interactiveInstanceFuture.get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
 
+        interactiveInstance.updateComplicationData(
+            mapOf(
+                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
+                    ShortTextComplicationData.Builder(ComplicationText.plain("Test")).build(),
+                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
+                    LongTextComplicationData.Builder(ComplicationText.plain("Test")).build()
+            )
+        )
+
         assertThat(interactiveInstance.complicationState.size).isEqualTo(2)
 
         val leftComplicationDetails = interactiveInstance.complicationState[
@@ -360,6 +370,9 @@ class WatchFaceControlClientTest {
             ComplicationType.SMALL_IMAGE
         )
         assertTrue(leftComplicationDetails.isEnabled)
+        assertThat(leftComplicationDetails.currentType).isEqualTo(
+            ComplicationType.SHORT_TEXT
+        )
 
         val rightComplicationDetails = interactiveInstance.complicationState[
             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
@@ -380,6 +393,9 @@ class WatchFaceControlClientTest {
             ComplicationType.SMALL_IMAGE
         )
         assertTrue(rightComplicationDetails.isEnabled)
+        assertThat(rightComplicationDetails.currentType).isEqualTo(
+            ComplicationType.LONG_TEXT
+        )
 
         interactiveInstance.close()
     }
