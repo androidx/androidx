@@ -35,10 +35,15 @@ import static androidx.slice.core.SliceHints.SUBTYPE_DATE_PICKER;
 import static androidx.slice.core.SliceHints.SUBTYPE_TIME_PICKER;
 import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
 
+import android.content.Context;
+import android.graphics.Point;
+import android.graphics.drawable.Drawable;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceUtils;
 import androidx.slice.core.SliceActionImpl;
@@ -60,9 +65,10 @@ public class GridContent extends SliceContent {
     private final ArrayList<CellContent> mGridContent = new ArrayList<>();
     private SliceItem mSeeMoreItem;
     private int mMaxCellLineCount;
-    private boolean mHasImage;
     private int mLargestImageMode = UNKNOWN_IMAGE;
     private boolean mIsLastIndex;
+    private IconCompat mFirstImage = null;
+    private Point mFirstImageSize = null;
 
     private SliceItem mTitleItem;
 
@@ -113,7 +119,9 @@ public class GridContent extends SliceContent {
                 mAllImages = false;
             }
             mMaxCellLineCount = Math.max(mMaxCellLineCount, cc.getTextCount());
-            mHasImage |= cc.hasImage();
+            if (mFirstImage == null && cc.hasImage()) {
+                mFirstImage = cc.getImageIcon();
+            }
             mLargestImageMode = mLargestImageMode == UNKNOWN_IMAGE
                     ? cc.getImageMode()
                     : Math.max(mLargestImageMode, cc.getImageMode());
@@ -180,6 +188,21 @@ public class GridContent extends SliceContent {
     }
 
     /**
+     * @return the first image dimensions in this row, if there are images.
+     */
+    @NonNull
+    public Point getFirstImageSize(@NonNull Context context) {
+        if (mFirstImage == null) {
+            return new Point(-1, -1);
+        }
+        if (mFirstImageSize == null) {
+            Drawable d = mFirstImage.loadDrawable(context);
+            mFirstImageSize = new Point(d.getIntrinsicWidth(), d.getIntrinsicHeight());
+        }
+        return mFirstImageSize;
+    }
+
+    /**
      * Filters non-cell items out of the list of items and finds content description.
      */
     private List<SliceItem> filterAndProcessItems(List<SliceItem> items) {
@@ -212,7 +235,7 @@ public class GridContent extends SliceContent {
      * @return whether this row contains an image.
      */
     public boolean hasImage() {
-        return mHasImage;
+        return mFirstImage != null;
     }
 
     /**
@@ -244,7 +267,7 @@ public class GridContent extends SliceContent {
         private final ArrayList<SliceItem> mCellItems = new ArrayList<>();
         private SliceItem mContentDescr;
         private int mTextCount;
-        private boolean mHasImage;
+        private IconCompat mImage;
         private SliceItem mOverlayItem;
         private int mImageMode = -1;
         private SliceItem mTitleItem;
@@ -300,7 +323,7 @@ public class GridContent extends SliceContent {
                     } else if (imageCount < 1 && FORMAT_IMAGE.equals(item.getFormat())) {
                         mImageMode = SliceUtils.parseImageMode(item);
                         imageCount++;
-                        mHasImage = true;
+                        mImage = item.getIcon();
                         mCellItems.add(item);
                     }
                 }
@@ -329,6 +352,7 @@ public class GridContent extends SliceContent {
         /**
          * @return the action to activate when this cell is tapped.
          */
+        @Nullable
         public SliceItem getContentIntent() {
             return mContentIntent;
         }
@@ -336,6 +360,7 @@ public class GridContent extends SliceContent {
         /**
          * @return the Picker to use when this cell is tapped.
          */
+        @Nullable
         public SliceItem getPicker() {
             return mPicker;
         }
@@ -386,7 +411,7 @@ public class GridContent extends SliceContent {
          * @return whether this cell contains an image.
          */
         public boolean hasImage() {
-            return mHasImage;
+            return mImage != null;
         }
 
         /**
@@ -394,6 +419,14 @@ public class GridContent extends SliceContent {
          */
         public int getImageMode() {
             return mImageMode;
+        }
+
+        /**
+         * @return the IconCompat of the image.
+         */
+        @Nullable
+        public IconCompat getImageIcon() {
+            return mImage;
         }
 
         @Nullable
