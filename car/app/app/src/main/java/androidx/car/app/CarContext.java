@@ -81,22 +81,22 @@ public class CarContext extends ContextWrapper {
      *
      * @hide
      */
-    @StringDef({APP_SERVICE, CAR_SERVICE, NAVIGATION_SERVICE, SCREEN_MANAGER_SERVICE})
+    @StringDef({APP_SERVICE, CAR_SERVICE, NAVIGATION_SERVICE, SCREEN_SERVICE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface CarServiceType {
     }
 
     /** Manages all app events such as invalidating the UI, showing a toast, etc. */
-    public static final String APP_SERVICE = "app_manager";
+    public static final String APP_SERVICE = "app";
 
     /**
      * Manages all navigation events such as starting navigation when focus is granted, abandoning
      * navigation when focus is lost, etc.
      */
-    public static final String NAVIGATION_SERVICE = "navigation_manager";
+    public static final String NAVIGATION_SERVICE = "navigation";
 
     /** Manages the screens of the app, including the screen stack. */
-    public static final String SCREEN_MANAGER_SERVICE = "screen_manager";
+    public static final String SCREEN_SERVICE = "screen";
 
     /**
      * Internal usage only. Top level binder to host.
@@ -107,7 +107,8 @@ public class CarContext extends ContextWrapper {
      * Key for including a IStartCarApp in the notification {@link Intent}, for starting the app
      * if it has not been opened yet.
      */
-    public static final String START_CAR_APP_BINDER_KEY = "StartCarAppBinderKey";
+    public static final String EXTRA_START_CAR_APP_BINDER_KEY = "androidx.car.app.extra"
+            + ".START_CAR_APP_BINDER_KEY";
 
     /**
      * Standard action for navigating to a location.
@@ -143,13 +144,13 @@ public class CarContext extends ContextWrapper {
      *   <dd>An {@link AppManager} for communication between the app and the host.
      *   <dt>{@link #NAVIGATION_SERVICE}
      *   <dd>A {@link NavigationManager} for management of navigation updates.
-     *   <dt>{@link #SCREEN_MANAGER_SERVICE}
+     *   <dt>{@link #SCREEN_SERVICE}
      *   <dd>A {@link ScreenManager} for management of {@link Screen}s.
      * </dl>
      *
      * @param name The name of the car service requested. This should be one of
      *             {@link #APP_SERVICE},
-     *             {@link #NAVIGATION_SERVICE} or {@link #SCREEN_MANAGER_SERVICE}.
+     *             {@link #NAVIGATION_SERVICE} or {@link #SCREEN_SERVICE}.
      * @return The car service instance.
      * @throws IllegalArgumentException if {@code name} does not refer to a valid car service.
      * @throws NullPointerException     if {@code name} is {@code null}.
@@ -162,7 +163,7 @@ public class CarContext extends ContextWrapper {
                 return mAppManager;
             case NAVIGATION_SERVICE:
                 return mNavigationManager;
-            case SCREEN_MANAGER_SERVICE:
+            case SCREEN_SERVICE:
                 return mScreenManager;
             default: // fall out
         }
@@ -206,7 +207,7 @@ public class CarContext extends ContextWrapper {
         } else if (serviceClass.isInstance(mNavigationManager)) {
             return NAVIGATION_SERVICE;
         } else if (serviceClass.isInstance(mScreenManager)) {
-            return SCREEN_MANAGER_SERVICE;
+            return SCREEN_SERVICE;
         }
 
         throw new IllegalArgumentException("The class does not correspond to a car service.");
@@ -282,7 +283,7 @@ public class CarContext extends ContextWrapper {
         IBinder binder = null;
         Bundle extras = notificationIntent.getExtras();
         if (extras != null) {
-            binder = extras.getBinder(START_CAR_APP_BINDER_KEY);
+            binder = extras.getBinder(EXTRA_START_CAR_APP_BINDER_KEY);
         }
         if (binder == null) {
             throw new IllegalArgumentException("Notification intent missing expected extra");

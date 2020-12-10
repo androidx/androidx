@@ -86,7 +86,7 @@ public class TestCarContext extends CarContext {
         } else if (serviceClass.isInstance(mTestNavigationManager)) {
             serviceName = NAVIGATION_SERVICE;
         } else if (serviceClass.isInstance(mTestScreenManager)) {
-            serviceName = SCREEN_MANAGER_SERVICE;
+            serviceName = SCREEN_SERVICE;
         } else {
             serviceName = getCarServiceName(serviceClass);
         }
@@ -107,7 +107,7 @@ public class TestCarContext extends CarContext {
                 return mTestAppManager;
             case CarContext.NAVIGATION_SERVICE:
                 return mTestNavigationManager;
-            case CarContext.SCREEN_MANAGER_SERVICE:
+            case CarContext.SCREEN_SERVICE:
                 return mTestScreenManager;
             default:
                 // Fall out

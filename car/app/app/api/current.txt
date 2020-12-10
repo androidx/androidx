@@ -54,11 +54,11 @@ package androidx.car.app {
     method public void startCarApp(android.content.Intent);
     method public static void startCarApp(android.content.Intent, android.content.Intent);
     field public static final String ACTION_NAVIGATE = "androidx.car.app.action.NAVIGATE";
-    field public static final String APP_SERVICE = "app_manager";
+    field public static final String APP_SERVICE = "app";
     field public static final String CAR_SERVICE = "car";
-    field public static final String NAVIGATION_SERVICE = "navigation_manager";
-    field public static final String SCREEN_MANAGER_SERVICE = "screen_manager";
-    field public static final String START_CAR_APP_BINDER_KEY = "StartCarAppBinderKey";
+    field public static final String EXTRA_START_CAR_APP_BINDER_KEY = "androidx.car.app.extra.START_CAR_APP_BINDER_KEY";
+    field public static final String NAVIGATION_SERVICE = "navigation";
+    field public static final String SCREEN_SERVICE = "screen";
   }
 
   public final class CarToast {
