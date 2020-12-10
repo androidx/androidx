@@ -317,12 +317,12 @@ package androidx.car.app.model {
 
   public class GridItem implements androidx.car.app.model.Item {
     method public static androidx.car.app.model.GridItem.Builder builder();
-    method public androidx.car.app.model.CarIcon getImage();
+    method public androidx.car.app.model.CarIcon? getImage();
     method public int getImageType();
     method public androidx.car.app.model.OnClickListenerWrapper? getOnClickListener();
     method public androidx.car.app.model.CarText? getText();
     method public androidx.car.app.model.CarText getTitle();
-    method public androidx.car.app.model.Toggle? getToggle();
+    method public boolean isLoading();
     field public static final int IMAGE_TYPE_ICON = 1; // 0x1
     field public static final int IMAGE_TYPE_LARGE = 2; // 0x2
   }
@@ -331,10 +331,10 @@ package androidx.car.app.model {
     method public androidx.car.app.model.GridItem build();
     method public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon, int);
+    method public androidx.car.app.model.GridItem.Builder setLoading(boolean);
     method public androidx.car.app.model.GridItem.Builder setOnClickListener(androidx.car.app.model.OnClickListener?);
     method public androidx.car.app.model.GridItem.Builder setText(CharSequence?);
     method public androidx.car.app.model.GridItem.Builder setTitle(CharSequence);
-    method public androidx.car.app.model.GridItem.Builder setToggle(androidx.car.app.model.Toggle?);
   }
 
   public final class GridTemplate implements androidx.car.app.model.Template {
