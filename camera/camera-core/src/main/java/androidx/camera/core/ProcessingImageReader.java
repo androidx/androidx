@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import android.graphics.ImageFormat;
 import android.media.ImageReader;
 import android.util.Size;
 import android.view.Surface;
@@ -157,12 +158,19 @@ class ProcessingImageReader implements ImageReaderProxy {
 
     private final List<Integer> mCaptureIdList = new ArrayList<>();
 
+    ProcessingImageReader(int width, int height, int format, int maxImages,
+            @NonNull Executor postProcessExecutor,
+            @NonNull CaptureBundle captureBundle, @NonNull CaptureProcessor captureProcessor) {
+        this(width, height, format, maxImages, postProcessExecutor, captureBundle,
+                captureProcessor, format);
+    }
+
     /**
      * Create a {@link ProcessingImageReader} with specific configurations.
      *
      * @param width               Width of the ImageReader
      * @param height              Height of the ImageReader
-     * @param format              Image format
+     * @param inputFormat         Input image format
      * @param maxImages           Maximum Image number the ImageReader can hold. The capacity should
      *                            be greater than the captureBundle size in order to hold all the
      *                            Images needed with this processing.
@@ -170,32 +178,51 @@ class ProcessingImageReader implements ImageReaderProxy {
      * @param captureBundle       The {@link CaptureBundle} includes the processing information
      * @param captureProcessor    The {@link CaptureProcessor} to be invoked when the Images are
      *                            ready
+     * @param outputFormat        Output image format
      */
-    ProcessingImageReader(int width, int height, int format, int maxImages,
+    ProcessingImageReader(int width, int height, int inputFormat, int maxImages,
             @NonNull Executor postProcessExecutor,
-            @NonNull CaptureBundle captureBundle, @NonNull CaptureProcessor captureProcessor) {
-        this(new MetadataImageReader(width, height, format, maxImages), postProcessExecutor,
-                captureBundle, captureProcessor);
+            @NonNull CaptureBundle captureBundle, @NonNull CaptureProcessor captureProcessor,
+            int outputFormat) {
+        this(new MetadataImageReader(width, height, inputFormat, maxImages), postProcessExecutor,
+                captureBundle, captureProcessor, outputFormat);
+    }
+
+    ProcessingImageReader(@NonNull MetadataImageReader imageReader,
+            @NonNull Executor postProcExecutor,
+            @NonNull CaptureBundle capBundle,
+            @NonNull CaptureProcessor capProcessor) {
+        this(imageReader, postProcExecutor, capBundle, capProcessor, imageReader.getImageFormat());
     }
 
     ProcessingImageReader(@NonNull MetadataImageReader imageReader,
             @NonNull Executor postProcessExecutor,
             @NonNull CaptureBundle captureBundle,
-            @NonNull CaptureProcessor captureProcessor) {
+            @NonNull CaptureProcessor captureProcessor,
+            int outputFormat) {
         if (imageReader.getMaxImages() < captureBundle.getCaptureStages().size()) {
             throw new IllegalArgumentException(
                     "MetadataImageReader is smaller than CaptureBundle.");
         }
 
         mInputImageReader = imageReader;
+
+        // For JPEG ImageReaders, the Surface that is created will have format BLOB which can
+        // only be allocated with a height of 1. The output Image from the image reader will read
+        // its dimensions from the JPEG data's EXIF in order to set the final dimensions.
+        int outputWidth = imageReader.getWidth();
+        int outputHeight = imageReader.getHeight();
+        if (outputFormat == ImageFormat.JPEG) {
+            outputWidth = imageReader.getWidth() * imageReader.getHeight();
+            outputHeight = 1;
+        }
         mOutputImageReader = new AndroidImageReaderProxy(
-                ImageReader.newInstance(imageReader.getWidth(),
-                        imageReader.getHeight(), imageReader.getImageFormat(),
+                ImageReader.newInstance(outputWidth, outputHeight, outputFormat,
                         imageReader.getMaxImages()));
 
         mPostProcessExecutor = postProcessExecutor;
         mCaptureProcessor = captureProcessor;
-        mCaptureProcessor.onOutputSurface(mOutputImageReader.getSurface(), getImageFormat());
+        mCaptureProcessor.onOutputSurface(mOutputImageReader.getSurface(), outputFormat);
         mCaptureProcessor.onResolutionUpdate(
                 new Size(mInputImageReader.getWidth(), mInputImageReader.getHeight()));
 
@@ -258,7 +285,7 @@ class ProcessingImageReader implements ImageReaderProxy {
     @Override
     public int getImageFormat() {
         synchronized (mLock) {
-            return mInputImageReader.getImageFormat();
+            return mOutputImageReader.getImageFormat();
         }
     }
 
