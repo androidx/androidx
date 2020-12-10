@@ -46,6 +46,7 @@ import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceUtils;
+import androidx.slice.core.SliceAction;
 import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
 
@@ -267,10 +268,12 @@ public class GridContent extends SliceContent {
         private final ArrayList<SliceItem> mCellItems = new ArrayList<>();
         private SliceItem mContentDescr;
         private int mTextCount;
+        private int mImageCount;
         private IconCompat mImage;
         private SliceItem mOverlayItem;
         private int mImageMode = -1;
         private SliceItem mTitleItem;
+        private SliceItem mToggleItem;
 
         public CellContent(SliceItem cellItem) {
             populate(cellItem);
@@ -284,53 +287,79 @@ public class GridContent extends SliceContent {
             if (!cellItem.hasHint(HINT_SHORTCUT)
                     && (FORMAT_SLICE.equals(format) || FORMAT_ACTION.equals(format))) {
                 List<SliceItem> items = cellItem.getSlice().getItems();
-                // If we've only got one content intent item that's a slice / action use those
-                // items instead
-                if (items.size() == 1 && (FORMAT_ACTION.equals(items.get(0).getFormat())
-                        || FORMAT_SLICE.equals(items.get(0).getFormat()))
-                        && !(SUBTYPE_DATE_PICKER.equals(items.get(0).getSubType())
-                                || SUBTYPE_TIME_PICKER.equals(items.get(0).getSubType()))) {
-                    mContentIntent = items.get(0);
-                    items = items.get(0).getSlice().getItems();
+                List<SliceItem> sliceActionItems = null;
+
+                // Fill the sliceActionItems with the first showing SliceAction in items.
+                for (SliceItem item : items) {
+                    if ((FORMAT_ACTION.equals(item.getFormat())
+                            || FORMAT_SLICE.equals(item.getFormat()))
+                            && !(SUBTYPE_DATE_PICKER.equals(item.getSubType())
+                            || SUBTYPE_TIME_PICKER.equals(item.getSubType()))) {
+                        sliceActionItems = item.getSlice().getItems();
+                        SliceAction ac = new SliceActionImpl(item);
+                        if (ac.isToggle()) {
+                            mToggleItem = item;
+                        } else {
+                            mContentIntent = items.get(0);
+                        }
+                        break;
+                    }
                 }
                 if (FORMAT_ACTION.equals(format)) {
                     mContentIntent = cellItem;
                 }
                 mTextCount = 0;
-                int imageCount = 0;
-                for (int i = 0; i < items.size(); i++) {
-                    final SliceItem item = items.get(i);
-                    final String itemFormat = item.getFormat();
-                    if (mPicker == null && (SUBTYPE_DATE_PICKER.equals(item.getSubType())
-                            || SUBTYPE_TIME_PICKER.equals(item.getSubType()))) {
-                        mPicker = item;
-                    } else if (SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType())) {
-                        mContentDescr = item;
-                    } else if (mTextCount < 2 && (FORMAT_TEXT.equals(itemFormat)
-                            || FORMAT_LONG.equals(itemFormat))) {
-                        if (mTitleItem == null
-                                || (!mTitleItem.hasHint(HINT_TITLE) && item.hasHint(HINT_TITLE))) {
-                            mTitleItem = item;
-                        }
-                        if (item.hasHint(HINT_OVERLAY)) {
-                            if (mOverlayItem == null) {
-                                mOverlayItem = item;
-                            }
-                        } else {
-                            mTextCount++;
-                            mCellItems.add(item);
-                        }
-                    } else if (imageCount < 1 && FORMAT_IMAGE.equals(item.getFormat())) {
-                        mImageMode = SliceUtils.parseImageMode(item);
-                        imageCount++;
-                        mImage = item.getIcon();
-                        mCellItems.add(item);
-                    }
+                mImageCount = 0;
+                fillCellItems(items);
+
+                if (mTextCount == 0 && mImageCount == 0 && sliceActionItems != null) {
+                    fillCellItems(sliceActionItems);
                 }
             } else if (isValidCellContent(cellItem)) {
                 mCellItems.add(cellItem);
             }
             return isValid();
+        }
+
+        private void fillCellItems(List<SliceItem> items) {
+            for (int i = 0; i < items.size(); i++) {
+                final SliceItem item = items.get(i);
+                final String itemFormat = item.getFormat();
+                if (mPicker == null && (SUBTYPE_DATE_PICKER.equals(item.getSubType())
+                        || SUBTYPE_TIME_PICKER.equals(item.getSubType()))) {
+                    mPicker = item;
+                } else if (SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType())) {
+                    mContentDescr = item;
+                } else if (mTextCount < 2 && (FORMAT_TEXT.equals(itemFormat)
+                        || FORMAT_LONG.equals(itemFormat))) {
+                    if (mTitleItem == null
+                            || (!mTitleItem.hasHint(HINT_TITLE) && item.hasHint(HINT_TITLE))) {
+                        mTitleItem = item;
+                    }
+                    if (item.hasHint(HINT_OVERLAY)) {
+                        if (mOverlayItem == null) {
+                            mOverlayItem = item;
+                        }
+                    } else {
+                        mTextCount++;
+                        mCellItems.add(item);
+                    }
+                } else if (mImageCount < 1 && FORMAT_IMAGE.equals(item.getFormat())) {
+                    mImageMode = SliceUtils.parseImageMode(item);
+                    mImageCount++;
+                    mImage = item.getIcon();
+                    mCellItems.add(item);
+                }
+            }
+        }
+
+
+        /**
+         * @return toggle slice item if this cell has one.
+         */
+        @Nullable
+        public SliceItem getToggleItem() {
+            return mToggleItem;
         }
 
         /**

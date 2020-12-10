@@ -35,8 +35,10 @@ import static androidx.slice.core.SliceHints.SUBTYPE_DATE_PICKER;
 import static androidx.slice.core.SliceHints.SUBTYPE_TIME_PICKER;
 import static androidx.slice.widget.EventInfo.ACTION_TYPE_DATE_PICK;
 import static androidx.slice.widget.EventInfo.ACTION_TYPE_TIME_PICK;
+import static androidx.slice.widget.EventInfo.ACTION_TYPE_TOGGLE;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_DATE_PICK;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_TIME_PICK;
+import static androidx.slice.widget.EventInfo.ROW_TYPE_TOGGLE;
 import static androidx.slice.widget.SliceView.MODE_SMALL;
 
 import android.app.DatePickerDialog;
@@ -71,6 +73,7 @@ import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.slice.CornerDrawable;
 import androidx.slice.SliceItem;
+import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceHints;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
@@ -360,6 +363,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         ArrayList<SliceItem> cellItems = cell.getCellItems();
         SliceItem contentIntentItem = cell.getContentIntent();
         SliceItem pickerItem = cell.getPicker();
+        SliceItem toggleItem = cell.getToggleItem();
 
         int textCount = 0;
         int imageCount = 0;
@@ -417,6 +421,12 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
                         /*isDatePicker=*/ false);
             }
         }
+        SliceActionView sav = null;
+        if (toggleItem != null) {
+            sav = new SliceActionView(getContext(), mSliceStyle, mRowStyle);
+            cellContainer.addView(sav);
+            added = true;
+        }
         if (added) {
             CharSequence contentDescr = cell.getContentDescription();
             if (contentDescr != null) {
@@ -438,6 +448,14 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
                 Pair<SliceItem, EventInfo> tagItem = new Pair<>(contentIntentItem, info);
                 cellContainer.setTag(tagItem);
                 makeClickable(cellContainer, true);
+            }
+            if (toggleItem != null) {
+                EventInfo info =
+                        new EventInfo(getMode(), ACTION_TYPE_TOGGLE, ROW_TYPE_TOGGLE, mRowIndex);
+                sav.setAction(
+                        new SliceActionImpl(toggleItem),
+                        info, mObserver, mTintColor, mLoadingListener);
+                info.setPosition(EventInfo.POSITION_CELL, index, total);
             }
         }
     }
