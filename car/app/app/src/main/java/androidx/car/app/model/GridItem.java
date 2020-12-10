@@ -54,7 +54,7 @@ public class GridItem implements Item {
     /**
      * Represents an icon to be displayed in the grid item.
      *
-     * <p>If necessary, icons will be scaled down to fit within a 44 x 44 dp bounding box,
+     * <p>If necessary, icons will be scaled down to fit within a 64 x 64 dp bounding box,
      * preserving
      * their aspect ratios.
      *
