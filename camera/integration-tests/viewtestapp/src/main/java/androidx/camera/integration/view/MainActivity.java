@@ -17,6 +17,7 @@
 package androidx.camera.integration.view;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,7 +29,9 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -53,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private Mode mMode = Mode.CAMERA_VIEW;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         // Get extra option for checking whether it need to be implemented with PreviewView
@@ -77,7 +80,8 @@ public class MainActivity extends AppCompatActivity {
                 if (allPermissionsGranted()) {
                     startFragment();
                 } else if (!mCheckedPermissions) {
-                    requestPermissions(REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
+                    ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS,
+                            REQUEST_CODE_PERMISSIONS);
                     mCheckedPermissions = true;
                 }
             } else {
@@ -105,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
