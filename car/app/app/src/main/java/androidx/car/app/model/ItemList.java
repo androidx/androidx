@@ -348,8 +348,6 @@ public final class ItemList {
     private static Toggle getToggle(Object item) {
         if (item instanceof Row) {
             return ((Row) item).getToggle();
-        } else if (item instanceof GridItem) {
-            return ((GridItem) item).getToggle();
         }
 
         return null;

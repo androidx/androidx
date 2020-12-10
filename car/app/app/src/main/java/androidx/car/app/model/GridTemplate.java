@@ -41,10 +41,7 @@ import java.util.Objects;
  * <ul>
  *   <li>The template title has not changed, and
  *   <li>The previous template is in a loading state (see {@link Builder#setLoading}, or the
- *       number of grid items and the string contents (title, texts) of each grid item have not
- *       changed.
- *   <li>For grid items that contain a {@link Toggle}, updates to the title, text and image are also
- *       allowed if the toggle state has changed between the previous and new templates.
+ *       number of grid items and the title of each grid item have not changed.
  * </ul>
  */
 public final class GridTemplate implements Template {
