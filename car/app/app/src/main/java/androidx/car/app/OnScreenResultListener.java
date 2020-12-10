@@ -18,8 +18,8 @@ package androidx.car.app;
 
 import androidx.annotation.Nullable;
 
-/** A callback to provide the result set by a {@link Screen}. */
-public interface OnScreenResultCallback {
+/** A listener to provide the result set by a {@link Screen}. */
+public interface OnScreenResultListener {
     /**
      * Provides the {@code result} from the {@link Screen} that was pushed using {@link
      * ScreenManager#pushForResult}, or {@code null} if no result was set.

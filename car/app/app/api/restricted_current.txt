@@ -89,7 +89,7 @@ package androidx.car.app {
     method public void onSuccess(androidx.car.app.serialization.Bundleable?);
   }
 
-  public interface OnScreenResultCallback {
+  public interface OnScreenResultListener {
     method public void onScreenResult(Object?);
   }
 
@@ -104,15 +104,15 @@ package androidx.car.app {
     method public abstract androidx.car.app.model.Template onGetTemplate();
     method public void setMarker(String?);
     method public void setResult(Object?);
-    field public static final String ROOT = "ROOT";
   }
 
   public class ScreenManager {
     method public androidx.car.app.Screen getTop();
     method public void pop();
     method public void popTo(String);
+    method public void popToRoot();
     method public void push(androidx.car.app.Screen);
-    method public void pushForResult(androidx.car.app.Screen, androidx.car.app.OnScreenResultCallback);
+    method public void pushForResult(androidx.car.app.Screen, androidx.car.app.OnScreenResultListener);
     method public void remove(androidx.car.app.Screen);
   }
 
