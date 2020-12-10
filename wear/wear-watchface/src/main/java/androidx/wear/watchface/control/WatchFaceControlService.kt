@@ -31,9 +31,9 @@ import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanc
 import androidx.wear.watchface.runOnHandler
 
 /**
- *  A service for creating and controlling WatchFaceInstances.
+ * A service for creating and controlling watch face instances.
  *
- *  @hide
+ * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @RequiresApi(27)
