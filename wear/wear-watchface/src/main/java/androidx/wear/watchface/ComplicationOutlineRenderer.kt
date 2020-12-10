@@ -17,9 +17,9 @@
 package androidx.wear.watchface
 
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
+import androidx.annotation.ColorInt
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -38,12 +38,16 @@ public class ComplicationOutlineRenderer {
             strokeWidth = DASH_WIDTH
             style = Paint.Style.FILL_AND_STROKE
             isAntiAlias = true
-            color = Color.RED
         }
 
         /** Draws a thick dotted line around the complication with the given bounds. */
         @JvmStatic
-        public fun drawComplicationSelectOutline(canvas: Canvas, bounds: Rect) {
+        public fun drawComplicationSelectOutline(
+            canvas: Canvas,
+            bounds: Rect,
+            @ColorInt color: Int
+        ) {
+            dashPaint.color = color
             if (bounds.width() == bounds.height()) {
                 drawCircleDashBorder(canvas, bounds)
                 return

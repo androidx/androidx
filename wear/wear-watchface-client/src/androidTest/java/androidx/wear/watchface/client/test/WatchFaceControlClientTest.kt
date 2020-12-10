@@ -19,6 +19,7 @@ package androidx.wear.watchface.client.test
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.Rect
 import android.os.Handler
 import android.os.Looper
@@ -35,6 +36,7 @@ import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.DrawMode
+import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.SystemState
@@ -51,6 +53,7 @@ import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
 import androidx.wear.watchface.samples.GREEN_STYLE
 import androidx.wear.watchface.samples.NO_COMPLICATIONS
 import androidx.wear.watchface.samples.WATCH_HAND_LENGTH_STYLE_SETTING
+import androidx.wear.watchface.style.Layer
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Assert.assertFalse
@@ -153,7 +156,12 @@ class WatchFaceControlClientTest {
             400
         ).get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
         val bitmap = headlessInstance.takeWatchFaceScreenshot(
-            RenderParameters(DrawMode.INTERACTIVE, RenderParameters.DRAW_ALL_LAYERS, null),
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                RenderParameters.DRAW_ALL_LAYERS,
+                null,
+                Color.RED
+            ),
             100,
             1234567,
             null,
@@ -161,6 +169,44 @@ class WatchFaceControlClientTest {
         )
 
         bitmap.assertAgainstGolden(screenshotRule, "headlessScreenshot")
+
+        headlessInstance.close()
+    }
+
+    @Test
+    fun yellowComplicationHighlights() {
+        val headlessInstance = service.createHeadlessWatchFaceClient(
+            ComponentName(
+                "androidx.wear.watchface.samples.test",
+                "androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService"
+            ),
+            DeviceConfig(
+                false,
+                false,
+                0,
+                0
+            ),
+            400,
+            400
+        ).get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
+        val bitmap = headlessInstance.takeWatchFaceScreenshot(
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                mapOf(
+                    Layer.BASE_LAYER to LayerMode.DRAW,
+                    Layer.COMPLICATIONS to LayerMode.DRAW_HIGHLIGHTED,
+                    Layer.TOP_LAYER to LayerMode.DRAW
+                ),
+                null,
+                Color.YELLOW
+            ),
+            100,
+            1234567,
+            null,
+            complications
+        )
+
+        bitmap.assertAgainstGolden(screenshotRule, "yellowComplicationHighlights")
 
         headlessInstance.close()
     }
@@ -266,7 +312,12 @@ class WatchFaceControlClientTest {
             interactiveInstanceFuture.get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
 
         val bitmap = interactiveInstance.takeWatchFaceScreenshot(
-            RenderParameters(DrawMode.INTERACTIVE, RenderParameters.DRAW_ALL_LAYERS, null),
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                RenderParameters.DRAW_ALL_LAYERS,
+                null,
+                Color.RED
+            ),
             100,
             1234567,
             null,
@@ -306,7 +357,12 @@ class WatchFaceControlClientTest {
             interactiveInstanceFuture.get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
 
         val bitmap = interactiveInstance.takeWatchFaceScreenshot(
-            RenderParameters(DrawMode.INTERACTIVE, RenderParameters.DRAW_ALL_LAYERS, null),
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                RenderParameters.DRAW_ALL_LAYERS,
+                null,
+                Color.RED
+            ),
             100,
             1234567,
             null,
@@ -547,7 +603,12 @@ class WatchFaceControlClientTest {
         )
 
         val bitmap = interactiveInstance.takeWatchFaceScreenshot(
-            RenderParameters(DrawMode.INTERACTIVE, RenderParameters.DRAW_ALL_LAYERS, null),
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                RenderParameters.DRAW_ALL_LAYERS,
+                null,
+                Color.RED
+            ),
             100,
             1234567,
             null,
