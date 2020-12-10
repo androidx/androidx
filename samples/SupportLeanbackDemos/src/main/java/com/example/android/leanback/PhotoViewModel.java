@@ -24,10 +24,14 @@ import androidx.lifecycle.Transformations;
 import androidx.paging.Pager;
 import androidx.paging.PagingConfig;
 import androidx.paging.PagingData;
+import androidx.paging.PagingDataTransforms;
 import androidx.paging.PagingLiveData;
 
 import com.example.android.leanback.room.Photo;
 import com.example.android.leanback.room.PhotoDatabase;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * ViewModel for showing sample usage of PagedListAdapter
@@ -35,6 +39,7 @@ import com.example.android.leanback.room.PhotoDatabase;
 public class PhotoViewModel extends AndroidViewModel {
 
     private LiveData<PagingData<PhotoItem>> mPagingDataLiveData;
+    private Executor mExecutor = Executors.newSingleThreadExecutor();
 
     public PhotoViewModel(Application application) {
         super(application);
@@ -47,9 +52,10 @@ public class PhotoViewModel extends AndroidViewModel {
 
         mPagingDataLiveData = Transformations.map(PagingLiveData.getLiveData(pager),
                 (Function<PagingData<Photo>, PagingData<PhotoItem>>) pagingData ->
-                    pagingData.map((photo) -> new PhotoItem(photo.getTitle(),
-                            photo.getImgResourceId(),
-                            photo.getId()))
+                        PagingDataTransforms.map(pagingData, mExecutor,
+                                (photo) -> new PhotoItem(photo.getTitle(),
+                                        photo.getImgResourceId(),
+                                        photo.getId()))
         );
 
 
