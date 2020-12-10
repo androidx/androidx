@@ -101,6 +101,10 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
             Option.create(
                     "camerax.core.appConfig.minimumLoggingLevel",
                     int.class);
+    static final Option<CameraSelector> OPTION_AVAILABLE_CAMERAS_LIMITER =
+            Option.create(
+                    "camerax.core.appConfig.availableCamerasLimiter",
+                    CameraSelector.class);
 
     // *********************************************************************************************
 
@@ -177,6 +181,16 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
     public int getMinimumLoggingLevel() {
         return mConfig.retrieveOption(OPTION_MIN_LOGGING_LEVEL, Logger.DEFAULT_MIN_LOG_LEVEL);
     }
+
+    /**
+     * Returns the {@link CameraSelector} used to determine the available cameras.
+     */
+    @ExperimentalAvailableCamerasLimiter
+    @Nullable
+    public CameraSelector getAvailableCamerasLimiter(@Nullable CameraSelector valueIfMissing) {
+        return mConfig.retrieveOption(OPTION_AVAILABLE_CAMERAS_LIMITER, valueIfMissing);
+    }
+
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -326,6 +340,32 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
         public Builder setMinimumLoggingLevel(
                 @IntRange(from = Log.DEBUG, to = Log.ERROR) int logLevel) {
             getMutableConfig().insertOption(OPTION_MIN_LOGGING_LEVEL, logLevel);
+            return this;
+        }
+
+        /**
+         * Sets a {@link CameraSelector} to determine the available cameras which defines
+         * which cameras can be used in the application.
+         *
+         * <p>Only cameras selected by this CameraSelector can be used in the applications. If
+         * the application binds the use cases with a CameraSelector that selects a unavailable
+         * camera, a {@link IllegalArgumentException} will be thrown.
+         *
+         * <p>This configuration can help CameraX optimize the latency of CameraX initialization.
+         * The tasks CameraX initialization performs include enumerating cameras, querying
+         * CameraCharacteristics and retrieving properties preparing for resolution determination.
+         * On some low end devices, these could take significant amount of time. Using the API
+         * can avoid the initialization of unnecessary cameras and speed up the time for camera
+         * start-up. For example, if the application uses only back cameras, it can set this
+         * configuration by CameraSelector.DEFAULT_BACK_CAMERA and then CameraX will avoid
+         * initializing front cameras to reduce the latency.
+         */
+        @ExperimentalAvailableCamerasLimiter
+        @NonNull
+        public Builder setAvailableCamerasLimiter(
+                @NonNull CameraSelector availableCameraSelector) {
+            getMutableConfig().insertOption(OPTION_AVAILABLE_CAMERAS_LIMITER,
+                    availableCameraSelector);
             return this;
         }
 
