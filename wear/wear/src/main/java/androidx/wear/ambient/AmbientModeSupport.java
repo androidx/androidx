@@ -47,12 +47,12 @@ import java.io.PrintWriter;
  * {@link FragmentActivity} and use the {@link AmbientController} can be found below:
  * <p>
  * <pre class="prettyprint">{@code
- *     AmbientMode.AmbientController controller = AmbientMode.attachAmbientSupport(this);
- *     boolean isAmbient =  controller.isAmbient();
+ *     AmbientModeSupport.AmbientController controller = AmbientModeSupport.attach(this);
+ *     boolean isAmbient = controller.isAmbient();
  * }</pre>
  */
 public final class AmbientModeSupport extends Fragment {
-    private static final String TAG = "AmbientMode";
+    private static final String TAG = "AmbientModeSupport";
 
     /**
      * Property in bundle passed to {@code AmbientCallback#onEnterAmbient(Bundle)} to indicate
@@ -82,11 +82,11 @@ public final class AmbientModeSupport extends Fragment {
 
     /**
      * Interface for any {@link Activity} that wishes to implement Ambient Mode. Use the
-     * {@link #getAmbientCallback()} method to return and {@link AmbientCallback} which can be used
+     * {@link #getAmbientCallback()} method to return an {@link AmbientCallback} which can be used
      * to bind the {@link AmbientModeSupport} to the instantiation of this interface.
      * <p>
      * <pre class="prettyprint">{@code
-     * return new AmbientMode.AmbientCallback() {
+     * return new AmbientModeSupport.AmbientCallback() {
      *     public void onEnterAmbient(Bundle ambientDetails) {...}
      *     public void onExitAmbient(Bundle ambientDetails) {...}
      *  }
@@ -101,7 +101,8 @@ public final class AmbientModeSupport extends Fragment {
     }
 
     /**
-     * Callback to receive ambient mode state changes. It must be used by all users of AmbientMode.
+     * Callback to receive ambient mode state changes. It must be used by all users of
+     * AmbientModeSupport.
      */
     public abstract static class AmbientCallback {
         /**
