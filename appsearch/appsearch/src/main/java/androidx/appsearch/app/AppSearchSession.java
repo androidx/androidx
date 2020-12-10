@@ -192,11 +192,12 @@ public interface AppSearchSession {
 
     /**
      * Removes {@link GenericDocument}s from the index by Query. Documents will be removed if they
-     * match the query expression in given namespaces and schemaTypes.
+     * match the {@code queryExpression} in given namespaces and schemaTypes which is set via
+     * {@link SearchSpec.Builder#addNamespace} and {@link SearchSpec.Builder#addSchemaType}.
      *
-     * <p> An empty query matches all documents.
+     * <p> An empty {@code queryExpression} matches all documents.
      *
-     * <p> An empty set of namespaces or of schemaTypes matches all namespaces or schemaTypes in
+     * <p> An empty set of namespaces or schemaTypes matches all namespaces or schemaTypes in
      * the current database.
      *
      * @param queryExpression Query String to search.
