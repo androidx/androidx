@@ -37,6 +37,7 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_CASE_EVENT_CALLBACK;
+import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_SOFTWARE_JPEG_ENCODER;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.internal.utils.ImageUtil.min;
@@ -52,6 +53,7 @@ import android.location.Location;
 import android.media.Image;
 import android.media.ImageReader;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.provider.MediaStore;
@@ -109,6 +111,8 @@ import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.IoConfig;
 import androidx.camera.core.internal.TargetConfig;
+import androidx.camera.core.internal.YuvToJpegProcessor;
+import androidx.camera.core.internal.compat.quirk.SoftwareJpegEncodingPreferredQuirk;
 import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability;
 import androidx.camera.core.internal.utils.ImageUtil;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -291,6 +295,11 @@ public final class ImageCapture extends UseCase {
      */
     private CaptureProcessor mCaptureProcessor;
 
+    /**
+     * Whether the software JPEG pipeline will be used.
+     */
+    private boolean mUseSoftwareJpeg = false;
+
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -357,18 +366,52 @@ public final class ImageCapture extends UseCase {
                                     resolution.getHeight(), getImageFormat(), MAX_IMAGES, 0));
             mMetadataMatchingCaptureCallback = new CameraCaptureCallback() {
             };
-        } else if (mCaptureProcessor != null) {
+        } else if (mCaptureProcessor != null || mUseSoftwareJpeg) {
+            // Capture processor set from configuration takes precedence over software JPEG.
+            YuvToJpegProcessor softwareJpegProcessor = null;
+            CaptureProcessor captureProcessor = mCaptureProcessor;
+            int inputFormat = getImageFormat();
+            int outputFormat = getImageFormat();
+            if (mUseSoftwareJpeg) {
+                Preconditions.checkState(mCaptureProcessor == null, "CaptureProcessor should not "
+                        + "be set if software JPEG is to be used.");
+                // API check to satisfy linter
+                if (Build.VERSION.SDK_INT >= 26) {
+                    Logger.i(TAG, "Using software JPEG encoder.");
+                    captureProcessor = softwareJpegProcessor =
+                            new YuvToJpegProcessor(getJpegQuality(), mMaxCaptureStages);
+                    outputFormat = ImageFormat.JPEG;
+                } else {
+                    // Note: This should never be hit due to SDK_INT check before setting
+                    // useSoftwareJpeg.
+                    throw new IllegalStateException("Software JPEG only supported on API 26+");
+                }
+            }
+
             // TODO: To allow user to use an Executor for the image processing.
             mProcessingImageReader =
                     new ProcessingImageReader(
                             resolution.getWidth(),
                             resolution.getHeight(),
-                            getImageFormat(), mMaxCaptureStages,
+                            inputFormat,
+                            mMaxCaptureStages,
                             /* postProcessExecutor */mExecutor,
                             getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle()),
-                            mCaptureProcessor);
+                            captureProcessor,
+                            outputFormat);
             mMetadataMatchingCaptureCallback = mProcessingImageReader.getCameraCaptureCallback();
             mImageReader = new SafeCloseImageReaderProxy(mProcessingImageReader);
+            if (softwareJpegProcessor != null) {
+                // Close the JPEG processor once ProcessingImageReader is done.
+                // Processor is assigned to an effectively final variable here for the lambda.
+                YuvToJpegProcessor processorToClose = softwareJpegProcessor;
+                mProcessingImageReader.getCloseFuture().addListener(() -> {
+                    // API check to satisfy linter
+                    if (Build.VERSION.SDK_INT >= 26) {
+                        processorToClose.close();
+                    }
+                }, CameraXExecutors.directExecutor());
+            }
         } else {
             MetadataImageReader metadataImageReader = new MetadataImageReader(resolution.getWidth(),
                     resolution.getHeight(), getImageFormat(), MAX_IMAGES);
@@ -466,6 +509,22 @@ public final class ImageCapture extends UseCase {
     @Override
     UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
             @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
+        // Request software JPEG encoder if quirk exists on this device and the software JPEG
+        // option has not already been explicitly set.
+        if (cameraInfo.getCameraQuirks().contains(SoftwareJpegEncodingPreferredQuirk.class)) {
+            if (!builder.getMutableConfig().retrieveOption(OPTION_USE_SOFTWARE_JPEG_ENCODER,
+                    true)) {
+                Logger.w(TAG, "Device quirk suggests software JPEG encoder, but it has been "
+                        + "explicitly disabled.");
+            } else {
+                Logger.i(TAG, "Requesting software JPEG due to device quirk.");
+                builder.getMutableConfig().insertOption(OPTION_USE_SOFTWARE_JPEG_ENCODER, true);
+            }
+        }
+
+        // If software JPEG is requested, disable if it can't be supported on current API level.
+        boolean useSoftwareJpeg = enforceSoftwareJpegConstraints(builder.getMutableConfig());
+
         // Update the input format base on the other options set (mainly whether processing
         // is done)
         Integer bufferFormat = builder.getMutableConfig().retrieveOption(OPTION_BUFFER_FORMAT,
@@ -475,9 +534,11 @@ public final class ImageCapture extends UseCase {
                     builder.getMutableConfig().retrieveOption(OPTION_CAPTURE_PROCESSOR, null)
                             == null,
                     "Cannot set buffer format with CaptureProcessor defined.");
-            builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, bufferFormat);
+            builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
+                    useSoftwareJpeg ? ImageFormat.YUV_420_888 : bufferFormat);
         } else {
-            if (builder.getMutableConfig().retrieveOption(OPTION_CAPTURE_PROCESSOR, null) != null) {
+            if (builder.getMutableConfig().retrieveOption(OPTION_CAPTURE_PROCESSOR, null) != null
+                    || useSoftwareJpeg) {
                 builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
                         ImageFormat.YUV_420_888);
             } else {
@@ -1158,6 +1219,43 @@ public final class ImageCapture extends UseCase {
     }
 
     /**
+     * Disables software JPEG if it is requested and the provided config and/or device
+     * characteristics are incompatible.
+     *
+     * @return {@code true} if software JPEG will be used after applying constraints.
+     */
+    static boolean enforceSoftwareJpegConstraints(@NonNull MutableConfig mutableConfig) {
+        // Software encoder currently only supports API 26+.
+        if (mutableConfig.retrieveOption(OPTION_USE_SOFTWARE_JPEG_ENCODER, false)) {
+            boolean supported = true;
+            if (Build.VERSION.SDK_INT < 26) {
+                Logger.w(TAG, "Software JPEG only supported on API 26+, but current API level is "
+                        + Build.VERSION.SDK_INT);
+                supported = false;
+            }
+
+            Integer bufferFormat = mutableConfig.retrieveOption(OPTION_BUFFER_FORMAT, null);
+            if (bufferFormat != null && bufferFormat != ImageFormat.JPEG) {
+                Logger.w(TAG, "Software JPEG cannot be used with non-JPEG output buffer format.");
+                supported = false;
+            }
+
+            if (mutableConfig.retrieveOption(OPTION_CAPTURE_PROCESSOR, null) != null) {
+                Logger.w(TAG, "CaptureProcessor is set, unable to use software JPEG.");
+                supported = false;
+            }
+
+            if (!supported) {
+                Logger.w(TAG, "Unable to support software JPEG. Disabling.");
+                mutableConfig.insertOption(OPTION_USE_SOFTWARE_JPEG_ENCODER, false);
+            }
+
+            return supported;
+        }
+        return false;
+    }
+
+    /**
      * {@inheritDoc}
      *
      * @hide
@@ -1167,6 +1265,7 @@ public final class ImageCapture extends UseCase {
     public void onDetached() {
         abortImageCaptureRequests();
         clearPipeline();
+        mUseSoftwareJpeg = false;
         mExecutor.shutdown();
     }
 
@@ -1188,6 +1287,10 @@ public final class ImageCapture extends UseCase {
         mMaxCaptureStages = useCaseConfig.getMaxCaptureStages(MAX_IMAGES);
         mCaptureBundle = useCaseConfig.getCaptureBundle(
                 CaptureBundles.singleDefaultCaptureBundle());
+
+        // This will only be set to true if software JPEG was requested and
+        // enforceSoftwareJpegConstraints() hasn't removed the request.
+        mUseSoftwareJpeg = useCaseConfig.isSoftwareJpegEncoderRequested();
 
         mExecutor =
                 Executors.newFixedThreadPool(
@@ -1420,7 +1523,15 @@ public final class ImageCapture extends UseCase {
         if (mProcessingImageReader != null) {
             // If the Processor is provided, check if we have valid CaptureBundle and update
             // ProcessingImageReader before actually issuing a take picture request.
-            captureBundle = getCaptureBundle(null);
+            if (mUseSoftwareJpeg) {
+                captureBundle = getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle());
+                if (captureBundle.getCaptureStages().size() > 1) {
+                    return Futures.immediateFailedFuture(new IllegalArgumentException(
+                            "Software JPEG not supported with CaptureBundle size > 1."));
+                }
+            } else {
+                captureBundle = getCaptureBundle(null);
+            }
 
             if (captureBundle == null) {
                 return Futures.immediateFailedFuture(new IllegalArgumentException(
@@ -2721,6 +2832,15 @@ public final class ImageCapture extends UseCase {
                 @NonNull ImageReaderProxyProvider imageReaderProxyProvider) {
             getMutableConfig().insertOption(OPTION_IMAGE_READER_PROXY_PROVIDER,
                     imageReaderProxyProvider);
+            return this;
+        }
+
+        /** @hide */
+        @NonNull
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public Builder setSoftwareJpegEncoderRequested(boolean requestSoftwareJpeg) {
+            getMutableConfig().insertOption(OPTION_USE_SOFTWARE_JPEG_ENCODER,
+                    requestSoftwareJpeg);
             return this;
         }
 
