@@ -39,6 +39,7 @@ public class SearchSpecCtsTest {
                 .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
                 .addNamespace("namespace1", "namespace2")
                 .addSchemaType("schemaTypes1", "schemaTypes2")
+                .addFilterPackageNames("package1", "package2")
                 .setSnippetCount(5)
                 .setSnippetCountPerProperty(10)
                 .setMaxSnippetSize(15)
@@ -52,6 +53,8 @@ public class SearchSpecCtsTest {
                 .containsExactly("namespace1", "namespace2").inOrder();
         assertThat(searchSpec.getSchemaTypes())
                 .containsExactly("schemaTypes1", "schemaTypes2").inOrder();
+        assertThat(searchSpec.getPackageNames())
+                .containsExactly("package1", "package2").inOrder();
         assertThat(searchSpec.getSnippetCount()).isEqualTo(5);
         assertThat(searchSpec.getSnippetCountPerProperty()).isEqualTo(10);
         assertThat(searchSpec.getMaxSnippetSize()).isEqualTo(15);

@@ -461,6 +461,13 @@ public final class AppSearchImpl {
             @NonNull String databaseName,
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec) throws AppSearchException {
+        if (!searchSpec.getPackageNames().isEmpty() && !searchSpec.getPackageNames().contains(
+                packageName)) {
+            // Client wanted to query over some packages that weren't its own. This isn't
+            // allowed through local query so we can return early with no results.
+            return new SearchResultPage(Bundle.EMPTY);
+        }
+
         mReadWriteLock.readLock().lock();
         try {
             return doQueryLocked(Collections.singleton(createPrefix(packageName, databaseName)),
@@ -492,13 +499,25 @@ public final class AppSearchImpl {
         //  verified.
         mReadWriteLock.readLock().lock();
         try {
-            // We use the mNamespaceMap.keySet here because it's the smaller set of valid prefixes
-            // that could exist.
-            Set<String> prefixes = mNamespaceMapLocked.keySet();
+            Set<String> prefixes = new ArraySet<>();
+            Set<String> packageFilters = new ArraySet<>(searchSpec.getPackageNames());
 
-            // Filter out any VisibilityStore documents which are AppSearch-internal only.
-            prefixes.remove(createPrefix(VisibilityStore.PACKAGE_NAME,
-                    VisibilityStore.DATABASE_NAME));
+            for (String prefix : mNamespaceMapLocked.keySet()) {
+                if (prefix.equals(VisibilityStore.VISIBILITY_STORE_PREFIX)) {
+                    // Filter out any VisibilityStore documents which are AppSearch-internal only.
+                    continue;
+                }
+
+                if (!packageFilters.isEmpty() && !packageFilters.contains(getPackageName(prefix))) {
+                    // Client wanted to restrict search over specified packages. Since the
+                    // specified packages don't include this prefix, don't add it to our search
+                    // filters.
+                    continue;
+                }
+
+                // Otherwise, include this prefix in our global search.
+                prefixes.add(prefix);
+            }
 
             return doQueryLocked(prefixes, queryExpression, searchSpec);
         } finally {
@@ -621,6 +640,14 @@ public final class AppSearchImpl {
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec)
             throws AppSearchException {
+        if (!searchSpec.getPackageNames().isEmpty() && !searchSpec.getPackageNames().contains(
+                packageName)) {
+            // We're only removing documents within the parameter `packageName`. If we're not
+            // restricting our remove-query to this package name, then there's nothing for us to
+            // remove.
+            return;
+        }
+
         SearchSpecProto searchSpecProto =
                 SearchSpecToProtoConverter.toSearchSpecProto(searchSpec);
         SearchSpecProto.Builder searchSpecBuilder = searchSpecProto.toBuilder()

@@ -425,12 +425,204 @@ public class AppSearchImplTest {
         assertThat(searchResultPage.getResults()).isEmpty();
     }
 
+    /**
+     * TODO(b/169883602): This should be an integration test at the cts-level. This is a
+     * short-term test until we have official support for multiple-apps indexing at once.
+     */
+    @Test
+    public void testQueryWithMultiplePackages_noPackageFilters() throws Exception {
+        // Insert package1 schema
+        List<AppSearchSchema> schema1 =
+                ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
+        mAppSearchImpl.setSchema("package1", "database1", schema1,
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false);
+
+        // Insert package2 schema
+        List<AppSearchSchema> schema2 =
+                ImmutableList.of(new AppSearchSchema.Builder("schema2").build());
+        mAppSearchImpl.setSchema("package2", "database2", schema2,
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false);
+
+        // Insert package1 document
+        GenericDocument document = new GenericDocument.Builder<>("uri", "schema1")
+                .setNamespace("namespace").build();
+        mAppSearchImpl.putDocument("package1", "database1", document);
+
+        // No query filters specified, package2 shouldn't be able to query for package1's documents.
+        SearchSpec searchSpec =
+                new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
+        SearchResultPage searchResultPage = mAppSearchImpl.query("package2", "database2", "",
+                searchSpec);
+        assertThat(searchResultPage.getResults()).isEmpty();
+
+        // Insert package2 document
+        document = new GenericDocument.Builder<>("uri", "schema2")
+                .setNamespace("namespace").build();
+        mAppSearchImpl.putDocument("package2", "database2", document);
+
+        // No query filters specified. package2 should only get its own documents back.
+        searchResultPage = mAppSearchImpl.query("package2", "database2", "", searchSpec);
+        assertThat(searchResultPage.getResults()).hasSize(1);
+        assertThat(searchResultPage.getResults().get(0).getDocument()).isEqualTo(document);
+    }
+
+    /**
+     * TODO(b/169883602): This should be an integration test at the cts-level. This is a
+     * short-term test until we have official support for multiple-apps indexing at once.
+     */
+    @Test
+    public void testQueryWithMultiplePackages_withPackageFilters() throws Exception {
+        // Insert package1 schema
+        List<AppSearchSchema> schema1 =
+                ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
+        mAppSearchImpl.setSchema("package1", "database1", schema1,
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false);
+
+        // Insert package2 schema
+        List<AppSearchSchema> schema2 =
+                ImmutableList.of(new AppSearchSchema.Builder("schema2").build());
+        mAppSearchImpl.setSchema("package2", "database2", schema2,
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false);
+
+        // Insert package1 document
+        GenericDocument document = new GenericDocument.Builder<>("uri", "schema1")
+                .setNamespace("namespace").build();
+        mAppSearchImpl.putDocument("package1", "database1", document);
+
+        // "package1" filter specified, but package2 shouldn't be able to query for package1's
+        // documents.
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                        .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
+                        .addFilterPackageNames("package1")
+                        .build();
+        SearchResultPage searchResultPage = mAppSearchImpl.query("package2", "database2", "",
+                searchSpec);
+        assertThat(searchResultPage.getResults()).isEmpty();
+
+        // Insert package2 document
+        document = new GenericDocument.Builder<>("uri", "schema2")
+                .setNamespace("namespace").build();
+        mAppSearchImpl.putDocument("package2", "database2", document);
+
+        // "package2" filter specified, package2 should only get its own documents back.
+        searchSpec = new SearchSpec.Builder()
+                .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
+                .addFilterPackageNames("package2")
+                .build();
+        searchResultPage = mAppSearchImpl.query("package2", "database2", "", searchSpec);
+        assertThat(searchResultPage.getResults()).hasSize(1);
+        assertThat(searchResultPage.getResults().get(0).getDocument()).isEqualTo(document);
+    }
+
     @Test
     public void testGlobalQueryEmptyDatabase() throws Exception {
         SearchSpec searchSpec =
                 new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
         SearchResultPage searchResultPage = mAppSearchImpl.globalQuery("", searchSpec);
         assertThat(searchResultPage.getResults()).isEmpty();
+    }
+
+    /**
+     * TODO(b/169883602): This should be an integration test at the cts-level. This is a
+     * short-term test until we have official support for multiple-apps indexing at once.
+     */
+    @Test
+    public void testGlobalQueryWithMultiplePackages_noPackageFilters() throws Exception {
+        // Insert package1 schema
+        List<AppSearchSchema> schema1 =
+                ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
+        mAppSearchImpl.setSchema("package1", "database1", schema1,
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false);
+
+        // Insert package2 schema
+        List<AppSearchSchema> schema2 =
+                ImmutableList.of(new AppSearchSchema.Builder("schema2").build());
+        mAppSearchImpl.setSchema("package2", "database2", schema2,
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false);
+
+        // Insert package1 document
+        GenericDocument document1 = new GenericDocument.Builder<>("uri", "schema1")
+                .setNamespace("namespace").build();
+        mAppSearchImpl.putDocument("package1", "database1", document1);
+
+        // Insert package2 document
+        GenericDocument document2 = new GenericDocument.Builder<>("uri", "schema2")
+                .setNamespace("namespace").build();
+        mAppSearchImpl.putDocument("package2", "database2", document2);
+
+        // No query filters specified, global query can retrieve all documents.
+        SearchSpec searchSpec =
+                new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
+        SearchResultPage searchResultPage = mAppSearchImpl.globalQuery("", searchSpec);
+        assertThat(searchResultPage.getResults()).hasSize(2);
+
+        // Document2 will be first since it got indexed later and has a "better", aka more recent
+        // score.
+        assertThat(searchResultPage.getResults().get(0).getDocument()).isEqualTo(document2);
+        assertThat(searchResultPage.getResults().get(1).getDocument()).isEqualTo(document1);
+    }
+
+    /**
+     * TODO(b/169883602): This should be an integration test at the cts-level. This is a
+     * short-term test until we have official support for multiple-apps indexing at once.
+     */
+    @Test
+    public void testGlobalQueryWithMultiplePackages_withPackageFilters() throws Exception {
+        // Insert package1 schema
+        List<AppSearchSchema> schema1 =
+                ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
+        mAppSearchImpl.setSchema("package1", "database1", schema1,
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false);
+
+        // Insert package2 schema
+        List<AppSearchSchema> schema2 =
+                ImmutableList.of(new AppSearchSchema.Builder("schema2").build());
+        mAppSearchImpl.setSchema("package2", "database2", schema2,
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false);
+
+        // Insert package1 document
+        GenericDocument document1 = new GenericDocument.Builder<>("uri", "schema1")
+                .setNamespace("namespace").build();
+        mAppSearchImpl.putDocument("package1", "database1", document1);
+
+        // Insert package2 document
+        GenericDocument document2 = new GenericDocument.Builder<>("uri", "schema2")
+                .setNamespace("namespace").build();
+        mAppSearchImpl.putDocument("package2", "database2", document2);
+
+        // "package1" filter specified
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                        .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
+                        .addFilterPackageNames("package1")
+                        .build();
+        SearchResultPage searchResultPage = mAppSearchImpl.globalQuery("", searchSpec);
+        assertThat(searchResultPage.getResults()).hasSize(1);
+        assertThat(searchResultPage.getResults().get(0).getDocument()).isEqualTo(document1);
+
+        // "package2" filter specified
+        searchSpec = new SearchSpec.Builder()
+                .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
+                .addFilterPackageNames("package2")
+                .build();
+        searchResultPage = mAppSearchImpl.globalQuery("", searchSpec);
+        assertThat(searchResultPage.getResults()).hasSize(1);
+        assertThat(searchResultPage.getResults().get(0).getDocument()).isEqualTo(document2);
     }
 
     @Test
