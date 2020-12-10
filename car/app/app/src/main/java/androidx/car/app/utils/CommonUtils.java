@@ -28,7 +28,7 @@ import androidx.annotation.RestrictTo;
 @RestrictTo(LIBRARY)
 public final class CommonUtils {
     /** Tag to use for logging in the library. */
-    public static final String TAG = "car.app";
+    public static final String TAG = "CarApp";
 
     private CommonUtils() {
     }
