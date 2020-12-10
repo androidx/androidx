@@ -321,7 +321,7 @@ public final class CameraUtil {
             try {
                 cameraUseCaseAdapter.addUseCases(Arrays.asList(useCases));
             } catch (CameraUseCaseAdapter.CameraException e) {
-                throw new IllegalArgumentException("Unable to attach use cases to camera.");
+                throw new IllegalArgumentException("Unable to attach use cases to camera.", e);
             }
         });
 
