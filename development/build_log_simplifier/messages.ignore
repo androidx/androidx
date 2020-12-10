@@ -400,6 +400,8 @@ w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-s
 Html results of .* zipped into.*\.zip
 # > Task :annotation:annotation-experimental-lint:test
 WARNING: An illegal reflective access operation has occurred
+WARNING\: Illegal reflective access by org\.jetbrains\.kotlin\.com\.intellij\.util\.ReflectionUtil \(file\:\$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-compiler\-embeddable\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-compiler\-embeddable\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
+WARNING\: Please consider reporting this to the maintainers of org\.jetbrains\.kotlin\.com\.intellij\.util\.ReflectionUtil
 WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-compiler/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-compiler\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion\$isFromCompiledClass\$[0-9]+ \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\.jar\) to field com\.sun\.tools\.javac\.code\.Symbol\.owner
 WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-compiler/[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+/kotlin\-compiler\-[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
