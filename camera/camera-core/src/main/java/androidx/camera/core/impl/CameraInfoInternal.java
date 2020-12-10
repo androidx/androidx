@@ -62,4 +62,8 @@ public interface CameraInfoInternal extends CameraInfo {
      * {@link #addSessionCaptureCallback(Executor, CameraCaptureCallback)}.
      */
     void removeSessionCaptureCallback(@NonNull CameraCaptureCallback callback);
+
+    /** Returns a list of quirks related to the camera. */
+    @NonNull
+    Quirks getCameraQuirks();
 }
