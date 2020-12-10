@@ -19,8 +19,6 @@ package androidx.room;
 import androidx.annotation.NonNull;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.concurrent.Executor;
 
 /**
@@ -45,7 +43,7 @@ final class QueryInterceptorOpenHelperFactory implements SupportSQLiteOpenHelper
     @NonNull
     @Override
     public SupportSQLiteOpenHelper create(
-            @NonNull @NotNull SupportSQLiteOpenHelper.Configuration configuration) {
+            @NonNull SupportSQLiteOpenHelper.Configuration configuration) {
         return new QueryInterceptorOpenHelper(mDelegate.create(configuration), mQueryCallback,
                 mQueryCallbackExecutor);
     }
