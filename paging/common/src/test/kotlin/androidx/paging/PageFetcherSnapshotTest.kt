@@ -3342,15 +3342,6 @@ class PageFetcherSnapshotTest {
         assertFalse { initialHint.shouldPrioritizeOver(accessHint, APPEND) }
     }
 
-    @OptIn(ExperimentalPagingApi::class)
-    private suspend fun <Key : Any, Value : Any> createRemoteMediatorAccessor(
-        delegate: RemoteMediator<Key, Value>
-    ): RemoteMediatorAccessor<Key, Value> {
-        return RemoteMediatorAccessor(testScope, delegate).also {
-            it.initialize()
-        }
-    }
-
     internal class CollectedPageEvents<T : Any>(val pageEvents: ArrayList<PageEvent<T>>) {
         var lastIndex = 0
         fun newEvents(): List<PageEvent<T>> = when {
