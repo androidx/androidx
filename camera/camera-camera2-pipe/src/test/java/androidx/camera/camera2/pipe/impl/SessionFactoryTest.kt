@@ -105,7 +105,7 @@ class SessionFactoryTest {
             virtualSessionState = VirtualSessionState(
                 FakeGraphProcessor(),
                 sessionFactory,
-                FakeRequestProcessor(),
+                FakeRequestProcessor(GraphState3A()),
                 this
             )
         )

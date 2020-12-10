@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.getParameter
+import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
@@ -172,7 +173,12 @@ class XElementTest {
             }
             validateElement(
                 element = it.processingEnv.requireTypeElement("foo.bar.Base"),
-                tTypeName = TypeVariableName.get("T"),
+                tTypeName = if (it.isKsp) {
+                    // when inheritance resolution happens, KSP resolves them to object
+                    TypeName.OBJECT
+                } else {
+                    TypeVariableName.get("T")
+                },
                 rTypeName = TypeVariableName.get("R")
             )
             validateElement(
@@ -344,7 +350,8 @@ class XElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(
+        // enable once https://github.com/google/ksp/issues/167 is fixed
+        runProcessorTestWithoutKsp(
             sources = listOf(source)
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
@@ -365,9 +372,14 @@ class XElementTest {
 
     @Test
     fun toStringMatchesUnderlyingElement() {
-        runProcessorTest {
-            it.processingEnv.findTypeElement("java.util.List").let { list ->
-                assertThat(list.toString()).isEqualTo("java.util.List")
+        runProcessorTest { invocation ->
+            invocation.processingEnv.findTypeElement("java.util.List").let { list ->
+                val expected = if (invocation.isKsp) {
+                    "MutableList"
+                } else {
+                    "java.util.List"
+                }
+                assertThat(list.toString()).isEqualTo(expected)
             }
         }
     }

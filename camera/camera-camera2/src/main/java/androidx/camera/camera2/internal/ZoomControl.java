@@ -98,7 +98,15 @@ final class ZoomControl {
         camera2CameraControlImpl.addCaptureResultListener(mCaptureResultListener);
     }
 
-    private ZoomImpl createZoomImpl(@NonNull CameraCharacteristicsCompat cameraCharacteristics) {
+    static ZoomState getDefaultZoomState(CameraCharacteristicsCompat cameraCharacteristics) {
+        ZoomImpl zoomImpl = createZoomImpl(cameraCharacteristics);
+        ZoomStateImpl zoomState = new ZoomStateImpl(zoomImpl.getMaxZoom(), zoomImpl.getMinZoom());
+        zoomState.setZoomRatio(DEFAULT_ZOOM_RATIO);
+        return ImmutableZoomState.create(zoomState);
+    }
+
+    private static ZoomImpl createZoomImpl(
+            @NonNull CameraCharacteristicsCompat cameraCharacteristics) {
         if (isAndroidRZoomSupported(cameraCharacteristics)) {
             return new AndroidRZoomImpl(cameraCharacteristics);
         } else {
@@ -106,7 +114,8 @@ final class ZoomControl {
         }
     }
 
-    private boolean isAndroidRZoomSupported(CameraCharacteristicsCompat cameraCharacteristics) {
+    private static boolean isAndroidRZoomSupported(
+            CameraCharacteristicsCompat cameraCharacteristics) {
         return Build.VERSION.SDK_INT >= 30 && cameraCharacteristics.get(
                 CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE) != null;
     }

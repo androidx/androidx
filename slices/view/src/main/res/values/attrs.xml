@@ -35,6 +35,9 @@
          a tint color here will override the app supplied color. -->
         <attr name="tintColor" />
 
+        <!-- The corner radius to be applied to each corner of large images. -->
+        <attr name="imageCornerRadius" format="dimension" />
+
         <!-- Text size to use for title text in the header of the slice. -->
         <attr name="headerTitleSize" format="dimension" />
         <!-- Text size to use for subtitle text in the header of the slice. -->

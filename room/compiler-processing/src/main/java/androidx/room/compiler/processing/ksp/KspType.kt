@@ -156,4 +156,27 @@ internal abstract class KspType(
     override fun isEnum(): Boolean {
         return (ksType.declaration as? KSClassDeclaration)?.classKind == ClassKind.ENUM_CLASS
     }
+
+    abstract override fun boxed(): KspType
+
+    /**
+     * Create a copy of this type with the given nullability.
+     * This method is not called if the nullability of the type is already equal to the given
+     * nullability.
+     */
+    protected abstract fun copyWithNullability(nullability: XNullability): KspType
+
+    final override fun makeNullable(): KspType {
+        if (nullability == XNullability.NULLABLE) {
+            return this
+        }
+        return copyWithNullability(XNullability.NULLABLE)
+    }
+
+    final override fun makeNonNullable(): KspType {
+        if (nullability == XNullability.NONNULL) {
+            return this
+        }
+        return copyWithNullability(XNullability.NONNULL)
+    }
 }

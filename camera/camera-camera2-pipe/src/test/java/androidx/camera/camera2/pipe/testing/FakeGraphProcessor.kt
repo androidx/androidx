@@ -93,5 +93,6 @@ class FakeGraphProcessor : GraphProcessor {
     }
 
     override fun invalidate() {
+        processor!!.setRepeating(repeatingRequest!!, mapOf(), false)
     }
 }

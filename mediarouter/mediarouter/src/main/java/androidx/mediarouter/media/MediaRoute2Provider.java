@@ -40,6 +40,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -53,10 +54,9 @@ import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 /**
  * Provides non-system routes (and related RouteControllers) by using MediaRouter2.
@@ -154,9 +154,18 @@ class MediaRoute2Provider extends MediaRouteProvider {
 
     protected void refreshRoutes() {
         // Syetem routes should not be published by this provider.
-        List<MediaRoute2Info> newRoutes = mMediaRouter2.getRoutes().stream().distinct()
-                .filter(r -> !r.isSystemRoute())
-                .collect(Collectors.toList());
+        List<MediaRoute2Info> newRoutes = new ArrayList<>();
+        Set<MediaRoute2Info> route2InfoSet = new ArraySet<>();
+        for (MediaRoute2Info route : mMediaRouter2.getRoutes()) {
+            // A route should be unique
+            if (route == null || route2InfoSet.contains(route) || route.isSystemRoute()) {
+                continue;
+            }
+            route2InfoSet.add(route);
+
+            // Not using new ArrayList(route2InfoSet) here for preserving the order.
+            newRoutes.add(route);
+        }
 
         if (newRoutes.equals(mRoutes)) {
             return;
@@ -175,10 +184,13 @@ class MediaRoute2Provider extends MediaRouteProvider {
                     extras.getString(MediaRouter2Utils.KEY_ORIGINAL_ROUTE_ID));
         }
 
-        List<MediaRouteDescriptor> routeDescriptors = mRoutes.stream()
-                .map(MediaRouter2Utils::toMediaRouteDescriptor)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        List<MediaRouteDescriptor> routeDescriptors = new ArrayList<>();
+        for (MediaRoute2Info route : mRoutes) {
+            MediaRouteDescriptor descriptor = MediaRouter2Utils.toMediaRouteDescriptor(route);
+            if (route != null) {
+                routeDescriptors.add(descriptor);
+            }
+        }
         MediaRouteProviderDescriptor descriptor = new MediaRouteProviderDescriptor.Builder()
                 .setSupportsDynamicGroupRoute(true)
                 .addRoutes(routeDescriptors)

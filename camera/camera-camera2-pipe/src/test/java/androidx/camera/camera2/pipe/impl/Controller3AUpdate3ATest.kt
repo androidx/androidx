@@ -24,12 +24,15 @@ import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.FrameNumber
+import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Status3A
+import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
+import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,11 +48,14 @@ import org.robolectric.annotation.Config
 class Controller3AUpdate3ATest {
     private val graphProcessor = FakeGraphProcessor()
     private val graphState3A = GraphState3A()
+    private val requestProcessor = FakeRequestProcessor(graphState3A)
     private val listener3A = Listener3A()
     private val controller3A = Controller3A(graphProcessor, graphState3A, listener3A)
 
     @Test
     fun testUpdate3AUpdatesState3A() {
+        initGraphProcessor()
+
         val result = controller3A.update3A(afMode = AfMode.OFF)
         assertThat(graphState3A.readState()[CaptureRequest.CONTROL_AF_MODE]).isEqualTo(
             CaptureRequest.CONTROL_AE_MODE_OFF
@@ -60,6 +66,8 @@ class Controller3AUpdate3ATest {
     @ExperimentalCoroutinesApi
     @Test
     fun testUpdate3ACancelsPreviousInProgressUpdate() {
+        initGraphProcessor()
+
         val result = controller3A.update3A(afMode = AfMode.OFF)
         // Invoking update3A before the previous one is complete will cancel the result of the
         // previous call.
@@ -69,6 +77,8 @@ class Controller3AUpdate3ATest {
 
     @Test
     fun testAfModeUpdate(): Unit = runBlocking {
+        initGraphProcessor()
+
         val result = controller3A.update3A(afMode = AfMode.OFF)
         GlobalScope.launch {
             listener3A.onRequestSequenceCreated(
@@ -94,6 +104,8 @@ class Controller3AUpdate3ATest {
 
     @Test
     fun testAeModeUpdate(): Unit = runBlocking {
+        initGraphProcessor()
+
         val result = controller3A.update3A(aeMode = AeMode.ON_ALWAYS_FLASH)
         GlobalScope.launch {
             listener3A.onRequestSequenceCreated(
@@ -120,6 +132,8 @@ class Controller3AUpdate3ATest {
 
     @Test
     fun testAwbModeUpdate(): Unit = runBlocking {
+        initGraphProcessor()
+
         val result = controller3A.update3A(awbMode = AwbMode.CLOUDY_DAYLIGHT)
         GlobalScope.launch {
             listener3A.onRequestSequenceCreated(
@@ -146,6 +160,8 @@ class Controller3AUpdate3ATest {
 
     @Test
     fun testAfRegionsUpdate(): Unit = runBlocking {
+        initGraphProcessor()
+
         val result = controller3A.update3A(afRegions = listOf(MeteringRectangle(1, 1, 100, 100, 2)))
         GlobalScope.launch {
             listener3A.onRequestSequenceCreated(
@@ -172,6 +188,8 @@ class Controller3AUpdate3ATest {
 
     @Test
     fun testAeRegionsUpdate(): Unit = runBlocking {
+        initGraphProcessor()
+
         val result = controller3A.update3A(aeRegions = listOf(MeteringRectangle(1, 1, 100, 100, 2)))
         GlobalScope.launch {
             listener3A.onRequestSequenceCreated(
@@ -198,6 +216,8 @@ class Controller3AUpdate3ATest {
 
     @Test
     fun testAwbRegionsUpdate(): Unit = runBlocking {
+        initGraphProcessor()
+
         val result = controller3A.update3A(
             awbRegions = listOf(
                 MeteringRectangle(1, 1, 100, 100, 2)
@@ -224,5 +244,10 @@ class Controller3AUpdate3ATest {
         val result3A = result.await()
         assertThat(result3A.frameNumber.value).isEqualTo(101L)
         assertThat(result3A.status).isEqualTo(Status3A.OK)
+    }
+
+    private fun initGraphProcessor() {
+        graphProcessor.attach(requestProcessor)
+        graphProcessor.setRepeating(Request(streams = listOf(StreamId(1))))
     }
 }

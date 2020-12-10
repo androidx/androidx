@@ -16,9 +16,9 @@
 
 package androidx.wear.watchface.style
 
-import android.graphics.RectF
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
+import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
@@ -32,10 +32,12 @@ import androidx.wear.watchface.style.data.UserStyleSettingWireFormat
 import java.security.InvalidParameterException
 
 /**
- * Watch faces often have user configurable styles. The definition of what is a style is left up
- * to the watch face but it typically incorporates a variety of settings such as: color,
- * visual theme for watch hands, font, tick shape, complications, audio elements, etc...
- * A UserStyleSetting represents one of these dimensions.
+ * Watch faces often have user configurable styles, the definition of what is a style is left up to
+ * the watch face but it typically incorporates a variety of settings such as: color, visual theme
+ * for watch hands, font, tick shape, complications, audio elements, etc...
+ *
+ * A UserStyleSetting represents one of these dimensions. See also [UserStyleSchema] which defines
+ * the list of UserStyleSettings provided by the watch face.
  */
 public sealed class UserStyleSetting(
     /** Identifier for the element, must be unique. */
@@ -291,10 +293,10 @@ public sealed class UserStyleSetting(
             public val enabled: Boolean? = null,
 
             /**
-             * If non null, the new unit square screen space complication bounds for this
-             * configuration. If null then no changes are made.
+             * If non null, the new [ComplicationBounds] for this configuration. If null then no
+             * changes are made.
              */
-            public val bounds: RectF? = null,
+            public val complicationBounds: ComplicationBounds? = null,
 
             /**
              * If non null, the new types of complication supported by this complication for this
@@ -319,7 +321,7 @@ public sealed class UserStyleSetting(
                 private val complicationId: Int
             ) {
                 private var enabled: Boolean? = null
-                private var bounds: RectF? = null
+                private var complicationBounds: ComplicationBounds? = null
                 private var supportedTypes: List<ComplicationType>? = null
                 private var defaultComplicationProviderPolicy: DefaultComplicationProviderPolicy? =
                     null
@@ -330,10 +332,11 @@ public sealed class UserStyleSetting(
                     this.enabled = enabled
                 }
 
-                /** Overrides the complication's unit-square screen space bounds. */
-                public fun setBounds(bounds: RectF): Builder = apply {
-                    this.bounds = bounds
-                }
+                /** Overrides the complication's per [ComplicationBounds]. */
+                public fun setComplicationBounds(complicationBounds: ComplicationBounds): Builder =
+                    apply {
+                        this.complicationBounds = complicationBounds
+                    }
 
                 /** Overrides the complication's supported complication types. */
                 public fun setSupportedTypes(supportedTypes: List<ComplicationType>): Builder =
@@ -357,14 +360,15 @@ public sealed class UserStyleSetting(
                     this.defaultComplicationProviderType = defaultComplicationProviderType
                 }
 
-                public fun build(): ComplicationOverlay = ComplicationOverlay(
-                    complicationId,
-                    enabled,
-                    bounds,
-                    supportedTypes,
-                    defaultComplicationProviderPolicy,
-                    defaultComplicationProviderType
-                )
+                public fun build(): ComplicationOverlay =
+                    ComplicationOverlay(
+                        complicationId,
+                        enabled,
+                        complicationBounds,
+                        supportedTypes,
+                        defaultComplicationProviderPolicy,
+                        defaultComplicationProviderType
+                    )
             }
 
             internal constructor(
@@ -382,7 +386,7 @@ public sealed class UserStyleSetting(
                         "Unrecognised wireFormat.mEnabled " + wireFormat.mEnabled
                     )
                 },
-                wireFormat.mBounds,
+                wireFormat.mPerComplicationTypeBounds?.let { ComplicationBounds(it) },
                 wireFormat.mSupportedTypes?.let { ComplicationType.fromWireTypeList(it) },
                 wireFormat.mDefaultProviders?.let {
                     DefaultComplicationProviderPolicy(it, wireFormat.mSystemProviderFallback)
@@ -401,7 +405,7 @@ public sealed class UserStyleSetting(
                 ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat(
                     complicationId,
                     enabled,
-                    bounds,
+                    complicationBounds?.perComplicationTypeBounds,
                     supportedTypes?.let { ComplicationType.toWireTypes(it) },
                     defaultProviderPolicy?.providersAsList(),
                     defaultProviderPolicy?.systemProviderFallback,

@@ -18,21 +18,28 @@ package androidx.benchmark.macro
 
 import android.content.Intent
 import android.util.Log
+import androidx.benchmark.BenchmarkResult
 import androidx.benchmark.InstrumentationResults
-import androidx.benchmark.Stats
+import androidx.benchmark.MetricResult
+import androidx.benchmark.ResultWriter
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
-import java.util.Collections
-import kotlin.math.max
 
 /**
  * Provides access to common operations in app automation, such as killing the app,
  * or navigating home.
  */
 public class MacrobenchmarkScope(
-    private val packageName: String
+    private val packageName: String,
+    /**
+     * Controls whether launches will automatically set [Intent.FLAG_ACTIVITY_CLEAR_TASK].
+     *
+     * Default to true, so Activity launches go through full creation lifecycle stages, instead of
+     * just resume.
+     */
+    private val launchWithClearTask: Boolean
 ) {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context = instrumentation.context
@@ -40,14 +47,9 @@ public class MacrobenchmarkScope(
 
     /**
      * Launch the package, with a customizable intent.
-     *
-     * If [block] is not specified, launches with [Intent.FLAG_ACTIVITY_NEW_TASK] as well as
-     * [Intent.FLAG_ACTIVITY_CLEAR_TASK]
      */
     fun launchPackageAndWait(
-        block: (Intent) -> Unit = {
-            it.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
+        block: (Intent) -> Unit = {}
     ) {
         val intent = context.packageManager.getLaunchIntentForPackage(packageName)
             ?: throw IllegalStateException("Unable to acquire intent for package $packageName")
@@ -57,6 +59,11 @@ public class MacrobenchmarkScope(
     }
 
     fun launchIntentAndWait(intent: Intent) {
+        // Must launch with new task, as we're not launching from an existing task
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        if (launchWithClearTask) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        }
         context.startActivity(intent)
         device.wait(
             Until.hasObject(By.pkg(packageName).depth(0)),
@@ -79,7 +86,6 @@ data class MacrobenchmarkConfig(
     val packageName: String,
     val metrics: List<Metric>,
     val compilationMode: CompilationMode = CompilationMode.SpeedProfile(),
-    val killProcessEachIteration: Boolean = false,
     val iterations: Int
 )
 
@@ -89,18 +95,22 @@ data class MacrobenchmarkConfig(
  * This function is a building block for public testing APIs
  */
 fun macrobenchmark(
-    benchmarkName: String,
+    uniqueName: String,
+    className: String,
+    testName: String,
     config: MacrobenchmarkConfig,
-    setupBlock: MacrobenchmarkScope.() -> Unit = {},
+    launchWithClearTask: Boolean,
+    setupBlock: MacrobenchmarkScope.(Boolean) -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
 ) = withPermissiveSeLinuxPolicy {
-    val scope = MacrobenchmarkScope(config.packageName)
+    val startTime = System.nanoTime()
+    val scope = MacrobenchmarkScope(config.packageName, launchWithClearTask)
 
     // always kill the process at beginning of test
     scope.killProcess()
 
     config.compilationMode.compile(config.packageName) {
-        setupBlock(scope)
+        setupBlock(scope, false)
         measureBlock(scope)
     }
 
@@ -111,12 +121,10 @@ fun macrobenchmark(
         config.metrics.forEach {
             it.configure(config)
         }
-        val results = List(config.iterations) { iteration ->
-            if (config.killProcessEachIteration) {
-                // TODO: remove this flag, make this part of setupBlock
-                scope.killProcess()
-            }
-            setupBlock(scope)
+        var isFirstRun = true
+        val metricResults = List(config.iterations) { iteration ->
+            setupBlock(scope, isFirstRun)
+            isFirstRun = false
             try {
                 perfettoCollector.start()
                 config.metrics.forEach {
@@ -127,8 +135,7 @@ fun macrobenchmark(
                 config.metrics.forEach {
                     it.stop()
                 }
-                val iterString = iteration.toString().padStart(3, '0')
-                perfettoCollector.stop("${benchmarkName}_iter$iterString.trace")
+                perfettoCollector.stop(uniqueName, iteration)
             }
 
             config.metrics
@@ -136,66 +143,106 @@ fun macrobenchmark(
                 .map { it.getMetrics(config.packageName) }
                 // merge into one map
                 .reduce { sum, element -> sum + element }
-        }
-
-        // merge each independent Map<String,Long> to one Map<String,List<Long>>
-        val setOfAllKeys = results.flatMap { it.keys }.toSet()
-        val listResults = setOfAllKeys.map { key ->
-            // b/174175947
-            key to results.mapNotNull {
-                if (key !in it) {
-                    Log.w(TAG, "Value $key missing from one iteration {$it}")
-                }
-                it[key]
-            }
-        }.toMap()
-        val statsList = listResults.map { (metricName, values) ->
-            Stats(values.toLongArray(), metricName)
-        }.sortedBy { it.name }
+        }.mergeToMetricResults()
 
         InstrumentationResults.instrumentationReport {
-            ideSummaryRecord(ideSummaryString(benchmarkName, statsList))
+            val statsList = metricResults.map { it.stats }
+            ideSummaryRecord(ideSummaryString(uniqueName, statsList))
             statsList.forEach { it.putInBundle(bundle, "") }
         }
+
+        val warmupIterations = if (config.compilationMode is CompilationMode.SpeedProfile) {
+            config.compilationMode.warmupIterations
+        } else {
+            0
+        }
+
+        ResultWriter.appendReport(
+            BenchmarkResult(
+                className = className,
+                testName = testName,
+                totalRunTimeNs = System.nanoTime() - startTime,
+                metrics = metricResults,
+                repeatIterations = config.iterations,
+                thermalThrottleSleepSeconds = 0,
+                warmupIterations = warmupIterations
+            )
+        )
     } finally {
         scope.killProcess()
     }
 }
 
-fun ideSummaryString(benchmarkName: String, statsList: List<Stats>): String {
-    val maxLabelLength = Collections.max(statsList.map { it.name.length })
-
-    // max string length of any printed min/median/max is the largest max value seen. used to pad.
-    val maxValueLength = statsList
-        .map { it.max }
-        .reduce { acc, maxValue -> max(acc, maxValue) }
-        .toString().length
-
-    return "$benchmarkName\n" + statsList.joinToString("\n") {
-        val displayName = it.name.padStart(maxLabelLength)
-        val displayMin = it.min.toString().padStart(maxValueLength)
-        val displayMedian = it.median.toString().padStart(maxValueLength)
-        val displayMax = it.max.toString().padStart(maxValueLength)
-        "  $displayName   min $displayMin,   median $displayMedian,   max $displayMax"
-    } + "\n"
+/**
+ * Merge the Map<String, Long> results from each iteration into one Map<MetricResult>
+ */
+private fun List<Map<String, Long>>.mergeToMetricResults(): List<MetricResult> {
+    val setOfAllKeys = flatMap { it.keys }.toSet()
+    val listResults = setOfAllKeys.map { key ->
+        // b/174175947
+        key to mapNotNull {
+            if (key !in it) {
+                Log.w(TAG, "Value $key missing from one iteration {$it}")
+            }
+            it[key]
+        }
+    }.toMap()
+    return listResults.map { (metricName, values) ->
+        MetricResult(metricName, values.toLongArray())
+    }.sortedBy { it.stats.name }
 }
 
-internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
-    val instrumentation = InstrumentationRegistry.getInstrumentation()
-    // Clear profile between runs.
-    clearProfile(instrumentation, packageName)
-    if (this == CompilationMode.None) {
-        return // nothing to do
-    }
-    if (this is CompilationMode.SpeedProfile) {
-        repeat(this.warmupIterations) {
-            block()
-        }
-    }
-    // TODO: merge in below method
-    compilationFilter(
-        InstrumentationRegistry.getInstrumentation(),
-        packageName,
-        compileArgument()
+enum class StartupMode {
+    /**
+     * Startup from scratch - app's process is not alive, and must be started in addition to
+     * Activity creation.
+     *
+     * See
+     * [Cold startup documentation](https://developer.android.com/topic/performance/vitals/launch-time#cold)
+     */
+    COLD,
+
+    /**
+     * Create and display a new Activity in a currently running app process.
+     *
+     * See
+     * [Warm startup documentation](https://developer.android.com/topic/performance/vitals/launch-time#warm)
+     */
+    WARM,
+
+    /**
+     * Bring existing activity to the foreground, process and Activity still exist from previous
+     * launch.
+     *
+     * See
+     * [Hot startup documentation](https://developer.android.com/topic/performance/vitals/launch-time#hot)
+     */
+    HOT
+}
+
+fun startupMacrobenchmark(
+    uniqueName: String,
+    className: String,
+    testName: String,
+    config: MacrobenchmarkConfig,
+    startupMode: StartupMode,
+    performStartup: MacrobenchmarkScope.() -> Unit
+) {
+    macrobenchmark(
+        uniqueName = uniqueName,
+        className = className,
+        testName = testName,
+        config = config,
+        setupBlock = { firstIterAfterCompile ->
+            if (startupMode == StartupMode.COLD) {
+                killProcess()
+            } else if (firstIterAfterCompile) {
+                // warmup process by launching the activity, unmeasured
+                performStartup()
+            }
+        },
+        // only reuse existing activity if StartupMode == HOT
+        launchWithClearTask = startupMode != StartupMode.HOT,
+        measureBlock = performStartup
     )
 }

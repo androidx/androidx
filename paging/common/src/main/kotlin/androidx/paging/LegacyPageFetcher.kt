@@ -119,7 +119,6 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
             key,
             config.pageSize,
             config.enablePlaceholders,
-            config.pageSize
         )
         scheduleLoad(LoadType.PREPEND, loadParams)
     }
@@ -136,7 +135,6 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
             key,
             config.pageSize,
             config.enablePlaceholders,
-            config.pageSize
         )
         scheduleLoad(LoadType.APPEND, loadParams)
     }

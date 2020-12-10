@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // TODO(b/173739071) Remove DeviceState
+
 package androidx.window.sample.backend
 
 import android.app.Activity
@@ -22,7 +24,7 @@ import android.graphics.Rect
 import androidx.core.util.Consumer
 import androidx.window.DeviceState
 import androidx.window.DisplayFeature
-import androidx.window.DisplayFeature.TYPE_FOLD
+import androidx.window.FoldingFeature
 import androidx.window.WindowBackend
 import androidx.window.WindowLayoutInfo
 import java.util.concurrent.Executor
@@ -53,18 +55,16 @@ class MidScreenFoldBackend(private val foldAxis: FoldAxis) : WindowBackend {
         SHORT_DIMENSION
     }
 
-    private fun getDeviceState(): DeviceState {
-        return DeviceState.Builder().setPosture(DeviceState.POSTURE_OPENED).build()
-    }
-
     private fun getWindowLayoutInfo(activity: Activity): WindowLayoutInfo {
         val windowSize = activity.calculateWindowSizeExt()
         val featureRect = foldRect(windowSize)
 
-        val displayFeature = DisplayFeature.Builder()
-            .setBounds(featureRect)
-            .setType(TYPE_FOLD)
-            .build()
+        val displayFeature =
+            FoldingFeature(
+                featureRect,
+                FoldingFeature.TYPE_FOLD,
+                FoldingFeature.STATE_FLAT
+            )
         val featureList = ArrayList<DisplayFeature>()
         featureList.add(displayFeature)
         return WindowLayoutInfo.Builder().setDisplayFeatures(featureList).build()
@@ -96,9 +96,7 @@ class MidScreenFoldBackend(private val foldAxis: FoldAxis) : WindowBackend {
     override fun registerDeviceStateChangeCallback(
         executor: Executor,
         callback: Consumer<DeviceState>
-    ) {
-        executor.execute { callback.accept(getDeviceState()) }
-    }
+    ) {}
 
     override fun unregisterDeviceStateChangeCallback(callback: Consumer<DeviceState>) {
     }

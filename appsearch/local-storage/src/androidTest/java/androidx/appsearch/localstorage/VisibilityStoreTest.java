@@ -18,13 +18,14 @@ package androidx.appsearch.localstorage;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.collect.ImmutableSet;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.util.Collections;
-import java.util.Set;
 
 public class VisibilityStoreTest {
 
@@ -41,20 +42,28 @@ public class VisibilityStoreTest {
 
     @Test
     public void testSetVisibility() throws Exception {
-        mVisibilityStore.setVisibility(
-                "database", /*schemasNotPlatformSurfaceable=*/ Set.of("schema1", "schema2"));
+        mVisibilityStore.setVisibility("database",
+                /*schemasNotPlatformSurfaceable=*/ ImmutableSet.of("schema1", "schema2"));
         assertThat(mVisibilityStore.getSchemasNotPlatformSurfaceable("database"))
-                .containsExactly("schema1", "schema2");
+                .containsExactlyElementsIn(ImmutableSet.of("schema1", "schema2"));
 
         // New .setVisibility() call completely overrides previous visibility settings. So
-        // "schema1" isn't preserved.
-        mVisibilityStore.setVisibility(
-                "database", /*schemasNotPlatformSurfaceable=*/ Set.of("schema1", "schema3"));
+        // "schema2" isn't preserved.
+        mVisibilityStore.setVisibility("database",
+                /*schemasNotPlatformSurfaceable=*/ ImmutableSet.of("schema1", "schema3"));
         assertThat(mVisibilityStore.getSchemasNotPlatformSurfaceable("database"))
-                .containsExactly("schema1", "schema3");
+                .containsExactlyElementsIn(ImmutableSet.of("schema1", "schema3"));
 
         mVisibilityStore.setVisibility(
                 "database", /*schemasNotPlatformSurfaceable=*/ Collections.emptySet());
         assertThat(mVisibilityStore.getSchemasNotPlatformSurfaceable("database")).isEmpty();
+    }
+
+    @Test
+    public void testEmptyDatabase() throws Exception {
+        mVisibilityStore.setVisibility(LocalStorage.DEFAULT_DATABASE_NAME,
+                /*schemasNotPlatformSurfaceable=*/ ImmutableSet.of("schema1", "schema2"));
+        assertThat(mVisibilityStore.getSchemasNotPlatformSurfaceable(""))
+                .containsExactlyElementsIn(ImmutableSet.of("schema1", "schema2"));
     }
 }

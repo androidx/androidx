@@ -23,6 +23,7 @@ import android.content.Context;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSession;
@@ -41,12 +42,22 @@ import java.util.concurrent.Executors;
  * An AppSearch storage system which stores data locally in the app's storage space using a bundled
  * version of the search native library.
  *
+ * <p>The search native library is an on-device searching library that allows apps to define
+ * {@link androidx.appsearch.app.AppSearchSchema}s, save and query a variety of
+ * {@link androidx.appsearch.annotation.AppSearchDocument}s. The library needs to be initialized
+ * before using, which will create a folder to save data in the app's storage space.
+ *
  * <p>Queries are executed multi-threaded, but a single thread is used for mutate requests (put,
  * delete, etc..).
  */
 public class LocalStorage {
-    /** The default empty database name.*/
-    private static final String DEFAULT_DATABASE_NAME = "";
+    /**
+     * The default empty database name.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @VisibleForTesting
+    public static final String DEFAULT_DATABASE_NAME = "";
 
     private static volatile ListenableFuture<AppSearchResult<LocalStorage>> sInstance;
 
@@ -82,7 +93,9 @@ public class LocalStorage {
             }
 
             /**
-             * Sets the name of the database to create or open.
+             * Sets the name of the database associated with {@link AppSearchSession}.
+             *
+             * <p>{@link AppSearchSession} will create or open a database under the given name.
              *
              * <p>Databases with different names are fully separate with distinct types, namespaces,
              * and data.
@@ -160,8 +173,11 @@ public class LocalStorage {
     /**
      * Opens a new {@link AppSearchSession} on this storage.
      *
-     * <p>If the system is not initialized, it will be initialized using the provided
-     * {@code context}.
+     * <p>This process requires a native search library. If it's not created, the initialization
+     * process will create one.
+     *
+     * @param context The {@link SearchContext} contains all information to create a new
+     *                {@link AppSearchSession}
      */
     @NonNull
     public static ListenableFuture<AppSearchResult<AppSearchSession>> createSearchSession(
@@ -182,8 +198,11 @@ public class LocalStorage {
     /**
      * Opens a new {@link GlobalSearchSession} on this storage.
      *
-     * <p>If the system is not initialized, it will be initialized using the provided
-     * {@code context}.
+     * <p>This process requires a native search library. If it's not created, the initialization
+     * process will create one.
+     *
+     * @param context The {@link GlobalSearchContext} contains all information to create a new
+     *                {@link GlobalSearchSession}
      * @hide
      */
     @NonNull

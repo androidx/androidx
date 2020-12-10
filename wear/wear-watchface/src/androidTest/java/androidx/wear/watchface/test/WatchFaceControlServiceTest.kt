@@ -19,6 +19,7 @@ package androidx.wear.watchface.test
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -88,7 +89,8 @@ class WatchFaceControlServiceTest {
                     RenderParameters(
                         DrawMode.INTERACTIVE,
                         RenderParameters.DRAW_ALL_LAYERS,
-                        null
+                        null,
+                        Color.RED
                     ).toWireFormat(),
                     100,
                     1234567890,
@@ -128,7 +130,8 @@ class WatchFaceControlServiceTest {
                     RenderParameters(
                         DrawMode.AMBIENT,
                         RenderParameters.DRAW_ALL_LAYERS,
-                        null
+                        null,
+                        Color.RED
                     ).toWireFormat(),
                     100,
                     123456789,

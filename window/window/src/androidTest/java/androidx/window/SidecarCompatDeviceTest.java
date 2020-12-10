@@ -17,12 +17,15 @@
 package androidx.window;
 
 import static androidx.window.ExtensionInterfaceCompat.ExtensionCallbackInterface;
+import static androidx.window.SidecarAdapter.getSidecarDevicePosture;
+import static androidx.window.SidecarAdapter.getSidecarDisplayFeatures;
 import static androidx.window.Version.VERSION_0_1;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -41,6 +44,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
+
+import java.util.List;
 
 /**
  * Tests for {@link SidecarCompat} implementation of {@link ExtensionInterfaceCompat} that are
@@ -66,8 +71,8 @@ public class SidecarCompatDeviceTest extends WindowTestBase implements CompatDev
         mSidecarCompat.onDeviceStateListenersChanged(false);
 
 
-        verify(callbackInterface).onDeviceStateChanged(argThat(
-                deviceState -> deviceState.getPosture() == sidecarDeviceState.posture));
+        verify(callbackInterface, atLeastOnce()).onDeviceStateChanged(argThat(deviceState ->
+                deviceState.getPosture() == getSidecarDevicePosture(sidecarDeviceState)));
     }
 
     @Test
@@ -83,7 +88,7 @@ public class SidecarCompatDeviceTest extends WindowTestBase implements CompatDev
         SidecarWindowLayoutInfo sidecarWindowLayoutInfo =
                 mSidecarCompat.mSidecar.getWindowLayoutInfo(windowToken);
 
-        verify(callbackInterface).onWindowLayoutChanged(any(),
+        verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(any(),
                 argThat(new SidecarMatcher(sidecarWindowLayoutInfo)));
     }
 
@@ -102,14 +107,16 @@ public class SidecarCompatDeviceTest extends WindowTestBase implements CompatDev
 
         @Override
         public boolean matches(WindowLayoutInfo windowLayoutInfo) {
-            if (windowLayoutInfo.getDisplayFeatures().size()
-                    != mSidecarWindowLayoutInfo.displayFeatures.size()) {
+            List<SidecarDisplayFeature> sidecarDisplayFeatures =
+                    getSidecarDisplayFeatures(mSidecarWindowLayoutInfo);
+            if (windowLayoutInfo.getDisplayFeatures().size() != sidecarDisplayFeatures.size()) {
                 return false;
             }
             for (int i = 0; i < windowLayoutInfo.getDisplayFeatures().size(); i++) {
-                DisplayFeature feature = windowLayoutInfo.getDisplayFeatures().get(i);
-                SidecarDisplayFeature sidecarDisplayFeature =
-                        mSidecarWindowLayoutInfo.displayFeatures.get(i);
+                // Sidecar only has folding features
+                FoldingFeature feature = (FoldingFeature) windowLayoutInfo.getDisplayFeatures()
+                        .get(i);
+                SidecarDisplayFeature sidecarDisplayFeature = sidecarDisplayFeatures.get(i);
 
                 if (feature.getType() != sidecarDisplayFeature.getType()) {
                     return false;

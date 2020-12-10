@@ -88,8 +88,9 @@ public class UserStyleSchema(
 }
 
 /**
- * In memory storage for user style choices which allows listeners to be registered to observe
- * style changes.
+ * An in memory storage for user style choices represented as [UserStyle], listeners can be
+ * registered to observe style changes. The UserStyleRepository is initialized with a
+ * [UserStyleSchema].
  */
 public class UserStyleRepository(
     /**
@@ -98,37 +99,36 @@ public class UserStyleRepository(
      */
     public val schema: UserStyleSchema
 ) {
-    /** A listener for observing user style changes. */
+    /** A listener for observing [UserStyle] changes. */
     public interface UserStyleListener {
-        /** Called whenever the user style changes. */
+        /** Called whenever the [UserStyle] changes. */
         @UiThread
         public fun onUserStyleChanged(userStyle: UserStyle)
     }
 
     private val styleListeners = HashSet<UserStyleListener>()
 
-    // The current style state which is initialized from the userStyleSettings.
-    @SuppressWarnings("SyntheticAccessor")
-    private val _style = UserStyle(
+    /**
+     * The current [UserStyle]. Assigning to this property triggers immediate [UserStyleListener]
+     * callbacks if if any options have changed.
+     */
+    public var userStyle: UserStyle = UserStyle(
         HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
             for (setting in schema.userStyleSettings) {
                 this[setting] = setting.getDefaultOption()
             }
         }
     )
-
-    /** The current user controlled style for rendering etc... */
-    public var userStyle: UserStyle
         @UiThread
-        get() = _style
+        get
         @UiThread
         set(style) {
             var changed = false
             val hashmap =
-                _style.selectedOptions as HashMap<UserStyleSetting, UserStyleSetting.Option>
+                field.selectedOptions as HashMap<UserStyleSetting, UserStyleSetting.Option>
             for ((setting, option) in style.selectedOptions) {
                 // Ignore an unrecognized setting.
-                val styleSetting = _style.selectedOptions[setting] ?: continue
+                val styleSetting = field.selectedOptions[setting] ?: continue
                 if (styleSetting.id != option.id) {
                     changed = true
                 }
@@ -140,7 +140,7 @@ public class UserStyleRepository(
             }
 
             for (styleListener in styleListeners) {
-                styleListener.onUserStyleChanged(_style)
+                styleListener.onUserStyleChanged(field)
             }
         }
 
@@ -151,7 +151,7 @@ public class UserStyleRepository(
     @SuppressLint("ExecutorRegistration")
     public fun addUserStyleListener(userStyleListener: UserStyleListener) {
         styleListeners.add(userStyleListener)
-        userStyleListener.onUserStyleChanged(_style)
+        userStyleListener.onUserStyleChanged(userStyle)
     }
 
     /** Removes a [UserStyleListener] previously added by [addUserStyleListener]. */

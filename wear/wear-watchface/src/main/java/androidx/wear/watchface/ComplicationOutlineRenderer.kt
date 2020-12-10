@@ -17,9 +17,9 @@
 package androidx.wear.watchface
 
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
+import androidx.annotation.ColorInt
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -30,20 +30,24 @@ import kotlin.math.sin
 public class ComplicationOutlineRenderer {
     public companion object {
         // Dashed lines are used for complication selection.
-        internal val DASH_WIDTH = 10.0f
-        internal var DASH_GAP = 2.0f
-        internal var DASH_LENGTH = 5.0f
+        internal const val DASH_WIDTH = 10.0f
+        internal const val DASH_GAP = 2.0f
+        internal const val DASH_LENGTH = 5.0f
 
         internal val dashPaint = Paint().apply {
             strokeWidth = DASH_WIDTH
             style = Paint.Style.FILL_AND_STROKE
             isAntiAlias = true
-            color = Color.RED
         }
 
         /** Draws a thick dotted line around the complication with the given bounds. */
         @JvmStatic
-        public fun drawComplicationSelectOutline(canvas: Canvas, bounds: Rect) {
+        public fun drawComplicationSelectOutline(
+            canvas: Canvas,
+            bounds: Rect,
+            @ColorInt color: Int
+        ) {
+            dashPaint.color = color
             if (bounds.width() == bounds.height()) {
                 drawCircleDashBorder(canvas, bounds)
                 return

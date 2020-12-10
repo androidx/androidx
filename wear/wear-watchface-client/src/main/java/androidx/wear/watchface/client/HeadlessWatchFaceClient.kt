@@ -20,6 +20,7 @@ import android.graphics.Bitmap
 import android.os.IBinder
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.IntRange
+import androidx.annotation.RequiresApi
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IHeadlessWatchFace
@@ -29,7 +30,13 @@ import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 
-/** Controls a stateless remote headless watch face. */
+/**
+ * Controls a stateless remote headless watch face.  This is mostly intended for use by watch face
+ * editor UIs which need to generate screenshots for various styling configurations without
+ * affecting the current watchface.
+ *
+ * Note clients should call [close] when finished.
+ */
 public interface HeadlessWatchFaceClient : AutoCloseable {
     /** The UTC reference preview time for this watch face in milliseconds since the epoch. */
     public val previewReferenceTimeMillis: Long
@@ -63,6 +70,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
      * @return A WebP compressed shared memory backed [Bitmap] containing a screenshot of the watch
      *     face with the given settings.
      */
+    @RequiresApi(27)
     public fun takeWatchFaceScreenshot(
         renderParameters: RenderParameters,
         @IntRange(from = 0, to = 100)
@@ -85,6 +93,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
      * @return A WebP compressed shared memory backed [Bitmap] containing a screenshot of the watch
      *     face with the given settings, or `null` if [complicationId] is unrecognized.
      */
+    @RequiresApi(27)
     public fun takeComplicationScreenshot(
         complicationId: Int,
         renderParameters: RenderParameters,
@@ -117,6 +126,7 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
             { ComplicationState(it.complicationState) }
         )
 
+    @RequiresApi(27)
     override fun takeWatchFaceScreenshot(
         renderParameters: RenderParameters,
         @IntRange(from = 0, to = 100)
@@ -141,6 +151,7 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
         )
     )
 
+    @RequiresApi(27)
     override fun takeComplicationScreenshot(
         complicationId: Int,
         renderParameters: RenderParameters,

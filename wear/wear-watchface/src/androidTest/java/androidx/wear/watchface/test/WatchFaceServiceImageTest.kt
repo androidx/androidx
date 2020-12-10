@@ -19,6 +19,7 @@ package androidx.wear.watchface.test
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.os.Handler
@@ -46,8 +47,10 @@ import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.SystemState
+import androidx.wear.watchface.samples.COLOR_STYLE_SETTING
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+import androidx.wear.watchface.samples.GREEN_STYLE
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import org.junit.After
@@ -246,7 +249,8 @@ class WatchFaceServiceImageTest {
                         RenderParameters(
                             DrawMode.AMBIENT,
                             RenderParameters.DRAW_ALL_LAYERS,
-                            null
+                            null,
+                            Color.RED
                         ).toWireFormat(),
                         100,
                         123456789,
@@ -279,7 +283,8 @@ class WatchFaceServiceImageTest {
                         RenderParameters(
                             DrawMode.INTERACTIVE,
                             RenderParameters.DRAW_ALL_LAYERS,
-                            null
+                            null,
+                            Color.RED
                         ).toWireFormat(),
                         100,
                         123456789,
@@ -304,7 +309,7 @@ class WatchFaceServiceImageTest {
         initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         handler.post {
             interactiveWatchFaceInstanceWCS.setCurrentUserStyle(
-                UserStyleWireFormat(mapOf("color_style_setting" to "green_style"))
+                UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE))
             )
             engineWrapper.draw()
         }
@@ -331,7 +336,8 @@ class WatchFaceServiceImageTest {
                                 Layer.COMPLICATIONS to LayerMode.DRAW_HIGHLIGHTED,
                                 Layer.TOP_LAYER to LayerMode.DRAW
                             ),
-                            null
+                            null,
+                            Color.RED
                         ).toWireFormat(),
                         100,
                         123456789,
@@ -368,7 +374,8 @@ class WatchFaceServiceImageTest {
                                 Layer.COMPLICATIONS to LayerMode.DRAW_HIGHLIGHTED,
                                 Layer.TOP_LAYER to LayerMode.DRAW
                             ),
-                            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+                            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
+                            Color.RED
                         ).toWireFormat(),
                         100,
                         123456789,
@@ -416,7 +423,8 @@ class WatchFaceServiceImageTest {
                         RenderParameters(
                             DrawMode.INTERACTIVE,
                             RenderParameters.DRAW_ALL_LAYERS,
-                            null
+                            null,
+                            Color.RED
                         ).toWireFormat(),
                         100,
                         123456789,
@@ -442,15 +450,15 @@ class WatchFaceServiceImageTest {
         handler.post {
             // Change the style
             interactiveWatchFaceInstanceWCS.setCurrentUserStyle(
-                UserStyleWireFormat(mapOf("color_style_setting" to "green_style"))
+                UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE))
             )
 
             // Simulate device shutting down.
             InteractiveInstanceManager.deleteInstance(INTERACTIVE_INSTANCE_ID)
 
-            // Simulate a direct boot scenario where a new service is created with a locked user
-            // but there's no pending PendingWallpaperInteractiveWatchFaceInstance and no
-            // wallpaper command. This should load the direct boot parameters which get saved.
+            // Simulate a R style direct boot scenario where a new service is created but there's no
+            // pending PendingWallpaperInteractiveWatchFaceInstance and no wallpaper command. This
+            // should load the direct boot parameters which get saved.
             val service2 = TestCanvasAnalogWatchFaceService(
                 ApplicationProvider.getApplicationContext<Context>(),
                 handler,

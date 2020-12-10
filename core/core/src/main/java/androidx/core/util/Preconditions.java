@@ -164,6 +164,20 @@ public final class Preconditions {
     }
 
     /**
+     * Check the requested flags, throwing if any requested flags are outside the allowed set.
+     *
+     * @return the validated requested flags.
+     */
+    public static int checkFlagsArgument(final int requestedFlags, final int allowedFlags) {
+        if ((requestedFlags & allowedFlags) != requestedFlags) {
+            throw new IllegalArgumentException("Requested flags 0x"
+                    + Integer.toHexString(requestedFlags) + ", but only 0x"
+                    + Integer.toHexString(allowedFlags) + " are allowed");
+        }
+        return requestedFlags;
+    }
+
+    /**
      * Ensures that that the argument numeric value is non-negative.
      *
      * @param value a numeric int value

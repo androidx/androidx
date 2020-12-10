@@ -285,7 +285,6 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         key = key,
         loadSize = if (loadType == REFRESH) config.initialLoadSize else config.pageSize,
         placeholdersEnabled = config.enablePlaceholders,
-        pageSize = config.pageSize
     )
 
     private suspend fun doInitialLoad() {
@@ -304,19 +303,13 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     if (result.prevKey == null) {
                         state.setSourceLoadState(
                             type = PREPEND,
-                            newState = when (remoteMediatorConnection) {
-                                null -> NotLoading.Complete
-                                else -> NotLoading.Incomplete
-                            }
+                            newState = NotLoading.Complete
                         )
                     }
                     if (result.nextKey == null) {
                         state.setSourceLoadState(
                             type = APPEND,
-                            newState = when (remoteMediatorConnection) {
-                                null -> NotLoading.Complete
-                                else -> NotLoading.Incomplete
-                            }
+                            newState = NotLoading.Complete
                         )
                     }
                 }

@@ -19,17 +19,20 @@ package androidx.benchmark
 import android.os.Build
 import android.util.JsonWriter
 import android.util.Log
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 import java.io.IOException
 
-internal object ResultWriter {
-    @VisibleForTesting
-    internal val reports = ArrayList<BenchmarkState.Report>()
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public object ResultWriter {
 
-    fun appendReport(report: BenchmarkState.Report) {
-        reports.add(report)
+    @VisibleForTesting
+    internal val reports = ArrayList<BenchmarkResult>()
+
+    public fun appendReport(benchmarkResult: BenchmarkResult) {
+        reports.add(benchmarkResult)
 
         if (Arguments.outputEnable) {
             // Currently, we just overwrite the whole file
@@ -59,7 +62,7 @@ internal object ResultWriter {
     }
 
     @VisibleForTesting
-    internal fun writeReport(file: File, reports: List<BenchmarkState.Report>) {
+    internal fun writeReport(file: File, benchmarkResults: List<BenchmarkResult>) {
         file.run {
             if (!exists()) {
                 parentFile?.mkdirs()
@@ -97,7 +100,7 @@ internal object ResultWriter {
             writer.endObject()
 
             writer.name("benchmarks").beginArray()
-            reports.forEach { writer.reportObject(it) }
+            benchmarkResults.forEach { writer.reportObject(it) }
             writer.endArray()
 
             writer.endObject()
@@ -116,16 +119,16 @@ internal object ResultWriter {
         return endObject()
     }
 
-    private fun JsonWriter.reportObject(report: BenchmarkState.Report): JsonWriter {
+    private fun JsonWriter.reportObject(benchmarkResult: BenchmarkResult): JsonWriter {
         beginObject()
-            .name("name").value(report.testName)
-            .name("params").paramsObject(report)
-            .name("className").value(report.className)
-            .name("totalRunTimeNs").value(report.totalRunTimeNs)
-            .name("metrics").metricsContainerObject(report.stats, report.data)
-            .name("warmupIterations").value(report.warmupIterations)
-            .name("repeatIterations").value(report.repeatIterations)
-            .name("thermalThrottleSleepSeconds").value(report.thermalThrottleSleepSeconds)
+            .name("name").value(benchmarkResult.testName)
+            .name("params").paramsObject(benchmarkResult)
+            .name("className").value(benchmarkResult.className)
+            .name("totalRunTimeNs").value(benchmarkResult.totalRunTimeNs)
+            .name("metrics").metricsContainerObject(benchmarkResult.metrics)
+            .name("warmupIterations").value(benchmarkResult.warmupIterations)
+            .name("repeatIterations").value(benchmarkResult.repeatIterations)
+            .name("thermalThrottleSleepSeconds").value(benchmarkResult.thermalThrottleSleepSeconds)
         return endObject()
     }
 
@@ -139,24 +142,23 @@ internal object ResultWriter {
     }
 
     private fun JsonWriter.metricsContainerObject(
-        stats: List<Stats>,
-        data: List<List<Long>>
+        metricResults: List<MetricResult>
     ): JsonWriter {
         beginObject()
-        for (i in 0..stats.lastIndex) {
-            name(stats[i].name).beginObject()
-            statsObject(stats[i])
+        metricResults.forEach {
+            name(it.stats.name).beginObject()
+            statsObject(it.stats)
             name("runs").beginArray()
-            data[i].forEach { value(it) }
+            it.data.forEach { value(it) }
             endArray()
             endObject()
         }
         return endObject()
     }
 
-    private fun JsonWriter.paramsObject(report: BenchmarkState.Report): JsonWriter {
+    private fun JsonWriter.paramsObject(benchmarkResult: BenchmarkResult): JsonWriter {
         beginObject()
-        getParams(report.testName).forEach { name(it.key).value(it.value) }
+        getParams(benchmarkResult.testName).forEach { name(it.key).value(it.value) }
         return endObject()
     }
 

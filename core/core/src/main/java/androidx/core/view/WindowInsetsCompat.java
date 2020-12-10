@@ -884,7 +884,7 @@ public class WindowInsetsCompat {
         private Insets mSystemWindowInsets = null;
 
         private WindowInsetsCompat mRootWindowInsets;
-        private Insets mRootViewVisibleInsets;
+        Insets mRootViewVisibleInsets;
 
         Impl20(@NonNull WindowInsetsCompat host, @NonNull WindowInsets insets) {
             super(host);
@@ -1168,6 +1168,13 @@ public class WindowInsetsCompat {
         private static void logReflectionError(Exception e) {
             Log.e(TAG, "Failed to get visible insets. (Reflection error). " + e.getMessage(), e);
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!super.equals(o)) return false;
+            Impl20 impl20 = (Impl20) o;
+            return Objects.equals(mRootViewVisibleInsets, impl20.mRootViewVisibleInsets);
+        }
     }
 
     @RequiresApi(21)
@@ -1241,7 +1248,8 @@ public class WindowInsetsCompat {
             if (!(o instanceof Impl28)) return false;
             Impl28 otherImpl28 = (Impl28) o;
             // On API 28+ we can rely on WindowInsets.equals()
-            return Objects.equals(mPlatformInsets, otherImpl28.mPlatformInsets);
+            return Objects.equals(mPlatformInsets, otherImpl28.mPlatformInsets)
+                    && Objects.equals(mRootViewVisibleInsets, otherImpl28.mRootViewVisibleInsets);
         }
 
         @Override

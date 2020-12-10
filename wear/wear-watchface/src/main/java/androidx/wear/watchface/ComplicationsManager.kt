@@ -20,12 +20,12 @@ import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.RectF
 import android.icu.util.Calendar
 import android.support.wearable.watchface.accessibility.AccessibilityUtils
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
+import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.data.ComplicationData
@@ -39,18 +39,15 @@ import java.lang.ref.WeakReference
 
 private fun getComponentName(context: Context) = ComponentName(
     context.packageName,
-    context.javaClass.typeName
+    context.javaClass.name
 )
 
 /**
- * The [Complication]s associated with the [WatchFace]. Dynamic creation of
- * complications isn't supported, however complications can be enabled and disabled, perhaps as
- * part of a user style see [androidx.wear.watchface.style.UserStyleSetting].
+ * The [Complication]s associated with the [WatchFace]. Dynamic creation of complications isn't
+ * supported, however complications can be enabled and disabled by [ComplicationsUserStyleSetting].
  */
 public class ComplicationsManager(
-    /**
-     * The complications associated with the watch face, may be empty.
-     */
+    /** The complications associated with the watch face, may be empty. */
     complicationCollection: Collection<Complication>,
 
     /**
@@ -59,6 +56,10 @@ public class ComplicationsManager(
      */
     private val userStyleRepository: UserStyleRepository
 ) {
+    /**
+     * Interface used to report user taps on the complication. See [addTapListener] and
+     * [removeTapListener].
+     */
     public interface TapCallback {
         /**
          * Called when the user single taps on a complication.
@@ -81,13 +82,12 @@ public class ComplicationsManager(
     private lateinit var renderer: Renderer
     private lateinit var pendingUpdate: CancellableUniqueTask
 
-    // A map of IDs to complications.
+    /** A map of complication IDs to complications. */
     public val complications: Map<Int, Complication> =
         complicationCollection.associateBy(Complication::id)
 
     private class InitialComplicationConfig(
-        val id: Int,
-        val unitSquareBounds: RectF,
+        val complicationBounds: ComplicationBounds,
         val enabled: Boolean,
         val supportedTypes: List<ComplicationType>,
         val defaultProviderPolicy: DefaultComplicationProviderPolicy,
@@ -102,8 +102,7 @@ public class ComplicationsManager(
             { it.id },
             {
                 InitialComplicationConfig(
-                    it.id,
-                    it.unitSquareBounds,
+                    it.complicationBounds,
                     it.enabled,
                     it.supportedTypes,
                     it.defaultProviderPolicy,
@@ -175,8 +174,8 @@ public class ComplicationsManager(
             val override = styleOption.complicationOverlays.find { it.complicationId == id }
             val initialConfig = initialComplicationConfigs[id]!!
             // Apply styleOption overrides.
-            complication.unitSquareBounds =
-                override?.bounds ?: initialConfig.unitSquareBounds
+            complication.complicationBounds =
+                override?.complicationBounds ?: initialConfig.complicationBounds
             complication.enabled =
                 override?.enabled ?: initialConfig.enabled
             complication.supportedTypes =
@@ -188,7 +187,7 @@ public class ComplicationsManager(
         }
     }
 
-    /** Returns the [Complication] corresponding to id or null. */
+    /** Returns the [Complication] corresponding to [id], if there is one, or `null`. */
     public operator fun get(id: Int): Complication? = complications[id]
 
     internal fun scheduleUpdate() {
@@ -246,7 +245,8 @@ public class ComplicationsManager(
                 activeKeys.add(id)
 
                 labelsDirty =
-                    labelsDirty || complication.dataDirty || complication.unitSquareBoundsDirty
+                    labelsDirty || complication.dataDirty ||
+                    complication.complicationBoundsDirty
 
                 if (complication.defaultProviderPolicyDirty ||
                     complication.defaultProviderTypeDirty
@@ -260,7 +260,7 @@ public class ComplicationsManager(
                 }
 
                 complication.dataDirty = false
-                complication.unitSquareBoundsDirty = false
+                complication.complicationBoundsDirty = false
                 complication.supportedTypesDirty = false
                 complication.defaultProviderPolicyDirty = false
                 complication.defaultProviderTypeDirty = false
@@ -299,8 +299,8 @@ public class ComplicationsManager(
     }
 
     /**
-     * Brings attention to the complication by briefly highlighting it to provide visual
-     * feedback when the user has tapped on it.
+     * Brings attention to the complication by briefly highlighting it to provide visual feedback
+     * when the user has tapped on it.
      *
      * @param complicationId The watch face's ID of the complication to briefly highlight
      */
@@ -324,7 +324,7 @@ public class ComplicationsManager(
     }
 
     /**
-     * Returns the id of the complication at coordinates x, y or {@code null} if there isn't one.
+     * Returns the id of the complication at coordinates x, y or `null` if there isn't one.
      *
      * @param x The x coordinate of the point to perform a hit test
      * @param y The y coordinate of the point to perform a hit test
@@ -337,9 +337,9 @@ public class ComplicationsManager(
         }?.value
 
     /**
-     * Returns the background complication if there is one or {@code null} otherwise.
+     * Returns the background complication if there is one or `null` otherwise.
      *
-     * @return The background complication if there is one or {@code null} otherwise
+     * @return The background complication if there is one or `null` otherwise
      */
     public fun getBackgroundComplication(): Complication? =
         complications.entries.firstOrNull {
@@ -410,8 +410,7 @@ public class ComplicationsManager(
     }
 
     /**
-     * Adds a [TapCallback] which is called whenever the user interacts with a
-     * complication.
+     * Adds a [TapCallback] which is called whenever the user interacts with a complication.
      */
     @UiThread
     @SuppressLint("ExecutorRegistration")

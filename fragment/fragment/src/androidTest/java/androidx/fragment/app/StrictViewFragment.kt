@@ -51,6 +51,7 @@ open class StrictViewFragment(
         checkGetActivity()
         checkActivityNotDestroyed()
         checkState("onViewCreated", State.CREATED)
+        currentState = State.VIEW_CREATED
         onViewCreatedCalled = true
     }
 
@@ -78,7 +79,8 @@ open class StrictViewFragment(
                 .isNotNull()
         }
         checkGetActivity()
-        checkState("onDestroyView", State.CREATED)
+        checkState("onDestroyView", State.CREATED, State.VIEW_CREATED, State.ACTIVITY_CREATED)
+        currentState = State.CREATED
         onDestroyViewCalled = true
     }
 

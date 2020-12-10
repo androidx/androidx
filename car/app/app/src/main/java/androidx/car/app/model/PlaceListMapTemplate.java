@@ -21,8 +21,6 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_SIMPLE;
 
-import static java.util.Objects.requireNonNull;
-
 import android.Manifest.permission;
 import android.content.Context;
 
@@ -31,7 +29,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarAppPermission;
-import androidx.car.app.utils.Logger;
 
 import java.util.Collections;
 import java.util.List;
@@ -46,7 +43,7 @@ import java.util.Objects;
  * <h4>Template Restrictions</h4>
  *
  * In regards to template refreshes, as described in
- * {@link androidx.car.app.Screen#getTemplate()}, this template is considered a refresh of a
+ * {@link androidx.car.app.Screen#onGetTemplate()}, this template is considered a refresh of a
  * previous one if:
  *
  * <ul>
@@ -114,29 +111,6 @@ public final class PlaceListMapTemplate implements Template {
     @Nullable
     public Place getAnchor() {
         return mAnchor;
-    }
-
-    @Override
-    public boolean isRefresh(@NonNull Template oldTemplate, @NonNull Logger logger) {
-        requireNonNull(oldTemplate);
-        if (oldTemplate.getClass() != this.getClass()) {
-            return false;
-        }
-
-        PlaceListMapTemplate old = (PlaceListMapTemplate) oldTemplate;
-        if (!Objects.equals(old.getTitle(), getTitle())) {
-            return false;
-        }
-
-        if (old.mIsLoading) {
-            // Transition from a previous loading state is allowed.
-            return true;
-        } else if (mIsLoading) {
-            // Transition to a loading state is disallowed.
-            return false;
-        }
-
-        return requireNonNull(mItemList).isRefresh(old.getItemList(), logger);
     }
 
     @Override
@@ -246,8 +220,7 @@ public final class PlaceListMapTemplate implements Template {
 
         /**
          * Sets the {@link Action} that will be displayed in the header of the template, or
-         * {@code null}
-         * to not display an action.
+         * {@code null} to not display an action.
          *
          * <h4>Requirements</h4>
          *
@@ -268,8 +241,7 @@ public final class PlaceListMapTemplate implements Template {
 
         /**
          * Sets the {@link CharSequence} to show as the template's title, or {@code null} to not
-         * display
-         * a title.
+         * display a title.
          */
         @NonNull
         public Builder setTitle(@Nullable CharSequence title) {
@@ -279,32 +251,27 @@ public final class PlaceListMapTemplate implements Template {
 
         /**
          * Sets an {@link ItemList} to show in a list view along with the map, or {@code null} to
-         * not
-         * display a list.
+         * not display a list.
          *
          * <p>To show a marker corresponding to a point of interest represented by a row, set the
-         * {@link
-         * Place} instance via {@link Row.Builder#setMetadata}. The host will display the {@link
-         * PlaceMarker} in both the map and the list view as the row becomes visible.
+         * {@link Place} instance via {@link Row.Builder#setMetadata}. The host will display the
+         * {@link PlaceMarker} in both the map and the list view as the row becomes visible.
          *
          * <h4>Requirements</h4>
          *
          * This template allows up to 6 {@link Row}s in the {@link ItemList}. The host will
-         * ignore any
-         * items over that limit. The list itself cannot be selectable as set via {@link
-         * ItemList.Builder#setSelectable}. Each {@link Row} can add up to 2 lines of texts via
-         * {@link
-         * Row.Builder#addText} and cannot contain a {@link Toggle}.
+         * ignore any items over that limit. The list itself cannot be selectable as set via {@link
+         * ItemList.Builder#setOnSelectedListener}. Each {@link Row} can add up to 2 lines of texts
+         * via {@link Row.Builder#addText} and cannot contain a {@link Toggle}.
          *
          * <p>Images of type {@link Row#IMAGE_TYPE_LARGE} are not allowed in this template.
          *
          * <p>Rows are not allowed to have both and an image and a place marker.
          *
          * <p>All non-browsable rows must have a {@link DistanceSpan} attached to either its
-         * title or
-         * texts to indicate the distance of the point of interest from the current location. A
-         * row is
-         * browsable when it's configured like so with {@link Row.Builder#setBrowsable(boolean)}.
+         * title or texts to indicate the distance of the point of interest from the current
+         * location. A row is browsable when it's configured like so with
+         * {@link Row.Builder#setBrowsable(boolean)}.
          *
          * @throws IllegalArgumentException if {@code itemList} does not meet the template's
          *                                  requirements.
@@ -339,8 +306,7 @@ public final class PlaceListMapTemplate implements Template {
          *
          * This template allows up to 2 {@link Action}s in its {@link ActionStrip}. Of the 2 allowed
          * {@link Action}s, one of them can contain a title as set via
-         * {@link Action.Builder#setTitle}.
-         * Otherwise, only {@link Action}s with icons are allowed.
+         * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
          *
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the template's
          *                                  requirements.
@@ -359,13 +325,11 @@ public final class PlaceListMapTemplate implements Template {
          * <p>The anchor marker is displayed differently from other markers by the host.
          *
          * <p>If not {@code null}, an anchor marker will be shown at the specified {@link LatLng}
-         * on the
-         * map. The camera will adapt to always have the anchor marker visible within its viewport,
-         * along with other places' markers from {@link Row} that are currently visible in the
-         * {@link
-         * Pane}. This can be used to provide a reference point on the map (e.g. the center of a
-         * search
-         * region) as the user pages through the {@link Pane}'s markers, for example.
+         * on the map. The camera will adapt to always have the anchor marker visible within its
+         * viewport, along with other places' markers from {@link Row} that are currently visible
+         * in the {@link Pane}. This can be used to provide a reference point on the map (e.g.
+         * the center of a search region) as the user pages through the {@link Pane}'s markers,
+         * for example.
          */
         @NonNull
         public Builder setAnchor(@Nullable Place anchor) {
@@ -381,8 +345,7 @@ public final class PlaceListMapTemplate implements Template {
          * Either a header {@link Action} or title must be set on the template.
          *
          * @throws IllegalArgumentException if the template is in a loading state but the list is
-         *                                  set,
-         *                                  or vice versa.
+         *                                  set, or vice versa.
          * @throws IllegalStateException    if the template does not have either a title or header
          *                                  {@link Action} set.
          */

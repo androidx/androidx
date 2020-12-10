@@ -27,7 +27,6 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.model.constraints.CarIconConstraints;
-import androidx.car.app.utils.Logger;
 
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +38,7 @@ import java.util.Objects;
  * <h4>Template Restrictions</h4>
  *
  * In regards to template refreshes, as described in
- * {@link androidx.car.app.Screen#getTemplate()}, this template is
+ * {@link androidx.car.app.Screen#onGetTemplate()}, this template is
  * considered a refresh of a previous one if the title and messages have not changed.
  */
 public final class MessageTemplate implements Template {
@@ -94,22 +93,8 @@ public final class MessageTemplate implements Template {
     }
 
     @Nullable
-    public ActionList getActionList() {
+    public ActionList getActions() {
         return mActionList;
-    }
-
-    @Override
-    public boolean isRefresh(@NonNull Template oldTemplate, @NonNull Logger logger) {
-        requireNonNull(oldTemplate);
-
-        if (oldTemplate.getClass() != this.getClass()) {
-            return false;
-        }
-
-        MessageTemplate old = (MessageTemplate) oldTemplate;
-        return Objects.equals(old.getTitle(), getTitle())
-                && Objects.equals(old.getDebugMessage(), getDebugMessage())
-                && Objects.equals(old.getMessage(), getMessage());
     }
 
     @NonNull
@@ -288,8 +273,6 @@ public final class MessageTemplate implements Template {
          * @throws NullPointerException if {@code actions} is {@code null}.
          */
         @NonNull
-        // TODO(shiufai): consider rename to match getter's name (e.g. setActionList or getActions).
-        @SuppressLint("MissingGetterMatchingBuilder")
         public Builder setActions(@NonNull List<Action> actions) {
             mActionList = ActionList.create(requireNonNull(actions));
             return this;

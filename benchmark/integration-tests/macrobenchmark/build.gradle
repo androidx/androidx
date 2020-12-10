@@ -30,6 +30,7 @@ plugins {
 android {
     defaultConfig {
         minSdkVersion 28
+        testInstrumentationRunnerArgument 'androidx.benchmark.output.enable', 'true'
     }
 }
 

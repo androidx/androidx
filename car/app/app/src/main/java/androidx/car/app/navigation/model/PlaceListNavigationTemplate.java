@@ -20,8 +20,6 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_SIMPLE;
 
-import static java.util.Objects.requireNonNull;
-
 import android.content.Context;
 
 import androidx.annotation.Keep;
@@ -42,7 +40,6 @@ import androidx.car.app.model.PlaceMarker;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.Toggle;
-import androidx.car.app.utils.Logger;
 
 import java.util.Collections;
 import java.util.List;
@@ -56,12 +53,12 @@ import java.util.Objects;
  *
  * <h4>Template Restrictions</h4>
  *
- * In regards to template refreshes, as described in {@link Screen#getTemplate()}, this template is
- * considered a refresh of a previous one if:
+ * In regards to template refreshes, as described in {@link Screen#onGetTemplate()}, this template
+ * is considered a refresh of a previous one if:
  *
  * <ul>
  *   <li>The template title has not changed, and
- *   <li>The previous template is in a loading state (see {@link Builder#setIsLoading}, or the
+ *   <li>The previous template is in a loading state (see {@link Builder#setLoading}, or the
  *       number of rows and the string contents (title, texts, not counting spans) of each row
  *       between the previous and new {@link ItemList}s have not changed.
  * </ul>
@@ -113,29 +110,6 @@ public final class PlaceListNavigationTemplate implements Template {
     @Nullable
     public ActionStrip getActionStrip() {
         return mActionStrip;
-    }
-
-    @Override
-    public boolean isRefresh(@NonNull Template oldTemplate, @NonNull Logger logger) {
-        requireNonNull(oldTemplate);
-        if (oldTemplate.getClass() != this.getClass()) {
-            return false;
-        }
-
-        PlaceListNavigationTemplate old = (PlaceListNavigationTemplate) oldTemplate;
-        if (!Objects.equals(old.getTitle(), getTitle())) {
-            return false;
-        }
-
-        if (old.mIsLoading) {
-            // Transition from a previous loading state is allowed.
-            return true;
-        } else if (mIsLoading) {
-            // Transition to a loading state is disallowed.
-            return false;
-        }
-
-        return requireNonNull(mItemList).isRefresh(old.getItemList(), logger);
     }
 
     @Override
@@ -217,10 +191,8 @@ public final class PlaceListNavigationTemplate implements Template {
          * once the data is ready. If set to {@code false}, the UI shows the {@link ItemList}
          * contents added via {@link #setItemList}.
          */
-        // TODO(rampara): Consider renaming to setLoading()
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         @NonNull
-        public Builder setIsLoading(boolean isLoading) {
+        public Builder setLoading(boolean isLoading) {
             this.mIsLoading = isLoading;
             return this;
         }
@@ -259,8 +231,8 @@ public final class PlaceListNavigationTemplate implements Template {
          *
          * This template allows up to 6 {@link Row}s in the {@link ItemList}. The host will
          * ignore any items over that limit. The list itself cannot be selectable as set via {@link
-         * ItemList.Builder#setSelectable}. Each {@link Row} can add up to 2 lines of texts via
-         * {@link Row.Builder#addText} and cannot contain a {@link Toggle}.
+         * ItemList.Builder#setOnSelectedListener}. Each {@link Row} can add up to 2 lines of texts
+         * via {@link Row.Builder#addText} and cannot contain a {@link Toggle}.
          *
          * <p>Images of type {@link Row#IMAGE_TYPE_LARGE} are not allowed in this template.
          *

@@ -16,6 +16,7 @@
 
 package androidx.lifecycle.viewmodel.savedstate
 
+import android.os.Bundle
 import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
@@ -169,9 +170,11 @@ class SavedStateHandleTest {
     fun testKeySet() {
         val accessor = SavedStateHandle()
         accessor.set("s", "pb")
+        accessor.getLiveData<String>("no value ld")
         accessor.getLiveData<String>("ld").value = "a"
-        assertThat(accessor.keys().size).isEqualTo(2)
-        assertThat(accessor.keys()).containsExactly("s", "ld")
+        accessor.setSavedStateProvider("provider") { Bundle() }
+        assertThat(accessor.keys().size).isEqualTo(4)
+        assertThat(accessor.keys()).containsExactly("s", "ld", "provider", "no value ld")
     }
 
     @MainThread

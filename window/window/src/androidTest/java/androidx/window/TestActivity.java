@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 public class TestActivity extends Activity implements View.OnLayoutChangeListener {
 
     private int mRootViewId;
-    private CountDownLatch mLayoutLatch;
+    private CountDownLatch mLayoutLatch = new CountDownLatch(1);
     private static CountDownLatch sResumeLatch = new CountDownLatch(1);
 
     @Override
@@ -39,16 +39,7 @@ public class TestActivity extends Activity implements View.OnLayoutChangeListene
         contentView.setId(mRootViewId);
         setContentView(contentView);
 
-        resetLayoutCounter();
         getWindow().getDecorView().addOnLayoutChangeListener(this);
-    }
-
-    int getWidth() {
-        return findViewById(mRootViewId).getWidth();
-    }
-
-    int getHeight() {
-        return findViewById(mRootViewId).getHeight();
     }
 
     @Override

@@ -38,15 +38,17 @@ import android.util.SparseArray
 import android.view.SurfaceHolder
 import android.view.animation.AnimationUtils
 import android.view.animation.PathInterpolator
+import androidx.annotation.ColorInt
+import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
-import androidx.wear.watchface.CanvasRenderer
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.LayerMode
+import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
@@ -193,6 +195,19 @@ private val DIGIT_OPACITY_INTERPOLATOR = mapOf(
 internal val CENTERING_ADJUSTMENT_INTERPOLATOR =
     PathInterpolator(0.4f, 0f, 0.2f, 1f)
 
+@ColorInt
+internal fun colorRgb(red: Float, green: Float, blue: Float) =
+    0xff000000.toInt() or
+        ((red * 255.0f + 0.5f).toInt() shl 16) or
+        ((green * 255.0f + 0.5f).toInt() shl 8) or
+        (blue * 255.0f + 0.5f).toInt()
+
+internal fun redFraction(@ColorInt color: Int) = Color.red(color).toFloat() / 255.0f
+
+internal fun greenFraction(@ColorInt color: Int) = Color.green(color).toFloat() / 255.0f
+
+internal fun blueFraction(@ColorInt color: Int) = Color.blue(color).toFloat() / 255.0f
+
 /**
  * Returns an RGB color that has the same effect as drawing `color` with `alphaFraction` over a
  * `backgroundColor` background.
@@ -201,11 +216,15 @@ internal val CENTERING_ADJUSTMENT_INTERPOLATOR =
  * @param alphaFraction the fraction of the alpha value, range from 0 to 1
  * @param backgroundColor the background color
  */
-internal fun getRGBColor(color: Color, alphaFraction: Float, backgroundColor: Color): Int {
-    return Color.rgb(
-        lerp(backgroundColor.red(), color.red(), alphaFraction),
-        lerp(backgroundColor.green(), color.green(), alphaFraction),
-        lerp(backgroundColor.blue(), color.blue(), alphaFraction)
+internal fun getRGBColor(
+    @ColorInt color: Int,
+    alphaFraction: Float,
+    @ColorInt backgroundColor: Int
+): Int {
+    return colorRgb(
+        lerp(redFraction(backgroundColor), redFraction(color), alphaFraction),
+        lerp(greenFraction(backgroundColor), greenFraction(color), alphaFraction),
+        lerp(blueFraction(backgroundColor), blueFraction(color), alphaFraction)
     )
 }
 
@@ -417,12 +436,11 @@ private class DrawProperties(
 
 /** Applies a multiplier to a color, e.g. to darken if it's < 1.0 */
 internal fun multiplyColor(colorInt: Int, multiplier: Float): Int {
-    val color = Color.valueOf(colorInt)
-    // NB color.red() etc return a value in the range [0..1]
-    return Color.rgb(
-        color.red() * multiplier,
-        color.green() * multiplier,
-        color.blue() * multiplier
+    val adjustedMultiplier = multiplier / 255.0f
+    return colorRgb(
+        Color.red(colorInt).toFloat() * adjustedMultiplier,
+        Color.green(colorInt).toFloat() * adjustedMultiplier,
+        Color.blue(colorInt).toFloat() * adjustedMultiplier,
     )
 }
 
@@ -450,26 +468,26 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         surfaceHolder: SurfaceHolder,
         watchState: WatchState
     ): WatchFace {
-        val watchFaceStyle = WatchFaceColorStyle.create(this, "red_style")
+        val watchFaceStyle = WatchFaceColorStyle.create(this, RED_STYLE)
         val colorStyleSetting = UserStyleSetting.ListUserStyleSetting(
-            "color_style_setting",
-            "Colors",
-            "Watchface colorization",
+            COLOR_STYLE_SETTING,
+            getString(R.string.colors_style_setting),
+            getString(R.string.colors_style_setting_description),
             icon = null,
             options = listOf(
                 UserStyleSetting.ListUserStyleSetting.ListOption(
-                    "red_style",
-                    "Red",
+                    RED_STYLE,
+                    getString(R.string.colors_style_red),
                     Icon.createWithResource(this, R.drawable.red_style)
                 ),
                 UserStyleSetting.ListUserStyleSetting.ListOption(
-                    "green_style",
-                    "Green",
+                    GREEN_STYLE,
+                    getString(R.string.colors_style_green),
                     Icon.createWithResource(this, R.drawable.green_style)
                 ),
                 UserStyleSetting.ListUserStyleSetting.ListOption(
-                    "blue_style",
-                    "Blue",
+                    BLUE_STYLE,
+                    getString(R.string.colors_style_blue),
                     Icon.createWithResource(this, R.drawable.blue_style)
                 )
             ),
@@ -488,9 +506,11 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.WATCH_BATTERY),
-            createBoundsRect(
-                LEFT_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                CIRCLE_COMPLICATION_DIAMETER_FRACTION
+            ComplicationBounds(
+                createBoundsRect(
+                    LEFT_CIRCLE_COMPLICATION_CENTER_FRACTION,
+                    CIRCLE_COMPLICATION_DIAMETER_FRACTION
+                )
             )
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
@@ -504,43 +524,64 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.DATE),
-            createBoundsRect(
-                RIGHT_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                CIRCLE_COMPLICATION_DIAMETER_FRACTION
+            ComplicationBounds(
+                createBoundsRect(
+                    RIGHT_CIRCLE_COMPLICATION_CENTER_FRACTION,
+                    CIRCLE_COMPLICATION_DIAMETER_FRACTION
+                )
             )
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
+
+        val upperAndLowerComplicationTypes = listOf(
+            ComplicationType.LONG_TEXT,
+            ComplicationType.RANGED_VALUE,
+            ComplicationType.SHORT_TEXT,
+            ComplicationType.MONOCHROMATIC_IMAGE,
+            ComplicationType.SMALL_IMAGE
+        )
+        // The upper and lower complications change shape depending on the complication's type.
         val upperComplication = Complication.createRoundRectComplicationBuilder(
             ComplicationID.UPPER.ordinal,
             watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
-            listOf(
-                ComplicationType.LONG_TEXT,
-                ComplicationType.RANGED_VALUE,
-                ComplicationType.SHORT_TEXT,
-                ComplicationType.MONOCHROMATIC_IMAGE,
-                ComplicationType.SMALL_IMAGE
-            ),
+            upperAndLowerComplicationTypes,
             DefaultComplicationProviderPolicy(SystemProviders.WORLD_CLOCK),
-            createBoundsRect(
-                UPPER_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                CIRCLE_COMPLICATION_DIAMETER_FRACTION
+            ComplicationBounds(
+                ComplicationType.values().associateWith {
+                    if (it == ComplicationType.LONG_TEXT) {
+                        createBoundsRect(
+                            UPPER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
+                            ROUND_RECT_COMPLICATION_SIZE_FRACTION
+                        )
+                    } else {
+                        createBoundsRect(
+                            UPPER_CIRCLE_COMPLICATION_CENTER_FRACTION,
+                            CIRCLE_COMPLICATION_DIAMETER_FRACTION
+                        )
+                    }
+                }
             )
         ).setDefaultProviderType(ComplicationType.LONG_TEXT)
             .build()
         val lowerComplication = Complication.createRoundRectComplicationBuilder(
             ComplicationID.LOWER.ordinal,
             watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
-            listOf(
-                ComplicationType.LONG_TEXT,
-                ComplicationType.RANGED_VALUE,
-                ComplicationType.SHORT_TEXT,
-                ComplicationType.MONOCHROMATIC_IMAGE,
-                ComplicationType.SMALL_IMAGE
-            ),
+            upperAndLowerComplicationTypes,
             DefaultComplicationProviderPolicy(SystemProviders.NEXT_EVENT),
-            createBoundsRect(
-                LOWER_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                CIRCLE_COMPLICATION_DIAMETER_FRACTION
+            ComplicationBounds(
+                ComplicationType.values().associateWith {
+                    if (it == ComplicationType.LONG_TEXT) {
+                        createBoundsRect(
+                            LOWER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
+                            ROUND_RECT_COMPLICATION_SIZE_FRACTION
+                        )
+                    } else {
+                        createBoundsRect(
+                            LOWER_CIRCLE_COMPLICATION_CENTER_FRACTION,
+                            CIRCLE_COMPLICATION_DIAMETER_FRACTION
+                        )
+                    }
+                }
             )
         ).setDefaultProviderType(ComplicationType.LONG_TEXT)
             .build()
@@ -569,36 +610,12 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             colorStyleSetting,
             complicationsManager
         )
-
-        // Make the upper and lower complications change shape depending on the complication's type.
         upperComplication.complicationData.addObserver {
-            if (it.type == ComplicationType.LONG_TEXT) {
-                upperComplication.unitSquareBounds = createBoundsRect(
-                    UPPER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
-                    ROUND_RECT_COMPLICATION_SIZE_FRACTION
-                )
-            } else {
-                upperComplication.unitSquareBounds = createBoundsRect(
-                    UPPER_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                    CIRCLE_COMPLICATION_DIAMETER_FRACTION
-                )
-            }
             // Force bounds recalculation, because this can affect the size of the central time
             // display.
             renderer.oldBounds.set(0, 0, 0, 0)
         }
         lowerComplication.complicationData.addObserver {
-            if (it.type == ComplicationType.LONG_TEXT) {
-                lowerComplication.unitSquareBounds = createBoundsRect(
-                    LOWER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
-                    ROUND_RECT_COMPLICATION_SIZE_FRACTION
-                )
-            } else {
-                lowerComplication.unitSquareBounds = createBoundsRect(
-                    LOWER_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                    CIRCLE_COMPLICATION_DIAMETER_FRACTION
-                )
-            }
             // Force bounds recalculation, because this can affect the size of the central time
             // display.
             renderer.oldBounds.set(0, 0, 0, 0)
@@ -620,7 +637,7 @@ class ExampleDigitalWatchCanvasRenderer(
     private val watchState: WatchState,
     private val colorStyleSetting: UserStyleSetting.ListUserStyleSetting,
     private val complicationsManager: ComplicationsManager
-) : CanvasRenderer(
+) : Renderer.CanvasRenderer(
     surfaceHolder,
     userStyleRepository,
     watchState,
@@ -1050,9 +1067,9 @@ class ExampleDigitalWatchCanvasRenderer(
         }
         canvas.drawColor(
             getRGBColor(
-                Color.valueOf(backgroundColor),
+                backgroundColor,
                 drawProperties.backgroundAlpha,
-                Color.valueOf(Color.BLACK)
+                Color.BLACK
             )
         )
     }

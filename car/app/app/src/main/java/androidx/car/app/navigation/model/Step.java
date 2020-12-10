@@ -58,6 +58,9 @@ public final class Step {
      * <p>A cue must always be set when the step is created and is used as a fallback when {@link
      * Maneuver} is not set or is unavailable.
      *
+     * <p>Some cluster displays do not support UTF-8 encoded characters, in which case unsupported
+     * characters will not be displayed properly.
+     *
      * @throws NullPointerException if {@code cue} is {@code null}.
      * @see Builder#setCue(CharSequence)
      */

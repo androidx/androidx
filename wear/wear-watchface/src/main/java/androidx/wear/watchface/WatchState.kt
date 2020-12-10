@@ -19,25 +19,10 @@ package androidx.wear.watchface
 import android.app.NotificationManager
 import androidx.annotation.RestrictTo
 
-import androidx.annotation.IntDef
-
-/** @hide */
-@IntDef(
-    value = [
-        ScreenShape.ROUND,
-        ScreenShape.RECTANGULAR
-    ]
-)
-public annotation class ScreenShape {
-    public companion object {
-        /** The watch screen has a circular shape. */
-        public const val ROUND: Int = 1
-
-        /** The watch screen has a rectangular or square shape. */
-        public const val RECTANGULAR: Int = 2
-    }
-}
-
+/**
+ * Describes the current state of the wearable including some hardware details such as whether or
+ * not it supports burn in prevention and low-bit ambient.
+ */
 public class WatchState(
     /**
      * The current user interruption settings. See [NotificationManager]. Based on the value
@@ -79,10 +64,6 @@ public class WatchState(
     @get:JvmName("hasBurnInProtection")
     public val hasBurnInProtection: Boolean,
 
-    /** The physical shape of the screen. */
-    @ScreenShape
-    public val screenShape: Int,
-
     /** UTC reference time for previews of analog watch faces in milliseconds since the epoch. */
     public val analogPreviewReferenceTimeMillis: Long,
 
@@ -100,8 +81,6 @@ public class MutableWatchState {
     public val isVisible: MutableObservableWatchData<Boolean> = MutableObservableWatchData()
     public var hasLowBitAmbient: Boolean = false
     public var hasBurnInProtection: Boolean = false
-    @ScreenShape
-    public var screenShape: Int = 0
     public var analogPreviewReferenceTimeMillis: Long = 0
     public var digitalPreviewReferenceTimeMillis: Long = 0
 
@@ -112,7 +91,6 @@ public class MutableWatchState {
         isVisible = isVisible,
         hasLowBitAmbient = hasLowBitAmbient,
         hasBurnInProtection = hasBurnInProtection,
-        screenShape = screenShape,
         analogPreviewReferenceTimeMillis = analogPreviewReferenceTimeMillis,
         digitalPreviewReferenceTimeMillis = digitalPreviewReferenceTimeMillis
     )

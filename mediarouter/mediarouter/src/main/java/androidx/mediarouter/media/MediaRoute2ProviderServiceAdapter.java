@@ -29,6 +29,7 @@ import static androidx.mediarouter.media.MediaRouter.UNSELECT_REASON_UNKNOWN;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaRoute2Info;
 import android.media.MediaRoute2ProviderService;
 import android.media.RouteDiscoveryPreference;
 import android.media.RoutingSessionInfo;
@@ -61,9 +62,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RequiresApi(api = Build.VERSION_CODES.R)
 class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
@@ -279,12 +278,8 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
 
     @Override
     public void onDiscoveryPreferenceChanged(@NonNull RouteDiscoveryPreference preference) {
-        MediaRouteSelector selector = new MediaRouteSelector.Builder()
-                .addControlCategories(preference.getPreferredFeatures().stream()
-                        .map(MediaRouter2Utils::toControlCategory)
-                        .collect(Collectors.toList())).build();
-        mServiceImpl.setBaseDiscoveryRequest(new MediaRouteDiscoveryRequest(selector,
-                preference.shouldPerformActiveScan()));
+        mServiceImpl.setBaseDiscoveryRequest(
+                MediaRouter2Utils.toMediaRouteDiscoveryRequest(preference));
     }
 
     public void setProviderDescriptor(@Nullable MediaRouteProviderDescriptor descriptor) {
@@ -292,17 +287,26 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         List<MediaRouteDescriptor> routeDescriptors =
                 (descriptor == null) ? Collections.emptyList() : descriptor.getRoutes();
 
-        Map<String, MediaRouteDescriptor> descriptorMap =
-                routeDescriptors.stream().filter(Objects::nonNull)
-                        // Ignores duplicated route IDs.
-                        .collect(Collectors.toMap(r -> r.getId(), r -> r, (fst, snd) -> fst));
+        Map<String, MediaRouteDescriptor> descriptorMap = new ArrayMap<>();
+        for (MediaRouteDescriptor desc : routeDescriptors) {
+            // Ignores duplicated route IDs.
+            if (desc == null || descriptorMap.containsKey(desc.getId())) {
+                continue;
+            }
+            descriptorMap.put(desc.getId(), desc);
+        }
 
         updateStaticSessions(descriptorMap);
         // Handle duplicated IDs
-        notifyRoutes(descriptorMap.values().stream()
-                .map(MediaRouter2Utils::toFwkMediaRoute2Info)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList()));
+
+        List<MediaRoute2Info> routes = new ArrayList<>();
+        for (MediaRouteDescriptor desc : descriptorMap.values()) {
+            MediaRoute2Info fwkMediaRouteInfo = MediaRouter2Utils.toFwkMediaRoute2Info(desc);
+            if (fwkMediaRouteInfo != null) {
+                routes.add(fwkMediaRouteInfo);
+            }
+        }
+        notifyRoutes(routes);
     }
 
     private DynamicGroupRouteController findControllerBySessionId(String sessionId) {
@@ -354,11 +358,13 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
     }
 
     void updateStaticSessions(Map<String, MediaRouteDescriptor> routeDescriptors) {
-        List<SessionRecord> staticSessions;
+        List<SessionRecord> staticSessions = new ArrayList<>();
         synchronized (mLock) {
-            staticSessions = mSessionRecords.values().stream()
-                    .filter(r -> (r.getFlags() & SessionRecord.SESSION_FLAG_DYNAMIC) == 0)
-                    .collect(Collectors.toList());
+            for (SessionRecord sessionRecord : mSessionRecords.values()) {
+                if ((sessionRecord.getFlags() & SessionRecord.SESSION_FLAG_DYNAMIC) == 0) {
+                    staticSessions.add(sessionRecord);
+                }
+            }
         }
         for (SessionRecord sessionRecord : staticSessions) {
             DynamicGroupRouteControllerProxy controller =

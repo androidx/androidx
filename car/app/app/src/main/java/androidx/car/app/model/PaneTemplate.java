@@ -27,7 +27,6 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.utils.Logger;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -38,7 +37,7 @@ import java.util.Objects;
  * <h4>Template Restrictions</h4>
  *
  * In regards to template refreshes, as described in
- * {@link androidx.car.app.Screen#getTemplate()}, this template is considered a refresh of a
+ * {@link androidx.car.app.Screen#onGetTemplate()}, this template is considered a refresh of a
  * previous one if:
  *
  * <ul>
@@ -90,17 +89,6 @@ public final class PaneTemplate implements Template {
     @Nullable
     public ActionStrip getActionStrip() {
         return mActionStrip;
-    }
-
-    @Override
-    public boolean isRefresh(@NonNull Template oldTemplate, @NonNull Logger logger) {
-        if (oldTemplate.getClass() != this.getClass()) {
-            return false;
-        }
-
-        PaneTemplate old = (PaneTemplate) oldTemplate;
-        return Objects.equals(old.getTitle(), getTitle()) && getPane().isRefresh(old.getPane(),
-                logger);
     }
 
     @NonNull

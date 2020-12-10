@@ -25,6 +25,8 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.wear.utils.ActivityAnimationUtil;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Controller that handles the back button click for dismiss the frame layout
  *
@@ -37,22 +39,26 @@ class BackButtonDismissController extends DismissController {
     BackButtonDismissController(Context context, DismissibleFrameLayout layout) {
         super(context, layout);
 
-        // Dismiss upon back button press
+        // set this to true will also ensure that this view is focusable
         layout.setFocusableInTouchMode(true);
+        // Dismiss upon back button press
         layout.requestFocus();
         layout.setOnKeyListener(
-                (view, keyCode, event) -> {
-                    if (keyCode == KeyEvent.KEYCODE_BACK
-                            && event.getAction() == KeyEvent.ACTION_UP) {
-                        dismiss();
-                        return true;
-                    }
-                    return false;
-                });
+                (view, keyCode, event) -> keyCode == KeyEvent.KEYCODE_BACK
+                        && event.getAction() == KeyEvent.ACTION_UP
+                        && dismiss());
     }
 
-    private void dismiss() {
-        if (mDismissListener == null) return;
+    void disable(@NotNull DismissibleFrameLayout layout) {
+        setOnDismissListener(null);
+        layout.setOnKeyListener(null);
+        // setting this to false will also ensure that this view is not focusable in touch mode
+        layout.setFocusable(false);
+        layout.clearFocus();
+    }
+
+    private boolean dismiss() {
+        if (mDismissListener == null) return false;
 
         Animation exitAnimation = ActivityAnimationUtil.getStandardActivityAnimation(
                 mContext, ActivityAnimationUtil.CLOSE_EXIT,
@@ -79,5 +85,6 @@ class BackButtonDismissController extends DismissController {
             mDismissListener.onDismissStarted();
             mDismissListener.onDismissed();
         }
+        return true;
     }
 }

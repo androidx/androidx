@@ -19,6 +19,7 @@ package androidx.wear.watchface.client.test
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.Rect
 import android.os.Handler
 import android.os.Looper
@@ -32,20 +33,31 @@ import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.DrawMode
+import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.SystemState
 import androidx.wear.watchface.client.WatchFaceControlClientImpl
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.data.ComplicationBoundsType
+import androidx.wear.watchface.samples.BLUE_STYLE
+import androidx.wear.watchface.samples.COLOR_STYLE_SETTING
+import androidx.wear.watchface.samples.COMPLICATIONS_STYLE_SETTING
+import androidx.wear.watchface.samples.DRAW_HOUR_PIPS_STYLE_SETTING
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
+import androidx.wear.watchface.samples.GREEN_STYLE
+import androidx.wear.watchface.samples.NO_COMPLICATIONS
+import androidx.wear.watchface.samples.WATCH_HAND_LENGTH_STYLE_SETTING
+import androidx.wear.watchface.style.Layer
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -144,7 +156,12 @@ class WatchFaceControlClientTest {
             400
         ).get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
         val bitmap = headlessInstance.takeWatchFaceScreenshot(
-            RenderParameters(DrawMode.INTERACTIVE, RenderParameters.DRAW_ALL_LAYERS, null),
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                RenderParameters.DRAW_ALL_LAYERS,
+                null,
+                Color.RED
+            ),
             100,
             1234567,
             null,
@@ -152,6 +169,44 @@ class WatchFaceControlClientTest {
         )
 
         bitmap.assertAgainstGolden(screenshotRule, "headlessScreenshot")
+
+        headlessInstance.close()
+    }
+
+    @Test
+    fun yellowComplicationHighlights() {
+        val headlessInstance = service.createHeadlessWatchFaceClient(
+            ComponentName(
+                "androidx.wear.watchface.samples.test",
+                "androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService"
+            ),
+            DeviceConfig(
+                false,
+                false,
+                0,
+                0
+            ),
+            400,
+            400
+        ).get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
+        val bitmap = headlessInstance.takeWatchFaceScreenshot(
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                mapOf(
+                    Layer.BASE_LAYER to LayerMode.DRAW,
+                    Layer.COMPLICATIONS to LayerMode.DRAW_HIGHLIGHTED,
+                    Layer.TOP_LAYER to LayerMode.DRAW
+                ),
+                null,
+                Color.YELLOW
+            ),
+            100,
+            1234567,
+            null,
+            complications
+        )
+
+        bitmap.assertAgainstGolden(screenshotRule, "yellowComplicationHighlights")
 
         headlessInstance.close()
     }
@@ -257,7 +312,12 @@ class WatchFaceControlClientTest {
             interactiveInstanceFuture.get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
 
         val bitmap = interactiveInstance.takeWatchFaceScreenshot(
-            RenderParameters(DrawMode.INTERACTIVE, RenderParameters.DRAW_ALL_LAYERS, null),
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                RenderParameters.DRAW_ALL_LAYERS,
+                null,
+                Color.RED
+            ),
             100,
             1234567,
             null,
@@ -297,7 +357,12 @@ class WatchFaceControlClientTest {
             interactiveInstanceFuture.get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
 
         val bitmap = interactiveInstance.takeWatchFaceScreenshot(
-            RenderParameters(DrawMode.INTERACTIVE, RenderParameters.DRAW_ALL_LAYERS, null),
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                RenderParameters.DRAW_ALL_LAYERS,
+                null,
+                Color.RED
+            ),
             100,
             1234567,
             null,
@@ -331,6 +396,15 @@ class WatchFaceControlClientTest {
         val interactiveInstance =
             interactiveInstanceFuture.get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
 
+        interactiveInstance.updateComplicationData(
+            mapOf(
+                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
+                    ShortTextComplicationData.Builder(ComplicationText.plain("Test")).build(),
+                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
+                    LongTextComplicationData.Builder(ComplicationText.plain("Test")).build()
+            )
+        )
+
         assertThat(interactiveInstance.complicationState.size).isEqualTo(2)
 
         val leftComplicationDetails = interactiveInstance.complicationState[
@@ -352,6 +426,9 @@ class WatchFaceControlClientTest {
             ComplicationType.SMALL_IMAGE
         )
         assertTrue(leftComplicationDetails.isEnabled)
+        assertThat(leftComplicationDetails.currentType).isEqualTo(
+            ComplicationType.SHORT_TEXT
+        )
 
         val rightComplicationDetails = interactiveInstance.complicationState[
             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
@@ -372,6 +449,9 @@ class WatchFaceControlClientTest {
             ComplicationType.SMALL_IMAGE
         )
         assertTrue(rightComplicationDetails.isEnabled)
+        assertThat(rightComplicationDetails.currentType).isEqualTo(
+            ComplicationType.LONG_TEXT
+        )
 
         interactiveInstance.close()
     }
@@ -485,6 +565,92 @@ class WatchFaceControlClientTest {
         assertThat(contentDescriptionLabels[2].bounds).isEqualTo(Rect(240, 160, 320, 240))
         assertThat(contentDescriptionLabels[2].getTextAt(context.resources, 0))
             .isEqualTo("ID Right")
+    }
+
+    @Test
+    fun setUserStyle() {
+        val interactiveInstanceFuture =
+            service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                mapOf(
+                    COLOR_STYLE_SETTING to GREEN_STYLE,
+                    WATCH_HAND_LENGTH_STYLE_SETTING to "0.25",
+                    DRAW_HOUR_PIPS_STYLE_SETTING to "false",
+                    COMPLICATIONS_STYLE_SETTING to NO_COMPLICATIONS
+                ),
+                complications
+            )
+
+        Mockito.`when`(surfaceHolder.surfaceFrame)
+            .thenReturn(Rect(0, 0, 400, 400))
+
+        // Create the engine which triggers creation of InteractiveWatchFaceWcsClient.
+        createEngine()
+
+        // Wait for the instance to be created.
+        val interactiveInstance =
+            interactiveInstanceFuture.get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
+
+        // Note this map doesn't include all the categories, which is fine the others will be set
+        // to their defaults.
+        interactiveInstance.setUserStyle(
+            mapOf(
+                COLOR_STYLE_SETTING to BLUE_STYLE,
+                WATCH_HAND_LENGTH_STYLE_SETTING to "0.9",
+            )
+        )
+
+        val bitmap = interactiveInstance.takeWatchFaceScreenshot(
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                RenderParameters.DRAW_ALL_LAYERS,
+                null,
+                Color.RED
+            ),
+            100,
+            1234567,
+            null,
+            complications
+        )
+
+        try {
+            // Note the hour hand pips and both complications should be visible in this image.
+            bitmap.assertAgainstGolden(screenshotRule, "setUserStyle")
+        } finally {
+            interactiveInstance.close()
+        }
+    }
+
+    @Test
+    fun getComplicationIdAt() {
+        val interactiveInstanceFuture =
+            service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+
+        Mockito.`when`(surfaceHolder.surfaceFrame)
+            .thenReturn(Rect(0, 0, 400, 400))
+
+        // Create the engine which triggers creation of InteractiveWatchFaceWcsClient.
+        createEngine()
+
+        val interactiveInstance =
+            interactiveInstanceFuture.get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
+
+        assertNull(interactiveInstance.getComplicationIdAt(0, 0))
+        assertThat(interactiveInstance.getComplicationIdAt(85, 165)).isEqualTo(
+            EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+        )
+        assertThat(interactiveInstance.getComplicationIdAt(255, 165)).isEqualTo(
+            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+        )
+        interactiveInstance.close()
     }
 }
 

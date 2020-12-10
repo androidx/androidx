@@ -65,7 +65,11 @@ class VisibilityStore {
     static final String DATABASE_NAME = "$$__AppSearch__Database";
 
     // Namespace of documents that contain visibility settings
-    private static final String NAMESPACE = "namespace";
+    private static final String NAMESPACE = GenericDocument.DEFAULT_NAMESPACE;
+
+    // Prefix to add to all visibility document uri's. IcingSearchEngine doesn't allow empty uri's.
+    private static final String URI_PREFIX = "uri:";
+
     private final AppSearchImpl mAppSearchImpl;
 
     // The map contains schemas that are platform-hidden for each database. All schemas in the map
@@ -97,7 +101,7 @@ class VisibilityStore {
         if (!mAppSearchImpl.hasSchemaTypeLocked(DATABASE_NAME, SCHEMA_TYPE)) {
             // Schema type doesn't exist yet. Add it.
             mAppSearchImpl.setSchema(DATABASE_NAME,
-                    Collections.singleton(new AppSearchSchema.Builder(SCHEMA_TYPE)
+                    Collections.singletonList(new AppSearchSchema.Builder(SCHEMA_TYPE)
                             .addProperty(new AppSearchSchema.PropertyConfig.Builder(
                                     NOT_PLATFORM_SURFACEABLE_PROPERTY)
                                     .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
@@ -105,7 +109,7 @@ class VisibilityStore {
                                             AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
                                     .build())
                             .build()),
-                    /*schemasNotPlatformSurfaceable=*/ Collections.emptySet(),
+                    /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
                     /*forceOverride=*/ false);
         }
 
@@ -119,11 +123,12 @@ class VisibilityStore {
             try {
                 // Note: We use the other clients' database names as uris
                 GenericDocument document = mAppSearchImpl.getDocument(
-                        DATABASE_NAME, NAMESPACE, /*uri=*/ database);
+                        DATABASE_NAME, NAMESPACE, /*uri=*/ addUriPrefix(database));
 
                 String[] schemas = document.getPropertyStringArray(
                         NOT_PLATFORM_SURFACEABLE_PROPERTY);
-                mNotPlatformSurfaceableMap.put(database, new ArraySet<>(Arrays.asList(schemas)));
+                mNotPlatformSurfaceableMap.put(database,
+                        new ArraySet<>(Arrays.asList(schemas)));
             } catch (AppSearchException e) {
                 if (e.getResultCode() == AppSearchResult.RESULT_NOT_FOUND) {
                     // TODO(b/172068212): This indicates some desync error. We were expecting a
@@ -155,7 +160,7 @@ class VisibilityStore {
 
         // Persist the document
         GenericDocument.Builder visibilityDocument = new GenericDocument.Builder(
-                /*uri=*/ databaseName, SCHEMA_TYPE)
+                /*uri=*/ addUriPrefix(databaseName), SCHEMA_TYPE)
                 .setNamespace(NAMESPACE);
         if (!schemasNotPlatformSurfaceable.isEmpty()) {
             visibilityDocument.setPropertyString(NOT_PLATFORM_SURFACEABLE_PROPERTY,
@@ -194,5 +199,15 @@ class VisibilityStore {
     public void handleReset() throws AppSearchException {
         mNotPlatformSurfaceableMap.clear();
         initialize();
+    }
+
+    /**
+     * Adds a uri prefix to create a visibility store document's uri.
+     *
+     * @param uri Non-prefixed uri
+     * @return Prefixed uri
+     */
+    private static String addUriPrefix(String uri) {
+        return URI_PREFIX + uri;
     }
 }

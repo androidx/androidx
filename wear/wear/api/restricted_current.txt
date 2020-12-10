@@ -73,6 +73,7 @@ package androidx.wear.ambient {
   public final class AmbientModeSupport.AmbientController {
     method public boolean isAmbient();
     method public void setAmbientOffloadEnabled(boolean);
+    method public void setAutoResumeEnabled(boolean);
   }
 
 }
@@ -92,6 +93,7 @@ package androidx.wear.ongoingactivity {
     method public androidx.wear.ongoingactivity.OngoingActivity build();
     method public androidx.wear.ongoingactivity.OngoingActivity.Builder setAnimatedIcon(android.graphics.drawable.Icon);
     method public androidx.wear.ongoingactivity.OngoingActivity.Builder setAnimatedIcon(@DrawableRes int);
+    method public androidx.wear.ongoingactivity.OngoingActivity.Builder setCategory(String);
     method public androidx.wear.ongoingactivity.OngoingActivity.Builder setLocusId(androidx.core.content.LocusIdCompat);
     method public androidx.wear.ongoingactivity.OngoingActivity.Builder setOngoingActivityId(int);
     method public androidx.wear.ongoingactivity.OngoingActivity.Builder setStaticIcon(android.graphics.drawable.Icon);
@@ -103,24 +105,23 @@ package androidx.wear.ongoingactivity {
   @androidx.versionedparcelable.VersionedParcelize public class OngoingActivityData implements androidx.versionedparcelable.VersionedParcelable {
     method public static androidx.wear.ongoingactivity.OngoingActivityData? create(android.app.Notification);
     method public android.graphics.drawable.Icon? getAnimatedIcon();
+    method public String? getCategory();
     method public androidx.core.content.LocusIdCompat? getLocusId();
     method public int getOngoingActivityId();
     method public android.graphics.drawable.Icon getStaticIcon();
     method public androidx.wear.ongoingactivity.OngoingActivityStatus? getStatus();
+    method public long getTimestamp();
     method public android.app.PendingIntent getTouchIntent();
     method public static boolean hasOngoingActivity(android.app.Notification);
   }
 
-  @androidx.versionedparcelable.VersionedParcelize public abstract class OngoingActivityStatus implements androidx.versionedparcelable.VersionedParcelable {
-    ctor public OngoingActivityStatus();
-    method public abstract long getNextChangeTimeMillis(long);
-    method public abstract CharSequence getText(android.content.Context, long);
+  @androidx.versionedparcelable.VersionedParcelize public class OngoingActivityStatus implements androidx.versionedparcelable.VersionedParcelable {
+    method public long getNextChangeTimeMillis(long);
+    method public CharSequence getText(android.content.Context, long);
   }
 
   @androidx.versionedparcelable.VersionedParcelize public class TextOngoingActivityStatus extends androidx.wear.ongoingactivity.OngoingActivityStatus {
     ctor public TextOngoingActivityStatus(String);
-    method public long getNextChangeTimeMillis(long);
-    method public CharSequence getText(android.content.Context, long);
   }
 
   @androidx.versionedparcelable.VersionedParcelize public class TimerOngoingActivityStatus extends androidx.wear.ongoingactivity.OngoingActivityStatus {
@@ -128,9 +129,7 @@ package androidx.wear.ongoingactivity {
     ctor public TimerOngoingActivityStatus(long, boolean, long);
     ctor public TimerOngoingActivityStatus(long, boolean);
     ctor public TimerOngoingActivityStatus(long);
-    method public long getNextChangeTimeMillis(long);
     method public long getPausedAtMillis();
-    method public CharSequence getText(android.content.Context, long);
     method public long getTimeZeroMillis();
     method public long getTotalDurationMillis();
     method public boolean hasTotalDuration();
@@ -321,14 +320,13 @@ package androidx.wear.widget {
   }
 
   public static interface WearArcLayout.ArcLayoutWidget {
-    method public void checkInvalidAttributeAsChild(boolean);
+    method public void checkInvalidAttributeAsChild();
     method public float getSweepAngleDegrees();
     method public int getThicknessPx();
-    method public boolean handleLayoutRotate(float);
     method public boolean insideClickArea(float, float);
   }
 
-  public static class WearArcLayout.LayoutParams extends android.view.ViewGroup.LayoutParams {
+  public static class WearArcLayout.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
     ctor public WearArcLayout.LayoutParams(android.content.Context, android.util.AttributeSet?);
     ctor public WearArcLayout.LayoutParams(int, int);
     ctor public WearArcLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
@@ -349,7 +347,7 @@ package androidx.wear.widget {
     ctor public WearCurvedTextView(android.content.Context, android.util.AttributeSet?);
     ctor public WearCurvedTextView(android.content.Context, android.util.AttributeSet?, int);
     ctor public WearCurvedTextView(android.content.Context, android.util.AttributeSet?, int, int);
-    method public void checkInvalidAttributeAsChild(boolean);
+    method public void checkInvalidAttributeAsChild();
     method public float getAnchorAngleDegrees();
     method public int getAnchorType();
     method public boolean getClockwise();
@@ -365,7 +363,6 @@ package androidx.wear.widget {
     method public float getTextSize();
     method public int getThicknessPx();
     method public android.graphics.Typeface? getTypeface();
-    method public boolean handleLayoutRotate(float);
     method public boolean insideClickArea(float, float);
     method public void setAnchorAngleDegrees(float);
     method public void setAnchorType(@androidx.wear.widget.WearArcLayout.AnchorType int);

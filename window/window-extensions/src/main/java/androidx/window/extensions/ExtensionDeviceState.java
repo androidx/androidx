@@ -43,8 +43,6 @@ public class ExtensionDeviceState {
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
-            POSTURE_UNKNOWN,
-            POSTURE_CLOSED,
             POSTURE_HALF_OPENED,
             POSTURE_OPENED,
             POSTURE_FLIPPED

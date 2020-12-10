@@ -36,7 +36,7 @@ import java.time.Duration;
  * the string before the interpunct:
  *
  * <pre>{@code
- * String interpunct = "\u00b7";
+ * String interpunct = "\\u00b7";
  * SpannableString string = new SpannableString("  " + interpunct + " Point-of-Interest 1");
  * string.setSpan(DurationSpan.create(300), 0, 1, SPAN_INCLUSIVE_INCLUSIVE);
  * }</pre>
@@ -48,7 +48,7 @@ import java.time.Duration;
  * apply styling to the text, such as changing colors:
  *
  * <pre>{@code
- * String interpunct = "\u00b7";
+ * String interpunct = "\\u00b7";
  * SpannableString string = new SpannableString("  " + interpunct + " Point-of-Interest 1");
  * string.setSpan(DurationSpan.create(300), 0, 1, SPAN_INCLUSIVE_INCLUSIVE);
  * string.setSpan(ForegroundCarColorSpan.create(CarColor.BLUE), 0, 1, SPAN_EXCLUSIVE_EXCLUSIVE);

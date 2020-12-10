@@ -18,6 +18,7 @@ package androidx.wear.watchface.client
 
 import android.graphics.Rect
 import androidx.wear.complications.DefaultComplicationProviderPolicy
+import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.data.ComplicationBoundsType
@@ -31,7 +32,7 @@ public class ComplicationState(
     /** The type of the complication's bounds. */
     @ComplicationBoundsType public val boundsType: Int,
 
-    /** The [ComplicationType]s supported for this complication. */
+    /** The [ComplicationType]s supported by this complication. */
     public val supportedTypes: List<ComplicationType>,
 
     /** The [DefaultComplicationProviderPolicy] for this complication. */
@@ -42,7 +43,10 @@ public class ComplicationState(
 
     /** Whether or not the complication is drawn. */
     @get:JvmName("isEnabled")
-    public val isEnabled: Boolean
+    public val isEnabled: Boolean,
+
+    /** The [ComplicationType] of the complication's current [ComplicationData]. */
+    public val currentType: ComplicationType
 ) {
     internal constructor(
         complicationStateWireFormat: ComplicationStateWireFormat
@@ -55,6 +59,7 @@ public class ComplicationState(
             complicationStateWireFormat.fallbackSystemProvider
         ),
         ComplicationType.fromWireType(complicationStateWireFormat.defaultProviderType),
-        complicationStateWireFormat.isEnabled
+        complicationStateWireFormat.isEnabled,
+        ComplicationType.fromWireType(complicationStateWireFormat.currentType)
     )
 }

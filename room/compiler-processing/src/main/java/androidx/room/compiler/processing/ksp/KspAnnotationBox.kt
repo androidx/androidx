@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XType
 import com.google.devtools.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import java.lang.reflect.Proxy
 
@@ -29,7 +30,7 @@ internal class KspAnnotationBox<T : Annotation>(
     private val annotation: KSAnnotation
 ) : XAnnotationBox<T> {
     override fun getAsType(methodName: String): XType? {
-        val value = getFieldValue<KSType>(methodName)
+        val value = getFieldValue(methodName, KSType::class.java)
         return value?.let {
             env.wrap(
                 ksType = it,
@@ -39,8 +40,8 @@ internal class KspAnnotationBox<T : Annotation>(
     }
 
     override fun getAsTypeList(methodName: String): List<XType> {
-        val values = getFieldValue<List<KSType>>(methodName) ?: return emptyList()
-        return values.map {
+        val values = getFieldValue(methodName, Array::class.java) ?: return emptyList()
+        return values.filterIsInstance<KSType>().map {
             env.wrap(
                 ksType = it,
                 allowPrimitives = true
@@ -49,7 +50,17 @@ internal class KspAnnotationBox<T : Annotation>(
     }
 
     override fun <R : Annotation> getAsAnnotationBox(methodName: String): XAnnotationBox<R> {
-        val value = getFieldValue<KSAnnotation>(methodName) ?: error("cannot get annotation")
+        val value = getFieldValue(methodName, KSAnnotation::class.java)
+        @Suppress("FoldInitializerAndIfToElvis")
+        if (value == null) {
+            // see https://github.com/google/ksp/issues/53
+            return KspReflectiveAnnotationBox.createFromDefaultValue(
+                env = env,
+                annotationClass = annotationClass,
+                methodName = methodName
+            )
+        }
+
         val annotationType = annotationClass.methods.first {
             it.name == methodName
         }.returnType as Class<R>
@@ -60,22 +71,37 @@ internal class KspAnnotationBox<T : Annotation>(
         )
     }
 
-    private inline fun <reified R> getFieldValue(methodName: String): R? {
-        val value = annotation.arguments.firstOrNull {
+    @Suppress("SyntheticAccessor")
+    private fun <R : Any> getFieldValue(
+        methodName: String,
+        returnType: Class<R>
+    ): R? {
+        val methodValue = annotation.arguments.firstOrNull {
             it.name?.asString() == methodName
-        }?.value ?: return null
-        return value as R?
+        }?.value
+        return methodValue?.readAs(returnType)
     }
 
     override fun <R : Annotation> getAsAnnotationBoxArray(
         methodName: String
     ): Array<XAnnotationBox<R>> {
-        val values = getFieldValue<ArrayList<*>>(methodName) ?: return emptyArray()
+        val values = getFieldValue(methodName, Array::class.java) ?: return emptyArray()
         val annotationType = annotationClass.methods.first {
             it.name == methodName
         }.returnType.componentType as Class<R>
+        if (values.isEmpty()) {
+            // KSP is unable to read defaults and returns empty array in that case.
+            // Subsequently, we don't know if developer set it to empty array intentionally or
+            // left it to default.
+            // we error on the side of default
+            return KspReflectiveAnnotationBox.createFromDefaultValues(
+                env = env,
+                annotationClass = annotationClass,
+                methodName = methodName
+            )
+        }
         return values.map {
-            KspAnnotationBox<R>(
+            KspAnnotationBox(
                 env = env,
                 annotationClass = annotationType,
                 annotation = it as KSAnnotation
@@ -84,24 +110,52 @@ internal class KspAnnotationBox<T : Annotation>(
     }
 
     private val valueProxy: T = Proxy.newProxyInstance(
-        KspAnnotationBox::class.java.classLoader,
+        annotationClass.classLoader,
         arrayOf(annotationClass)
     ) { _, method, _ ->
-        val fieldValue = getFieldValue(method.name) ?: method.defaultValue
-        // java gives arrays, kotlin gives array list (sometimes?) so fix it up
-        when {
-            fieldValue == null -> null
-            method.returnType.isArray && (fieldValue is ArrayList<*>) -> {
-                val componentType = method.returnType.componentType!!
-                val result =
-                    java.lang.reflect.Array.newInstance(componentType, fieldValue.size) as Array<*>
-                fieldValue.toArray(result)
-                result
-            }
-            else -> fieldValue
-        }
+        getFieldValue(method.name, method.returnType) ?: method.defaultValue
     } as T
 
     override val value: T
         get() = valueProxy
+}
+
+@Suppress("UNCHECKED_CAST")
+private fun <R> Any.readAs(returnType: Class<R>): R? {
+    return when {
+        returnType.isArray -> {
+            val values = when (this) {
+                is List<*> -> {
+                    // KSP might return list for arrays. convert it back.
+                    this.mapNotNull {
+                        it?.readAs(returnType.componentType)
+                    }
+                }
+                is Array<*> -> mapNotNull { it?.readAs(returnType.componentType) }
+                else -> error("unexpected type for array: $this / ${this::class.java}")
+            }
+            val resultArray = java.lang.reflect.Array.newInstance(
+                returnType.componentType,
+                values.size
+            ) as Array<Any?>
+            values.forEachIndexed { index, value ->
+                resultArray[index] = value
+            }
+            resultArray
+        }
+        returnType.isEnum -> {
+            this.readAsEnum(returnType)
+        }
+        else -> this
+    } as R?
+}
+
+private fun <R> Any.readAsEnum(enumClass: Class<R>): R? {
+    val ksType = this as? KSType ?: return null
+    val classDeclaration = ksType.declaration as? KSClassDeclaration ?: return null
+    val enumValue = classDeclaration.simpleName.asString()
+    // get the instance from the valueOf function.
+    @Suppress("UNCHECKED_CAST", "BanUncheckedReflection")
+    return enumClass.getDeclaredMethod("valueOf", String::class.java)
+        .invoke(null, enumValue) as R?
 }

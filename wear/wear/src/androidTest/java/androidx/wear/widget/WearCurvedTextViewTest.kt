@@ -227,12 +227,14 @@ class WearCurvedTextViewTest {
                     text = "This is a clockwise text for testing background"
                     clockwise = true
                     anchorAngleDegrees = 170.0f
+                    anchorType = WearArcLayout.ANCHOR_START
                     setBackgroundColor(Color.rgb(0, 100, 100))
                 },
                 WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
                     text = "Another clockwise text"
                     clockwise = true
                     anchorAngleDegrees = 70.0f
+                    anchorType = WearArcLayout.ANCHOR_START
                     setBackgroundColor(Color.rgb(0, 100, 100))
                 }
             )
@@ -249,12 +251,14 @@ class WearCurvedTextViewTest {
                     text = "This is a counterclockwise text for testing background"
                     clockwise = false
                     anchorAngleDegrees = 100.0f
+                    anchorType = WearArcLayout.ANCHOR_START
                     setBackgroundColor(Color.rgb(0, 100, 100))
                 },
                 WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
                     text = "Another counterclockwise text"
                     clockwise = false
                     anchorAngleDegrees = 230.0f
+                    anchorType = WearArcLayout.ANCHOR_START
                     setBackgroundColor(Color.rgb(0, 100, 100))
                 }
             )

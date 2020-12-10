@@ -68,7 +68,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class PreviewViewFragment extends Fragment {
 
     /** Scale types of ImageView that map to the PreviewView scale types. */
-    private static final ImageView.ScaleType[] IMAGE_VIEW_SCALE_TYPES =
+    // Synthetic access
+    static final ImageView.ScaleType[] IMAGE_VIEW_SCALE_TYPES =
             {ImageView.ScaleType.FIT_CENTER, ImageView.ScaleType.FIT_CENTER,
                     ImageView.ScaleType.FIT_CENTER, ImageView.ScaleType.FIT_START,
                     ImageView.ScaleType.FIT_CENTER, ImageView.ScaleType.FIT_END};
@@ -182,7 +183,8 @@ public class PreviewViewFragment extends Fragment {
         });
     }
 
-    void updateTargetRotationButtonText(Button rotationButton) {
+    @SuppressLint("SetTextI18n")
+    void updateTargetRotationButtonText(final @NonNull Button rotationButton) {
         switch (mPreview.getTargetRotation()) {
             case Surface.ROTATION_0:
                 rotationButton.setText("ROTATION_0");
@@ -225,7 +227,7 @@ public class PreviewViewFragment extends Fragment {
             // Get extra option for setting initial camera direction
             boolean isCameraDirectionValid = false;
             String cameraDirectionString = null;
-            Bundle bundle = getActivity().getIntent().getExtras();
+            Bundle bundle = requireActivity().getIntent().getExtras();
             if (bundle != null) {
                 cameraDirectionString = bundle.getString(INTENT_EXTRA_CAMERA_DIRECTION);
                 isCameraDirectionValid =
@@ -330,6 +332,7 @@ public class PreviewViewFragment extends Fragment {
         setUpFocusAndMetering(camera);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void setUpFocusAndMetering(@NonNull final Camera camera) {
         mPreviewView.setOnTouchListener((view, motionEvent) -> {
             switch (motionEvent.getAction()) {
@@ -414,7 +417,7 @@ public class PreviewViewFragment extends Fragment {
     // like TextureView.SurfaceTextureListener#onSurfaceTextureUpdated but it will require to add
     // API in PreviewView which is not a good idea. And we use OnPreDrawListener instead of
     // OnDrawListener because OnDrawListener is not invoked on some low API level devices.
-    private ViewTreeObserver.OnPreDrawListener mOnPreDrawListener = () -> {
+    private final ViewTreeObserver.OnPreDrawListener mOnPreDrawListener = () -> {
         if (mPreviewUpdatingLatch != null) {
             mPreviewUpdatingLatch.countDown();
         }
@@ -439,5 +442,5 @@ public class PreviewViewFragment extends Fragment {
     void setPreviewUpdatingLatch(@NonNull CountDownLatch previewUpdatingLatch) {
         mPreviewUpdatingLatch = previewUpdatingLatch;
     }
-    // end region
+    // endregion
 }

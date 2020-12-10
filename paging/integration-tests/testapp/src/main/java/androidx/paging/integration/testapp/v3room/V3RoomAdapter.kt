@@ -40,7 +40,7 @@ class V3RoomAdapter : PagingDataAdapter<Customer, RecyclerView.ViewHolder>(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
         if (item != null) {
-            (holder.itemView as TextView).text = item.lastName
+            (holder.itemView as TextView).text = item.name
             holder.itemView.setBackgroundColor(Color.BLUE)
         } else {
             (holder.itemView as TextView).setText(R.string.loading)

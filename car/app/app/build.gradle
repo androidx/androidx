@@ -31,21 +31,22 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel:2.2.0"
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
 
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
     // TODO(shiufai): We need this for assertThrows. Point back to the AndroidX shared version if
     // it is ever upgraded.
-    androidTestImplementation("junit:junit:4.13")
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(MOCKITO_ANDROID)
+    testImplementation("junit:junit:4.13")
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation(JUNIT)
+    testImplementation(MOCKITO_CORE)
+    testImplementation(ROBOLECTRIC)
+    testImplementation(TRUTH)
 }
 
 android {
     defaultConfig {
         minSdkVersion 21
         multiDexEnabled = true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     lintOptions {
         // We have a bunch of builder/inner classes where the outer classes access the private

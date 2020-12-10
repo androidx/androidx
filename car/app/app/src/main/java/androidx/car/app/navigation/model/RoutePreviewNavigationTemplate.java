@@ -40,7 +40,6 @@ import androidx.car.app.model.OnClickListener;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.Toggle;
-import androidx.car.app.utils.Logger;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -49,7 +48,7 @@ import java.util.Objects;
  * A template that supports showing a list of routes alongside a custom drawn map.
  *
  * <p>The list must have its {@link
- * androidx.car.app.model.ItemList.OnSelectedListener} set, and the template
+ * ItemList.OnSelectedListener} set, and the template
  * must have its navigate action set (see {@link Builder#setNavigateAction}). These are used in
  * conjunction to inform the app that:
  *
@@ -64,12 +63,12 @@ import java.util.Objects;
  *
  * <h4>Template Restrictions</h4>
  *
- * In regards to template refreshes, as described in {@link Screen#getTemplate()}, this template is
- * considered a refresh of a previous one if:
+ * In regards to template refreshes, as described in {@link Screen#onGetTemplate()}, this template
+ * is considered a refresh of a previous one if:
  *
  * <ul>
  *   <li>The template title has not changed, and
- *   <li>The previous template is in a loading state (see {@link Builder#setIsLoading}, or the
+ *   <li>The previous template is in a loading state (see {@link Builder#setLoading}, or the
  *       number of rows and the string contents (title, texts, not counting spans) of each row
  *       between the previous and new {@link ItemList}s have not changed.
  * </ul>
@@ -132,28 +131,6 @@ public final class RoutePreviewNavigationTemplate implements Template {
     @Nullable
     public ActionStrip getActionStrip() {
         return mActionStrip;
-    }
-
-    @Override
-    public boolean isRefresh(@NonNull Template oldTemplate, @NonNull Logger logger) {
-        if (oldTemplate.getClass() != this.getClass()) {
-            return false;
-        }
-
-        RoutePreviewNavigationTemplate old = (RoutePreviewNavigationTemplate) oldTemplate;
-        if (!Objects.equals(old.getTitle(), getTitle())) {
-            return false;
-        }
-
-        if (old.mIsLoading) {
-            // Transition from a previous loading state is allowed.
-            return true;
-        } else if (mIsLoading) {
-            // Transition to a loading state is disallowed.
-            return false;
-        }
-
-        return requireNonNull(mItemList).isRefresh(old.getItemList(), logger);
     }
 
     @Override
@@ -241,10 +218,8 @@ public final class RoutePreviewNavigationTemplate implements Template {
          * once the data is ready. If set to {@code false}, the UI shows the {@link ItemList}
          * contents added via {@link #setItemList}.
          */
-        // TODO(rampara): Consider renaming to setLoading()
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         @NonNull
-        public Builder setIsLoading(boolean isLoading) {
+        public Builder setLoading(boolean isLoading) {
             this.mIsLoading = isLoading;
             return this;
         }

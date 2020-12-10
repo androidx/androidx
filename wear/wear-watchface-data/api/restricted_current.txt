@@ -188,10 +188,11 @@ package androidx.wear.watchface.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class ComplicationStateWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public ComplicationStateWireFormat(android.graphics.Rect, @androidx.wear.watchface.data.ComplicationBoundsType int, @android.support.wearable.complications.ComplicationData.ComplicationType int[], java.util.List<android.content.ComponentName!>?, int, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean);
+    ctor public ComplicationStateWireFormat(android.graphics.Rect, @androidx.wear.watchface.data.ComplicationBoundsType int, @android.support.wearable.complications.ComplicationData.ComplicationType int[], java.util.List<android.content.ComponentName!>?, int, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, @android.support.wearable.complications.ComplicationData.ComplicationType int);
     method public int describeContents();
     method public android.graphics.Rect getBounds();
     method @androidx.wear.watchface.data.ComplicationBoundsType public int getBoundsType();
+    method @android.support.wearable.complications.ComplicationData.ComplicationType public int getCurrentType();
     method @android.support.wearable.complications.ComplicationData.ComplicationType public int getDefaultProviderType();
     method public java.util.List<android.content.ComponentName!>? getDefaultProvidersToTry();
     method public int getFallbackSystemProvider();
@@ -231,9 +232,10 @@ package androidx.wear.watchface.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class RenderParametersWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public RenderParametersWireFormat(int, java.util.List<androidx.wear.watchface.data.RenderParametersWireFormat.LayerParameterWireFormat!>, Integer?);
+    ctor public RenderParametersWireFormat(int, java.util.List<androidx.wear.watchface.data.RenderParametersWireFormat.LayerParameterWireFormat!>, Integer?, @ColorInt int);
     method public int describeContents();
     method public int getDrawMode();
+    method @ColorInt public int getHighlightTint();
     method public Integer? getHighlightedComplicationId();
     method public java.util.List<androidx.wear.watchface.data.RenderParametersWireFormat.LayerParameterWireFormat!> getLayerParameters();
     method public void writeToParcel(android.os.Parcel, int);
@@ -276,7 +278,7 @@ package androidx.wear.watchface.style.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public static class ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat(int, Boolean?, android.graphics.RectF?, int[]?, java.util.List<android.content.ComponentName!>?, Integer?, @android.support.wearable.complications.ComplicationData.ComplicationType Integer?);
+    ctor public ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat(int, Boolean?, java.util.Map<androidx.wear.complications.data.ComplicationType!,android.graphics.RectF!>?, int[]?, java.util.List<android.content.ComponentName!>?, Integer?, @android.support.wearable.complications.ComplicationData.ComplicationType Integer?);
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.style.data.ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat!>! CREATOR;
@@ -284,11 +286,11 @@ package androidx.wear.watchface.style.data {
     field public static final int ENABLED_UNKNOWN = -1; // 0xffffffff
     field public static final int ENABLED_YES = 1; // 0x1
     field public static final int NO_DEFAULT_PROVIDER_TYPE = -1; // 0xffffffff
-    field @androidx.versionedparcelable.ParcelField(3) public android.graphics.RectF? mBounds;
     field @androidx.versionedparcelable.ParcelField(1) public int mComplicationId;
     field @android.support.wearable.complications.ComplicationData.ComplicationType @androidx.versionedparcelable.ParcelField(7) public int mDefaultProviderType;
     field @androidx.versionedparcelable.ParcelField(5) public java.util.List<android.content.ComponentName!>? mDefaultProviders;
     field @androidx.versionedparcelable.ParcelField(2) public int mEnabled;
+    field @androidx.versionedparcelable.ParcelField(3) public java.util.Map<androidx.wear.complications.data.ComplicationType!,android.graphics.RectF!>? mPerComplicationTypeBounds;
     field @androidx.versionedparcelable.ParcelField(4) public int[]? mSupportedTypes;
     field @androidx.versionedparcelable.ParcelField(6) @androidx.wear.complications.SystemProviders.ProviderId public int mSystemProviderFallback;
   }

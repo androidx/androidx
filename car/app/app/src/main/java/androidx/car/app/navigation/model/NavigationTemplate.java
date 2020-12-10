@@ -33,7 +33,6 @@ import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.Template;
-import androidx.car.app.utils.Logger;
 
 import java.util.Objects;
 
@@ -60,7 +59,7 @@ import java.util.Objects;
  *
  * <h4>Template Restrictions</h4>
  *
- * In regard to template refreshes, as described in {@link Screen#getTemplate()}, this template
+ * In regard to template refreshes, as described in {@link Screen#onGetTemplate()}, this template
  * supports any content changes as refreshes. This allows apps to interactively update the
  * turn-by-turn instructions without the templates being counted against the template quota.
  *
@@ -116,14 +115,6 @@ public class NavigationTemplate implements Template {
     @NonNull
     public ActionStrip getActionStrip() {
         return requireNonNull(mActionStrip);
-    }
-
-    @Override
-    public boolean isRefresh(@NonNull Template oldTemplate, @NonNull Logger logger) {
-        requireNonNull(oldTemplate);
-
-        // Always allow updating on navigation templates.
-        return oldTemplate.getClass() == this.getClass();
     }
 
     @NonNull
@@ -217,10 +208,19 @@ public class NavigationTemplate implements Template {
         /**
          * Sets the {@link TravelEstimate} to the final destination, or {@code null} to not show any
          * travel estimate information.
+         *
+         * @throws IllegalArgumentException if the {@link TravelEstimate}'s remaining time is
+         *                                  less than zero.
          */
         @NonNull
         public Builder setDestinationTravelEstimate(
                 @Nullable TravelEstimate destinationTravelEstimate) {
+            if (destinationTravelEstimate != null
+                    && destinationTravelEstimate.getRemainingTimeSeconds() < 0) {
+                throw new IllegalArgumentException(
+                        "The destination travel estimate's remaining time must be greater or "
+                                + "equal to zero");
+            }
             this.mDestinationTravelEstimate = destinationTravelEstimate;
             return this;
         }

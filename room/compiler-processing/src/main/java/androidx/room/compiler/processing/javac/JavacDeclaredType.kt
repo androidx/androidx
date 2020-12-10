@@ -65,4 +65,13 @@ internal class JavacDeclaredType private constructor(
             )
         }
     }
+
+    override fun copyWithNullability(nullability: XNullability): JavacDeclaredType {
+        return JavacDeclaredType(
+            env = env,
+            typeMirror = typeMirror,
+            kotlinType = kotlinType,
+            nullability = nullability
+        )
+    }
 }

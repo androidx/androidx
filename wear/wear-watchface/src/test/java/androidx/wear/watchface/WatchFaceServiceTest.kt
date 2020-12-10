@@ -34,6 +34,7 @@ import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
 import android.view.ViewConfiguration
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
@@ -169,7 +170,7 @@ class WatchFaceServiceTest {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET),
-            RectF(0.2f, 0.4f, 0.4f, 0.6f)
+            ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
@@ -190,7 +191,7 @@ class WatchFaceServiceTest {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
-            RectF(0.6f, 0.4f, 0.8f, 0.6f)
+            ComplicationBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
@@ -328,6 +329,7 @@ class WatchFaceServiceTest {
         sendImmutableProperties(engineWrapper, hasLowBitAmbient, hasBurnInProtection)
 
         watchFaceImpl = engineWrapper.watchFaceImpl
+        testWatchFaceService.setIsVisible(true)
     }
 
     private fun initWallpaperInteractiveWatchFaceInstance(
@@ -377,6 +379,7 @@ class WatchFaceServiceTest {
         // The [SurfaceHolder] must be sent before binding.
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         watchFaceImpl = engineWrapper.watchFaceImpl
+        testWatchFaceService.setIsVisible(true)
     }
 
     private fun sendBinder(engine: WatchFaceService.EngineWrapper, apiVersion: Int) {
@@ -517,8 +520,7 @@ class WatchFaceServiceTest {
         watchState.isAmbient.value = false
         testWatchFaceService.mockSystemTimeMillis = 1000L
 
-        watchFaceImpl.mockTimeReceiver.onReceive(
-            context,
+        BroadcastReceivers.sendOnMockTimeForTesting(
             Intent(WatchFaceImpl.MOCK_TIME_INTENT).apply {
                 putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_SPEED_MULTIPLIER, 2.0f)
                 putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_WRAPPING_MIN_TIME, -1L)
@@ -545,8 +547,7 @@ class WatchFaceServiceTest {
         watchState.isAmbient.value = false
         testWatchFaceService.mockSystemTimeMillis = 1000L
 
-        watchFaceImpl.mockTimeReceiver.onReceive(
-            context,
+        BroadcastReceivers.sendOnMockTimeForTesting(
             Intent(WatchFaceImpl.MOCK_TIME_INTENT).apply {
                 putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_SPEED_MULTIPLIER, 2.0f)
                 putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_WRAPPING_MIN_TIME, 1000L)
@@ -874,19 +875,13 @@ class WatchFaceServiceTest {
         )
 
         // The delay should change when battery is low.
-        watchFaceImpl.batteryLevelReceiver.onReceive(
-            context,
-            Intent(Intent.ACTION_BATTERY_LOW)
-        )
+        BroadcastReceivers.sendOnActionBatteryChangedForTesting(Intent(Intent.ACTION_BATTERY_LOW))
         assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
             WatchFaceImpl.MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS
         )
 
         // And go back to normal when battery is OK.
-        watchFaceImpl.batteryLevelReceiver.onReceive(
-            context,
-            Intent(Intent.ACTION_BATTERY_OKAY)
-        )
+        BroadcastReceivers.sendOnActionBatteryChangedForTesting(Intent(Intent.ACTION_BATTERY_OKAY))
         assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
             INTERACTIVE_UPDATE_RATE_MS
         )
@@ -1261,8 +1256,8 @@ class WatchFaceServiceTest {
             4
         )
 
-        leftComplication.unitSquareBounds = RectF(0.3f, 0.3f, 0.5f, 0.5f)
-        rightComplication.unitSquareBounds = RectF(0.7f, 0.75f, 0.9f, 0.95f)
+        leftComplication.complicationBounds = ComplicationBounds(RectF(0.3f, 0.3f, 0.5f, 0.5f))
+        rightComplication.complicationBounds = ComplicationBounds(RectF(0.7f, 0.75f, 0.9f, 0.95f))
 
         val complicationDetails = engineWrapper.getComplicationState()
         assertThat(complicationDetails[0].id).isEqualTo(LEFT_COMPLICATION_ID)
@@ -1403,7 +1398,7 @@ class WatchFaceServiceTest {
                 provider2,
                 SystemProviders.SUNRISE_SUNSET
             ),
-            RectF(0.2f, 0.4f, 0.4f, 0.6f)
+            ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
         initEngine(WatchFaceType.ANALOG, listOf(complication), UserStyleSchema(emptyList()))
@@ -1431,7 +1426,7 @@ class WatchFaceServiceTest {
                 provider2,
                 SystemProviders.SUNRISE_SUNSET
             ),
-            RectF(0.2f, 0.4f, 0.4f, 0.6f)
+            ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
         initEngine(
@@ -1851,5 +1846,18 @@ class WatchFaceServiceTest {
         assertThat(leftComplication.isActiveAt(1000000)).isTrue()
         assertThat(leftComplication.isActiveAt(2000000)).isTrue()
         assertThat(leftComplication.isActiveAt(2000001)).isFalse()
+    }
+
+    @Test
+    fun invalidateRendererBeforeFullInit() {
+        renderer = TestRenderer(
+            surfaceHolder,
+            UserStyleRepository(UserStyleSchema(emptyList())),
+            watchState.asWatchState(),
+            INTERACTIVE_UPDATE_RATE_MS
+        )
+
+        // This should not throw an exception.
+        renderer.invalidate()
     }
 }

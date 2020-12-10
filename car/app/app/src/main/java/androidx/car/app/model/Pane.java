@@ -18,13 +18,9 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.utils.Logger;
-import androidx.car.app.utils.ValidationUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,7 +50,7 @@ public final class Pane {
      * Returns the list of {@link Action}s displayed alongside the {@link Row}s in this pane.
      */
     @Nullable
-    public ActionList getActionList() {
+    public ActionList getActions() {
         return mActionList;
     }
 
@@ -71,29 +67,6 @@ public final class Pane {
      */
     public boolean isLoading() {
         return mIsLoading;
-    }
-
-    /**
-     * Returns {@code true} if this {@link Pane} instance is determined to be a refresh of the given
-     * pane, or {@code false} otherwise.
-     *
-     * <p>A pane is considered a refresh if:
-     *
-     * <ul>
-     *   <li>The other pane is in a loading state, or
-     *   <li>The row size and string contents of the two panes are the same.
-     * </ul>
-     */
-    public boolean isRefresh(@Nullable Pane other, @NonNull Logger logger) {
-        if (other == null) {
-            return false;
-        } else if (other.isLoading()) {
-            return true;
-        } else if (isLoading()) {
-            return false;
-        }
-
-        return ValidationUtils.itemsHaveSameContent(other.getRows(), getRows(), logger);
     }
 
     @Override
@@ -174,13 +147,6 @@ public final class Pane {
             return this;
         }
 
-        /** Clears any rows that may have been added with {@link #addRow(Row)} up to this point. */
-        @NonNull
-        public Builder clearRows() {
-            mRows.clear();
-            return this;
-        }
-
         /**
          * Sets multiple {@link Action}s to display alongside the rows in the pane.
          *
@@ -189,8 +155,6 @@ public final class Pane {
          * @throws NullPointerException if {@code actions} is {@code null}.
          */
         @NonNull
-        // TODO(shiufai): consider rename to match getter's name (e.g. setActionList or getActions).
-        @SuppressLint("MissingGetterMatchingBuilder")
         public Builder setActions(@NonNull List<Action> actions) {
             mActionList = ActionList.create(requireNonNull(actions));
             return this;

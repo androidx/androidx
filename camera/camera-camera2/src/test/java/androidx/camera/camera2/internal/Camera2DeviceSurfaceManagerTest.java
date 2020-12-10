@@ -372,7 +372,9 @@ public final class Camera2DeviceSurfaceManagerTest {
         useCases.add(preview);
 
         Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
-                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases,
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
+                        mCameraFactory.getCamera(LEGACY_CAMERA_ID).getCameraInfoInternal(),
+                        useCases,
                         mUseCaseConfigFactory);
         // A legacy level camera device can't support JPEG (ImageCapture) + PRIV (VideoCapture) +
         // PRIV (Preview) combination. An IllegalArgumentException will be thrown when trying to
@@ -399,7 +401,9 @@ public final class Camera2DeviceSurfaceManagerTest {
         useCases.add(preview);
 
         Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
-                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases,
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
+                        mCameraFactory.getCamera(LIMITED_CAMERA_ID).getCameraInfoInternal(),
+                        useCases,
                         mUseCaseConfigFactory);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 mSurfaceManager.getSuggestedResolutions(LIMITED_CAMERA_ID, Collections.emptyList(),
@@ -570,9 +574,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         @CameraSelector.LensFacing int lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(
                 lensFacing);
         mCameraFactory.insertCamera(lensFacingEnum, cameraId, () -> new FakeCamera(cameraId, null,
-                new Camera2CameraInfoImpl(cameraId,
-                        getCameraCharacteristicsCompat(cameraId),
-                        mock(Camera2CameraControlImpl.class))));
+                new Camera2CameraInfoImpl(cameraId, getCameraCharacteristicsCompat(cameraId))));
     }
 
     private void initCameraX() {
@@ -592,11 +594,11 @@ public final class Camera2DeviceSurfaceManagerTest {
 
         // Create the DeviceSurfaceManager for Camera2
         CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
-                (context, cameraManager) -> {
+                (context, cameraManager, availableCameraIds) -> {
                     try {
                         return new Camera2DeviceSurfaceManager(mContext,
                                 mMockCamcorderProfileHelper,
-                                (CameraManagerCompat) cameraManager);
+                                (CameraManagerCompat) cameraManager, availableCameraIds);
                     } catch (CameraUnavailableException e) {
                         throw new InitializationException(e);
                     }
@@ -608,7 +610,7 @@ public final class Camera2DeviceSurfaceManagerTest {
 
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
-                        .setCameraFactoryProvider((ignored0, ignored1) -> mCameraFactory)
+                        .setCameraFactoryProvider((ignored0, ignored1, ignored2) -> mCameraFactory)
                         .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                         .setUseCaseConfigFactoryProvider(factoryProvider);
 

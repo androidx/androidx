@@ -16,21 +16,27 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.processing.util.RecordingXMessager
 import androidx.room.compiler.processing.util.XTestInvocation
-import java.lang.AssertionError
 import javax.lang.model.SourceVersion
 
 class SyntheticJavacProcessor(
-    val handler: (XTestInvocation) -> Unit
-) : JavacTestProcessor() {
+    val handler: (XTestInvocation) -> Unit,
+) : JavacTestProcessor(), SyntheticProcessor {
+    override val invocationInstances = mutableListOf<XTestInvocation>()
     private var result: Result<Unit>? = null
+    override val messageWatcher = RecordingXMessager()
 
     override fun doProcess(annotations: Set<XTypeElement>, roundEnv: XRoundEnv): Boolean {
+        val xEnv = XProcessingEnv.create(processingEnv)
+        xEnv.messager.addMessageWatcher(messageWatcher)
         result = kotlin.runCatching {
             handler(
                 XTestInvocation(
-                    processingEnv = XProcessingEnv.create(processingEnv)
-                )
+                    processingEnv = xEnv
+                ).also {
+                    invocationInstances.add(it)
+                }
             )
         }
         return true
@@ -42,7 +48,7 @@ class SyntheticJavacProcessor(
 
     override fun getSupportedAnnotationTypes() = setOf("*")
 
-    fun throwIfFailed() {
+    override fun throwIfFailed() {
         val result = checkNotNull(result) {
             "did not compile"
         }

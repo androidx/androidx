@@ -19,9 +19,9 @@ package androidx.wear.watchface
 import androidx.annotation.UiThread
 
 /**
- * An observable UI thread only data holder class.
+ * An observable UI thread only data holder class (see [Observer]).
  *
- * @param <T> The type of data hold by this instance
+ * @param T The type of data held by this instance
  */
 public open class ObservableWatchData<T : Any> internal constructor(internal var _value: T?) {
 
@@ -30,11 +30,13 @@ public open class ObservableWatchData<T : Any> internal constructor(internal var
     private val toBeRemoved = HashSet<Observer<T>>()
 
     /** Whether or not this ObservableWatchData contains a value. */
+    @UiThread
     public fun hasValue(): Boolean = _value != null
 
     /**
      * Returns the value contained within this ObservableWatchData or default if there isn't one.
      */
+    @UiThread
     public fun getValueOr(default: T): T = if (_value != null) {
         _value!!
     } else {
@@ -67,9 +69,9 @@ public open class ObservableWatchData<T : Any> internal constructor(internal var
         }
 
     /**
-     * Adds the given observer to the observers list. The events are dispatched on the ui thread.
-     * If there's any data held within the ObservableWatchData it will be immediately delivered to
-     * the observer.
+     * Adds the given [Observer] to the observers list. If [hasValue] would return true then
+     * [Observer.onChanged] will be called. Subsequently [Observer.onChanged] will also be called
+     * any time [value] changes. All of these callbacks are assumed to occur on the UI thread.
      */
     @UiThread
     public fun addObserver(observer: Observer<T>) {
@@ -98,7 +100,7 @@ public open class ObservableWatchData<T : Any> internal constructor(internal var
 /**
  * [ObservableWatchData] which publicly exposes [setValue(T)] method.
  *
- * @param <T> The type of data hold by this instance
+ * @param T The type of data held by this instance
  */
 public class MutableObservableWatchData<T : Any>(initialValue: T?) :
     ObservableWatchData<T>(initialValue) {

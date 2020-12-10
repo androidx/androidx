@@ -60,6 +60,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureProcessor;
@@ -465,7 +466,8 @@ public final class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     @Override
-    UseCaseConfig<?> onMergeConfig(@NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
+    UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
+            @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
         if (builder.getMutableConfig().retrieveOption(OPTION_PREVIEW_CAPTURE_PROCESSOR, null)
                 != null) {
             builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.YUV_420_888);

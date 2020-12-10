@@ -26,7 +26,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 import java.util.AbstractList
 import java.util.concurrent.Executor
@@ -179,12 +178,9 @@ abstract class PagedList<T : Any> internal constructor(
                         key,
                         config.initialLoadSizeHint,
                         config.enablePlaceholders,
-                        config.pageSize
                     )
                     runBlocking {
-                        val initialResult = withContext(DirectDispatcher) {
-                            pagingSource.load(params)
-                        }
+                        val initialResult = pagingSource.load(params)
                         when (initialResult) {
                             is PagingSource.LoadResult.Page -> initialResult
                             is PagingSource.LoadResult.Error -> throw initialResult.throwable
@@ -480,7 +476,14 @@ abstract class PagedList<T : Any> internal constructor(
         @Suppress("DEPRECATION")
         fun build(): PagedList<Value> {
             val fetchDispatcher = fetchDispatcher ?: Dispatchers.IO
-            val pagingSource = pagingSource ?: dataSource?.let { LegacyPagingSource { it } }
+            val pagingSource = pagingSource ?: dataSource?.let { dataSource ->
+                LegacyPagingSource(
+                    fetchDispatcher = fetchDispatcher,
+                    dataSource = dataSource
+                ).also {
+                    it.setPageSize(config.pageSize)
+                }
+            }
 
             check(pagingSource != null) {
                 "PagedList cannot be built without a PagingSource or DataSource"

@@ -30,6 +30,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 import static androidx.slice.core.SliceHints.LARGE_IMAGE;
+import static androidx.slice.core.SliceHints.RAW_IMAGE_LARGE;
 import static androidx.slice.core.SliceHints.SUBTYPE_DATE_PICKER;
 import static androidx.slice.core.SliceHints.SUBTYPE_TIME_PICKER;
 import static androidx.slice.widget.EventInfo.ACTION_TYPE_DATE_PICK;
@@ -67,6 +68,7 @@ import android.widget.TimePicker;
 import androidx.annotation.ColorInt;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.slice.CornerDrawable;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceHints;
 import androidx.slice.core.SliceQuery;
@@ -229,9 +231,17 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         }
         ArrayList<GridContent.CellContent> cells = mGridContent.getGridContent();
         if (cells.size() > 1) {
-            int desiredCellWidth = mGridContent.getLargestImageMode() == LARGE_IMAGE
-                    ? mLargeImageHeight
-                    : mSmallImageMinWidth;
+            int desiredCellWidth;
+            switch (mGridContent.getLargestImageMode()) {
+                case LARGE_IMAGE:
+                    desiredCellWidth = mLargeImageHeight;
+                    break;
+                case RAW_IMAGE_LARGE:
+                    desiredCellWidth = mGridContent.getFirstImageSize(getContext()).x;
+                    break;
+                default:
+                    desiredCellWidth = mSmallImageMinWidth;
+            }
             return getWidth() / (desiredCellWidth + mGutter);
         } else {
             return 1;
@@ -261,7 +271,8 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
             mViewContainer.setContentDescription(contentDescr);
         }
         ArrayList<GridContent.CellContent> cells = mGridContent.getGridContent();
-        if (mGridContent.getLargestImageMode() == LARGE_IMAGE) {
+        if (mGridContent.getLargestImageMode() == LARGE_IMAGE
+                || mGridContent.getLargestImageMode() == RAW_IMAGE_LARGE) {
             mViewContainer.setGravity(Gravity.TOP);
         } else {
             mViewContainer.setGravity(Gravity.CENTER_VERTICAL);
@@ -469,6 +480,8 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     private boolean addImageItem(SliceItem item, SliceItem overlayItem, int color,
             ViewGroup container, boolean isSingle) {
         final String format = item.getFormat();
+        final boolean hasRoundedImage =
+                mSliceStyle != null && mSliceStyle.getApplyCornerRadiusToLargeImages();
         if (!FORMAT_IMAGE.equals(format) || item.getIcon() == null) {
             return false;
         }
@@ -477,13 +490,19 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
             return false;
         }
         ImageView iv = new ImageView(getContext());
-        iv.setImageDrawable(d);
+        if (hasRoundedImage) {
+            CornerDrawable cd = new CornerDrawable(d, mSliceStyle.getImageCornerRadius());
+            iv.setImageDrawable(cd);
+        } else {
+            iv.setImageDrawable(d);
+        }
         LinearLayout.LayoutParams lp;
         if (item.hasHint(SliceHints.HINT_RAW)) {
             iv.setScaleType(ScaleType.CENTER_INSIDE);
-            lp = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+            lp = new LinearLayout.LayoutParams(mGridContent.getFirstImageSize(getContext()).x,
+                    mGridContent.getFirstImageSize(getContext()).y);
         } else if (item.hasHint(HINT_LARGE)) {
-            iv.setScaleType(ScaleType.CENTER_CROP);
+            iv.setScaleType(hasRoundedImage ? ScaleType.FIT_XY : ScaleType.CENTER_CROP);
             int height = isSingle ? MATCH_PARENT : mLargeImageHeight;
             lp = new LinearLayout.LayoutParams(MATCH_PARENT, height);
         } else {

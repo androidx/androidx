@@ -25,6 +25,7 @@ import android.support.wearable.complications.TimeDependentText
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.RenderParameters
@@ -49,7 +50,9 @@ public annotation class TapType
 
 /**
  * Controls a stateful remote interactive watch face with an interface tailored for SysUI the
- * WearOS 3.0 launcher app. Typically this will be used for the current active watch face.
+ * WearOS launcher app. Typically this will be used for the current active watch face.
+ *
+ * Note clients should call [close] when finished.
  */
 public interface InteractiveWatchFaceSysUiClient : AutoCloseable {
 
@@ -71,7 +74,10 @@ public interface InteractiveWatchFaceSysUiClient : AutoCloseable {
          */
         public const val TAP_TYPE_TAP: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_TAP
 
-        /** Constructs a [InteractiveWatchFaceSysUiClient] from an [IBinder]. */
+        /**
+         * Constructs an [InteractiveWatchFaceSysUiClient] from the [IBinder] returned by
+         * [asBinder].
+         */
         @JvmStatic
         public fun createFromBinder(binder: IBinder): InteractiveWatchFaceSysUiClient =
             InteractiveWatchFaceSysUiClientImpl(binder)
@@ -136,6 +142,7 @@ public interface InteractiveWatchFaceSysUiClient : AutoCloseable {
      * @return A WebP compressed shared memory backed [Bitmap] containing a screenshot of the watch
      *     face with the given settings.
      */
+    @RequiresApi(27)
     public fun takeWatchFaceScreenshot(
         renderParameters: RenderParameters,
         @IntRange(from = 0, to = 100)
@@ -181,6 +188,7 @@ internal class InteractiveWatchFaceSysUiClientImpl internal constructor(
                 )
             }
 
+    @RequiresApi(27)
     override fun takeWatchFaceScreenshot(
         renderParameters: RenderParameters,
         @IntRange(from = 0, to = 100)

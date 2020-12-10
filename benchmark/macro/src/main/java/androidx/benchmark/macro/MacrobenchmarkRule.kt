@@ -24,19 +24,42 @@ import org.junit.runners.model.Statement
  * JUnit rule for benchmarking large app operations like startup.
  */
 class MacrobenchmarkRule : TestRule {
-    lateinit var benchmarkName: String
+    lateinit var currentDescription: Description
 
     fun measureRepeated(
         config: MacrobenchmarkConfig,
-        setupBlock: MacrobenchmarkScope.() -> Unit = {},
+        setupBlock: MacrobenchmarkScope.(Boolean) -> Unit = {},
         measureBlock: MacrobenchmarkScope.() -> Unit
     ) {
-        macrobenchmark(benchmarkName, config, setupBlock, measureBlock)
+        macrobenchmark(
+            uniqueName = currentDescription.toUniqueName(),
+            className = currentDescription.className,
+            testName = currentDescription.methodName,
+            config = config,
+            launchWithClearTask = true,
+            setupBlock = setupBlock,
+            measureBlock = measureBlock
+        )
+    }
+
+    fun measureStartupRepeated(
+        config: MacrobenchmarkConfig,
+        startupMode: StartupMode,
+        performStartup: MacrobenchmarkScope.() -> Unit
+    ) {
+        startupMacrobenchmark(
+            uniqueName = currentDescription.toUniqueName(),
+            className = currentDescription.className,
+            testName = currentDescription.methodName,
+            config = config,
+            startupMode = startupMode,
+            performStartup = performStartup
+        )
     }
 
     override fun apply(base: Statement, description: Description) = object : Statement() {
         override fun evaluate() {
-            benchmarkName = description.toUniqueName()
+            currentDescription = description
             base.evaluate()
         }
     }

@@ -19,9 +19,11 @@ package androidx.room.solver
 import COMMON
 import androidx.paging.DataSource
 import androidx.paging.PagingSource
-import androidx.room.Entity
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.asDeclaredType
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.LifecyclesTypeNames
@@ -46,12 +48,7 @@ import androidx.room.solver.shortcut.binderprovider.RxCallableInsertMethodBinder
 import androidx.room.solver.types.CompositeAdapter
 import androidx.room.solver.types.EnumColumnTypeAdapter
 import androidx.room.solver.types.TypeConverter
-import androidx.room.testing.TestInvocation
-import androidx.room.testing.TestProcessor
-import com.google.common.truth.Truth
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourcesSubjectFactory
+import androidx.room.testing.context
 import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
@@ -61,8 +58,8 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import simpleRun
 import testCodeGenScope
+import toSources
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
@@ -73,21 +70,24 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testDirect() {
-        singleRun { invocation ->
+        runProcessorTest { invocation ->
             val store = TypeAdapterStore.create(Context(invocation.processingEnv))
             val primitiveType = invocation.processingEnv.requireType(TypeName.INT)
             val adapter = store.findColumnTypeAdapter(primitiveType, null)
             assertThat(adapter, notNullValue())
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testJavaLangBoolean() {
-        singleRun { invocation ->
-            val store = TypeAdapterStore.create(Context(invocation.processingEnv))
+        runProcessorTest { invocation ->
+            val store = TypeAdapterStore.create(
+                Context(invocation.processingEnv)
+            )
             val boolean = invocation
                 .processingEnv
                 .requireType("java.lang.Boolean")
+                .makeNullable()
             val adapter = store.findColumnTypeAdapter(boolean, null)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
@@ -100,22 +100,23 @@ class TypeAdapterStoreTest {
                 composite.columnTypeAdapter.out.typeName,
                 `is`(TypeName.INT.box())
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testJavaLangEnumCompilesWithoutError() {
-        simpleRun(
-            JavaFileObjects.forSourceString(
-                "foo.bar.Fruit",
-                """ package foo.bar;
+        val enumSrc = Source.java(
+            "foo.bar.Fruit",
+            """ package foo.bar;
                 import androidx.room.*;
                 enum Fruit {
                     APPLE,
                     BANANA,
                     STRAWBERRY}
                 """.trimMargin()
-            )
+        )
+        runProcessorTest(
+            sources = listOf(enumSrc)
         ) { invocation ->
             val store = TypeAdapterStore.create(Context(invocation.processingEnv))
             val enum = invocation
@@ -124,12 +125,12 @@ class TypeAdapterStoreTest {
             val adapter = store.findColumnTypeAdapter(enum, null)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(EnumColumnTypeAdapter::class.java))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testVia1TypeAdapter() {
-        singleRun { invocation ->
+        runProcessorTest { invocation ->
             val store = TypeAdapterStore.create(Context(invocation.processingEnv))
             val booleanType = invocation.processingEnv.requireType(TypeName.BOOLEAN)
             val adapter = store.findColumnTypeAdapter(booleanType, null)
@@ -160,12 +161,35 @@ class TypeAdapterStoreTest {
                     """.trimIndent()
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testVia2TypeAdapters() {
-        singleRun { invocation ->
+        val point = Source.java(
+            "foo.bar.Point",
+            """
+            package foo.bar;
+            import androidx.room.*;
+            @Entity
+            public class Point {
+                public int x, y;
+                public Point(int x, int y) {
+                    this.x = x;
+                    this.y = y;
+                }
+                public static Point fromBoolean(boolean val) {
+                    return val ? new Point(1, 1) : new Point(0, 0);
+                }
+                public static boolean toBoolean(Point point) {
+                    return point.x > 0;
+                }
+            }
+            """
+        )
+        runProcessorTest(
+            sources = listOf(point)
+        ) { invocation ->
             val store = TypeAdapterStore.create(
                 Context(invocation.processingEnv),
                 pointTypeConverters(invocation.processingEnv)
@@ -204,17 +228,17 @@ class TypeAdapterStoreTest {
                     """.trimIndent()
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testDate() {
-        singleRun { (processingEnv) ->
+        runProcessorTest { invocation ->
             val store = TypeAdapterStore.create(
-                Context(processingEnv),
-                dateTypeConverters(processingEnv)
+                invocation.context,
+                dateTypeConverters(invocation.processingEnv)
             )
-            val tDate = processingEnv.requireType("java.util.Date")
+            val tDate = invocation.processingEnv.requireType("java.util.Date")
             val adapter = store.findCursorValueReader(tDate, SQLTypeAffinity.INTEGER)
             assertThat(adapter, notNullValue())
             assertThat(adapter?.typeMirror(), `is`(tDate))
@@ -234,12 +258,12 @@ class TypeAdapterStoreTest {
                     """.trimIndent()
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testIntList() {
-        singleRun { invocation ->
+        runProcessorTest { invocation ->
             val binders = createIntListToStringBinders(invocation)
             val store = TypeAdapterStore.create(
                 Context(invocation.processingEnv), binders[0],
@@ -272,12 +296,12 @@ class TypeAdapterStoreTest {
             )
             assertThat(converter, notNullValue())
             assertThat(store.reverse(converter!!), `is`(binders[1]))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testOneWayConversion() {
-        singleRun { invocation ->
+        runProcessorTest { invocation ->
             val binders = createIntListToStringBinders(invocation)
             val store = TypeAdapterStore.create(Context(invocation.processingEnv), binders[0])
             val adapter = store.findColumnTypeAdapter(binders[0].from, null)
@@ -298,7 +322,9 @@ class TypeAdapterStoreTest {
     @Test
     fun testMissingRx2Room() {
         @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-        simpleRun(jfos = arrayOf(COMMON.PUBLISHER, COMMON.RX2_FLOWABLE)) { invocation ->
+        runProcessorTest(
+            sources = listOf(COMMON.PUBLISHER, COMMON.RX2_FLOWABLE).toSources()
+        ) { invocation ->
             val publisherElement = invocation.processingEnv
                 .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
             assertThat(publisherElement, notNullValue())
@@ -308,13 +334,18 @@ class TypeAdapterStoreTest {
                 },
                 `is`(true)
             )
-        }.failsToCompile().withErrorContaining(ProcessorErrors.MISSING_ROOM_RXJAVA2_ARTIFACT)
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.MISSING_ROOM_RXJAVA2_ARTIFACT)
+            }
+        }
     }
 
     @Test
     fun testMissingRx3Room() {
         @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-        simpleRun(jfos = arrayOf(COMMON.PUBLISHER, COMMON.RX3_FLOWABLE)) { invocation ->
+        runProcessorTest(
+            sources = listOf(COMMON.PUBLISHER, COMMON.RX3_FLOWABLE).toSources()
+        ) { invocation ->
             val publisherElement = invocation.processingEnv
                 .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
             assertThat(publisherElement, notNullValue())
@@ -324,7 +355,10 @@ class TypeAdapterStoreTest {
                 },
                 `is`(true)
             )
-        }.failsToCompile().withErrorContaining(ProcessorErrors.MISSING_ROOM_RXJAVA3_ARTIFACT)
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.MISSING_ROOM_RXJAVA3_ARTIFACT)
+            }
+        }
     }
 
     @Test
@@ -334,8 +368,9 @@ class TypeAdapterStoreTest {
             COMMON.RX3_FLOWABLE to COMMON.RX3_ROOM
         ).forEach { (rxTypeSrc, rxRoomSrc) ->
             @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-            simpleRun(jfos = arrayOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc)) {
-                invocation ->
+            runProcessorTest(
+                sources = listOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc).toSources()
+            ) { invocation ->
                 val publisher = invocation.processingEnv
                     .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
                 assertThat(publisher, notNullValue())
@@ -345,7 +380,7 @@ class TypeAdapterStoreTest {
                     },
                     `is`(true)
                 )
-            }.compilesWithoutError()
+            }
         }
     }
 
@@ -356,8 +391,9 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX3_FLOWABLE, COMMON.RX3_ROOM, RxJava3TypeNames.FLOWABLE)
         ).forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
             @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-            simpleRun(jfos = arrayOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc)) {
-                invocation ->
+            runProcessorTest(
+                sources = listOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc).toSources()
+            ) { invocation ->
                 val flowable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
                     RxQueryResultBinderProvider.getAll(invocation.context).any {
@@ -365,7 +401,7 @@ class TypeAdapterStoreTest {
                     },
                     `is`(true)
                 )
-            }.compilesWithoutError()
+            }
         }
     }
 
@@ -376,8 +412,9 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX3_OBSERVABLE, COMMON.RX3_ROOM, RxJava3TypeNames.OBSERVABLE)
         ).forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
             @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-            simpleRun(jfos = arrayOf(rxTypeSrc, rxRoomSrc)) {
-                invocation ->
+            runProcessorTest(
+                sources = listOf(rxTypeSrc, rxRoomSrc).toSources()
+            ) { invocation ->
                 val observable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(observable, notNullValue())
                 assertThat(
@@ -386,7 +423,7 @@ class TypeAdapterStoreTest {
                     },
                     `is`(true)
                 )
-            }.compilesWithoutError()
+            }
         }
     }
 
@@ -397,8 +434,7 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX3_SINGLE, COMMON.RX3_ROOM, RxJava3TypeNames.SINGLE)
         ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
             @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-            simpleRun(jfos = arrayOf(rxTypeSrc)) {
-                invocation ->
+            runProcessorTest(sources = listOf(rxTypeSrc).toSources()) { invocation ->
                 val single = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(single, notNullValue())
                 assertThat(
@@ -407,7 +443,7 @@ class TypeAdapterStoreTest {
                     },
                     `is`(true)
                 )
-            }.compilesWithoutError()
+            }
         }
     }
 
@@ -417,9 +453,7 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX2_MAYBE, COMMON.RX2_ROOM, RxJava2TypeNames.MAYBE),
             Triple(COMMON.RX3_MAYBE, COMMON.RX3_ROOM, RxJava3TypeNames.MAYBE)
         ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
-            @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-            simpleRun(jfos = arrayOf(rxTypeSrc)) {
-                invocation ->
+            runProcessorTest(sources = listOf(rxTypeSrc).toSources()) { invocation ->
                 val maybe = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
                     RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
@@ -427,7 +461,7 @@ class TypeAdapterStoreTest {
                     },
                     `is`(true)
                 )
-            }.compilesWithoutError()
+            }
         }
     }
 
@@ -437,9 +471,7 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX2_COMPLETABLE, COMMON.RX2_ROOM, RxJava2TypeNames.COMPLETABLE),
             Triple(COMMON.RX3_COMPLETABLE, COMMON.RX3_ROOM, RxJava3TypeNames.COMPLETABLE)
         ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
-            @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-            simpleRun(jfos = arrayOf(rxTypeSrc)) {
-                invocation ->
+            runProcessorTest(sources = listOf(rxTypeSrc).toSources()) { invocation ->
                 val completable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
                     RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
@@ -447,14 +479,13 @@ class TypeAdapterStoreTest {
                     },
                     `is`(true)
                 )
-            }.compilesWithoutError()
+            }
         }
     }
 
     @Test
     fun testFindInsertListenableFuture() {
-        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-        simpleRun(jfos = arrayOf(COMMON.LISTENABLE_FUTURE)) {
+        runProcessorTest(sources = listOf(COMMON.LISTENABLE_FUTURE).toSources()) {
             invocation ->
             val future = invocation.processingEnv
                 .requireTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
@@ -464,14 +495,12 @@ class TypeAdapterStoreTest {
                 ),
                 `is`(true)
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testFindDeleteOrUpdateSingle() {
-        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-        simpleRun(jfos = arrayOf(COMMON.RX2_SINGLE)) {
-            invocation ->
+        runProcessorTest(sources = listOf(COMMON.RX2_SINGLE).toSources()) { invocation ->
             val single = invocation.processingEnv.requireTypeElement(RxJava2TypeNames.SINGLE)
             assertThat(single, notNullValue())
             assertThat(
@@ -480,13 +509,12 @@ class TypeAdapterStoreTest {
                 },
                 `is`(true)
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testFindDeleteOrUpdateMaybe() {
-        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-        simpleRun(jfos = arrayOf(COMMON.RX2_MAYBE)) {
+        runProcessorTest(sources = listOf(COMMON.RX2_MAYBE).toSources()) {
             invocation ->
             val maybe = invocation.processingEnv.requireTypeElement(RxJava2TypeNames.MAYBE)
             assertThat(maybe, notNullValue())
@@ -496,13 +524,12 @@ class TypeAdapterStoreTest {
                 },
                 `is`(true)
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testFindDeleteOrUpdateCompletable() {
-        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-        simpleRun(jfos = arrayOf(COMMON.RX2_COMPLETABLE)) {
+        runProcessorTest(sources = listOf(COMMON.RX2_COMPLETABLE).toSources()) {
             invocation ->
             val completable = invocation.processingEnv
                 .requireTypeElement(RxJava2TypeNames.COMPLETABLE)
@@ -513,14 +540,14 @@ class TypeAdapterStoreTest {
                 },
                 `is`(true)
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testFindDeleteOrUpdateListenableFuture() {
-        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-        simpleRun(jfos = arrayOf(COMMON.LISTENABLE_FUTURE)) {
-            invocation ->
+        runProcessorTest(
+            sources = listOf(COMMON.LISTENABLE_FUTURE).toSources()
+        ) { invocation ->
             val future = invocation.processingEnv
                 .requireTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
             assertThat(future, notNullValue())
@@ -529,14 +556,14 @@ class TypeAdapterStoreTest {
                     .matches(future.asDeclaredType()),
                 `is`(true)
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testFindLiveData() {
-        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-        simpleRun(jfos = arrayOf(COMMON.COMPUTABLE_LIVE_DATA, COMMON.LIVE_DATA)) {
-            invocation ->
+        runProcessorTest(
+            sources = listOf(COMMON.COMPUTABLE_LIVE_DATA, COMMON.LIVE_DATA).toSources()
+        ) { invocation ->
             val liveData = invocation.processingEnv
                 .requireTypeElement(LifecyclesTypeNames.LIVE_DATA)
             assertThat(liveData, notNullValue())
@@ -546,12 +573,12 @@ class TypeAdapterStoreTest {
                 ),
                 `is`(true)
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun findPagingSourceIntKey() {
-        simpleRun { invocation ->
+        runProcessorTest { invocation ->
             val pagingSourceElement = invocation.processingEnv
                 .requireTypeElement(PagingSource::class)
             val intType = invocation.processingEnv.requireType(Integer::class)
@@ -569,7 +596,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun findPagingSourceStringKey() {
-        simpleRun { invocation ->
+        runProcessorTest { invocation ->
             val pagingSourceElement = invocation.processingEnv
                 .requireTypeElement(PagingSource::class)
             val stringType = invocation.processingEnv.requireType(String::class)
@@ -582,12 +609,15 @@ class TypeAdapterStoreTest {
                     .matches(pagingSourceIntIntType.asDeclaredType()),
                 `is`(true)
             )
-        }.failsToCompile().withErrorContaining(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_TYPE)
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_TYPE)
+            }
+        }
     }
 
     @Test
     fun findDataSource() {
-        simpleRun {
+        runProcessorTest {
             invocation ->
             val dataSource = invocation.processingEnv.requireTypeElement(DataSource::class)
             assertThat(dataSource, notNullValue())
@@ -597,12 +627,15 @@ class TypeAdapterStoreTest {
                 ),
                 `is`(true)
             )
-        }.failsToCompile().withErrorContaining(ProcessorErrors.PAGING_SPECIFY_DATA_SOURCE_TYPE)
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.PAGING_SPECIFY_DATA_SOURCE_TYPE)
+            }
+        }
     }
 
     @Test
     fun findPositionalDataSource() {
-        simpleRun {
+        runProcessorTest {
             invocation ->
             @Suppress("DEPRECATION")
             val dataSource = invocation.processingEnv
@@ -614,13 +647,12 @@ class TypeAdapterStoreTest {
                 ),
                 `is`(true)
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun findDataSourceFactory() {
-        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-        simpleRun(jfos = arrayOf(COMMON.DATA_SOURCE_FACTORY)) {
+        runProcessorTest(sources = listOf(COMMON.DATA_SOURCE_FACTORY).toSources()) {
             invocation ->
             val pagedListProvider = invocation.processingEnv
                 .requireTypeElement(PagingTypeNames.DATA_SOURCE_FACTORY)
@@ -631,14 +663,13 @@ class TypeAdapterStoreTest {
                 ),
                 `is`(true)
             )
-        }.compilesWithoutError()
+        }
     }
 
-    private fun createIntListToStringBinders(invocation: TestInvocation): List<TypeConverter> {
+    private fun createIntListToStringBinders(invocation: XTestInvocation): List<TypeConverter> {
         val intType = invocation.processingEnv.requireType(Integer::class)
         val listElement = invocation.processingEnv.requireTypeElement(java.util.List::class)
         val listOfInts = invocation.processingEnv.getDeclaredType(listElement, intType)
-
         val intListConverter = object : TypeConverter(
             listOfInts,
             invocation.context.COMMON_TYPES.STRING
@@ -674,53 +705,6 @@ class TypeAdapterStoreTest {
             }
         }
         return listOf(intListConverter, stringToIntListConverter)
-    }
-
-    fun singleRun(handler: (TestInvocation) -> Unit): CompileTester {
-        return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(
-                listOf(
-                    JavaFileObjects.forSourceString(
-                        "foo.bar.DummyClass",
-                        """
-                        package foo.bar;
-                        import androidx.room.*;
-                        @Entity
-                        public class DummyClass {}
-                        """
-                    ),
-                    JavaFileObjects.forSourceString(
-                        "foo.bar.Point",
-                        """
-                        package foo.bar;
-                        import androidx.room.*;
-                        @Entity
-                        public class Point {
-                            public int x, y;
-                            public Point(int x, int y) {
-                                this.x = x;
-                                this.y = y;
-                            }
-                            public static Point fromBoolean(boolean val) {
-                                return val ? new Point(1, 1) : new Point(0, 0);
-                            }
-                            public static boolean toBoolean(Point point) {
-                                return point.x > 0;
-                            }
-                        }
-                        """
-                    )
-                )
-            )
-            .processedWith(
-                TestProcessor.builder()
-                    .forAnnotations(Entity::class)
-                    .nextRunHandler { invocation ->
-                        handler(invocation)
-                        true
-                    }
-                    .build()
-            )
     }
 
     fun pointTypeConverters(env: XProcessingEnv): List<TypeConverter> {
@@ -759,8 +743,8 @@ class TypeAdapterStoreTest {
     }
 
     fun dateTypeConverters(env: XProcessingEnv): List<TypeConverter> {
-        val tDate = env.requireType("java.util.Date")
-        val tLong = env.requireType("java.lang.Long")
+        val tDate = env.requireType("java.util.Date").makeNullable()
+        val tLong = env.requireType("java.lang.Long").makeNullable()
         return listOf(
             object : TypeConverter(tDate, tLong) {
                 override fun convert(

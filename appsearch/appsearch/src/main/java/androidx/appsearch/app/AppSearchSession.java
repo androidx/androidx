@@ -16,9 +16,13 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.app;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.Set;
 
 /**
  * Represents a connection to an AppSearch storage system where {@link GenericDocument}s can be
@@ -29,7 +33,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 public interface AppSearchSession {
 
     /**
-     * Sets the schema being used by documents provided to the {@link #putDocuments} method.
+     * Sets the schema that will be used by documents provided to the {@link #putDocuments} method.
      *
      * <p>The schema provided here is compared to the stored copy of the schema previously supplied
      * to {@link #setSchema}, if any, to determine how to treat existing documents. The following
@@ -86,6 +90,16 @@ public interface AppSearchSession {
     //  exposed.
     @NonNull
     ListenableFuture<AppSearchResult<Void>> setSchema(@NonNull SetSchemaRequest request);
+
+    /**
+     * Retrieves the schema most recently successfully provided to {@link #setSchema}.
+     *
+     * @return The pending result of performing this operation.
+     */
+    // This call hits disk; async API prevents us from treating these calls as properties.
+    @SuppressLint("KotlinPropertyAccess")
+    @NonNull
+    ListenableFuture<AppSearchResult<Set<AppSearchSchema>>> getSchema();
 
     /**
      * Indexes documents into AppSearch.
@@ -178,11 +192,12 @@ public interface AppSearchSession {
 
     /**
      * Removes {@link GenericDocument}s from the index by Query. Documents will be removed if they
-     * match the query expression in given namespaces and schemaTypes.
+     * match the {@code queryExpression} in given namespaces and schemaTypes which is set via
+     * {@link SearchSpec.Builder#addNamespace} and {@link SearchSpec.Builder#addSchemaType}.
      *
-     * <p> An empty query matches all documents.
+     * <p> An empty {@code queryExpression} matches all documents.
      *
-     * <p> An empty set of namespaces or of schemaTypes matches all namespaces or schemaTypes in
+     * <p> An empty set of namespaces or schemaTypes matches all namespaces or schemaTypes in
      * the current database.
      *
      * @param queryExpression Query String to search.

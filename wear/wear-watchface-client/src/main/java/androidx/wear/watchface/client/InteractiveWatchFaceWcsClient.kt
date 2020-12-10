@@ -20,23 +20,31 @@ import android.graphics.Bitmap
 import android.os.IBinder
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.IntRange
+import androidx.annotation.Px
+import androidx.annotation.RequiresApi
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
+import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 /**
  * Controls a stateful remote interactive watch face with an interface tailored for WCS the
- * WearOS 3.0 system server responsible for watch face management. Typically this will be used for
+ * WearOS system server responsible for watch face management. Typically this will be used for
  * the current active watch face.
+ *
+ * Note clients should call [close] when finished.
  */
 public interface InteractiveWatchFaceWcsClient : AutoCloseable {
 
     public companion object {
-        /** Constructs a [InteractiveWatchFaceWcsClient] from an [IBinder]. */
+        /**
+         * Constructs an [InteractiveWatchFaceWcsClient] from the [IBinder] returned by [asBinder].
+         */
         @JvmStatic
         public fun createFromBinder(binder: IBinder): InteractiveWatchFaceWcsClient =
             InteractiveWatchFaceWcsClientImpl(binder)
@@ -62,6 +70,7 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
      * @return A WebP compressed shared memory backed [Bitmap] containing a screenshot of the watch
      *     face with the given settings.
      */
+    @RequiresApi(27)
     public fun takeWatchFaceScreenshot(
         renderParameters: RenderParameters,
         @IntRange(from = 0, to = 100)
@@ -79,6 +88,13 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
      */
     public fun setUserStyle(userStyle: UserStyle)
 
+    /**
+     * Sets the watch face's current UserStyle represented as a Map<String, String>.  This can be
+     * helpful to avoid having to construct a [UserStyle] which requires the [UserStyleSchema]
+     * which is an additional IPC. Note this may alter [complicationState].
+     */
+    public fun setUserStyle(userStyle: Map<String, String>)
+
     /** Returns the ID of this watch face instance. */
     public val instanceId: String
 
@@ -93,6 +109,24 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
 
     /** Returns the associated [IBinder]. Allows this interface to be passed over AIDL. */
     public fun asBinder(): IBinder
+
+    /** Returns the ID of the complication at the given coordinates or `null` if there isn't one.*/
+    @SuppressWarnings("AutoBoxing")
+    public fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int? =
+        complicationState.asSequence().firstOrNull {
+            it.value.isEnabled && when (it.value.boundsType) {
+                ComplicationBoundsType.ROUND_RECT -> it.value.bounds.contains(x, y)
+                ComplicationBoundsType.BACKGROUND -> false
+                ComplicationBoundsType.EDGE -> false
+                else -> false
+            }
+        }?.key
+
+    /**
+     * Requests the specified complication is highlighted for a short period to bring attention to
+     * it.
+     */
+    public fun bringAttentionToComplication(complicationId: Int)
 }
 
 /** Controls a stateful remote interactive watch face with an interface tailored for WCS. */
@@ -110,6 +144,7 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
         )
     }
 
+    @RequiresApi(27)
     override fun takeWatchFaceScreenshot(
         renderParameters: RenderParameters,
         @IntRange(from = 0, to = 100)
@@ -141,6 +176,10 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
         iInteractiveWatchFaceWcs.setCurrentUserStyle(userStyle.toWireFormat())
     }
 
+    override fun setUserStyle(userStyle: Map<String, String>) {
+        iInteractiveWatchFaceWcs.setCurrentUserStyle(UserStyleWireFormat(userStyle))
+    }
+
     override val instanceId: String
         get() = iInteractiveWatchFaceWcs.instanceId
 
@@ -158,4 +197,8 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
     }
 
     override fun asBinder(): IBinder = iInteractiveWatchFaceWcs.asBinder()
+
+    override fun bringAttentionToComplication(complicationId: Int) {
+        iInteractiveWatchFaceWcs.bringAttentionToComplication(complicationId)
+    }
 }

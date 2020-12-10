@@ -31,7 +31,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
 
 /** Information about a maneuver that the driver will be required to perform. */
-// TODO: Update when Embedded updates or a scheme for auto sync is established.
+// TODO(rasekh): Update when host(s) updates or a scheme for auto sync is established.
 public final class Maneuver {
     /**
      * Possible maneuver types.
@@ -81,14 +81,21 @@ public final class Maneuver {
             TYPE_DESTINATION,
             TYPE_DESTINATION_STRAIGHT,
             TYPE_DESTINATION_LEFT,
-            TYPE_DESTINATION_RIGHT
+            TYPE_DESTINATION_RIGHT,
+            TYPE_ROUNDABOUT_ENTER_CW,
+            TYPE_ROUNDABOUT_EXIT_CW,
+            TYPE_ROUNDABOUT_ENTER_CCW,
+            TYPE_ROUNDABOUT_EXIT_CCW,
+            TYPE_FERRY_BOAT_LEFT,
+            TYPE_FERRY_BOAT_RIGHT,
+            TYPE_FERRY_TRAIN_LEFT,
+            TYPE_FERRY_TRAIN_RIGHT,
     })
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY)
     public @interface Type {
     }
 
-    // LINT.IfChange(enums)
     /**
      * Maneuver type is unknown, no maneuver information should be displayed.
      *
@@ -286,7 +293,11 @@ public final class Maneuver {
      * Roundabout entrance on which the current road ends.
      *
      * <p>For example, this is used to indicate "Enter the roundabout".
+     *
+     * @deprecated Use {@link #TYPE_ROUNDABOUT_ENTER_CW} or {@link #TYPE_ROUNDABOUT_ENTER_CCW}
+     * instead.
      */
+    @Deprecated
     @Type
     public static final int TYPE_ROUNDABOUT_ENTER = 30;
 
@@ -294,7 +305,11 @@ public final class Maneuver {
      * Used when leaving a roundabout when the step starts in it.
      *
      * <p>For example, this is used to indicate "Exit the roundabout".
+     *
+     * @deprecated Use {@link #TYPE_ROUNDABOUT_EXIT_CW} or {@link #TYPE_ROUNDABOUT_EXIT_CCW}
+     * instead.
      */
+    @Deprecated
     @Type
     public static final int TYPE_ROUNDABOUT_EXIT = 31;
 
@@ -344,14 +359,18 @@ public final class Maneuver {
     public static final int TYPE_STRAIGHT = 36;
 
     /**
-     * Drive towards a boat ferry for vehicles.
+     * Drive towards a boat ferry for vehicles, where the entrance is straight ahead or in an
+     * unknown direction.
      *
      * <p>For example, this is used to indicate "Take the ferry".
      */
     @Type
     public static final int TYPE_FERRY_BOAT = 37;
 
-    /** Drive towards a train ferry for vehicles (e.g. "Take the train"). */
+    /**
+     * Drive towards a train ferry for vehicles (e.g. "Take the train"), where the entrance is
+     * straight ahead or in an unknown direction.
+     */
     @Type
     public static final int TYPE_FERRY_TRAIN = 38;
 
@@ -370,7 +389,70 @@ public final class Maneuver {
     /** Arrival to a destination located to the right side of the road. */
     @Type
     public static final int TYPE_DESTINATION_RIGHT = 42;
-    // LINT.ThenChange(:enumTypeChecks)
+
+    /**
+     * Entrance to a clockwise roundabout on which the current road ends.
+     *
+     * <p>For example, this is used to indicate "Enter the roundabout".
+     */
+    @Type
+    public static final int TYPE_ROUNDABOUT_ENTER_CW = 43;
+
+    /**
+     * Used when leaving a clockwise roundabout when the step starts in it.
+     *
+     * <p>For example, this is used to indicate "Exit the roundabout".
+     */
+    @Type
+    public static final int TYPE_ROUNDABOUT_EXIT_CW = 44;
+
+    /**
+     * Entrance to a counter-clockwise roundabout on which the current road ends.
+     *
+     * <p>For example, this is used to indicate "Enter the roundabout".
+     */
+    @Type
+    public static final int TYPE_ROUNDABOUT_ENTER_CCW = 45;
+
+    /**
+     * Used when leaving a counter-clockwise roundabout when the step starts in it.
+     *
+     * <p>For example, this is used to indicate "Exit the roundabout".
+     */
+    @Type
+    public static final int TYPE_ROUNDABOUT_EXIT_CCW = 46;
+
+    /**
+     * Drive towards a boat ferry for vehicles, where the entrance is to the left.
+     *
+     * <p>For example, this is used to indicate "Take the ferry".
+     */
+    @Type
+    public static final int TYPE_FERRY_BOAT_LEFT = 47;
+
+    /**
+     * Drive towards a boat ferry for vehicles, where the entrance is to the right.
+     *
+     * <p>For example, this is used to indicate "Take the ferry".
+     */
+    @Type
+    public static final int TYPE_FERRY_BOAT_RIGHT = 48;
+
+    /**
+     * Drive towards a train ferry for vehicles (e.g. "Take the train"), where the entrance is to
+     * the
+     * left.
+     */
+    @Type
+    public static final int TYPE_FERRY_TRAIN_LEFT = 49;
+
+    /**
+     * Drive towards a train ferry for vehicles (e.g. "Take the train"), where the entrance is to
+     * the
+     * right.
+     */
+    @Type
+    public static final int TYPE_FERRY_TRAIN_RIGHT = 50;
 
     @Keep
     @Type
@@ -388,7 +470,7 @@ public final class Maneuver {
      *
      * <p>The type should be chosen to reflect the closest semantic meaning of the maneuver. In some
      * cases, an exact type match is not possible, but choosing a similar or slightly more general
-     * type is preferred. Using {@link #TYPE_UNKNOWN} is allowed, but some headunits will not
+     * type is preferred. Using {@link #TYPE_UNKNOWN} is allowed, but some head units will not
      * display any information in that case.
      *
      * @param type one of the {@code TYPE_*} static constants defined in this class.
@@ -513,7 +595,7 @@ public final class Maneuver {
     }
 
     private static boolean isValidType(@Type int type) {
-        return (type >= TYPE_UNKNOWN && type <= TYPE_DESTINATION_RIGHT);
+        return (type >= TYPE_UNKNOWN && type <= TYPE_FERRY_TRAIN_RIGHT);
     }
 
     private static boolean isValidTypeWithExitNumber(@Type int type) {

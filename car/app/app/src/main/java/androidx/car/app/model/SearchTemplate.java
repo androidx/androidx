@@ -28,13 +28,9 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.IOnDoneCallback;
-import androidx.car.app.ISearchListener;
+import androidx.car.app.OnDoneCallback;
 import androidx.car.app.Screen;
-import androidx.car.app.SearchListener;
 import androidx.car.app.WrappedRuntimeException;
-import androidx.car.app.host.OnDoneCallback;
-import androidx.car.app.host.SearchListenerWrapper;
-import androidx.car.app.utils.Logger;
 import androidx.car.app.utils.RemoteUtils;
 
 import java.util.Collections;
@@ -45,11 +41,34 @@ import java.util.Objects;
  *
  * <h4>Template Restrictions</h4>
  *
- * In regards to template refreshes, as described in {@link Screen#getTemplate()}, this template
+ * In regards to template refreshes, as described in {@link Screen#onGetTemplate()}, this template
  * supports any content changes as refreshes. This allows apps to interactively update the search
  * results as the user types without the templates being counted against the quota.
  */
 public final class SearchTemplate implements Template {
+
+    /** A listener for search updates. */
+    public interface SearchListener {
+        /**
+         * Notifies the current {@code searchText}.
+         *
+         * <p>The host may invoke this callback as the user types a search text. The frequency of
+         * these updates is not guaranteed to be after every individual keystroke. The host may
+         * decide to wait for several keystrokes before sending a single update.
+         *
+         * @param searchText the current search text that the user has typed.
+         */
+        void onSearchTextChanged(@NonNull String searchText);
+
+        /**
+         * Notifies that the user has submitted the search and the given {@code searchText} is
+         * the final term.
+         *
+         * @param searchText the search text that the user typed.
+         */
+        void onSearchSubmitted(@NonNull String searchText);
+    }
+
     @Keep
     private final boolean mIsLoading;
     @Keep
@@ -149,13 +168,6 @@ public final class SearchTemplate implements Template {
      */
     public boolean isShowKeyboardByDefault() {
         return mShowKeyboardByDefault;
-    }
-
-    @Override
-    public boolean isRefresh(@NonNull Template oldTemplate, @NonNull Logger logger) {
-        // Always allow updating on search templates. Search results needs to be updated on the fly
-        // as user searches.
-        return oldTemplate.getClass() == this.getClass();
     }
 
     @NonNull
@@ -347,8 +359,8 @@ public final class SearchTemplate implements Template {
          *
          * This template allows up to 6 {@link Row}s in the {@link ItemList}. The host will
          * ignore any items over that limit. The list itself cannot be selectable as set via {@link
-         * ItemList.Builder#setSelectable}. Each {@link Row} can add up to 2 lines of texts via
-         * {@link Row.Builder#addText} and cannot contain a {@link Toggle}.
+         * ItemList.Builder#setOnSelectedListener}. Each {@link Row} can add up to 2 lines of texts
+         * via {@link Row.Builder#addText} and cannot contain a {@link Toggle}.
          *
          * @throws IllegalArgumentException if {@code itemList} does not meet the template's
          *                                  requirements.

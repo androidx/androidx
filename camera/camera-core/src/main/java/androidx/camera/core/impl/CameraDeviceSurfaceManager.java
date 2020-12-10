@@ -25,6 +25,7 @@ import androidx.camera.core.InitializationException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Camera device manager to provide the guaranteed supported stream capabilities related info for
@@ -41,12 +42,13 @@ public interface CameraDeviceSurfaceManager {
          *
          * @param context the android context
          * @param cameraManager the camera manager object used to query the camera information.
+         * @param availableCameraIds current available camera ids.
          * @return the factory instance
          * @throws InitializationException if it fails to create the factory
          */
         @NonNull
         CameraDeviceSurfaceManager newInstance(@NonNull Context context,
-                @Nullable Object cameraManager)
+                @Nullable Object cameraManager, @NonNull Set<String> availableCameraIds)
                 throws InitializationException;
     }
 
