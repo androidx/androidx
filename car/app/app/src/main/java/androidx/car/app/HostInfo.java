@@ -19,7 +19,6 @@ package androidx.car.app;
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 /**
  * Container class for information about the host the app is connected to.
@@ -41,10 +40,7 @@ public class HostInfo {
 
     /**
      * Constructs an instance of the HostInfo from the required package name, uid and API level.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public HostInfo(@NonNull String packageName, int uid) {
         mPackageName = requireNonNull(packageName);
         mUid = uid;
