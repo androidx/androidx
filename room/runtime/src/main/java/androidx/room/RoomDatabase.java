@@ -179,10 +179,14 @@ public abstract class RoomDatabase {
     @CallSuper
     public void init(@NonNull DatabaseConfiguration configuration) {
         mOpenHelper = createOpenHelper(configuration);
-        if (mOpenHelper instanceof SQLiteCopyOpenHelper) {
-            SQLiteCopyOpenHelper copyOpenHelper = (SQLiteCopyOpenHelper) mOpenHelper;
+
+        // Configure SqliteCopyOpenHelper if it is available:
+        SQLiteCopyOpenHelper copyOpenHelper = unwrapOpenHelper(SQLiteCopyOpenHelper.class,
+                mOpenHelper);
+        if (copyOpenHelper != null) {
             copyOpenHelper.setDatabaseConfiguration(configuration);
         }
+
         boolean wal = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             wal = configuration.journalMode == JournalMode.WRITE_AHEAD_LOGGING;
@@ -236,6 +240,26 @@ public abstract class RoomDatabase {
                         + "or remove this converter from the builder.");
             }
         }
+    }
+
+    /**
+     * Unwraps (delegating) open helpers until it finds clazz, otherwise returns null.
+     *
+     * @param clazz the open helper type to search for
+     * @param openHelper the open helper to search through
+     * @param <T> the type of clazz
+     * @return the instance of clazz, otherwise null
+     */
+    @Nullable
+    @SuppressWarnings("unchecked")
+    private <T> T unwrapOpenHelper(Class<T> clazz, SupportSQLiteOpenHelper openHelper) {
+        if (clazz.isInstance(openHelper)) {
+            return (T) openHelper;
+        }
+        if (openHelper instanceof DelegatingOpenHelper) {
+            return unwrapOpenHelper(clazz, ((DelegatingOpenHelper) openHelper).getDelegate());
+        }
+        return null;
     }
 
     /**
