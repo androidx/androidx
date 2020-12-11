@@ -18,6 +18,7 @@ package androidx.room.writer
 
 import COMMON
 import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.processor.DaoProcessor
 import androidx.room.testing.TestProcessor
 import com.google.common.truth.Truth
@@ -98,12 +99,12 @@ class DaoWriterTest {
                     .forAnnotations(androidx.room.Dao::class)
                     .nextRunHandler { invocation ->
                         val dao = invocation.roundEnv
-                            .getElementsAnnotatedWith(
+                            .getTypeElementsAnnotatedWith(
                                 androidx.room.Dao::class.java
                             )
                             .first()
                         val db = invocation.roundEnv
-                            .getElementsAnnotatedWith(
+                            .getTypeElementsAnnotatedWith(
                                 androidx.room.Database::class.java
                             )
                             .firstOrNull()
@@ -112,7 +113,7 @@ class DaoWriterTest {
                         val dbType = db.asDeclaredType()
                         val parser = DaoProcessor(
                             baseContext = invocation.context,
-                            element = dao.asTypeElement(),
+                            element = dao,
                             dbType = dbType,
                             dbVerifier = createVerifierFromEntitiesAndViews(invocation)
                         )

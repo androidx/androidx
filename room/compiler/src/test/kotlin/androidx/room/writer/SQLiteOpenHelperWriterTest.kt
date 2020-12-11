@@ -17,6 +17,7 @@
 package androidx.room.writer
 
 import androidx.annotation.NonNull
+import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.processor.DatabaseProcessor
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
@@ -221,8 +222,8 @@ class SQLiteOpenHelperWriterTest {
                     )
                     .nextRunHandler { invocation ->
                         val db = invocation.roundEnv
-                            .getElementsAnnotatedWith(androidx.room.Database::class.java)
-                            .first().asTypeElement()
+                            .getTypeElementsAnnotatedWith(androidx.room.Database::class.java)
+                            .first()
                         handler(DatabaseProcessor(invocation.context, db).process(), invocation)
                         true
                     }

@@ -48,7 +48,7 @@ interface XType {
     /**
      * Casts the current type to [XTypeElement].
      *
-     * @see isType
+     * @see isTypeElement
      */
     fun asTypeElement(): XTypeElement
 

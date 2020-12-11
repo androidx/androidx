@@ -22,7 +22,7 @@ import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.compiler.processing.isType
+import androidx.room.compiler.processing.isTypeElement
 import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao
@@ -83,10 +83,9 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         }.filterNot {
             // remove methods that belong to room
             val containing = it.enclosingTypeElement
-            containing.isType() &&
+            containing.isTypeElement() &&
                 containing.asDeclaredType().typeName == RoomTypeNames.ROOM_DB
-        }.map {
-            val executable = it.asMethodElement()
+        }.map { executable ->
             // TODO when we add support for non Dao return types (e.g. database), this code needs
             // to change
             val daoType = executable.returnType.asTypeElement()

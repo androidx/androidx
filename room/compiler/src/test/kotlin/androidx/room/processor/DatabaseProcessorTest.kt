@@ -23,6 +23,7 @@ import androidx.room.parser.QueryType
 import androidx.room.parser.Table
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.solver.query.result.EntityRowAdapter
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.testing.TestInvocation
@@ -1080,13 +1081,13 @@ class DatabaseProcessorTest {
                     .forAnnotations(androidx.room.Database::class)
                     .nextRunHandler { invocation ->
                         val database = invocation.roundEnv
-                            .getElementsAnnotatedWith(
+                            .getTypeElementsAnnotatedWith(
                                 androidx.room.Database::class.java
                             )
                             .first()
                         val processor = DatabaseProcessor(
                             invocation.context,
-                            database.asTypeElement()
+                            database
                         )
 
                         val list = views.map { (viewName, names) ->
@@ -1153,13 +1154,13 @@ class DatabaseProcessorTest {
                     .forAnnotations(androidx.room.Database::class)
                     .nextRunHandler { invocation ->
                         val entity = invocation.roundEnv
-                            .getElementsAnnotatedWith(
+                            .getTypeElementsAnnotatedWith(
                                 androidx.room.Database::class.java
                             )
                             .first()
                         val parser = DatabaseProcessor(
                             invocation.context,
-                            entity.asTypeElement()
+                            entity
                         )
                         val parsedDb = parser.process()
                         handler(parsedDb, invocation)

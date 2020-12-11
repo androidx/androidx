@@ -20,6 +20,7 @@ import androidx.annotation.NonNull
 import androidx.room.Embedded
 import androidx.room.Fts3
 import androidx.room.Fts4
+import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.FtsEntity
@@ -99,15 +100,15 @@ abstract class BaseFtsEntityParserTest {
                     )
                     .nextRunHandler { invocation ->
                         val fts3AnnotatedElements = invocation.roundEnv
-                            .getElementsAnnotatedWith(Fts3::class.java)
+                            .getTypeElementsAnnotatedWith(Fts3::class.java)
                         val fts4AnnotatedElements = invocation.roundEnv
-                            .getElementsAnnotatedWith(Fts4::class.java)
+                            .getTypeElementsAnnotatedWith(Fts4::class.java)
                         val entity = (fts3AnnotatedElements + fts4AnnotatedElements).first {
                             it.toString() == "foo.bar.MyEntity"
                         }
                         val processor = FtsTableEntityProcessor(
                             invocation.context,
-                            entity.asTypeElement()
+                            entity
                         )
                         val processedEntity = processor.process()
                         handler(processedEntity, invocation)

@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.compiler.processing.asDeclaredType
+import androidx.room.compiler.processing.isTypeElement
 import androidx.room.ext.RoomTypeNames
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
@@ -422,6 +423,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                                 androidx.room.Dao::class.java
                             )
                             .first()
+                        check(dao.isTypeElement())
                         val dbVerifier = if (enableVerification) {
                             createVerifierFromEntitiesAndViews(invocation)
                         } else {
@@ -432,7 +434,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                             .asDeclaredType()
                         val parser = DaoProcessor(
                             invocation.context,
-                            dao.asTypeElement(), dbType, dbVerifier
+                            dao, dbType, dbVerifier
                         )
 
                         val parsedDao = parser.process()
