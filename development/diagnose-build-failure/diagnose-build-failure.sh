@@ -93,7 +93,7 @@ function checkStatus() {
   fi
 }
 
-function getBuildComand() {
+function getBuildCommand() {
   if [ "$expectedMessage" == "" ]; then
     testCommand="$*"
   else
