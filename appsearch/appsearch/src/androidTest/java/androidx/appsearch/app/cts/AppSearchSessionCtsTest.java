@@ -289,7 +289,8 @@ public class AppSearchSessionCtsTest {
         assertThat(failResult1.isSuccess()).isFalse();
         assertThat(failResult1.getErrorMessage()).contains("Schema is incompatible");
         assertThat(failResult1.getErrorMessage())
-                .contains("Deleted types: [" + mDbName1 + "/builtin:Email]");
+                .contains(
+                        "Deleted types: [androidx.appsearch.test$" + mDbName1 + "/builtin:Email]");
 
         // Try to remove the email schema again, which should now work as we set forceOverride to
         // be true.
@@ -315,7 +316,8 @@ public class AppSearchSessionCtsTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(email2).build()).get();
         assertThat(failResult2.isSuccess()).isFalse();
         assertThat(failResult2.getFailures().get("email2").getErrorMessage())
-                .isEqualTo("Schema type config '" + mDbName1 + "/builtin:Email' not found");
+                .isEqualTo("Schema type config 'androidx.appsearch.test$" + mDbName1
+                        + "/builtin:Email' not found");
     }
 
     @Test
@@ -368,7 +370,8 @@ public class AppSearchSessionCtsTest {
         assertThat(failResult1.isSuccess()).isFalse();
         assertThat(failResult1.getErrorMessage()).contains("Schema is incompatible");
         assertThat(failResult1.getErrorMessage())
-                .contains("Deleted types: [" + mDbName1 + "/builtin:Email]");
+                .contains(
+                        "Deleted types: [androidx.appsearch.test$" + mDbName1 + "/builtin:Email]");
 
         // Try to remove the email schema again, which should now work as we set forceOverride to
         // be true.
@@ -392,7 +395,8 @@ public class AppSearchSessionCtsTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(email3).build()).get();
         assertThat(failResult2.isSuccess()).isFalse();
         assertThat(failResult2.getFailures().get("email3").getErrorMessage())
-                .isEqualTo("Schema type config '" + mDbName1 + "/builtin:Email' not found");
+                .isEqualTo("Schema type config 'androidx.appsearch.test$" + mDbName1
+                        + "/builtin:Email' not found");
 
         // Make sure email in database 2 still present.
         outDocuments = doGet(mDb2, GenericDocument.DEFAULT_NAMESPACE, "email2");

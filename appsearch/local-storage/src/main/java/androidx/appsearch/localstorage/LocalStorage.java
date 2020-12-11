@@ -268,7 +268,8 @@ public class LocalStorage {
     }
 
     AppSearchSession doCreateSearchSession(@NonNull SearchContext context) {
-        return new SearchSessionImpl(mAppSearchImpl, mExecutorService, context.mDatabaseName);
+        return new SearchSessionImpl(mAppSearchImpl, mExecutorService,
+                context.mContext.getPackageName(), context.mDatabaseName);
     }
 
     GlobalSearchSession doCreateGlobalSearchSession() {

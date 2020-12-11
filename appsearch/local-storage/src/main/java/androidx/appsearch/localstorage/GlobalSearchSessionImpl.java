@@ -52,6 +52,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         return new SearchResultsImpl(
                 mAppSearchImpl,
                 mExecutorService,
+                /*packageName=*/ null,
                 /*databaseName=*/ null,
                 queryExpression,
                 searchSpec);

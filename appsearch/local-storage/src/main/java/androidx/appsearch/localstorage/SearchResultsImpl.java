@@ -36,6 +36,11 @@ class SearchResultsImpl implements SearchResults {
 
     private final ExecutorService mExecutorService;
 
+    // The package name to search over. If null, this will search over all package names.
+    @Nullable
+    private final String mPackageName;
+
+    // The database name to search over. If null, this will search over all database names.
     @Nullable
     private final String mDatabaseName;
 
@@ -50,11 +55,13 @@ class SearchResultsImpl implements SearchResults {
     SearchResultsImpl(
             @NonNull AppSearchImpl appSearchImpl,
             @NonNull ExecutorService executorService,
+            @Nullable String packageName,
             @Nullable String databaseName,
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
         mExecutorService = Preconditions.checkNotNull(executorService);
+        mPackageName = packageName;
         mDatabaseName = databaseName;
         mQueryExpression = Preconditions.checkNotNull(queryExpression);
         mSearchSpec = Preconditions.checkNotNull(searchSpec);
@@ -68,14 +75,23 @@ class SearchResultsImpl implements SearchResults {
                 SearchResultPage searchResultPage;
                 if (mIsFirstLoad) {
                     mIsFirstLoad = false;
-                    if (mDatabaseName == null) {
-                        // Global query, there's no one database to check.
+                    if (mDatabaseName == null && mPackageName == null) {
+                        // Global query, there's no one package-database combination to check.
                         searchResultPage = mAppSearchImpl.globalQuery(
                                 mQueryExpression, mSearchSpec);
+                    } else if (mPackageName == null) {
+                        return AppSearchResult.newFailedResult(
+                                AppSearchResult.RESULT_INVALID_ARGUMENT,
+                                "Invalid null package name for query");
+                    } else if (mDatabaseName == null) {
+                        return AppSearchResult.newFailedResult(
+                                AppSearchResult.RESULT_INVALID_ARGUMENT,
+                                "Invalid null database name for query");
                     } else {
                         // Normal local query, pass in specified database.
                         searchResultPage = mAppSearchImpl.query(
-                                mDatabaseName, mQueryExpression, mSearchSpec);
+                                mPackageName, mDatabaseName, mQueryExpression, mSearchSpec);
+
                     }
                 } else {
                     searchResultPage = mAppSearchImpl.getNextPage(mNextPageToken);
