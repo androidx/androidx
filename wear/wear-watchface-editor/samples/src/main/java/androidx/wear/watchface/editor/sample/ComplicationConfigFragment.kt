@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchface.ui
+package androidx.wear.watchface.editor.sample
 
 import android.app.Activity
 import android.content.Context
@@ -22,7 +22,6 @@ import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
-import android.icu.util.Calendar
 import android.os.Bundle
 import android.support.wearable.watchface.Constants
 import android.view.GestureDetector
@@ -41,11 +40,8 @@ import androidx.wear.widget.SwipeDismissFrameLayout
 import kotlin.math.abs
 
 /**
- * This fragment lets the user to select a non-background complication to configure.
- *
- * @hide
+ * This fragment lets the user select a non-background complication to configure.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal class ComplicationConfigFragment : Fragment() {
 
     override fun onCreateView(
@@ -106,11 +102,7 @@ internal class ConfigView(
         var eventType: Int
     )
 
-    private val snapshottedTime = Calendar.getInstance().apply {
-        timeZone = watchFaceConfigActivity.watchFaceConfigDelegate.getCalendar().timeZone
-        timeInMillis = watchFaceConfigActivity.watchFaceConfigDelegate.getCalendar().timeInMillis
-    }
-
+    private var selectedComplicationId: Int? = null
     private val drawRect = Rect()
     private var lastEventInfo: EventInfo? = null
     private val gestureListener = object : GestureDetector.SimpleOnGestureListener() {
@@ -147,18 +139,26 @@ internal class ConfigView(
         tapX: Int,
         tapY: Int
     ): Boolean {
-        var iWatchFaceConfig = watchFaceConfigActivity.watchFaceConfigDelegate
         // Check if the user tapped on any of the complications, but with the supplied calendar.
         // This is to support freezing of animated complications while the user selects one to
         // configure.
         val complicationId =
-            iWatchFaceConfig.getComplicationIdAt(tapX, tapY) ?: return false
-        val complication = iWatchFaceConfig.getComplicationsMap()[complicationId]!!
-        iWatchFaceConfig.brieflyHighlightComplicationId(complicationId)
-        watchFaceConfigActivity.fragmentController.showComplicationConfig(
-            complicationId,
-            complication.supportedTypes
+            watchFaceConfigActivity.editorSession.getComplicationIdAt(tapX, tapY) ?: return false
+
+        // Briefly highlight the complication.
+        selectedComplicationId = complicationId
+        invalidate()
+
+        watchFaceConfigActivity.handler.postDelayed(
+            {
+                selectedComplicationId = null
+                invalidate()
+            },
+            100
         )
+        // Redraw after the complication provider chooser has run.
+        watchFaceConfigActivity.fragmentController.showComplicationConfig(complicationId)
+            .addListener({ invalidate() }, { runnable -> runnable.run() })
         return true
     }
 
@@ -186,9 +186,8 @@ internal class ConfigView(
     }
 
     override fun onDraw(canvas: Canvas) {
-        val bitmap = watchFaceConfigActivity.watchFaceConfigDelegate.takeScreenshot(
-            drawRect,
-            snapshottedTime,
+        val editingSession = watchFaceConfigActivity.editorSession
+        val bitmap = editingSession.takeWatchFaceScreenshot(
             RenderParameters(
                 DrawMode.INTERACTIVE,
                 mapOf(
@@ -196,9 +195,11 @@ internal class ConfigView(
                     Layer.COMPLICATIONS to LayerMode.DRAW_OUTLINED,
                     Layer.TOP_LAYER to LayerMode.DRAW
                 ),
-                null,
+                selectedComplicationId,
                 Color.RED
-            ).toWireFormat()
+            ),
+            editingSession.previewReferenceTimeMillis,
+            editingSession.complicationPreviewData
         )
         canvas.drawBitmap(bitmap, drawRect, drawRect, null)
     }

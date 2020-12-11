@@ -21,6 +21,7 @@ import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Point
 import android.graphics.Rect
@@ -38,13 +39,12 @@ import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.complications.data.IdAndComplicationData
+import androidx.wear.complications.data.NoDataComplicationData
 import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
-import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.data.UserStyleWireFormat
-import androidx.wear.watchface.ui.WatchFaceConfigActivity
-import androidx.wear.watchface.ui.WatchFaceConfigDelegate
 import java.io.FileNotFoundException
 import java.io.InputStreamReader
 import java.security.InvalidParameterException
@@ -114,7 +114,7 @@ public class WatchFace(
     @WatchFaceType internal var watchFaceType: Int,
 
     /** The [UserStyleRepository] for this WatchFace. */
-    internal val userStyleRepository: UserStyleRepository,
+    public val userStyleRepository: UserStyleRepository,
 
     /** The [ComplicationsManager] for this WatchFace. */
     internal var complicationsManager: ComplicationsManager,
@@ -129,6 +129,57 @@ public class WatchFace(
         @JvmStatic
         public fun isLegacyWatchFaceOverlayStyleSupported(): Boolean =
             android.os.Build.VERSION.SDK_INT <= 27
+
+        private val componentNameToEditorDelegate = HashMap<ComponentName, EditorDelegate>()
+
+        /** @hide */
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun registerEditorDelegate(
+            componentName: ComponentName,
+            editorDelegate: EditorDelegate
+        ) {
+            componentNameToEditorDelegate[componentName] = editorDelegate
+        }
+
+        internal fun unregisterEditorDelegate(componentName: ComponentName) {
+            componentNameToEditorDelegate.remove(componentName)
+        }
+
+        /**
+         * For use by on watch face editors.
+         * @hide
+         */
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun getEditorDelegate(componentName: ComponentName): EditorDelegate? =
+            componentNameToEditorDelegate[componentName]
+    }
+
+    /**
+     * Delegate used by on watch face editors.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface EditorDelegate {
+        /** The [WatchFace]'s [UserStyleRepository]. */
+        public val userStyleRepository: UserStyleRepository
+
+        /** The [WatchFace]'s [ComplicationsManager]. */
+        public val complicationsManager: ComplicationsManager
+
+        /** The [WatchFace]'s screen bounds [Rect]. */
+        public val screenBounds: Rect
+
+        /** The UTC reference time to use for previews in milliseconds since the epoch. */
+        public val previewReferenceTimeMillis: Long
+
+        /** Takes a screenshot with the [UserStyleRepository]'s [UserStyle]. */
+        public fun takeScreenshot(
+            renderParameters: RenderParameters,
+            calendarTimeMillis: Long,
+            idToComplicationData: Map<Int, ComplicationData>?
+        ): Bitmap
     }
 
     /**
@@ -491,37 +542,55 @@ internal class WatchFaceImpl(
         )
 
         if (!watchState.isHeadless) {
-            WatchFaceConfigActivity.registerWatchFace(
+            WatchFace.registerEditorDelegate(
                 componentName,
-                object : WatchFaceConfigDelegate {
-                    override fun getUserStyleSchema() = userStyleRepository.schema.toWireFormat()
+                object : WatchFace.EditorDelegate {
+                    override val userStyleRepository: UserStyleRepository
+                        get() = this@WatchFaceImpl.userStyleRepository
 
-                    override fun getUserStyle() = userStyleRepository.userStyle.toWireFormat()
+                    override val complicationsManager: ComplicationsManager
+                        get() = this@WatchFaceImpl.complicationsManager
 
-                    override fun setUserStyle(userStyle: UserStyleWireFormat) {
-                        userStyleRepository.userStyle =
-                            UserStyle(userStyle, userStyleRepository.schema)
-                    }
+                    override val screenBounds
+                        get() = renderer.screenBounds
 
-                    override fun getBackgroundComplicationId() =
-                        complicationsManager.getBackgroundComplication()?.id
-
-                    override fun getComplicationsMap() = complicationsManager.complications
-
-                    override fun getCalendar() = calendar
-
-                    override fun getComplicationIdAt(tapX: Int, tapY: Int) =
-                        complicationsManager.getComplicationAt(tapX, tapY)?.id
-
-                    override fun brieflyHighlightComplicationId(complicationId: Int) {
-                        complicationsManager.bringAttentionToComplication(complicationId)
-                    }
+                    override val previewReferenceTimeMillis
+                        get() = this@WatchFaceImpl.previewReferenceTimeMillis
 
                     override fun takeScreenshot(
-                        drawRect: Rect,
-                        calendar: Calendar,
-                        renderParameters: RenderParametersWireFormat
-                    ) = renderer.takeScreenshot(calendar, RenderParameters(renderParameters))
+                        renderParameters: RenderParameters,
+                        calendarTimeMillis: Long,
+                        idToComplicationData: Map<Int, ComplicationData>?
+                    ): Bitmap {
+                        val oldComplicationData =
+                            complicationsManager.complications.values.map {
+                                it.renderer.idAndData ?: IdAndComplicationData(
+                                    it.id,
+                                    NoDataComplicationData()
+                                )
+                            }
+
+                        idToComplicationData?.let {
+                            for ((id, complicationData) in it) {
+                                complicationsManager[id]!!.renderer.setIdComplicationDataSync(
+                                    IdAndComplicationData(id, complicationData)
+                                )
+                            }
+                        }
+                        val screenShot = renderer.takeScreenshot(
+                            Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                                timeInMillis = calendarTimeMillis
+                            },
+                            renderParameters
+                        )
+                        if (idToComplicationData != null) {
+                            for (idAndData in oldComplicationData) {
+                                complicationsManager[idAndData.complicationId]!!.renderer
+                                    .setIdComplicationDataSync(idAndData)
+                            }
+                        }
+                        return screenShot
+                    }
                 }
             )
         }
@@ -552,7 +621,7 @@ internal class WatchFaceImpl(
         watchState.interruptionFilter.removeObserver(interruptionFilterObserver)
         watchState.isVisible.removeObserver(visibilityObserver)
         if (!watchState.isHeadless) {
-            WatchFaceConfigActivity.unregisterWatchFace(componentName)
+            WatchFace.unregisterEditorDelegate(componentName)
         }
         unregisterReceivers()
     }

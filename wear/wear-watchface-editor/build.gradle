@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
-import androidx.build.RunApiTasks
 
 import static androidx.build.dependencies.DependenciesKt.*
 
@@ -29,18 +28,15 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api(project(":wear:wear-complications-data"))
-    api(project(":wear:wear-watchface-complications-rendering"))
+    api("androidx.versionedparcelable:versionedparcelable:1.1.0")
+    api(project(":activity:activity"))
+    api(project(":wear:wear-watchface-client"))
     api(project(":wear:wear-watchface-data"))
-    api(project(":wear:wear-watchface-style"))
     api(KOTLIN_STDLIB)
 
-    implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    api("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.core:core:1.1.0")
-    implementation("androidx.recyclerview:recyclerview:1.1.0")
 
-    androidTestImplementation project(":test-screenshot")
-    androidTestImplementation project(":wear:wear-watchface-samples")
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
@@ -48,14 +44,6 @@ dependencies {
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(TRUTH)
-
-    testImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    testImplementation(ANDROIDX_TEST_CORE)
-    testImplementation(ANDROIDX_TEST_RULES)
-    testImplementation(MOCKITO_CORE)
-    testImplementation(MOCKITO_KOTLIN)
-    testImplementation(ROBOLECTRIC)
-    testImplementation(TRUTH)
 }
 
 android {
@@ -63,19 +51,13 @@ android {
         minSdkVersion 25
         testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
     }
-
-    sourceSets.androidTest.assets.srcDirs +=
-         project.rootDir.absolutePath + "/../../golden/wear/wear-watchface"
-
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
 }
 
 androidx {
-    name = "Android Wear Watchface"
+    name = "Android Wear Watchface Editor"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.WEAR
-    mavenVersion = LibraryVersions.WEAR_WATCHFACE
+    mavenVersion = LibraryVersions.WEAR_WATCHFACE_EDITOR
     inceptionYear = "2020"
-    description = "Android Wear Watchface"
+    description = "Classes for building Android Wear watchface editors"
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchface.ui
+package androidx.wear.watchface.editor.sample
 
 import android.app.Activity
 import android.content.Context
@@ -33,12 +33,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.annotation.RestrictTo
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.complications.ProviderInfoRetriever
 import androidx.wear.watchface.R
-import androidx.wear.watchface.style.UserStyle
 import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView
@@ -47,25 +47,23 @@ import androidx.wear.widget.WearableRecyclerView
  * Top level configuration fragment. Lets the user select whether they want to select a complication
  * to configure, configure a background complication or select an option from a user style setting.
  * Should only be used if theres's at least two items from that list.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class ConfigFragment : Fragment() {
 
-    private lateinit var providerInfoRetriever: ProviderInfoRetriever
-    private lateinit var watchFaceConfigActivity: WatchFaceConfigActivity
+    private val watchFaceConfigActivity: WatchFaceConfigActivity
+        get() = activity as WatchFaceConfigActivity
     private lateinit var view: SwipeDismissFrameLayout
     private lateinit var configViewAdapter: ConfigViewAdapter
 
-    @SuppressWarnings("deprecation")
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    private var lifecycleObserver = LifecycleEventObserver { _, event ->
+        if (event == Lifecycle.Event.ON_START) {
+            initConfigOptions()
+        }
+    }
 
-        watchFaceConfigActivity = activity as WatchFaceConfigActivity
-        providerInfoRetriever = ProviderInfoRetriever(activity as WatchFaceConfigActivity)
-
-        initConfigOptions()
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        lifecycle.addObserver(lifecycleObserver)
     }
 
     override fun onCreateView(
@@ -86,10 +84,9 @@ internal class ConfigFragment : Fragment() {
     }
 
     private fun initConfigOptions() {
-        val hasBackgroundComplication =
-            watchFaceConfigActivity.watchFaceConfigDelegate.getBackgroundComplicationId() != null
-        val numComplications =
-            watchFaceConfigActivity.watchFaceConfigDelegate.getComplicationsMap().size
+        val editingSession = watchFaceConfigActivity.editorSession
+        val hasBackgroundComplication = editingSession.backgroundComplicationId != null
+        val numComplications = editingSession.complicationState.size
         val hasNonBackgroundComplication =
             numComplications > if (hasBackgroundComplication) 1 else 0
         val configOptions = ArrayList<ConfigOption>()
@@ -98,11 +95,10 @@ internal class ConfigFragment : Fragment() {
             configOptions.add(
                 ConfigOption(
                     id = Constants.KEY_COMPLICATIONS_SETTINGS,
-                    icon =
-                        Icon.createWithResource(
-                            context,
-                            R.drawable.ic_elements_settings_complications
-                        ),
+                    icon = Icon.createWithResource(
+                        context,
+                        R.drawable.ic_elements_settings_complications
+                    ),
                     title = resources.getString(R.string.settings_complications),
                     summary = ""
                 )
@@ -113,7 +109,7 @@ internal class ConfigFragment : Fragment() {
             configOptions.add(createBackgroundConfigOption())
         }
 
-        for (styleCategory in watchFaceConfigActivity.styleSchema.userStyleSettings) {
+        for (styleCategory in editingSession.userStyleSchema.userStyleSettings) {
             configOptions.add(
                 ConfigOption(
                     id = styleCategory.id,
@@ -133,6 +129,8 @@ internal class ConfigFragment : Fragment() {
             adapter = configViewAdapter
             layoutManager = WearableLinearLayoutManager(context)
         }
+
+        lifecycle.removeObserver(lifecycleObserver)
     }
 
     private fun createBackgroundConfigOption(): ConfigOption {
@@ -149,9 +147,10 @@ internal class ConfigFragment : Fragment() {
 
         // Update the summary with the actual background complication provider name, if there is
         // one.
+        val providerInfoRetriever = ProviderInfoRetriever(activity as WatchFaceConfigActivity)
         val future = providerInfoRetriever.retrieveProviderInfo(
-            watchFaceConfigActivity.watchFaceComponentName,
-            intArrayOf(watchFaceConfigActivity.backgroundComplicationId!!)
+            watchFaceConfigActivity.editorSession.watchFaceComponentName,
+            intArrayOf(watchFaceConfigActivity.editorSession.backgroundComplicationId!!)
         )
         future.addListener(
             {
@@ -160,6 +159,7 @@ internal class ConfigFragment : Fragment() {
                     backgroundConfigOption.summary = providerName!!
                     configViewAdapter.notifyDataSetChanged()
                 }
+                providerInfoRetriever.close()
             },
             { runnable -> runnable.run() }
         )
@@ -176,34 +176,26 @@ internal class ConfigFragment : Fragment() {
     }
 
     override fun onDestroy() {
-        providerInfoRetriever.close()
         super.onDestroy()
     }
 
     private fun onItemClick(configKey: String) {
+        val editingSession = watchFaceConfigActivity.editorSession
         when (configKey) {
             Constants.KEY_COMPLICATIONS_SETTINGS ->
                 watchFaceConfigActivity.fragmentController.showComplicationConfigSelectionFragment()
 
             Constants.KEY_BACKGROUND_IMAGE_SETTINGS -> {
-                val backgroundComplication =
-                    watchFaceConfigActivity.watchFaceConfigDelegate.getComplicationsMap()[
-                        watchFaceConfigActivity.backgroundComplicationId!!
-                    ]!!
                 watchFaceConfigActivity.fragmentController.showComplicationConfig(
-                    backgroundComplication.id,
-                    backgroundComplication.supportedTypes
+                    editingSession.backgroundComplicationId!!
                 )
             }
 
             else -> {
                 watchFaceConfigActivity.fragmentController.showStyleConfigFragment(
                     configKey,
-                    watchFaceConfigActivity.styleSchema,
-                    UserStyle(
-                        watchFaceConfigActivity.watchFaceConfigDelegate.getUserStyle(),
-                        watchFaceConfigActivity.styleSchema
-                    )
+                    editingSession.userStyleSchema,
+                    editingSession.userStyle
                 )
             }
         }
