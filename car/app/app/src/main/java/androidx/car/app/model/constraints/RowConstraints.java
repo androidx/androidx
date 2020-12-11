@@ -17,13 +17,16 @@
 package androidx.car.app.model.constraints;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Row;
 
 /**
- * Encapsulates the constraints to apply when rendering a {@link
- * androidx.car.app.model.Row} in different contexts.
+ * Encapsulates the constraints to apply when rendering a {@link Row} in different contexts.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class RowConstraints {
     @NonNull
     public static final RowConstraints UNCONSTRAINED = RowConstraints.builder().build();

@@ -25,7 +25,6 @@ import android.content.Context;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import androidx.car.app.CarAppPermission;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceListener;
@@ -256,18 +255,6 @@ public final class PlaceListNavigationTemplate implements Template {
             }
             this.mItemList = itemList;
 
-            return this;
-        }
-
-        /**
-         * Sets an {@link ItemList} for the template. This method does not enforce the
-         * template's requirements and is only intended for testing purposes.
-         */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        @VisibleForTesting
-        @NonNull
-        public Builder setItemListForTesting(@Nullable ItemList itemList) {
-            this.mItemList = itemList;
             return this;
         }
 
