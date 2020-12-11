@@ -237,7 +237,7 @@ public fun <T : Any> LazyListScope.items(
     @Suppress("UNUSED_VARIABLE")
     val recomposerPlaceholder = lazyPagingItems.recomposerPlaceholder.value
 
-    items((0 until lazyPagingItems.itemCount).toList()) { index ->
+    items(lazyPagingItems.itemCount) { index ->
         val item = lazyPagingItems[index]
         itemContent(item)
     }
@@ -265,7 +265,7 @@ public fun <T : Any> LazyListScope.itemsIndexed(
     @Suppress("UNUSED_VARIABLE")
     val recomposerPlaceholder = lazyPagingItems.recomposerPlaceholder.value
 
-    items((0 until lazyPagingItems.itemCount).toList()) { index ->
+    items(lazyPagingItems.itemCount) { index ->
         val item = lazyPagingItems[index]
         itemContent(index, item)
     }
