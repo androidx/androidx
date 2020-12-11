@@ -47,7 +47,7 @@ public final class ContentInfoCompat {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @IntDef(value = {SOURCE_APP, SOURCE_CLIPBOARD, SOURCE_INPUT_METHOD})
+    @IntDef(value = {SOURCE_APP, SOURCE_CLIPBOARD, SOURCE_INPUT_METHOD, SOURCE_DRAG_AND_DROP})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Source {
     }
@@ -71,6 +71,12 @@ public final class ContentInfoCompat {
     public static final int SOURCE_INPUT_METHOD = 2;
 
     /**
+     * Specifies that the operation was triggered by the drag/drop framework. See
+     * https://developer.android.com/guide/topics/ui/drag-drop for more info.
+     */
+    public static final int SOURCE_DRAG_AND_DROP = 3;
+
+    /**
      * Returns the symbolic name of the given source.
      *
      * @hide
@@ -79,12 +85,10 @@ public final class ContentInfoCompat {
     @NonNull
     static String sourceToString(@Source int source) {
         switch (source) {
-            case SOURCE_APP:
-                return "SOURCE_APP";
-            case SOURCE_CLIPBOARD:
-                return "SOURCE_CLIPBOARD";
-            case SOURCE_INPUT_METHOD:
-                return "SOURCE_INPUT_METHOD";
+            case SOURCE_APP: return "SOURCE_APP";
+            case SOURCE_CLIPBOARD: return "SOURCE_CLIPBOARD";
+            case SOURCE_INPUT_METHOD: return "SOURCE_INPUT_METHOD";
+            case SOURCE_DRAG_AND_DROP: return "SOURCE_DRAG_AND_DROP";
         }
         return String.valueOf(source);
     }
@@ -132,7 +136,7 @@ public final class ContentInfoCompat {
 
     ContentInfoCompat(Builder b) {
         this.mClip = Preconditions.checkNotNull(b.mClip);
-        this.mSource = Preconditions.checkArgumentInRange(b.mSource, 0, SOURCE_INPUT_METHOD,
+        this.mSource = Preconditions.checkArgumentInRange(b.mSource, 0, SOURCE_DRAG_AND_DROP,
                 "source");
         this.mFlags = Preconditions.checkFlagsArgument(b.mFlags, FLAG_CONVERT_TO_PLAIN_TEXT);
         this.mLinkUri = b.mLinkUri;
