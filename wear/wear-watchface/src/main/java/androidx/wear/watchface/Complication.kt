@@ -159,12 +159,16 @@ public open class CanvasComplicationDrawable(
                 drawable.bounds = bounds
                 drawable.currentTimeMillis = calendar.timeInMillis
                 drawable.draw(canvas)
-                // If [RenderParameters.highlightedComplicationId] is set then only highlight if
-                // the ids match.
-                if (renderParameters.highlightedComplicationId == null ||
-                    renderParameters.highlightedComplicationId == idAndData?.complicationId
-                ) {
-                    drawOutline(canvas, bounds, calendar, renderParameters.highlightTint)
+
+                // It's only sensible to render a highlight for non-background complications.
+                if (attachedComplication?.boundsType != ComplicationBoundsType.BACKGROUND) {
+                    // If [RenderParameters.highlightedComplicationId] is set then only highlight if
+                    // the ids match.
+                    if (renderParameters.highlightedComplicationId == null ||
+                        renderParameters.highlightedComplicationId == idAndData?.complicationId
+                    ) {
+                        drawOutline(canvas, bounds, calendar, renderParameters.highlightTint)
+                    }
                 }
             }
             LayerMode.HIDE -> return
