@@ -801,6 +801,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
             }
 
+            mutableWatchState.isHeadless = true
             val watchState = mutableWatchState.asWatchState()
             watchFaceImpl = WatchFaceImpl(
                 createWatchFace(fakeSurfaceHolder, watchState),

@@ -490,39 +490,41 @@ internal class WatchFaceImpl(
             }
         )
 
-        WatchFaceConfigActivity.registerWatchFace(
-            componentName,
-            object : WatchFaceConfigDelegate {
-                override fun getUserStyleSchema() = userStyleRepository.schema.toWireFormat()
+        if (!watchState.isHeadless) {
+            WatchFaceConfigActivity.registerWatchFace(
+                componentName,
+                object : WatchFaceConfigDelegate {
+                    override fun getUserStyleSchema() = userStyleRepository.schema.toWireFormat()
 
-                override fun getUserStyle() = userStyleRepository.userStyle.toWireFormat()
+                    override fun getUserStyle() = userStyleRepository.userStyle.toWireFormat()
 
-                override fun setUserStyle(userStyle: UserStyleWireFormat) {
-                    userStyleRepository.userStyle =
-                        UserStyle(userStyle, userStyleRepository.schema)
+                    override fun setUserStyle(userStyle: UserStyleWireFormat) {
+                        userStyleRepository.userStyle =
+                            UserStyle(userStyle, userStyleRepository.schema)
+                    }
+
+                    override fun getBackgroundComplicationId() =
+                        complicationsManager.getBackgroundComplication()?.id
+
+                    override fun getComplicationsMap() = complicationsManager.complications
+
+                    override fun getCalendar() = calendar
+
+                    override fun getComplicationIdAt(tapX: Int, tapY: Int) =
+                        complicationsManager.getComplicationAt(tapX, tapY)?.id
+
+                    override fun brieflyHighlightComplicationId(complicationId: Int) {
+                        complicationsManager.bringAttentionToComplication(complicationId)
+                    }
+
+                    override fun takeScreenshot(
+                        drawRect: Rect,
+                        calendar: Calendar,
+                        renderParameters: RenderParametersWireFormat
+                    ) = renderer.takeScreenshot(calendar, RenderParameters(renderParameters))
                 }
-
-                override fun getBackgroundComplicationId() =
-                    complicationsManager.getBackgroundComplication()?.id
-
-                override fun getComplicationsMap() = complicationsManager.complications
-
-                override fun getCalendar() = calendar
-
-                override fun getComplicationIdAt(tapX: Int, tapY: Int) =
-                    complicationsManager.getComplicationAt(tapX, tapY)?.id
-
-                override fun brieflyHighlightComplicationId(complicationId: Int) {
-                    complicationsManager.bringAttentionToComplication(complicationId)
-                }
-
-                override fun takeScreenshot(
-                    drawRect: Rect,
-                    calendar: Calendar,
-                    renderParameters: RenderParametersWireFormat
-                ) = renderer.takeScreenshot(calendar, RenderParameters(renderParameters))
-            }
-        )
+            )
+        }
 
         watchState.isAmbient.addObserver(ambientObserver)
         watchState.interruptionFilter.addObserver(interruptionFilterObserver)
@@ -549,7 +551,9 @@ internal class WatchFaceImpl(
         watchState.isAmbient.removeObserver(ambientObserver)
         watchState.interruptionFilter.removeObserver(interruptionFilterObserver)
         watchState.isVisible.removeObserver(visibilityObserver)
-        WatchFaceConfigActivity.unregisterWatchFace(componentName)
+        if (!watchState.isHeadless) {
+            WatchFaceConfigActivity.unregisterWatchFace(componentName)
+        }
         unregisterReceivers()
     }
 
