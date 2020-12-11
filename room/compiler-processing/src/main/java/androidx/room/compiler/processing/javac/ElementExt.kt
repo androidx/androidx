@@ -37,21 +37,30 @@ private val NULLABLE_ANNOTATIONS = arrayOf(
 )
 
 /**
- * gets all members including super privates. does not handle duplicate field names!!!
+ * Returns all fields including private fields (including private fields in super). Removes
+ * duplicate fields if class has a field with the same name as the parent.
  */
-// TODO handle conflicts with super: b/35568142
 internal fun TypeElement.getAllFieldsIncludingPrivateSupers(
     elementUtils: Elements
 ): Set<VariableElement> {
-    val myMembers = ElementFilter.fieldsIn(elementUtils.getAllMembers(this))
+    val selection = ElementFilter
+        .fieldsIn(elementUtils.getAllMembers(this))
         .filterIsInstance<VariableElement>()
-        .toSet()
-    if (superclass.kind != TypeKind.NONE) {
-        return myMembers + MoreTypes.asTypeElement(superclass)
-            .getAllFieldsIncludingPrivateSupers(elementUtils)
-    } else {
-        return myMembers
+        .toMutableSet()
+    val selectionNames = selection.mapTo(mutableSetOf()) {
+        it.simpleName
     }
+    if (superclass.kind != TypeKind.NONE) {
+        val superFields = MoreTypes.asTypeElement(superclass)
+            .getAllFieldsIncludingPrivateSupers(elementUtils)
+        // accept super fields only if the name does not conflict
+        superFields.forEach { superField ->
+            if (selectionNames.add(superField.simpleName)) {
+                selection.add(superField)
+            }
+        }
+    }
+    return selection
 }
 
 @Suppress("UnstableApiUsage")
