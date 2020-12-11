@@ -52,14 +52,17 @@ import java.util.concurrent.ExecutorService;
 class SearchSessionImpl implements AppSearchSession {
     private final AppSearchImpl mAppSearchImpl;
     private final ExecutorService mExecutorService;
+    private final String mPackageName;
     private final String mDatabaseName;
 
     SearchSessionImpl(
             @NonNull AppSearchImpl appSearchImpl,
             @NonNull ExecutorService executorService,
+            @NonNull String packageName,
             @NonNull String databaseName) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
         mExecutorService = Preconditions.checkNotNull(executorService);
+        mPackageName = packageName;
         mDatabaseName = Preconditions.checkNotNull(databaseName);
     }
 
@@ -70,6 +73,7 @@ class SearchSessionImpl implements AppSearchSession {
         return execute(() -> {
             try {
                 mAppSearchImpl.setSchema(
+                        mPackageName,
                         mDatabaseName,
                         new ArrayList<>(request.getSchemas()),
                         new ArrayList<>(request.getSchemasNotPlatformSurfaceable()),
@@ -86,7 +90,8 @@ class SearchSessionImpl implements AppSearchSession {
     public ListenableFuture<AppSearchResult<Set<AppSearchSchema>>> getSchema() {
         return execute(() -> {
             try {
-                List<AppSearchSchema> schemas = mAppSearchImpl.getSchema(mDatabaseName);
+                List<AppSearchSchema> schemas = mAppSearchImpl.getSchema(mPackageName,
+                        mDatabaseName);
                 return AppSearchResult.newSuccessfulResult(new ArraySet<>(schemas));
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
@@ -105,7 +110,7 @@ class SearchSessionImpl implements AppSearchSession {
             for (int i = 0; i < request.getDocuments().size(); i++) {
                 GenericDocument document = request.getDocuments().get(i);
                 try {
-                    mAppSearchImpl.putDocument(mDatabaseName, document);
+                    mAppSearchImpl.putDocument(mPackageName, mDatabaseName, document);
                     resultBuilder.setSuccess(document.getUri(), /*result=*/ null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(document.getUri(), throwableToFailedResult(t));
@@ -127,7 +132,8 @@ class SearchSessionImpl implements AppSearchSession {
             for (String uri : request.getUris()) {
                 try {
                     GenericDocument document =
-                            mAppSearchImpl.getDocument(mDatabaseName, request.getNamespace(), uri);
+                            mAppSearchImpl.getDocument(mPackageName, mDatabaseName,
+                                    request.getNamespace(), uri);
                     resultBuilder.setSuccess(uri, document);
                 } catch (Throwable t) {
                     resultBuilder.setResult(uri, throwableToFailedResult(t));
@@ -147,6 +153,7 @@ class SearchSessionImpl implements AppSearchSession {
         return new SearchResultsImpl(
                 mAppSearchImpl,
                 mExecutorService,
+                mPackageName,
                 mDatabaseName,
                 queryExpression,
                 searchSpec);
@@ -162,7 +169,7 @@ class SearchSessionImpl implements AppSearchSession {
                     new AppSearchBatchResult.Builder<>();
             for (String uri : request.getUris()) {
                 try {
-                    mAppSearchImpl.remove(mDatabaseName, request.getNamespace(), uri);
+                    mAppSearchImpl.remove(mPackageName, mDatabaseName, request.getNamespace(), uri);
                     resultBuilder.setSuccess(uri, /*result=*/null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(uri, throwableToFailedResult(t));
@@ -180,7 +187,8 @@ class SearchSessionImpl implements AppSearchSession {
         Preconditions.checkNotNull(searchSpec);
         return execute(() -> {
             try {
-                mAppSearchImpl.removeByQuery(mDatabaseName, queryExpression, searchSpec);
+                mAppSearchImpl.removeByQuery(mPackageName, mDatabaseName, queryExpression,
+                        searchSpec);
                 return AppSearchResult.newSuccessfulResult(null);
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
