@@ -194,7 +194,7 @@ internal class ConfigView(
                 DrawMode.INTERACTIVE,
                 mapOf(
                     Layer.BASE_LAYER to LayerMode.DRAW,
-                    Layer.COMPLICATIONS to LayerMode.DRAW_HIGHLIGHTED,
+                    Layer.COMPLICATIONS to LayerMode.DRAW_OUTLINED,
                     Layer.TOP_LAYER to LayerMode.DRAW
                 ),
                 null,

@@ -235,9 +235,9 @@ package androidx.wear.watchface.data {
     ctor public RenderParametersWireFormat(int, java.util.List<androidx.wear.watchface.data.RenderParametersWireFormat.LayerParameterWireFormat!>, Integer?, @ColorInt int);
     method public int describeContents();
     method public int getDrawMode();
-    method @ColorInt public int getHighlightTint();
-    method public Integer? getHighlightedComplicationId();
     method public java.util.List<androidx.wear.watchface.data.RenderParametersWireFormat.LayerParameterWireFormat!> getLayerParameters();
+    method @ColorInt public int getOutlineTint();
+    method public Integer? getSelectedComplicationId();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.RenderParametersWireFormat!>! CREATOR;
   }

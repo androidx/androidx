@@ -47,18 +47,17 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
     int mDrawMode;
 
     /**
-     * Optional parameter which specifies that a particular complication rather than all
-     * complications should be highlighted when Layer.COMPLICATIONS is
-     * LayerMode.DRAW_HIGHLIGHTED. NO_COMPLICATION_ID represents null.
+     * Optional parameter which if non null specifies that a particular complication, should be
+     * drawn with a special highlight to indicate it's been selected.
      */
     @ParcelField(2)
-    int mHighlightedComplicationId;
+    int mSelectedComplicationId;
 
     /**
-     * Specifies the tint for any highlight.
+     * Specifies the tint for any outlined element.
      */
     @ParcelField(3)
-    int mHighlightTint;
+    int mOutlineTint;
 
     /**
      * Wire format for Map<{@link androidx.wear.watchface.style.Layer},
@@ -78,13 +77,13 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
     public RenderParametersWireFormat(
             int drawMode,
             @NonNull List<LayerParameterWireFormat> layerParameters,
-            @Nullable Integer highlightedComplicationId,
-            @ColorInt int highlightTint) {
+            @Nullable Integer selectedComplicationId,
+            @ColorInt int outlineTint) {
         mDrawMode = drawMode;
         mLayerParameters = layerParameters;
-        mHighlightedComplicationId = (highlightedComplicationId != null)
-                ? highlightedComplicationId : NO_COMPLICATION_ID;
-        mHighlightTint = highlightTint;
+        mSelectedComplicationId = (selectedComplicationId != null)
+                ? selectedComplicationId : NO_COMPLICATION_ID;
+        mOutlineTint = outlineTint;
     }
 
     public int getDrawMode() {
@@ -92,14 +91,14 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
     }
 
     @Nullable
-    public Integer getHighlightedComplicationId() {
-        return (mHighlightedComplicationId == NO_COMPLICATION_ID) ? null :
-                mHighlightedComplicationId;
+    public Integer getSelectedComplicationId() {
+        return (mSelectedComplicationId == NO_COMPLICATION_ID) ? null :
+                mSelectedComplicationId;
     }
 
     @ColorInt
-    public int getHighlightTint() {
-        return mHighlightTint;
+    public int getOutlineTint() {
+        return mOutlineTint;
     }
 
     @NonNull
