@@ -27,6 +27,12 @@ jobs:
           # Enforces a `Test: <stanza>` in the pull request
           checks: '["(.*)?Test:(.*)?"]'
 
+      - name: Check invalid suppressions
+        run: |
+          set -x
+          PREUPLOAD_FILES=`git diff ${{ github.event.pull_request.base.ref }} --name-only  | tr "\n" " "`
+          ./development/checkInvalidSuppress.py -f "$PREUPLOAD_FILES"
+
       - name: "Report job status"
         id: output-status
         if: always()
