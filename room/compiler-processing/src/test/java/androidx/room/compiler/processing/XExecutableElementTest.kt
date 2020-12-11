@@ -461,4 +461,53 @@ class XExecutableElementTest {
             }
         }
     }
+
+    @Test
+    fun isAbstract() {
+        val javaInterface = Source.java(
+            "JavaInterface",
+            """
+            interface JavaInterface {
+                void interfaceMethod();
+            }
+            """.trimIndent()
+        )
+        val javaAbstractClass = Source.java(
+            "JavaAbstractClass",
+            """
+            abstract class JavaAbstractClass {
+                abstract void abstractMethod();
+                void nonAbstractMethod() {}
+            }
+            """.trimIndent()
+        )
+        val kotlinSource = Source.kotlin(
+            "kotlin.kt",
+            """
+            interface KotlinInterface {
+                fun interfaceMethod(): Unit
+            }
+            abstract class KotlinAbstractClass {
+                abstract fun abstractMethod(): Unit
+                fun nonAbstractMethod() {}
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(javaInterface, javaAbstractClass, kotlinSource)
+        ) { invocation ->
+            listOf("JavaInterface", "KotlinInterface").forEach { qName ->
+                invocation.processingEnv.requireTypeElement(qName).let {
+                    assertThat(it.getMethod("interfaceMethod").isAbstract()).isTrue()
+                }
+            }
+
+            listOf("JavaAbstractClass", "KotlinAbstractClass").forEach { qName ->
+                invocation.processingEnv.requireTypeElement(qName).let {
+                    assertThat(it.getMethod("abstractMethod").isAbstract()).isTrue()
+                    assertThat(it.getMethod("nonAbstractMethod").isAbstract()).isFalse()
+                }
+            }
+        }
+    }
 }
