@@ -105,7 +105,11 @@ internal class KspTypeElement(
         } as ClassName
     }
 
-    private val _declaredPropertyFields by lazy {
+    /**
+     * This list includes fields for all properties in this class and its static companion
+     * properties. They are not necessarily fields as it might include properties of interfaces.
+     */
+    private val _declaredProperties by lazy {
         val declaredProperties = declaration.getDeclaredProperties()
         val companionProperties = declaration
             .findCompanionObject()
@@ -127,22 +131,32 @@ internal class KspTypeElement(
         // Read all properties from all supers and select the ones that are not overridden.
         // TODO: remove once it is implemented in KSP
         // https://github.com/android/kotlin/issues/133
-        val selectedNames = mutableSetOf<String>()
-        _declaredPropertyFields.forEach {
-            selectedNames.add(it.name)
+
+        val myPropertyFields = if (declaration.classKind == ClassKind.INTERFACE) {
+            _declaredProperties.filter {
+                it.isStatic()
+            }
+        } else {
+            _declaredProperties
+        }
+        val selectedNames = myPropertyFields.mapTo(mutableSetOf()) {
+            it.name
         }
         val selection = mutableListOf<KSPropertyDeclaration>()
         declaration.getAllSuperTypes().map {
             it.declaration
         }.filterIsInstance(KSClassDeclaration::class.java)
+            .filter {
+                it.classKind != ClassKind.INTERFACE
+            }
             .flatMap {
                 it.getDeclaredProperties().asSequence()
             }.forEach {
-                if (!selectedNames.contains(it.simpleName.asString())) {
+                if (selectedNames.add(it.simpleName.asString())) {
                     selection.add(it)
                 }
             }
-        _declaredPropertyFields + selection.map {
+        myPropertyFields + selection.map {
             KspFieldElement(
                 env = env,
                 declaration = it,
@@ -152,7 +166,7 @@ internal class KspTypeElement(
     }
 
     private val syntheticGetterSetterMethods: List<XMethodElement> by lazy {
-        val setters = _declaredPropertyFields.mapNotNull {
+        val setters = _declaredProperties.mapNotNull {
             if (it.type.ksType.isInline()) {
                 // KAPT does not generate getters/setters for inlines, we'll hide them as well
                 // until room generates kotlin code
@@ -174,7 +188,7 @@ internal class KspTypeElement(
                 null
             }
         }
-        val getters = _declaredPropertyFields.mapNotNull {
+        val getters = _declaredProperties.mapNotNull {
             if (it.type.ksType.isInline()) {
                 // KAPT does not generate getters/setters for inlines, we'll hide them as well
                 // until room generates kotlin code
