@@ -33,14 +33,15 @@ import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 
 /**
- * A class for retrieving the physical display size from a device. This is necessary because
- * Display.Mode.getPhysicalDisplaySize might not report the real physical display size
- * because most ATV devices don't report all available modes correctly. In this case there is no
- * way to find out whether a device is capable to display 4k content. This class offers a
- * workaround for this problem.
+ * A class for retrieving accurate display modes for a display.
+ * <p>
+ * On many Android TV devices, Display.Mode may not report the accurate width and height because
+ * these devices do not have powerful enough graphics pipelines to run framework code at the same
+ * resolutions supported by their video pipelines. For these devices, there is no way for an app
+ * to determine, for example, whether or not the current display mode is 4k, or that the display
+ * supports switching to other 4k modes. This class offers a workaround for this problem.
  */
 public final class DisplayCompat {
     private static final int DISPLAY_SIZE_4K_WIDTH = 3840;
@@ -51,45 +52,50 @@ public final class DisplayCompat {
     }
 
     /**
-     * Gets the supported modes of the given display where at least one of the modes is flagged
-     * as isNative(). Note that a native mode might not wrap any Display.Mode object in case
-     * the display returns no mode with the physical display size.
-     *
-     * @return an array of supported modes where at least one of the modes is native which
-     * contains the physical display size
+     * Gets the current display mode of the given display, where the size can be relied on to
+     * determine support for 4k on Android TV devices.
+     */
+    @NonNull
+    public static ModeCompat getMode(@NonNull Context context, @NonNull Display display) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return Api23Impl.getMode(context, display);
+        }
+        // Prior to display modes, the best we can do is return the display size as the display
+        // mode.
+        return new ModeCompat(getDisplaySize(context, display));
+    }
+
+    @NonNull
+    private static Point getDisplaySize(@NonNull Context context, @NonNull Display display) {
+        // If a workaround for the display size is present, use it.
+        Point displaySize = getCurrentDisplaySizeFromWorkarounds(context, display);
+        if (displaySize != null) {
+            return displaySize;
+        }
+
+        displaySize = new Point();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            Api17Impl.getRealSize(display, displaySize);
+        } else {
+            display.getSize(displaySize);
+        }
+        return displaySize;
+    }
+
+    /**
+     * Gets the supported modes of the given display where any mode with the same size as the
+     * current mode can be relied on to determine support for 4k on Android TV devices.
      */
     @NonNull
     @SuppressLint("ArrayReturn")
-    public static ModeCompat[] getSupportedModes(@NonNull Context context,
-            @NonNull Display display) {
-        Point physicalDisplaySize = getPhysicalDisplaySize(context, display);
+    public static ModeCompat[] getSupportedModes(
+                @NonNull Context context, @NonNull Display display) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // Display.Mode class and display.getSupportedModes() exist
-            Display.Mode[] supportedModes = display.getSupportedModes();
-            ArrayList<ModeCompat> supportedModesCompat = new ArrayList<>(supportedModes.length);
-            boolean nativeModeExists = false;
-            for (int i = 0; i < supportedModes.length; i++) {
-                if (physicalSizeEquals(supportedModes[i], physicalDisplaySize)) {
-                    // Current mode has native resolution, flag it accordingly
-                    supportedModesCompat.add(i,
-                            new ModeCompat(supportedModes[i], true));
-                    nativeModeExists = true;
-                } else {
-                    supportedModesCompat.add(i,
-                            new ModeCompat(supportedModes[i], false));
-                }
-            }
-            if (!nativeModeExists) {
-                // If no mode with physicalDisplaySize dimension exists, add the mode with the
-                // native display resolution
-                supportedModesCompat.add(new ModeCompat(physicalDisplaySize));
-            }
-            return supportedModesCompat.toArray(new ModeCompat[0]);
-        } else {
-            // previous to Android M Display.Mode and Display.getSupportedModes() did not exist,
-            // hence the only supported mode is the native display resolution
-            return new ModeCompat[] { new ModeCompat(physicalDisplaySize) };
+            return Api23Impl.getSupportedModes(context, display);
         }
+        // Prior to display modes, the best we can do is return the current mode - the
+        // current display size wrapped in a ModeCompat object.
+        return new ModeCompat[] { getMode(context, display) };
     }
 
     /**
@@ -133,21 +139,7 @@ public final class DisplayCompat {
     }
 
     /**
-     * Returns true if mode.getPhysicalWidth and mode.getPhysicalHeight are equal to the given size
-     *
-     * @param mode a Display.Mode object
-     * @param size a Point object representing the size in horizontal and vertical direction
-     */
-    @RequiresApi(Build.VERSION_CODES.M)
-    private static boolean physicalSizeEquals(Display.Mode mode, Point size) {
-        return (mode.getPhysicalWidth() == size.x && mode.getPhysicalHeight() == size.y)
-                || (mode.getPhysicalWidth() == size.y && mode.getPhysicalHeight() == size.x);
-    }
-
-    /**
      * Returns whether the app is running on a TV device
-     *
-     * @return true iff the app is running on a TV device
      */
     private static boolean isTv(@NonNull Context context) {
         // See https://developer.android.com/training/tv/start/hardware.html#runtime-check.
@@ -168,36 +160,34 @@ public final class DisplayCompat {
     @Nullable
     private static Point parsePhysicalDisplaySizeFromSystemProperties(@NonNull String property,
             @NonNull Display display) {
-        if (display.getDisplayId() == Display.DEFAULT_DISPLAY) {
-            // Check the system property for display size. From API 28 treble may prevent the
-            // system from writing sys.display-size so we check vendor.display-size instead.
-            String displaySize = getSystemProperty(property);
-            // If we managed to read the display size, attempt to parse it.
-            if (!TextUtils.isEmpty(displaySize)) {
-                try {
-                    return parseDisplaySize(displaySize);
-                } catch (NumberFormatException e) {
-                    // Do nothing for now, null is returned in the end
-                }
-            }
+        // System properties are only relevant for the default display.
+        if (display.getDisplayId() != Display.DEFAULT_DISPLAY) {
+            return null;
         }
-        // Unable to determine display size from system properties
-        return null;
+
+        // Check the system property for display size.
+        String displaySize = getSystemProperty(property);
+        if (TextUtils.isEmpty(displaySize)) {
+            return null;
+        }
+
+        try {
+            return parseDisplaySize(displaySize);
+        } catch (NumberFormatException e) {
+            // Ignore invalid display sizes.
+            return null;
+        }
     }
 
     /**
-     * Gets the physical size of the given display in pixels. The size is collected in the
-     * following order:
-     * 1) sys.display-size if API < 28 (P) and the system-property is set
-     * 2) vendor.display-size if API >= 28 (P) and the system-property is set
-     * 3) physical width and height from display.getMode() for API >= 23
-     * 4) display.getRealSize() for API >= 17
-     * 5) display.getSize()
-     *
-     * @return the physical display size, in pixels
+     * Gets the current physical size of the given display in pixels from a variety of vendor
+     * workarounds.
      */
-    private static Point getPhysicalDisplaySize(@NonNull Context context,
+    static Point getCurrentDisplaySizeFromWorkarounds(
+            @NonNull Context context,
             @NonNull Display display) {
+        // From API 28 treble may prevent the system from writing sys.display-size so we check
+        // vendor.display-size instead.
         Point displaySize = Build.VERSION.SDK_INT < Build.VERSION_CODES.P
                 ? parsePhysicalDisplaySizeFromSystemProperties("sys.display-size", display)
                 : parsePhysicalDisplaySizeFromSystemProperties("vendor.display-size", display);
@@ -205,116 +195,212 @@ public final class DisplayCompat {
             return displaySize;
         } else if (isSonyBravia4kTv(context)) {
             // Sony Android TVs advertise support for 4k output via a system feature.
-            return new Point(DISPLAY_SIZE_4K_WIDTH, DISPLAY_SIZE_4K_HEIGHT);
-        } else {
-            // Unable to retrieve the physical display size from system properties, get display
-            // size from the framework API. Note that this might not be the actual physical
-            // display size but the, possibly down-scaled, UI size.
-            displaySize = new Point();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                Display.Mode mode = display.getMode();
-                displaySize.x = mode.getPhysicalWidth();
-                displaySize.y = mode.getPhysicalHeight();
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                display.getRealSize(displaySize);
-            } else {
-                display.getSize(displaySize);
-            }
+            // The TV may or may not be currently in the 4k display mode. Instead, we can only
+            // assume that if the current display mode is the highest display mode, then we are
+            // in a 4k mode.
+            return isCurrentModeTheLargestMode(display)
+                    ? new Point(DISPLAY_SIZE_4K_WIDTH, DISPLAY_SIZE_4K_HEIGHT)
+                    : null;
         }
-        return displaySize;
+        return null;
     }
 
     /**
-     * Determines whether the connected display is a 4k capable Sony TV.
-     *
-     * @return true if the display is a Sony BRAVIA TV that supports 4k
+     * Is the connected display is a 4k capable Sony TV?
      */
     private static boolean isSonyBravia4kTv(@NonNull Context context) {
         return isTv(context)
                 && "Sony".equals(Build.MANUFACTURER)
                 && Build.MODEL.startsWith("BRAVIA")
                 && context.getPackageManager().hasSystemFeature(
-                "com.sony.dtv.hardware.panel.qfhd");
+                        "com.sony.dtv.hardware.panel.qfhd");
     }
 
     /**
-     * Compat class which provides an additional isNative() field. This field indicates whether a
-     * mode is native, which is important when searching for the highest possible native
-     * resolution of a display.
+     * Does the current display mode have the largest physical size of all supported modes?
+     */
+    static boolean isCurrentModeTheLargestMode(@NonNull Display display) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return Api23Impl.isCurrentModeTheLargestMode(display);
+        } else {
+            // Prior to modes, the current mode is always the largest display mode.
+            return true;
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    static class Api23Impl {
+        private Api23Impl() {}
+
+        @NonNull
+        static ModeCompat getMode(@NonNull Context context, @NonNull Display display) {
+            Display.Mode currentMode = display.getMode();
+            Point workaroundSize = getCurrentDisplaySizeFromWorkarounds(context, display);
+            // If the current mode has the wrong physical size, then correct it with the
+            // workaround.
+            return workaroundSize == null || physicalSizeEquals(currentMode, workaroundSize)
+                    ? new ModeCompat(currentMode, /* isNative= */ true)
+                    : new ModeCompat(currentMode, workaroundSize);
+        }
+
+        @NonNull
+        @SuppressLint("ArrayReturn")
+        public static ModeCompat[] getSupportedModes(
+                    @NonNull Context context, @NonNull Display display) {
+            Display.Mode[] supportedModes = display.getSupportedModes();
+            ModeCompat[] supportedModesCompat = new ModeCompat[supportedModes.length];
+
+            Display.Mode currentMode = display.getMode();
+            Point workaroundSize = getCurrentDisplaySizeFromWorkarounds(context, display);
+            // The workaround size not matching the current mode indicates that the Android TV
+            // reports mode sizes inaccurately.
+            if (workaroundSize == null || physicalSizeEquals(currentMode, workaroundSize)) {
+                // This Android TV device reports display mode sizes accurately.
+                for (int i = 0; i < supportedModes.length; ++i) {
+                    boolean isNative = physicalSizeEquals(supportedModes[i], currentMode);
+                    supportedModesCompat[i] = new ModeCompat(supportedModes[i], isNative);
+                }
+            } else {
+                // This Android TV device does NOT report display mode sizes accurately.
+                for (int i = 0; i < supportedModes.length; ++i) {
+                    // A mode with the same size as the current mode should use the workaround size.
+                    supportedModesCompat[i] = physicalSizeEquals(supportedModes[i], currentMode)
+                            ? new ModeCompat(supportedModes[i], workaroundSize)
+                            : new ModeCompat(supportedModes[i], /* isNative= */ false);
+                }
+            }
+            return supportedModesCompat;
+        }
+
+        static boolean isCurrentModeTheLargestMode(@NonNull Display display) {
+            Display.Mode currentMode = display.getMode();
+            Display.Mode[] supportedModes = display.getSupportedModes();
+            for (int i = 0; i < supportedModes.length; ++i) {
+                if (currentMode.getPhysicalHeight() < supportedModes[i].getPhysicalHeight()
+                        || currentMode.getPhysicalWidth() < supportedModes[i].getPhysicalWidth()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**
+         * Returns true if mode.getPhysicalWidth and mode.getPhysicalHeight are equal to the given
+         * size.
+         */
+        static boolean physicalSizeEquals(Display.Mode mode, Point size) {
+            return (mode.getPhysicalWidth() == size.x && mode.getPhysicalHeight() == size.y)
+                    || (mode.getPhysicalWidth() == size.y && mode.getPhysicalHeight() == size.x);
+        }
+
+        /**
+         * Returns true if mode.getPhysicalWidth and mode.getPhysicalHeight are equal to the size
+         * of another mode.
+         */
+        static boolean physicalSizeEquals(Display.Mode mode, Display.Mode otherMode) {
+            return mode.getPhysicalWidth() == otherMode.getPhysicalWidth()
+                    && mode.getPhysicalHeight() == otherMode.getPhysicalHeight();
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+    static class Api17Impl {
+        private Api17Impl() {}
+
+        static void getRealSize(Display display, Point displaySize) {
+            display.getRealSize(displaySize);
+        }
+    }
+
+    /**
+     * Compat class which provides access to the underlying display mode, if there is one, and
+     * a more reliable display mode size.
      */
     public static final class ModeCompat {
-
         private final Display.Mode mMode;
-        private final Point mPhysicalDisplaySize;
+        private final Point mPhysicalSize;
         private final boolean mIsNative;
 
         /**
-         * Package private constructor which creates a native ModeCompat object that does not
-         * wrap any Display.Mode object but only contains the given display size
+         * Create a ModeCompat object that does not wrap any Display.Mode object, but only
+         * contains the display mode size.
          *
-         * @param physicalDisplaySize a Point object representing the display size in pixels
-         *                            (Point.x horizontal and Point.y vertical size)
+         * @param physicalSize the physical size of the display mode
          */
-        ModeCompat(@NonNull Point physicalDisplaySize) {
-            Preconditions.checkNotNull(physicalDisplaySize, "physicalDisplaySize == null");
-            mIsNative = true;
-            mPhysicalDisplaySize = physicalDisplaySize;
+        ModeCompat(@NonNull Point physicalSize) {
+            Preconditions.checkNotNull(physicalSize, "physicalSize == null");
+            mPhysicalSize = physicalSize;
             mMode = null;
+            mIsNative = true;
         }
 
         /**
-         * Package private constructor which creates a non-native ModeCompat and wraps the given
-         * Mode object
+         * Create a ModeCompat object that wraps a Display.Mode that has an accurate physical size.
          *
-         * @param mode a Display.Mode object
+         * @param mode the wrapped Display.Mode object
          */
         @RequiresApi(Build.VERSION_CODES.M)
         ModeCompat(@NonNull Display.Mode mode, boolean isNative) {
-            Preconditions.checkNotNull(mode, "Display.Mode == null, can't wrap a null reference");
-            mIsNative = isNative;
+            Preconditions.checkNotNull(mode, "mode == null, can't wrap a null reference");
             // This simplifies the getPhysicalWidth() / getPhysicalHeight functions below
-            mPhysicalDisplaySize = new Point(mode.getPhysicalWidth(), mode.getPhysicalHeight());
+            mPhysicalSize = new Point(mode.getPhysicalWidth(), mode.getPhysicalHeight());
             mMode = mode;
+            mIsNative = isNative;
         }
 
         /**
-         * Returns the physical width of the given display when configured in this mode
+         * Create a ModeCompat object that wraps a Display.Mode, but with a more accurate
+         * display mode size.
          *
-         * @return the physical screen width in pixels
+         * @param mode the wrapped Display.Mode object
+         * @param physicalSize the true physical size of the display mode
+         *
+         */
+        @RequiresApi(Build.VERSION_CODES.M)
+        ModeCompat(@NonNull Display.Mode mode, @NonNull Point physicalSize) {
+            Preconditions.checkNotNull(mode, "mode == null, can't wrap a null reference");
+            Preconditions.checkNotNull(physicalSize, "physicalSize == null");
+            mPhysicalSize = physicalSize;
+            mMode = mode;
+            mIsNative = true;
+        }
+
+        /**
+         * Returns the physical width of the given display when configured in this mode.
          */
         public int getPhysicalWidth() {
-            return mPhysicalDisplaySize.x;
+            return mPhysicalSize.x;
         }
 
         /**
-         * Returns the physical height of the given display when configured in this mode
-         *
-         * @return the physical screen height in pixels
+         * Returns the physical height of the given display when configured in this mode.
          */
         public int getPhysicalHeight() {
-            return mPhysicalDisplaySize.y;
+            return mPhysicalSize.y;
         }
 
         /**
-         * Function to get the wrapped object
+         * This field indicates whether a mode has the same resolution as the current display mode.
+         * <p>
+         * This field does *not* indicate the native resolution of the display.
          *
-         * @return the wrapped Display.Mode object or null if there was no matching mode for the
-         * native resolution.
+         * @return true if this mode is the same resolution as the current display mode.
+         * @deprecated Use {@link DisplayCompat#getMode} to retrieve the resolution of the current
+         *             display mode.
+         */
+        @Deprecated
+        public boolean isNative() {
+            return mIsNative;
+        }
+
+        /**
+         * Returns the wrapped object Display.Mode, which may be null if no mode is available.
          */
         @RequiresApi(Build.VERSION_CODES.M)
         @Nullable
         public Display.Mode toMode() {
             return mMode;
         }
-
-        /**
-         * This field indicates whether a mode is native, which is important when searching for
-         * the highest possible native resolution of a display.
-         *
-         * @return true if this is a native mode of the wrapped display
-         */
-        public boolean isNative() {
-            return mIsNative;
-        }
     }
 }
+
