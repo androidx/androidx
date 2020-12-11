@@ -166,7 +166,7 @@ public class PlaceMarker {
                 && mIconType == otherMarker.mIconType;
     }
 
-    private PlaceMarker(@NonNull Builder builder) {
+    PlaceMarker(@NonNull Builder builder) {
         mIcon = builder.mIcon;
         mIconType = builder.mIconType;
         mLabel = builder.mLabel;
@@ -184,13 +184,13 @@ public class PlaceMarker {
     /** A builder of {@link PlaceMarker}. */
     public static final class Builder {
         @Nullable
-        private CarIcon mIcon;
+        CarIcon mIcon;
         @Nullable
-        private CarText mLabel;
+        CarText mLabel;
         @Nullable
-        private CarColor mColor;
+        CarColor mColor;
         @MarkerIconType
-        private int mIconType = TYPE_ICON;
+        int mIconType = TYPE_ICON;
 
         /**
          * Sets the icon to display in the marker, or {@code null} to not display one.
@@ -290,7 +290,7 @@ public class PlaceMarker {
             return new PlaceMarker(this);
         }
 
-        private Builder() {
+        Builder() {
         }
     }
 }

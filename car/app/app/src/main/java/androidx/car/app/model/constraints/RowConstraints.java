@@ -152,7 +152,7 @@ public class RowConstraints {
         }
     }
 
-    private RowConstraints(Builder builder) {
+    RowConstraints(Builder builder) {
         mIsOnClickListenerAllowed = builder.mIsOnClickListenerAllowed;
         mMaxTextLinesPerRow = builder.mMaxTextLines;
         mMaxActionsExclusive = builder.mMaxActionsExclusive;
@@ -163,12 +163,12 @@ public class RowConstraints {
 
     /** A builder of {@link RowConstraints}. */
     public static final class Builder {
-        private boolean mIsOnClickListenerAllowed = true;
-        private boolean mIsToggleAllowed = true;
-        private int mMaxTextLines = Integer.MAX_VALUE;
-        private int mMaxActionsExclusive = Integer.MAX_VALUE;
-        private boolean mIsImageAllowed = true;
-        private CarIconConstraints mCarIconConstraints = CarIconConstraints.UNCONSTRAINED;
+        boolean mIsOnClickListenerAllowed = true;
+        boolean mIsToggleAllowed = true;
+        int mMaxTextLines = Integer.MAX_VALUE;
+        int mMaxActionsExclusive = Integer.MAX_VALUE;
+        boolean mIsImageAllowed = true;
+        CarIconConstraints mCarIconConstraints = CarIconConstraints.UNCONSTRAINED;
 
         /** Sets whether the row can have a click listener associated with it. */
         @NonNull
@@ -220,16 +220,16 @@ public class RowConstraints {
             return new RowConstraints(this);
         }
 
-        private Builder() {
+        Builder() {
         }
 
-        private Builder(RowConstraints constraints) {
-            mIsOnClickListenerAllowed = constraints.mIsOnClickListenerAllowed;
-            mMaxTextLines = constraints.mMaxTextLinesPerRow;
-            mMaxActionsExclusive = constraints.mMaxActionsExclusive;
-            mIsToggleAllowed = constraints.mIsToggleAllowed;
-            mIsImageAllowed = constraints.mIsImageAllowed;
-            mCarIconConstraints = constraints.mCarIconConstraints;
+        Builder(RowConstraints constraints) {
+            mIsOnClickListenerAllowed = constraints.isOnClickListenerAllowed();
+            mMaxTextLines = constraints.getMaxTextLinesPerRow();
+            mMaxActionsExclusive = constraints.getMaxActionsExclusive();
+            mIsToggleAllowed = constraints.isToggleAllowed();
+            mIsImageAllowed = constraints.isImageAllowed();
+            mCarIconConstraints = constraints.getCarIconConstraints();
         }
     }
 }

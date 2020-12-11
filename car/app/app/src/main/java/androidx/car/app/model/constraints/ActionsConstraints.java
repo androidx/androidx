@@ -168,7 +168,7 @@ public class ActionsConstraints {
         }
     }
 
-    private ActionsConstraints(Builder builder) {
+    ActionsConstraints(Builder builder) {
         mMaxActions = builder.mMaxActions;
         mMaxCustomTitles = builder.mMaxCustomTitles;
         mRequiredActionTypes = new HashSet<>(builder.mRequiredActionTypes);
@@ -194,10 +194,10 @@ public class ActionsConstraints {
      */
     @VisibleForTesting
     public static final class Builder {
-        private int mMaxActions = Integer.MAX_VALUE;
-        private int mMaxCustomTitles;
-        private final Set<Integer> mRequiredActionTypes = new HashSet<>();
-        private final Set<Integer> mDisallowedActionTypes = new HashSet<>();
+        int mMaxActions = Integer.MAX_VALUE;
+        int mMaxCustomTitles;
+        final Set<Integer> mRequiredActionTypes = new HashSet<>();
+        final Set<Integer> mDisallowedActionTypes = new HashSet<>();
 
         /** Sets the maximum number of actions allowed. */
         @NonNull
@@ -235,14 +235,14 @@ public class ActionsConstraints {
             return new ActionsConstraints(this);
         }
 
-        private Builder() {
+        Builder() {
         }
 
-        private Builder(ActionsConstraints constraints) {
-            this.mMaxActions = constraints.mMaxActions;
-            this.mMaxCustomTitles = constraints.mMaxCustomTitles;
-            this.mRequiredActionTypes.addAll(constraints.mRequiredActionTypes);
-            this.mDisallowedActionTypes.addAll(constraints.mDisallowedActionTypes);
+        Builder(ActionsConstraints constraints) {
+            this.mMaxActions = constraints.getMaxActions();
+            this.mMaxCustomTitles = constraints.getMaxCustomTitles();
+            this.mRequiredActionTypes.addAll(constraints.getRequiredActionTypes());
+            this.mDisallowedActionTypes.addAll(constraints.getDisallowedActionTypes());
         }
     }
 }

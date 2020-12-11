@@ -145,7 +145,7 @@ public final class PlaceListNavigationTemplate implements Template {
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
     }
 
-    private PlaceListNavigationTemplate(Builder builder) {
+    PlaceListNavigationTemplate(Builder builder) {
         mTitle = builder.mTitle;
         mIsLoading = builder.mIsLoading;
         mItemList = builder.mItemList;
@@ -165,14 +165,14 @@ public final class PlaceListNavigationTemplate implements Template {
     /** A builder of {@link PlaceListNavigationTemplate}. */
     public static final class Builder {
         @Nullable
-        private CarText mTitle;
-        private boolean mIsLoading;
+        CarText mTitle;
+        boolean mIsLoading;
         @Nullable
-        private ItemList mItemList;
+        ItemList mItemList;
         @Nullable
-        private Action mHeaderAction;
+        Action mHeaderAction;
         @Nullable
-        private ActionStrip mActionStrip;
+        ActionStrip mActionStrip;
 
         /** Sets the {@link CharSequence} to show as title, or {@code null} to not show a title. */
         @NonNull

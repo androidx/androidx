@@ -89,7 +89,7 @@ public class OnClickListenerWrapperImpl implements OnClickListenerWrapper {
     private static class OnClickListenerStub extends IOnClickListener.Stub {
         private final OnClickListener mOnClickListener;
 
-        private OnClickListenerStub(OnClickListener onClickListener) {
+        OnClickListenerStub(OnClickListener onClickListener) {
             this.mOnClickListener = onClickListener;
         }
 

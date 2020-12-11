@@ -223,7 +223,7 @@ public final class TravelEstimate {
         mRemainingDistanceColor = CarColor.DEFAULT;
     }
 
-    private TravelEstimate(Builder builder) {
+    TravelEstimate(Builder builder) {
         this.mRemainingDistance = builder.mRemainingDistance;
         this.mRemainingTimeSeconds = builder.mRemainingTimeSeconds;
         this.mArrivalTimeAtDestination = builder.mArrivalTimeAtDestination;
@@ -233,13 +233,13 @@ public final class TravelEstimate {
 
     /** A builder of {@link TravelEstimate}. */
     public static final class Builder {
-        private final Distance mRemainingDistance;
-        private long mRemainingTimeSeconds = REMAINING_TIME_UNKNOWN;
-        private final DateTimeWithZone mArrivalTimeAtDestination;
-        private CarColor mRemainingTimeColor = CarColor.DEFAULT;
-        private CarColor mRemainingDistanceColor = CarColor.DEFAULT;
+        final Distance mRemainingDistance;
+        long mRemainingTimeSeconds = REMAINING_TIME_UNKNOWN;
+        final DateTimeWithZone mArrivalTimeAtDestination;
+        CarColor mRemainingTimeColor = CarColor.DEFAULT;
+        CarColor mRemainingDistanceColor = CarColor.DEFAULT;
 
-        private Builder(
+        Builder(
                 Distance remainingDistance,
                 DateTimeWithZone arrivalTimeAtDestination) {
             this.mRemainingDistance = requireNonNull(remainingDistance);
@@ -250,7 +250,7 @@ public final class TravelEstimate {
         // TODO(rampara): Move API 26 calls into separate class.
         @RequiresApi(26)
         @SuppressWarnings("AndroidJdkLibsChecker")
-        private Builder(
+        Builder(
                 Distance remainingDistance,
                 ZonedDateTime arrivalTimeAtDestination) {
             this.mRemainingDistance = remainingDistance;

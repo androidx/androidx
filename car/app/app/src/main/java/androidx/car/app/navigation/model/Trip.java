@@ -128,7 +128,7 @@ public final class Trip {
                 && Objects.equals(mIsLoading, otherTrip.mIsLoading);
     }
 
-    private Trip(Builder builder) {
+    Trip(Builder builder) {
         this.mDestinations = new ArrayList<>(builder.mDestinations);
         this.mSteps = new ArrayList<>(builder.mSteps);
         this.mDestinationTravelEstimates = new ArrayList<>(builder.mDestinationTravelEstimates);
@@ -149,13 +149,13 @@ public final class Trip {
 
     /** A builder of {@link Trip}. */
     public static final class Builder {
-        private final List<Destination> mDestinations = new ArrayList<>();
-        private final List<Step> mSteps = new ArrayList<>();
-        private final List<TravelEstimate> mDestinationTravelEstimates = new ArrayList<>();
-        private final List<TravelEstimate> mStepTravelEstimates = new ArrayList<>();
+        final List<Destination> mDestinations = new ArrayList<>();
+        final List<Step> mSteps = new ArrayList<>();
+        final List<TravelEstimate> mDestinationTravelEstimates = new ArrayList<>();
+        final List<TravelEstimate> mStepTravelEstimates = new ArrayList<>();
         @Nullable
-        private CarText mCurrentRoad;
-        private boolean mIsLoading;
+        CarText mCurrentRoad;
+        boolean mIsLoading;
 
         /**
          * Adds a destination to the trip.

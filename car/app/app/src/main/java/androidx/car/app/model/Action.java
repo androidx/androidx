@@ -240,7 +240,7 @@ public final class Action {
         this.mType = type;
     }
 
-    private Action(
+    Action(
             @Nullable CarText title,
             @Nullable CarIcon icon,
             CarColor backgroundColor,
@@ -285,21 +285,21 @@ public final class Action {
                 && Objects.equals(mListener == null, otherAction.mListener == null);
     }
 
-    private static boolean isStandardActionType(@ActionType int type) {
+    static boolean isStandardActionType(@ActionType int type) {
         return 0 != (type & FLAG_STANDARD);
     }
 
     /** A builder of {@link Action}. */
     public static final class Builder {
         @Nullable
-        private CarText mTitle;
+        CarText mTitle;
         @Nullable
-        private CarIcon mIcon;
+        CarIcon mIcon;
         @Nullable
-        private OnClickListenerWrapper mListener;
-        private CarColor mBackgroundColor = DEFAULT;
+        OnClickListenerWrapper mListener;
+        CarColor mBackgroundColor = DEFAULT;
         @ActionType
-        private int mType = TYPE_CUSTOM;
+        int mType = TYPE_CUSTOM;
 
         /**
          * Sets the title to display in the action, or {@code null} to not display a title.
@@ -409,15 +409,15 @@ public final class Action {
             return new Action(mTitle, mIcon, mBackgroundColor, mListener, mType);
         }
 
-        private Builder() {
+        Builder() {
         }
 
-        private Builder(Action action) {
-            mTitle = action.mTitle;
-            mIcon = action.mIcon;
-            mBackgroundColor = action.mBackgroundColor;
-            mListener = action.mListener;
-            mType = action.mType;
+        Builder(Action action) {
+            mTitle = action.getTitle();
+            mIcon = action.getIcon();
+            mBackgroundColor = action.getBackgroundColor();
+            mListener = action.getOnClickListener();
+            mType = action.getType();
         }
     }
 }

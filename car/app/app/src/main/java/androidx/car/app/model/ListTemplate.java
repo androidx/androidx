@@ -138,7 +138,7 @@ public final class ListTemplate implements Template {
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
     }
 
-    private ListTemplate(Builder builder) {
+    ListTemplate(Builder builder) {
         mIsLoading = builder.mIsLoading;
         mTitle = builder.mTitle;
         mHeaderAction = builder.mHeaderAction;
@@ -159,17 +159,17 @@ public final class ListTemplate implements Template {
 
     /** A builder of {@link ListTemplate}. */
     public static final class Builder {
-        private boolean mIsLoading;
+        boolean mIsLoading;
         @Nullable
-        private ItemList mSingleList;
-        private final List<SectionedItemList> mSectionLists = new ArrayList<>();
+        ItemList mSingleList;
+        final List<SectionedItemList> mSectionLists = new ArrayList<>();
         @Nullable
-        private CarText mTitle;
+        CarText mTitle;
         @Nullable
-        private Action mHeaderAction;
+        Action mHeaderAction;
         @Nullable
-        private ActionStrip mActionStrip;
-        private boolean mHasSelectableList;
+        ActionStrip mActionStrip;
+        boolean mHasSelectableList;
 
         /**
          * Sets whether the template is in a loading state.
@@ -369,7 +369,7 @@ public final class ListTemplate implements Template {
             return new ListTemplate(this);
         }
 
-        private Builder() {
+        Builder() {
         }
     }
 }
