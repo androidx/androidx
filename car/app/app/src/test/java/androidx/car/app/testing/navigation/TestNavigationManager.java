@@ -22,7 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.navigation.NavigationManager;
-import androidx.car.app.navigation.NavigationManagerListener;
+import androidx.car.app.navigation.NavigationManagerCallback;
 import androidx.car.app.navigation.model.Trip;
 import androidx.car.app.testing.TestCarContext;
 import androidx.car.app.testing.navigation.model.TripController;
@@ -38,8 +38,8 @@ import java.util.List;
  *
  * <ul>
  *   <li>All the {@link Trip}s sent via {@link NavigationManager#updateTrip}.
- *   <li>All the {@link NavigationManagerListener}s set via
- *   {@link NavigationManager#setNavigationManagerListener}.
+ *   <li>All the {@link NavigationManagerCallback}s set via
+ *   {@link NavigationManager#setNavigationManagerCallback}.
  *   <li>Count of times that the navigation was started via {@link
  *       NavigationManager#navigationStarted()}.
  *   <li>Count of times that the navigation was ended via {@link NavigationManager#navigationEnded}.
@@ -47,7 +47,7 @@ import java.util.List;
  */
 public class TestNavigationManager extends NavigationManager {
     private final List<TripController> mTripsSent = new ArrayList<>();
-    private final List<NavigationManagerListener> mListenersSet = new ArrayList<>();
+    private final List<NavigationManagerCallback> mListenersSet = new ArrayList<>();
     private int mNavigationStartedCount;
     private int mNavigationEndedCount;
 
@@ -72,15 +72,15 @@ public class TestNavigationManager extends NavigationManager {
     }
 
     /**
-     * Retrieves all the {@link NavigationManagerListener}s added via {@link
-     * NavigationManager#setNavigationManagerListener(NavigationManagerListener)}.
+     * Retrieves all the {@link NavigationManagerCallback}s added via {@link
+     * NavigationManager#setNavigationManagerCallback(NavigationManagerCallback)}.
      *
      * <p>The listeners are stored in order of calls.
      *
      * <p>The listeners will be stored until {@link #reset} is called.
      */
     @NonNull
-    public List<NavigationManagerListener> getNavigationManagerCallbacksSet() {
+    public List<NavigationManagerCallback> getNavigationManagerCallbacksSet() {
         return mListenersSet;
     }
 
@@ -107,9 +107,9 @@ public class TestNavigationManager extends NavigationManager {
     }
 
     @Override
-    public void setNavigationManagerListener(@Nullable NavigationManagerListener listener) {
+    public void setNavigationManagerCallback(@Nullable NavigationManagerCallback listener) {
         mListenersSet.add(listener);
-        super.setNavigationManagerListener(listener);
+        super.setNavigationManagerCallback(listener);
     }
 
     @Override
