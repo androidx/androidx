@@ -126,7 +126,7 @@ public final class MessageTemplate implements Template {
                 && Objects.equals(mIcon, otherTemplate.mIcon);
     }
 
-    private MessageTemplate(Builder builder) {
+    MessageTemplate(Builder builder) {
         mTitle = builder.mTitle;
         mMessage = builder.mMessage;
         mDebugMessage = builder.mDebugMessage;
@@ -148,20 +148,20 @@ public final class MessageTemplate implements Template {
     /** A builder of {@link MessageTemplate}. */
     public static final class Builder {
         @Nullable
-        private CarText mTitle;
-        private CarText mMessage;
+        CarText mTitle;
+        CarText mMessage;
         @Nullable
-        private CarText mDebugMessage;
+        CarText mDebugMessage;
         @Nullable
-        private CarIcon mIcon;
+        CarIcon mIcon;
         @Nullable
-        private Action mHeaderAction;
+        Action mHeaderAction;
         @Nullable
-        private ActionList mActionList;
+        ActionList mActionList;
         @Nullable
-        private Throwable mDebugCause;
+        Throwable mDebugCause;
         @Nullable
-        private String mDebugString;
+        String mDebugString;
 
         /**
          * Sets the {@link CharSequence} to show as the template's title, or {@code null} to not
@@ -315,7 +315,7 @@ public final class MessageTemplate implements Template {
             return new MessageTemplate(this);
         }
 
-        private Builder(CharSequence message) {
+        Builder(CharSequence message) {
             this.mMessage = CarText.create(message);
         }
     }

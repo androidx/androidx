@@ -79,7 +79,7 @@ public class Metadata {
         return Objects.equals(mPlace, otherMetadata.mPlace);
     }
 
-    private Metadata(Builder builder) {
+    Metadata(Builder builder) {
         mPlace = builder.mPlace;
     }
 
@@ -91,7 +91,7 @@ public class Metadata {
     /** A builder for {@link Metadata}. */
     public static final class Builder {
         @Nullable
-        private Place mPlace;
+        Place mPlace;
 
         /**
          * Sets a {@link Place} used for showing {@link Distance} and {@link PlaceMarker}
@@ -112,11 +112,11 @@ public class Metadata {
             return new Metadata(this);
         }
 
-        private Builder() {
+        Builder() {
         }
 
-        private Builder(Metadata metadata) {
-            this.mPlace = metadata.mPlace;
+        Builder(Metadata metadata) {
+            this.mPlace = metadata.getPlace();
         }
     }
 }

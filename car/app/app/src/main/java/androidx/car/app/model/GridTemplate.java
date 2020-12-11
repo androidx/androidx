@@ -128,7 +128,7 @@ public final class GridTemplate implements Template {
                 && Objects.equals(mBackgroundImage, otherTemplate.mBackgroundImage);
     }
 
-    private GridTemplate(Builder builder) {
+    GridTemplate(Builder builder) {
         mIsLoading = builder.mIsLoading;
         mTitle = builder.mTitle;
         mHeaderAction = builder.mHeaderAction;
@@ -149,19 +149,19 @@ public final class GridTemplate implements Template {
 
     /** A builder of {@link GridTemplate}. */
     public static final class Builder {
-        private boolean mIsLoading;
+        boolean mIsLoading;
         @Nullable
-        private ItemList mSingleList;
+        ItemList mSingleList;
         @Nullable
-        private CarText mTitle;
+        CarText mTitle;
         @Nullable
-        private Action mHeaderAction;
+        Action mHeaderAction;
         @Nullable
-        private ActionStrip mActionStrip;
+        ActionStrip mActionStrip;
 
         /** For internal, host-side use only. */
         @Nullable
-        private CarIcon mBackgroundImage;
+        CarIcon mBackgroundImage;
 
         /**
          * Sets whether the template is in a loading state.
@@ -302,7 +302,7 @@ public final class GridTemplate implements Template {
             return new GridTemplate(this);
         }
 
-        private Builder() {
+        Builder() {
         }
     }
 }

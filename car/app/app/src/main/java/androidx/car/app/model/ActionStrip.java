@@ -100,7 +100,7 @@ public class ActionStrip {
         return Objects.equals(mActions, otherActionStrip.mActions);
     }
 
-    private ActionStrip(Builder builder) {
+    ActionStrip(Builder builder) {
         mActions = builder.mActions;
     }
 
@@ -111,8 +111,8 @@ public class ActionStrip {
 
     /** A builder of {@link ActionStrip}. */
     public static final class Builder {
-        private final List<Object> mActions = new ArrayList<>();
-        private final Set<Integer> mAddedActionTypes = new HashSet<>();
+        final List<Object> mActions = new ArrayList<>();
+        final Set<Integer> mAddedActionTypes = new HashSet<>();
 
         /**
          * Adds an {@link Action} to the list.

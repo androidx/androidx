@@ -170,7 +170,7 @@ public class GridItem implements Item {
                 && mImageType == otherGridItem.mImageType;
     }
 
-    private GridItem(Builder builder) {
+    GridItem(Builder builder) {
         mIsLoading = builder.mIsLoading;
         mTitle = builder.mTitle;
         mText = builder.mText;
@@ -192,16 +192,16 @@ public class GridItem implements Item {
     /** A builder of {@link GridItem}. */
     public static final class Builder {
         @Nullable
-        private CarText mTitle;
+        CarText mTitle;
         @Nullable
-        private CarText mText;
+        CarText mText;
         @Nullable
-        private CarIcon mImage;
+        CarIcon mImage;
         @GridItemImageType
-        private int mImageType = IMAGE_TYPE_LARGE;
+        int mImageType = IMAGE_TYPE_LARGE;
         @Nullable
-        private OnClickListenerWrapper mOnClickListener;
-        private boolean mIsLoading;
+        OnClickListenerWrapper mOnClickListener;
+        boolean mIsLoading;
 
         /**
          * Sets whether the item is in a loading state.
@@ -330,7 +330,7 @@ public class GridItem implements Item {
             return new GridItem(this);
         }
 
-        private Builder() {
+        Builder() {
         }
     }
 }

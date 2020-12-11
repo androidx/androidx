@@ -116,41 +116,43 @@ public class AppManager {
         return new AppManager(carContext, hostDispatcher);
     }
 
+    // Strictly to avoid synthetic accessor.
+    @NonNull
+    CarContext getCarContext() {
+        return mCarContext;
+    }
+
     /** @hide */
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
     protected AppManager(@NonNull CarContext carContext, @NonNull HostDispatcher hostDispatcher) {
         this.mCarContext = carContext;
         this.mHostDispatcher = hostDispatcher;
-        mAppManager =
-                new IAppManager.Stub() {
-                    @Override
-                    public void getTemplate(IOnDoneCallback callback) {
-                        ThreadUtils.runOnMain(
-                                () -> {
-                                    TemplateWrapper templateWrapper;
-                                    try {
-                                        templateWrapper =
-                                                AppManager.this
-                                                        .mCarContext
-                                                        .getCarService(ScreenManager.class)
-                                                        .getTopTemplate();
-                                    } catch (RuntimeException e) {
-                                        RemoteUtils.sendFailureResponse(callback,
-                                                "getTemplate", e);
-                                        throw new WrappedRuntimeException(e);
-                                    }
+        mAppManager = new IAppManager.Stub() {
+            @Override
+            public void getTemplate(IOnDoneCallback callback) {
+                ThreadUtils.runOnMain(
+                        () -> {
+                            TemplateWrapper templateWrapper;
+                            try {
+                                templateWrapper = getCarContext().getCarService(
+                                        ScreenManager.class).getTopTemplate();
+                            } catch (RuntimeException e) {
+                                RemoteUtils.sendFailureResponse(callback,
+                                        "getTemplate", e);
+                                throw new WrappedRuntimeException(e);
+                            }
 
-                                    RemoteUtils.sendSuccessResponse(callback, "getTemplate",
-                                            templateWrapper);
-                                });
-                    }
+                            RemoteUtils.sendSuccessResponse(callback, "getTemplate",
+                                    templateWrapper);
+                        });
+            }
 
-                    @Override
-                    public void onBackPressed(IOnDoneCallback callback) {
-                        RemoteUtils.dispatchHostCall(
-                                carContext.getOnBackPressedDispatcher()::onBackPressed, callback,
-                                "onBackPressed");
-                    }
-                };
+            @Override
+            public void onBackPressed(IOnDoneCallback callback) {
+                RemoteUtils.dispatchHostCall(
+                        carContext.getOnBackPressedDispatcher()::onBackPressed, callback,
+                        "onBackPressed");
+            }
+        };
     }
 }
