@@ -69,9 +69,9 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
             workManager.cancelAllWork()
             workManager.pruneWork()
             application.executor.runAllCommands()
+            inspectorTester.dispose()
             job.cancelAndJoin()
         }
-        inspectorTester.dispose()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
