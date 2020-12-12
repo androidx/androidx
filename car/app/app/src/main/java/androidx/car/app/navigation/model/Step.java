@@ -141,7 +141,7 @@ public final class Step {
                 && Objects.equals(mRoad, otherStep.mRoad);
     }
 
-    private Step(
+    Step(
             @Nullable Maneuver maneuver,
             List<Lane> lanes,
             @Nullable CarIcon lanesImage,
@@ -174,17 +174,17 @@ public final class Step {
         @Nullable
         private CarText mRoad;
 
-        private Builder(CharSequence cue) {
+        Builder(CharSequence cue) {
             this.mCue = CarText.create(cue);
         }
 
-        private Builder(Step step) {
-            this.mManeuver = step.mManeuver;
+        Builder(Step step) {
+            this.mManeuver = step.getManeuver();
             this.mLanes.clear();
-            this.mLanes.addAll(step.mLanes);
-            this.mLanesImage = step.mLanesImage;
-            this.mCue = requireNonNull(step.mCue);
-            this.mRoad = step.mRoad;
+            this.mLanes.addAll(step.getLanes());
+            this.mLanesImage = step.getLanesImage();
+            this.mCue = requireNonNull(step.getCue());
+            this.mRoad = step.getRoad();
         }
 
         /**

@@ -102,7 +102,7 @@ public final class Destination {
         return Objects.hash(mName, mAddress, mImage);
     }
 
-    private Destination(Builder builder) {
+    Destination(Builder builder) {
         this.mName = builder.mName;
         this.mAddress = builder.mAddress;
         this.mImage = builder.mImage;
@@ -118,11 +118,11 @@ public final class Destination {
     /** A builder of {@link Destination}. */
     public static final class Builder {
         @Nullable
-        private CarText mName;
+        CarText mName;
         @Nullable
-        private CarText mAddress;
+        CarText mAddress;
         @Nullable
-        private CarIcon mImage;
+        CarIcon mImage;
 
         /**
          * Sets the destination name formatted for the user's current locale, or {@code null} to not
@@ -183,7 +183,7 @@ public final class Destination {
             return new Destination(this);
         }
 
-        private Builder() {
+        Builder() {
         }
     }
 }

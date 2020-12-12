@@ -170,7 +170,7 @@ public class CarAppExtender implements NotificationCompat.Extender {
                         NotificationManagerCompat.IMPORTANCE_UNSPECIFIED);
     }
 
-    private CarAppExtender(Builder builder) {
+    CarAppExtender(Builder builder) {
         this.mContentTitle = builder.mContentTitle;
         this.mContentText = builder.mContentText;
         this.mSmallIconResId = builder.mSmallIconResId;
@@ -337,18 +337,18 @@ public class CarAppExtender implements NotificationCompat.Extender {
     /** A builder of {@link CarAppExtender}. */
     public static final class Builder {
         @Nullable
-        private CharSequence mContentTitle;
+        CharSequence mContentTitle;
         @Nullable
-        private CharSequence mContentText;
-        private int mSmallIconResId;
+        CharSequence mContentText;
+        int mSmallIconResId;
         @Nullable
-        private Bitmap mLargeIconBitmap;
+        Bitmap mLargeIconBitmap;
         @Nullable
-        private PendingIntent mContentIntent;
+        PendingIntent mContentIntent;
         @Nullable
-        private PendingIntent mDeleteIntent;
-        private final ArrayList<Action> mActions = new ArrayList<>();
-        private int mImportance = NotificationManagerCompat.IMPORTANCE_UNSPECIFIED;
+        PendingIntent mDeleteIntent;
+        final ArrayList<Action> mActions = new ArrayList<>();
+        int mImportance = NotificationManagerCompat.IMPORTANCE_UNSPECIFIED;
 
         /**
          * Sets the title of the notification in the car screen, or {@code null} to not override the

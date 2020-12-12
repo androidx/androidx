@@ -205,7 +205,7 @@ public class RowListConstraints {
         }
     }
 
-    private RowListConstraints(Builder builder) {
+    RowListConstraints(Builder builder) {
         mMaxActions = builder.mMaxActions;
         mRowConstraints = builder.mRowConstraints;
         mAllowSelectableLists = builder.mAllowSelectableLists;
@@ -217,10 +217,10 @@ public class RowListConstraints {
      */
     public static final class Builder {
         @ListType
-        private int mRowListType;
-        private int mMaxActions;
-        private RowConstraints mRowConstraints = RowConstraints.UNCONSTRAINED;
-        private boolean mAllowSelectableLists;
+        int mRowListType;
+        int mMaxActions;
+        RowConstraints mRowConstraints = RowConstraints.UNCONSTRAINED;
+        boolean mAllowSelectableLists;
 
         /** Sets the row list type for this constraint. */
         @NonNull
@@ -258,14 +258,14 @@ public class RowListConstraints {
             return new RowListConstraints(this);
         }
 
-        private Builder() {
+        Builder() {
         }
 
-        private Builder(RowListConstraints constraints) {
-            this.mMaxActions = constraints.mMaxActions;
-            this.mRowConstraints = constraints.mRowConstraints;
-            this.mAllowSelectableLists = constraints.mAllowSelectableLists;
-            this.mRowListType = constraints.mRowListType;
+        Builder(RowListConstraints constraints) {
+            this.mMaxActions = constraints.getMaxActions();
+            this.mRowConstraints = constraints.getRowConstraints();
+            this.mAllowSelectableLists = constraints.isAllowSelectableLists();
+            this.mRowListType = constraints.getRowListType();
         }
     }
 }

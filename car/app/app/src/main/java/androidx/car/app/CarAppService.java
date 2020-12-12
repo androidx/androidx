@@ -224,6 +224,10 @@ public abstract class CarAppService extends Service {
         return mHostInfo;
     }
 
+    void setHostInfo(@Nullable HostInfo hostInfo) {
+        mHostInfo = hostInfo;
+    }
+
     /**
      * Retrieves the current {@link Session} for this service.
      *
@@ -232,6 +236,22 @@ public abstract class CarAppService extends Service {
     @Nullable
     public final Session getCurrentSession() {
         return mCurrentSession;
+    }
+
+    // Strictly to avoid synthetic accessor.
+    void setCurrentSession(@Nullable Session session) {
+        mCurrentSession = session;
+    }
+
+    // Strictly to avoid synthetic accessor.
+    @Nullable
+    AppInfo getAppInfo() {
+        return mAppInfo;
+    }
+
+    // Strictly to avoid synthetic accessor.
+    void setAppInfo(@Nullable AppInfo appInfo) {
+        mAppInfo = appInfo;
     }
 
     private final ICarApp.Stub mBinder =
@@ -250,17 +270,17 @@ public abstract class CarAppService extends Service {
                         IOnDoneCallback callback) {
                     Log.d(TAG, "onAppCreate intent: " + intent);
                     RemoteUtils.dispatchHostCall(() -> {
-                        if (mCurrentSession == null
-                                || mCurrentSession.getLifecycle().getCurrentState()
+                        if (getCurrentSession() == null
+                                || getCurrentSession().getLifecycle().getCurrentState()
                                 == State.DESTROYED) {
-                            mCurrentSession = onCreateSession();
-                            mAppInfo = AppInfo.create(mCurrentSession.getCarContext());
+                            setCurrentSession(onCreateSession());
+                            setAppInfo(AppInfo.create(getCurrentSession().getCarContext()));
                         }
 
                         // CarContext is not set up until the base Context is attached. First
                         // thing we need to do here is attach the base Context, so that any usage of
                         // it works after this point.
-                        CarContext carContext = mCurrentSession.getCarContext();
+                        CarContext carContext = getCurrentSession().getCarContext();
                         carContext.attachBaseContext(CarAppService.this, configuration);
                         carContext.setCarHost(carHost);
 
@@ -268,7 +288,7 @@ public abstract class CarAppService extends Service {
                         // there is another bind, before the OS has destroyed this Service, then
                         // the stack will be empty, and we need to treat it as a new instance.
                         LifecycleRegistry registry =
-                                (LifecycleRegistry) mCurrentSession.getLifecycle();
+                                (LifecycleRegistry) getCurrentSession().getLifecycle();
                         Lifecycle.State state = registry.getCurrentState();
                         int screenStackSize = carContext.getCarService(
                                 ScreenManager.class).getScreenStack().size();
@@ -279,7 +299,7 @@ public abstract class CarAppService extends Service {
                                     + ", stack size: " + screenStackSize);
                             registry.handleLifecycleEvent(Event.ON_CREATE);
                             carContext.getCarService(ScreenManager.class).push(
-                                    mCurrentSession.onCreateScreen(intent));
+                                    getCurrentSession().onCreateScreen(intent));
                         } else {
                             Log.d(TAG, "onAppCreate the app was already created");
                             onNewIntentInternal(intent);
@@ -292,8 +312,8 @@ public abstract class CarAppService extends Service {
                 public void onAppStart(IOnDoneCallback callback) {
                     RemoteUtils.dispatchHostCall(
                             () -> {
-                                checkSessionIsValid(mCurrentSession);
-                                ((LifecycleRegistry) mCurrentSession.getLifecycle())
+                                checkSessionIsValid(getCurrentSession());
+                                ((LifecycleRegistry) getCurrentSession().getLifecycle())
                                         .handleLifecycleEvent(Event.ON_START);
                             }, callback,
                             "onAppStart");
@@ -303,8 +323,8 @@ public abstract class CarAppService extends Service {
                 public void onAppResume(IOnDoneCallback callback) {
                     RemoteUtils.dispatchHostCall(
                             () -> {
-                                checkSessionIsValid(mCurrentSession);
-                                ((LifecycleRegistry) mCurrentSession.getLifecycle())
+                                checkSessionIsValid(getCurrentSession());
+                                ((LifecycleRegistry) getCurrentSession().getLifecycle())
                                         .handleLifecycleEvent(Event.ON_RESUME);
                             }, callback,
                             "onAppResume");
@@ -314,8 +334,8 @@ public abstract class CarAppService extends Service {
                 public void onAppPause(IOnDoneCallback callback) {
                     RemoteUtils.dispatchHostCall(
                             () -> {
-                                checkSessionIsValid(mCurrentSession);
-                                ((LifecycleRegistry) mCurrentSession.getLifecycle())
+                                checkSessionIsValid(getCurrentSession());
+                                ((LifecycleRegistry) getCurrentSession().getLifecycle())
                                         .handleLifecycleEvent(Event.ON_PAUSE);
                             }, callback, "onAppPause");
                 }
@@ -324,8 +344,8 @@ public abstract class CarAppService extends Service {
                 public void onAppStop(IOnDoneCallback callback) {
                     RemoteUtils.dispatchHostCall(
                             () -> {
-                                checkSessionIsValid(mCurrentSession);
-                                ((LifecycleRegistry) mCurrentSession.getLifecycle())
+                                checkSessionIsValid(getCurrentSession());
+                                ((LifecycleRegistry) getCurrentSession().getLifecycle())
                                         .handleLifecycleEvent(Event.ON_STOP);
                             }, callback, "onAppStop");
                 }
@@ -353,14 +373,14 @@ public abstract class CarAppService extends Service {
                             RemoteUtils.sendSuccessResponse(
                                     callback,
                                     "getManager",
-                                    mCurrentSession.getCarContext().getCarService(
+                                    getCurrentSession().getCarContext().getCarService(
                                             AppManager.class).getIInterface());
                             return;
                         case CarContext.NAVIGATION_SERVICE:
                             RemoteUtils.sendSuccessResponse(
                                     callback,
                                     "getManager",
-                                    mCurrentSession.getCarContext().getCarService(
+                                    getCurrentSession().getCarContext().getCarService(
                                             NavigationManager.class).getIInterface());
                             return;
                         default:
@@ -374,7 +394,7 @@ public abstract class CarAppService extends Service {
                 @Override
                 public void getAppInfo(IOnDoneCallback callback) {
                     RemoteUtils.sendSuccessResponse(
-                            callback, "getAppInfo", mAppInfo);
+                            callback, "getAppInfo", CarAppService.this.getAppInfo());
                 }
 
                 @Override
@@ -385,12 +405,12 @@ public abstract class CarAppService extends Service {
                                 (HandshakeInfo) handshakeInfo.get();
                         String packageName = deserializedHandshakeInfo.getHostPackageName();
                         int uid = Binder.getCallingUid();
-                        mHostInfo = new HostInfo(packageName, uid);
-                        mCurrentSession.getCarContext().onHandshakeComplete(
+                        setHostInfo(new HostInfo(packageName, uid));
+                        getCurrentSession().getCarContext().onHandshakeComplete(
                                 deserializedHandshakeInfo);
                         RemoteUtils.sendSuccessResponse(callback, "onHandshakeCompleted", null);
                     } catch (BundlerException | IllegalArgumentException e) {
-                        mHostInfo = null;
+                        setHostInfo(null);
                         RemoteUtils.sendFailureResponse(callback, "onHandshakeCompleted", e);
                     }
                 }
@@ -412,13 +432,13 @@ public abstract class CarAppService extends Service {
                     ThreadUtils.checkMainThread();
                     Log.d(TAG, "onCarConfigurationChanged configuration: " + configuration);
 
-                    mCurrentSession.getCarContext().onCarConfigurationChanged(configuration);
+                    getCurrentSession().getCarContext().onCarConfigurationChanged(configuration);
                     onCarConfigurationChanged(
-                            mCurrentSession.getCarContext().getResources().getConfiguration());
+                            getCurrentSession().getCarContext().getResources().getConfiguration());
                 }
             };
 
-    private static void checkSessionIsValid(Session session) {
+    void checkSessionIsValid(Session session) {
         if (session == null) {
             throw new IllegalStateException("Null session found when non-null expected.");
         }

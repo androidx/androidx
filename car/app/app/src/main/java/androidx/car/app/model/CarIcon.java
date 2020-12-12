@@ -342,7 +342,7 @@ public class CarIcon {
         }
     }
 
-    private CarIcon(@Nullable IconCompat icon, @Nullable CarColor tint, @CarIconType int type) {
+    CarIcon(@Nullable IconCompat icon, @Nullable CarColor tint, @CarIconType int type) {
         this.mType = type;
         this.mIcon = icon;
         this.mTint = tint;
@@ -413,13 +413,13 @@ public class CarIcon {
             return new CarIcon(mIcon, mTint, mType);
         }
 
-        private Builder(@NonNull IconCompat icon) {
+        Builder(@NonNull IconCompat icon) {
             mType = TYPE_CUSTOM;
             this.mIcon = icon;
             mTint = null;
         }
 
-        private Builder(@NonNull CarIcon carIcon) {
+        Builder(@NonNull CarIcon carIcon) {
             mType = carIcon.getType();
             mIcon = carIcon.getIcon();
             mTint = carIcon.getTint();
