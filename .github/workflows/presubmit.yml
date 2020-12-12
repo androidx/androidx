@@ -30,7 +30,7 @@ jobs:
       - name: Check invalid suppressions
         run: |
           set -x
-          PREUPLOAD_FILES=`git diff ${{ github.event.pull_request.base.ref }} --name-only  | tr "\n" " "`
+          PREUPLOAD_FILES=`git diff androidx-main --name-only  | tr "\n" " "`
           ./development/checkInvalidSuppress.py -f "$PREUPLOAD_FILES"
 
       - name: "Report job status"
