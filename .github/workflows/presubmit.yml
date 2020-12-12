@@ -27,6 +27,11 @@ jobs:
           # Enforces a `Test: <stanza>` in the pull request
           checks: '["(.*)?Test:(.*)?"]'
 
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
       - name: Check invalid suppressions
         run: |
           set -x
