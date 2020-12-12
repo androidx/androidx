@@ -85,7 +85,7 @@ public class Place {
                 otherPlace.mMarker);
     }
 
-    private Place(Builder builder) {
+    Place(Builder builder) {
         mLatLng = builder.mLatLng;
         mMarker = builder.mMarker;
     }
@@ -98,17 +98,17 @@ public class Place {
 
     /** A builder of {@link Place}. */
     public static final class Builder {
-        private LatLng mLatLng;
+        LatLng mLatLng;
         @Nullable
-        private PlaceMarker mMarker;
+        PlaceMarker mMarker;
 
-        private Builder(LatLng latLng) {
+        Builder(LatLng latLng) {
             this.mLatLng = latLng;
         }
 
-        private Builder(Place place) {
-            mLatLng = requireNonNull(place.mLatLng);
-            mMarker = place.mMarker;
+        Builder(Place place) {
+            mLatLng = place.getLatLng();
+            mMarker = place.getMarker();
         }
 
         /**

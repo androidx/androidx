@@ -576,8 +576,7 @@ public final class Maneuver {
                 && Objects.equals(mIcon, otherManeuver.mIcon);
     }
 
-    private Maneuver(
-            @Type int type, int roundaboutExitNumber, int roundaboutExitAngle,
+    Maneuver(@Type int type, int roundaboutExitNumber, int roundaboutExitAngle,
             @Nullable CarIcon icon) {
         this.mType = type;
         this.mRoundaboutExitNumber = roundaboutExitNumber;
@@ -598,14 +597,14 @@ public final class Maneuver {
         return (type >= TYPE_UNKNOWN && type <= TYPE_FERRY_TRAIN_RIGHT);
     }
 
-    private static boolean isValidTypeWithExitNumber(@Type int type) {
+    static boolean isValidTypeWithExitNumber(@Type int type) {
         return (type == TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW
                 || type == TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW
                 || type == TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW_WITH_ANGLE
                 || type == TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW_WITH_ANGLE);
     }
 
-    private static boolean isValidTypeWithExitAngle(@Type int type) {
+    static boolean isValidTypeWithExitAngle(@Type int type) {
         return (type == TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW_WITH_ANGLE
                 || type == TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW_WITH_ANGLE);
     }
@@ -621,7 +620,7 @@ public final class Maneuver {
         @Nullable
         private CarIcon mIcon;
 
-        private Builder(@Type int type) {
+        Builder(@Type int type) {
             this.mType = type;
         }
 

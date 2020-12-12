@@ -118,7 +118,7 @@ public final class PaneTemplate implements Template {
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
     }
 
-    private PaneTemplate(Builder builder) {
+    PaneTemplate(Builder builder) {
         mTitle = builder.mTitle;
         mPane = builder.mPane;
         mHeaderAction = builder.mHeaderAction;
@@ -136,14 +136,14 @@ public final class PaneTemplate implements Template {
     /** A builder of {@link PaneTemplate}. */
     public static final class Builder {
         @Nullable
-        private CarText mTitle;
-        private Pane mPane;
+        CarText mTitle;
+        Pane mPane;
         @Nullable
-        private Action mHeaderAction;
+        Action mHeaderAction;
         @Nullable
-        private ActionStrip mActionStrip;
+        ActionStrip mActionStrip;
 
-        private Builder(Pane pane) {
+        Builder(Pane pane) {
             this.mPane = pane;
         }
 

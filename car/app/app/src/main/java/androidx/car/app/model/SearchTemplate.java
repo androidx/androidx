@@ -208,7 +208,7 @@ public final class SearchTemplate implements Template {
                 && mShowKeyboardByDefault == otherTemplate.mShowKeyboardByDefault;
     }
 
-    private SearchTemplate(Builder builder) {
+    SearchTemplate(Builder builder) {
         mInitialSearchText = builder.mInitialSearchText;
         mSearchHint = builder.mSearchHint;
         mIsLoading = builder.mIsLoading;
@@ -242,21 +242,21 @@ public final class SearchTemplate implements Template {
 
     /** A builder of {@link SearchTemplate}. */
     public static final class Builder {
-        private final SearchListenerWrapper mSearchListener;
+        final SearchListenerWrapper mSearchListener;
         @Nullable
-        private String mInitialSearchText;
+        String mInitialSearchText;
         @Nullable
-        private String mSearchHint;
-        private boolean mIsLoading;
+        String mSearchHint;
+        boolean mIsLoading;
         @Nullable
-        private ItemList mItemList;
-        private boolean mShowKeyboardByDefault = true;
+        ItemList mItemList;
+        boolean mShowKeyboardByDefault = true;
         @Nullable
-        private Action mHeaderAction;
+        Action mHeaderAction;
         @Nullable
-        private ActionStrip mActionStrip;
+        ActionStrip mActionStrip;
 
-        private Builder(SearchListener listener) {
+        Builder(SearchListener listener) {
             mSearchListener = createSearchListener(listener);
         }
 
@@ -404,7 +404,7 @@ public final class SearchTemplate implements Template {
         }
     }
 
-    private static SearchListenerWrapper createSearchListener(@NonNull SearchListener listener) {
+    static SearchListenerWrapper createSearchListener(@NonNull SearchListener listener) {
         return new SearchListenerWrapper() {
             private final ISearchListener mStubListener = new SearchListenerStub(listener);
 
@@ -436,7 +436,7 @@ public final class SearchTemplate implements Template {
     private static class SearchListenerStub extends ISearchListener.Stub {
         private final SearchListener mSearchListener;
 
-        private SearchListenerStub(SearchListener searchListener) {
+        SearchListenerStub(SearchListener searchListener) {
             mSearchListener = searchListener;
         }
 

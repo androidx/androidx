@@ -106,7 +106,7 @@ public class RoutingInfo implements NavigationInfo {
                 && Objects.equals(mJunctionImage, otherInfo.mJunctionImage);
     }
 
-    private RoutingInfo(Builder builder) {
+    RoutingInfo(Builder builder) {
         mCurrentStep = builder.mCurrentStep;
         mCurrentDistance = builder.mCurrentDistance;
         mNextStep = builder.mNextStep;
@@ -126,16 +126,16 @@ public class RoutingInfo implements NavigationInfo {
     /** A builder of {@link RoutingInfo}. */
     public static final class Builder {
         @Nullable
-        private Step mCurrentStep;
+        Step mCurrentStep;
         @Nullable
-        private Distance mCurrentDistance;
+        Distance mCurrentDistance;
         @Nullable
-        private Step mNextStep;
+        Step mNextStep;
         @Nullable
-        private CarIcon mJunctionImage;
-        private boolean mIsLoading;
+        CarIcon mJunctionImage;
+        boolean mIsLoading;
 
-        private Builder() {
+        Builder() {
         }
 
         /**

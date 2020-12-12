@@ -99,7 +99,7 @@ public final class Pane {
                 && Objects.equals(mRows, otherPane.mRows);
     }
 
-    private Pane(Builder builder) {
+    Pane(Builder builder) {
         mRows = new ArrayList<>(builder.mRows);
         mActionList = builder.mActionList;
         mIsLoading = builder.mIsLoading;
@@ -114,10 +114,10 @@ public final class Pane {
 
     /** A builder of {@link Pane}. */
     public static final class Builder {
-        private final List<Object> mRows = new ArrayList<>();
+        final List<Object> mRows = new ArrayList<>();
         @Nullable
-        private ActionList mActionList;
-        private boolean mIsLoading;
+        ActionList mActionList;
+        boolean mIsLoading;
 
         /**
          * Sets whether the {@link Pane} is in a loading state.

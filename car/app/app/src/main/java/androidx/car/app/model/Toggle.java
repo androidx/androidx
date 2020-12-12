@@ -99,7 +99,7 @@ public class Toggle {
         return mIsChecked == otherToggle.mIsChecked;
     }
 
-    private Toggle(Builder builder) {
+    Toggle(Builder builder) {
         mIsChecked = builder.mIsChecked;
         mOnCheckedChangeListener = builder.mOnCheckedChangeListener;
     }
@@ -112,8 +112,8 @@ public class Toggle {
 
     /** A builder of {@link Toggle}. */
     public static final class Builder {
-        private OnCheckedChangeListenerWrapper mOnCheckedChangeListener;
-        private boolean mIsChecked;
+        OnCheckedChangeListenerWrapper mOnCheckedChangeListener;
+        boolean mIsChecked;
 
         /**
          * Sets the initial checked state for {@link Toggle}.
@@ -144,7 +144,7 @@ public class Toggle {
             return this;
         }
 
-        private Builder(@NonNull OnCheckedChangeListener onCheckedChangeListener) {
+        Builder(@NonNull OnCheckedChangeListener onCheckedChangeListener) {
             this.mOnCheckedChangeListener =
                     createOnCheckedChangeListener(onCheckedChangeListener);
         }
@@ -156,7 +156,7 @@ public class Toggle {
         }
     }
 
-    private static OnCheckedChangeListenerWrapper createOnCheckedChangeListener(
+    static OnCheckedChangeListenerWrapper createOnCheckedChangeListener(
             @NonNull OnCheckedChangeListener listener) {
         return new OnCheckedChangeListenerWrapper() {
             private final IOnCheckedChangeListener mOnCheckedChangeListener =
@@ -178,7 +178,7 @@ public class Toggle {
     private static class OnCheckedChangeListenerStub extends IOnCheckedChangeListener.Stub {
         private final OnCheckedChangeListener mOnCheckedChangeListener;
 
-        private OnCheckedChangeListenerStub(OnCheckedChangeListener onCheckedChangeListener) {
+        OnCheckedChangeListenerStub(OnCheckedChangeListener onCheckedChangeListener) {
             this.mOnCheckedChangeListener = onCheckedChangeListener;
         }
 
