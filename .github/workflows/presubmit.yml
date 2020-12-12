@@ -1,7 +1,7 @@
 name: AndroidX Presubmits
 on:
   push:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize, reopened, 'labeled']
   workflow_dispatch:
 
