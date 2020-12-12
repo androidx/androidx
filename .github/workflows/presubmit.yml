@@ -8,6 +8,8 @@ on:
 jobs:
   setup:
     runs-on: ubuntu-latest
+    outputs:
+      changed-files: ${{ steps.changed-files.outputs.added_modified }}
     steps:
       - name: "Start webhook"
         uses: androidx/github-workflow-webhook-action@main
@@ -16,8 +18,15 @@ jobs:
           secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
           payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "started"}'
 
+      - name: "Get changed files in push or pull_request"
+        id: changed-files
+        # Temporary workaround for failing on force-push
+        continue-on-error: true
+        uses: jitterbit/get-changed-files@v1
+
   lint:
     runs-on: ubuntu-latest
+    needs: [setup]
     outputs:
       status: ${{ steps.output-status.outputs.status }}
     steps:
@@ -32,16 +41,15 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: "Get changed files in push or pull_request"
-        id: changed-files
-        # Temporary workaround for failing on force-push
-        continue-on-error: true
-        uses: jitterbit/get-changed-files@v1
-
       - name: Check invalid suppressions
         run: |
           set -x
-          ./development/checkInvalidSuppress.py -f ${{ steps.changed-files.outputs.added_modified }}
+          ./development/checkInvalidSuppress.py -f ${{ jobs.setup.outputs.changed-files }}
+
+      - name: "Warn on missing updateApi"
+        run: |
+          set -x
+          ./development/apilint.py -f ${{ jobs.setup.outputs.changed-files }}
 
       - name: "Report job status"
         id: output-status
@@ -78,6 +86,17 @@ jobs:
           set -x
           echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
+
+      - name: "ktlint"
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+        with:
+          arguments: --continue :ktlintCheckFile --file=${{ jobs.setup.outputs.changed-files }}
+          build-root-directory: ${{ env.group-id }}
+          gradle-executable: ${{ env.group-id }}/gradlew
+          wrapper-directory: ${{ env.group-id }}/gradle/wrapper
+
 
       - name: "./gradlew buildOnServer"
         uses: eskatos/gradle-command-action@v1
