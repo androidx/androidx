@@ -533,7 +533,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                                 }.first { it.second.isNotEmpty() }
                             val processed = process(
                                 baseContext = invocation.context,
-                                containing = owner.asDeclaredType(),
+                                containing = owner.type,
                                 executableElement = methods.first()
                             )
                             handler(processed, invocation)

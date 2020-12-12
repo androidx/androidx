@@ -1155,7 +1155,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                         }
                         val parser = QueryMethodProcessor(
                             baseContext = invocation.context,
-                            containing = owner.asDeclaredType(),
+                            containing = owner.type,
                             executableElement = methods.first(),
                             dbVerifier = verifier
                         )

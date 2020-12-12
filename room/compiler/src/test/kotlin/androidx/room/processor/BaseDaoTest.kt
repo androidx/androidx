@@ -184,7 +184,7 @@ class BaseDaoTest {
             val daoElm = invocation.processingEnv.requireTypeElement("foo.bar.MyDao")
             val dbElm = invocation.context.processingEnv
                 .requireTypeElement(RoomTypeNames.ROOM_DB)
-            val dbType = dbElm.asDeclaredType()
+            val dbType = dbElm.type
             val processedDao = DaoProcessor(
                 invocation.context, daoElm, dbType, null
             ).process()

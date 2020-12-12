@@ -110,7 +110,7 @@ class DaoWriterTest {
                             .firstOrNull()
                             ?: invocation.context.processingEnv
                                 .requireTypeElement(RoomTypeNames.ROOM_DB)
-                        val dbType = db.asDeclaredType()
+                        val dbType = db.type
                         val parser = DaoProcessor(
                             baseContext = invocation.context,
                             element = dao,

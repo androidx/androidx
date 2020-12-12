@@ -72,7 +72,7 @@ class DaoWriter(
     val processingEnv: XProcessingEnv
 ) :
     ClassWriter(dao.typeName) {
-    private val declaredDao = dao.element.asDeclaredType()
+    private val declaredDao = dao.element.type
 
     companion object {
         const val GET_LIST_OF_TYPE_CONVERTERS_METHOD = "getRequiredConverters"

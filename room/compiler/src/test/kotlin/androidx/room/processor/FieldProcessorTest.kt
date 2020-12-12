@@ -618,7 +618,7 @@ class FieldProcessorTest {
                                 ).context
                             val parser = FieldProcessor(
                                 baseContext = entityContext,
-                                containing = owner.asDeclaredType(),
+                                containing = owner.type,
                                 element = fieldElement!!,
                                 bindingScope = FieldProcessor.BindingScope.TWO_WAY,
                                 fieldParent = null,

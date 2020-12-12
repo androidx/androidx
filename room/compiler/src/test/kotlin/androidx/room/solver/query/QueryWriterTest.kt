@@ -366,7 +366,7 @@ class QueryWriterTest {
                             }.first { it.second.isNotEmpty() }
                         val parser = QueryMethodProcessor(
                             baseContext = invocation.context,
-                            containing = owner.asDeclaredType(),
+                            containing = owner.type,
                             executableElement = methods.first()
                         )
                         val method = parser.process()
