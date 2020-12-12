@@ -32,11 +32,14 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: "Get changed files in push or pull_request"
+        id: changed-files
+        uses: jitterbit/get-changed-files@v1
+
       - name: Check invalid suppressions
         run: |
           set -x
-          PREUPLOAD_FILES=`git diff androidx-main --name-only  | tr "\n" " "`
-          ./development/checkInvalidSuppress.py -f "$PREUPLOAD_FILES"
+          ./development/checkInvalidSuppress.py -f ${{ steps.changed-files.outputs.added_modified }}
 
       - name: "Report job status"
         id: output-status
