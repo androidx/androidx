@@ -125,6 +125,11 @@ internal abstract class KspType(
 
     override fun isSameType(other: XType): Boolean {
         check(other is KspType)
+        if (nullability == XNullability.UNKNOWN || other.nullability == XNullability.UNKNOWN) {
+            // if one the nullabilities is unknown, it is coming from java source code or .class.
+            // for those cases, use java platform type equality (via typename)
+            return typeName == other.typeName
+        }
         // NOTE: this is inconsistent with java where nullability is ignored.
         // it is intentional but might be reversed if it happens to break use cases.
         return ksType == other.ksType
