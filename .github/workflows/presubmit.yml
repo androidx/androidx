@@ -44,12 +44,12 @@ jobs:
       - name: Check invalid suppressions
         run: |
           set -x
-          ./development/checkInvalidSuppress.py -f ${{ jobs.setup.outputs.changed-files }}
+          ./development/checkInvalidSuppress.py -f ${{ needs.setup.outputs.changed-files }}
 
       - name: "Warn on missing updateApi"
         run: |
           set -x
-          ./development/apilint.py -f ${{ jobs.setup.outputs.changed-files }}
+          ./development/apilint.py -f ${{ needs.setup.outputs.changed-files }}
 
       - name: "Report job status"
         id: output-status
@@ -92,7 +92,7 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: --continue :ktlintCheckFile --file=${{ jobs.setup.outputs.changed-files }}
+          arguments: --continue :ktlintCheckFile --file=${{ needs.setup.outputs.changed-files }}
           build-root-directory: ${{ env.group-id }}
           gradle-executable: ${{ env.group-id }}/gradlew
           wrapper-directory: ${{ env.group-id }}/gradle/wrapper
