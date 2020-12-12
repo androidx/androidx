@@ -84,11 +84,6 @@ interface XType {
     fun boxed(): XType
 
     /**
-     * Returns this type as an instance of [XArrayType] or fails if it is not an array.
-     */
-    fun asArray(): XArrayType = this as XArrayType
-
-    /**
      * Returns `true` if this is a primitive or boxed it
      */
     fun isInt(): Boolean
