@@ -244,6 +244,7 @@ open class RootStudioTask : StudioTask() {
  * Task for launching studio in a playground project
  */
 open class PlaygroundStudioTask : RootStudioTask() {
+    @get:Internal
     val supportRootFolder = (project.rootProject.property("ext") as ExtraPropertiesExtension)
         .let { it.get("supportRootFolder") as File }
 

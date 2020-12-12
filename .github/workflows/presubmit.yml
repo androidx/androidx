@@ -86,7 +86,6 @@ jobs:
         if: always()
         run: echo ::set-output name=status::${{ job.status }}
 
-<<<<<<< HEAD
   build-biometric:
     strategy:
       fail-fast: false
