@@ -151,7 +151,7 @@ public class NavigationTemplate implements Template {
         CarAppPermission.checkHasLibraryPermission(context, CarAppPermission.NAVIGATION_TEMPLATES);
     }
 
-    private NavigationTemplate(Builder builder) {
+    NavigationTemplate(Builder builder) {
         mNavigationInfo = builder.mNavigationInfo;
         mBackgroundColor = builder.mBackgroundColor;
         mDestinationTravelEstimate = builder.mDestinationTravelEstimate;
@@ -169,14 +169,14 @@ public class NavigationTemplate implements Template {
     /** A builder of {@link NavigationTemplate}. */
     public static final class Builder {
         @Nullable
-        private NavigationInfo mNavigationInfo;
+        NavigationInfo mNavigationInfo;
         @Nullable
-        private CarColor mBackgroundColor;
+        CarColor mBackgroundColor;
         @Nullable
-        private TravelEstimate mDestinationTravelEstimate;
-        private ActionStrip mActionStrip;
+        TravelEstimate mDestinationTravelEstimate;
+        ActionStrip mActionStrip;
 
-        private Builder() {
+        Builder() {
         }
 
         /**

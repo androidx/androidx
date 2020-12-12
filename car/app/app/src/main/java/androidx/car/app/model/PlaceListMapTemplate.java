@@ -152,7 +152,7 @@ public final class PlaceListMapTemplate implements Template {
                 && Objects.equals(mAnchor, otherTemplate.mAnchor);
     }
 
-    private PlaceListMapTemplate(Builder builder) {
+    PlaceListMapTemplate(Builder builder) {
         mShowCurrentLocation = builder.mShowCurrentLocation;
         mIsLoading = builder.mIsLoading;
         mTitle = builder.mTitle;
@@ -175,18 +175,18 @@ public final class PlaceListMapTemplate implements Template {
 
     /** A builder of {@link PlaceListMapTemplate}. */
     public static final class Builder {
-        private boolean mShowCurrentLocation;
-        private boolean mIsLoading;
+        boolean mShowCurrentLocation;
+        boolean mIsLoading;
         @Nullable
-        private CarText mTitle;
+        CarText mTitle;
         @Nullable
-        private ItemList mItemList;
+        ItemList mItemList;
         @Nullable
-        private Action mHeaderAction;
+        Action mHeaderAction;
         @Nullable
-        private ActionStrip mActionStrip;
+        ActionStrip mActionStrip;
         @Nullable
-        private Place mAnchor;
+        Place mAnchor;
 
         /**
          * Sets whether to show the current location in the map.

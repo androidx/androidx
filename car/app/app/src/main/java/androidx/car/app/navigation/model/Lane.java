@@ -72,7 +72,7 @@ public final class Lane {
         return Objects.equals(mDirections, otherLane.mDirections);
     }
 
-    private Lane(List<LaneDirection> directions) {
+    Lane(List<LaneDirection> directions) {
         this.mDirections = new ArrayList<>(directions);
     }
 

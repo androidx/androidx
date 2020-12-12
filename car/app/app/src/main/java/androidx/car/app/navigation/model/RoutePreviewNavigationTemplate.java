@@ -168,7 +168,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
     }
 
-    private RoutePreviewNavigationTemplate(Builder builder) {
+    RoutePreviewNavigationTemplate(Builder builder) {
         mTitle = builder.mTitle;
         mIsLoading = builder.mIsLoading;
         mNavigateAction = builder.mNavigateAction;
@@ -190,16 +190,16 @@ public final class RoutePreviewNavigationTemplate implements Template {
     /** A builder of {@link RoutePreviewNavigationTemplate}. */
     public static final class Builder {
         @Nullable
-        private CarText mTitle;
-        private boolean mIsLoading;
+        CarText mTitle;
+        boolean mIsLoading;
         @Nullable
-        private Action mNavigateAction;
+        Action mNavigateAction;
         @Nullable
-        private ItemList mItemList;
+        ItemList mItemList;
         @Nullable
-        private Action mHeaderAction;
+        Action mHeaderAction;
         @Nullable
-        private ActionStrip mActionStrip;
+        ActionStrip mActionStrip;
 
         /** Sets the {@link CharSequence} to show as title, or {@code null} to not show a title. */
         @NonNull

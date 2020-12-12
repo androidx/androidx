@@ -237,7 +237,7 @@ public class Row implements Item {
                 && mRowImageType == otherRow.mRowImageType;
     }
 
-    private Row(Builder builder) {
+    Row(Builder builder) {
         mTitle = builder.mTitle;
         mTexts = new ArrayList<>(builder.mTexts);
         mImage = builder.mImage;
@@ -263,18 +263,18 @@ public class Row implements Item {
     /** A builder of {@link Row}. */
     public static final class Builder {
         @Nullable
-        private CarText mTitle;
-        private final List<CarText> mTexts = new ArrayList<>();
+        CarText mTitle;
+        final List<CarText> mTexts = new ArrayList<>();
         @Nullable
-        private CarIcon mImage;
+        CarIcon mImage;
         @Nullable
-        private Toggle mToggle;
+        Toggle mToggle;
         @Nullable
-        private OnClickListenerWrapper mOnClickListener;
-        private Metadata mMetadata = EMPTY_METADATA;
-        private boolean mIsBrowsable;
+        OnClickListenerWrapper mOnClickListener;
+        Metadata mMetadata = EMPTY_METADATA;
+        boolean mIsBrowsable;
         @RowImageType
-        private int mRowImageType = IMAGE_TYPE_SMALL;
+        int mRowImageType = IMAGE_TYPE_SMALL;
 
         /**
          * Sets the title of the row.
@@ -491,7 +491,7 @@ public class Row implements Item {
             return new Row(this);
         }
 
-        private Builder() {
+        Builder() {
         }
     }
 }

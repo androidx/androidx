@@ -170,7 +170,7 @@ public final class ItemList {
                 && Objects.equals(mNoItemsMessage, otherList.mNoItemsMessage);
     }
 
-    private ItemList(Builder builder) {
+    ItemList(Builder builder) {
         mSelectedIndex = builder.mSelectedIndex;
         mItems = new ArrayList<>(builder.mItems);
         mNoItemsMessage = builder.mNoItemsMessage;
@@ -189,14 +189,14 @@ public final class ItemList {
 
     /** A builder of {@link ItemList}. */
     public static final class Builder {
-        private final List<Object> mItems = new ArrayList<>();
-        private int mSelectedIndex;
+        final List<Object> mItems = new ArrayList<>();
+        int mSelectedIndex;
         @Nullable
-        private OnSelectedListenerWrapper mOnSelectedListener;
+        OnSelectedListenerWrapper mOnSelectedListener;
         @Nullable
-        private OnItemVisibilityChangedListenerWrapper mOnItemVisibilityChangedListener;
+        OnItemVisibilityChangedListenerWrapper mOnItemVisibilityChangedListener;
         @Nullable
-        private CarText mNoItemsMessage;
+        CarText mNoItemsMessage;
 
         /**
          * Sets the {@link OnItemVisibilityChangedListener} to call when the visible items in the
@@ -334,7 +334,7 @@ public final class ItemList {
     }
 
     @Nullable
-    private static OnClickListenerWrapper getOnClickListener(Object item) {
+    static OnClickListenerWrapper getOnClickListener(Object item) {
         if (item instanceof Row) {
             return ((Row) item).getOnClickListener();
         } else if (item instanceof GridItem) {
@@ -345,7 +345,7 @@ public final class ItemList {
     }
 
     @Nullable
-    private static Toggle getToggle(Object item) {
+    static Toggle getToggle(Object item) {
         if (item instanceof Row) {
             return ((Row) item).getToggle();
         }
@@ -353,7 +353,7 @@ public final class ItemList {
         return null;
     }
 
-    private static OnSelectedListenerWrapper createOnSelectedListener(
+    static OnSelectedListenerWrapper createOnSelectedListener(
             @NonNull OnSelectedListener listener) {
         return new OnSelectedListenerWrapper() {
             private final IOnSelectedListener mStubListener = new OnSelectedListenerStub(listener);
@@ -374,7 +374,7 @@ public final class ItemList {
     private static class OnSelectedListenerStub extends IOnSelectedListener.Stub {
         private final OnSelectedListener mOnSelectedListener;
 
-        private OnSelectedListenerStub(OnSelectedListener onSelectedListener) {
+        OnSelectedListenerStub(OnSelectedListener onSelectedListener) {
             this.mOnSelectedListener = onSelectedListener;
         }
 
@@ -385,7 +385,7 @@ public final class ItemList {
         }
     }
 
-    private static OnItemVisibilityChangedListenerWrapper createOnItemVisibilityChangedListener(
+    static OnItemVisibilityChangedListenerWrapper createOnItemVisibilityChangedListener(
             @NonNull OnItemVisibilityChangedListener listener) {
         return new OnItemVisibilityChangedListenerWrapper() {
             private final IOnItemVisibilityChangedListener mStubListener =
@@ -410,7 +410,7 @@ public final class ItemList {
             extends IOnItemVisibilityChangedListener.Stub {
         private final OnItemVisibilityChangedListener mOnItemVisibilityChangedListener;
 
-        private OnItemVisibilityChangedListenerStub(
+        OnItemVisibilityChangedListenerStub(
                 OnItemVisibilityChangedListener onItemVisibilityChangedListener) {
             this.mOnItemVisibilityChangedListener = onItemVisibilityChangedListener;
         }

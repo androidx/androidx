@@ -91,7 +91,7 @@ public class MessageInfo implements NavigationInfo {
                 && Objects.equals(mImage, otherInfo.mImage);
     }
 
-    private MessageInfo(Builder builder) {
+    MessageInfo(Builder builder) {
         mTitle = builder.mTitle;
         mText = builder.mText;
         mImage = builder.mImage;
@@ -107,13 +107,13 @@ public class MessageInfo implements NavigationInfo {
     /** A builder of {@link MessageInfo}. */
     public static final class Builder {
         @Nullable
-        private CarText mTitle;
+        CarText mTitle;
         @Nullable
-        private CarText mText;
+        CarText mText;
         @Nullable
-        private CarIcon mImage;
+        CarIcon mImage;
 
-        private Builder(@NonNull CharSequence title) {
+        Builder(@NonNull CharSequence title) {
             this.mTitle = CarText.create(requireNonNull(title));
         }
 
