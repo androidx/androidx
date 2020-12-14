@@ -8,8 +8,6 @@ on:
 jobs:
   setup:
     runs-on: ubuntu-latest
-    outputs:
-      changed-files: ${{ steps.changed-files.outputs.added_modified }}
     steps:
       - name: "Start webhook"
         uses: androidx/github-workflow-webhook-action@main
@@ -17,12 +15,6 @@ jobs:
           url: 'https://androidx.dev/github/androidX/presubmit/hook'
           secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
           payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "started"}'
-
-      - name: "Get changed files in push or pull_request"
-        id: changed-files
-        # Temporary workaround for failing on force-push
-        continue-on-error: true
-        uses: jitterbit/get-changed-files@v1
 
   lint:
     runs-on: ubuntu-latest
@@ -41,15 +33,38 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: "Get changed files in push or pull_request"
+        id: changed-files
+        # Temporary workaround for failing on force-push
+        continue-on-error: true
+        uses: jitterbit/get-changed-files@v1
+
       - name: Check invalid suppressions
         run: |
           set -x
-          ./development/checkInvalidSuppress.py -f ${{ needs.setup.outputs.changed-files }}
+          ./development/checkInvalidSuppress.py -f ${{ steps.changed-files.outputs.added_modified }}
 
       - name: "Warn on missing updateApi"
         run: |
           set -x
-          ./development/apilint.py -f ${{ needs.setup.outputs.changed-files }}
+          ./development/apilint.py -f ${{ steps.changed-files.outputs.added_modified }}
+
+      - name: "Parse changed-files as ktlint args"
+        id: ktlint-file-args
+        run: |
+          set -x
+          KTLINT_FILES=`echo "${{ steps.changed-files.outputs.added_modified }}" | sed 's/[^ ]* */--file=&/g'`
+          echo "::set-output name=ktlint-file-args::\"$KTLINT_FILES\""
+
+      - name: "ktlint"
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+        with:
+          arguments: -q --continue :ktlintCheckFile ${{ steps.ktlint-file-args.outputs.ktlint-file-args }}
+          build-root-directory: activity
+          gradle-executable: activity/gradlew
+          wrapper-directory: activity/gradle/wrapper
 
       - name: "Report job status"
         id: output-status
@@ -86,17 +101,6 @@ jobs:
           set -x
           echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
-
-      - name: "ktlint"
-        uses: eskatos/gradle-command-action@v1
-        env:
-          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
-        with:
-          arguments: --continue :ktlintCheckFile --file=${{ needs.setup.outputs.changed-files }}
-          build-root-directory: ${{ env.group-id }}
-          gradle-executable: ${{ env.group-id }}/gradlew
-          wrapper-directory: ${{ env.group-id }}/gradle/wrapper
-
 
       - name: "./gradlew buildOnServer"
         uses: eskatos/gradle-command-action@v1
