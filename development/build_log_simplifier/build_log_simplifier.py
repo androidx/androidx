@@ -254,7 +254,7 @@ def collapse_tasks_having_no_output(lines):
     pending_task = None
     pending_blanks = []
     for line in lines:
-        is_section = is_task_line(line) or line.startswith("> Configure project ")
+        is_section = is_task_line(line) or line.startswith("> Configure project ") or line.startswith("FAILURE: Build failed with an exception.")
         if is_section:
             pending_task = line
             pending_blanks = []
