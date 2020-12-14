@@ -10,6 +10,7 @@ The Android team has been exploring how we could make it easier to develop libra
 
 You can start contributing to any of the following library groups from GitHub:
   - [Activity](https://developer.android.com/guide/components/activities/intro-activities)
+  - [Biometric](https://developer.android.com/training/sign-in/biometric-auth)
   - [Fragment](https://developer.android.com/guide/components/fragments)
   - [Navigation](https://developer.android.com/guide/navigation)
   - [Paging](https://developer.android.com/topic/libraries/architecture/paging)
@@ -45,6 +46,7 @@ The list of folders that can be contributed to, using the GitHub repository are:
 ```
 androidx
   -- activity
+  -- biometric
   -- fragment
   -- navigation
   -- paging
