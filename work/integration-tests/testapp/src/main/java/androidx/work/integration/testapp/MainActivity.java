@@ -41,6 +41,7 @@ import androidx.lifecycle.Observer;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
+import androidx.work.ExperimentalImmediateWork;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
@@ -60,6 +61,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Main Activity
  */
+@ExperimentalImmediateWork
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
@@ -408,6 +410,7 @@ public class MainActivity extends AppCompatActivity {
                 OneTimeWorkRequest request =
                         new OneTimeWorkRequest.Builder(ForegroundWorker.class)
                                 .setInputData(inputData)
+                                .setImmediate()
                                 .setConstraints(new Constraints.Builder()
                                         .setRequiredNetworkType(NetworkType.CONNECTED).build()
                                 ).build();
