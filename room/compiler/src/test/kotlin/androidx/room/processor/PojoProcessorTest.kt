@@ -306,6 +306,19 @@ class PojoProcessorTest {
     }
 
     @Test
+    fun embedded_badType() {
+        singleRun(
+            """
+                int id;
+                @Embedded
+                int embeddedPrimitive;
+                """
+        ) { _ ->
+        }.failsToCompile()
+            .withErrorContaining(ProcessorErrors.EMBEDDED_TYPES_MUST_BE_A_CLASS_OR_INTERFACE)
+    }
+
+    @Test
     fun duplicateColumnNames() {
         singleRun(
             """
@@ -412,6 +425,19 @@ class PojoProcessorTest {
             COMMON.NOT_AN_ENTITY
         ) { _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.NOT_ENTITY_OR_VIEW)
+    }
+
+    @Test
+    fun relation_notDeclared() {
+        singleRun(
+            """
+                int id;
+                @Relation(parentColumn = "id", entityColumn = "uid")
+                public long user;
+                """
+        ) { _ ->
+        }.failsToCompile()
+            .withErrorContaining(ProcessorErrors.RELATION_TYPE_MUST_BE_A_CLASS_OR_INTERFACE)
     }
 
     @Test

@@ -490,6 +490,21 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
         }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_RELATION_IN_PARTIAL_ENTITY)
     }
 
+    @Test
+    fun targetEntity_notDeclared() {
+        singleShortcutMethod(
+            """
+                @${annotation.java.canonicalName}(entity = User.class)
+                abstract public int foo(long x);
+                """
+        ) { _, _ ->
+        }.failsToCompile().withErrorContaining(
+            ProcessorErrors.shortcutMethodArgumentMustBeAClass(
+                TypeName.LONG
+            )
+        )
+    }
+
     abstract fun invalidReturnTypeError(): String
 
     abstract fun process(

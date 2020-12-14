@@ -56,18 +56,17 @@ class ShortcutParameterProcessor(
         val processingEnv = context.processingEnv
 
         fun verifyAndPair(pojoType: XType, isMultiple: Boolean): Pair<XType?, Boolean> {
-            if (!pojoType.isType()) {
-                // kotlin may generate ? extends T so we should reduce it.
-                val boundedVar = pojoType.extendsBound()
-                return boundedVar?.let {
-                    verifyAndPair(boundedVar, isMultiple)
-                } ?: Pair(null, isMultiple)
+            // kotlin may generate ? extends T so we should reduce it.
+            val boundedVar = pojoType.extendsBound()
+            return if (boundedVar != null) {
+                verifyAndPair(boundedVar, isMultiple)
+            } else {
+                Pair(pojoType, isMultiple)
             }
-            return Pair(pojoType, isMultiple)
         }
 
         fun extractPojoTypeFromIterator(iterableType: XDeclaredType): XType {
-            iterableType.asTypeElement().getAllNonPrivateInstanceMethods().forEach {
+            iterableType.typeElement!!.getAllNonPrivateInstanceMethods().forEach {
                 if (it.name == "iterator") {
                     return it.asMemberOf(iterableType)
                         .returnType

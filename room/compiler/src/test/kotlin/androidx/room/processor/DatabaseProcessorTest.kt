@@ -18,12 +18,12 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.RoomProcessor
-import androidx.room.parser.ParsedQuery
-import androidx.room.parser.QueryType
-import androidx.room.parser.Table
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.getTypeElementsAnnotatedWith
+import androidx.room.parser.ParsedQuery
+import androidx.room.parser.QueryType
+import androidx.room.parser.Table
 import androidx.room.solver.query.result.EntityRowAdapter
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.testing.TestInvocation
@@ -32,11 +32,13 @@ import androidx.room.vo.Database
 import androidx.room.vo.DatabaseView
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertAbout
+import com.google.common.truth.Truth.assertThat
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
 import compileLibrarySource
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
@@ -50,6 +52,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
+import simpleRun
 import java.io.File
 import javax.tools.JavaFileObject
 import javax.tools.StandardLocation
@@ -403,7 +406,7 @@ class DatabaseProcessorTest {
                 }
                 """
         )
-        Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
+        assertAbout(JavaSourcesSubjectFactory.javaSources())
             .that(listOf(BOOK, BOOK_DAO, DB1, DB2, db1_2))
             .processedWith(RoomProcessor())
             .compilesWithoutError()
@@ -1070,11 +1073,66 @@ class DatabaseProcessorTest {
         )
     }
 
+    @Test
+    fun daoMethod_nonDeclaredReturnType() {
+        val badDaoType = JavaFileObjects.forSourceString(
+            "foo.bar.MyDb",
+            """
+                package foo.bar;
+                import androidx.room.*;
+                @Database(version = 1, entities = {})
+                public abstract class MyDb extends RoomDatabase {
+                    abstract long getDao();
+                }
+                """
+        )
+        simpleRun(badDaoType) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("foo.bar.MyDb")
+            val result = DatabaseProcessor(
+                baseContext = invocation.context,
+                element = element
+            ).process()
+            assertThat(result.daoMethods).isEmpty()
+        }.failsToCompile().withErrorContaining(
+            ProcessorErrors.DATABASE_INVALID_DAO_METHOD_RETURN_TYPE
+        )
+    }
+
+    @Test
+    fun nonDeclaredEntity() {
+        val badDaoType = JavaFileObjects.forSourceString(
+            "foo.bar.MyDb",
+            """
+                package foo.bar;
+                import androidx.room.*;
+                @Database(version = 1, entities = {long.class}, views = {int.class})
+                public abstract class MyDb extends RoomDatabase {
+                }
+                """
+        )
+        simpleRun(badDaoType) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("foo.bar.MyDb")
+            val result = DatabaseProcessor(
+                baseContext = invocation.context,
+                element = element
+            ).process()
+            assertThat(result.entities).isEmpty()
+        }.failsToCompile().withErrorContaining(
+            ProcessorErrors.invalidEntityTypeInDatabaseAnnotation(
+                TypeName.LONG
+            )
+        ).and().withErrorContaining(
+            ProcessorErrors.invalidViewTypeInDatabaseAnnotation(
+                TypeName.INT
+            )
+        )
+    }
+
     private fun resolveDatabaseViews(
         views: Map<String, Set<String>>,
         body: (List<DatabaseView>) -> Unit
     ): CompileTester {
-        return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
+        return assertAbout(JavaSourcesSubjectFactory.javaSources())
             .that(listOf(DB3, BOOK))
             .processedWith(
                 TestProcessor.builder()
@@ -1125,7 +1183,7 @@ class DatabaseProcessorTest {
                 }
                 """
         )
-        return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
+        return assertAbout(JavaSourcesSubjectFactory.javaSources())
             .that(listOf(BOOK, bookDao) + dbs)
             .processedWith(RoomProcessor())
     }
@@ -1136,7 +1194,7 @@ class DatabaseProcessorTest {
         classpathFiles: Set<File> = emptySet(),
         handler: (Database, TestInvocation) -> Unit
     ): CompileTester {
-        return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
+        return assertAbout(JavaSourcesSubjectFactory.javaSources())
             .that(
                 otherFiles.toMutableList() +
                     JavaFileObjects.forSourceString(

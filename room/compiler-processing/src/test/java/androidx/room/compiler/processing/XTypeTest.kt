@@ -84,7 +84,7 @@ class XTypeTest {
                 )
             }
 
-            type.asTypeElement().getMethod("wildcardParam").let { method ->
+            type.typeElement!!.getMethod("wildcardParam").let { method ->
                 val wildcardParam = method.parameters.first()
                 val extendsBoundOrSelf = wildcardParam.type.extendsBoundOrSelf()
                 assertThat(extendsBoundOrSelf.rawType)

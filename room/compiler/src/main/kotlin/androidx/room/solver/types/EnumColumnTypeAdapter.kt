@@ -72,7 +72,7 @@ class EnumColumnTypeAdapter(out: XType) :
 
     private fun enumToStringMethod(scope: CodeGenScope): MethodSpec {
         return scope.writer.getOrCreateMethod(object :
-                ClassWriter.SharedMethodSpec(out.asTypeElement().name + "_enumToString") {
+                ClassWriter.SharedMethodSpec(out.typeElement!!.name + "_enumToString") {
                 override fun getUniqueKey(): String {
                     return "enumToString_" + out.typeName.toString()
                 }
@@ -108,7 +108,7 @@ class EnumColumnTypeAdapter(out: XType) :
 
     private fun stringToEnumMethod(scope: CodeGenScope): MethodSpec {
         return scope.writer.getOrCreateMethod(object :
-                ClassWriter.SharedMethodSpec(out.asTypeElement().name + "_stringToEnum") {
+                ClassWriter.SharedMethodSpec(out.typeElement!!.name + "_stringToEnum") {
                 override fun getUniqueKey(): String {
                     return out.typeName.toString()
                 }
@@ -149,7 +149,7 @@ class EnumColumnTypeAdapter(out: XType) :
     private fun getEnumConstantElements(): List<XFieldElement> {
         // TODO: Switch below logic to use`getDeclaredFields` when the
         //  functionality is available in the XTypeElement API
-        val typeElementFields = out.asTypeElement().getAllFieldsIncludingPrivateSupers()
+        val typeElementFields = out.typeElement!!.getAllFieldsIncludingPrivateSupers()
         return typeElementFields.filter {
             // TODO: (b/173236324) Add kind to the X abstraction API to avoid using kindName()
             ElementKind.ENUM_CONSTANT.toString().toLowerCase(Locale.US) == it.kindName()

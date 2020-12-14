@@ -46,11 +46,14 @@ interface XType {
     val nullability: XNullability
 
     /**
-     * Casts the current type to [XTypeElement].
+     * The [XTypeElement] that represents this type.
+     *
+     * Note that it might be null if the type is not backed by a type element (e.g. if it is a
+     * primitive, wildcard etc)
      *
      * @see isTypeElement
      */
-    fun asTypeElement(): XTypeElement
+    val typeElement: XTypeElement?
 
     /**
      * Returns `true` if this type can be assigned from [other]
@@ -96,7 +99,7 @@ interface XType {
     /**
      * Returns `true` if this is a [List]
      */
-    fun isList(): Boolean = isType() && isTypeOf(List::class)
+    fun isList(): Boolean = isTypeOf(List::class)
 
     /**
      * Returns `true` if this is `void`
@@ -106,12 +109,12 @@ interface XType {
     /**
      * Returns `true` if this is a [Void]
      */
-    fun isVoidObject(): Boolean = isType() && isTypeOf(Void::class)
+    fun isVoidObject(): Boolean = isTypeOf(Void::class)
 
     /**
      * Returns `true` if this is the kotlin [Unit] type.
      */
-    fun isKotlinUnit(): Boolean = isType() && isTypeOf(Unit::class)
+    fun isKotlinUnit(): Boolean = isTypeOf(Unit::class)
 
     /**
      * Returns `true` if this represents a `byte`.
@@ -122,11 +125,6 @@ interface XType {
      * Returns `true` if this is the None type.
      */
     fun isNone(): Boolean
-
-    /**
-     * Returns true if this represented by a [XTypeElement].
-     */
-    fun isType(): Boolean
 
     /**
      * Returns true if this represented by an [Enum].
@@ -202,7 +200,7 @@ fun XType.isCollection(): Boolean {
     contract {
         returns(true) implies (this@isCollection is XDeclaredType)
     }
-    return isType() && (isTypeOf(List::class) || isTypeOf(Set::class))
+    return isTypeOf(List::class) || isTypeOf(Set::class)
 }
 
 /**

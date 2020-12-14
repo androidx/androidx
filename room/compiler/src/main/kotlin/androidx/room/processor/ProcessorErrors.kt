@@ -301,6 +301,10 @@ object ProcessorErrors {
             " ${converters.joinToString(", ") { it.toString() }}"
     }
 
+    fun typeConverterMustBeDeclared(typeName: TypeName): String {
+        return "Invalid type converter type: $typeName. Type converters must be a class."
+    }
+
     // TODO must print field paths.
     val POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME = "Field has non-unique column name."
 
@@ -770,4 +774,27 @@ object ProcessorErrors {
             This mismatch might cause unexpected $fieldName values when $ownerType is read from the
             database.
         """.trim()
+
+    val DATABASE_INVALID_DAO_METHOD_RETURN_TYPE = "Abstract database methods must return a @Dao " +
+        "annotated class or interface."
+
+    fun invalidEntityTypeInDatabaseAnnotation(typeName: TypeName): String {
+        return "Invalid Entity type: $typeName. An entity in the database must be a class."
+    }
+
+    fun invalidViewTypeInDatabaseAnnotation(typeName: TypeName): String {
+        return "Invalid View type: $typeName. Views in a database must be a class or an " +
+            "interface."
+    }
+
+    val EMBEDDED_TYPES_MUST_BE_A_CLASS_OR_INTERFACE = "The type of an Embedded field must be a " +
+        "class or an interface."
+    val RELATION_TYPE_MUST_BE_A_CLASS_OR_INTERFACE = "Entity type in a Relation must be a class " +
+        "or an interface."
+
+    fun shortcutMethodArgumentMustBeAClass(
+        typeName: TypeName
+    ): String {
+        return "Invalid query argument: $typeName. It must be a class or an interface."
+    }
 }

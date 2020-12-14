@@ -479,7 +479,8 @@ class TypeAdapterStore private constructor(
         if (typeMirror.isError()) {
             return null
         }
-        if (typeMirror.isDeclared()) {
+        val typeElement = typeMirror.typeElement
+        if (typeElement != null && typeMirror.isDeclared()) {
             if (typeMirror.typeArguments.isNotEmpty()) {
                 // TODO one day support this
                 return null
@@ -493,7 +494,7 @@ class TypeAdapterStore private constructor(
                 context.collectLogs { subContext ->
                     val pojo = PojoProcessor.createFor(
                         context = subContext,
-                        element = typeMirror.asTypeElement(),
+                        element = typeElement,
                         bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                         parent = null
                     ).process()
@@ -510,12 +511,11 @@ class TypeAdapterStore private constructor(
 
             if (rowAdapter == null && query.resultInfo == null) {
                 // we don't know what query returns. Check for entity.
-                val asElement = typeMirror.asTypeElement()
-                if (asElement.isEntityElement()) {
+                if (typeElement.isEntityElement()) {
                     return EntityRowAdapter(
                         EntityProcessor(
                             context = context,
-                            element = asElement
+                            element = typeElement
                         ).process()
                     )
                 }
@@ -545,7 +545,7 @@ class TypeAdapterStore private constructor(
                 // try to guess user's intention and hope that their query fits the result.
                 val pojo = PojoProcessor.createFor(
                     context = context,
-                    element = typeMirror.asTypeElement(),
+                    element = typeElement,
                     bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                     parent = null
                 ).process()
@@ -567,9 +567,7 @@ class TypeAdapterStore private constructor(
         typeMirror: XType,
         isMultipleParameter: Boolean
     ): QueryParameterAdapter? {
-        if (typeMirror.isType() &&
-            context.COMMON_TYPES.COLLECTION.rawType.isAssignableFrom(typeMirror)
-        ) {
+        if (context.COMMON_TYPES.COLLECTION.rawType.isAssignableFrom(typeMirror)) {
             val declared = typeMirror.asDeclaredType()
             val typeArg = declared.typeArguments.first().extendsBoundOrSelf()
             // An adapter for the collection type arg wrapped in the built-in collection adapter.

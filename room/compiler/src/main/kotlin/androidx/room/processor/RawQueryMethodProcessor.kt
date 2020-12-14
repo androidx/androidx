@@ -74,8 +74,15 @@ class RawQueryMethodProcessor(
     private fun processObservedTables(): Set<String> {
         val annotation = executableElement.toAnnotationBox(RawQuery::class)
         return annotation?.getAsTypeList("observedEntities")
-            ?.map {
-                it.asTypeElement()
+            ?.mapNotNull {
+                it.typeElement.also { typeElement ->
+                    if (typeElement == null) {
+                        context.logger.e(
+                            executableElement,
+                            ProcessorErrors.NOT_ENTITY_OR_VIEW
+                        )
+                    }
+                }
             }
             ?.flatMap {
                 if (it.isEntityElement()) {

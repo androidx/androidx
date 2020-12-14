@@ -20,7 +20,6 @@ import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.kotlin.KmType
 import androidx.room.compiler.processing.safeTypeName
 import com.google.auto.common.MoreTypes
@@ -39,6 +38,17 @@ internal abstract class JavacType(
 
     override val rawType: XRawType by lazy {
         JavacRawType(env, this)
+    }
+
+    override val typeElement by lazy {
+        val element = try {
+            MoreTypes.asTypeElement(typeMirror)
+        } catch (notAnElement: IllegalArgumentException) {
+            null
+        }
+        element?.let {
+            env.wrapTypeElement(it)
+        }
     }
 
     override fun isError() = typeMirror.kind == TypeKind.ERROR
@@ -100,12 +110,6 @@ internal abstract class JavacType(
         }
     }
 
-    override fun asTypeElement(): XTypeElement {
-        return env.wrapTypeElement(
-            MoreTypes.asTypeElement(typeMirror)
-        )
-    }
-
     override fun isNone() = typeMirror.kind == TypeKind.NONE
 
     override fun toString(): String {
@@ -130,18 +134,20 @@ internal abstract class JavacType(
     }
 
     override fun isTypeOf(other: KClass<*>): Boolean {
-        return MoreTypes.isTypeOf(
-            other.java,
-            typeMirror
-        )
+        return try {
+            MoreTypes.isTypeOf(
+                other.java,
+                typeMirror
+            )
+        } catch (notAType: IllegalArgumentException) {
+            // `MoreTypes.isTypeOf` might throw if the current TypeMirror is not a type.
+            // for Room, a `false` response is good enough.
+            false
+        }
     }
 
     override fun isSameType(other: XType): Boolean {
         return other is JavacType && env.typeUtils.isSameType(typeMirror, other.typeMirror)
-    }
-
-    override fun isType(): Boolean {
-        return MoreTypes.isType(typeMirror)
     }
 
     /**
