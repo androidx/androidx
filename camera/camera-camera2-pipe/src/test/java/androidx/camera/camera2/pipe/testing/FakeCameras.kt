@@ -55,7 +55,7 @@ import javax.inject.Singleton
 /**
  * Utility class for creating, configuring, and interacting with FakeCamera objects via Robolectric
  */
-object FakeCameras {
+internal object FakeCameras {
     private val cameraIds = atomic(0)
 
     val application: Application

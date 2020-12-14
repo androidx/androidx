@@ -31,7 +31,7 @@ import kotlinx.coroutines.Deferred
 
 internal val cameraGraphSessionIds = atomic(0)
 
-class CameraGraphSessionImpl(
+internal class CameraGraphSessionImpl(
     private val token: TokenLock.Token,
     private val graphProcessor: GraphProcessor,
     private val controller3A: Controller3A

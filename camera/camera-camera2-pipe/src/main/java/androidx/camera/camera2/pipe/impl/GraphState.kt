@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-interface GraphState {
+internal interface GraphState {
     fun start()
     fun stop()
     fun reconfigure()
@@ -38,7 +38,7 @@ interface GraphState {
  * TODO: Reorganize these constructor parameters.
  */
 @CameraGraphScope
-class GraphStateImpl @Inject constructor(
+internal class GraphStateImpl @Inject constructor(
     @ForCameraGraph private val scope: CoroutineScope,
     private val config: CameraGraph.Config,
     private val graphProcessor: GraphProcessor,

@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 @OptIn(ExperimentalCoroutinesApi::class)
-class VirtualCameraStateTest {
+internal class VirtualCameraStateTest {
     private val mainLooper = shadowOf(getMainLooper())
     private val cameraId = FakeCameras.create()
     private val testCamera = FakeCameras.open(cameraId)
@@ -144,7 +144,7 @@ class VirtualCameraStateTest {
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 @OptIn(ExperimentalCoroutinesApi::class)
-class AndroidCameraDeviceTest {
+internal class AndroidCameraDeviceTest {
     private val mainLooper = shadowOf(getMainLooper())
     private val cameraId = FakeCameras.create()
     private val testCamera = FakeCameras.open(cameraId)

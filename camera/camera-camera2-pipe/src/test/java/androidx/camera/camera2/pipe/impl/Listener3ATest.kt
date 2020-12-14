@@ -33,7 +33,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class Listener3ATest {
+internal class Listener3ATest {
     @Test
     fun testListenersInvoked() {
         val result3AStateListener = Result3AStateListenerImpl(

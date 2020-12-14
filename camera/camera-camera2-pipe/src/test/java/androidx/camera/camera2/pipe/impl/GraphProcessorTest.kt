@@ -33,7 +33,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class GraphProcessorTest {
+internal class GraphProcessorTest {
     private val globalListener = FakeRequestListener()
 
     private val fakeProcessor1 = FakeRequestProcessor(GraphState3A())

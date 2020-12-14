@@ -18,22 +18,21 @@ package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.params.MeteringRectangle
 import android.view.Surface
-import androidx.camera.camera2.pipe.wrapper.InputConfigData
 import kotlinx.coroutines.Deferred
 import java.io.Closeable
 
 /**
  * A CameraGraph represents the combined configuration and state of a camera.
  */
-interface CameraGraph : Closeable {
-    val streams: Map<StreamConfig, Stream>
+public interface CameraGraph : Closeable {
+    public val streams: Map<StreamConfig, Stream>
 
     /**
      * This will cause the CameraGraph to start opening the camera and configuring the Camera2
      * CaptureSession. While the CameraGraph is started it will attempt to keep the camera alive,
      * active, and in a configured running state.
      */
-    fun start()
+    public fun start()
 
     /**
      * This will cause the CameraGraph to stop executing requests and close the current Camera2
@@ -41,35 +40,35 @@ interface CameraGraph : Closeable {
      * call to submit a request to a session will be enqueued. To prevent requests from being
      * enqueued, close the CameraGraph.
      */
-    fun stop()
+    public fun stop()
 
     /**
      * Acquire and exclusive access to the CameraGraph in a suspending fashion.
      */
-    suspend fun acquireSession(): Session
+    public suspend fun acquireSession(): Session
 
     /**
      * Try acquiring an exclusive access the CameraGraph. Returns null if it can't be acquired
      * immediately.
      */
-    fun acquireSessionOrNull(): Session?
+    public fun acquireSessionOrNull(): Session?
 
     /**
      * This configures the camera graph to use a specific Surface for the given stream.
      *
      * Changing a surface may cause the camera to stall and/or reconfigure.
      */
-    fun setSurface(stream: StreamId, surface: Surface?)
+    public fun setSurface(stream: StreamId, surface: Surface?)
 
     /**
      * This defines the configuration, flags, and pre-defined behavior of a CameraGraph instance.
      */
-    data class Config(
+    public data class Config(
         val camera: CameraId,
         val streams: List<StreamConfig>,
         val template: RequestTemplate,
         val defaultParameters: Map<Any?, Any> = emptyMap(),
-        val inputStream: InputConfigData? = null,
+        val inputStream: InputStreamConfig? = null,
         val operatingMode: OperatingMode = OperatingMode.NORMAL,
         val listeners: List<Request.Listener> = listOf(),
         val metadataTransform: MetadataTransform = MetadataTransform(),
@@ -77,40 +76,52 @@ interface CameraGraph : Closeable {
     )
 
     /**
+     * Configuration for defining the properties of a Camera2 InputStream for reprocessing
+     * requests.
+     */
+    public data class InputStreamConfig(
+        val width: Int,
+        val height: Int,
+        val format: Int
+    )
+
+    /**
      * Flags define boolean values that are used to adjust the behavior and interactions with
      * camera2. These flags should default to the ideal behavior and should be overridden on
      * specific devices to be faster or to work around bad behavior.
      */
-    data class Flags(
+    public data class Flags(
         val configureBlankSessionOnStop: Boolean = false,
         val abortCapturesOnStop: Boolean = false,
         val allowMultipleActiveCameras: Boolean = false
     )
 
-    enum class OperatingMode {
+    public enum class OperatingMode {
         NORMAL,
         HIGH_SPEED,
     }
 
-    companion object Constants3A {
+    public companion object Constants3A {
         // Constants related to controlling the time or frame budget a 3A operation should get.
-        const val DEFAULT_FRAME_LIMIT = 60
-        const val DEFAULT_TIME_LIMIT_MS = 3_000
-        const val DEFAULT_TIME_LIMIT_NS = 3_000_000_000L
+        public const val DEFAULT_FRAME_LIMIT: Int = 60
+        public const val DEFAULT_TIME_LIMIT_MS: Int = 3_000
+        public const val DEFAULT_TIME_LIMIT_NS: Long = 3_000_000_000L
 
         // Constants related to metering regions.
         /** No metering region is specified. */
-        val METERING_REGIONS_EMPTY = emptyArray<MeteringRectangle>()
+        public val METERING_REGIONS_EMPTY: Array<MeteringRectangle> = emptyArray()
+
         /**
          * No-op metering regions, this will tell camera device to pick the right metering region
          * for us.
          */
-        val METERING_REGIONS_DEFAULT = arrayOf(MeteringRectangle(0, 0, 0, 0, 0))
+        public val METERING_REGIONS_DEFAULT: Array<MeteringRectangle> =
+            arrayOf(MeteringRectangle(0, 0, 0, 0, 0))
 
         /**
          * Placeholder frame number for [Result3A] when a 3A method encounters an error.
          */
-        val FRAME_NUMBER_INVALID = FrameNumber(-1L)
+        public val FRAME_NUMBER_INVALID: FrameNumber = FrameNumber(-1L)
     }
 
     /**
@@ -118,23 +129,23 @@ interface CameraGraph : Closeable {
      * this is acquired, a well ordered set of requests can be sent to the camera device without the
      * possibility of being intermixed with any other request to the camera from non lock holders.
      */
-    interface Session : Closeable {
-        fun submit(request: Request)
-        fun submit(requests: List<Request>)
-        fun setRepeating(request: Request)
+    public interface Session : Closeable {
+        public fun submit(request: Request)
+        public fun submit(requests: List<Request>)
+        public fun setRepeating(request: Request)
 
         /**
          * Abort in-flight requests. This will abort *all* requests in the current
          * CameraCaptureSession as well as any requests that are currently enqueued.
          */
-        fun abort()
+        public fun abort()
 
         /**
          * Applies the given 3A parameters to the camera device.
          *
          * @return earliest FrameNumber at which the parameters were successfully applied.
          */
-        fun update3A(
+        public fun update3A(
             aeMode: AeMode? = null,
             afMode: AfMode? = null,
             awbMode: AwbMode? = null,
@@ -148,7 +159,7 @@ interface CameraGraph : Closeable {
          *
          * @return the FrameNumber for which these parameters were applied.
          */
-        suspend fun submit3A(
+        public suspend fun submit3A(
             aeMode: AeMode? = null,
             afMode: AfMode? = null,
             awbMode: AwbMode? = null,
@@ -163,7 +174,7 @@ interface CameraGraph : Closeable {
          * @return the FrameNumber at which the turn was fully turned on if switch was ON, or the
          * FrameNumber at which it was completely turned off when the switch was OFF.
          */
-        fun setTorch(torchState: TorchState): Deferred<FrameNumber>
+        public fun setTorch(torchState: TorchState): Deferred<FrameNumber>
 
         /**
          * Locks the auto-exposure, auto-focus and auto-whitebalance as per the given desired
@@ -178,7 +189,7 @@ interface CameraGraph : Closeable {
          * applied or the frame number at which the method returned early because either frame limit
          * or time limit was reached.
          */
-        suspend fun lock3A(
+        public suspend fun lock3A(
             aeLockBehavior: Lock3ABehavior? = null,
             afLockBehavior: Lock3ABehavior? = null,
             awbLockBehavior: Lock3ABehavior? = null,
@@ -200,7 +211,7 @@ interface CameraGraph : Closeable {
          * applied or the frame number at which the method returned early because either frame limit
          * or time limit was reached.
          */
-        fun lock3A(
+        public fun lock3A(
             aeMode: AeMode? = null,
             afMode: AfMode? = null,
             awbMode: AwbMode? = null,
@@ -224,7 +235,7 @@ interface CameraGraph : Closeable {
          * that component, i.e if it was locked earlier it will stay locked and if it was already
          * unlocked, it will stay unlocked.
          */
-        fun unlock3A(ae: Boolean? = null, af: Boolean? = null, awb: Boolean? = null):
+        public fun unlock3A(ae: Boolean? = null, af: Boolean? = null, awb: Boolean? = null):
             Deferred<FrameNumber>
 
         /**
@@ -244,7 +255,7 @@ interface CameraGraph : Closeable {
          * applied or the frame number at which the method returned early because either frame limit
          * or time limit was reached.
          */
-        fun lock3AForCapture(
+        public fun lock3AForCapture(
             frameLimit: Int = DEFAULT_FRAME_LIMIT,
             timeLimitMs: Int = DEFAULT_TIME_LIMIT_MS
         ): Deferred<Result3A>
@@ -257,6 +268,6 @@ interface CameraGraph : Closeable {
          * This method brings focus and exposure back to normal after high quality image captures
          * using [lock3AForCapture] method.
          */
-        fun unlock3APostCapture(): Deferred<FrameNumber>
+        public fun unlock3APostCapture(): Deferred<FrameNumber>
     }
 }

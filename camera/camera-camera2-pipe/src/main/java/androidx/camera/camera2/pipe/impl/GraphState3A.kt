@@ -36,7 +36,7 @@ import javax.inject.Inject
  * 'true' in the subsequent requests once we have locked ae/awb and want them to stay locked.
  */
 @CameraGraphScope
-class GraphState3A @Inject constructor() {
+internal class GraphState3A @Inject constructor() {
     private var aeMode: AeMode? = null
     private var afMode: AfMode? = null
     private var awbMode: AwbMode? = null

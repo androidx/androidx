@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.impl
 
+import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
@@ -31,7 +32,7 @@ import androidx.camera.camera2.pipe.impl.Timestamps.formatMs
  * that are either expensive to create and access, or that only exist on newer versions of the
  * OS.
  */
-class CameraMetadataImpl constructor(
+internal class CameraMetadataImpl constructor(
     override val camera: CameraId,
     override val isRedacted: Boolean,
     private val characteristics: CameraCharacteristics,
@@ -97,6 +98,7 @@ class CameraMetadataImpl constructor(
             }
         }
 
+    @SuppressLint("UnsafeNewApiCall")
     private val _physicalCameraIds: Lazy<Set<CameraId>> =
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {

@@ -19,10 +19,10 @@
 package androidx.camera.camera2.pipe
 
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
-inline class CameraId(val value: String) {
-    companion object {
-        inline fun fromCamera2Id(value: String): CameraId = CameraId(value)
-        inline fun fromCamera1Id(value: Int): CameraId = CameraId("$value")
+public inline class CameraId(public val value: String) {
+    public companion object {
+        public inline fun fromCamera2Id(value: String): CameraId = CameraId(value)
+        public inline fun fromCamera1Id(value: Int): CameraId = CameraId("$value")
     }
 
     /**
@@ -30,6 +30,6 @@ inline class CameraId(val value: String) {
      *
      * @return The parsed Camera1 id, or null if the value cannot be parsed as a Camera1 id.
      */
-    inline fun toCamera1Id(): Int? = value.toIntOrNull()
-    override fun toString() = "Camera $value"
+    public inline fun toCamera1Id(): Int? = value.toIntOrNull()
+    public override fun toString(): String = "Camera $value"
 }

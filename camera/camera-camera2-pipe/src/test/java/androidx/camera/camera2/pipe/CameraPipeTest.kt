@@ -28,7 +28,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class CameraPipeTest {
+internal class CameraPipeTest {
 
     @Test
     fun createCameraPipe() {

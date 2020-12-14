@@ -22,7 +22,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class StreamFormatTest {
+internal class StreamFormatTest {
     @Test
     fun streamFormatsAreEqual() {
         assertThat(StreamFormat(0x23)).isEqualTo(StreamFormat.YUV_420_888)

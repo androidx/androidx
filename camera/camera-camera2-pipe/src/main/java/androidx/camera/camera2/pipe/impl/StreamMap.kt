@@ -43,7 +43,7 @@ internal fun nextStreamId(): StreamId = StreamId(streamIds.incrementAndGet())
  * reconfigured if the configured surfaces change.
  */
 @CameraGraphScope
-class StreamMap @Inject constructor(
+internal class StreamMap @Inject constructor(
     cameraMetadata: CameraMetadata,
     graphConfig: CameraGraph.Config
 ) {

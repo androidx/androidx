@@ -26,7 +26,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class StreamTest {
+internal class StreamTest {
 
     private val streamConfig1 = StreamConfig(
         size = Size(640, 480),

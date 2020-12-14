@@ -29,10 +29,10 @@ import javax.inject.Qualifier
 import javax.inject.Scope
 
 @Scope
-annotation class CameraGraphScope
+internal annotation class CameraGraphScope
 
 @Qualifier
-annotation class ForCameraGraph
+internal annotation class ForCameraGraph
 
 @CameraGraphScope
 @Subcomponent(
@@ -41,7 +41,7 @@ annotation class ForCameraGraph
         CameraGraphConfigModule::class
     ]
 )
-interface CameraGraphComponent {
+internal interface CameraGraphComponent {
     fun cameraGraph(): CameraGraph
 
     @Subcomponent.Builder
@@ -52,7 +52,7 @@ interface CameraGraphComponent {
 }
 
 @Module
-class CameraGraphConfigModule(private val config: CameraGraph.Config) {
+internal class CameraGraphConfigModule(private val config: CameraGraph.Config) {
     @Provides
     fun provideCameraGraphConfig(): CameraGraph.Config = config
 }
@@ -62,7 +62,7 @@ class CameraGraphConfigModule(private val config: CameraGraph.Config) {
         SessionFactoryModule::class
     ]
 )
-abstract class CameraGraphModules {
+internal abstract class CameraGraphModules {
     @Binds
     abstract fun bindCameraGraph(cameraGraph: CameraGraphImpl): CameraGraph
 

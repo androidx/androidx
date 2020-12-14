@@ -32,7 +32,7 @@ import javax.inject.Inject
  * [RequestProcessor] instance, and for maintaining state across one or more [RequestProcessor]
  * instances.
  */
-interface GraphProcessor {
+internal interface GraphProcessor {
     fun setRepeating(request: Request)
     fun submit(request: Request)
     fun submit(requests: List<Request>)
@@ -59,7 +59,7 @@ interface GraphProcessor {
  * The graph processor handles *cross-session* state, such as the most recent repeating request.
  */
 @CameraGraphScope
-class GraphProcessorImpl @Inject constructor(
+internal class GraphProcessorImpl @Inject constructor(
     private val threads: Threads,
     @ForCameraGraph private val graphScope: CoroutineScope,
     @ForCameraGraph private val graphListeners: java.util.ArrayList<Request.Listener>

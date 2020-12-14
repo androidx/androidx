@@ -27,7 +27,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class RequestTest {
+internal class RequestTest {
 
     @Test
     fun requestHasDefaults() {

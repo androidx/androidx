@@ -32,7 +32,7 @@ import javax.inject.Singleton
  * without restarting the application process.
  */
 @Singleton
-class Permissions @Inject constructor(private val context: Context) {
+internal class Permissions @Inject constructor(private val context: Context) {
     @Volatile
     private var _hasCameraPermission = false
     val hasCameraPermission: Boolean

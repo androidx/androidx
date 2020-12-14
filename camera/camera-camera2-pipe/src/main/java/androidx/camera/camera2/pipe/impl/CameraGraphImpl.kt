@@ -28,7 +28,7 @@ import javax.inject.Inject
 internal val cameraGraphIds = atomic(0)
 
 @CameraGraphScope
-class CameraGraphImpl @Inject constructor(
+internal class CameraGraphImpl @Inject constructor(
     graphConfig: CameraGraph.Config,
     metadata: CameraMetadata,
     private val graphProcessor: GraphProcessor,

@@ -29,7 +29,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.Collections.synchronizedMap
 
-interface SurfaceListener {
+internal interface SurfaceListener {
     fun setSurfaceMap(surfaces: Map<StreamId, Surface>)
 }
 
@@ -43,7 +43,7 @@ internal val virtualSessionDebugIds = atomic(0)
  * session (if one has been configured), and prevent / close any session that was in the process of
  * being created when shutdown / disconnect was called.
  */
-class VirtualSessionState(
+internal class VirtualSessionState(
     private val graphProcessor: GraphProcessor,
     private val sessionFactory: SessionFactory,
     private val requestProcessorFactory: RequestProcessor.Factory,

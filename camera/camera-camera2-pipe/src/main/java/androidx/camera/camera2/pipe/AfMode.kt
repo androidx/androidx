@@ -21,7 +21,7 @@ import android.hardware.camera2.CameraMetadata
 /**
  * An enum to match the CameraMetadata.CONTROL_AF_MODE_* constants.
  */
-enum class AfMode(val value: Int) {
+public enum class AfMode(public val value: Int) {
     OFF(CameraMetadata.CONTROL_AF_MODE_OFF),
     AUTO(CameraMetadata.CONTROL_AF_MODE_AUTO),
     MACRO(CameraMetadata.CONTROL_AF_MODE_MACRO),
@@ -29,8 +29,8 @@ enum class AfMode(val value: Int) {
     CONTINUOUS_PICTURE(CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE),
     EDOF(CameraMetadata.CONTROL_AF_MODE_EDOF);
 
-    companion object {
+    public companion object {
         @JvmStatic
-        fun fromIntOrNull(value: Int) = values().firstOrNull { it.value == value }
+        public fun fromIntOrNull(value: Int): AfMode? = values().firstOrNull { it.value == value }
     }
 }

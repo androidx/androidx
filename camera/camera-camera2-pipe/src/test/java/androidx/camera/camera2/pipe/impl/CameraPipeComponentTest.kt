@@ -31,7 +31,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class CameraPipeComponentTest {
+internal class CameraPipeComponentTest {
     private val fakeCameraId = FakeCameras.create()
 
     @Test
