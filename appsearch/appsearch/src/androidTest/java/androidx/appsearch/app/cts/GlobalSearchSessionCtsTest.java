@@ -35,49 +35,91 @@ import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
-import androidx.appsearch.app.util.AppSearchTestUtils;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
+
+import com.google.common.collect.ImmutableList;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 public class GlobalSearchSessionCtsTest {
     private AppSearchSession mDb1;
+    private static final String DB_NAME_1 = LocalStorage.DEFAULT_DATABASE_NAME;
     private AppSearchSession mDb2;
+    private static final String DB_NAME_2 = "testDb2";
 
     private GlobalSearchSession mGlobalAppSearchManager;
 
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchTestUtils.cleanup(context);
 
         mDb1 = checkIsResultSuccess(LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context)
-                        .setDatabaseName(AppSearchTestUtils.DEFAULT_DATABASE).build()));
+                        .setDatabaseName(DB_NAME_1).build()));
         mDb2 = checkIsResultSuccess(LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context)
-                        .setDatabaseName(AppSearchTestUtils.DB_2).build()));
+                        .setDatabaseName(DB_NAME_2).build()));
+
+        // Cleanup whatever documents may still exist in these databases. This is needed in
+        // addition to tearDown in case a test exited without completing properly.
+        cleanup();
 
         mGlobalAppSearchManager = checkIsResultSuccess(LocalStorage.createGlobalSearchSession(
                 new LocalStorage.GlobalSearchContext.Builder(context).build()));
-
     }
 
     @After
     public void tearDown() throws Exception {
-        AppSearchTestUtils.cleanup(ApplicationProvider.getApplicationContext());
+        // Cleanup whatever documents may still exist in these databases.
+        cleanup();
+    }
+
+    private void cleanup() throws Exception {
+        checkIsResultSuccess(mDb1.setSchema(
+                new SetSchemaRequest.Builder().setForceOverride(true).build()));
+        checkIsResultSuccess(mDb2.setSchema(
+                new SetSchemaRequest.Builder().setForceOverride(true).build()));
+    }
+
+    private List<GenericDocument> snapshotResults(String queryExpression, SearchSpec spec)
+            throws Exception {
+        SearchResults searchResults = mGlobalAppSearchManager.query(queryExpression, spec);
+        return convertSearchResultsToDocuments(searchResults);
+    }
+
+    /**
+     * Asserts that the union of {@code addedDocuments} and {@code beforeDocuments} is exactly
+     * equivalent to {@code afterDocuments}. Order doesn't matter.
+     *
+     * @param beforeDocuments Documents that existed first.
+     * @param afterDocuments  The total collection of documents that should exist now.
+     * @param addedDocuments  The collection of documents that were expected to be added.
+     */
+    private void assertAddedBetweenSnapshots(List<? extends GenericDocument> beforeDocuments,
+            List<? extends GenericDocument> afterDocuments,
+            List<? extends GenericDocument> addedDocuments) throws Exception {
+        List<GenericDocument> expectedDocuments = new ArrayList<>(beforeDocuments);
+        expectedDocuments.addAll(addedDocuments);
+        assertThat(afterDocuments).containsExactlyElementsIn(expectedDocuments);
     }
 
     @Test
     public void testGlobalQuery_oneInstance() throws Exception {
+        // Snapshot what documents may already exist on the device.
+        SearchSpec exactSearchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build();
+        List<GenericDocument> beforeBodyDocuments = snapshotResults("body", exactSearchSpec);
+        List<GenericDocument> beforeBodyEmailDocuments = snapshotResults("body email",
+                exactSearchSpec);
+
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(
                 new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
@@ -94,24 +136,25 @@ public class GlobalSearchSessionCtsTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
 
         // Query for the document
-        SearchResults searchResults = mGlobalAppSearchManager.query("body",
-                new SearchSpec.Builder()
-                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                        .build());
-        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
-        assertThat(documents).hasSize(1);
-        assertThat(documents).containsExactly(inEmail);
+        List<GenericDocument> afterBodyDocuments = snapshotResults("body", exactSearchSpec);
+        assertAddedBetweenSnapshots(beforeBodyDocuments, afterBodyDocuments,
+                Collections.singletonList(inEmail));
 
         // Multi-term query
-        searchResults = mGlobalAppSearchManager.query("body email", new SearchSpec.Builder()
-                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                .build());
-        documents = convertSearchResultsToDocuments(searchResults);
-        assertThat(documents).containsExactly(inEmail);
+        List<GenericDocument> afterBodyEmailDocuments = snapshotResults("body email",
+                exactSearchSpec);
+        assertAddedBetweenSnapshots(beforeBodyEmailDocuments, afterBodyEmailDocuments,
+                Collections.singletonList(inEmail));
     }
 
     @Test
     public void testGlobalQuery_twoInstances() throws Exception {
+        // Snapshot what documents may already exist on the device.
+        SearchSpec exactSearchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build();
+        List<GenericDocument> beforeBodyDocuments = snapshotResults("body", exactSearchSpec);
+
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(new SetSchemaRequest.Builder()
                 .addSchema(AppSearchEmail.SCHEMA).build()));
@@ -141,20 +184,23 @@ public class GlobalSearchSessionCtsTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(inEmail2).build()));
 
         // Query across all instances
-        SearchResults searchResults = mGlobalAppSearchManager.query("body",
-                new SearchSpec.Builder()
-                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                        .build());
-        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
-        assertThat(documents).containsExactly(inEmail1, inEmail2);
+        List<GenericDocument> afterBodyDocuments = snapshotResults("body", exactSearchSpec);
+        assertAddedBetweenSnapshots(beforeBodyDocuments, afterBodyDocuments,
+                ImmutableList.of(inEmail1, inEmail2));
     }
 
     @Test
     public void testGlobalQuery_getNextPage() throws Exception {
+        // Snapshot what documents may already exist on the device.
+        SearchSpec exactSearchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build();
+        List<GenericDocument> beforeBodyDocuments = snapshotResults("body", exactSearchSpec);
+
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(
                 new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
-        Set<AppSearchEmail> emailSet = new HashSet<>();
+        List<AppSearchEmail> emailList = new ArrayList<>();
         PutDocumentsRequest.Builder putDocumentsRequestBuilder = new PutDocumentsRequest.Builder();
 
         // Index 31 documents
@@ -166,16 +212,17 @@ public class GlobalSearchSessionCtsTest {
                             .setSubject("testPut example")
                             .setBody("This is the body of the testPut email")
                             .build();
-            emailSet.add(inEmail);
+            emailList.add(inEmail);
             putDocumentsRequestBuilder.addGenericDocument(inEmail);
         }
         checkIsBatchResultSuccess(mDb1.putDocuments(putDocumentsRequestBuilder.build()));
 
         // Set number of results per page is 7.
+        int pageSize = 7;
         SearchResults searchResults = mGlobalAppSearchManager.query("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                        .setResultCountPerPage(7)
+                        .setResultCountPerPage(pageSize)
                         .build());
         List<GenericDocument> documents = new ArrayList<>();
 
@@ -192,12 +239,31 @@ public class GlobalSearchSessionCtsTest {
         } while (results.size() > 0);
 
         // check all document presents
-        assertThat(documents).containsExactlyElementsIn(emailSet);
-        assertThat(pageNumber).isEqualTo(6); // 5 (upper(31/7)) + 1 (final empty page)
+        assertAddedBetweenSnapshots(beforeBodyDocuments, documents, emailList);
+
+        int totalDocuments = beforeBodyDocuments.size() + documents.size();
+
+        // +1 for final empty page
+        int expectedPages = (int) Math.ceil(totalDocuments * 1.0 / pageSize) + 1;
+        assertThat(pageNumber).isEqualTo(expectedPages);
     }
 
     @Test
     public void testGlobalQuery_acrossTypes() throws Exception {
+        // Snapshot what documents may already exist on the device.
+        SearchSpec exactSearchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build();
+        List<GenericDocument> beforeBodyDocuments = snapshotResults("body", exactSearchSpec);
+
+        SearchSpec exactEmailSearchSpec =
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addSchemaType(AppSearchEmail.SCHEMA_TYPE)
+                        .build();
+        List<GenericDocument> beforeBodyEmailDocuments = snapshotResults("body",
+                exactEmailSearchSpec);
+
         // Schema registration
         AppSearchSchema genericSchema = new AppSearchSchema.Builder("Generic")
                 .addProperty(new PropertyConfig.Builder("foo")
@@ -239,24 +305,33 @@ public class GlobalSearchSessionCtsTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(email).build()));
 
         // Query for all documents across types
-        SearchResults searchResults = mGlobalAppSearchManager.query("body",
-                new SearchSpec.Builder()
-                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                        .build());
-        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
-        assertThat(documents).containsExactly(genericDocument, email, email);
+        List<GenericDocument> afterBodyDocuments = snapshotResults("body", exactSearchSpec);
+        assertAddedBetweenSnapshots(beforeBodyDocuments, afterBodyDocuments,
+                ImmutableList.of(genericDocument, email, email));
 
         // Query only for email documents
-        searchResults = mGlobalAppSearchManager.query("body", new SearchSpec.Builder()
-                .addSchemaType(AppSearchEmail.SCHEMA_TYPE)
-                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                .build());
-        documents = convertSearchResultsToDocuments(searchResults);
-        assertThat(documents).containsExactly(email, email);
+        List<GenericDocument> afterBodyEmailDocuments = snapshotResults("body",
+                exactEmailSearchSpec);
+        assertAddedBetweenSnapshots(beforeBodyEmailDocuments, afterBodyEmailDocuments,
+                ImmutableList.of(email, email));
     }
 
     @Test
     public void testGlobalQuery_namespaceFilter() throws Exception {
+        // Snapshot what documents may already exist on the device.
+        SearchSpec exactSearchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build();
+        List<GenericDocument> beforeBodyDocuments = snapshotResults("body", exactSearchSpec);
+
+        SearchSpec exactNamespace1SearchSpec =
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addNamespace("namespace1")
+                        .build();
+        List<GenericDocument> beforeBodyNamespace1Documents = snapshotResults("body",
+                exactNamespace1SearchSpec);
+
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(new SetSchemaRequest.Builder()
                 .addSchema(AppSearchEmail.SCHEMA).build()));
@@ -288,20 +363,14 @@ public class GlobalSearchSessionCtsTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(document2).build()));
 
         // Query for all namespaces
-        SearchResults searchResults = mGlobalAppSearchManager.query("body",
-                new SearchSpec.Builder()
-                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                        .build());
-        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
-        assertThat(documents).containsExactly(document1, document2);
+        List<GenericDocument> afterBodyDocuments = snapshotResults("body", exactSearchSpec);
+        assertAddedBetweenSnapshots(beforeBodyDocuments, afterBodyDocuments,
+                ImmutableList.of(document1, document2));
 
         // Query only for "namespace1"
-        searchResults = mGlobalAppSearchManager.query("body",
-                new SearchSpec.Builder()
-                        .addNamespace("namespace1")
-                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                        .build());
-        documents = convertSearchResultsToDocuments(searchResults);
-        assertThat(documents).containsExactly(document1);
+        List<GenericDocument> afterBodyNamespace1Documents = snapshotResults("body",
+                exactNamespace1SearchSpec);
+        assertAddedBetweenSnapshots(beforeBodyNamespace1Documents, afterBodyNamespace1Documents,
+                ImmutableList.of(document1));
     }
 }

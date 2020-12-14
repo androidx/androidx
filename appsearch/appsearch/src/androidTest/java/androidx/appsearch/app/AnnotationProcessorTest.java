@@ -27,7 +27,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.Context;
 
 import androidx.appsearch.annotation.AppSearchDocument;
-import androidx.appsearch.app.util.AppSearchTestUtils;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -41,20 +40,30 @@ import java.util.List;
 
 public class AnnotationProcessorTest {
     private AppSearchSession mSession;
+    private static final String DB_NAME_1 = LocalStorage.DEFAULT_DATABASE_NAME;
 
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchTestUtils.cleanup(context);
 
         mSession = checkIsResultSuccess(LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context)
-                        .setDatabaseName(AppSearchTestUtils.DB_1).build()));
+                        .setDatabaseName(DB_NAME_1).build()));
+
+        // Cleanup whatever documents may still exist in these databases. This is needed in
+        // addition to tearDown in case a test exited without completing properly.
+        cleanup();
     }
 
     @After
     public void tearDown() throws Exception {
-        AppSearchTestUtils.cleanup(ApplicationProvider.getApplicationContext());
+        // Cleanup whatever documents may still exist in these databases.
+        cleanup();
+    }
+
+    private void cleanup() throws Exception {
+        checkIsResultSuccess(mSession.setSchema(
+                new SetSchemaRequest.Builder().setForceOverride(true).build()));
     }
 
     @AppSearchDocument
