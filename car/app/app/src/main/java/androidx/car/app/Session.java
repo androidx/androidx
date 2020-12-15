@@ -89,6 +89,8 @@ public abstract class Session implements LifecycleOwner {
      * <p>Listeners that are added in {@link Lifecycle.Event#ON_CREATE} should be removed in {@link
      * Lifecycle.Event#ON_DESTROY}.
      *
+     * <p>Note lifecycle callbacks will be executed on the main thread.
+     *
      * @see androidx.lifecycle.LifecycleObserver
      */
     @NonNull
