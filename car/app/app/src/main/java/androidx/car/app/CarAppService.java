@@ -35,6 +35,7 @@ import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.car.app.utils.ThreadUtils;
+import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.Event;
 import androidx.lifecycle.Lifecycle.State;
@@ -85,13 +86,16 @@ public abstract class CarAppService extends Service {
     private static final String TAG = "CarAppService";
     private static final String AUTO_DRIVE = "AUTO_DRIVE";
 
+    private AppInfo mAppInfo;
+
     @Nullable
     private Session mCurrentSession;
 
     @Nullable
     private HostInfo mHostInfo;
+
     @Nullable
-    private AppInfo mAppInfo;
+    private HandshakeInfo mHandshakeInfo;
 
     /**
      * Handles the host binding to this car app.
@@ -244,14 +248,28 @@ public abstract class CarAppService extends Service {
     }
 
     // Strictly to avoid synthetic accessor.
-    @Nullable
+    @NonNull
     AppInfo getAppInfo() {
+        if (mAppInfo == null) {
+            // Lazy-initialized as the package manager is not available if this is created inlined.
+            mAppInfo = AppInfo.create(this);
+        }
         return mAppInfo;
     }
 
     // Strictly to avoid synthetic accessor.
-    void setAppInfo(@Nullable AppInfo appInfo) {
-        mAppInfo = appInfo;
+    void setHandshakeInfo(@NonNull HandshakeInfo handshakeInfo) {
+        int apiLevel = handshakeInfo.getHostCarAppApiLevel();
+        if (!CarAppApiLevels.isValid(apiLevel)) {
+            throw new IllegalArgumentException("Invalid Car App API level received: " + apiLevel);
+        }
+        mHandshakeInfo = handshakeInfo;
+    }
+
+    // Strictly to avoid synthetic accessor.
+    @Nullable
+    HandshakeInfo getHandshakeInfo() {
+        return mHandshakeInfo;
     }
 
     private final ICarApp.Stub mBinder =
@@ -270,25 +288,25 @@ public abstract class CarAppService extends Service {
                         IOnDoneCallback callback) {
                     Log.d(TAG, "onAppCreate intent: " + intent);
                     RemoteUtils.dispatchHostCall(() -> {
-                        if (getCurrentSession() == null
-                                || getCurrentSession().getLifecycle().getCurrentState()
-                                == State.DESTROYED) {
-                            setCurrentSession(onCreateSession());
-                            setAppInfo(AppInfo.create(getCurrentSession().getCarContext()));
+                        Session session = getCurrentSession();
+                        if (session == null
+                                || session.getLifecycle().getCurrentState() == State.DESTROYED) {
+                            session = onCreateSession();
+                            session.getCarContext().updateHandshakeInfo(getHandshakeInfo());
+                            setCurrentSession(session);
                         }
 
                         // CarContext is not set up until the base Context is attached. First
                         // thing we need to do here is attach the base Context, so that any usage of
                         // it works after this point.
-                        CarContext carContext = getCurrentSession().getCarContext();
+                        CarContext carContext = session.getCarContext();
                         carContext.attachBaseContext(CarAppService.this, configuration);
                         carContext.setCarHost(carHost);
 
                         // Whenever the host unbinds, the screens in the stack are destroyed.  If
                         // there is another bind, before the OS has destroyed this Service, then
                         // the stack will be empty, and we need to treat it as a new instance.
-                        LifecycleRegistry registry =
-                                (LifecycleRegistry) getCurrentSession().getLifecycle();
+                        LifecycleRegistry registry = (LifecycleRegistry) session.getLifecycle();
                         Lifecycle.State state = registry.getCurrentState();
                         int screenStackSize = carContext.getCarService(
                                 ScreenManager.class).getScreenStack().size();
@@ -299,7 +317,7 @@ public abstract class CarAppService extends Service {
                                     + ", stack size: " + screenStackSize);
                             registry.handleLifecycleEvent(Event.ON_CREATE);
                             carContext.getCarService(ScreenManager.class).push(
-                                    getCurrentSession().onCreateScreen(intent));
+                                    session.onCreateScreen(intent));
                         } else {
                             Log.d(TAG, "onAppCreate the app was already created");
                             onNewIntentInternal(intent);
@@ -406,8 +424,7 @@ public abstract class CarAppService extends Service {
                         String packageName = deserializedHandshakeInfo.getHostPackageName();
                         int uid = Binder.getCallingUid();
                         setHostInfo(new HostInfo(packageName, uid));
-                        getCurrentSession().getCarContext().onHandshakeComplete(
-                                deserializedHandshakeInfo);
+                        setHandshakeInfo(deserializedHandshakeInfo);
                         RemoteUtils.sendSuccessResponse(callback, "onHandshakeCompleted", null);
                     } catch (BundlerException | IllegalArgumentException e) {
                         setHostInfo(null);
