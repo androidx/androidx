@@ -60,7 +60,7 @@ class FieldProcessor(
             ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS
         )
 
-        val adapter = context.typeAdapterStore.findColumnTypeAdapter(member, affinity)
+        val adapter = context.typeAdapterStore.findColumnTypeAdapter(member, affinity, false)
         val adapterAffinity = adapter?.typeAffinity ?: affinity
         val nonNull = Field.calcNonNull(member, fieldParent)
 

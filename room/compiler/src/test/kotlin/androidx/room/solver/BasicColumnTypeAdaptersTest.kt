@@ -105,7 +105,7 @@ class BasicColumnTypeAdaptersTest(
     fun bind() {
         simpleRun { invocation ->
             val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
-                .findColumnTypeAdapter(input.getTypeMirror(invocation.processingEnv), null)!!
+                .findColumnTypeAdapter(input.getTypeMirror(invocation.processingEnv), null, false)!!
             adapter.bindToStmt("st", "6", "inp", scope)
             assertThat(scope.generate().toString().trim(), `is`(bindCode))
             generateCode(invocation, false)
@@ -120,7 +120,7 @@ class BasicColumnTypeAdaptersTest(
         simpleRun { invocation ->
             val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
                 .findColumnTypeAdapter(
-                    input.getBoxedTypeMirror(invocation.processingEnv), null
+                    input.getBoxedTypeMirror(invocation.processingEnv), null, false
                 )!!
             adapter.bindToStmt("st", "6", "inp", scope)
             assertThat(
@@ -162,7 +162,7 @@ class BasicColumnTypeAdaptersTest(
     fun read() {
         simpleRun { invocation ->
             val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
-                .findColumnTypeAdapter(input.getTypeMirror(invocation.processingEnv), null)!!
+                .findColumnTypeAdapter(input.getTypeMirror(invocation.processingEnv), null, false)!!
             adapter.readFromCursor("out", "crs", "9", scope)
             assertThat(scope.generate().toString().trim(), `is`(cursorCode))
             generateCode(invocation, false)
@@ -177,7 +177,7 @@ class BasicColumnTypeAdaptersTest(
         simpleRun { invocation ->
             val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
                 .findColumnTypeAdapter(
-                    input.getBoxedTypeMirror(invocation.processingEnv), null
+                    input.getBoxedTypeMirror(invocation.processingEnv), null, false
                 )!!
             adapter.readFromCursor("out", "crs", "9", scope)
             assertThat(
