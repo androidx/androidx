@@ -28,6 +28,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assume
+import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.rules.TestRule
 import java.util.concurrent.TimeUnit
@@ -45,7 +46,7 @@ import java.util.concurrent.TimeUnit
 abstract class ImageAnalysisBaseTest<A : CameraActivity> {
 
     @get:Rule
-    val mUseCameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val mUseCameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest(testCameraRule)
 
     @get:Rule
     val mCameraActivityRules: GrantPermissionRule =
@@ -127,5 +128,14 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity> {
     companion object {
         protected const val IMAGES_COUNT = 30
         protected const val TIMEOUT = 5L
+
+        @JvmStatic
+        lateinit var testCameraRule: CameraUtil.PreTestCamera
+
+        @BeforeClass
+        @JvmStatic
+        fun classSetup() {
+            testCameraRule = CameraUtil.PreTestCamera()
+        }
     }
 }
