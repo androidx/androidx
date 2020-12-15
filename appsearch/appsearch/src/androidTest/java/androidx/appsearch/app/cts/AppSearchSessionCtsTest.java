@@ -40,7 +40,6 @@ import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.cts.customer.EmailDataClass;
-import androidx.appsearch.app.util.AppSearchTestUtils;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -55,26 +54,37 @@ import java.util.Set;
 
 public class AppSearchSessionCtsTest {
     private AppSearchSession mDb1;
-    private final String mDbName1 = AppSearchTestUtils.DEFAULT_DATABASE;
+    private static final String DB_NAME_1 = LocalStorage.DEFAULT_DATABASE_NAME;
     private AppSearchSession mDb2;
-    private final String mDbName2 = AppSearchTestUtils.DB_2;
+    private static final String DB_NAME_2 = "testDb2";
 
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchTestUtils.cleanup(context);
 
         mDb1 = checkIsResultSuccess(LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context)
-                        .setDatabaseName(mDbName1).build()));
+                        .setDatabaseName(DB_NAME_1).build()));
         mDb2 = checkIsResultSuccess(LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context)
-                        .setDatabaseName(mDbName2).build()));
+                        .setDatabaseName(DB_NAME_2).build()));
+
+        // Cleanup whatever documents may still exist in these databases. This is needed in
+        // addition to tearDown in case a test exited without completing properly.
+        cleanup();
     }
 
     @After
     public void tearDown() throws Exception {
-        AppSearchTestUtils.cleanup(ApplicationProvider.getApplicationContext());
+        // Cleanup whatever documents may still exist in these databases.
+        cleanup();
+    }
+
+    private void cleanup() throws Exception {
+        checkIsResultSuccess(mDb1.setSchema(
+                new SetSchemaRequest.Builder().setForceOverride(true).build()));
+        checkIsResultSuccess(mDb2.setSchema(
+                new SetSchemaRequest.Builder().setForceOverride(true).build()));
     }
 
     @Test
@@ -290,7 +300,7 @@ public class AppSearchSessionCtsTest {
         assertThat(failResult1.getErrorMessage()).contains("Schema is incompatible");
         assertThat(failResult1.getErrorMessage())
                 .contains(
-                        "Deleted types: [androidx.appsearch.test$" + mDbName1 + "/builtin:Email]");
+                        "Deleted types: [androidx.appsearch.test$" + DB_NAME_1 + "/builtin:Email]");
 
         // Try to remove the email schema again, which should now work as we set forceOverride to
         // be true.
@@ -316,7 +326,7 @@ public class AppSearchSessionCtsTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(email2).build()).get();
         assertThat(failResult2.isSuccess()).isFalse();
         assertThat(failResult2.getFailures().get("email2").getErrorMessage())
-                .isEqualTo("Schema type config 'androidx.appsearch.test$" + mDbName1
+                .isEqualTo("Schema type config 'androidx.appsearch.test$" + DB_NAME_1
                         + "/builtin:Email' not found");
     }
 
@@ -371,7 +381,7 @@ public class AppSearchSessionCtsTest {
         assertThat(failResult1.getErrorMessage()).contains("Schema is incompatible");
         assertThat(failResult1.getErrorMessage())
                 .contains(
-                        "Deleted types: [androidx.appsearch.test$" + mDbName1 + "/builtin:Email]");
+                        "Deleted types: [androidx.appsearch.test$" + DB_NAME_1 + "/builtin:Email]");
 
         // Try to remove the email schema again, which should now work as we set forceOverride to
         // be true.
@@ -395,7 +405,7 @@ public class AppSearchSessionCtsTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(email3).build()).get();
         assertThat(failResult2.isSuccess()).isFalse();
         assertThat(failResult2.getFailures().get("email3").getErrorMessage())
-                .isEqualTo("Schema type config 'androidx.appsearch.test$" + mDbName1
+                .isEqualTo("Schema type config 'androidx.appsearch.test$" + DB_NAME_1
                         + "/builtin:Email' not found");
 
         // Make sure email in database 2 still present.
