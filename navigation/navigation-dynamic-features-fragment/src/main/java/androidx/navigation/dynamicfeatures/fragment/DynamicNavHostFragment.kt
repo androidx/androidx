@@ -16,6 +16,8 @@
 
 package androidx.navigation.dynamicfeatures.fragment
 
+import android.os.Bundle
+import androidx.annotation.NavigationRes
 import androidx.navigation.NavHostController
 import androidx.navigation.dynamicfeatures.DynamicActivityNavigator
 import androidx.navigation.dynamicfeatures.DynamicGraphNavigator
@@ -69,4 +71,35 @@ public open class DynamicNavHostFragment : NavHostFragment() {
      */
     protected open fun createSplitInstallManager(): SplitInstallManager =
         SplitInstallManagerFactory.create(requireContext())
+
+    /** Companion object for DynamicNavHostFragment */
+    public companion object {
+
+        /**
+         * Create a new [DynamicNavHostFragment] instance with an inflated {@link NavGraph} resource.
+         *
+         * @param graphResId Resource id of the navigation graph to inflate.
+         * @param startDestinationArgs Arguments to send to the start destination of the graph.
+         * @return A new DynamicNavHostFragment instance.
+         */
+        @JvmStatic
+        @JvmOverloads
+        public fun create(
+            @NavigationRes graphResId: Int,
+            startDestinationArgs: Bundle? = null
+        ): DynamicNavHostFragment {
+            return DynamicNavHostFragment().apply {
+                arguments = if (graphResId != 0 || startDestinationArgs != null) {
+                    Bundle().apply {
+                        if (graphResId != 0) {
+                            putInt(KEY_GRAPH_ID, graphResId)
+                        }
+                        if (startDestinationArgs != null) {
+                            putBundle(KEY_START_DESTINATION_ARGS, startDestinationArgs)
+                        }
+                    }
+                } else null
+            }
+        }
+    }
 }
