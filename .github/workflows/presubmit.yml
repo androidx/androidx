@@ -564,6 +564,7 @@ jobs:
       setup,
       lint,
       build-activity,
+      build-biometric,
       build-compose-compiler,
       build-fragment,
       build-lifecycle,
@@ -578,14 +579,15 @@ jobs:
         id: workflow-status
         run: |
           set -x
-          if [ "${{ needs.lint.outputs.status }}" == "success" ]            && \
-            [ "${{ needs.build-activity.outputs.status }}" == "success" ]   && \
-            [ "${{ needs.build-compose-compiler.outputs.status }}" == "success" ]   && \
-            [ "${{ needs.build-fragment.outputs.status }}" == "success" ]   && \
-            [ "${{ needs.build-lifecycle.outputs.status }}" == "success" ]  && \
-            [ "${{ needs.build-navigation.outputs.status }}" == "success" ] && \
-            [ "${{ needs.build-paging.outputs.status }}" == "success" ]     && \
-            [ "${{ needs.build-room.outputs.status }}" == "success" ]       && \
+          if [ "${{ needs.lint.outputs.status }}" == "success" ]                  && \
+            [ "${{ needs.build-activity.outputs.status }}" == "success" ]         && \
+            [ "${{ needs.build-biometric.outputs.status }}" == "success" ]        && \
+            [ "${{ needs.build-compose-compiler.outputs.status }}" == "success" ] && \
+            [ "${{ needs.build-fragment.outputs.status }}" == "success" ]         && \
+            [ "${{ needs.build-lifecycle.outputs.status }}" == "success" ]        && \
+            [ "${{ needs.build-navigation.outputs.status }}" == "success" ]       && \
+            [ "${{ needs.build-paging.outputs.status }}" == "success" ]           && \
+            [ "${{ needs.build-room.outputs.status }}" == "success" ]             && \
             [ "${{ needs.build-work.outputs.status }}" == "success" ]
           then
             echo "::set-output name=result::success"
