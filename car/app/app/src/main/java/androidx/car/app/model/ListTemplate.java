@@ -16,7 +16,6 @@
 
 package androidx.car.app.model;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_FULL_LIST;
@@ -28,7 +27,6 @@ import android.annotation.SuppressLint;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.car.app.Screen;
 
 import java.util.ArrayList;
@@ -190,14 +188,12 @@ public final class ListTemplate implements Template {
 
         /**
          * Sets the {@link Action} that will be displayed in the header of the template, or
-         * {@code null}
-         * to not display an action.
+         * {@code null} to not display an action.
          *
          * <h4>Requirements</h4>
          *
          * This template only supports either one of {@link Action#APP_ICON} and
-         * {@link Action#BACK} as
-         * a header {@link Action}.
+         * {@link Action#BACK} as a header {@link Action}.
          *
          * @throws IllegalArgumentException if {@code headerAction} does not meet the template's
          *                                  requirements.
@@ -213,8 +209,7 @@ public final class ListTemplate implements Template {
 
         /**
          * Sets the {@link CharSequence} to show as the template's title, or {@code null} to not
-         * show a
-         * title.
+         * show a title.
          */
         @NonNull
         public Builder setTitle(@Nullable CharSequence title) {
@@ -226,8 +221,7 @@ public final class ListTemplate implements Template {
          * Sets a single {@link ItemList} to show in the template.
          *
          * <p>Note that this list cannot be mixed with others added via {@link #addList}. If
-         * multiple
-         * lists were previously added, they will be cleared.
+         * multiple lists were previously added, they will be cleared.
          *
          * @throws NullPointerException if {@code list} is null.
          * @see #addList(ItemList, CharSequence)
@@ -244,12 +238,9 @@ public final class ListTemplate implements Template {
          * Adds an {@link ItemList} to display in the template.
          *
          * <p>Use this method to add multiple {@link ItemList}s to the template. Each
-         * {@link ItemList}
-         * will be grouped under the given {@code header}. These lists cannot be mixed with an
-         * {@link
-         * ItemList} added via {@link #setSingleList}. If a single list was previously added, it
-         * will be
-         * cleared.
+         * {@link ItemList} will be grouped under the given {@code header}. These lists cannot be
+         * mixed with an {@link ItemList} added via {@link #setSingleList}. If a single list was
+         * previously added, it will be cleared.
          *
          * <p>If the added {@link ItemList} contains a {@link ItemList.OnSelectedListener}, then it
          * cannot be added alongside other {@link ItemList}(s).
@@ -289,15 +280,6 @@ public final class ListTemplate implements Template {
 
             mSingleList = null;
             mSectionLists.add(SectionedItemList.create(list, headerText));
-            return this;
-        }
-
-        /** @hide */
-        @RestrictTo(LIBRARY)
-        @NonNull
-        public Builder addListForTesting(@NonNull ItemList list, @NonNull CharSequence header) {
-            mSingleList = null;
-            mSectionLists.add(SectionedItemList.create(list, CarText.create(header)));
             return this;
         }
 
@@ -359,13 +341,6 @@ public final class ListTemplate implements Template {
                 throw new IllegalStateException("Either the title or header action must be set");
             }
 
-            return new ListTemplate(this);
-        }
-
-        /** @hide */
-        @RestrictTo(LIBRARY)
-        @NonNull
-        public ListTemplate buildForTesting() {
             return new ListTemplate(this);
         }
 

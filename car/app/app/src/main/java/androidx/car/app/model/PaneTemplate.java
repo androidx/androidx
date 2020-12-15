@@ -16,7 +16,6 @@
 
 package androidx.car.app.model;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_PANE;
@@ -26,7 +25,6 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -238,13 +236,6 @@ public final class PaneTemplate implements Template {
                 throw new IllegalStateException("Either the title or header action must be set");
             }
 
-            return new PaneTemplate(this);
-        }
-
-        /** @hide */
-        @RestrictTo(LIBRARY)
-        @NonNull
-        public PaneTemplate buildForTesting() {
             return new PaneTemplate(this);
         }
     }
