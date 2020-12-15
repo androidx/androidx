@@ -116,7 +116,7 @@ package androidx.car.app {
     method public void setResult(Object?);
   }
 
-  public class ScreenManager {
+  @MainThread public class ScreenManager {
     method public androidx.car.app.Screen getTop();
     method public void pop();
     method public void popTo(String);
