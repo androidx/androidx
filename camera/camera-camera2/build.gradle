@@ -63,7 +63,7 @@ dependencies {
     androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
     androidTestImplementation(project(":annotation:annotation-experimental"))
     androidTestImplementation(project(":internal-testutils-truth"))
-    androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.15.0")
+    androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")
     androidTestImplementation("androidx.exifinterface:exifinterface:1.0.0")
 }
 android {
