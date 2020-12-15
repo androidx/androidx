@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="MediaControlView_subtitle_off_text" msgid="1845015629089301203">"निष्क्रिय"</string>
+    <string name="MediaControlView_subtitle_off_text" msgid="1845015629089301203">"अफ"</string>
     <string name="MediaControlView_audio_track_text" msgid="3532548952520840186">"अडियो ट्र्याक"</string>
     <string name="MediaControlView_audio_track_none_text" msgid="549548876131348304">"कुनै पनि होइन"</string>
     <string name="MediaControlView_playback_speed_text" msgid="8150324864582460559">"प्लेब्याकको गति"</string>
