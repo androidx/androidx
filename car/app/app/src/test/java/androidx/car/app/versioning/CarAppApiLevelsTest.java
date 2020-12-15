@@ -28,11 +28,11 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public class CarAppApiLevelsTest {
     @Test
     public void isValid_apiLowerThanOldest_notValid() {
-        assertThat(CarAppApiLevels.isValid(CarAppApiLevels.OLDEST - 1)).isFalse();
+        assertThat(CarAppApiLevels.isValid(CarAppApiLevels.getOldest() - 1)).isFalse();
     }
 
     @Test
     public void isValid_apiHigherThanLatest_notValid() {
-        assertThat(CarAppApiLevels.isValid(CarAppApiLevels.LATEST + 1)).isFalse();
+        assertThat(CarAppApiLevels.isValid(CarAppApiLevels.getOldest() + 1)).isFalse();
     }
 }
