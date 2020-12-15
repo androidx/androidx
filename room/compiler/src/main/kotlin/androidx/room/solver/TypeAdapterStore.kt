@@ -515,7 +515,7 @@ class TypeAdapterStore private constructor(
                     return EntityRowAdapter(
                         EntityProcessor(
                             context = context,
-                            element = asElement.asTypeElement()
+                            element = asElement
                         ).process()
                     )
                 }

@@ -18,7 +18,7 @@ package androidx.room.vo
 
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.compiler.processing.isType
+import androidx.room.compiler.processing.isTypeElement
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 
@@ -57,7 +57,7 @@ data class Dao(
         }
         val path = arrayListOf<String>()
         var enclosing = element.enclosingTypeElement
-        while (enclosing?.isType() == true) {
+        while (enclosing?.isTypeElement() == true) {
             path.add(enclosing!!.name)
             enclosing = enclosing!!.enclosingTypeElement
         }
