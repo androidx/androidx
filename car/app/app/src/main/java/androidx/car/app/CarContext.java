@@ -386,13 +386,8 @@ public class CarContext extends ContextWrapper {
      */
     @RestrictTo(LIBRARY)
     @MainThread
-    void onHandshakeComplete(HandshakeInfo handshakeInfo) {
-        int carAppApiLevel = handshakeInfo.getHostCarAppApiLevel();
-        if (!CarAppApiLevels.isValid(carAppApiLevel)) {
-            throw new IllegalArgumentException("Invalid Car App API level received: "
-                    + carAppApiLevel);
-        }
-        mCarAppApiLevel = carAppApiLevel;
+    void updateHandshakeInfo(HandshakeInfo handshakeInfo) {
+        mCarAppApiLevel = handshakeInfo.getHostCarAppApiLevel();
     }
 
     /**

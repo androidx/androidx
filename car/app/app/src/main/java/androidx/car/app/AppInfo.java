@@ -128,7 +128,8 @@ public final class AppInfo {
                         + "Assuming min API level = " + CarAppApiLevels.getLatest());
                 return CarAppApiLevels.getLatest();
             }
-            return applicationInfo.metaData.getInt(MIN_API_LEVEL_MANIFEST_KEY);
+            return applicationInfo.metaData.getInt(MIN_API_LEVEL_MANIFEST_KEY,
+                    CarAppApiLevels.getLatest());
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(TAG, "Unable to read min API level from manifest. Assuming "
                     + CarAppApiLevels.getLatest(), e);
