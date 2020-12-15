@@ -26,9 +26,13 @@ import static org.junit.Assert.assertThrows;
 import androidx.appsearch.annotation.AppSearchDocument;
 import androidx.collection.ArrayMap;
 
+import com.google.common.collect.ImmutableSet;
+
 import org.junit.Test;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,6 +42,7 @@ public class SetSchemaRequestTest {
     static class Card {
         @AppSearchDocument.Uri
         String mUri;
+
         @AppSearchDocument.Property
                 (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
         String mString;
@@ -54,6 +59,36 @@ public class SetSchemaRequestTest {
             assertThat(otherCard.mUri).isEqualTo(this.mUri);
             return true;
         }
+    }
+
+    static class Spade {}
+
+    @AppSearchDocument
+    static class King extends Spade {
+        @AppSearchDocument.Uri
+        String mUri;
+
+        @AppSearchDocument.Property
+                (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
+        String mString;
+    }
+
+    @AppSearchDocument
+    static class Queen extends Spade {
+        @AppSearchDocument.Uri
+        String mUri;
+
+        @AppSearchDocument.Property
+                (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
+        String mString;
+    }
+
+    private static Collection<String> getSchemaTypesFromSetSchemaRequest(SetSchemaRequest request) {
+        HashSet<String> schemaTypes = new HashSet<>();
+        for (AppSearchSchema schema : request.getSchemas()) {
+            schemaTypes.add(schema.getSchemaType());
+        }
+        return schemaTypes;
     }
 
     @Test
@@ -273,5 +308,25 @@ public class SetSchemaRequestTest {
 
         // Nothing should be visible.
         assertThat(request.getSchemasPackageAccessible()).isEmpty();
+    }
+
+    @Test
+    public void testAddDataClass_byCollection() throws Exception {
+        Set<Class<? extends Spade>> cardClasses = ImmutableSet.of(Queen.class, King.class);
+        SetSchemaRequest request =
+                new SetSchemaRequest.Builder().addDataClass(cardClasses)
+                        .build();
+        assertThat(getSchemaTypesFromSetSchemaRequest(request)).containsExactly("Queen",
+                "King");
+    }
+
+    @Test
+    public void testAddDataClass_byCollectionWithSeparateCalls() throws
+            Exception {
+        SetSchemaRequest request =
+                new SetSchemaRequest.Builder().addDataClass(ImmutableSet.of(Queen.class))
+                        .addDataClass(ImmutableSet.of(King.class)).build();
+        assertThat(getSchemaTypesFromSetSchemaRequest(request)).containsExactly("Queen",
+                "King");
     }
 }
