@@ -3,7 +3,7 @@ package androidx.car.app {
 
   public final class AppInfo {
     method public int getLatestCarAppApiLevel();
-    method public String getLibraryVersion();
+    method public String getLibraryDisplayVersion();
     method public int getMinCarAppApiLevel();
   }
 
@@ -80,6 +80,7 @@ package androidx.car.app {
   }
 
   public class HostInfo {
+    ctor public HostInfo(String, int);
     method public String getPackageName();
     method public int getUid();
   }
@@ -1117,9 +1118,9 @@ package androidx.car.app.utils {
 package androidx.car.app.versioning {
 
   public class CarAppApiLevels {
-    field public static final int LATEST = 1; // 0x1
+    method public static int getLatest();
+    method public static int getOldest();
     field public static final int LEVEL_1 = 1; // 0x1
-    field public static final int OLDEST = 1; // 0x1
   }
 
 }
