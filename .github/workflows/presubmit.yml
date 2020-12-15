@@ -449,6 +449,7 @@ jobs:
       setup,
       lint,
       build-activity,
+      build-biometric,
       build-fragment,
       build-navigation,
       build-paging,
@@ -463,6 +464,7 @@ jobs:
           set -x
           if [ "${{ needs.lint.outputs.status }}" == "success" ]            && \
             [ "${{ needs.build-activity.outputs.status }}" == "success" ]   && \
+            [ "${{ needs.build-biometric.outputs.status }}" == "success" ]   && \
             [ "${{ needs.build-fragment.outputs.status }}" == "success" ]   && \
             [ "${{ needs.build-navigation.outputs.status }}" == "success" ] && \
             [ "${{ needs.build-paging.outputs.status }}" == "success" ]     && \
