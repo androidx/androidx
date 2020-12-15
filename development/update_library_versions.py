@@ -138,7 +138,7 @@ def does_exist_on_gmaven(groupId, artifactId, version):
 
 def increment_alpha_beta_version(version):
 	# Only increment alpha and beta versions.
-	# rc and stable should never need to be incremented in the androidx-master-dev branch
+	# rc and stable should never need to be incremented in the androidx-main branch
 	# Suffix changes should be done manually.
 	changed = False
 	if 'alpha' in version or 'beta' in version:
