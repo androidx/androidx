@@ -6,7 +6,7 @@ Role library contains the name and documentation for roles that might be availab
 
 [Release notes](https://developer.android.com/jetpack/androidx/releases/core)
 
-[Browse source](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/core/core-role/)
+[Browse source](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/core/core-role/)
 
 [Reference documentation](https://developer.android.com/reference/androidx/classes.html)
 
