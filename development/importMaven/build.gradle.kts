@@ -70,12 +70,12 @@ plugins {
     java
 }
 
+val metalavaBuildId: String? = findProperty("metalavaBuildId") as String?
 repositories {
     jcenter()
     mavenCentral()
     google()
     gradlePluginPortal()
-    val metalavaBuildId: String? = findProperty("metalavaBuildId") as String?
     if (metalavaBuildId != null) {
         maven(url="https://androidx.dev/metalava/builds/${metalavaBuildId}/artifacts/repo/m2repository")
     }
@@ -457,18 +457,30 @@ open class DirectMetadataAccessVariantRule : ComponentMetadataRule {
 tasks {
     val fetchArtifacts by creating {
         doLast {
+            var numArtifactsFound = 0
             println("\r\nAll Files with Dependencies")
             allFilesWithDependencies.incoming.artifactView {
                 lenient(true)
             }.artifacts.forEach {
                 copyArtifact(it, internal = isInternalArtifact(it))
+                numArtifactsFound++
             }
             gradleModuleMetadata.incoming.artifactView {
                 lenient(true)
             }.artifacts.forEach {
                 copyArtifact(it, internal = isInternalArtifact(it))
+                numArtifactsFound++
             }
-            println("\r\nResolved artifacts for $artifactName.")
+            if (numArtifactsFound < 1) {
+                var message = "Artifact $artifactName not found!"
+                if (metalavaBuildId != null) {
+                    message += "\nMake sure that ab/$metalavaBuildId contains the `metalava` "
+                    message += "target and that it has finished building, or see "
+                    message += "ab/metalava-master for available build ids"
+                }
+                throw GradleException(message)
+            }
+	    println("\r\nResolved $numArtifactsFound artifacts for $artifactName.")
         }
     }
 }
