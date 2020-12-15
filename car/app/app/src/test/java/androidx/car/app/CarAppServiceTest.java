@@ -226,7 +226,8 @@ public final class CarAppServiceTest {
                 .isEqualTo(appInfo.getMinCarAppApiLevel());
         assertThat(receivedAppInfo.getLatestCarAppApiLevel())
                 .isEqualTo(appInfo.getLatestCarAppApiLevel());
-        assertThat(receivedAppInfo.getLibraryVersion()).isEqualTo(appInfo.getLibraryVersion());
+        assertThat(receivedAppInfo.getLibraryDisplayVersion()).isEqualTo(
+                appInfo.getLibraryDisplayVersion());
     }
 
     @Test
