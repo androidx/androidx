@@ -175,7 +175,7 @@ public final class SetSchemaRequest {
          */
         @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getSchemas()
         @NonNull
-        public Builder addDataClass(@NonNull Collection<Class<?>> dataClasses)
+        public Builder addDataClass(@NonNull Collection<? extends Class<?>> dataClasses)
                 throws AppSearchException {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(dataClasses);
