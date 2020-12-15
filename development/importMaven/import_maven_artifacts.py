@@ -45,7 +45,7 @@ def main():
     parser.add_argument('-n', '--name', help=NAME_HELP,
                         required=True, dest='name')
     parser.add_argument('-mb', '--metalava-build-id', help=METALAVA_BUILD_ID_HELP,
-                        required=False, dest='matalava_build_id')
+                        required=False, dest='metalava_build_id')
     parser.add_argument('-ab', '--allow-bintray', help=ALLOW_BINTRAY_HELP,
                         required=False, action='store_true')
     parse_result = parser.parse_args()
@@ -55,9 +55,9 @@ def main():
     # Add -Dorg.gradle.debug=true to debug or --stacktrace to see the stack trace
     command = './gradlew --build-file build.gradle.kts -PartifactName=%s' % (
         artifact_name)
-    matalava_build_id = parse_result.matalava_build_id
-    if (matalava_build_id):
-      command = command + ' -PmetalavaBuildId=%s' % (matalava_build_id)
+    metalava_build_id = parse_result.metalava_build_id
+    if (metalava_build_id):
+      command = command + ' -PmetalavaBuildId=%s' % (metalava_build_id)
     if (parse_result.allow_bintray):
       command = command + ' -PallowBintray'
 
