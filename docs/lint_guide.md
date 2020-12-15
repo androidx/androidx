@@ -105,7 +105,7 @@ where versions 0-6 correspond to Lint/Studio versions 3.0-3.6.
 `CURRENT_API` is defined by the Lint API version against which your project is
 compiled, as defined in the module's `build.gradle` file. Jetpack Lint modules
 should compile using Lint API version 3.3 defined in
-[Dependencies.kt](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:buildSrc/src/main/kotlin/androidx/build/dependencies/Dependencies.kt;l=176).
+[Dependencies.kt](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/dependencies/Dependencies.kt;l=176).
 
 We guarantee that our Lint checks work with versions 3.3-3.6 by running our
 tests with both versions 3.3 and 3.6. For newer versions of Android Studio (and
@@ -115,7 +115,7 @@ The `IssueRegistry` requires a list of all of the issues to check. You must
 override the `IssueRegistry.getIssues()` method. Here, we override that method
 with a Kotlin `get()` property delegate:
 
-[Example IssueRegistry Implementation](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:fragment/fragment-lint/src/main/java/androidx/fragment/lint/FragmentIssueRegistry.kt)
+[Example IssueRegistry Implementation](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:fragment/fragment-lint/src/main/java/androidx/fragment/lint/FragmentIssueRegistry.kt)
 
 There are 4 primary types of Lint checks:
 
@@ -132,8 +132,8 @@ or binary resource files like images, but these are less common.
 To view the PSI structure of any file in Android Studio, use the
 [PSI Viewer](https://www.jetbrains.com/help/idea/psi-viewer.html) located in
 `Tools > View PSI Structure`. The PSI Viewer should be enabled by default on the
-Android Studio configuration loaded by `studiow` in `androidx-master-dev`. If it
-is not available under `Tools`, you must enable it by adding the line
+Android Studio configuration loaded by `studiow` in `androidx-main`. If it is
+not available under `Tools`, you must enable it by adding the line
 `idea.is.internal=true` to `idea.properties.`
 
 <table>
@@ -480,7 +480,7 @@ location of the element that has the issue, the message to display on the
 element, as well as a quick fix. In this case we replace our element text with
 some other text.
 
-[Example Detector Implementation](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:fragment/fragment-lint/src/main/java/androidx/fragment/lint/FragmentTagDetector.kt)
+[Example Detector Implementation](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:fragment/fragment-lint/src/main/java/androidx/fragment/lint/FragmentTagDetector.kt)
 
 ### Testing
 
@@ -533,7 +533,7 @@ output of the `TestLintTask` and compares the actual result to the input string.
 If a quick fix was implemented, you can check that the fix is correct by calling
 `checkFix()` and providing the expected output file stub.
 
-[TestExample](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:fragment/fragment-lint/src/test/java/androidx/fragment/lint/FragmentTagDetectorTest.kt)
+[TestExample](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:fragment/fragment-lint/src/test/java/androidx/fragment/lint/FragmentTagDetectorTest.kt)
 
 ## Android manifest detector
 

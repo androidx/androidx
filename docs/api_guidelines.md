@@ -87,7 +87,7 @@ on libraries within the group. Such groups must increment the version of every
 library at the same time and release all libraries at the same time.
 
 Atomic groups are specified in
-[`LibraryGroups.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:buildSrc/src/main/kotlin/androidx/build/LibraryGroups.kt):
+[`LibraryGroups.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/LibraryGroups.kt):
 
 ```kotlin
 // Non-atomic library group

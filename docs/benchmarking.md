@@ -10,7 +10,7 @@ AndroidX repo, and our continuous testing / triage process.
 ### Writing the benchmark
 
 Benchmarks are just regular instrumentation tests! Just use the
-[`BenchmarkRule`](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/benchmark/junit4/src/main/java/androidx/benchmark/junit4/BenchmarkRule.kt)
+[`BenchmarkRule`](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/benchmark/junit4/src/main/java/androidx/benchmark/junit4/BenchmarkRule.kt)
 provided by the library:
 
 <section class="tabs">
@@ -75,16 +75,16 @@ library modules. Differences for AndroidX repo:
 
 Start by copying one of the following projects:
 
-*   [navigation-benchmark](https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-master-dev/navigation/benchmark/)
-*   [recyclerview-benchmark](https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-master-dev/recyclerview/recyclerview-benchmark/)
+*   [navigation-benchmark](https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-main/navigation/benchmark/)
+*   [recyclerview-benchmark](https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-main/recyclerview/recyclerview-benchmark/)
 
 ### Compose
 
 Compose builds the benchmark from source, so usage matches the rest of the
 AndroidX project. See existing Compose benchmark projects:
 
-*   [Compose UI benchmarks](https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-master-dev/ui/integration-tests/benchmark/)
-*   [Compose Runtime benchmarks](https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-master-dev/compose/compose-runtime/compose-runtime-benchmark/)
+*   [Compose UI benchmarks](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/integration-tests/benchmark/)
+*   [Compose Runtime benchmarks](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/runtime/runtime/compose-runtime-benchmark/)
 
 ## Profiling
 
@@ -106,7 +106,7 @@ machine:
 
 ```
 04:33:49 I/Benchmark: Benchmark report files generated at
-/androidx-master-dev/out/ui/ui/integration-tests/benchmark/build/outputs/connected_android_test_additional_output
+/androidx-main/out/ui/ui/integration-tests/benchmark/build/outputs/connected_android_test_additional_output
 ```
 
 To inspect the captured trace, open the appropriate `*.trace` file in that
