@@ -14,6 +14,7 @@ For contributions via GitHub, see the [GitHub Contribution Guide](CONTRIBUTING.m
 
 Note: The contributions workflow via GitHub is currently experimental - only contributions to the following projects are being accepted at this time:
 * [Activity](activity)
+* [Biometric](biometric)
 * [Fragment](fragment)
 * [Navigation](navigation)
 * [Paging](paging)
