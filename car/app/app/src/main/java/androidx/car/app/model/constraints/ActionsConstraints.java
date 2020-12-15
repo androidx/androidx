@@ -17,7 +17,10 @@
 package androidx.car.app.model.constraints;
 
 
+import static androidx.annotation.RestrictTo.Scope;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.Action.ActionType;
@@ -30,7 +33,10 @@ import java.util.Set;
 
 /**
  * Encapsulates the constraints to apply when rendering a list of {@link Action}s on a template.
+ *
+ * @hide
  */
+@RestrictTo(Scope.LIBRARY)
 public class ActionsConstraints {
 
     /** Conservative constraints for most template types. */

@@ -20,12 +20,16 @@ import android.content.ContentResolver;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.model.CarIcon;
 import androidx.core.graphics.drawable.IconCompat;
 
 /**
  * Encapsulates the constraints to apply when rendering a {@link CarIcon} on a template.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class CarIconConstraints {
     /** Allow all custom icon types. */
     @NonNull

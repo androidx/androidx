@@ -674,99 +674,6 @@ package androidx.car.app.model {
 
 }
 
-package androidx.car.app.model.constraints {
-
-  public class ActionsConstraints {
-    method @VisibleForTesting public static androidx.car.app.model.constraints.ActionsConstraints.Builder builder();
-    method public java.util.Set<java.lang.Integer!> getDisallowedActionTypes();
-    method public int getMaxActions();
-    method public int getMaxCustomTitles();
-    method public java.util.Set<java.lang.Integer!> getRequiredActionTypes();
-    method @VisibleForTesting public androidx.car.app.model.constraints.ActionsConstraints.Builder newBuilder();
-    method public void validateOrThrow(java.util.List<java.lang.Object!>);
-    field public static final androidx.car.app.model.constraints.ActionsConstraints ACTIONS_CONSTRAINTS_HEADER;
-    field public static final androidx.car.app.model.constraints.ActionsConstraints ACTIONS_CONSTRAINTS_NAVIGATION;
-    field public static final androidx.car.app.model.constraints.ActionsConstraints ACTIONS_CONSTRAINTS_SIMPLE;
-  }
-
-  @VisibleForTesting public static final class ActionsConstraints.Builder {
-    method public androidx.car.app.model.constraints.ActionsConstraints.Builder addDisallowedActionType(int);
-    method public androidx.car.app.model.constraints.ActionsConstraints.Builder addRequiredActionType(int);
-    method public androidx.car.app.model.constraints.ActionsConstraints build();
-    method public androidx.car.app.model.constraints.ActionsConstraints.Builder setMaxActions(int);
-    method public androidx.car.app.model.constraints.ActionsConstraints.Builder setMaxCustomTitles(int);
-  }
-
-  public class CarColorConstraints {
-    method public void validateOrThrow(androidx.car.app.model.CarColor);
-    field public static final androidx.car.app.model.constraints.CarColorConstraints STANDARD_ONLY;
-    field public static final androidx.car.app.model.constraints.CarColorConstraints UNCONSTRAINED;
-  }
-
-  public class CarIconConstraints {
-    method public androidx.core.graphics.drawable.IconCompat checkSupportedIcon(androidx.core.graphics.drawable.IconCompat);
-    method public void validateOrThrow(androidx.car.app.model.CarIcon?);
-    field public static final androidx.car.app.model.constraints.CarIconConstraints DEFAULT;
-    field public static final androidx.car.app.model.constraints.CarIconConstraints UNCONSTRAINED;
-  }
-
-  public class RowConstraints {
-    method public static androidx.car.app.model.constraints.RowConstraints.Builder builder();
-    method public androidx.car.app.model.constraints.CarIconConstraints getCarIconConstraints();
-    method public int getMaxActionsExclusive();
-    method public int getMaxTextLinesPerRow();
-    method public boolean isImageAllowed();
-    method public boolean isOnClickListenerAllowed();
-    method public boolean isToggleAllowed();
-    method public androidx.car.app.model.constraints.RowConstraints.Builder newBuilder();
-    method public void validateOrThrow(Object);
-    field public static final androidx.car.app.model.constraints.RowConstraints ROW_CONSTRAINTS_CONSERVATIVE;
-    field public static final androidx.car.app.model.constraints.RowConstraints ROW_CONSTRAINTS_FULL_LIST;
-    field public static final androidx.car.app.model.constraints.RowConstraints ROW_CONSTRAINTS_PANE;
-    field public static final androidx.car.app.model.constraints.RowConstraints ROW_CONSTRAINTS_SIMPLE;
-    field public static final androidx.car.app.model.constraints.RowConstraints UNCONSTRAINED;
-  }
-
-  public static final class RowConstraints.Builder {
-    method public androidx.car.app.model.constraints.RowConstraints build();
-    method public androidx.car.app.model.constraints.RowConstraints.Builder setCarIconConstraints(androidx.car.app.model.constraints.CarIconConstraints);
-    method public androidx.car.app.model.constraints.RowConstraints.Builder setImageAllowed(boolean);
-    method public androidx.car.app.model.constraints.RowConstraints.Builder setMaxActionsExclusive(int);
-    method public androidx.car.app.model.constraints.RowConstraints.Builder setMaxTextLinesPerRow(int);
-    method public androidx.car.app.model.constraints.RowConstraints.Builder setOnClickListenerAllowed(boolean);
-    method public androidx.car.app.model.constraints.RowConstraints.Builder setToggleAllowed(boolean);
-  }
-
-  public class RowListConstraints {
-    method public static androidx.car.app.model.constraints.RowListConstraints.Builder builder();
-    method public int getMaxActions();
-    method public androidx.car.app.model.constraints.RowConstraints getRowConstraints();
-    method public int getRowListType();
-    method public boolean isAllowSelectableLists();
-    method public androidx.car.app.model.constraints.RowListConstraints.Builder newBuilder();
-    method public void validateOrThrow(androidx.car.app.model.ItemList);
-    method public void validateOrThrow(java.util.List<androidx.car.app.model.SectionedItemList!>);
-    method public void validateOrThrow(androidx.car.app.model.Pane);
-    field public static final int DEFAULT_LIST = 0; // 0x0
-    field public static final int PANE = 1; // 0x1
-    field public static final int ROUTE_PREVIEW = 2; // 0x2
-    field public static final androidx.car.app.model.constraints.RowListConstraints ROW_LIST_CONSTRAINTS_CONSERVATIVE;
-    field public static final androidx.car.app.model.constraints.RowListConstraints ROW_LIST_CONSTRAINTS_FULL_LIST;
-    field public static final androidx.car.app.model.constraints.RowListConstraints ROW_LIST_CONSTRAINTS_PANE;
-    field public static final androidx.car.app.model.constraints.RowListConstraints ROW_LIST_CONSTRAINTS_ROUTE_PREVIEW;
-    field public static final androidx.car.app.model.constraints.RowListConstraints ROW_LIST_CONSTRAINTS_SIMPLE;
-  }
-
-  public static final class RowListConstraints.Builder {
-    method public androidx.car.app.model.constraints.RowListConstraints build();
-    method public androidx.car.app.model.constraints.RowListConstraints.Builder setAllowSelectableLists(boolean);
-    method public androidx.car.app.model.constraints.RowListConstraints.Builder setMaxActions(int);
-    method public androidx.car.app.model.constraints.RowListConstraints.Builder setRowConstraints(androidx.car.app.model.constraints.RowConstraints);
-    method public androidx.car.app.model.constraints.RowListConstraints.Builder setRowListType(int);
-  }
-
-}
-
 package androidx.car.app.navigation {
 
   public class NavigationManager {
@@ -944,7 +851,6 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip?);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setHeaderAction(androidx.car.app.model.Action?);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setItemList(androidx.car.app.model.ItemList?);
-    method @VisibleForTesting public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setItemListForTesting(androidx.car.app.model.ItemList?);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setLoading(boolean);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setTitle(CharSequence?);
   }
@@ -965,7 +871,6 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip?);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setHeaderAction(androidx.car.app.model.Action?);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setItemList(androidx.car.app.model.ItemList?);
-    method @VisibleForTesting public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setItemListForTesting(androidx.car.app.model.ItemList?);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setLoading(boolean);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setNavigateAction(androidx.car.app.model.Action);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setTitle(CharSequence?);

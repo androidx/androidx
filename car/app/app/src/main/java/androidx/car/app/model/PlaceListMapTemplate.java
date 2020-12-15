@@ -16,7 +16,6 @@
 
 package androidx.car.app.model;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_SIMPLE;
@@ -27,7 +26,6 @@ import android.content.Context;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.car.app.CarAppPermission;
 
 import java.util.Collections;
@@ -287,14 +285,6 @@ public final class PlaceListMapTemplate implements Template {
             }
             this.mItemList = itemList;
 
-            return this;
-        }
-
-        /** @hide */
-        @RestrictTo(LIBRARY)
-        @NonNull
-        public Builder setItemListForTesting(@Nullable ItemList itemList) {
-            this.mItemList = itemList;
             return this;
         }
 

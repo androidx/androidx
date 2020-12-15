@@ -16,13 +16,11 @@
 
 package androidx.car.app.model.constraints;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.car.app.model.constraints.RowConstraints.ROW_CONSTRAINTS_CONSERVATIVE;
 import static androidx.car.app.model.constraints.RowConstraints.ROW_CONSTRAINTS_FULL_LIST;
 import static androidx.car.app.model.constraints.RowConstraints.ROW_CONSTRAINTS_PANE;
 import static androidx.car.app.model.constraints.RowConstraints.ROW_CONSTRAINTS_SIMPLE;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.model.ActionList;
@@ -30,41 +28,20 @@ import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Pane;
 import androidx.car.app.model.SectionedItemList;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Encapsulates the constraints to apply when rendering a row list under different contexts.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class RowListConstraints {
-    /**
-     * The RowList that is used for max row.
-     *
-     * @hide
-     */
-    // TODO(shiufai): investigate how to expose IntDefs if needed.
-    @IntDef(value = {DEFAULT_LIST, PANE, ROUTE_PREVIEW})
-    @RestrictTo(LIBRARY)
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface ListType {
-    }
-
-    @ListType
-    public static final int DEFAULT_LIST = 0;
-
-    @ListType
-    public static final int PANE = 1;
-
-    @ListType
-    public static final int ROUTE_PREVIEW = 2;
-
     /** Conservative constraints for all types lists. */
     @NonNull
     public static final RowListConstraints ROW_LIST_CONSTRAINTS_CONSERVATIVE =
             RowListConstraints.builder()
-                    .setRowListType(DEFAULT_LIST)
                     .setMaxActions(0)
                     .setRowConstraints(ROW_CONSTRAINTS_CONSERVATIVE)
                     .setAllowSelectableLists(false)
@@ -76,7 +53,6 @@ public class RowListConstraints {
             ROW_LIST_CONSTRAINTS_CONSERVATIVE
                     .newBuilder()
                     .setMaxActions(2)
-                    .setRowListType(PANE)
                     .setRowConstraints(ROW_CONSTRAINTS_PANE)
                     .setAllowSelectableLists(false)
                     .build();
@@ -94,7 +70,6 @@ public class RowListConstraints {
     public static final RowListConstraints ROW_LIST_CONSTRAINTS_ROUTE_PREVIEW =
             ROW_LIST_CONSTRAINTS_CONSERVATIVE
                     .newBuilder()
-                    .setRowListType(ROUTE_PREVIEW)
                     .setRowConstraints(ROW_CONSTRAINTS_SIMPLE)
                     .setAllowSelectableLists(true)
                     .build();
@@ -108,15 +83,13 @@ public class RowListConstraints {
                     .setAllowSelectableLists(true)
                     .build();
 
-    @ListType
-    private final int mRowListType;
     private final int mMaxActions;
     private final RowConstraints mRowConstraints;
     private final boolean mAllowSelectableLists;
 
     /** A builder of {@link RowListConstraints}. */
     @NonNull
-    public static Builder builder() {
+    public static RowListConstraints.Builder builder() {
         return new Builder();
     }
 
@@ -124,12 +97,6 @@ public class RowListConstraints {
     @NonNull
     public Builder newBuilder() {
         return new Builder(this);
-    }
-
-    /** Returns the row list type for this constraint. */
-    @ListType
-    public int getRowListType() {
-        return mRowListType;
     }
 
     /** Returns the maximum number of actions allowed to be added alongside the list. */
@@ -209,25 +176,15 @@ public class RowListConstraints {
         mMaxActions = builder.mMaxActions;
         mRowConstraints = builder.mRowConstraints;
         mAllowSelectableLists = builder.mAllowSelectableLists;
-        mRowListType = builder.mRowListType;
     }
 
     /**
      * A builder of {@link RowListConstraints}.
      */
     public static final class Builder {
-        @ListType
-        int mRowListType;
         int mMaxActions;
         RowConstraints mRowConstraints = RowConstraints.UNCONSTRAINED;
         boolean mAllowSelectableLists;
-
-        /** Sets the row list type for this constraint. */
-        @NonNull
-        public Builder setRowListType(@ListType int rowListType) {
-            this.mRowListType = rowListType;
-            return this;
-        }
 
         /** Sets the maximum number of actions allowed to be added alongside the list. */
         @NonNull
@@ -265,7 +222,6 @@ public class RowListConstraints {
             this.mMaxActions = constraints.getMaxActions();
             this.mRowConstraints = constraints.getRowConstraints();
             this.mAllowSelectableLists = constraints.isAllowSelectableLists();
-            this.mRowListType = constraints.getRowListType();
         }
     }
 }
