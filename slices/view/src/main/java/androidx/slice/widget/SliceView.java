@@ -345,7 +345,10 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         }
     }
 
-    private void configureViewPolicy(int maxHeight) {
+    /**
+     * Sets the maximum height for a slice through the view policy.
+     */
+    protected void configureViewPolicy(int maxHeight) {
         if (mListContent != null && mListContent.isValid() && getMode() != MODE_SHORTCUT) {
             if (maxHeight > 0 && maxHeight < mSliceStyle.getRowMaxHeight()) {
                 if (maxHeight <= mMinTemplateHeight) {
