@@ -71,7 +71,11 @@ public final class AppInfo {
     @CarAppApiLevel
     private final int mLatestCarAppApiLevel;
 
-    /** @hide */
+    /**
+     * Creates an instance of {@link AppInfo} based on the input {@link Context}.
+     *
+     * @hide
+     */
     @RestrictTo(Scope.LIBRARY)
     @NonNull
     public static AppInfo create(@NonNull Context context) {
@@ -86,26 +90,28 @@ public final class AppInfo {
         return new AppInfo(minApiLevel, CarAppApiLevels.getLatest(), LIBRARY_VERSION);
     }
 
-    // Used for serialization
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY)
-    public AppInfo() {
-        mMinCarAppApiLevel = 0;
-        mLibraryVersion = null;
-        mLatestCarAppApiLevel = 0;
-    }
-
-    // Used for testing
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY)
+    /**
+     * Creates an instance of {@link AppInfo} with the provided version information.
+     *
+     * @param minCarAppApiLevel    the minimal API level that can work with an app built with
+     *                             the library.
+     * @param latestCarAppApiLevel the latest API level the library supports.
+     * @param libraryVersion       the library artifact version.
+     */
     @VisibleForTesting
     public AppInfo(@CarAppApiLevel int minCarAppApiLevel, @CarAppApiLevel int latestCarAppApiLevel,
             @NonNull String libraryVersion) {
         mMinCarAppApiLevel = minCarAppApiLevel;
         mLibraryVersion = libraryVersion;
         mLatestCarAppApiLevel = latestCarAppApiLevel;
+    }
+
+    // Used for serialization
+    private AppInfo() {
+        mMinCarAppApiLevel = 0;
+        mLibraryVersion = null;
+        mLatestCarAppApiLevel = 0;
     }
 
     /** @hide */
