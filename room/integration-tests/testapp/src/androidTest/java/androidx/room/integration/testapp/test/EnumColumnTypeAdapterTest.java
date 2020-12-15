@@ -29,10 +29,13 @@ import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverter;
+import androidx.room.TypeConverters;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +45,6 @@ import org.junit.runner.RunWith;
 public class EnumColumnTypeAdapterTest {
 
     private EnumColumnTypeAdapterDatabase mDb;
-    private EnumColumnTypeAdapterDatabase mDbComplex;
 
     @Entity
     public static class EntityWithEnum {
@@ -50,11 +52,24 @@ public class EnumColumnTypeAdapterTest {
         public Long id;
         public Fruit fruit;
     }
+
+    @Entity
+    public static class EntityWithOneWayEnum {
+        @PrimaryKey
+        public Long id;
+        public Color color;
+    }
+
     @Entity
     public static class ComplexEntityWithEnum {
         @PrimaryKey
         public Long id;
         public Season mSeason;
+    }
+
+    public enum Color {
+        RED,
+        GREEN
     }
 
     public enum Fruit {
@@ -86,6 +101,26 @@ public class EnumColumnTypeAdapterTest {
     }
 
     @Dao
+    public interface SampleDaoWithOneWayConverter {
+        @Query("INSERT INTO EntityWithOneWayEnum (id, color) VALUES (:id, :colorInt)")
+        long insert(long id, int colorInt);
+
+        @Query("SELECT * FROM EntityWithOneWayEnum WHERE id = :id")
+        EntityWithOneWayEnum getValueWithId(long id);
+    }
+
+    public static class ColorTypeConverter {
+        @TypeConverter
+        public Color fromIntToColorEnum(int colorInt) {
+            if (colorInt == 1) {
+                return Color.RED;
+            } else {
+                return Color.GREEN;
+            }
+        }
+    }
+
+    @Dao
     public interface SampleDaoWithComplexEnum {
         @Query("INSERT INTO ComplexEntityWithEnum (id, mSeason) VALUES (:id, :season)")
         long insertComplex(long id, Season season);
@@ -94,10 +129,13 @@ public class EnumColumnTypeAdapterTest {
         ComplexEntityWithEnum getComplexValueWithId(long id);
     }
 
-    @Database(entities = {EntityWithEnum.class, ComplexEntityWithEnum.class}, version = 1,
+    @Database(entities = {EntityWithEnum.class, ComplexEntityWithEnum.class,
+            EntityWithOneWayEnum.class}, version = 1,
             exportSchema = false)
+    @TypeConverters(ColorTypeConverter.class)
     public abstract static class EnumColumnTypeAdapterDatabase extends RoomDatabase {
         public abstract EnumColumnTypeAdapterTest.SampleDao dao();
+        public abstract EnumColumnTypeAdapterTest.SampleDaoWithOneWayConverter oneWayDao();
         public abstract EnumColumnTypeAdapterTest.SampleDaoWithComplexEnum complexDao();
     }
 
@@ -108,10 +146,11 @@ public class EnumColumnTypeAdapterTest {
                 context,
                 EnumColumnTypeAdapterDatabase.class)
                 .build();
-        mDbComplex = Room.inMemoryDatabaseBuilder(
-                context,
-                EnumColumnTypeAdapterDatabase.class)
-                .build();
+    }
+
+    @After
+    public void teardown() {
+        mDb.close();
     }
 
     @Test
@@ -124,9 +163,16 @@ public class EnumColumnTypeAdapterTest {
     }
 
     @Test
+    public void writeOneWayEnumToDatabase() {
+        final long id2 = mDb.oneWayDao().insert(1, 1);
+        assertThat(mDb.oneWayDao().getValueWithId(1).color, is(equalTo(Color.RED)));
+
+    }
+
+    @Test
     public void filterOutComplexEnumTest() {
-        final long id1 = mDbComplex.complexDao().insertComplex(1, Season.AUTUMN);
-        assertThat(mDbComplex.complexDao().getComplexValueWithId(1).mSeason,
+        final long id1 = mDb.complexDao().insertComplex(1, Season.AUTUMN);
+        assertThat(mDb.complexDao().getComplexValueWithId(1).mSeason,
                 is(equalTo(Season.AUTUMN)));
     }
 }

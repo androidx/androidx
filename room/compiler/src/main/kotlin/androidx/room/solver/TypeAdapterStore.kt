@@ -260,7 +260,7 @@ class TypeAdapterStore private constructor(
         if (output.isError()) {
             return null
         }
-        val adapter = findColumnTypeAdapter(output, affinity)
+        val adapter = findColumnTypeAdapter(output, affinity, true)
         if (adapter != null) {
             // two way is better
             return adapter
@@ -314,7 +314,11 @@ class TypeAdapterStore private constructor(
      * Finds a two way converter, if you need 1 way, use findStatementValueBinder or
      * findCursorValueReader.
      */
-    fun findColumnTypeAdapter(out: XType, affinity: SQLTypeAffinity?): ColumnTypeAdapter? {
+    fun findColumnTypeAdapter(
+        out: XType,
+        affinity: SQLTypeAffinity?,
+        skipEnumConverter: Boolean
+    ): ColumnTypeAdapter? {
         if (out.isError()) {
             return null
         }
@@ -338,9 +342,11 @@ class TypeAdapterStore private constructor(
         if (adapterByTypeConverter != null) {
             return adapterByTypeConverter
         }
-        val enumAdapter = createEnumTypeAdapter(out)
-        if (enumAdapter != null) {
-            return enumAdapter
+        if (!skipEnumConverter) {
+            val enumAdapter = createEnumTypeAdapter(out)
+            if (enumAdapter != null) {
+                return enumAdapter
+            }
         }
         return null
     }
