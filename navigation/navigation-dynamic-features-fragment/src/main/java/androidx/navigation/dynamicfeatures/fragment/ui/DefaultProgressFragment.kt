@@ -51,6 +51,7 @@ public class DefaultProgressFragment :
     private var action: Button? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         with(view) {
             title = findViewById(R.id.progress_title)
             progressBar = findViewById(R.id.installation_progress)
