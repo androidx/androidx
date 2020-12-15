@@ -2,6 +2,7 @@
 package androidx.car.app {
 
   public final class AppInfo {
+    ctor @VisibleForTesting public AppInfo(int, int, String);
     method public int getLatestCarAppApiLevel();
     method public String getLibraryDisplayVersion();
     method public int getMinCarAppApiLevel();
@@ -64,7 +65,6 @@ package androidx.car.app {
 
   public class FailureResponse {
     ctor public FailureResponse(Throwable);
-    ctor public FailureResponse();
     method public int getErrorType();
     method public String getStackTrace();
     field public static final int BUNDLER_EXCEPTION = 1; // 0x1
@@ -76,7 +76,16 @@ package androidx.car.app {
     field public static final int UNKNOWN_ERROR = 0; // 0x0
   }
 
+  public class HandshakeInfo {
+    ctor public HandshakeInfo(String, int);
+    method public int getHostCarAppApiLevel();
+    method public String getHostPackageName();
+  }
+
   public class HostException extends java.lang.RuntimeException {
+    ctor public HostException(String);
+    ctor public HostException(String, Throwable);
+    ctor public HostException(Throwable);
   }
 
   public class HostInfo {
