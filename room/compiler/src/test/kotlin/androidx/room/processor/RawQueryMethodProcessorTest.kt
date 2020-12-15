@@ -220,7 +220,7 @@ class RawQueryMethodProcessorTest {
             val daoFunctionElement = daoElement.getDeclaredMethods().first()
             RawQueryMethodProcessor(
                 baseContext = invocation.context,
-                containing = daoElement.asDeclaredType(),
+                containing = daoElement.type,
                 executableElement = daoFunctionElement
             ).process()
         }.failsToCompile().withErrorContaining(
@@ -355,7 +355,7 @@ class RawQueryMethodProcessorTest {
                             }.first { it.second.isNotEmpty() }
                         val parser = RawQueryMethodProcessor(
                             baseContext = invocation.context,
-                            containing = owner.asDeclaredType(),
+                            containing = owner.type,
                             executableElement = methods.first()
                         )
                         val parsedQuery = parser.process()

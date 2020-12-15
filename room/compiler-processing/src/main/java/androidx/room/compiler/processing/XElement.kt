@@ -31,14 +31,6 @@ interface XElement : XAnnotated {
      * Returns the string representation of the Element's kind.
      */
     fun kindName(): String
-    /**
-     * Returns the [XDeclaredType] type of the current element, assuming it is an [XTypeElement].
-     * It is a shortcut for `asTypeElement().type`.
-     */
-    fun asDeclaredType(): XDeclaredType {
-        // this will be removed b/175417726
-        return (this as XTypeElement).type
-    }
 }
 
 /**

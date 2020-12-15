@@ -115,7 +115,7 @@ class PojoProcessor private constructor(
     private fun doProcess(): Pojo {
         delegate.onPreProcess(element)
 
-        val declaredType = element.asDeclaredType()
+        val declaredType = element.type
         // TODO handle conflicts with super: b/35568142
         val allFields = element.getAllFieldsIncludingPrivateSupers()
             .filter {

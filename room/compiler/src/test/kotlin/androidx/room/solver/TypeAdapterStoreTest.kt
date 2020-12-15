@@ -329,7 +329,7 @@ class TypeAdapterStoreTest {
             assertThat(publisherElement, notNullValue())
             assertThat(
                 RxQueryResultBinderProvider.getAll(invocation.context).any {
-                    it.matches(publisherElement.asDeclaredType())
+                    it.matches(publisherElement.type)
                 },
                 `is`(true)
             )
@@ -350,7 +350,7 @@ class TypeAdapterStoreTest {
             assertThat(publisherElement, notNullValue())
             assertThat(
                 RxQueryResultBinderProvider.getAll(invocation.context).any {
-                    it.matches(publisherElement.asDeclaredType())
+                    it.matches(publisherElement.type)
                 },
                 `is`(true)
             )
@@ -375,7 +375,7 @@ class TypeAdapterStoreTest {
                 assertThat(publisher, notNullValue())
                 assertThat(
                     RxQueryResultBinderProvider.getAll(invocation.context).any {
-                        it.matches(publisher.asDeclaredType())
+                        it.matches(publisher.type)
                     },
                     `is`(true)
                 )
@@ -396,7 +396,7 @@ class TypeAdapterStoreTest {
                 val flowable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
                     RxQueryResultBinderProvider.getAll(invocation.context).any {
-                        it.matches(flowable.asDeclaredType())
+                        it.matches(flowable.type)
                     },
                     `is`(true)
                 )
@@ -418,7 +418,7 @@ class TypeAdapterStoreTest {
                 assertThat(observable, notNullValue())
                 assertThat(
                     RxQueryResultBinderProvider.getAll(invocation.context).any {
-                        it.matches(observable.asDeclaredType())
+                        it.matches(observable.type)
                     },
                     `is`(true)
                 )
@@ -438,7 +438,7 @@ class TypeAdapterStoreTest {
                 assertThat(single, notNullValue())
                 assertThat(
                     RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
-                        it.matches(single.asDeclaredType())
+                        it.matches(single.type)
                     },
                     `is`(true)
                 )
@@ -456,7 +456,7 @@ class TypeAdapterStoreTest {
                 val maybe = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
                     RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
-                        it.matches(maybe.asDeclaredType())
+                        it.matches(maybe.type)
                     },
                     `is`(true)
                 )
@@ -474,7 +474,7 @@ class TypeAdapterStoreTest {
                 val completable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
                     RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
-                        it.matches(completable.asDeclaredType())
+                        it.matches(completable.type)
                     },
                     `is`(true)
                 )
@@ -490,7 +490,7 @@ class TypeAdapterStoreTest {
                 .requireTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
             assertThat(
                 GuavaListenableFutureInsertMethodBinderProvider(invocation.context).matches(
-                    future.asDeclaredType()
+                    future.type
                 ),
                 `is`(true)
             )
@@ -504,7 +504,7 @@ class TypeAdapterStoreTest {
             assertThat(single, notNullValue())
             assertThat(
                 RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
-                    it.matches(single.asDeclaredType())
+                    it.matches(single.type)
                 },
                 `is`(true)
             )
@@ -519,7 +519,7 @@ class TypeAdapterStoreTest {
             assertThat(maybe, notNullValue())
             assertThat(
                 RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
-                    it.matches(maybe.asDeclaredType())
+                    it.matches(maybe.type)
                 },
                 `is`(true)
             )
@@ -535,7 +535,7 @@ class TypeAdapterStoreTest {
             assertThat(completable, notNullValue())
             assertThat(
                 RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
-                    it.matches(completable.asDeclaredType())
+                    it.matches(completable.type)
                 },
                 `is`(true)
             )
@@ -552,7 +552,7 @@ class TypeAdapterStoreTest {
             assertThat(future, notNullValue())
             assertThat(
                 GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(invocation.context)
-                    .matches(future.asDeclaredType()),
+                    .matches(future.type),
                 `is`(true)
             )
         }
@@ -568,7 +568,7 @@ class TypeAdapterStoreTest {
             assertThat(liveData, notNullValue())
             assertThat(
                 LiveDataQueryResultBinderProvider(invocation.context).matches(
-                    liveData.asDeclaredType()
+                    liveData.type
                 ),
                 `is`(true)
             )
@@ -622,7 +622,7 @@ class TypeAdapterStoreTest {
             assertThat(dataSource, notNullValue())
             assertThat(
                 DataSourceQueryResultBinderProvider(invocation.context).matches(
-                    dataSource.asDeclaredType()
+                    dataSource.type
                 ),
                 `is`(true)
             )
@@ -642,7 +642,7 @@ class TypeAdapterStoreTest {
             assertThat(dataSource, notNullValue())
             assertThat(
                 DataSourceQueryResultBinderProvider(invocation.context).matches(
-                    dataSource.asDeclaredType()
+                    dataSource.type
                 ),
                 `is`(true)
             )
@@ -658,7 +658,7 @@ class TypeAdapterStoreTest {
             assertThat(pagedListProvider, notNullValue())
             assertThat(
                 DataSourceFactoryQueryResultBinderProvider(invocation.context).matches(
-                    pagedListProvider.asDeclaredType()
+                    pagedListProvider.type
                 ),
                 `is`(true)
             )

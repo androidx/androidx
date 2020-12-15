@@ -57,7 +57,7 @@ class DaoProcessor(
             element, ProcessorErrors.DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE
         )
 
-        val declaredType = element.asDeclaredType()
+        val declaredType = element.type
         val allMethods = element.getAllMethods()
         val methods = allMethods
             .filter {

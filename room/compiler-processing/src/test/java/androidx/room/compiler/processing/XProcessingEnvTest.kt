@@ -116,7 +116,7 @@ class XProcessingEnvTest {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             assertThat(element.packageName).isEqualTo("foo.bar")
             assertThat(element.name).isEqualTo("Baz")
-            assertThat(element.asDeclaredType().typeName)
+            assertThat(element.className)
                 .isEqualTo(ClassName.get("foo.bar", "Baz"))
             assertThat(element.findPrimaryConstructor()).isNull()
             assertThat(element.getConstructors()).hasSize(1)

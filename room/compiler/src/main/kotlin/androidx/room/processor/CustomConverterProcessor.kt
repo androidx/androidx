@@ -75,12 +75,10 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
     fun process(): List<CustomTypeConverter> {
         // using element utils instead of MoreElements to include statics.
         val methods = element.getAllMethods()
-        val declaredType = element.asDeclaredType()
         val converterMethods = methods.filter {
             it.hasAnnotation(TypeConverter::class)
         }
-        val isProvidedConverter = declaredType.asTypeElement()
-            .hasAnnotation(ProvidedTypeConverter::class)
+        val isProvidedConverter = element.hasAnnotation(ProvidedTypeConverter::class)
         context.checker.check(converterMethods.isNotEmpty(), element, TYPE_CONVERTER_EMPTY_CLASS)
         val allStatic = converterMethods.all { it.isStatic() }
         val constructors = element.getConstructors()
@@ -96,7 +94,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
         }
         return converterMethods.mapNotNull {
             processMethod(
-                container = declaredType,
+                container = element.type,
                 isContainerKotlinObject = isKotlinObjectDeclaration,
                 methodElement = it,
                 isProvidedConverter = isProvidedConverter

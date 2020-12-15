@@ -40,7 +40,7 @@ class AutoValuePojoProcessorDelegate(
 ) : PojoProcessor.Delegate {
 
     private val autoValueDeclaredType: XDeclaredType by lazy {
-        autoValueElement.asDeclaredType()
+        autoValueElement.type
     }
 
     override fun onPreProcess(element: XTypeElement) {
