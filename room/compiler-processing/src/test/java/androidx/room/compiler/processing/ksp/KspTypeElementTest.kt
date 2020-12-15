@@ -329,6 +329,48 @@ class KspTypeElementTest {
     }
 
     @Test
+    fun fieldsInAbstractClass() {
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
+            abstract class MyAbstractClass {
+                @JvmField
+                var jvmVar: Int = 0
+                abstract var abstractVar: Int
+                var nonAbstractVar: Int = 0
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(sources = listOf(src)) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("MyAbstractClass")
+            assertThat(
+                element.getAllFieldNames()
+            ).containsExactly(
+                "nonAbstractVar", "jvmVar"
+            )
+            assertThat(
+                element.getDeclaredMethods().map { it.name }
+            ).containsExactly(
+                "getAbstractVar", "setAbstractVar",
+                "getNonAbstractVar", "setNonAbstractVar"
+            )
+            element.getMethod("getAbstractVar").let {
+                assertThat(it.isAbstract()).isTrue()
+            }
+            element.getMethod("setAbstractVar").let {
+                assertThat(it.isAbstract()).isTrue()
+            }
+
+            element.getMethod("getNonAbstractVar").let {
+                assertThat(it.isAbstract()).isFalse()
+            }
+            element.getMethod("setNonAbstractVar").let {
+                assertThat(it.isAbstract()).isFalse()
+            }
+        }
+    }
+
+    @Test
     fun declaredAndInstanceMethods() {
         val src = Source.kotlin(
             "Foo.kt",
