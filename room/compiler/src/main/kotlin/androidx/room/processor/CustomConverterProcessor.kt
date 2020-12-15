@@ -19,7 +19,6 @@ package androidx.room.processor
 import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
@@ -111,7 +110,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
     }
 
     private fun processMethod(
-        container: XDeclaredType,
+        container: XType,
         methodElement: XMethodElement,
         isContainerKotlinObject: Boolean,
         isProvidedConverter: Boolean

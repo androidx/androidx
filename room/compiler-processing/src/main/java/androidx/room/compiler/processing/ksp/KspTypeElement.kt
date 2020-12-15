@@ -72,16 +72,11 @@ internal class KspTypeElement(
         }
     }
 
-    override val type: KspDeclaredType by lazy {
-        val result = env.wrap(
+    override val type: KspType by lazy {
+        env.wrap(
             ksType = declaration.asStarProjectedType(),
             allowPrimitives = false
         )
-        check(result is KspDeclaredType) {
-            "Internal error, expected type of $this to resolve to a declared type but it resolved" +
-                " to $result (${result::class})"
-        }
-        result
     }
 
     override val superType: XType? by lazy {

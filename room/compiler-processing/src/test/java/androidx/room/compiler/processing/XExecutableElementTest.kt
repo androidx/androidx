@@ -327,9 +327,7 @@ class XExecutableElementTest {
         runProcessorTest(sources = listOf(source)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("Base")
             val subject = invocation.processingEnv.requireType("Subject")
-                .asDeclaredType()
             val nullableSubject = invocation.processingEnv.requireType("NullableSubject")
-                .asDeclaredType()
             val method = base.getMethod("foo")
             method.getParameter("t").let { param ->
                 param.asMemberOf(subject).let {

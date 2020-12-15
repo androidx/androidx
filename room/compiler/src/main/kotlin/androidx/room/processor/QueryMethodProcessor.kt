@@ -22,7 +22,6 @@ import androidx.room.Transaction
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
 import androidx.room.parser.SqlParser
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.isNotError
@@ -37,7 +36,7 @@ import androidx.room.vo.WriteQueryMethod
 
 class QueryMethodProcessor(
     baseContext: Context,
-    val containing: XDeclaredType,
+    val containing: XType,
     val executableElement: XMethodElement,
     val dbVerifier: DatabaseVerifier? = null
 ) {
@@ -99,7 +98,7 @@ class QueryMethodProcessor(
 private class InternalQueryProcessor(
     val context: Context,
     val executableElement: XMethodElement,
-    val containing: XDeclaredType,
+    val containing: XType,
     val dbVerifier: DatabaseVerifier? = null
 ) {
     fun processQuery(input: String?): QueryMethod {

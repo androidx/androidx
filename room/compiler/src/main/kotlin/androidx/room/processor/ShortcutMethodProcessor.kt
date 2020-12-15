@@ -17,7 +17,6 @@ package androidx.room.processor
 
 import androidx.room.ext.isEntityElement
 import androidx.room.compiler.processing.XAnnotationBox
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
@@ -33,7 +32,7 @@ import kotlin.reflect.KClass
  */
 class ShortcutMethodProcessor(
     baseContext: Context,
-    val containing: XDeclaredType,
+    val containing: XType,
     val executableElement: XMethodElement
 ) {
     val context = baseContext.fork(executableElement)

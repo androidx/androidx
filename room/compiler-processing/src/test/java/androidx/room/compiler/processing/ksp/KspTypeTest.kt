@@ -18,8 +18,6 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XNullability.NONNULL
 import androidx.room.compiler.processing.XNullability.NULLABLE
-import androidx.room.compiler.processing.asDeclaredType
-import androidx.room.compiler.processing.isDeclared
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.getField
@@ -95,14 +93,14 @@ class KspTypeTest {
             listOf(src)
         ) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("Subject")
-            subject.getField("errorType").type.asDeclaredType().let { type ->
+            subject.getField("errorType").type.let { type ->
                 assertThat(type.isError()).isTrue()
                 assertThat(type.typeArguments).isEmpty()
                 assertThat(type.typeName).isEqualTo(ERROR_TYPE_NAME)
                 assertThat(type.typeElement!!.className).isEqualTo(ERROR_TYPE_NAME)
             }
 
-            subject.getField("listOfErrorType").type.asDeclaredType().let { type ->
+            subject.getField("listOfErrorType").type.let { type ->
                 assertThat(type.isError()).isFalse()
                 assertThat(type.typeArguments).hasSize(1)
                 type.typeArguments.single().let { typeArg ->
@@ -131,7 +129,7 @@ class KspTypeTest {
             listOf(src)
         ) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("Subject")
-            subject.getField("listOfNullableStrings").type.asDeclaredType().let { type ->
+            subject.getField("listOfNullableStrings").type.let { type ->
                 assertThat(type.nullability).isEqualTo(NONNULL)
                 assertThat(type.typeArguments).hasSize(1)
                 assertThat(type.typeElement!!.className).isEqualTo(
@@ -147,7 +145,7 @@ class KspTypeTest {
                 }
             }
 
-            subject.getField("listOfInts").type.asDeclaredType().let { type ->
+            subject.getField("listOfInts").type.let { type ->
                 assertThat(type.nullability).isEqualTo(NONNULL)
                 assertThat(type.typeArguments).hasSize(1)
                 type.typeArguments.single().let { typeArg ->
@@ -185,16 +183,16 @@ class KspTypeTest {
         ) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("Subject")
             val nullableStringList = subject.getField("listOfNullableStrings")
-                .type.asDeclaredType()
+                .type
             val nonNullStringList = subject.getField("listOfNonNullStrings")
-                .type.asDeclaredType()
+                .type
             assertThat(nullableStringList).isNotEqualTo(nonNullStringList)
             assertThat(nonNullStringList).isNotEqualTo(nullableStringList)
 
             val nullableStringList_2 = subject.getField("listOfNullableStrings_2")
-                .type.asDeclaredType()
+                .type
             val nonNullStringList_2 = subject.getField("listOfNonNullStrings_2")
-                .type.asDeclaredType()
+                .type
             assertThat(nullableStringList).isEqualTo(nullableStringList_2)
             assertThat(nonNullStringList).isEqualTo(nonNullStringList_2)
 
@@ -235,19 +233,19 @@ class KspTypeTest {
             subject.getField("simple").type.let {
                 assertThat(it.rawType.typeName).isEqualTo(TypeName.INT)
             }
-            subject.getField("list").type.asDeclaredType().let { list ->
+            subject.getField("list").type.let { list ->
                 assertThat(list.rawType).isNotEqualTo(list)
                 assertThat(list.typeArguments).isNotEmpty()
                 assertThat(list.rawType.typeName)
                     .isEqualTo(ClassName.get("java.util", "List"))
             }
-            subject.getField("map").type.asDeclaredType().let { map ->
+            subject.getField("map").type.let { map ->
                 assertThat(map.rawType).isNotEqualTo(map)
                 assertThat(map.typeArguments).hasSize(2)
                 assertThat(map.rawType.typeName)
                     .isEqualTo(ClassName.get("java.util", "Map"))
             }
-            subject.getField("listOfMaps").type.asDeclaredType().let { listOfMaps ->
+            subject.getField("listOfMaps").type.let { listOfMaps ->
                 assertThat(listOfMaps.rawType).isNotEqualTo(listOfMaps)
                 assertThat(listOfMaps.typeArguments).hasSize(1)
             }
@@ -479,7 +477,6 @@ class KspTypeTest {
             val typeArgs = classNames.associateWith { className ->
                 invocation.processingEnv
                     .requireType(className)
-                    .asDeclaredType()
                     .typeArguments
                     .single()
             }
@@ -517,7 +514,6 @@ class KspTypeTest {
             val method = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
                 .getMethod("wildcardMethod")
             val paramType = method.parameters.first().type
-            check(paramType.isDeclared())
             val arg1 = paramType.typeArguments.single()
             assertThat(arg1.typeName)
                 .isEqualTo(

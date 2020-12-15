@@ -17,8 +17,8 @@
 package androidx.room.processor.autovalue
 
 import androidx.room.Ignore
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XExecutableElement
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.processor.Context
 import androidx.room.processor.PojoProcessor
@@ -39,7 +39,7 @@ class AutoValuePojoProcessorDelegate(
     private val autoValueElement: XTypeElement
 ) : PojoProcessor.Delegate {
 
-    private val autoValueDeclaredType: XDeclaredType by lazy {
+    private val autoValueDeclaredType: XType by lazy {
         autoValueElement.type
     }
 
@@ -84,7 +84,7 @@ class AutoValuePojoProcessorDelegate(
 
     override fun createPojo(
         element: XTypeElement,
-        declaredType: XDeclaredType,
+        declaredType: XType,
         fields: List<Field>,
         embeddedFields: List<EmbeddedField>,
         relations: List<androidx.room.vo.Relation>,

@@ -22,8 +22,8 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
@@ -509,7 +509,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
 
     abstract fun process(
         baseContext: Context,
-        containing: XDeclaredType,
+        containing: XType,
         executableElement: XMethodElement
     ): T
 

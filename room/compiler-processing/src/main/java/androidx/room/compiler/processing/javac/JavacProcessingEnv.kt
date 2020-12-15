@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing.javac
 
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMessager
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XProcessingEnv
@@ -94,7 +93,7 @@ internal class JavacProcessingEnv(
         )
     }
 
-    override fun getDeclaredType(type: XTypeElement, vararg types: XType): XDeclaredType {
+    override fun getDeclaredType(type: XTypeElement, vararg types: XType): JavacType {
         check(type is JavacTypeElement)
         val args = types.map {
             check(it is JavacType)

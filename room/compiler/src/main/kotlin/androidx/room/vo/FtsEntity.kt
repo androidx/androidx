@@ -16,10 +16,10 @@
 
 package androidx.room.vo
 
+import androidx.room.compiler.processing.XType
 import androidx.room.migration.bundle.BundleUtil
 import androidx.room.migration.bundle.FtsEntityBundle
 import androidx.room.parser.FtsVersion
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XTypeElement
 
 /**
@@ -28,7 +28,7 @@ import androidx.room.compiler.processing.XTypeElement
 class FtsEntity(
     element: XTypeElement,
     tableName: String,
-    type: XDeclaredType,
+    type: XType,
     fields: List<Field>,
     embeddedFields: List<EmbeddedField>,
     primaryKey: PrimaryKey,

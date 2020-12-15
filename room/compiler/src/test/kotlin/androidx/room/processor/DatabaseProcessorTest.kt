@@ -18,7 +18,7 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.RoomProcessor
-import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.parser.ParsedQuery
@@ -1157,7 +1157,7 @@ class DatabaseProcessorTest {
                                     names.map { Table(it, it) }.toSet(),
                                     emptyList(), false
                                 ),
-                                type = mock(XDeclaredType::class.java),
+                                type = mock(XType::class.java),
                                 fields = emptyList(),
                                 embeddedFields = emptyList(),
                                 constructor = null

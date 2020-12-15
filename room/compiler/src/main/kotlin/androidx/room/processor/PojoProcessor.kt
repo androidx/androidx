@@ -22,14 +22,12 @@ import androidx.room.Ignore
 import androidx.room.Junction
 import androidx.room.PrimaryKey
 import androidx.room.Relation
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XVariableElement
 import androidx.room.compiler.processing.isCollection
-import androidx.room.compiler.processing.isDeclared
 import androidx.room.ext.isNotVoid
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD
@@ -387,7 +385,7 @@ class PojoProcessor private constructor(
     }
 
     private fun processEmbeddedField(
-        declaredType: XDeclaredType,
+        declaredType: XType,
         variableElement: XFieldElement
     ): EmbeddedField? {
         val asMemberType = variableElement.asMemberOf(declaredType)
@@ -430,7 +428,7 @@ class PojoProcessor private constructor(
 
     private fun processRelationField(
         myFields: List<Field>,
-        container: XDeclaredType?,
+        container: XType?,
         relationElement: XFieldElement
     ): androidx.room.vo.Relation? {
         val annotation = relationElement.toAnnotationBox(Relation::class)!!
@@ -455,21 +453,21 @@ class PojoProcessor private constructor(
             context.logger.e(ProcessorErrors.CANNOT_FIND_TYPE, element)
             return null
         }
-        if (!asMember.isDeclared()) {
-            context.logger.e(
-                relationElement,
-                ProcessorErrors.RELATION_TYPE_MUST_BE_A_CLASS_OR_INTERFACE
-            )
-            return null
-        }
         val asType = if (asMember.isCollection()) {
             asMember.typeArguments.first().extendsBoundOrSelf()
         } else {
             asMember
         }
         val typeElement = asType.typeElement
-        if (asType.isError() || typeElement == null) {
-            context.logger.e(typeElement ?: relationElement, ProcessorErrors.CANNOT_FIND_TYPE)
+        if (typeElement == null) {
+            context.logger.e(
+                relationElement,
+                ProcessorErrors.RELATION_TYPE_MUST_BE_A_CLASS_OR_INTERFACE
+            )
+            return null
+        }
+        if (asType.isError()) {
+            context.logger.e(typeElement, ProcessorErrors.CANNOT_FIND_TYPE)
             return null
         }
 
@@ -927,7 +925,7 @@ class PojoProcessor private constructor(
 
         fun createPojo(
             element: XTypeElement,
-            declaredType: XDeclaredType,
+            declaredType: XType,
             fields: List<Field>,
             embeddedFields: List<EmbeddedField>,
             relations: List<androidx.room.vo.Relation>,
@@ -958,7 +956,7 @@ class PojoProcessor private constructor(
 
         override fun createPojo(
             element: XTypeElement,
-            declaredType: XDeclaredType,
+            declaredType: XType,
             fields: List<Field>,
             embeddedFields: List<EmbeddedField>,
             relations: List<androidx.room.vo.Relation>,

@@ -59,6 +59,12 @@ internal abstract class KspType(
         }
     }
 
+    override val typeArguments: List<XType> by lazy {
+        ksType.arguments.mapIndexed { index, arg ->
+            env.wrap(ksType.declaration.typeParameters[index], arg)
+        }
+    }
+
     override fun isAssignableFrom(other: XType): Boolean {
         check(other is KspType)
         return ksType.isAssignableFrom(other.ksType)

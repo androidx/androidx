@@ -16,10 +16,8 @@
 
 package androidx.room.processor
 
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XVariableElement
-import androidx.room.compiler.processing.asDeclaredType
 import androidx.room.compiler.processing.isArray
 import androidx.room.vo.ShortcutQueryParameter
 
@@ -28,7 +26,7 @@ import androidx.room.vo.ShortcutQueryParameter
  */
 class ShortcutParameterProcessor(
     baseContext: Context,
-    val containing: XDeclaredType,
+    val containing: XType,
     val element: XVariableElement
 ) {
     val context = baseContext.fork(element)
@@ -65,12 +63,11 @@ class ShortcutParameterProcessor(
             }
         }
 
-        fun extractPojoTypeFromIterator(iterableType: XDeclaredType): XType {
+        fun extractPojoTypeFromIterator(iterableType: XType): XType {
             iterableType.typeElement!!.getAllNonPrivateInstanceMethods().forEach {
                 if (it.name == "iterator") {
                     return it.asMemberOf(iterableType)
                         .returnType
-                        .asDeclaredType()
                         .typeArguments
                         .first()
                 }
@@ -81,8 +78,7 @@ class ShortcutParameterProcessor(
         val iterableType = processingEnv
             .requireType("java.lang.Iterable").rawType
         if (iterableType.isAssignableFrom(typeMirror)) {
-            val declared = typeMirror.asDeclaredType()
-            val pojo = extractPojoTypeFromIterator(declared)
+            val pojo = extractPojoTypeFromIterator(typeMirror)
             return verifyAndPair(pojo, true)
         }
         if (typeMirror.isArray()) {

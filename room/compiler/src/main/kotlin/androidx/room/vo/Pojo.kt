@@ -16,7 +16,7 @@
 
 package androidx.room.vo
 
-import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.processor.DatabaseViewProcessor
 import androidx.room.processor.EntityProcessor
@@ -27,7 +27,7 @@ import com.squareup.javapoet.TypeName
  */
 open class Pojo(
     val element: XTypeElement,
-    val type: XDeclaredType,
+    val type: XType,
     fields: List<Field>,
     val embeddedFields: List<EmbeddedField>,
     val relations: List<Relation>,

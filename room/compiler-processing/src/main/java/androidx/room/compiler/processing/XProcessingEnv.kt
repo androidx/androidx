@@ -71,10 +71,10 @@ interface XProcessingEnv {
     fun findGeneratedAnnotation(): XTypeElement?
 
     /**
-     * Returns an [XDeclaredType] for the given [type] element with the type arguments specified
+     * Returns an [XType] for the given [type] element with the type arguments specified
      * as in [types].
      */
-    fun getDeclaredType(type: XTypeElement, vararg types: XType): XDeclaredType
+    fun getDeclaredType(type: XTypeElement, vararg types: XType): XType
 
     /**
      * Return an [XArrayType] that has [type] as the [XArrayType.componentType].
