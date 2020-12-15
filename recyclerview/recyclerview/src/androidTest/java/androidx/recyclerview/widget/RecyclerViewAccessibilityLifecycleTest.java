@@ -217,7 +217,7 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
         layoutManager.waitForLayout(1);
 
         assertEquals(layoutCount, recyclerView.getChildCount());
-        final ArrayList<View> children = new ArrayList();
+        final ArrayList<View> children = new ArrayList<>();
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -306,7 +306,7 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
         // let all items go to recycler pool
         layoutManager.expectLayouts(1);
         layoutCount[0] = 0;
-        adapter.resetItemsTo(new ArrayList());
+        adapter.resetItemsTo(new ArrayList<Item>());
         layoutManager.waitForLayout(1);
         assertEquals(0, recyclerView.getChildCount());
         assertEquals(firstPassLayoutCount, recyclerView.getRecycledViewPool()

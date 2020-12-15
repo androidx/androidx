@@ -22,7 +22,6 @@ import androidx.media2.widget.test.R;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -39,9 +38,10 @@ public class VideoView_WithoutPlayerTest extends MediaWidgetTestBase {
     private Activity mActivity;
     private VideoView mVideoView;
 
+    @SuppressWarnings("deprecation")
     @Rule
-    public ActivityTestRule<VideoViewTestActivity> mActivityRule =
-            new ActivityTestRule<>(VideoViewTestActivity.class);
+    public androidx.test.rule.ActivityTestRule<VideoViewTestActivity> mActivityRule =
+            new androidx.test.rule.ActivityTestRule<>(VideoViewTestActivity.class);
 
     @Before
     public void setup() throws Throwable {

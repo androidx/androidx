@@ -45,7 +45,6 @@ import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.session.MediaController;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
 import org.junit.Before;
@@ -78,9 +77,10 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     private MediaControlView mMediaControlView;
     private MediaItem mFileSchemeMediaItem;
 
+    @SuppressWarnings("deprecation")
     @Rule
-    public ActivityTestRule<MediaControlViewTestActivity> mActivityRule =
-            new ActivityTestRule<>(MediaControlViewTestActivity.class);
+    public androidx.test.rule.ActivityTestRule<MediaControlViewTestActivity> mActivityRule =
+            new androidx.test.rule.ActivityTestRule<>(MediaControlViewTestActivity.class);
 
     public MediaControlView_WithPlayerTest(String playerType) {
         mPlayerType = playerType;

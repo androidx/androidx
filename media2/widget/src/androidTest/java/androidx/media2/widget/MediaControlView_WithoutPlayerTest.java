@@ -32,7 +32,6 @@ import androidx.annotation.NonNull;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -52,9 +51,10 @@ public class MediaControlView_WithoutPlayerTest extends MediaWidgetTestBase {
     private MediaControlViewTestActivity mActivity;
     private MediaControlView mMediaControlView;
 
+    @SuppressWarnings("deprecation")
     @Rule
-    public ActivityTestRule<MediaControlViewTestActivity> mActivityRule =
-            new ActivityTestRule<>(MediaControlViewTestActivity.class);
+    public androidx.test.rule.ActivityTestRule<MediaControlViewTestActivity> mActivityRule =
+            new androidx.test.rule.ActivityTestRule<>(MediaControlViewTestActivity.class);
 
     @Before
     public void setup() throws Throwable {

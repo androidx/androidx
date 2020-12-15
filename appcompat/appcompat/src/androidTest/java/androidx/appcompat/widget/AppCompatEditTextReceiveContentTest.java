@@ -86,6 +86,7 @@ public class AppCompatEditTextReceiveContentTest {
     private OnReceiveContentListener mMockReceiver;
     private ClipboardManager mClipboardManager;
 
+    @SuppressWarnings("unchecked")
     @UiThreadTest
     @Before
     public void before() {

@@ -78,6 +78,7 @@ public class RemoteUserInfoWithMediaControllerTest {
     private MediaController mMediaController;
     private ControllerCallback mMediaControllerCallback;
 
+    @SuppressWarnings("deprecation")
     @Before
     public void setUp() throws InterruptedException {
         mServiceVersion = getArguments().getString(KEY_SERVICE_VERSION, "");

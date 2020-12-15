@@ -160,6 +160,7 @@ public class StableIdKeyProviderTest {
     }
 
     private static final class StableIdTestAdapter extends TestAdapter<Long> {
+        @SuppressWarnings("unchecked")
         StableIdTestAdapter() {
             super(Collections.EMPTY_LIST, true);
         }

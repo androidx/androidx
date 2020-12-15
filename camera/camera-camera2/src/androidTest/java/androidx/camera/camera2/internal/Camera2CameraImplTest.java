@@ -551,6 +551,7 @@ public final class Camera2CameraImplTest {
         assertThat(currentState).isEqualTo(CameraInternal.State.RELEASED);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void openNewCaptureSessionImmediateBeforePreviousCaptureSessionClosed()
             throws InterruptedException {

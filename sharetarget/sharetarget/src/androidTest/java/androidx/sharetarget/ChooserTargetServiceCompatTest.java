@@ -27,7 +27,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
-import android.service.chooser.ChooserTarget;
 
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
@@ -64,6 +63,7 @@ public class ChooserTargetServiceCompatTest {
         when(mShortcutSaver.getShortcutIcon(any())).thenReturn(mTestIcon);
     }
 
+    @SuppressWarnings({"deprecation", "unchecked"})
     @Test
     @SdkSuppress(minSdkVersion = 23)
     public void testConvertShortcutstoChooserTargets() {
@@ -87,7 +87,7 @@ public class ChooserTargetServiceCompatTest {
 
         // Need to clone to keep the original order for testing.
         ArrayList<ShortcutHolder> clonedList = (ArrayList<ShortcutHolder>) testShortcuts.clone();
-        List<ChooserTarget> chooserTargets =
+        List<android.service.chooser.ChooserTarget> chooserTargets =
                 ChooserTargetServiceCompat.convertShortcutsToChooserTargets(
                         mShortcutSaver, clonedList);
 
@@ -96,7 +96,7 @@ public class ChooserTargetServiceCompatTest {
 
         assertEquals(testShortcuts.size(), chooserTargets.size());
         for (int i = 0; i < chooserTargets.size(); i++) {
-            ChooserTarget ct = chooserTargets.get(i);
+            android.service.chooser.ChooserTarget ct = chooserTargets.get(i);
             ShortcutInfoCompat si = testShortcuts.get(expectedOrder[i]).getShortcut();
             ComponentName cn = testShortcuts.get(expectedOrder[i]).getTargetClass();
 

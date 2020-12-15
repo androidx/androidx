@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.camera2.internal.Camera2CameraInfoImpl;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.CameraFilter;
@@ -46,7 +46,7 @@ import java.util.List;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-@UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+@OptIn(markerClass = ExperimentalCamera2Interop.class)
 public final class Camera2CameraFilterTest {
     private static final String BACK_ID = "0";
     private static final String FRONT_ID = "1";

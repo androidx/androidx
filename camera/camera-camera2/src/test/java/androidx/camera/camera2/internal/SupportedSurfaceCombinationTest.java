@@ -93,6 +93,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /** Robolectric test for {@link SupportedSurfaceCombination} class */
+@SuppressWarnings("deprecation")
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

@@ -46,7 +46,7 @@ public class WebViewDocumentStartJavaScriptTest {
     private static final String JS_OBJECT_NAME = "myObject";
     private static final String BASIC_USAGE = "<!DOCTYPE html><html><body></body></html>";
     private static final String BASIC_SCRIPT = "myObject.postMessage('hello');";
-    private static final Set<String> MATCH_EXAMPLE_COM = new HashSet(Arrays.asList(BASE_URI));
+    private static final Set<String> MATCH_EXAMPLE_COM = new HashSet<>(Arrays.asList(BASE_URI));
 
     private WebViewOnUiThread mWebViewOnUiThread;
     private TestWebMessageListener mListener = new TestWebMessageListener();

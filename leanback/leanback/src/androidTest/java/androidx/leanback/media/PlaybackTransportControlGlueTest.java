@@ -55,6 +55,7 @@ public class PlaybackTransportControlGlueTest {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static class PlaybackTransportControlGlueImpl
             extends PlaybackTransportControlGlue {
         public PlaybackTransportControlGlueImpl(Context context) {

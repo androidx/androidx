@@ -63,6 +63,7 @@ public class RoundedDrawableTest {
                         Bitmap.createBitmap(BITMAP_WIDTH, BITMAP_HEIGHT, Bitmap.Config.ARGB_8888));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void colorFilterIsAppliedCorrectly() {
         ColorFilter cf = new ColorFilter();

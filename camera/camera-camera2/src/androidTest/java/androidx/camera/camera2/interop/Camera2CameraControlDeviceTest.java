@@ -38,7 +38,7 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.MeteringRectangle;
 import android.util.Range;
 
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.internal.Camera2CameraControlImpl;
 import androidx.camera.core.CameraSelector;
@@ -70,7 +70,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-@UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+@OptIn(markerClass = ExperimentalCamera2Interop.class)
 public final class Camera2CameraControlDeviceTest {
     private static final Range<Integer> FAKE_RANGE = new Range<>(0, 30);
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();

@@ -40,7 +40,6 @@ import androidx.security.identity.IdentityCredentialStore;
 import androidx.security.identity.PersonalizationData;
 import androidx.security.identity.ResultData;
 import androidx.security.identity.WritableIdentityCredential;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
@@ -71,6 +70,7 @@ import co.nstant.in.cbor.model.UnsignedInteger;
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
+@SuppressWarnings("deprecation")
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class ProvisioningTest {
@@ -357,7 +357,7 @@ public class ProvisioningTest {
 
     @Test
     public void alreadyPersonalized() throws IdentityCredentialException {
-        Context appContext = InstrumentationRegistry.getTargetContext();
+        Context appContext = androidx.test.InstrumentationRegistry.getTargetContext();
         IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         store.deleteCredentialByName("test");
@@ -374,7 +374,7 @@ public class ProvisioningTest {
 
     @Test
     public void nonExistent() throws IdentityCredentialException {
-        Context appContext = InstrumentationRegistry.getTargetContext();
+        Context appContext = androidx.test.InstrumentationRegistry.getTargetContext();
         IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         store.deleteCredentialByName("test");
@@ -385,7 +385,7 @@ public class ProvisioningTest {
 
     @Test
     public void defaultStoreSupportsAnyDocumentType() throws IdentityCredentialException {
-        Context appContext = InstrumentationRegistry.getTargetContext();
+        Context appContext = androidx.test.InstrumentationRegistry.getTargetContext();
         IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         String[] supportedDocTypes = store.getSupportedDocTypes();
@@ -395,7 +395,7 @@ public class ProvisioningTest {
     @Test
     public void deleteCredential()
             throws IdentityCredentialException, CborException, CertificateEncodingException {
-        Context appContext = InstrumentationRegistry.getTargetContext();
+        Context appContext = androidx.test.InstrumentationRegistry.getTargetContext();
         IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         store.deleteCredentialByName("test");
@@ -430,7 +430,7 @@ public class ProvisioningTest {
 
     @Test
     public void testProvisionAndRetrieve() throws IdentityCredentialException, CborException {
-        Context appContext = InstrumentationRegistry.getTargetContext();
+        Context appContext = androidx.test.InstrumentationRegistry.getTargetContext();
         IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         store.deleteCredentialByName("test");
@@ -520,7 +520,7 @@ public class ProvisioningTest {
     @Test
     public void testProvisionAndRetrieveMultipleTimes() throws IdentityCredentialException,
             InvalidKeyException {
-        Context appContext = InstrumentationRegistry.getTargetContext();
+        Context appContext = androidx.test.InstrumentationRegistry.getTargetContext();
         IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         // This checks we can do multiple getEntries() calls
@@ -577,7 +577,7 @@ public class ProvisioningTest {
 
     @Test
     public void testProvisionAndRetrieveWithFiltering() throws IdentityCredentialException {
-        Context appContext = InstrumentationRegistry.getTargetContext();
+        Context appContext = androidx.test.InstrumentationRegistry.getTargetContext();
         IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         store.deleteCredentialByName("test");
@@ -627,7 +627,7 @@ public class ProvisioningTest {
 
     @Test
     public void testProvisionAndRetrieveElementWithNoACP() throws IdentityCredentialException {
-        Context appContext = InstrumentationRegistry.getTargetContext();
+        Context appContext = androidx.test.InstrumentationRegistry.getTargetContext();
         IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         store.deleteCredentialByName("test");
@@ -665,7 +665,7 @@ public class ProvisioningTest {
 
     @Test
     public void testProvisionAndRetrieveWithEntryNotInRequest() throws IdentityCredentialException {
-        Context appContext = InstrumentationRegistry.getTargetContext();
+        Context appContext = androidx.test.InstrumentationRegistry.getTargetContext();
         IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         store.deleteCredentialByName("test");
@@ -718,7 +718,7 @@ public class ProvisioningTest {
 
     @Test
     public void nonExistentEntries() throws IdentityCredentialException {
-        Context appContext = InstrumentationRegistry.getTargetContext();
+        Context appContext = androidx.test.InstrumentationRegistry.getTargetContext();
         IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         store.deleteCredentialByName("test");
@@ -760,7 +760,7 @@ public class ProvisioningTest {
 
     @Test
     public void multipleNamespaces() throws IdentityCredentialException, CborException {
-        Context appContext = InstrumentationRegistry.getTargetContext();
+        Context appContext = androidx.test.InstrumentationRegistry.getTargetContext();
         IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         store.deleteCredentialByName("test");
