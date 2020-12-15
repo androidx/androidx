@@ -94,7 +94,7 @@ public class CarContextTest {
                             }
 
                             @Override
-                            public void setSurfaceListener(@Nullable ISurfaceListener listener) {
+                            public void setSurfaceCallback(@Nullable ISurfaceCallback callback) {
                             }
                         }.asBinder());
 

@@ -20,11 +20,11 @@ import androidx.car.app.CarContext;
 import androidx.car.app.navigation.model.Trip;
 
 /**
- * Listener for events from the {@link NavigationManager}.
+ * Callback for events from the {@link NavigationManager}.
  *
  * @see NavigationManager
  */
-public interface NavigationManagerListener {
+public interface NavigationManagerCallback {
     /**
      * Notifies the app to stop active navigation, which may occurs when another source such as the
      * car head unit starts navigating.
