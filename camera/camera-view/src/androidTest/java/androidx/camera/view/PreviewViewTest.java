@@ -38,6 +38,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.util.Size;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.SurfaceView;
@@ -54,6 +55,7 @@ import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
+import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -126,6 +128,48 @@ public class PreviewViewTest {
             // Ensure all successful requests have their returned future finish.
             surfaceRequest.getDeferrableSurface().close();
         }
+    }
+
+    @Test
+    public void previewViewSetScaleType_controllerRebinds() throws InterruptedException {
+        // Arrange.
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        Semaphore fitTypeSemaphore = new Semaphore(0);
+        CameraController fakeController = new CameraController(mContext) {
+
+            @Override
+            void attachPreviewSurface(@NonNull Preview.SurfaceProvider surfaceProvider,
+                    @NonNull ViewPort viewPort, @NonNull Display display) {
+                if (viewPort.getScaleType() == ViewPort.FIT) {
+                    fitTypeSemaphore.release();
+                }
+            }
+
+            @Nullable
+            @Override
+            Camera startCamera() {
+                return null;
+            }
+        };
+        AtomicReference<PreviewView> previewViewAtomicReference = new AtomicReference<>();
+        mInstrumentation.runOnMainSync(() -> {
+            PreviewView previewView = new PreviewView(mContext);
+            previewViewAtomicReference.set(previewView);
+            previewView.setImplementationMode(COMPATIBLE);
+            notifyLatchWhenLayoutReady(previewView, countDownLatch);
+            setContentView(previewView);
+        });
+        // Wait for layout ready
+        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+
+        // Act: set controller then change the scale type.
+        mInstrumentation.runOnMainSync(() -> {
+            previewViewAtomicReference.get().setController(fakeController);
+            previewViewAtomicReference.get().setScaleType(PreviewView.ScaleType.FIT_CENTER);
+        });
+
+        // Assert: cameraController receives a fit type ViewPort.
+        assertThat(fitTypeSemaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
     }
 
     @Test
