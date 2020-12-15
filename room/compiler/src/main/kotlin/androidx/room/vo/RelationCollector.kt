@@ -272,7 +272,7 @@ data class RelationCollector(
                     QueryParameter(
                         name = RelationCollectorMethodWriter.PARAM_MAP_VARIABLE,
                         sqlName = RelationCollectorMethodWriter.PARAM_MAP_VARIABLE,
-                        type = longSparseArrayElement.asDeclaredType(),
+                        type = longSparseArrayElement.type,
                         queryParamAdapter = LONG_SPARSE_ARRAY_KEY_QUERY_PARAM_ADAPTER
                     )
                 } else {

@@ -17,12 +17,11 @@
 package androidx.room.processor
 
 import androidx.room.SkipQueryVerification
-import androidx.room.ext.RoomTypeNames
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.compiler.processing.isTypeElement
+import androidx.room.ext.RoomTypeNames
 import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao
@@ -77,14 +76,12 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         }
         validateUniqueTableAndViewNames(element, entities, views)
 
-        val declaredType = element.asDeclaredType()
+        val declaredType = element.type
         val daoMethods = element.getAllMethods().filter {
             it.isAbstract()
         }.filterNot {
             // remove methods that belong to room
-            val containing = it.enclosingTypeElement
-            containing.isTypeElement() &&
-                containing.asDeclaredType().typeName == RoomTypeNames.ROOM_DB
+            it.enclosingTypeElement.className == RoomTypeNames.ROOM_DB
         }.map { executable ->
             // TODO when we add support for non Dao return types (e.g. database), this code needs
             // to change

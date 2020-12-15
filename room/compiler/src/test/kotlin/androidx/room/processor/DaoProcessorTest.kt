@@ -221,7 +221,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                 assertThat(
                     QueryMethodProcessor(
                         baseContext = daoProcessor.context,
-                        containing = dao.element.asDeclaredType(),
+                        containing = dao.element.type,
                         executableElement = it.element,
                         dbVerifier = null
                     ).context.logger.suppressedWarnings,
@@ -257,7 +257,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                 assertThat(
                     QueryMethodProcessor(
                         baseContext = daoProcessor.context,
-                        containing = dao.element.asDeclaredType(),
+                        containing = dao.element.type,
                         executableElement = it.element,
                         dbVerifier = null
                     ).context.logger.suppressedWarnings,

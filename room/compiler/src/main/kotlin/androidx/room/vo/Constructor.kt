@@ -45,13 +45,13 @@ data class Constructor(val element: XExecutableElement, val params: List<Param>)
             element.isConstructor() -> {
                 builder.addStatement(
                     "$L = new $T($L)", outVar,
-                    element.enclosingTypeElement.asDeclaredType().typeName, args
+                    element.enclosingTypeElement.className, args
                 )
             }
             element.isMethod() -> {
                 builder.addStatement(
                     "$L = $T.$L($L)", outVar,
-                    element.enclosingTypeElement.asDeclaredType().typeName,
+                    element.enclosingTypeElement.className,
                     element.name, args
                 )
             }
