@@ -16,7 +16,7 @@
 
 package androidx.car.app;
 
-import androidx.car.app.ISurfaceListener;
+import androidx.car.app.ISurfaceCallback;
 
 /** @hide */
 interface IAppHost {
@@ -27,7 +27,7 @@ interface IAppHost {
   void showToast(CharSequence text, int duration) = 2;
 
   /**
-   * Registers the listener to get callbacks for surface events.
+   * Registers the callback to get surface events.
    */
-  void setSurfaceListener(@nullable ISurfaceListener listener) = 3;
+  void setSurfaceCallback(@nullable ISurfaceCallback callback) = 3;
 }

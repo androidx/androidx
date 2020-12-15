@@ -22,7 +22,7 @@ import androidx.car.app.OnDoneCallback;
 /**
  * A host-side interface for reporting to search updates to clients.
  */
-public interface SearchListenerWrapper {
+public interface SearchCallbackWrapper {
     /**
      * Notifies that the search text has changed.
      *

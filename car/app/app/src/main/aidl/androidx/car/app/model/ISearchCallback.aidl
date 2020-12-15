@@ -19,7 +19,7 @@ package androidx.car.app.model;
 import androidx.car.app.IOnDoneCallback;
 
 /** @hide */
-oneway interface ISearchListener {
+oneway interface ISearchCallback {
   void onSearchTextChanged(String text, IOnDoneCallback callback) = 1;
   void onSearchSubmitted(String text, IOnDoneCallback callback) = 2;
 }
