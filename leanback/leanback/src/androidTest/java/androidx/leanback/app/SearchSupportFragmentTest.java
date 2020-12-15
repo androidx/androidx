@@ -15,9 +15,13 @@
  */
 package androidx.leanback.app;
 
+import static org.junit.Assert.assertTrue;
+
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.speech.SpeechRecognizer;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,10 +41,13 @@ import androidx.leanback.widget.VerticalGridView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.testutils.AnimationTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Objects;
 
 @LargeTest
 @AnimationTest
@@ -150,5 +157,120 @@ public class SearchSupportFragmentTest extends SingleSupportFragmentTestBase {
             }
         });
         leakDetector.assertNoLeak();
+    }
+
+    @Test
+    public void testFocusWithSpeechRecognizerDisabled() {
+        SingleSupportFragmentTestActivity activity = launchAndWaitActivity(
+                SpeechRecognizerDisabledFragment.class, 1000);
+
+        assertTrue(activity.findViewById(R.id.lb_search_text_editor).hasFocus());
+
+        sendKeys(KeyEvent.KEYCODE_A);
+        sendKeys(KeyEvent.KEYCODE_ENTER);
+
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return ((SearchSupportFragment) activity.getTestFragment())
+                        .getRowsSupportFragment().getVerticalGridView().hasFocus();
+            }
+        });
+
+        sendKeys(KeyEvent.KEYCODE_DPAD_UP);
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return activity.findViewById(R.id.lb_search_text_editor).hasFocus();
+            }
+        });
+    }
+
+    @Test
+    public void testFocusWithSpeechRecognizerEnabled() throws Exception {
+
+        // Skip the test for devices which do not have SpeechRecognizer
+        if (!SpeechRecognizer.isRecognitionAvailable(
+                InstrumentationRegistry.getInstrumentation().getContext())) {
+            return;
+        }
+
+        SingleSupportFragmentTestActivity activity = launchAndWaitActivity(
+                SpeechRecognizerEnabledFragment.class, 1000);
+
+        assertTrue(activity.findViewById(R.id.lb_search_bar_speech_orb).hasFocus());
+
+        sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
+
+        assertTrue(activity.findViewById(R.id.lb_search_text_editor).hasFocus());
+
+        sendKeys(KeyEvent.KEYCODE_A);
+        sendKeys(KeyEvent.KEYCODE_ENTER);
+
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return ((SearchSupportFragment) activity.getTestFragment())
+                        .getRowsSupportFragment().getVerticalGridView().hasFocus();
+            }
+        });
+
+        Thread.sleep(1000);
+
+        sendKeys(KeyEvent.KEYCODE_DPAD_UP);
+        assertTrue(activity.findViewById(R.id.lb_search_bar_speech_orb).hasFocus());
+    }
+
+    static class SearchSupportTestFragment extends SearchSupportFragment
+            implements SearchSupportFragment.SearchResultProvider {
+        ArrayObjectAdapter mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
+        String mPreviousQuery;
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setSearchResultProvider(this);
+        }
+
+        @Override
+        public ObjectAdapter getResultsAdapter() {
+            return mRowsAdapter;
+        }
+
+        @Override
+        public boolean onQueryTextChange(String newQuery) {
+            if (!Objects.equals(mPreviousQuery, newQuery)) {
+                mRowsAdapter.clear();
+                loadData(mRowsAdapter, 10, 1);
+                mPreviousQuery = newQuery;
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onQueryTextSubmit(String query) {
+            if (!Objects.equals(mPreviousQuery, query)) {
+                mRowsAdapter.clear();
+                loadData(mRowsAdapter, 10, 1);
+                mPreviousQuery = query;
+                return true;
+            }
+            return false;
+        }
+    }
+
+    public static final class SpeechRecognizerDisabledFragment extends SearchSupportTestFragment {
+        @Override
+        boolean isSpeechRecognizerAvailable() {
+            return false;
+        }
+    }
+
+    public static final class SpeechRecognizerEnabledFragment extends SearchSupportTestFragment {
+        @Override
+        boolean isSpeechRecognizerAvailable() {
+            return true;
+        }
     }
 }
