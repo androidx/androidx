@@ -52,7 +52,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Tests for {@link ExtensionWindowBackend} class. */
-@SuppressWarnings("deprecation") // TODO(b/173739071) remove DeviceState
+@SuppressWarnings({"deprecation", "unchecked"}) // TODO(b/173739071) remove DeviceState
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class ExtensionWindowBackendTest extends WindowTestBase {

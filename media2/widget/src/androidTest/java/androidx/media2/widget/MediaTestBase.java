@@ -32,6 +32,7 @@ abstract class MediaTestBase {
     @BeforeClass
     public static void setupMainLooper() {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @SuppressWarnings("deprecation")
             @Override
             public void run() {
                 // Prepare the main looper if it hasn't.

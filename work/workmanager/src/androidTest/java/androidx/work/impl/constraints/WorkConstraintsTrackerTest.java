@@ -74,6 +74,7 @@ public class WorkConstraintsTrackerTest {
         mWorkConstraintsTracker = new WorkConstraintsTracker(mCallback, controllers);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testReplace() {
         List<WorkSpec> emptyList = Collections.emptyList();

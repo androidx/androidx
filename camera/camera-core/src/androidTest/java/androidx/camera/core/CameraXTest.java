@@ -186,6 +186,7 @@ public final class CameraXTest {
         assertThat(cameraX1.getCameraFactory()).isEqualTo(cameraFactory1);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void canGetCameraXContext() {
         initCameraX();

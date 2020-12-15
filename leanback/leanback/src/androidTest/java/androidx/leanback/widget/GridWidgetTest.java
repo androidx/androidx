@@ -1168,7 +1168,7 @@ public class GridWidgetTest {
             }
         });
         waitForScrollIdle();
-        final ArrayList<RecyclerView.ViewHolder> moveViewHolders = new ArrayList();
+        final ArrayList<RecyclerView.ViewHolder> moveViewHolders = new ArrayList<>();
         for (int i = 51;; i++) {
             RecyclerView.ViewHolder vh = mGridView.findViewHolderForAdapterPosition(i);
             if (vh == null) {
@@ -1233,7 +1233,7 @@ public class GridWidgetTest {
                 mActivity.moveItem(51, 1000, true);
             }
         });
-        final ArrayList<View> moveInViewHolders = new ArrayList();
+        final ArrayList<View> moveInViewHolders = new ArrayList<>();
         waitForItemAnimationStart();
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
@@ -1297,7 +1297,7 @@ public class GridWidgetTest {
                 mActivity.moveItem(1499, 1, true);
             }
         });
-        final ArrayList<View> moveInViewHolders = new ArrayList();
+        final ArrayList<View> moveInViewHolders = new ArrayList<>();
         waitForItemAnimationStart();
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
@@ -6129,7 +6129,7 @@ public class GridWidgetTest {
 
         initActivity(intent);
 
-        final HashSet<View> moveAnimationViews = new HashSet();
+        final HashSet<View> moveAnimationViews = new HashSet<>();
         mActivity.mImportantForAccessibilityListener =
                 new GridActivity.ImportantForAccessibilityListener() {
             RecyclerView.LayoutManager mLM = mGridView.getLayoutManager();

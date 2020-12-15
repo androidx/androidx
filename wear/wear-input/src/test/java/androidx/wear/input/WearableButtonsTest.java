@@ -295,6 +295,7 @@ public class WearableButtonsTest {
         assertEquals(4, info.getY(), 1.0e-7);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testGetButtonsLeftyNoData() {
         Context context = ApplicationProvider.getApplicationContext();

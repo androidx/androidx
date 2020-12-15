@@ -36,3 +36,7 @@ android {
         minSdkVersion 16
     }
 }
+
+androidx {
+    failOnDeprecationWarnings = false
+}
