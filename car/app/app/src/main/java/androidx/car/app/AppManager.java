@@ -44,8 +44,6 @@ public class AppManager {
      * Sets the {@link SurfaceCallback} to get changes and updates to the surface on which the
      * app can draw custom content, or {@code null} to reset the listener.
      *
-     *
-     *
      * <p>This call requires the {@code androidx.car.app.ACCESS_SURFACE}
      * permission to be declared.
      *
