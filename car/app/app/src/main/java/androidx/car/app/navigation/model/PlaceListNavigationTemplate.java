@@ -28,7 +28,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.CarAppPermission;
 import androidx.car.app.Screen;
-import androidx.car.app.SurfaceListener;
+import androidx.car.app.SurfaceCallback;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarText;
@@ -49,7 +49,7 @@ import java.util.Objects;
  * A template that supports showing a list of places alongside a custom drawn map.
  *
  * <p>The template itself does not expose a drawing surface. In order to draw on the canvas, use
- * {@link androidx.car.app.AppManager#setSurfaceListener(SurfaceListener)}.
+ * {@link androidx.car.app.AppManager#setSurfaceCallback(SurfaceCallback)}.
  *
  * <h4>Template Restrictions</h4>
  *

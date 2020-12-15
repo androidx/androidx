@@ -48,7 +48,7 @@ import java.util.Objects;
 public final class SearchTemplate implements Template {
 
     /** A listener for search updates. */
-    public interface SearchListener {
+    public interface SearchCallback {
         /**
          * Notifies the current {@code searchText}.
          *
@@ -72,7 +72,7 @@ public final class SearchTemplate implements Template {
     @Keep
     private final boolean mIsLoading;
     @Keep
-    private final SearchListenerWrapper mSearchListener;
+    private final SearchCallbackWrapper mSearchCallback;
     @Keep
     @Nullable
     private final String mInitialSearchText;
@@ -92,18 +92,18 @@ public final class SearchTemplate implements Template {
     private final ActionStrip mActionStrip;
 
     /**
-     * Constructs a new builder of {@link SearchTemplate} with the input {@link SearchListener}.
+     * Constructs a new builder of {@link SearchTemplate} with the input {@link SearchCallback}.
      *
-     * <p>Note that the listener relates to UI events and will be executed on the main thread
+     * <p>Note that the callback relates to UI events and will be executed on the main thread
      * using {@link Looper#getMainLooper()}.
      *
-     * @param listener the listener to be invoked for events such as when the user types new
+     * @param callback the callback to be invoked for events such as when the user types new
      *                 text, or submits a search.
      */
     @NonNull
     @SuppressLint("ExecutorRegistration")
-    public static Builder builder(@NonNull SearchListener listener) {
-        return new Builder(listener);
+    public static Builder builder(@NonNull SearchCallback callback) {
+        return new Builder(callback);
     }
 
     public boolean isLoading() {
@@ -154,11 +154,11 @@ public final class SearchTemplate implements Template {
     }
 
     /**
-     * Returns the {@link SearchListenerWrapper} for search callbacks.
+     * Returns the {@link SearchCallbackWrapper} for search callbacks.
      */
     @NonNull
-    public SearchListenerWrapper getSearchListener() {
-        return mSearchListener;
+    public SearchCallbackWrapper getSearchCallback() {
+        return mSearchCallback;
     }
 
     /**
@@ -213,7 +213,7 @@ public final class SearchTemplate implements Template {
         mSearchHint = builder.mSearchHint;
         mIsLoading = builder.mIsLoading;
         mItemList = builder.mItemList;
-        mSearchListener = builder.mSearchListener;
+        mSearchCallback = builder.mSearchCallback;
         mShowKeyboardByDefault = builder.mShowKeyboardByDefault;
         mHeaderAction = builder.mHeaderAction;
         mActionStrip = builder.mActionStrip;
@@ -227,8 +227,8 @@ public final class SearchTemplate implements Template {
         mItemList = null;
         mHeaderAction = null;
         mActionStrip = null;
-        mSearchListener = createSearchListener(
-                new SearchListener() {
+        mSearchCallback = createSearchCallback(
+                new SearchCallback() {
                     @Override
                     public void onSearchTextChanged(@NonNull String searchText) {
                     }
@@ -242,7 +242,7 @@ public final class SearchTemplate implements Template {
 
     /** A builder of {@link SearchTemplate}. */
     public static final class Builder {
-        final SearchListenerWrapper mSearchListener;
+        final SearchCallbackWrapper mSearchCallback;
         @Nullable
         String mInitialSearchText;
         @Nullable
@@ -256,8 +256,8 @@ public final class SearchTemplate implements Template {
         @Nullable
         ActionStrip mActionStrip;
 
-        Builder(SearchListener listener) {
-            mSearchListener = createSearchListener(listener);
+        Builder(SearchCallback callback) {
+            mSearchCallback = createSearchCallback(callback);
         }
 
         /**
@@ -404,15 +404,15 @@ public final class SearchTemplate implements Template {
         }
     }
 
-    static SearchListenerWrapper createSearchListener(@NonNull SearchListener listener) {
-        return new SearchListenerWrapper() {
-            private final ISearchListener mStubListener = new SearchListenerStub(listener);
+    static SearchCallbackWrapper createSearchCallback(@NonNull SearchCallback callback) {
+        return new SearchCallbackWrapper() {
+            private final ISearchCallback mStubCallback = new SearchCallbackStub(callback);
 
             @Override
             public void onSearchTextChanged(@NonNull String searchText,
                     @NonNull OnDoneCallback callback) {
                 try {
-                    mStubListener.onSearchTextChanged(searchText,
+                    mStubCallback.onSearchTextChanged(searchText,
                             RemoteUtils.createOnDoneCallbackStub(callback));
                 } catch (RemoteException e) {
                     throw new WrappedRuntimeException(e);
@@ -423,7 +423,7 @@ public final class SearchTemplate implements Template {
             public void onSearchSubmitted(@NonNull String searchText,
                     @NonNull OnDoneCallback callback) {
                 try {
-                    mStubListener.onSearchSubmitted(searchText,
+                    mStubCallback.onSearchSubmitted(searchText,
                             RemoteUtils.createOnDoneCallbackStub(callback));
                 } catch (RemoteException e) {
                     throw new WrappedRuntimeException(e);
@@ -433,24 +433,24 @@ public final class SearchTemplate implements Template {
     }
 
     @Keep // We need to keep these stub for Bundler serialization logic.
-    private static class SearchListenerStub extends ISearchListener.Stub {
-        private final SearchListener mSearchListener;
+    private static class SearchCallbackStub extends ISearchCallback.Stub {
+        private final SearchCallback mSearchCallback;
 
-        SearchListenerStub(SearchListener searchListener) {
-            mSearchListener = searchListener;
+        SearchCallbackStub(SearchCallback searchCallback) {
+            mSearchCallback = searchCallback;
         }
 
         @Override
         public void onSearchTextChanged(String text, IOnDoneCallback callback) {
             RemoteUtils.dispatchHostCall(
-                    () -> mSearchListener.onSearchTextChanged(text), callback,
+                    () -> mSearchCallback.onSearchTextChanged(text), callback,
                     "onSearchTextChanged");
         }
 
         @Override
         public void onSearchSubmitted(String text, IOnDoneCallback callback) {
             RemoteUtils.dispatchHostCall(
-                    () -> mSearchListener.onSearchSubmitted(text), callback, "onSearchSubmitted");
+                    () -> mSearchCallback.onSearchSubmitted(text), callback, "onSearchSubmitted");
         }
     }
 }

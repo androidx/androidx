@@ -9,7 +9,7 @@ package androidx.car.app {
 
   public class AppManager {
     method public void invalidate();
-    method public void setSurfaceListener(androidx.car.app.SurfaceListener?);
+    method public void setSurfaceCallback(androidx.car.app.SurfaceCallback?);
     method public void showToast(CharSequence, int);
   }
 
@@ -123,19 +123,19 @@ package androidx.car.app {
     method public abstract androidx.car.app.Screen onCreateScreen(android.content.Intent);
   }
 
+  public interface SurfaceCallback {
+    method public void onStableAreaChanged(android.graphics.Rect);
+    method public void onSurfaceAvailable(androidx.car.app.SurfaceContainer);
+    method public void onSurfaceDestroyed(androidx.car.app.SurfaceContainer);
+    method public void onVisibleAreaChanged(android.graphics.Rect);
+  }
+
   public class SurfaceContainer {
     ctor public SurfaceContainer(android.view.Surface?, int, int, int);
     method public int getDpi();
     method public int getHeight();
     method public android.view.Surface? getSurface();
     method public int getWidth();
-  }
-
-  public interface SurfaceListener {
-    method public void onStableAreaChanged(android.graphics.Rect);
-    method public void onSurfaceAvailable(androidx.car.app.SurfaceContainer);
-    method public void onSurfaceDestroyed(androidx.car.app.SurfaceContainer);
-    method public void onVisibleAreaChanged(android.graphics.Rect);
   }
 
   public class WrappedRuntimeException extends java.lang.RuntimeException {
@@ -591,19 +591,19 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Row.Builder setToggle(androidx.car.app.model.Toggle?);
   }
 
-  public interface SearchListenerWrapper {
+  public interface SearchCallbackWrapper {
     method public void onSearchSubmitted(String, androidx.car.app.OnDoneCallback);
     method public void onSearchTextChanged(String, androidx.car.app.OnDoneCallback);
   }
 
   public final class SearchTemplate implements androidx.car.app.model.Template {
-    method public static androidx.car.app.model.SearchTemplate.Builder builder(androidx.car.app.model.SearchTemplate.SearchListener);
+    method public static androidx.car.app.model.SearchTemplate.Builder builder(androidx.car.app.model.SearchTemplate.SearchCallback);
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public androidx.car.app.model.Action? getHeaderAction();
     method public String? getInitialSearchText();
     method public androidx.car.app.model.ItemList? getItemList();
+    method public androidx.car.app.model.SearchCallbackWrapper getSearchCallback();
     method public String? getSearchHint();
-    method public androidx.car.app.model.SearchListenerWrapper getSearchListener();
     method public boolean isLoading();
     method public boolean isShowKeyboardByDefault();
   }
@@ -619,7 +619,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.SearchTemplate.Builder setShowKeyboardByDefault(boolean);
   }
 
-  public static interface SearchTemplate.SearchListener {
+  public static interface SearchTemplate.SearchCallback {
     method public void onSearchSubmitted(String);
     method public void onSearchTextChanged(String);
   }
@@ -769,15 +769,15 @@ package androidx.car.app.model.constraints {
 package androidx.car.app.navigation {
 
   public class NavigationManager {
-    method @MainThread public void clearNavigationManagerListener();
+    method @MainThread public void clearNavigationManagerCallback();
     method @MainThread public void navigationEnded();
     method @MainThread public void navigationStarted();
-    method @MainThread public void setNavigationManagerListener(androidx.car.app.navigation.NavigationManagerListener);
-    method @MainThread public void setNavigationManagerListener(java.util.concurrent.Executor, androidx.car.app.navigation.NavigationManagerListener);
+    method @MainThread public void setNavigationManagerCallback(androidx.car.app.navigation.NavigationManagerCallback);
+    method @MainThread public void setNavigationManagerCallback(java.util.concurrent.Executor, androidx.car.app.navigation.NavigationManagerCallback);
     method @MainThread public void updateTrip(androidx.car.app.navigation.model.Trip);
   }
 
-  public interface NavigationManagerListener {
+  public interface NavigationManagerCallback {
     method public void onAutoDriveEnabled();
     method public void onStopNavigation();
   }
