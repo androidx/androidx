@@ -364,6 +364,7 @@ public class TableInfoTest {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     private static <T> Set<T> toSet(T... ts) {
         final HashSet<T> result = new HashSet<T>();
         for (T t : ts) {

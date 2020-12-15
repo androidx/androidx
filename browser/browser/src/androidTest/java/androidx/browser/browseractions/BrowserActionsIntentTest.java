@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Unit tests for {@link BrowserActionsIntent}. */
+@SuppressWarnings("deprecation")
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public final class BrowserActionsIntentTest {

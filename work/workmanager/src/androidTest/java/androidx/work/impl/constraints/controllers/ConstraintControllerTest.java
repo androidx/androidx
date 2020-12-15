@@ -46,6 +46,7 @@ import java.util.List;
 @SdkSuppress(minSdkVersion = 23)
 public class ConstraintControllerTest extends WorkManagerTest {
     private TestDeviceIdleConstraintController mTestIdleController;
+    @SuppressWarnings("unchecked")
     private ConstraintTracker<Boolean> mMockTracker = mock(ConstraintTracker.class);
     private ConstraintController.OnConstraintUpdatedCallback mCallback =
             mock(ConstraintController.OnConstraintUpdatedCallback.class);

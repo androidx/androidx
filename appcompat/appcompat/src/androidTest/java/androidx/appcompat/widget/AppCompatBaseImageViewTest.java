@@ -69,7 +69,7 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
     public void testImageTintingAcrossStateChange() {
         final @IdRes int viewId = R.id.view_tinted_source;
         final Resources res = mActivity.getResources();
-        final T view = (T) mContainer.findViewById(viewId);
+        final T view = mContainer.findViewById(viewId);
 
         @ColorInt int lilacDefault = ResourcesCompat.getColor(res, R.color.lilac_default, null);
         @ColorInt int lilacDisabled = ResourcesCompat.getColor(res, R.color.lilac_disabled, null);
@@ -147,7 +147,7 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
     public void testImageTintingAcrossModeChange() {
         final @IdRes int viewId = R.id.view_untinted_source;
         final Resources res = mActivity.getResources();
-        final T view = (T) mContainer.findViewById(viewId);
+        final T view = mContainer.findViewById(viewId);
 
         @ColorInt int emeraldDefault = ResourcesCompat.getColor(
                 res, R.color.emerald_translucent_default, null);
@@ -218,7 +218,7 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
     public void testImageTintingWithDefaultMode() {
         final @IdRes int viewId = R.id.view_untinted_source;
         final Resources res = mActivity.getResources();
-        final T view = (T) mContainer.findViewById(viewId);
+        final T view = mContainer.findViewById(viewId);
 
         @ColorInt final int sandDefault = ResourcesCompat.getColor(
                 res, R.color.sand_default, null);
@@ -258,7 +258,7 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
     public void testImageOpaqueTintingAcrossImageChange() {
         final @IdRes int viewId = R.id.view_tinted_no_source;
         final Resources res = mActivity.getResources();
-        final T view = (T) mContainer.findViewById(viewId);
+        final T view = mContainer.findViewById(viewId);
 
         @ColorInt int lilacDefault = ResourcesCompat.getColor(res, R.color.lilac_default, null);
         @ColorInt int lilacDisabled = ResourcesCompat.getColor(res, R.color.lilac_disabled, null);
@@ -313,7 +313,7 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
     public void testImageTranslucentTintingAcrossImageChange() {
         final @IdRes int viewId = R.id.view_untinted_no_source;
         final Resources res = mActivity.getResources();
-        final T view = (T) mContainer.findViewById(viewId);
+        final T view = mContainer.findViewById(viewId);
 
         @ColorInt int emeraldDefault = ResourcesCompat.getColor(
                 res, R.color.emerald_translucent_default, null);
@@ -403,7 +403,7 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
     public void testImageTintingAcrossBackgroundTintingChange() {
         final @IdRes int viewId = R.id.view_untinted_source;
         final Resources res = mActivity.getResources();
-        final T view = (T) mContainer.findViewById(viewId);
+        final T view = mContainer.findViewById(viewId);
 
         @ColorInt int lilacDefault = ResourcesCompat.getColor(res, R.color.lilac_default, null);
         @ColorInt int lilacDisabled = ResourcesCompat.getColor(res, R.color.lilac_disabled, null);

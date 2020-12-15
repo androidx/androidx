@@ -50,6 +50,7 @@ public final class MouseInputHandler_RangeTest {
     private TestFocusDelegate<String> mFocusCallbacks;
     private TestItemDetailsLookup mDetailsLookup;
 
+    @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
         SelectionTracker<String> selectionMgr =
@@ -64,9 +65,9 @@ public final class MouseInputHandler_RangeTest {
 
         mInputDelegate = new MouseInputHandler<>(
                 selectionMgr,
-                new TestItemKeyProvider(
+                new TestItemKeyProvider<>(
                         ItemKeyProvider.SCOPE_MAPPED,
-                        new TestAdapter(TestData.createStringData(100))),
+                        new TestAdapter<>(TestData.createStringData(100))),
                 mDetailsLookup,
                 mouseCallbacks,
                 activationCallbacks,

@@ -193,6 +193,7 @@ public class ImageSaverTest {
         mBackgroundExecutor.shutdown();
     }
 
+    @SuppressWarnings("deprecation")
     private void createDefaultPictureFolderIfNotExist() {
         File pictureFolder = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
@@ -268,6 +269,7 @@ public class ImageSaverTest {
         mContentResolver.delete(saveLocationUri, null, null);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void saveToUriWithEmptyCollection_onErrorCalled() throws InterruptedException {
         // Arrange.

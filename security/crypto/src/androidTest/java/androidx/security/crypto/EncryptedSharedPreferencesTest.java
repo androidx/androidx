@@ -347,6 +347,7 @@ public class EncryptedSharedPreferencesTest {
                 sharedPreferences.getAll().size());
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testWriteSharedPrefsTink() throws Exception {
         String tinkTestPrefs = "TinkTestPrefs";

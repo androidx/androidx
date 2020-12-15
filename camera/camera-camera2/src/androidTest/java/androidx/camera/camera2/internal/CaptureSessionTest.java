@@ -43,7 +43,6 @@ import android.hardware.camera2.CaptureResult;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -103,6 +102,7 @@ import java.util.concurrent.TimeoutException;
  * android.hardware.camera2.CameraDevice} can be opened since it is used to open a {@link
  * android.hardware.camera2.CaptureRequest}.
  */
+@SuppressWarnings("unchecked")
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class CaptureSessionTest {
@@ -745,7 +745,8 @@ public final class CaptureSessionTest {
         ArgumentCaptor<Throwable> throwableCaptor = ArgumentCaptor.forClass(Throwable.class);
         ListenableFuture<Void> openingFuture = captureSession.open(mTestParameters0.mSessionConfig,
                 mCameraDeviceHolder.get(), mCaptureSessionOpenerBuilder.build());
-        Futures.addCallback(openingFuture, mockFutureCallback, AsyncTask.THREAD_POOL_EXECUTOR);
+        Futures.addCallback(openingFuture, mockFutureCallback,
+                android.os.AsyncTask.THREAD_POOL_EXECUTOR);
         openingFuture.cancel(true);
 
         // The captureSession opening should callback onFailure with a CancellationException.

@@ -337,7 +337,7 @@ public class MockPlayer extends SessionPlayer {
     @Override
     public ListenableFuture<PlayerResult> setMediaItem(MediaItem item) {
         mItem = item;
-        ArrayList list = new ArrayList<>();
+        ArrayList<MediaItem> list = new ArrayList<>();
         list.add(item);
         return setPlaylist(list, null);
     }

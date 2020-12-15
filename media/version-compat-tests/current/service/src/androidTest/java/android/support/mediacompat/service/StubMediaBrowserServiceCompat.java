@@ -81,6 +81,7 @@ public class StubMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
     private String mExpectedCallerPackageName;
     private int mExpectedCallerUid;
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onCreate() {
         super.onCreate();
@@ -420,6 +421,7 @@ public class StubMediaBrowserServiceCompat extends MediaBrowserServiceCompat {
             notifyCurrentControllerInfo("onRemoveQueueItem");
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         public void onRemoveQueueItemAt(int index) {
             notifyCurrentControllerInfo("onRemoveQueueItemAt");
