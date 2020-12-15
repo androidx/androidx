@@ -35,6 +35,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
+import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.rules.TestRule
 import java.util.concurrent.TimeUnit
@@ -54,7 +55,7 @@ import java.util.concurrent.TimeUnit
 abstract class ImageCaptureBaseTest<A : CameraActivity> {
 
     @get:Rule
-    val mUseCameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val mUseCameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest(testCameraRule)
 
     @get:Rule
     val mCameraActivityRules: GrantPermissionRule =
@@ -196,5 +197,14 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
         @JvmStatic
         protected val lensFacing =
             arrayOf(CameraSelector.LENS_FACING_BACK, CameraSelector.LENS_FACING_FRONT)
+
+        @JvmStatic
+        lateinit var testCameraRule: CameraUtil.PreTestCamera
+
+        @BeforeClass
+        @JvmStatic
+        fun classSetup() {
+            testCameraRule = CameraUtil.PreTestCamera()
+        }
     }
 }
