@@ -23,7 +23,7 @@ import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.IOnDoneCallback;
 
 /** @hide */
-oneway interface ISurfaceListener {
+oneway interface ISurfaceCallback {
   /**
    * Notifies the app that the surface has changed.
    */

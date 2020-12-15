@@ -47,13 +47,13 @@ public class SearchTemplateTest {
     public final MockitoRule mockito = MockitoJUnit.rule();
 
     @Mock
-    SearchTemplate.SearchListener mMockSearchListener;
+    SearchTemplate.SearchCallback mMockSearchCallback;
 
     @Test
     public void createInstance_isLoading_hasList_Throws() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> SearchTemplate.builder(mMockSearchListener)
+                () -> SearchTemplate.builder(mMockSearchCallback)
                         .setLoading(true)
                         .setItemList(ItemList.builder().build())
                         .build());
@@ -63,12 +63,12 @@ public class SearchTemplateTest {
     public void addList_selectable_throws() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> SearchTemplate.builder(mMockSearchListener)
+                () -> SearchTemplate.builder(mMockSearchCallback)
                         .setItemList(TestUtils.createItemList(6, true))
                         .build());
 
         // Positive cases.
-        SearchTemplate.builder(mMockSearchListener)
+        SearchTemplate.builder(mMockSearchCallback)
                 .setItemList(TestUtils.createItemList(6, false))
                 .build();
     }
@@ -82,12 +82,12 @@ public class SearchTemplateTest {
                 Row.builder().setTitle("Title").addText("text1").addText("text2").build();
         assertThrows(
                 IllegalArgumentException.class,
-                () -> SearchTemplate.builder(mMockSearchListener)
+                () -> SearchTemplate.builder(mMockSearchCallback)
                         .setItemList(ItemList.builder().addItem(rowExceedsMaxTexts).build())
                         .build());
 
         // Positive cases.
-        SearchTemplate.builder(mMockSearchListener)
+        SearchTemplate.builder(mMockSearchCallback)
                 .setItemList(ItemList.builder().addItem(rowMeetingMaxTexts).build())
                 .build();
     }
@@ -101,19 +101,19 @@ public class SearchTemplateTest {
                 Row.builder().setTitle("Title").addText("text1").addText("text2").build();
         assertThrows(
                 IllegalArgumentException.class,
-                () -> SearchTemplate.builder(mMockSearchListener)
+                () -> SearchTemplate.builder(mMockSearchCallback)
                         .setItemList(ItemList.builder().addItem(rowWithToggle).build())
                         .build());
 
         // Positive cases.
-        SearchTemplate.builder(mMockSearchListener)
+        SearchTemplate.builder(mMockSearchCallback)
                 .setItemList(ItemList.builder().addItem(rowMeetingRestrictions).build())
                 .build();
     }
 
     @Test
     public void buildEmpty_nullValues() {
-        SearchTemplate searchTemplate = SearchTemplate.builder(mMockSearchListener).build();
+        SearchTemplate searchTemplate = SearchTemplate.builder(mMockSearchCallback).build();
 
         assertThat(searchTemplate.getInitialSearchText()).isNull();
         assertThat(searchTemplate.getSearchHint()).isNull();
@@ -130,7 +130,7 @@ public class SearchTemplateTest {
         ActionStrip actionStrip = ActionStrip.builder().addAction(Action.BACK).build();
 
         SearchTemplate searchTemplate =
-                SearchTemplate.builder(mMockSearchListener)
+                SearchTemplate.builder(mMockSearchCallback)
                         .setHeaderAction(Action.BACK)
                         .setActionStrip(actionStrip)
                         .setInitialSearchText(initialSearchText)
@@ -146,8 +146,8 @@ public class SearchTemplateTest {
         assertThat(searchTemplate.getHeaderAction()).isEqualTo(Action.BACK);
 
         String searchText = "foo";
-        searchTemplate.getSearchListener().onSearchSubmitted(searchText, onDoneCallback);
-        verify(mMockSearchListener).onSearchSubmitted(searchText);
+        searchTemplate.getSearchCallback().onSearchSubmitted(searchText, onDoneCallback);
+        verify(mMockSearchCallback).onSearchSubmitted(searchText);
         verify(onDoneCallback).onSuccess(null);
     }
 
@@ -160,7 +160,7 @@ public class SearchTemplateTest {
         ActionStrip actionStrip = ActionStrip.builder().addAction(Action.BACK).build();
 
         SearchTemplate searchTemplate =
-                SearchTemplate.builder(mMockSearchListener)
+                SearchTemplate.builder(mMockSearchCallback)
                         .setHeaderAction(Action.BACK)
                         .setActionStrip(actionStrip)
                         .setInitialSearchText(initialSearchText)
@@ -178,16 +178,16 @@ public class SearchTemplateTest {
         String searchText = "foo";
         String testExceptionMessage = "Test exception";
         doThrow(new RuntimeException(testExceptionMessage)).when(
-                mMockSearchListener).onSearchSubmitted(searchText);
+                mMockSearchCallback).onSearchSubmitted(searchText);
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
 
         try {
-            searchTemplate.getSearchListener().onSearchSubmitted(searchText, onDoneCallback);
+            searchTemplate.getSearchCallback().onSearchSubmitted(searchText, onDoneCallback);
         } catch (WrappedRuntimeException e) {
             assertThat(e.getMessage()).contains(testExceptionMessage);
         }
 
-        verify(mMockSearchListener).onSearchSubmitted(searchText);
+        verify(mMockSearchCallback).onSearchSubmitted(searchText);
         verify(onDoneCallback).onFailure(any());
     }
 
@@ -195,7 +195,7 @@ public class SearchTemplateTest {
     public void createInstance_setHeaderAction_invalidActionThrows() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> SearchTemplate.builder(mMockSearchListener)
+                () -> SearchTemplate.builder(mMockSearchCallback)
                         .setHeaderAction(
                                 Action.builder().setTitle("Action").setOnClickListener(
                                         () -> {
@@ -205,7 +205,7 @@ public class SearchTemplateTest {
     @Test
     public void equals() {
         SearchTemplate template =
-                SearchTemplate.builder(mMockSearchListener)
+                SearchTemplate.builder(mMockSearchCallback)
                         .setHeaderAction(Action.BACK)
                         .setActionStrip(ActionStrip.builder().addAction(Action.BACK).build())
                         .setInitialSearchText("foo")
@@ -217,7 +217,7 @@ public class SearchTemplateTest {
 
         assertThat(template)
                 .isEqualTo(
-                        SearchTemplate.builder(mMockSearchListener)
+                        SearchTemplate.builder(mMockSearchCallback)
                                 .setHeaderAction(Action.BACK)
                                 .setActionStrip(
                                         ActionStrip.builder().addAction(Action.BACK).build())
@@ -232,22 +232,22 @@ public class SearchTemplateTest {
     @Test
     public void notEquals_differentHeaderAction() {
         SearchTemplate template =
-                SearchTemplate.builder(mMockSearchListener).setHeaderAction(Action.BACK).build();
+                SearchTemplate.builder(mMockSearchCallback).setHeaderAction(Action.BACK).build();
         assertThat(template)
                 .isNotEqualTo(
-                        SearchTemplate.builder(mMockSearchListener).setHeaderAction(
+                        SearchTemplate.builder(mMockSearchCallback).setHeaderAction(
                                 Action.APP_ICON).build());
     }
 
     @Test
     public void notEquals_differentActionStrip() {
         SearchTemplate template =
-                SearchTemplate.builder(mMockSearchListener)
+                SearchTemplate.builder(mMockSearchCallback)
                         .setActionStrip(ActionStrip.builder().addAction(Action.BACK).build())
                         .build();
         assertThat(template)
                 .isNotEqualTo(
-                        SearchTemplate.builder(mMockSearchListener)
+                        SearchTemplate.builder(mMockSearchCallback)
                                 .setActionStrip(
                                         ActionStrip.builder().addAction(Action.APP_ICON).build())
                                 .build());
@@ -256,40 +256,40 @@ public class SearchTemplateTest {
     @Test
     public void notEquals_differentInitialSearchText() {
         SearchTemplate template =
-                SearchTemplate.builder(mMockSearchListener).setInitialSearchText("foo").build();
+                SearchTemplate.builder(mMockSearchCallback).setInitialSearchText("foo").build();
         assertThat(template)
                 .isNotEqualTo(
-                        SearchTemplate.builder(mMockSearchListener).setInitialSearchText(
+                        SearchTemplate.builder(mMockSearchCallback).setInitialSearchText(
                                 "bar").build());
     }
 
     @Test
     public void notEquals_differentSearchHint() {
         SearchTemplate template =
-                SearchTemplate.builder(mMockSearchListener).setSearchHint("foo").build();
+                SearchTemplate.builder(mMockSearchCallback).setSearchHint("foo").build();
         assertThat(template)
-                .isNotEqualTo(SearchTemplate.builder(mMockSearchListener).setSearchHint(
+                .isNotEqualTo(SearchTemplate.builder(mMockSearchCallback).setSearchHint(
                         "bar").build());
     }
 
     @Test
     public void notEquals_differentKeyboardEnabled() {
         SearchTemplate template =
-                SearchTemplate.builder(mMockSearchListener).setShowKeyboardByDefault(true).build();
+                SearchTemplate.builder(mMockSearchCallback).setShowKeyboardByDefault(true).build();
         assertThat(template)
                 .isNotEqualTo(
-                        SearchTemplate.builder(mMockSearchListener).setShowKeyboardByDefault(
+                        SearchTemplate.builder(mMockSearchCallback).setShowKeyboardByDefault(
                                 false).build());
     }
 
     @Test
     public void notEquals_differentItemList() {
         SearchTemplate template =
-                SearchTemplate.builder(mMockSearchListener).setItemList(
+                SearchTemplate.builder(mMockSearchCallback).setItemList(
                         ItemList.builder().build()).build();
         assertThat(template)
                 .isNotEqualTo(
-                        SearchTemplate.builder(mMockSearchListener)
+                        SearchTemplate.builder(mMockSearchCallback)
                                 .setItemList(
                                         ItemList.builder().addItem(
                                                 Row.builder().setTitle("Title").build()).build())

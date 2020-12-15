@@ -41,7 +41,7 @@ public class AppManager {
     private final HostDispatcher mHostDispatcher;
 
     /**
-     * Sets the {@link SurfaceListener} to get changes and updates to the surface on which the
+     * Sets the {@link SurfaceCallback} to get changes and updates to the surface on which the
      * app can draw custom content, or {@code null} to reset the listener.
      *
      *
@@ -59,11 +59,11 @@ public class AppManager {
      * @throws HostException     if the remote call fails.
      */
     @SuppressLint("ExecutorRegistration")
-    public void setSurfaceListener(@Nullable SurfaceListener surfaceListener) {
+    public void setSurfaceCallback(@Nullable SurfaceCallback surfaceCallback) {
         mHostDispatcher.dispatch(
                 CarContext.APP_SERVICE,
                 (IAppHost host) -> {
-                    host.setSurfaceListener(RemoteUtils.stubSurfaceListener(surfaceListener));
+                    host.setSurfaceCallback(RemoteUtils.stubSurfaceCallback(surfaceCallback));
                     return null;
                 },
                 "setSurfaceListener");

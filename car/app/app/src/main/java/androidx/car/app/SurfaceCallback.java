@@ -20,8 +20,8 @@ import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
 
-/** A listener for changes on the {@link SurfaceContainer} and its attributes. */
-public interface SurfaceListener {
+/** A callback for changes on the {@link SurfaceContainer} and its attributes. */
+public interface SurfaceCallback {
     /**
      * Provides a {@link SurfaceContainer} from the host which is ready for drawing.
      *
