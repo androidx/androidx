@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import android.graphics.Rect;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureResult;
+import android.os.Build;
 
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
@@ -302,10 +303,14 @@ public final class Camera2CameraCaptureResultTest {
         when(mCaptureResult.get(CaptureResult.LENS_APERTURE)).thenReturn(aperture);
 
         int iso = 200;
-        int postRawSensitivityBoost = 200;
+        int postRawSensitivityBoost = 100; // No boost for API < 24
         when(mCaptureResult.get(CaptureResult.SENSOR_SENSITIVITY)).thenReturn(iso);
-        when(mCaptureResult.get(CaptureResult.CONTROL_POST_RAW_SENSITIVITY_BOOST))
-                .thenReturn(postRawSensitivityBoost);
+        if (Build.VERSION.SDK_INT >= 24) {
+            // Add boost for API >= 24
+            postRawSensitivityBoost = 200;
+            when(mCaptureResult.get(CaptureResult.CONTROL_POST_RAW_SENSITIVITY_BOOST))
+                    .thenReturn(postRawSensitivityBoost);
+        }
 
         float focalLength = 4200f;
         when(mCaptureResult.get(CaptureResult.LENS_FOCAL_LENGTH)).thenReturn(focalLength);
