@@ -6,7 +6,7 @@ Transition API allows you to animate various kinds of layout changes automatical
 
 [Release notes](https://developer.android.com/jetpack/androidx/releases/transition)
 
-[Browse source](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/transition/)
+[Browse source](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/transition/)
 
 [Reference documentation](https://developer.android.com/reference/androidx/transition/package-summary)
 
