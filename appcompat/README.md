@@ -4,7 +4,7 @@
 
 [Release notes](https://developer.android.com/jetpack/androidx/releases/appcompat)
 
-[Browse source](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/appcompat/)
+[Browse source](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/appcompat/)
 
 [Reference documentation](https://developer.android.com/reference/androidx/classes.html)
 
