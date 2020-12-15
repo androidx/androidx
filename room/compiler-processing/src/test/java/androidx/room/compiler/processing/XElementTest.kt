@@ -290,15 +290,15 @@ class XElementTest {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             assertThat(element.isInterface()).isFalse()
             assertThat(element.isAbstract()).isFalse()
-            assertThat(element.isType()).isTrue()
+            assertThat(element.isTypeElement()).isTrue()
             element.getField("field").let { field ->
-                assertThat(field.isType()).isFalse()
+                assertThat(field.isTypeElement()).isFalse()
                 assertThat(field.isAbstract()).isFalse()
                 assertThat(field.isVariableElement()).isTrue()
                 assertThat(field.isMethod()).isFalse()
             }
             element.getMethod("method").let { method ->
-                assertThat(method.isType()).isFalse()
+                assertThat(method.isTypeElement()).isFalse()
                 assertThat(method.isAbstract()).isFalse()
                 assertThat(method.isVariableElement()).isFalse()
                 assertThat(method.isMethod()).isTrue()
@@ -323,10 +323,7 @@ class XElementTest {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             element.getField("x").let { field ->
                 assertThat(field.isStatic()).isTrue()
-                val fail = runCatching {
-                    field.asTypeElement()
-                }
-                assertThat(fail.exceptionOrNull()).isNotNull()
+                assertThat(field.isTypeElement()).isFalse()
             }
         }
     }

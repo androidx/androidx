@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import androidx.annotation.NonNull
+import androidx.room.compiler.processing.isTypeElement
 import androidx.room.parser.ParserErrors
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.testing.TestInvocation
@@ -237,12 +238,13 @@ class DatabaseViewProcessorTest {
                         val view = invocation.roundEnv
                             .rootElements
                             .first { it.toString() == name }
+                        check(view.isTypeElement())
                         val verifier = if (verify) {
                             createVerifierFromEntitiesAndViews(invocation)
                         } else null
                         val processor = DatabaseViewProcessor(
                             invocation.context,
-                            view.asTypeElement()
+                            view
                         )
                         val processedView = processor.process()
                         processedView.query.resultInfo =

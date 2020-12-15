@@ -20,7 +20,6 @@ import androidx.room.Ignore
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.compiler.processing.isType
 import androidx.room.processor.Context
 import androidx.room.processor.PojoProcessor
 import androidx.room.processor.PojoProcessor.Companion.TARGET_METHOD_ANNOTATIONS
@@ -110,8 +109,8 @@ class AutoValuePojoProcessorDelegate(
         fun getGeneratedClassName(element: XTypeElement): String {
             var type = element
             var name = type.name
-            while (type.enclosingTypeElement?.isType() == true) {
-                type = type.enclosingTypeElement!!.asTypeElement()
+            while (type.enclosingTypeElement != null) {
+                type = type.enclosingTypeElement!!
                 name = "${type.name}_$name"
             }
             val pkg = type.packageName

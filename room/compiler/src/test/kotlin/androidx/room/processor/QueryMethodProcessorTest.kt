@@ -28,6 +28,7 @@ import androidx.room.parser.QueryType
 import androidx.room.parser.Table
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.processor.ProcessorErrors.cannotFindQueryResultAdapter
 import androidx.room.solver.query.result.DataSourceFactoryQueryResultBinder
 import androidx.room.solver.query.result.ListQueryResultAdapter
@@ -1136,11 +1137,11 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                     )
                     .nextRunHandler { invocation ->
                         val (owner, methods) = invocation.roundEnv
-                            .getElementsAnnotatedWith(Dao::class.java)
+                            .getTypeElementsAnnotatedWith(Dao::class.java)
                             .map {
                                 Pair(
                                     it,
-                                    it.asTypeElement().getAllMethods().filter {
+                                    it.getAllMethods().filter {
                                         it.hasAnnotation(Query::class)
                                     }
                                 )
