@@ -69,8 +69,9 @@ class XExecutableElementTest {
                 assertThat(method.isOverrideableIgnoringContainer()).isTrue()
                 assertThat(method.parameters).hasSize(1)
                 method.getParameter("param1").let { param ->
-                    assertThat(param.type.isArray()).isTrue()
-                    assertThat(param.type.asArray().componentType.typeName)
+                    val paramType = param.type
+                    check(paramType.isArray())
+                    assertThat(paramType.componentType.typeName)
                         .isEqualTo(String::class.typeName())
                 }
                 assertThat(method.returnType.typeName).isEqualTo(String::class.typeName())
