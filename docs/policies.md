@@ -67,13 +67,13 @@ tasks. Artifact versions should **only** be modified by their owners as
 specified in the artifact directory's `OWNERS` file.
 
 Artifact versions are specified in
-[`LibraryVersions.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:buildSrc/src/main/kotlin/androidx/build/LibraryVersions.kt).
+[`LibraryVersions.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/LibraryVersions.kt).
 Versions are bound to your artifact in the `supportLibrary` block in your
 artifact's `build.gradle` file. The `Version` class validates the version string
 at build time.
 
 In the
-[`LibraryVersions.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:buildSrc/src/main/kotlin/androidx/build/LibraryVersions.kt)
+[`LibraryVersions.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/LibraryVersions.kt)
 file:
 
 ```
