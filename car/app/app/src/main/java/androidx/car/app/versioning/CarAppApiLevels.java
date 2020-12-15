@@ -39,18 +39,6 @@ public class CarAppApiLevels {
     public static final int LEVEL_1 = 1;
 
     /**
-     * Lowest API level implement to this library
-     */
-    @CarAppApiLevel
-    public static final int OLDEST = LEVEL_1;
-
-    /**
-     * Highest API level implemented by this library.
-     */
-    @CarAppApiLevel
-    public static final int LATEST = LEVEL_1;
-
-    /**
      * Unknown API level. Used when the API level hasn't been established yet
      *
      * @hide
@@ -66,7 +54,23 @@ public class CarAppApiLevels {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static boolean isValid(int carApiLevel) {
-        return carApiLevel >= OLDEST && carApiLevel <= LATEST;
+        return carApiLevel >= getOldest() && carApiLevel <= getLatest();
+    }
+
+    /**
+     * Highest API level implemented by this library.
+     */
+    @CarAppApiLevel
+    public static int getLatest() {
+        return LEVEL_1;
+    }
+
+    /**
+     * Lowest API level implement to this library
+     */
+    @CarAppApiLevel
+    public static int getOldest() {
+        return LEVEL_1;
     }
 
     private CarAppApiLevels() {}
