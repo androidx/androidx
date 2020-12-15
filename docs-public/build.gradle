@@ -43,6 +43,7 @@ dependencies {
     docs("androidx.compose.material:material-icons-core:1.0.0-alpha09")
     samples("androidx.compose.material:material-icons-core-samples:1.0.0-alpha09")
     docs("androidx.compose.material:material-icons-extended:1.0.0-alpha09")
+    docs("androidx.compose.material:material-ripple:1.0.0-alpha09")
     samples("androidx.compose.material:material-samples:1.0.0-alpha09")
     docs("androidx.compose.runtime:runtime:1.0.0-alpha09")
     docs("androidx.compose.runtime:runtime-dispatch:1.0.0-alpha09")
