@@ -56,8 +56,15 @@ public class AppInfoTest {
     }
 
     @Test
-    public void create_minApiLevel_defaultsToCurrent() {
+    public void create_minApiLevel_nullMetadata_defaultsToCurrent() {
         mApplicationInfo.metaData = null;
+        AppInfo appInfo = AppInfo.create(mContext);
+        assertThat(appInfo.getMinCarAppApiLevel()).isEqualTo(CarAppApiLevels.getLatest());
+    }
+
+    @Test
+    public void create_minApiLevel_noMetadataKey_defaultsToCurrent() {
+        mApplicationInfo.metaData = new Bundle();
         AppInfo appInfo = AppInfo.create(mContext);
         assertThat(appInfo.getMinCarAppApiLevel()).isEqualTo(CarAppApiLevels.getLatest());
     }
