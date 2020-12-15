@@ -102,8 +102,8 @@ public abstract class CarAppService extends Service {
      *
      * <p>This method is final to ensure this car app's lifecycle is handled properly.
      *
-     * <p>Use {@link #onCreateSession()} and {@link #onNewIntent} instead to handle incoming {@link
-     * Intent}s.
+     * <p>Use {@link #onCreateSession()} and {@link Session#onNewIntent} instead to handle incoming
+     * {@link Intent}s.
      */
     @Override
     @CallSuper
@@ -162,42 +162,6 @@ public abstract class CarAppService extends Service {
      */
     @NonNull
     public abstract Session onCreateSession();
-
-    /**
-     * Notifies that the car app has received a new {@link Intent}.
-     *
-     * <p>Once the method returns, {@link Screen#onGetTemplate} will be called on the {@link Screen}
-     * that is on top of the {@link Screen} stack managed by the {@link ScreenManager}, and the app
-     * will be displayed on the car screen.
-     *
-     * <p>In contrast to {@link #onCreateSession}, this method is invoked when the app has already
-     * been launched and has not been finished.
-     *
-     * <p>Often used to update the current {@link Screen} or pushing a new one on the stack,
-     * based off of the information in the {@code intent}.
-     *
-     * <p>Called by the system, do not call this method directly.
-     *
-     * @param intent the intent that was used to start this app. If the app was started with a
-     *               call to {@link CarContext#startCarApp}, this intent will be equal to the
-     *               intent passed to that method.
-     * @see CarContext#startCarApp
-     */
-    public void onNewIntent(@NonNull Intent intent) {
-    }
-
-    /**
-     * Notifies that the {@link CarContext}'s {@link Configuration} has changed.
-     *
-     * <p>At the time that this function is called, the {@link CarContext}'s resources object will
-     * have been updated to return resource values matching the new configuration.
-     *
-     * <p>Called by the system, do not call this method directly.
-     *
-     * @see CarContext
-     */
-    public void onCarConfigurationChanged(@NonNull Configuration newConfiguration) {
-    }
 
     @Override
     @CallSuper
@@ -320,7 +284,7 @@ public abstract class CarAppService extends Service {
                                     session.onCreateScreen(intent));
                         } else {
                             Log.d(TAG, "onAppCreate the app was already created");
-                            onNewIntentInternal(intent);
+                            onNewIntentInternal(session, intent);
                         }
                     }, callback, "onAppCreate");
                     Log.d(TAG, "onAppCreate completed");
@@ -330,8 +294,8 @@ public abstract class CarAppService extends Service {
                 public void onAppStart(IOnDoneCallback callback) {
                     RemoteUtils.dispatchHostCall(
                             () -> {
-                                checkSessionIsValid(getCurrentSession());
-                                ((LifecycleRegistry) getCurrentSession().getLifecycle())
+                                ((LifecycleRegistry) throwIfInvalid(
+                                        getCurrentSession()).getLifecycle())
                                         .handleLifecycleEvent(Event.ON_START);
                             }, callback,
                             "onAppStart");
@@ -341,8 +305,8 @@ public abstract class CarAppService extends Service {
                 public void onAppResume(IOnDoneCallback callback) {
                     RemoteUtils.dispatchHostCall(
                             () -> {
-                                checkSessionIsValid(getCurrentSession());
-                                ((LifecycleRegistry) getCurrentSession().getLifecycle())
+                                ((LifecycleRegistry) throwIfInvalid(
+                                        getCurrentSession()).getLifecycle())
                                         .handleLifecycleEvent(Event.ON_RESUME);
                             }, callback,
                             "onAppResume");
@@ -352,8 +316,8 @@ public abstract class CarAppService extends Service {
                 public void onAppPause(IOnDoneCallback callback) {
                     RemoteUtils.dispatchHostCall(
                             () -> {
-                                checkSessionIsValid(getCurrentSession());
-                                ((LifecycleRegistry) getCurrentSession().getLifecycle())
+                                ((LifecycleRegistry) throwIfInvalid(
+                                        getCurrentSession()).getLifecycle())
                                         .handleLifecycleEvent(Event.ON_PAUSE);
                             }, callback, "onAppPause");
                 }
@@ -362,15 +326,17 @@ public abstract class CarAppService extends Service {
                 public void onAppStop(IOnDoneCallback callback) {
                     RemoteUtils.dispatchHostCall(
                             () -> {
-                                checkSessionIsValid(getCurrentSession());
-                                ((LifecycleRegistry) getCurrentSession().getLifecycle())
+                                ((LifecycleRegistry) throwIfInvalid(
+                                        getCurrentSession()).getLifecycle())
                                         .handleLifecycleEvent(Event.ON_STOP);
                             }, callback, "onAppStop");
                 }
 
                 @Override
                 public void onNewIntent(Intent intent, IOnDoneCallback callback) {
-                    RemoteUtils.dispatchHostCall(() -> onNewIntentInternal(intent), callback,
+                    RemoteUtils.dispatchHostCall(
+                            () -> onNewIntentInternal(throwIfInvalid(getCurrentSession()), intent),
+                            callback,
                             "onNewIntent");
                 }
 
@@ -378,7 +344,8 @@ public abstract class CarAppService extends Service {
                 public void onConfigurationChanged(Configuration configuration,
                         IOnDoneCallback callback) {
                     RemoteUtils.dispatchHostCall(
-                            () -> onConfigurationChangedInternal(configuration),
+                            () -> onConfigurationChangedInternal(
+                                    throwIfInvalid(getCurrentSession()), configuration),
                             callback,
                             "onConfigurationChanged");
                 }
@@ -386,19 +353,20 @@ public abstract class CarAppService extends Service {
                 @Override
                 public void getManager(@CarServiceType @NonNull String type,
                         IOnDoneCallback callback) {
+                    Session session = throwIfInvalid(getCurrentSession());
                     switch (type) {
                         case CarContext.APP_SERVICE:
                             RemoteUtils.sendSuccessResponse(
                                     callback,
                                     "getManager",
-                                    getCurrentSession().getCarContext().getCarService(
+                                    session.getCarContext().getCarService(
                                             AppManager.class).getIInterface());
                             return;
                         case CarContext.NAVIGATION_SERVICE:
                             RemoteUtils.sendSuccessResponse(
                                     callback,
                                     "getManager",
-                                    getCurrentSession().getCarContext().getCarService(
+                                    session.getCarContext().getCarService(
                                             NavigationManager.class).getIInterface());
                             return;
                         default:
@@ -435,29 +403,31 @@ public abstract class CarAppService extends Service {
                 // call to onNewIntent(android.content.Intent) not allowed on the given receiver.
                 @SuppressWarnings("nullness:method.invocation.invalid")
                 @MainThread
-                private void onNewIntentInternal(Intent intent) {
+                private void onNewIntentInternal(Session session, Intent intent) {
                     ThreadUtils.checkMainThread();
-
-                    CarAppService.this.onNewIntent(intent);
+                    session.onNewIntent(intent);
                 }
 
                 // call to onCarConfigurationChanged(android.content.res.Configuration) not
                 // allowed on the given receiver.
                 @SuppressWarnings("nullness:method.invocation.invalid")
                 @MainThread
-                private void onConfigurationChangedInternal(Configuration configuration) {
+                private void onConfigurationChangedInternal(Session session,
+                        Configuration configuration) {
                     ThreadUtils.checkMainThread();
                     Log.d(TAG, "onCarConfigurationChanged configuration: " + configuration);
 
-                    getCurrentSession().getCarContext().onCarConfigurationChanged(configuration);
-                    onCarConfigurationChanged(
-                            getCurrentSession().getCarContext().getResources().getConfiguration());
+                    session.getCarContext().onCarConfigurationChanged(configuration);
+                    session.onCarConfigurationChanged(
+                            session.getCarContext().getResources().getConfiguration());
                 }
             };
 
-    void checkSessionIsValid(Session session) {
+    Session throwIfInvalid(Session session) {
         if (session == null) {
             throw new IllegalStateException("Null session found when non-null expected.");
         }
+
+        return session;
     }
 }
