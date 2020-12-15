@@ -28,6 +28,7 @@ import androidx.test.filters.LargeTest;
 import org.junit.Before;
 import org.junit.Test;
 
+@SuppressWarnings("deprecation")
 @LargeTest
 public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActivity> {
     private PercentFrameLayout mPercentFrameLayout;

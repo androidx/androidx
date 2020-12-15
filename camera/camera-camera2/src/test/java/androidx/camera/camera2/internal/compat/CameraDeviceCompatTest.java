@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
+@SuppressWarnings("deprecation")
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

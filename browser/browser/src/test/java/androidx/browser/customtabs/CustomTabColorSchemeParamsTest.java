@@ -37,6 +37,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
  * In particular, for {@link CustomTabsIntent.Builder#setColorSchemeParams} and
  * {@link CustomTabsIntent#getColorSchemeParams}
  */
+@SuppressWarnings("deprecation")
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class CustomTabColorSchemeParamsTest {

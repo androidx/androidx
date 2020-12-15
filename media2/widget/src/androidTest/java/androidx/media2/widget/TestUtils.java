@@ -24,6 +24,7 @@ import android.os.Build;
 import android.view.WindowManager;
 
 final class TestUtils {
+    @SuppressWarnings("deprecation")
     static void setKeepScreenOn(Activity activity) {
         if (Build.VERSION.SDK_INT >= 27) {
             activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

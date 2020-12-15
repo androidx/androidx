@@ -28,6 +28,7 @@ public class TransitionActivity extends FragmentActivity {
 
     private LinearLayout mRoot;
 
+    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -49,6 +49,7 @@ public class NetworkStateTrackerTest {
     private Context mMockContext;
     private ConnectivityManager mMockConnectivityManager;
 
+    @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
         mMockContext = mock(Context.class);

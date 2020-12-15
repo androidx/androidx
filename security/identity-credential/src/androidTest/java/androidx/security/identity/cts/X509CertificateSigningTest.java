@@ -28,7 +28,6 @@ import android.security.keystore.KeyProperties;
 import android.util.AtomicFile;
 import android.util.Log;
 
-import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
@@ -49,6 +48,7 @@ import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
+@SuppressWarnings("deprecation")
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class X509CertificateSigningTest {
@@ -57,7 +57,7 @@ public class X509CertificateSigningTest {
 
     @Test
     public void testSigning() {
-        Context appContext = InstrumentationRegistry.getTargetContext();
+        Context appContext = androidx.test.InstrumentationRegistry.getTargetContext();
 
         String keyToSignAlias = "testKeyToSign";
         String keyToSignWithAlias = "testKeyToSignWith";

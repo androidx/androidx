@@ -151,6 +151,7 @@ public class SpannableBuilderTest {
         verify(mWatcher, times(1)).afterTextChanged(any(Editable.class));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testDoesNotBlockSpanCallbacks_forNonEmojiSpans() {
         final QuoteSpan span = mock(QuoteSpan.class);

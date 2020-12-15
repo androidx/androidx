@@ -386,6 +386,8 @@ src/main/java/androidx/transition/TransitionSet\.java:[0-9]+: warning: Parameter
 # b/166471969
 .*androidTest.*AndroidManifest.*xml Warning.*:
 Package name.*test' used in: .*AndroidManifest.*xml.*
+\[:internal\-testutils\-espresso\] \$OUT_DIR/androidx/internal\-testutils\-espresso/build/intermediates/merged_manifest/debug/AndroidManifest\.xml Warning:
+Package name 'androidx\.testutils' used in: :internal\-testutils\-espresso, :internal\-testutils\-runtime\.
 \$OUT_DIR/androidx/compose/ui/ui\-tooling/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \[:internal\-testutils\-runtime\] \$OUT_DIR/androidx/internal\-testutils\-runtime/build/intermediates/merged_manifest/debug/AndroidManifest\.xml Warning:
 # > Task :leanback:leanback-paging:generateApi
@@ -427,6 +429,7 @@ Annotation processors discovery from compile classpath is deprecated\.
 Set 'kapt\.includeCompileClasspath = false' to disable discovery\.
 Run the build with '\-\-info' for more details\.
 # > Task :camera:camera-core:compileDebugUnitTestJavaWithJavac
+Note\: \$SUPPORT\/camera\/camera\-core\/src\/test\/java\/androidx\/camera\/core\/CameraSelectorTest\.java uses or overrides a deprecated API\.
 Note: \$SUPPORT/camera/camera\-core/src/test/java/androidx/camera/core/ProcessingImageReaderTest\.java uses or overrides a deprecated API\.
 Note: \$SUPPORT/camera/camera\-core/src/test/java/androidx/camera/core/impl/DeferrableSurfaceTest\.java uses unchecked or unsafe operations\.
 # > Task :wear:wear-input:compileDebugUnitTestJavaWithJavac
@@ -665,3 +668,5 @@ w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/android
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/OnApplyWindowInsetsListenerTest\.kt\: \([0-9]+\, [0-9]+\)\: Unnecessary non\-null assertion \(\!\!\) on a non\-null receiver of type WindowInsetsCompat
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/OnApplyWindowInsetsListenerTest\.kt\: \([0-9]+\, [0-9]+\)\: \'consumeStableInsets\(\)\: WindowInsetsCompat\' is deprecated\. Deprecated in Java
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/OnApplyWindowInsetsListenerTest\.kt\: \([0-9]+\, [0-9]+\)\: \'consumeDisplayCutout\(\)\: WindowInsetsCompat\' is deprecated\. Deprecated in Java
+# > Task :contentpager:contentpager:compileDebugAndroidTestJavaWithJavac
+Note: \$SUPPORT/contentpager/contentpager/src/androidTest/java/androidx/contentpager/content/LoaderQueryRunnerTest\.java uses or overrides a deprecated API\.
