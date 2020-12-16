@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2020 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<app-authenticator>
+    <permission name="androidx.security.app.authenticator.TEST_PERMISSION">
+        <package name="com.android.app1">
+            <cert-digest>6a8b96e278e58f62cfe3584022cec1d0527fcb85a9e5d2e1694eb0405be5b599
+            </cert-digest>
+            <cert-digest>d78405f761ff6236cc9b570347a570aba0c62a129a3ac30c831c64d09ad95469
+            </cert-digest>
+        </package>
+    </permission>
+</app-authenticator>

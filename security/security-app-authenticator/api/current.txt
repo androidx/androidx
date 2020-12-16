@@ -1,1 +1,13 @@
 // Signature format: 4.0
+package androidx.security.app.authenticator {
+
+  public class AppAuthenticator {
+    method public static androidx.security.app.authenticator.AppAuthenticator createFromInputStream(android.content.Context, java.io.InputStream) throws androidx.security.app.authenticator.AppAuthenticatorXmlException, java.io.IOException;
+    method public static androidx.security.app.authenticator.AppAuthenticator createFromResource(android.content.Context, @XmlRes int) throws androidx.security.app.authenticator.AppAuthenticatorXmlException, java.io.IOException;
+  }
+
+  public class AppAuthenticatorXmlException extends java.lang.Exception {
+  }
+
+}
+
