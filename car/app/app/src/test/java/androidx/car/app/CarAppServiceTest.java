@@ -89,11 +89,6 @@ public final class CarAppServiceTest {
                         CarAppServiceController.of(mCarContext, testSession, mCarAppService);
                         return testSession;
                     }
-
-                    @Override
-                    public void onNewIntent(@NonNull Intent intent) {
-                        mIntentSet = intent;
-                    }
                 };
 
         mCarAppService.onCreate();
@@ -114,6 +109,11 @@ public final class CarAppServiceTest {
                         return mTemplate;
                     }
                 };
+            }
+
+            @Override
+            public void onNewIntent(@NonNull Intent intent) {
+                mIntentSet = intent;
             }
         };
     }
@@ -368,5 +368,19 @@ public final class CarAppServiceTest {
         mCarAppService.getCurrentSession().getCarContext().finishCarApp();
 
         assertThat(mCarContext.hasCalledFinishCarApp()).isTrue();
+    }
+
+    @Test
+    public void onNewIntent_callsSessionIntent() throws
+            RemoteException {
+        assertThat(mIntentSet).isNull();
+
+        IOnDoneCallback callback = mock(IOnDoneCallback.class);
+        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
+        Intent intent = new Intent("Foo");
+        carApp.onNewIntent(intent, callback);
+
+        assertThat(mIntentSet).isEqualTo(intent);
+        verify(callback).onSuccess(any());
     }
 }
