@@ -20,8 +20,12 @@ import android.content.Context
 import androidx.datastore.migrations.SharedPreferencesView
 import androidx.datastore.migrations.SharedPreferencesMigration
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.toMutablePreferences
-import androidx.datastore.preferences.core.toPreferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 
 /**
  * Creates a SharedPreferencesMigration for DataStore<Preferences>.
@@ -72,36 +76,24 @@ public fun SharedPreferencesMigration(
             for ((key, value) in filteredSharedPreferences) {
                 when (value) {
                     is Boolean -> mutablePreferences[
-                        androidx.datastore.preferences.core.preferencesKey(
-                            key
-                        )
+                        booleanPreferencesKey(key)
                     ] = value
                     is Float -> mutablePreferences[
-                        androidx.datastore.preferences.core.preferencesKey(
-                            key
-                        )
+                        floatPreferencesKey(key)
                     ] = value
                     is Int -> mutablePreferences[
-                        androidx.datastore.preferences.core.preferencesKey(
-                            key
-                        )
+                        intPreferencesKey(key)
                     ] = value
                     is Long -> mutablePreferences[
-                        androidx.datastore.preferences.core.preferencesKey(
-                            key
-                        )
+                        longPreferencesKey(key)
                     ] = value
                     is String -> mutablePreferences[
-                        androidx.datastore.preferences.core.preferencesKey(
-                            key
-                        )
+                        stringPreferencesKey(key)
                     ] = value
                     is Set<*> -> {
                         @Suppress("UNCHECKED_CAST")
                         mutablePreferences[
-                            androidx.datastore.preferences.core.preferencesSetKey<String>(
-                                key
-                            )
+                            stringSetPreferencesKey(key)
                         ] = value as Set<String>
                     }
                 }

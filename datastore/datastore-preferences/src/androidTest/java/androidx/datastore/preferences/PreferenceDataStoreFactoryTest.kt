@@ -22,17 +22,10 @@ import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.clear
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.minusAssign
-import androidx.datastore.preferences.core.plusAssign
-import androidx.datastore.preferences.core.preferencesKey
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.preferencesOf
-import androidx.datastore.preferences.core.putAll
-import androidx.datastore.preferences.core.remove
-import androidx.datastore.preferences.core.to
-import androidx.datastore.preferences.core.toMutablePreferences
-import androidx.datastore.preferences.core.toPreferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ObsoleteCoroutinesApi
@@ -59,8 +52,8 @@ class PreferenceDataStoreFactoryTest {
     private lateinit var dataStoreScope: TestCoroutineScope
     private lateinit var context: Context
 
-    val stringKey = preferencesKey<String>("key")
-    val booleanKey = preferencesKey<Boolean>("key")
+    val stringKey = stringPreferencesKey("key")
+    val booleanKey = booleanPreferencesKey("key")
 
     @Before
     fun setUp() {
