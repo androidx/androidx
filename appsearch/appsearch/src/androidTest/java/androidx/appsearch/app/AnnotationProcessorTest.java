@@ -19,7 +19,6 @@ package androidx.appsearch.app;
 import static androidx.appsearch.app.AppSearchSchema.PropertyConfig.INDEXING_TYPE_PREFIXES;
 import static androidx.appsearch.app.AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN;
 import static androidx.appsearch.app.util.AppSearchTestUtils.checkIsBatchResultSuccess;
-import static androidx.appsearch.app.util.AppSearchTestUtils.checkIsResultSuccess;
 import static androidx.appsearch.app.util.AppSearchTestUtils.convertSearchResultsToDocuments;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -46,9 +45,9 @@ public class AnnotationProcessorTest {
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
 
-        mSession = checkIsResultSuccess(LocalStorage.createSearchSession(
+        mSession = LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context)
-                        .setDatabaseName(DB_NAME_1).build()));
+                        .setDatabaseName(DB_NAME_1).build()).get();
 
         // Cleanup whatever documents may still exist in these databases. This is needed in
         // addition to tearDown in case a test exited without completing properly.
@@ -62,8 +61,7 @@ public class AnnotationProcessorTest {
     }
 
     private void cleanup() throws Exception {
-        checkIsResultSuccess(mSession.setSchema(
-                new SetSchemaRequest.Builder().setForceOverride(true).build()));
+        mSession.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()).get();
     }
 
     @AppSearchDocument
@@ -233,8 +231,8 @@ public class AnnotationProcessorTest {
     public void testAnnotationProcessor() throws Exception {
         //TODO(b/156296904) add test for int, float, GenericDocument, and class with
         // @AppSearchDocument annotation
-        checkIsResultSuccess(mSession.setSchema(
-                new SetSchemaRequest.Builder().addDataClass(Card.class, Gift.class).build()));
+        mSession.setSchema(
+                new SetSchemaRequest.Builder().addDataClass(Card.class, Gift.class).build()).get();
 
         // Create a Gift object and assign values.
         Gift inputDataClass = new Gift();
@@ -303,10 +301,11 @@ public class AnnotationProcessorTest {
 
     @Test
     public void testAnnotationProcessor_queryByType() throws Exception {
-        checkIsResultSuccess(mSession.setSchema(
+        mSession.setSchema(
                 new SetSchemaRequest.Builder()
                         .addDataClass(Card.class, Gift.class)
-                        .addSchema(AppSearchEmail.SCHEMA).build()));
+                        .addSchema(AppSearchEmail.SCHEMA).build())
+                .get();
 
         // Create documents and index them
         Gift inputDataClass1 = new Gift();

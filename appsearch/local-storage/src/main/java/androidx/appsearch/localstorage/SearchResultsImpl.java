@@ -23,6 +23,7 @@ import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.util.FutureUtil;
 import androidx.core.util.Preconditions;
 
@@ -69,46 +70,40 @@ class SearchResultsImpl implements SearchResults {
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchResult<List<SearchResult>>> getNextPage() {
+    public ListenableFuture<List<SearchResult>> getNextPage() {
         return FutureUtil.execute(mExecutorService, () -> {
-            try {
-                SearchResultPage searchResultPage;
-                if (mIsFirstLoad) {
-                    mIsFirstLoad = false;
-                    if (mDatabaseName == null && mPackageName == null) {
-                        // Global query, there's no one package-database combination to check.
-                        searchResultPage = mAppSearchImpl.globalQuery(
-                                mQueryExpression, mSearchSpec);
-                    } else if (mPackageName == null) {
-                        return AppSearchResult.newFailedResult(
-                                AppSearchResult.RESULT_INVALID_ARGUMENT,
-                                "Invalid null package name for query");
-                    } else if (mDatabaseName == null) {
-                        return AppSearchResult.newFailedResult(
-                                AppSearchResult.RESULT_INVALID_ARGUMENT,
-                                "Invalid null database name for query");
-                    } else {
-                        // Normal local query, pass in specified database.
-                        searchResultPage = mAppSearchImpl.query(
-                                mPackageName, mDatabaseName, mQueryExpression, mSearchSpec);
-
-                    }
+            SearchResultPage searchResultPage;
+            if (mIsFirstLoad) {
+                mIsFirstLoad = false;
+                if (mDatabaseName == null && mPackageName == null) {
+                    // Global query, there's no one package-database combination to check.
+                    searchResultPage = mAppSearchImpl.globalQuery(mQueryExpression, mSearchSpec);
+                } else if (mPackageName == null) {
+                    throw new AppSearchException(
+                            AppSearchResult.RESULT_INVALID_ARGUMENT,
+                            "Invalid null package name for query");
+                } else if (mDatabaseName == null) {
+                    throw new AppSearchException(
+                            AppSearchResult.RESULT_INVALID_ARGUMENT,
+                            "Invalid null database name for query");
                 } else {
-                    searchResultPage = mAppSearchImpl.getNextPage(mNextPageToken);
+                    // Normal local query, pass in specified database.
+                    searchResultPage = mAppSearchImpl.query(
+                            mPackageName, mDatabaseName, mQueryExpression, mSearchSpec);
                 }
-                mNextPageToken = searchResultPage.getNextPageToken();
-                return AppSearchResult.newSuccessfulResult(
-                        searchResultPage.getResults());
-            } catch (Throwable t) {
-                return AppSearchResult.throwableToFailedResult(t);
+            } else {
+                searchResultPage = mAppSearchImpl.getNextPage(mNextPageToken);
             }
+            mNextPageToken = searchResultPage.getNextPageToken();
+            return searchResultPage.getResults();
         });
     }
 
     @Override
     @SuppressWarnings("FutureReturnValueIgnored")
     public void close() {
-        // No future is needed here since the method is void.
+        // Checking the future result is not needed here since this is a cleanup step which is not
+        // critical to the correct functioning of the system; also, the return value is void.
         FutureUtil.execute(mExecutorService, () -> {
             mAppSearchImpl.invalidateNextPageToken(mNextPageToken);
             return null;

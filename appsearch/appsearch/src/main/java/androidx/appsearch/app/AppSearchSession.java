@@ -63,14 +63,15 @@ public interface AppSearchSession {
      *     <li>Adding a
      *         {@link AppSearchSchema.PropertyConfig#CARDINALITY_REQUIRED REQUIRED} property.
      * </ul>
-     * <p>Supplying a schema with such changes will, by default, result in this call returning an
-     * {@link AppSearchResult} with a code of {@link AppSearchResult#RESULT_INVALID_SCHEMA} and an
-     * error message describing the incompatibility. In this case the previously set schema will
-     * remain active.
+     * <p>Supplying a schema with such changes will, by default, result in this call completing its
+     * future with an {@link androidx.appsearch.exceptions.AppSearchException} with a code of
+     * {@link AppSearchResult#RESULT_INVALID_SCHEMA} and a message describing the incompatibility.
+     * In this case the previously set schema will remain active.
      *
      * <p>If you need to make non-backwards-compatible changes as described above, you can set the
      * {@link SetSchemaRequest.Builder#setForceOverride} method to {@code true}. In this case,
-     * instead of returning an {@link AppSearchResult} with the
+     * instead of completing its future with an
+     * {@link androidx.appsearch.exceptions.AppSearchException} with the
      * {@link AppSearchResult#RESULT_INVALID_SCHEMA} error code, all documents which are not
      * compatible with the new schema will be deleted and the incompatible schema will be applied.
      *
@@ -89,7 +90,7 @@ public interface AppSearchSession {
     // TODO(b/169883602): Change @code references to @link when setPlatformSurfaceable APIs are
     //  exposed.
     @NonNull
-    ListenableFuture<AppSearchResult<Void>> setSchema(@NonNull SetSchemaRequest request);
+    ListenableFuture<Void> setSchema(@NonNull SetSchemaRequest request);
 
     /**
      * Retrieves the schema most recently successfully provided to {@link #setSchema}.
@@ -99,7 +100,7 @@ public interface AppSearchSession {
     // This call hits disk; async API prevents us from treating these calls as properties.
     @SuppressLint("KotlinPropertyAccess")
     @NonNull
-    ListenableFuture<AppSearchResult<Set<AppSearchSchema>>> getSchema();
+    ListenableFuture<Set<AppSearchSchema>> getSchema();
 
     /**
      * Indexes documents into AppSearch.
@@ -207,6 +208,6 @@ public interface AppSearchSession {
      * @return The pending result of performing this operation.
      */
     @NonNull
-    ListenableFuture<AppSearchResult<Void>> removeByQuery(
+    ListenableFuture<Void> removeByQuery(
             @NonNull String queryExpression, @NonNull SearchSpec searchSpec);
 }

@@ -20,7 +20,6 @@ import static androidx.appsearch.app.AppSearchResult.throwableToFailedResult;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchBatchResult;
-import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
@@ -68,34 +67,25 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchResult<Void>> setSchema(@NonNull SetSchemaRequest request) {
+    public ListenableFuture<Void> setSchema(@NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
         return execute(() -> {
-            try {
-                mAppSearchImpl.setSchema(
-                        mPackageName,
-                        mDatabaseName,
-                        new ArrayList<>(request.getSchemas()),
-                        new ArrayList<>(request.getSchemasNotVisibleToSystemUi()),
-                        request.isForceOverride());
-                return AppSearchResult.newSuccessfulResult(/*value=*/ null);
-            } catch (Throwable t) {
-                return throwableToFailedResult(t);
-            }
+            mAppSearchImpl.setSchema(
+                    mPackageName,
+                    mDatabaseName,
+                    new ArrayList<>(request.getSchemas()),
+                    new ArrayList<>(request.getSchemasNotVisibleToSystemUi()),
+                    request.isForceOverride());
+            return null;
         });
     }
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchResult<Set<AppSearchSchema>>> getSchema() {
+    public ListenableFuture<Set<AppSearchSchema>> getSchema() {
         return execute(() -> {
-            try {
-                List<AppSearchSchema> schemas = mAppSearchImpl.getSchema(mPackageName,
-                        mDatabaseName);
-                return AppSearchResult.newSuccessfulResult(new ArraySet<>(schemas));
-            } catch (Throwable t) {
-                return throwableToFailedResult(t);
-            }
+            List<AppSearchSchema> schemas = mAppSearchImpl.getSchema(mPackageName, mDatabaseName);
+            return new ArraySet<>(schemas);
         });
     }
 
@@ -181,18 +171,13 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchResult<Void>> removeByQuery(
+    public ListenableFuture<Void> removeByQuery(
             @NonNull String queryExpression, @NonNull SearchSpec searchSpec) {
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
         return execute(() -> {
-            try {
-                mAppSearchImpl.removeByQuery(mPackageName, mDatabaseName, queryExpression,
-                        searchSpec);
-                return AppSearchResult.newSuccessfulResult(null);
-            } catch (Throwable t) {
-                return throwableToFailedResult(t);
-            }
+            mAppSearchImpl.removeByQuery(mPackageName, mDatabaseName, queryExpression, searchSpec);
+            return null;
         });
     }
 

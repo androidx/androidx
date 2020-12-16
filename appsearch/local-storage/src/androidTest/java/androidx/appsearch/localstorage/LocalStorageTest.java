@@ -28,9 +28,9 @@ public class LocalStorageTest {
     @Test
     public void testSameInstance() throws Exception {
         LocalStorage b1 = LocalStorage.getInstance(ApplicationProvider.getApplicationContext())
-                .get().getResultValue();
+                .get();
         LocalStorage b2 = LocalStorage.getInstance(ApplicationProvider.getApplicationContext())
-                .get().getResultValue();
+                .get();
         assertThat(b1).isSameInstanceAs(b2);
     }
 
