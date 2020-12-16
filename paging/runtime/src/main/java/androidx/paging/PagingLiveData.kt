@@ -20,9 +20,11 @@ package androidx.paging
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -37,7 +39,7 @@ val <Key : Any, Value : Any> Pager<Key, Value>.liveData: LiveData<PagingData<Val
  *
  * [cachedIn] multicasts pages loaded and transformed by a [PagingData], allowing multiple
  * observers on the same instance of [PagingData] to receive the same events, avoiding redundant
- * work, but comes at the cost of buffering those events in memory.
+ * work, but comes at the cost of buffering those pages in memory.
  *
  * Calling [cachedIn] is required to allow calling
  * [submitData][androidx.paging.AsyncPagingDataAdapter] on the same instance of [PagingData]
@@ -51,11 +53,30 @@ fun <T : Any> LiveData<PagingData<T>>.cachedIn(lifecycle: Lifecycle) = asFlow()
     .asLiveData()
 
 /**
+ * Operator which caches a [LiveData] of [PagingData] within the scope of a [ViewModel].
+ *
+ * [cachedIn] multicasts pages loaded and transformed by a [PagingData], allowing multiple
+ * observers on the same instance of [PagingData] to receive the same events, avoiding redundant
+ * work, but comes at the cost of buffering those pages in memory.
+ *
+ * Calling [cachedIn] is required to allow calling
+ * [submitData][androidx.paging.AsyncPagingDataAdapter] on the same instance of [PagingData]
+ * emitted by [Pager] or any of its transformed derivatives, as reloading data from scratch on the
+ * same generation of [PagingData] is an unsupported operation.
+ *
+ * @param viewModel The [ViewModel] whose [viewModelScope] will dictate how long the page
+ * cache will be kept alive.
+ */
+fun <T : Any> LiveData<PagingData<T>>.cachedIn(viewModel: ViewModel) = asFlow()
+    .cachedIn(viewModel.viewModelScope)
+    .asLiveData()
+
+/**
  * Operator which caches a [LiveData] of [PagingData] within a [CoroutineScope].
  *
  * [cachedIn] multicasts pages loaded and transformed by a [PagingData], allowing multiple
  * observers on the same instance of [PagingData] to receive the same events, avoiding redundant
- * work, but comes at the cost of buffering those events in memory.
+ * work, but comes at the cost of buffering those pages in memory.
  *
  * Calling [cachedIn] is required to allow calling
  * [submitData][androidx.paging.AsyncPagingDataAdapter] on the same instance of [PagingData]
