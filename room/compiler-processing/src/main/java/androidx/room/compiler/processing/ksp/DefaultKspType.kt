@@ -17,7 +17,6 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XNullability
-import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.tryBox
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.javapoet.TypeName
@@ -30,12 +29,6 @@ internal class DefaultKspType(
         // always box these. For primitives, typeName might return the primitive type but if we
         // wanted it to be a primitive, we would've resolved it to [KspPrimitiveType].
         ksType.typeName(env.resolver).tryBox()
-    }
-
-    override val typeArguments: List<XType> by lazy {
-        ksType.arguments.mapIndexed { index, arg ->
-            env.wrap(ksType.declaration.typeParameters[index], arg)
-        }
     }
 
     override fun boxed(): DefaultKspType {

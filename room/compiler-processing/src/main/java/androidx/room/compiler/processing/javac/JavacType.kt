@@ -21,6 +21,7 @@ import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.javac.kotlin.KmType
+import androidx.room.compiler.processing.ksp.ERROR_TYPE_NAME
 import androidx.room.compiler.processing.safeTypeName
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
@@ -51,7 +52,11 @@ internal abstract class JavacType(
         }
     }
 
-    override fun isError() = typeMirror.kind == TypeKind.ERROR
+    override fun isError(): Boolean {
+        return typeMirror.kind == TypeKind.ERROR ||
+            // https://kotlinlang.org/docs/reference/kapt.html#non-existent-type-correction
+            (kotlinType != null && typeName == ERROR_TYPE_NAME)
+    }
 
     override fun isInt(): Boolean {
         return typeName == TypeName.INT || typeName == BOXED_INT

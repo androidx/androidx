@@ -23,5 +23,6 @@ internal val KmType.nullability: XNullability
     get() = if (isNullable()) {
         XNullability.NULLABLE
     } else {
-        XNullability.NONNULL
+        // if there is an upper bound information, use its nullability (e.g. it might be T : Foo?)
+        extendsBound?.nullability ?: XNullability.NONNULL
     }
