@@ -364,14 +364,20 @@ internal class WatchFaceImpl(
         }
 
         override fun onActionBatteryChanged(intent: Intent) {
+            val newValue = when (intent.action) {
+                Intent.ACTION_BATTERY_LOW -> true
+                Intent.ACTION_BATTERY_OKAY -> false
+                Intent.ACTION_POWER_CONNECTED -> false
+                else -> return // No change required.
+            }
             val isBatteryLowAndNotCharging =
                 watchState.isBatteryLowAndNotCharging as MutableObservableWatchData
-            when (intent.action) {
-                Intent.ACTION_BATTERY_LOW -> isBatteryLowAndNotCharging.value = true
-                Intent.ACTION_BATTERY_OKAY -> isBatteryLowAndNotCharging.value = false
-                Intent.ACTION_POWER_CONNECTED -> isBatteryLowAndNotCharging.value = false
+            if (!isBatteryLowAndNotCharging.hasValue() ||
+                newValue != isBatteryLowAndNotCharging.value
+            ) {
+                isBatteryLowAndNotCharging.value = newValue
+                renderer.invalidate()
             }
-            renderer.invalidate()
         }
 
         override fun onMockTime(intent: Intent) {
