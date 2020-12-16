@@ -260,7 +260,7 @@ class TypeAdapterStore private constructor(
         if (output.isError()) {
             return null
         }
-        val adapter = findColumnTypeAdapter(output, affinity, true)
+        val adapter = findColumnTypeAdapter(output, affinity, skipEnumConverter = true)
         if (adapter != null) {
             // two way is better
             return adapter
