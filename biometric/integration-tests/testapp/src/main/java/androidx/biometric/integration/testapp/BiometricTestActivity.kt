@@ -24,6 +24,7 @@ import android.security.keystore.KeyProperties
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators
 import androidx.biometric.BiometricPrompt
@@ -79,6 +80,7 @@ class BiometricTestActivity : FragmentActivity() {
      * A bit field representing the authentication type(s) that can authorize use of the secret key.
      */
     private val keyType: Int
+        @RequiresApi(Build.VERSION_CODES.R)
         get() {
             var type = 0
             if (allowBiometricStrongCheckbox.isChecked) {
@@ -204,6 +206,7 @@ class BiometricTestActivity : FragmentActivity() {
     /**
      * Launches the [BiometricPrompt] to begin crypto-based authentication.
      */
+    @SuppressLint("UnsafeNewApiCall")
     @Suppress("DEPRECATION")
     private fun authenticateWithCrypto(info: BiometricPrompt.PromptInfo) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
