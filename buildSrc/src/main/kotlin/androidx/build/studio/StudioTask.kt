@@ -253,6 +253,8 @@ open class PlaygroundStudioTask : RootStudioTask() {
      */
     override val requiresProjectList get() = false
     override val installParentDir get() = supportRootFolder
-    override val ideaProperties get() = supportRootFolder.resolve("../playground-common/idea.properties")
-    override val vmOptions get() = supportRootFolder.resolve("../playground-common/studio.vmoptions")
+    override val ideaProperties
+        get() = supportRootFolder.resolve("../playground-common/idea.properties")
+    override val vmOptions
+        get() = supportRootFolder.resolve("../playground-common/studio.vmoptions")
 }
