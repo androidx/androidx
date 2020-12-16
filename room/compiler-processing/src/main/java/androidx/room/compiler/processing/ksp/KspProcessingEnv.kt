@@ -92,7 +92,7 @@ internal class KspProcessingEnv(
             ?: findTypeElement("javax.annotation.Generated")
     }
 
-    override fun getDeclaredType(type: XTypeElement, vararg types: XType): KspDeclaredType {
+    override fun getDeclaredType(type: XTypeElement, vararg types: XType): KspType {
         check(type is KspTypeElement) {
             "Unexpected type element type: $type"
         }
@@ -105,14 +105,10 @@ internal class KspProcessingEnv(
                 variance = Variance.INVARIANT
             )
         }
-        val result = wrap(
+        return wrap(
             ksType = type.declaration.asType(typeArguments),
             allowPrimitives = false
         )
-        check(result is KspDeclaredType) {
-            "Expected $type to be a declared type but a non-declared type ($result) is received"
-        }
-        return result
     }
 
     override fun getArrayType(type: XType): KspArrayType {
@@ -175,7 +171,7 @@ internal class KspProcessingEnv(
                 return voidType
             }
         }
-        return arrayTypeFactory.createIfArray(ksType) ?: KspDeclaredType(this, ksType)
+        return arrayTypeFactory.createIfArray(ksType) ?: DefaultKspType(this, ksType)
     }
 
     fun wrapClassDeclaration(declaration: KSClassDeclaration): KspTypeElement {

@@ -22,8 +22,8 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
@@ -490,11 +490,26 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
         }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_RELATION_IN_PARTIAL_ENTITY)
     }
 
+    @Test
+    fun targetEntity_notDeclared() {
+        singleShortcutMethod(
+            """
+                @${annotation.java.canonicalName}(entity = User.class)
+                abstract public int foo(long x);
+                """
+        ) { _, _ ->
+        }.failsToCompile().withErrorContaining(
+            ProcessorErrors.shortcutMethodArgumentMustBeAClass(
+                TypeName.LONG
+            )
+        )
+    }
+
     abstract fun invalidReturnTypeError(): String
 
     abstract fun process(
         baseContext: Context,
-        containing: XDeclaredType,
+        containing: XType,
         executableElement: XMethodElement
     ): T
 

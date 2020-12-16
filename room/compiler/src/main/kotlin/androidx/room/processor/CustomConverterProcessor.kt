@@ -19,7 +19,6 @@ package androidx.room.processor
 import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
@@ -46,10 +45,18 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
             val annotation = element.toAnnotationBox(TypeConverters::class)
             return annotation?.let {
                 val classes = it.getAsTypeList("value")
-                    .filter { it.isType() }
                     .mapTo(LinkedHashSet()) { it }
                 val converters = classes.flatMap {
-                    CustomConverterProcessor(context, it.asTypeElement()).process()
+                    val typeElement = it.typeElement
+                    if (typeElement == null) {
+                        context.logger.e(
+                            element,
+                            ProcessorErrors.typeConverterMustBeDeclared(it.typeName)
+                        )
+                        emptyList()
+                    } else {
+                        CustomConverterProcessor(context, typeElement).process()
+                    }
                 }
                 reportDuplicates(context, converters)
                 ProcessResult(classes, converters.map(::CustomTypeConverterWrapper))
@@ -103,7 +110,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
     }
 
     private fun processMethod(
-        container: XDeclaredType,
+        container: XType,
         methodElement: XMethodElement,
         isContainerKotlinObject: Boolean,
         isProvidedConverter: Boolean

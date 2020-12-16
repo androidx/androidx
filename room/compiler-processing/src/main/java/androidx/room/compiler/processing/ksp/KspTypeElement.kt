@@ -31,6 +31,7 @@ import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isOpen
+import com.google.devtools.ksp.isPrivate
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -72,16 +73,11 @@ internal class KspTypeElement(
         }
     }
 
-    override val type: KspDeclaredType by lazy {
-        val result = env.wrap(
+    override val type: KspType by lazy {
+        env.wrap(
             ksType = declaration.asStarProjectedType(),
             allowPrimitives = false
         )
-        check(result is KspDeclaredType) {
-            "Internal error, expected type of $this to resolve to a declared type but it resolved" +
-                " to $result (${result::class})"
-        }
-        result
     }
 
     override val superType: XType? by lazy {
@@ -137,7 +133,7 @@ internal class KspTypeElement(
                 it.isStatic()
             }
         } else {
-            _declaredProperties
+            _declaredProperties.filter { !it.isAbstract() }
         }
         val selectedNames = myPropertyFields.mapTo(mutableSetOf()) {
             it.name
@@ -172,12 +168,17 @@ internal class KspTypeElement(
                 // until room generates kotlin code
                 return@mapNotNull null
             }
+
             val setter = it.declaration.setter
-            val needsSetter = if (setter != null) {
-                // kapt does not generate synthetics for private fields/setters so we won't either
-                !setter.modifiers.contains(Modifier.PRIVATE)
-            } else {
-                isInterface() && it.declaration.isMutable
+            val needsSetter = when {
+                it.declaration.hasJvmFieldAnnotation() -> {
+                    // jvm fields cannot have accessors but KSP generates synthetic accessors for
+                    // them. We check for JVM field first before checking the setter
+                    false
+                }
+                it.declaration.isPrivate() -> false
+                setter != null -> !setter.modifiers.contains(Modifier.PRIVATE)
+                else -> it.declaration.isMutable
             }
             if (needsSetter) {
                 KspSyntheticPropertyMethodElement.Setter(
@@ -195,12 +196,17 @@ internal class KspTypeElement(
                 return@mapNotNull null
             }
             val getter = it.declaration.getter
-            val needsGetter = if (getter != null) {
-                // kapt does not generate synthetics for private fields/getters so we won't either]
-                !getter.modifiers.contains(Modifier.PRIVATE)
-            } else {
-                isInterface()
+            val needsGetter = when {
+                it.declaration.hasJvmFieldAnnotation() -> {
+                    // jvm fields cannot have accessors but KSP generates synthetic accessors for
+                    // them. We check for JVM field first before checking the getter
+                    false
+                }
+                it.declaration.isPrivate() -> false
+                getter != null -> !getter.modifiers.contains(Modifier.PRIVATE)
+                else -> true
             }
+
             if (needsGetter) {
                 KspSyntheticPropertyMethodElement.Getter(
                     env = env,

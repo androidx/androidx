@@ -55,7 +55,7 @@ class XTypeTest {
         runProcessorTest(
             sources = listOf(parent)
         ) {
-            val type = it.processingEnv.requireType("foo.bar.Parent") as XDeclaredType
+            val type = it.processingEnv.requireType("foo.bar.Parent")
             val className = ClassName.get("foo.bar", "Parent")
             assertThat(type.typeName).isEqualTo(
                 ParameterizedTypeName.get(
@@ -63,13 +63,11 @@ class XTypeTest {
                     ClassName.get("", "InputStreamType")
                 )
             )
-            assertThat(type.isDeclared()).isTrue()
 
             val typeArguments = type.typeArguments
             assertThat(typeArguments).hasSize(1)
             val inputStreamClassName = ClassName.get("java.io", "InputStream")
             typeArguments.first().let { firstType ->
-                assertThat(firstType.isDeclared()).isFalse()
                 val expected = TypeVariableName.get(
                     "InputStreamType",
                     inputStreamClassName
@@ -84,7 +82,7 @@ class XTypeTest {
                 )
             }
 
-            type.asTypeElement().getMethod("wildcardParam").let { method ->
+            type.typeElement!!.getMethod("wildcardParam").let { method ->
                 val wildcardParam = method.parameters.first()
                 val extendsBoundOrSelf = wildcardParam.type.extendsBoundOrSelf()
                 assertThat(extendsBoundOrSelf.rawType)

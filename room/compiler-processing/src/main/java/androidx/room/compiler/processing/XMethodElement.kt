@@ -52,7 +52,7 @@ interface XMethodElement : XExecutableElement {
      * This is specifically useful if you have a method that has type arguments and there is a
      * subclass ([other]) where type arguments are specified to actual types.
      */
-    fun asMemberOf(other: XDeclaredType): XMethodType
+    fun asMemberOf(other: XType): XMethodType
 
     /**
      * Returns true if this method has a default implementation in Kotlin.

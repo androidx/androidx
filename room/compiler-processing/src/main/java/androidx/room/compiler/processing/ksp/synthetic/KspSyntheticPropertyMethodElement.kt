@@ -17,7 +17,6 @@
 package androidx.room.compiler.processing.ksp.synthetic
 
 import androidx.room.compiler.processing.XAnnotated
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XHasModifiers
@@ -79,7 +78,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
         )
     }
 
-    final override fun asMemberOf(other: XDeclaredType): XMethodType {
+    final override fun asMemberOf(other: XType): XMethodType {
         return KspSyntheticPropertyMethodType.create(
             element = this,
             container = other
@@ -234,7 +233,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
             override val type: XType
                 get() = origin.field.type
 
-            override fun asMemberOf(other: XDeclaredType): XType {
+            override fun asMemberOf(other: XType): XType {
                 return origin.field.asMemberOf(other)
             }
 

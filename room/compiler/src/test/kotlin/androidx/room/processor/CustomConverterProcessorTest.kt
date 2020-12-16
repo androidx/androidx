@@ -24,6 +24,7 @@ import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MUST_BE_PUBLIC
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_UNBOUND_GENERIC
 import androidx.room.testing.TestInvocation
 import androidx.room.vo.CustomTypeConverter
+import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.squareup.javapoet.ClassName
@@ -260,6 +261,28 @@ class CustomConverterProcessorTest {
             assertThat(converter?.fromTypeName, `is`(TypeName.SHORT.box()))
             assertThat(converter?.toTypeName, `is`(TypeName.CHAR.box()))
         }.failsToCompile().withErrorContaining("Multiple methods define the same conversion")
+    }
+
+    @Test
+    fun invalidConverterType() {
+        val source = JavaFileObjects.forSourceString(
+            "foo.bar.Container",
+            """
+                package foo.bar;
+                import androidx.room.*;
+                @TypeConverters(int.class)
+                public class Container {}
+                """
+        )
+        simpleRun(source) { invocation ->
+            val result = CustomConverterProcessor.findConverters(
+                invocation.context,
+                invocation.processingEnv.requireTypeElement("foo.bar.Container")
+            )
+            Truth.assertThat(result.converters).isEmpty()
+        }.failsToCompile().withErrorContaining(
+            ProcessorErrors.typeConverterMustBeDeclared(TypeName.INT)
+        )
     }
 
     private fun createConverter(

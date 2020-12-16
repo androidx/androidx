@@ -26,7 +26,6 @@ import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.typeName
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.processor.ProcessorErrors.cannotFindQueryResultAdapter
@@ -748,7 +747,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             assertThat(
                 QueryMethodProcessor(
                     baseContext = invocation.context,
-                    containing = Mockito.mock(XDeclaredType::class.java),
+                    containing = Mockito.mock(XType::class.java),
                     executableElement = method.element,
                     dbVerifier = null
                 ).context.logger.suppressedWarnings,

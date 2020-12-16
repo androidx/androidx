@@ -17,7 +17,6 @@
 package androidx.room.solver.shortcut.result
 
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.asDeclaredType
 import androidx.room.compiler.processing.isArray
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.L
@@ -100,8 +99,7 @@ class InsertMethodAdapter private constructor(private val insertionType: Inserti
                     null
                 }
             } else if (returnType.isList()) {
-                val declared = returnType.asDeclaredType()
-                val param = declared.typeArguments.first()
+                val param = returnType.typeArguments.first()
                 if (param.isLong()) {
                     InsertionType.INSERT_ID_LIST
                 } else {

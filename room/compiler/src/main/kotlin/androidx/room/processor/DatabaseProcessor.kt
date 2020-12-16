@@ -82,13 +82,22 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         }.filterNot {
             // remove methods that belong to room
             it.enclosingTypeElement.className == RoomTypeNames.ROOM_DB
-        }.map { executable ->
+        }.mapNotNull { executable ->
             // TODO when we add support for non Dao return types (e.g. database), this code needs
             // to change
-            val daoType = executable.returnType.asTypeElement()
-            val dao = DaoProcessor(context, daoType, declaredType, dbVerifier)
-                .process()
-            DaoMethod(executable, executable.name, dao)
+            val daoType = executable.returnType
+            val daoElement = daoType.typeElement
+            if (daoElement == null) {
+                context.logger.e(
+                    executable,
+                    ProcessorErrors.DATABASE_INVALID_DAO_METHOD_RETURN_TYPE
+                )
+                null
+            } else {
+                val dao = DaoProcessor(context, daoElement, declaredType, dbVerifier)
+                    .process()
+                DaoMethod(executable, executable.name, dao)
+            }
         }
 
         validateUniqueDaoClasses(element, daoMethods, entities)
@@ -290,8 +299,19 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             entityList.isNotEmpty(), element,
             ProcessorErrors.DATABASE_ANNOTATION_MUST_HAVE_LIST_OF_ENTITIES
         )
-        return entityList.map {
-            EntityProcessor(context, it.asTypeElement()).process()
+        return entityList.mapNotNull {
+            val typeElement = it.typeElement
+            if (typeElement == null) {
+                context.logger.e(
+                    element,
+                    ProcessorErrors.invalidEntityTypeInDatabaseAnnotation(
+                        it.typeName
+                    )
+                )
+                null
+            } else {
+                EntityProcessor(context, typeElement).process()
+            }
         }
     }
 
@@ -299,9 +319,19 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         dbAnnotation: XAnnotationBox<androidx.room.Database>
     ): Map<XTypeElement, DatabaseView> {
         val viewList = dbAnnotation.getAsTypeList("views")
-        return viewList.map {
-            val viewElement = it.asTypeElement()
-            viewElement to DatabaseViewProcessor(context, viewElement).process()
+        return viewList.mapNotNull {
+            val viewElement = it.typeElement
+            if (viewElement == null) {
+                context.logger.e(
+                    element,
+                    ProcessorErrors.invalidViewTypeInDatabaseAnnotation(
+                        it.typeName
+                    )
+                )
+                null
+            } else {
+                viewElement to DatabaseViewProcessor(context, viewElement).process()
+            }
         }.toMap()
     }
 

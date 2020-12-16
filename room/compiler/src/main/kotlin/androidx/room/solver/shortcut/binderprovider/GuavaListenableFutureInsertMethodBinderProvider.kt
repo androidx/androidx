@@ -16,12 +16,12 @@
 
 package androidx.room.solver.shortcut.binderprovider
 
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.ext.T
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.shortcut.binder.CallableInsertMethodBinder.Companion.createInsertBinder
@@ -39,12 +39,12 @@ class GuavaListenableFutureInsertMethodBinderProvider(
         context.processingEnv.findTypeElement(RoomGuavaTypeNames.GUAVA_ROOM) != null
     }
 
-    override fun matches(declared: XDeclaredType): Boolean =
+    override fun matches(declared: XType): Boolean =
         declared.typeArguments.size == 1 &&
             declared.rawType.typeName == GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
 
     override fun provide(
-        declared: XDeclaredType,
+        declared: XType,
         params: List<ShortcutQueryParameter>
     ): InsertMethodBinder {
         if (!hasGuavaRoom) {
