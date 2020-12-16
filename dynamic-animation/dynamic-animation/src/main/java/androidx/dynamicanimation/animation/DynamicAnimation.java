@@ -17,7 +17,6 @@
 package androidx.dynamicanimation.animation;
 
 import android.annotation.SuppressLint;
-import android.os.Looper;
 import android.util.AndroidRuntimeException;
 import android.view.Choreographer;
 import android.view.View;
@@ -589,12 +588,19 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      * pass. As a result, the changes will be reflected in the next frame, the same as if the values
      * were set immediately. This method should only be called on main thread.
      *
-     * @throws AndroidRuntimeException if this method is not called on the main thread
+     * Unless a AnimationHandler is provided via setAnimationHandler, a default AnimationHandler
+     * is created on the same thread as the first call to start/cancel an animation. All the
+     * subsequent animation lifecycle manipulations need to be on that same thread, until the
+     * AnimationHandler is reset (using [setAnimationHandler]).
+     *
+     * @throws AndroidRuntimeException if this method is not called on the same thread as the
+     * animation handler
      */
     @MainThread
     public void start() {
-        if (Looper.myLooper() != Looper.getMainLooper()) {
-            throw new AndroidRuntimeException("Animations may only be started on the main thread");
+        if (!getAnimationHandler().isCurrentThread()) {
+            throw new AndroidRuntimeException("Animations may only be started on the same thread "
+                    + "as the animation handler");
         }
         if (!mRunning) {
             startAnimationInternal();
@@ -602,15 +608,21 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
     }
 
     /**
-     * Cancels the on-going animation. If the animation hasn't started, no op. Note that this method
-     * should only be called on main thread.
+     * Cancels the on-going animation. If the animation hasn't started, no op.
      *
-     * @throws AndroidRuntimeException if this method is not called on the main thread
+     * Unless a AnimationHandler is provided via setAnimationHandler, a default AnimationHandler
+     * is created on the same thread as the first call to start/cancel an animation. All the
+     * subsequent animation lifecycle manipulations need to be on that same thread, until the
+     * AnimationHandler is reset (using [setAnimationHandler]).
+     *
+     * @throws AndroidRuntimeException if this method is not called on the same thread as the
+     * animation handler
      */
     @MainThread
     public void cancel() {
-        if (Looper.myLooper() != Looper.getMainLooper()) {
-            throw new AndroidRuntimeException("Animations may only be canceled on the main thread");
+        if (!getAnimationHandler().isCurrentThread()) {
+            throw new AndroidRuntimeException("Animations may only be canceled from the same "
+                    + "thread as the animation handler");
         }
         if (mRunning) {
             endAnimationInternal(true);
@@ -743,7 +755,10 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      */
     @NonNull
     public AnimationHandler getAnimationHandler() {
-        return mAnimationHandler != null ? mAnimationHandler : AnimationHandler.getInstance();
+        if (mAnimationHandler == null) {
+            mAnimationHandler = AnimationHandler.getInstance();
+        }
+        return mAnimationHandler;
     }
 
     /**

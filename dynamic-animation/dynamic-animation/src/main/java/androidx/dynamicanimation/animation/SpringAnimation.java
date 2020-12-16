@@ -16,7 +16,6 @@
 
 package androidx.dynamicanimation.animation;
 
-import android.os.Looper;
 import android.util.AndroidRuntimeException;
 
 import androidx.annotation.MainThread;
@@ -207,19 +206,26 @@ public final class SpringAnimation extends DynamicAnimation<SpringAnimation> {
     /**
      * Skips to the end of the animation. If the spring is undamped, an
      * {@link IllegalStateException} will be thrown, as the animation would never reach to an end.
-     * It is recommended to check {@link #canSkipToEnd()} before calling this method. This method
-     * should only be called on main thread. If animation is not running, no-op.
+     * It is recommended to check {@link #canSkipToEnd()} before calling this method. If animation
+     * is not running, no-op.
+     *
+     * Unless a AnimationHandler is provided via setAnimationHandler, a default AnimationHandler
+     * is created on the same thread as the first call to start/cancel an animation. All the
+     * subsequent animation lifecycle manipulations need to be on that same thread, until the
+     * AnimationHandler is reset (using [setAnimationHandler]).
      *
      * @throws IllegalStateException if the spring is undamped (i.e. damping ratio = 0)
-     * @throws AndroidRuntimeException if this method is not called on the main thread
+     * @throws AndroidRuntimeException if this method is not called on the same thread as the
+     * animation handler
      */
     public void skipToEnd() {
         if (!canSkipToEnd()) {
             throw new UnsupportedOperationException("Spring animations can only come to an end"
                     + " when there is damping");
         }
-        if (Looper.myLooper() != Looper.getMainLooper()) {
-            throw new AndroidRuntimeException("Animations may only be started on the main thread");
+        if (!getAnimationHandler().isCurrentThread()) {
+            throw new AndroidRuntimeException("Animations may only be started on the same thread "
+                    + "as the animation handler");
         }
         if (mRunning) {
             mEndRequested = true;

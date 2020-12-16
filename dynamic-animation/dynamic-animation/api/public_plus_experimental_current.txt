@@ -6,6 +6,7 @@ package androidx.dynamicanimation.animation {
   }
 
   public static interface AnimationHandler.FrameCallbackScheduler {
+    method public boolean isCurrentThread();
     method public void postFrameCallback(Runnable);
   }
 

@@ -31,6 +31,8 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.util.AndroidRuntimeException;
 import android.view.View;
@@ -53,6 +55,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("unchecked")
 @MediumTest
@@ -720,30 +725,71 @@ public class SpringTests {
      * Test start() on a test thread.
      */
     @Test
-    public void testStartOnNonMainThread() {
+    public void testStartOnNonAnimationHandlerThread() throws InterruptedException {
         mExpectedException.expect(AndroidRuntimeException.class);
         SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
-        anim.start();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            anim.setAnimationHandler(anim.getAnimationHandler());
+        });
+        runRunnableOnNewThread(() -> {
+            anim.start();
+        });
     }
 
     /**
      * Test cancel() on a test thread.
      */
     @Test
-    public void testCancelOnNonMainThread() {
+    public void testCancelOnNonAnimationHandlerThread() throws InterruptedException {
         mExpectedException.expect(AndroidRuntimeException.class);
         SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
-        anim.cancel();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            anim.setAnimationHandler(anim.getAnimationHandler());
+        });
+        runRunnableOnNewThread(() -> {
+            anim.cancel();
+        });
     }
 
     /**
      * Test skipToEnd() on a test thread.
      */
     @Test
-    public void testSkipToEndOnNonMainThread() {
+    public void testSkipToEndOnNonAnimationHandlerThread() throws InterruptedException {
         mExpectedException.expect(AndroidRuntimeException.class);
         SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
-        anim.skipToEnd();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            anim.setAnimationHandler(anim.getAnimationHandler());
+        });
+        runRunnableOnNewThread(() -> {
+            anim.skipToEnd();
+        });
+    }
+
+    /**
+     * Runs {@param r} on a new looper thread, and propagates any runtime exceptions thrown while
+     * {@param r} is running.
+     */
+    private void runRunnableOnNewThread(Runnable r) throws InterruptedException, RuntimeException {
+        RuntimeException[] exceptions = new RuntimeException[1];
+        CountDownLatch latch = new CountDownLatch(1);
+        HandlerThread t = new HandlerThread("SpringTestsThread") {
+            @Override
+            public void run() {
+                Looper.prepare();
+                try {
+                    r.run();
+                } catch (RuntimeException e) {
+                    exceptions[0] = e;
+                }
+                latch.countDown();
+            }
+        };
+        t.start();
+        latch.await(5, TimeUnit.SECONDS);
+        if (exceptions[0] != null) {
+            throw exceptions[0];
+        }
     }
 
     /**
@@ -833,6 +879,11 @@ public class SpringTests {
         @Override
         public void postFrameCallback(Runnable frameCallback) {
             mCallback = true;
+        }
+
+        @Override
+        public boolean isCurrentThread() {
+            return true;
         }
     }
 
