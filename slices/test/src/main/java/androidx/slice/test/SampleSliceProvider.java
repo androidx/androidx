@@ -109,6 +109,7 @@ public class SampleSliceProvider extends SliceProvider {
             "contact2",
             "contact3",
             "contact4",
+            "singlepicker",
             "picker",
             "gallery",
             "galleryimagesizemovie",
@@ -216,6 +217,8 @@ public class SampleSliceProvider extends SliceProvider {
                 return createContact3(sliceUri);
             case "/contact4":
                 return createContact4(sliceUri);
+            case "/singlepicker":
+                return createSinglePicker(sliceUri);
             case "/picker":
                 return createPicker(sliceUri);
             case "/gallery":
@@ -356,6 +359,20 @@ public class SampleSliceProvider extends SliceProvider {
                 .build();
     }
 
+    private Slice createSinglePicker(Uri sliceUri) {
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
+        lb.addRow(new RowBuilder()
+                .setTitle("Title:" + DateFormat.getTimeInstance(DateFormat.SHORT,
+                        Locale.ENGLISH).format(new Date(TIME_MILLIS_VALUE)))
+                .setPrimaryAction(SliceAction.createTimePicker(
+                        getBroadcastIntent(ACTION_TOAST_TIME_VALUE, null),
+                        "PA:" + DateFormat.getTimeInstance(DateFormat.SHORT,
+                                Locale.ENGLISH).format(new Date(TIME_MILLIS_VALUE)),
+                        TIME_MILLIS_VALUE
+                )));
+        return lb.build();
+    }
+
     private Slice createPicker(Uri sliceUri) {
         SliceAction primaryAction = SliceAction.create(
                 getBroadcastIntent(ACTION_TOAST, "set picked"),
@@ -367,7 +384,7 @@ public class SampleSliceProvider extends SliceProvider {
                 .setTitle("Date and Time Picker")
                 .setPrimaryAction(primaryAction))
                 .addGridRow(new GridRowBuilder()
-                        .addCell(new CellBuilder().setSliceAction(
+                        .addCell(new CellBuilder().addTitleText("Date Picker").setSliceAction(
                                 SliceAction.createDatePicker(
                                         getBroadcastIntent(ACTION_TOAST_DATE_VALUE, null),
                                         DateFormat.getDateInstance(DateFormat.FULL,

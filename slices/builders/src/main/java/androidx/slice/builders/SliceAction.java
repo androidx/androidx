@@ -206,7 +206,6 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @hide
      */
     @NonNull
-    @RestrictTo(LIBRARY_GROUP)
     public static SliceAction createDatePicker(@NonNull PendingIntent action,
             @NonNull CharSequence actionTitle, long dateTimeMillis) {
         return new SliceAction(action, actionTitle, dateTimeMillis, true);
@@ -222,7 +221,6 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @hide
      */
     @NonNull
-    @RestrictTo(LIBRARY_GROUP)
     public static SliceAction createTimePicker(@NonNull PendingIntent action,
             @NonNull CharSequence actionTitle, long dateTimeMillis) {
         return new SliceAction(action, actionTitle, dateTimeMillis, false);

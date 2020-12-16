@@ -105,7 +105,6 @@ public class SliceActionImpl implements SliceAction {
      * @param isDatePicker   if it is a date picker, as opposed to a time picker.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     public SliceActionImpl(@NonNull PendingIntent action, @NonNull CharSequence actionTitle,
             long dateTimeMillis, boolean isDatePicker) {
         mAction = action;
