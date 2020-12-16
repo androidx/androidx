@@ -157,7 +157,7 @@ internal class ConfigFragment : Fragment() {
         future.addListener(
             {
                 val provideInfo = future.get()
-                provideInfo.info?.apply {
+                provideInfo[0].info?.apply {
                     backgroundConfigOption.summary = providerName!!
                     configViewAdapter.notifyDataSetChanged()
                 }
