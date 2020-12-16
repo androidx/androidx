@@ -27,9 +27,7 @@ package androidx.car.app {
     method public final androidx.car.app.Session? getCurrentSession();
     method public final androidx.car.app.HostInfo? getHostInfo();
     method @CallSuper public final android.os.IBinder? onBind(android.content.Intent);
-    method public void onCarConfigurationChanged(android.content.res.Configuration);
     method public abstract androidx.car.app.Session onCreateSession();
-    method public void onNewIntent(android.content.Intent);
     method public final boolean onUnbind(android.content.Intent);
     field public static final String SERVICE_INTERFACE = "androidx.car.app.CarAppService";
   }
@@ -130,7 +128,9 @@ package androidx.car.app {
     ctor public Session();
     method public final androidx.car.app.CarContext getCarContext();
     method public androidx.lifecycle.Lifecycle getLifecycle();
+    method public void onCarConfigurationChanged(android.content.res.Configuration);
     method public abstract androidx.car.app.Screen onCreateScreen(android.content.Intent);
+    method public void onNewIntent(android.content.Intent);
   }
 
   public interface SurfaceCallback {
