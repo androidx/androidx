@@ -57,7 +57,7 @@ val <Key : Any, Value : Any> Pager<Key, Value>.flowable: Flowable<PagingData<Val
  *
  * [cachedIn] multicasts pages loaded and transformed by a [PagingData], allowing multiple
  * observers on the same instance of [PagingData] to receive the same events, avoiding redundant
- * work, but comes at the cost of buffering those events in memory.
+ * work, but comes at the cost of buffering those pages in memory.
  *
  * Calling [cachedIn] is required to allow calling
  * [submitData][androidx.paging.AsyncPagingDataAdapter] on the same instance of [PagingData]
@@ -82,7 +82,7 @@ fun <T : Any> Observable<PagingData<T>>.cachedIn(scope: CoroutineScope): Observa
  *
  * [cachedIn] multicasts pages loaded and transformed by a [PagingData], allowing multiple
  * observers on the same instance of [PagingData] to receive the same events, avoiding redundant
- * work, but comes at the cost of buffering those events in memory.
+ * work, but comes at the cost of buffering those pages in memory.
  *
  * Calling [cachedIn] is required to allow calling
  * [submitData][androidx.paging.AsyncPagingDataAdapter] on the same instance of [PagingData]
