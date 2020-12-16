@@ -17,10 +17,10 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CaptureRequest
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.FrameNumber
-import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamConfig
 import androidx.camera.camera2.pipe.StreamFormat
@@ -36,27 +36,43 @@ import dagger.Module
 import dagger.Provides
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
 
 internal val useCaseCameraIds = atomic(0)
+
+interface UseCaseCamera {
+    // UseCases
+    var activeUseCases: Set<UseCase>
+
+    // Parameters
+    fun <T> setParameter(key: CaptureRequest.Key<T>, value: T)
+    fun <T> setParameterAsync(key: CaptureRequest.Key<T>, value: T): Deferred<Unit>
+    fun <T> setParameters(values: Map<CaptureRequest.Key<*>, Any>)
+    fun <T> setParametersAsync(values: Map<CaptureRequest.Key<*>, Any>): Deferred<Unit>
+
+    // 3A
+    suspend fun setTorchAsync(enabled: Boolean): Deferred<FrameNumber>
+
+    // Capture
+
+    // Lifecycle
+    fun close()
+}
 
 /**
  * API for interacting with a [CameraGraph] that has been configured with a set of [UseCase]'s
  */
-class UseCaseCamera(
+class UseCaseCameraImpl(
     private val cameraGraph: CameraGraph,
     private val useCases: List<UseCase>,
     private val surfaceToStreamMap: Map<DeferrableSurface, StreamId>,
-    private val cameraScope: CoroutineScope
-) {
+    private val state: UseCaseCameraState
+) : UseCaseCamera {
     private val debugId = useCaseCameraIds.incrementAndGet()
+    private val currentParameters = mutableMapOf<CaptureRequest.Key<*>, Any>()
 
     private var _activeUseCases = setOf<UseCase>()
-
-    var activeUseCases: Set<UseCase>
+    override var activeUseCases: Set<UseCase>
         get() = _activeUseCases
         set(value) {
             // Note: This may be called with the same set of values that was previously set. This
@@ -69,12 +85,12 @@ class UseCaseCamera(
         debug { "Configured $this for $useCases" }
     }
 
-    fun close() {
+    override fun close() {
         debug { "Closing $this" }
         cameraGraph.close()
     }
 
-    suspend fun enableTorchAsync(enabled: Boolean): Deferred<FrameNumber> {
+    override suspend fun setTorchAsync(enabled: Boolean): Deferred<FrameNumber> {
         return cameraGraph.acquireSession().use {
             it.setTorch(
                 when (enabled) {
@@ -85,7 +101,26 @@ class UseCaseCamera(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun <T> setParameter(key: CaptureRequest.Key<T>, value: T) {
+        currentParameters[key] = value as Any
+        state.update(parameters = currentParameters)
+    }
+
+    override fun <T> setParameterAsync(key: CaptureRequest.Key<T>, value: T): Deferred<Unit> {
+        currentParameters[key] = value as Any
+        return state.updateAsync(parameters = currentParameters)
+    }
+
+    override fun <T> setParameters(values: Map<CaptureRequest.Key<*>, Any>) {
+        currentParameters.putAll(values)
+        state.update(parameters = currentParameters)
+    }
+
+    override fun <T> setParametersAsync(values: Map<CaptureRequest.Key<*>, Any>): Deferred<Unit> {
+        currentParameters.putAll(values)
+        return state.updateAsync(parameters = currentParameters)
+    }
+
     private fun updateUseCases() {
         val repeatingStreamIds = mutableSetOf<StreamId>()
         for (useCase in activeUseCases) {
@@ -100,21 +135,7 @@ class UseCaseCamera(
             }
         }
 
-        // TODO: This needs to aggregate the current parameters and pass them to the request.
-
-        // In order to preserve ordering, this starts acquiring the session on the current thread,
-        // and will only switch to the cameraScope threads if it needs to suspend. This is important
-        // because access to the cameraGraph is well ordered, and if the coroutine suspends, it will
-        // resume in the order it accessed the cameraGraph.
-        cameraScope.launch(start = CoroutineStart.UNDISPATCHED) {
-            cameraGraph.acquireSession().use {
-                it.setRepeating(
-                    Request(
-                        streams = repeatingStreamIds.toList()
-                    )
-                )
-            }
-        }
+        state.update(streams = repeatingStreamIds)
     }
 
     override fun toString(): String = "UseCaseCamera-$debugId"
@@ -174,8 +195,10 @@ class UseCaseCamera(
                     }
                 }
 
+                val state = UseCaseCameraState(graph, coroutineScope)
+
                 graph.start()
-                return UseCaseCamera(graph, useCases, surfaceToStreamMap, coroutineScope)
+                return UseCaseCameraImpl(graph, useCases, surfaceToStreamMap, state)
             }
         }
     }
