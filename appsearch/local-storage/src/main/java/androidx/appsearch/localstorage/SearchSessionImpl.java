@@ -76,7 +76,7 @@ class SearchSessionImpl implements AppSearchSession {
                         mPackageName,
                         mDatabaseName,
                         new ArrayList<>(request.getSchemas()),
-                        new ArrayList<>(request.getSchemasNotPlatformSurfaceable()),
+                        new ArrayList<>(request.getSchemasNotVisibleToSystemUi()),
                         request.isForceOverride());
                 return AppSearchResult.newSuccessfulResult(/*value=*/ null);
             } catch (Throwable t) {
