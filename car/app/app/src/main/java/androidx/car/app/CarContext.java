@@ -223,7 +223,7 @@ public class CarContext extends ContextWrapper {
      * Starts a car app on the car screen.
      *
      * <p>The target application will get the {@link Intent} via {@link Session#onCreateScreen}
-     * or {@link CarAppService#onNewIntent}.
+     * or {@link Session#onNewIntent}.
      *
      * <p>Supported {@link Intent}s:
      *
@@ -329,7 +329,7 @@ public class CarContext extends ContextWrapper {
      * determines that conditions warrant it, as signaled by the value returned by this method.
      *
      * <p>Whenever the dark mode status changes, you will receive a call to {@link
-     * CarAppService#onCarConfigurationChanged}.
+     * Session#onCarConfigurationChanged}.
      */
     public boolean isDarkMode() {
         return (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
