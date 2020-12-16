@@ -23,7 +23,7 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
+import androidx.test.filters.MediumTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -35,7 +35,7 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
-@SmallTest
+@MediumTest
 public class AutoCloserTest {
 
     @get:Rule
