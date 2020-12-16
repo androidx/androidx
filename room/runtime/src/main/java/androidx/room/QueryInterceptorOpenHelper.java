@@ -26,7 +26,7 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
 import java.util.concurrent.Executor;
 
-final class QueryInterceptorOpenHelper implements SupportSQLiteOpenHelper {
+final class QueryInterceptorOpenHelper implements SupportSQLiteOpenHelper, DelegatingOpenHelper {
 
     private final SupportSQLiteOpenHelper mDelegate;
     private final RoomDatabase.QueryCallback mQueryCallback;
@@ -68,4 +68,11 @@ final class QueryInterceptorOpenHelper implements SupportSQLiteOpenHelper {
     public void close() {
         mDelegate.close();
     }
+
+    @Override
+    @NonNull
+    public SupportSQLiteOpenHelper getDelegate() {
+        return mDelegate;
+    }
+
 }
