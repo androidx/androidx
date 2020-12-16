@@ -143,6 +143,7 @@ class AuthPromptTestActivity : FragmentActivity() {
      * A bit field representing the authentication type(s) that can authorize use of the secret key.
      */
     private val keyType: Int
+        @RequiresApi(Build.VERSION_CODES.R)
         get() {
             var type = 0
             if (class3_biometric_button.isChecked ||
