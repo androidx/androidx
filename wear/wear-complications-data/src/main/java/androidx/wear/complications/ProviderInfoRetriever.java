@@ -108,7 +108,7 @@ public class ProviderInfoRetriever implements AutoCloseable {
     private final ResolvableFuture<IProviderInfoService> mServiceFuture = ResolvableFuture.create();
 
     /**
-     * @param context  the current context
+     * @param context the current context
      */
     public ProviderInfoRetriever(@NonNull Context context) {
         mContext = context;
@@ -133,28 +133,28 @@ public class ProviderInfoRetriever implements AutoCloseable {
      *     null will be returned
      */
     @NonNull
-    public ListenableFuture<ProviderInfo> retrieveProviderInfo(
+    public ListenableFuture<ProviderInfo[]> retrieveProviderInfo(
             @NonNull final ComponentName watchFaceComponent,
             @NonNull final int[] watchFaceComplicationIds) {
-        final ResolvableFuture<ProviderInfo> mResultFuture = ResolvableFuture.create();
+        final ResolvableFuture<ProviderInfo[]> mResultFuture = ResolvableFuture.create();
         mServiceFuture.addListener(
                 () -> {
                     try {
-                        if (mServiceFuture.isCancelled())  {
+                        if (mServiceFuture.isCancelled()) {
                             mResultFuture.set(null);
                             return;
                         }
                         ComplicationProviderInfo[] infos =
-                                mServiceFuture.get().getProviderInfos(watchFaceComponent,
-                                        watchFaceComplicationIds);
+                                mServiceFuture.get().getProviderInfos(
+                                        watchFaceComponent, watchFaceComplicationIds);
                         if (infos != null) {
+                            ProviderInfo[] providerInfo = new ProviderInfo[infos.length];
                             for (int i = 0; i < infos.length; i++) {
-                                final int watchFaceComplicationId =
-                                        watchFaceComplicationIds[i];
+                                final int watchFaceComplicationId = watchFaceComplicationIds[i];
                                 final ComplicationProviderInfo info = infos[i];
-                                mResultFuture.set(
-                                        new ProviderInfo(watchFaceComplicationId, info));
+                                providerInfo[i] = new ProviderInfo(watchFaceComplicationId, info);
                             }
+                            mResultFuture.set(providerInfo);
                         } else {
                             mResultFuture.set(null);
                         }
