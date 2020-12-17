@@ -23,7 +23,6 @@ import android.os.RemoteException;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
@@ -60,20 +59,16 @@ public class OnClickListenerWrapperImpl implements OnClickListenerWrapper {
         }
     }
 
-    /**
-     * @hide
-     */
     @NonNull
-    @RestrictTo(LIBRARY)
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    public static OnClickListenerWrapper create(@NonNull OnClickListener listener) {
+    static OnClickListenerWrapper create(@NonNull OnClickListener listener) {
         return new OnClickListenerWrapperImpl(
                 listener,
                 listener instanceof ParkedOnlyOnClickListener);
     }
 
-    private OnClickListenerWrapperImpl(@Nullable OnClickListener listener,
+    private OnClickListenerWrapperImpl(@NonNull OnClickListener listener,
             boolean isParkedOnly) {
         this.mListener = new OnClickListenerStub(listener);
         this.mIsParkedOnly = isParkedOnly;
