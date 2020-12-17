@@ -122,12 +122,45 @@ class UserStyleRepositoryTest {
         Mockito.verify(mockListener3).onUserStyleChanged(userStyleRepository.userStyle)
     }
 
-    @Test
     fun assigning_userStyle() {
         val newStyle = UserStyle(
             hashMapOf(
                 colorStyleSetting to greenStyleOption,
                 watchHandStyleSetting to gothicStyleOption
+            )
+        )
+
+        userStyleRepository.userStyle = newStyle
+
+        assertThat(userStyleRepository.userStyle.selectedOptions[colorStyleSetting])
+            .isEqualTo(greenStyleOption)
+        assertThat(userStyleRepository.userStyle.selectedOptions[watchHandStyleSetting])
+            .isEqualTo(gothicStyleOption)
+    }
+
+    @Test
+    fun assign_userStyle_with_distinctButMatchingRefs() {
+        val colorStyleSetting2 = ListUserStyleSetting(
+            "color_style_setting",
+            "Colors",
+            "Watchface colorization", /* icon = */
+            null,
+            colorStyleList,
+            listOf(Layer.BASE_LAYER)
+        )
+        val watchHandStyleSetting2 = ListUserStyleSetting(
+            "hand_style_setting",
+            "Hand Style",
+            "Hand visual look", /* icon = */
+            null,
+            watchHandStyleList,
+            listOf(Layer.TOP_LAYER)
+        )
+
+        val newStyle = UserStyle(
+            hashMapOf(
+                colorStyleSetting2 to greenStyleOption,
+                watchHandStyleSetting2 to gothicStyleOption
             )
         )
 
