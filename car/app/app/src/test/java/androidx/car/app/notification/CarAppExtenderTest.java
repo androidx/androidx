@@ -28,6 +28,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.TestUtils;
+import androidx.car.app.model.CarColor;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.test.core.app.ApplicationProvider;
@@ -219,5 +220,18 @@ public final class CarAppExtenderTest {
 
         assertThat(new CarAppExtender(builder.build()).getImportance())
                 .isEqualTo(NotificationManagerCompat.IMPORTANCE_HIGH);
+    }
+
+    @Test
+    public void notification_extended_setColor() {
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(mContext, NOTIFICATION_CHANNEL_ID)
+                        .extend(
+                                CarAppExtender.builder()
+                                        .setColor(CarColor.BLUE)
+                                        .build());
+
+        assertThat(new CarAppExtender(builder.build()).getColor())
+                .isEqualTo(CarColor.BLUE);
     }
 }

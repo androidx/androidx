@@ -24,10 +24,14 @@ import android.app.PendingIntent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.model.CarColor;
+import androidx.car.app.serialization.Bundler;
+import androidx.car.app.serialization.BundlerException;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -110,6 +114,8 @@ import java.util.List;
  * event.
  */
 public class CarAppExtender implements NotificationCompat.Extender {
+    private static final String TAG = "CarAppExtender";
+
     private static final String EXTRA_CAR_EXTENDER = "android.car.EXTENSIONS";
     private static final String EXTRA_IS_EXTENDED = "android.car.app.EXTENDED";
     private static final String EXTRA_CONTENT_TITLE = "content_title";
@@ -120,6 +126,7 @@ public class CarAppExtender implements NotificationCompat.Extender {
     private static final String EXTRA_DELETE_INTENT = "delete_intent";
     private static final String EXTRA_ACTIONS = "actions";
     private static final String EXTRA_IMPORTANCE = "importance";
+    private static final String EXTRA_COLOR = "color";
 
     private boolean mIsExtended;
     @Nullable
@@ -135,6 +142,8 @@ public class CarAppExtender implements NotificationCompat.Extender {
     private PendingIntent mDeleteIntent;
     private ArrayList<Action> mActions;
     private int mImportance;
+    @Nullable
+    private CarColor mColor;
 
     /** Creates a {@link CarAppExtender.Builder}. */
     @NonNull
@@ -168,6 +177,15 @@ public class CarAppExtender implements NotificationCompat.Extender {
         mImportance =
                 carBundle.getInt(EXTRA_IMPORTANCE,
                         NotificationManagerCompat.IMPORTANCE_UNSPECIFIED);
+
+        Bundle colorBundle = carBundle.getBundle(EXTRA_COLOR);
+        if (colorBundle != null) {
+            try {
+                mColor = (CarColor) Bundler.fromBundle(colorBundle);
+            } catch (BundlerException e) {
+                Log.e(TAG, "Failed to deserialize the notification color", e);
+            }
+        }
     }
 
     CarAppExtender(Builder builder) {
@@ -179,6 +197,7 @@ public class CarAppExtender implements NotificationCompat.Extender {
         this.mDeleteIntent = builder.mDeleteIntent;
         this.mActions = builder.mActions;
         this.mImportance = builder.mImportance;
+        this.mColor = builder.mColor;
     }
 
     /**
@@ -224,6 +243,15 @@ public class CarAppExtender implements NotificationCompat.Extender {
         }
 
         carExtensions.putInt(EXTRA_IMPORTANCE, mImportance);
+
+        if (mColor != null) {
+            try {
+                Bundle bundle = Bundler.toBundle(mColor);
+                carExtensions.putBundle(EXTRA_COLOR, bundle);
+            } catch (BundlerException e) {
+                Log.e(TAG, "Failed to serialize the notification color", e);
+            }
+        }
 
         builder.getExtras().putBundle(EXTRA_CAR_EXTENDER, carExtensions);
         return builder;
@@ -334,6 +362,16 @@ public class CarAppExtender implements NotificationCompat.Extender {
         return mImportance;
     }
 
+    /**
+     * Gets the background color of the notification.
+     *
+     * @see Builder#setColor(CarColor)
+     */
+    @Nullable
+    public CarColor getColor() {
+        return mColor;
+    }
+
     /** A builder of {@link CarAppExtender}. */
     public static final class Builder {
         @Nullable
@@ -349,6 +387,8 @@ public class CarAppExtender implements NotificationCompat.Extender {
         PendingIntent mDeleteIntent;
         final ArrayList<Action> mActions = new ArrayList<>();
         int mImportance = NotificationManagerCompat.IMPORTANCE_UNSPECIFIED;
+        @Nullable
+        CarColor mColor;
 
         /**
          * Sets the title of the notification in the car screen, or {@code null} to not override the
@@ -505,6 +545,22 @@ public class CarAppExtender implements NotificationCompat.Extender {
         @NonNull
         public Builder setImportance(int importance) {
             this.mImportance = importance;
+            return this;
+        }
+
+        /**
+         * Sets the background color of the notification in the car screen, or {@code null} to not
+         * override the background color of the notification.
+         *
+         * <p>This method is equivalent to {@link NotificationCompat.Builder#setColor(int)} for
+         * the car screen.
+         *
+         * <p>The notification background color, if applied, must be updated in response to the
+         * light and dark mode changes even if a {@link CarColor} is not used.
+         */
+        @NonNull
+        public Builder setColor(@Nullable CarColor color) {
+            this.mColor = color;
             return this;
         }
 

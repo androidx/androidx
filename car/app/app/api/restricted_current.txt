@@ -977,6 +977,7 @@ package androidx.car.app.notification {
     method public static androidx.car.app.notification.CarAppExtender.Builder builder();
     method public androidx.core.app.NotificationCompat.Builder extend(androidx.core.app.NotificationCompat.Builder);
     method public java.util.List<android.app.Notification.Action!> getActions();
+    method public androidx.car.app.model.CarColor? getColor();
     method public android.app.PendingIntent? getContentIntent();
     method public CharSequence? getContentText();
     method public CharSequence? getContentTitle();
@@ -992,6 +993,7 @@ package androidx.car.app.notification {
     ctor public CarAppExtender.Builder();
     method public androidx.car.app.notification.CarAppExtender.Builder addAction(@DrawableRes int, CharSequence, android.app.PendingIntent);
     method public androidx.car.app.notification.CarAppExtender build();
+    method public androidx.car.app.notification.CarAppExtender.Builder setColor(androidx.car.app.model.CarColor?);
     method public androidx.car.app.notification.CarAppExtender.Builder setContentIntent(android.app.PendingIntent?);
     method public androidx.car.app.notification.CarAppExtender.Builder setContentText(CharSequence?);
     method public androidx.car.app.notification.CarAppExtender.Builder setContentTitle(CharSequence?);
