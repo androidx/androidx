@@ -597,7 +597,8 @@ public final class WindowInsetsAnimationCompat {
                     view.setOnApplyWindowInsetsListener(null);
                 }
             } else {
-                View.OnApplyWindowInsetsListener proxyListener = createProxyListener(callback);
+                View.OnApplyWindowInsetsListener proxyListener =
+                        createProxyListener(view, callback);
                 view.setTag(R.id.tag_window_insets_animation_callback, proxyListener);
 
                 // We rely on OnApplyWindowInsetsListener, but one might already be set by the
@@ -612,8 +613,8 @@ public final class WindowInsetsAnimationCompat {
 
         @NonNull
         private static View.OnApplyWindowInsetsListener createProxyListener(
-                @NonNull final Callback callback) {
-            return new Impl21OnApplyWindowInsetsListener(callback);
+                @NonNull View view, @NonNull final Callback callback) {
+            return new Impl21OnApplyWindowInsetsListener(view, callback);
         }
 
         @NonNull
@@ -650,6 +651,7 @@ public final class WindowInsetsAnimationCompat {
             return animatingMask;
         }
 
+        @SuppressLint("WrongConstant")
         static WindowInsetsCompat interpolateInsets(
                 WindowInsetsCompat target, WindowInsetsCompat starting,
                 float fraction, int typeMask) {
@@ -657,10 +659,11 @@ public final class WindowInsetsAnimationCompat {
             for (int i = WindowInsetsCompat.Type.FIRST; i <= WindowInsetsCompat.Type.LAST;
                     i = i << 1) {
                 if ((typeMask & i) == 0) {
+                    builder.setInsets(i, target.getInsets(i));
                     continue;
                 }
-                Insets targetInsets = target.getInsets(typeMask & i);
-                Insets startingInsets = starting.getInsets(typeMask & i);
+                Insets targetInsets = target.getInsets(i);
+                Insets startingInsets = starting.getInsets(i);
                 Insets interpolatedInsets = WindowInsetsCompat.insetInsets(
                         targetInsets,
                         (int) (0.5 + (targetInsets.left - startingInsets.left) * (1 - fraction)),
@@ -669,8 +672,7 @@ public final class WindowInsetsAnimationCompat {
                         (int) (0.5 + (targetInsets.bottom - startingInsets.bottom) * (1 - fraction))
 
                 );
-                builder.setInsets(typeMask & i, interpolatedInsets);
-
+                builder.setInsets(i, interpolatedInsets);
             }
 
             return builder.build();
@@ -690,20 +692,20 @@ public final class WindowInsetsAnimationCompat {
             // We save the last insets to compute the starting insets for the animation.
             private WindowInsetsCompat mLastInsets;
 
-            Impl21OnApplyWindowInsetsListener(Callback callback) {
+            Impl21OnApplyWindowInsetsListener(@NonNull View view, @NonNull Callback callback) {
                 mCallback = callback;
-                mLastInsets = null;
+                mLastInsets = ViewCompat.getRootWindowInsets(view);
             }
 
             @Override
             public WindowInsets onApplyWindowInsets(final View v, final WindowInsets insets) {
                 // We cannot rely on the compat insets value until the view is laid out.
                 if (!v.isLaidOut()) {
-                    mLastInsets = toWindowInsetsCompat(insets);
+                    mLastInsets = toWindowInsetsCompat(insets, v);
                     return forwardToViewIfNeeded(v, insets);
                 }
 
-                final WindowInsetsCompat targetInsets = toWindowInsetsCompat(insets);
+                final WindowInsetsCompat targetInsets = toWindowInsetsCompat(insets, v);
 
                 if (mLastInsets == null) {
                     mLastInsets = ViewCompat.getRootWindowInsets(v);
