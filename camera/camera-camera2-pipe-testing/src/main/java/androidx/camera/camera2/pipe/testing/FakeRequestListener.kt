@@ -25,16 +25,17 @@ import androidx.camera.camera2.pipe.RequestMetadata
 /**
  * Fake implementation of a [Request.Listener] for tests.
  */
-class FakeRequestListener : Request.Listener {
-    var lastStartedRequestMetadata: RequestMetadata? = null
-    var lastStartedFrameNumber: FrameNumber? = null
-    var lastStartedTimestamp: CameraTimestamp? = null
+@Suppress("ListenerInterface")
+public class FakeRequestListener : Request.Listener {
+    public var lastStartedRequestMetadata: RequestMetadata? = null
+    public var lastStartedFrameNumber: FrameNumber? = null
+    public var lastStartedTimestamp: CameraTimestamp? = null
 
-    var lastCompleteRequestMetadata: RequestMetadata? = null
-    var lastCompleteFrameNumber: FrameNumber? = null
-    var lastCompleteResult: FrameInfo? = null
+    public var lastCompleteRequestMetadata: RequestMetadata? = null
+    public var lastCompleteFrameNumber: FrameNumber? = null
+    public var lastCompleteResult: FrameInfo? = null
 
-    var lastAbortedRequest: Request? = null
+    public var lastAbortedRequest: Request? = null
 
     override fun onStarted(
         requestMetadata: RequestMetadata,

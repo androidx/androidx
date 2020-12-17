@@ -206,21 +206,19 @@ data class Request(
         ) {
         }
     }
+
+    operator fun <T> get(key: CaptureRequest.Key<T>): T? = getUnchecked(key)
+    operator fun <T> get(key: Metadata.Key<T>): T? = getUnchecked(key)
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <T> getUnchecked(key: CaptureRequest.Key<T>): T? =
+        this.requestParameters[key] as T?
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <T> getUnchecked(key: Metadata.Key<T>): T? =
+        this.extraRequestParameters[key] as T?
 }
 
-@Suppress("UNCHECKED_CAST")
-private fun <T> Request.getUnchecked(key: Metadata.Key<T>): T? =
-    this.extraRequestParameters[key] as T?
-
-operator fun <T> Request.get(key: Metadata.Key<T>): T? = getUnchecked(key)
-fun <T> Request.getOrDefault(key: Metadata.Key<T>, default: T): T = getUnchecked(key) ?: default
-
-@Suppress("UNCHECKED_CAST")
-private fun <T> Request.getUnchecked(key: CaptureRequest.Key<T>): T? =
-    this.requestParameters[key] as T?
-
-operator fun <T> Request.get(key: CaptureRequest.Key<T>): T? = getUnchecked(key)
-fun <T> Request.getOrDefault(key: CaptureRequest.Key<T>, default: T): T =
-    getUnchecked(key) ?: default
-
+fun <T> Request.getOrDefault(key: Metadata.Key<T>, default: T): T = this[key] ?: default
+fun <T> Request.getOrDefault(key: CaptureRequest.Key<T>, default: T): T = this[key] ?: default
 fun Request.formatForLogs(): String = "Request($streams)@${Integer.toHexString(hashCode())}"
