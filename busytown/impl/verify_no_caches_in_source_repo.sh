@@ -63,7 +63,18 @@ ${UNEXPECTED_GENERATED_FILES}
 
 Generated files should go in OUT_DIR instead because that is where developers expect to find them
 (to make it easier to diagnose build problems: inspect or delete these files)" >&2
+
+    # copy these new files into DIST_DIR in case anyone wants to inspect them
+    COPY_TO=$DIST_DIR/new_files
+    for f in $UNEXPECTED_GENERATED_FILES; do
+      dest="$COPY_TO/$f"
+      mkdir -p "$(dirname $dest)"
+      cp "$SOURCE_DIR/$f" "$dest"
+    done
+    echo >&2
+    echo Copied these generated files into $COPY_TO >&2
     exit 1
   fi
 }
+echo checking compared to $COMPARE_TO_FILE
 checkForGeneratedFilesInSourceRepo
