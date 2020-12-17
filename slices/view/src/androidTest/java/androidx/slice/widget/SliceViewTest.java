@@ -699,8 +699,9 @@ public class SliceViewTest {
 
     private int getThemeColor(int colorRes) {
         TypedArray arr = mContext.getTheme().obtainStyledAttributes(new int[] {colorRes});
+        assertTrue(arr.hasValue(0));
         int themeColor = arr.getColor(0, -1);
-        assertNotSame(-1, themeColor);
+        arr.recycle();
         return themeColor;
     }
 
