@@ -22,16 +22,11 @@ import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CON
 
 import android.annotation.SuppressLint;
 import android.os.Looper;
-import android.os.RemoteException;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.IOnDoneCallback;
-import androidx.car.app.OnDoneCallback;
 import androidx.car.app.Screen;
-import androidx.car.app.WrappedRuntimeException;
-import androidx.car.app.utils.RemoteUtils;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -227,16 +222,7 @@ public final class SearchTemplate implements Template {
         mItemList = null;
         mHeaderAction = null;
         mActionStrip = null;
-        mSearchCallback = createSearchCallback(
-                new SearchCallback() {
-                    @Override
-                    public void onSearchTextChanged(@NonNull String searchText) {
-                    }
-
-                    @Override
-                    public void onSearchSubmitted(@NonNull String searchText) {
-                    }
-                });
+        mSearchCallback = null;
         mShowKeyboardByDefault = true;
     }
 
@@ -257,7 +243,7 @@ public final class SearchTemplate implements Template {
         ActionStrip mActionStrip;
 
         Builder(SearchCallback callback) {
-            mSearchCallback = createSearchCallback(callback);
+            mSearchCallback = SearchCallbackWrapperImpl.create(callback);
         }
 
         /**
@@ -401,56 +387,6 @@ public final class SearchTemplate implements Template {
             }
 
             return new SearchTemplate(this);
-        }
-    }
-
-    static SearchCallbackWrapper createSearchCallback(@NonNull SearchCallback callback) {
-        return new SearchCallbackWrapper() {
-            private final ISearchCallback mStubCallback = new SearchCallbackStub(callback);
-
-            @Override
-            public void onSearchTextChanged(@NonNull String searchText,
-                    @NonNull OnDoneCallback callback) {
-                try {
-                    mStubCallback.onSearchTextChanged(searchText,
-                            RemoteUtils.createOnDoneCallbackStub(callback));
-                } catch (RemoteException e) {
-                    throw new WrappedRuntimeException(e);
-                }
-            }
-
-            @Override
-            public void onSearchSubmitted(@NonNull String searchText,
-                    @NonNull OnDoneCallback callback) {
-                try {
-                    mStubCallback.onSearchSubmitted(searchText,
-                            RemoteUtils.createOnDoneCallbackStub(callback));
-                } catch (RemoteException e) {
-                    throw new WrappedRuntimeException(e);
-                }
-            }
-        };
-    }
-
-    @Keep // We need to keep these stub for Bundler serialization logic.
-    private static class SearchCallbackStub extends ISearchCallback.Stub {
-        private final SearchCallback mSearchCallback;
-
-        SearchCallbackStub(SearchCallback searchCallback) {
-            mSearchCallback = searchCallback;
-        }
-
-        @Override
-        public void onSearchTextChanged(String text, IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(
-                    () -> mSearchCallback.onSearchTextChanged(text), callback,
-                    "onSearchTextChanged");
-        }
-
-        @Override
-        public void onSearchSubmitted(String text, IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(
-                    () -> mSearchCallback.onSearchSubmitted(text), callback, "onSearchSubmitted");
         }
     }
 }

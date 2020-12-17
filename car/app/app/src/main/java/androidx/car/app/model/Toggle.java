@@ -20,15 +20,10 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 import android.os.Looper;
-import android.os.RemoteException;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.IOnDoneCallback;
-import androidx.car.app.OnDoneCallback;
-import androidx.car.app.WrappedRuntimeException;
-import androidx.car.app.utils.RemoteUtils;
 
 /** Represents a toggle that can have either a checked or unchecked state. */
 public class Toggle {
@@ -140,53 +135,19 @@ public class Toggle {
         public Builder setOnCheckedChangeListener(
                 @NonNull OnCheckedChangeListener onCheckedChangeListener) {
             this.mOnCheckedChangeListener =
-                    createOnCheckedChangeListener(onCheckedChangeListener);
+                    OnCheckedChangeListenerWrapperImpl.create(onCheckedChangeListener);
             return this;
         }
 
         Builder(@NonNull OnCheckedChangeListener onCheckedChangeListener) {
             this.mOnCheckedChangeListener =
-                    createOnCheckedChangeListener(onCheckedChangeListener);
+                    OnCheckedChangeListenerWrapperImpl.create(onCheckedChangeListener);
         }
 
         /** Constructs the {@link Toggle} defined by this builder. */
         @NonNull
         public Toggle build() {
             return new Toggle(this);
-        }
-    }
-
-    static OnCheckedChangeListenerWrapper createOnCheckedChangeListener(
-            @NonNull OnCheckedChangeListener listener) {
-        return new OnCheckedChangeListenerWrapper() {
-            private final IOnCheckedChangeListener mOnCheckedChangeListener =
-                    new OnCheckedChangeListenerStub(listener);
-
-            @Override
-            public void onCheckedChange(boolean isChecked, @NonNull OnDoneCallback callback) {
-                try {
-                    mOnCheckedChangeListener.onCheckedChange(isChecked,
-                            RemoteUtils.createOnDoneCallbackStub(callback));
-                } catch (RemoteException e) {
-                    throw new WrappedRuntimeException(e);
-                }
-            }
-        };
-    }
-
-    @Keep // We need to keep these stub for Bundler serialization logic.
-    private static class OnCheckedChangeListenerStub extends IOnCheckedChangeListener.Stub {
-        private final OnCheckedChangeListener mOnCheckedChangeListener;
-
-        OnCheckedChangeListenerStub(OnCheckedChangeListener onCheckedChangeListener) {
-            this.mOnCheckedChangeListener = onCheckedChangeListener;
-        }
-
-        @Override
-        public void onCheckedChange(boolean isChecked, IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(
-                    () -> mOnCheckedChangeListener.onCheckedChange(isChecked), callback,
-                    "onCheckedChange");
         }
     }
 }

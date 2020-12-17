@@ -20,15 +20,10 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 import android.os.Looper;
-import android.os.RemoteException;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.IOnDoneCallback;
-import androidx.car.app.OnDoneCallback;
-import androidx.car.app.WrappedRuntimeException;
-import androidx.car.app.utils.RemoteUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -212,7 +207,8 @@ public final class ItemList {
             this.mOnItemVisibilityChangedListener =
                     itemVisibilityChangedListener == null
                             ? null
-                            : createOnItemVisibilityChangedListener(itemVisibilityChangedListener);
+                            : OnItemVisibilityChangedListenerWrapperImpl.create(
+                                    itemVisibilityChangedListener);
             return this;
         }
 
@@ -236,8 +232,8 @@ public final class ItemList {
         @SuppressLint("ExecutorRegistration")
         public Builder setOnSelectedListener(@Nullable OnSelectedListener onSelectedListener) {
             this.mOnSelectedListener =
-                    onSelectedListener == null ? null : createOnSelectedListener(
-                            onSelectedListener);
+                    onSelectedListener == null ? null :
+                            OnSelectedListenerWrapperImpl.create(onSelectedListener);
             return this;
         }
 
@@ -351,78 +347,5 @@ public final class ItemList {
         }
 
         return null;
-    }
-
-    static OnSelectedListenerWrapper createOnSelectedListener(
-            @NonNull OnSelectedListener listener) {
-        return new OnSelectedListenerWrapper() {
-            private final IOnSelectedListener mStubListener = new OnSelectedListenerStub(listener);
-
-            @Override
-            public void onSelected(int selectedIndex, @NonNull OnDoneCallback callback) {
-                try {
-                    mStubListener.onSelected(selectedIndex,
-                            RemoteUtils.createOnDoneCallbackStub(callback));
-                } catch (RemoteException e) {
-                    throw new WrappedRuntimeException(e);
-                }
-            }
-        };
-    }
-
-    @Keep // We need to keep these stub for Bundler serialization logic.
-    private static class OnSelectedListenerStub extends IOnSelectedListener.Stub {
-        private final OnSelectedListener mOnSelectedListener;
-
-        OnSelectedListenerStub(OnSelectedListener onSelectedListener) {
-            this.mOnSelectedListener = onSelectedListener;
-        }
-
-        @Override
-        public void onSelected(int index, IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(
-                    () -> mOnSelectedListener.onSelected(index), callback, "onSelectedListener");
-        }
-    }
-
-    static OnItemVisibilityChangedListenerWrapper createOnItemVisibilityChangedListener(
-            @NonNull OnItemVisibilityChangedListener listener) {
-        return new OnItemVisibilityChangedListenerWrapper() {
-            private final IOnItemVisibilityChangedListener mStubListener =
-                    new OnItemVisibilityChangedListenerStub(listener);
-
-            @Override
-            public void onItemVisibilityChanged(int startIndex, int rightIndex,
-                    @NonNull OnDoneCallback callback) {
-                try {
-                    mStubListener.onItemVisibilityChanged(startIndex, rightIndex,
-                            RemoteUtils.createOnDoneCallbackStub(callback));
-                } catch (RemoteException e) {
-                    throw new WrappedRuntimeException(e);
-                }
-            }
-        };
-    }
-
-    /** Stub class for the {@link IOnItemVisibilityChangedListener} interface. */
-    @Keep // We need to keep these stub for Bundler serialization logic.
-    private static class OnItemVisibilityChangedListenerStub
-            extends IOnItemVisibilityChangedListener.Stub {
-        private final OnItemVisibilityChangedListener mOnItemVisibilityChangedListener;
-
-        OnItemVisibilityChangedListenerStub(
-                OnItemVisibilityChangedListener onItemVisibilityChangedListener) {
-            this.mOnItemVisibilityChangedListener = onItemVisibilityChangedListener;
-        }
-
-        @Override
-        public void onItemVisibilityChanged(
-                int startIndexInclusive, int endIndexExclusive, IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(
-                    () -> mOnItemVisibilityChangedListener.onItemVisibilityChanged(
-                            startIndexInclusive, endIndexExclusive),
-                    callback,
-                    "onItemVisibilityChanged");
-        }
     }
 }
