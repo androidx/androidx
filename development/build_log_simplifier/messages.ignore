@@ -407,6 +407,7 @@ w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-s
 Html results of .* zipped into.*\.zip
 # > Task :annotation:annotation-experimental-lint:test
 WARNING: An illegal reflective access operation has occurred
+WARNING\: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file\:\$CHECKOUT\/prebuilts\/androidx\/external\/com\/android\/tools\/external\/com\-intellij\/intellij\-core\/[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\/intellij\-core\-[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING\: Illegal reflective access by org\.jetbrains\.kotlin\.com\.intellij\.util\.ReflectionUtil \(file\:\$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-compiler\-embeddable\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-compiler\-embeddable\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING\: Please consider reporting this to the maintainers of org\.jetbrains\.kotlin\.com\.intellij\.util\.ReflectionUtil
 WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-compiler/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-compiler\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
@@ -625,9 +626,9 @@ w: \$SUPPORT/wear/wear\-watchface/src/main/java/androidx/wear/watchface/ui/Watch
 UI_MODE_TYPE_VR_HEADSET,
 \~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~
 # > Task *:lintDebug
-\$SUPPORT/.*/build\.gradle: Warning: Unknown issue id "ComposableNaming" \[UnknownIssueId\]
-\$SUPPORT/.*/build\.gradle: Warning: Unknown issue id "ComposableLambdaParameterNaming" \[UnknownIssueId\]
-\$SUPPORT/.*/build\.gradle: Warning: Unknown issue id "ComposableLambdaParameterPosition" \[UnknownIssueId\]
+\$SUPPORT/.*/build\.gradle: Ignore: Unknown issue id "ComposableNaming" \[UnknownIssueId\]
+\$SUPPORT/.*/build\.gradle: Ignore: Unknown issue id "ComposableLambdaParameterNaming" \[UnknownIssueId\]
+\$SUPPORT/.*/build\.gradle: Ignore: Unknown issue id "ComposableLambdaParameterPosition" \[UnknownIssueId\]
 Explanation for issues of type "UnknownIssueId":
 Lint will report this issue if it is configured with an issue id it does
 not recognize in for example Gradle files or lint\.xml configuration files\.
