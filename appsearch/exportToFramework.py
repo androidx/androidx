@@ -33,13 +33,12 @@ JETPACK_IMPL_TEST_ROOT = 'local-storage/src/androidTest/java/androidx/appsearch'
 
 # Framework paths relative to frameworks/base/apex/appsearch
 FRAMEWORK_API_ROOT = 'framework/java/external/android/app/appsearch'
-FRAMEWORK_API_TEST_ROOT = (
-        '../../core/tests/coretests/src/'
-        'android/app/appsearch/external')
+FRAMEWORK_API_TEST_ROOT = '../../core/tests/coretests/src/android/app/appsearch/external'
 FRAMEWORK_IMPL_ROOT = 'service/java/com/android/server/appsearch/external'
 FRAMEWORK_IMPL_TEST_ROOT = (
-        '../../services/tests/servicestests/src/'
-        'com/android/server/appsearch/external')
+        '../../services/tests/servicestests/src/com/android/server/appsearch/external')
+FRAMEWORK_TEST_UTIL_ROOT = 'testing/java/com/android/server/appsearch/testing/external/'
+FRAMEWORK_CTS_TEST_ROOT = '../../../../cts/tests/appsearch/src/com/android/cts/appsearch/external'
 GOOGLE_JAVA_FORMAT = (
         '../../../../prebuilts/tools/common/google-java-format/google-java-format')
 
@@ -123,17 +122,31 @@ class ExportToFramework:
                 self._TransformAndCopyFile(source_abs_path, dest_path, transform_func)
 
     def _ExportApiCode(self):
+        # Prod source
         api_source_dir = os.path.join(self._jetpack_appsearch_root, JETPACK_API_ROOT)
-        api_test_source_dir = os.path.join(self._jetpack_appsearch_root, JETPACK_API_TEST_ROOT)
         api_dest_dir = os.path.join(self._framework_appsearch_root, FRAMEWORK_API_ROOT)
+
+        # Unit tests
+        api_test_source_dir = os.path.join(self._jetpack_appsearch_root, JETPACK_API_TEST_ROOT)
         api_test_dest_dir = os.path.join(self._framework_appsearch_root, FRAMEWORK_API_TEST_ROOT)
+
+        # CTS tests
+        cts_test_source_dir = os.path.join(api_test_source_dir, 'app/cts')
+        cts_test_dest_dir = os.path.join(self._framework_appsearch_root, FRAMEWORK_CTS_TEST_ROOT)
+
+        # Test utils
+        test_util_source_dir = os.path.join(api_test_source_dir, 'app/util')
+        test_util_dest_dir = os.path.join(self._framework_appsearch_root, FRAMEWORK_TEST_UTIL_ROOT)
 
         # Prune existing files
         self._PruneDir(api_dest_dir)
         self._PruneDir(api_test_dest_dir)
+        self._PruneDir(cts_test_dest_dir)
+        self._PruneDir(test_util_dest_dir)
 
         # Copy api classes. We can't use _TransformAndCopyFolder here because we
         # need to specially handle the 'app' package.
+        print('~~~ Copying API classes ~~~')
         def _TransformApiCode(contents):
             contents = contents.replace(
                     'package androidx.appsearch.app;',
@@ -151,9 +164,28 @@ class ExportToFramework:
                     dest_path = os.path.join(api_dest_dir, dir_rel_to_root, filename)
                 self._TransformAndCopyFile(source_abs_path, dest_path, _TransformApiCode)
 
-        # Copy api test classes.
+        # Copy api unit tests. We can't use _TransformAndCopyFolder here because we need to skip the
+        # 'util' and 'cts' subfolders.
+        print('~~~ Copying API unit tests ~~~')
+        for currentpath, folders, files in os.walk(api_test_source_dir):
+            if (currentpath.startswith(cts_test_source_dir) or
+                    currentpath.startswith(test_util_source_dir)):
+                continue
+            dir_rel_to_root = os.path.relpath(currentpath, api_test_source_dir)
+            for filename in files:
+                source_abs_path = os.path.join(currentpath, filename)
+                dest_path = os.path.join(api_test_dest_dir, dir_rel_to_root, filename)
+                self._TransformAndCopyFile(source_abs_path, dest_path, self._TransformTestCode)
+
+        # Copy CTS tests
+        print('~~~ Copying CTS tests ~~~')
         self._TransformAndCopyFolder(
-                api_test_source_dir, api_test_dest_dir, transform_func=self._TransformTestCode)
+                cts_test_source_dir, cts_test_dest_dir, transform_func=self._TransformTestCode)
+
+        # Copy test utils
+        print('~~~ Copying test utils ~~~')
+        self._TransformAndCopyFolder(
+                test_util_source_dir, test_util_dest_dir, transform_func=self._TransformTestCode)
 
     def _ExportImplCode(self):
         impl_source_dir = os.path.join(self._jetpack_appsearch_root, JETPACK_IMPL_ROOT)
