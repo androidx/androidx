@@ -45,6 +45,7 @@ dependencies {
     testImplementation(TRUTH)
     testImplementation(ROBOLECTRIC)
     testImplementation(KOTLIN_COROUTINES_TEST)
+    testImplementation(project(":camera:camera-camera2-pipe-testing"))
 
     kaptTest(DAGGER_COMPILER)
 
