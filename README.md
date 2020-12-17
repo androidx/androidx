@@ -16,6 +16,7 @@ Note: The contributions workflow via GitHub is currently experimental - only con
 * [Activity](activity)
 * [Biometric](biometric)
 * [Fragment](fragment)
+* [Lifecycle](lifecycle)
 * [Navigation](navigation)
 * [Paging](paging)
 * [Room](room)
