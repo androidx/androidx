@@ -2,9 +2,13 @@
 package androidx.navigation {
 
   public final class ActionOnlyNavDirections implements androidx.navigation.NavDirections {
-    ctor public ActionOnlyNavDirections(int);
+    ctor public ActionOnlyNavDirections(int actionId);
+    method public int component1();
+    method public androidx.navigation.ActionOnlyNavDirections copy(int actionId);
     method public int getActionId();
     method public android.os.Bundle getArguments();
+    property public int actionId;
+    property public android.os.Bundle arguments;
   }
 
   public interface FloatingWindow {
