@@ -27,8 +27,8 @@ import android.hardware.camera2.CaptureRequest
  */
 public data class Request(
     val streams: List<StreamId>,
-    val requestParameters: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
-    val extraRequestParameters: Map<Metadata.Key<*>, Any> = emptyMap(),
+    val parameters: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
+    val extras: Map<Metadata.Key<*>, Any> = emptyMap(),
     val listeners: List<Listener> = emptyList(),
     val template: RequestTemplate? = null
 ) {
@@ -212,11 +212,11 @@ public data class Request(
 
     @Suppress("UNCHECKED_CAST")
     private fun <T> Request.getUnchecked(key: Metadata.Key<T>): T? =
-        this.extraRequestParameters[key] as T?
+        this.extras[key] as T?
 
     @Suppress("UNCHECKED_CAST")
     private fun <T> Request.getUnchecked(key: CaptureRequest.Key<T>): T? =
-        this.requestParameters[key] as T?
+        this.parameters[key] as T?
 }
 
 public fun <T> Request.getOrDefault(key: Metadata.Key<T>, default: T): T = this[key] ?: default

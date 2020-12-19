@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.camera2.pipe.wrapper.Api28Compat
 
 /**
  * An implementation of [FrameMetadata] that retrieves values from a [CaptureResult] object
@@ -102,8 +103,8 @@ internal class AndroidFrameInfo(
         // Metadata for physical cameras was introduced in Android P so that it can be used to
         // determine state of the physical lens and sensor in a multi-camera configuration.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val physicalResults = totalCaptureResult.physicalCameraResults
-            if (physicalResults.isNotEmpty()) {
+            val physicalResults = Api28Compat.getPhysicalCaptureResults(totalCaptureResult)
+            if (physicalResults != null && physicalResults.isNotEmpty()) {
                 val map = ArrayMap<CameraId, AndroidFrameMetadata>(physicalResults.size)
                 for (entry in physicalResults) {
                     val physicalCamera = CameraId(entry.key)

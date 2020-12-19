@@ -17,10 +17,13 @@
 package androidx.camera.camera2.pipe.impl
 
 import android.view.Surface
-
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.impl.Timestamps.formatMs
+import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.TimestampNs
+import androidx.camera.camera2.pipe.core.Timestamps
+import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.wrapper.CameraCaptureSessionWrapper
 import androidx.camera.camera2.pipe.wrapper.CameraDeviceWrapper
 import androidx.camera.camera2.pipe.wrapper.OutputConfigurationWrapper
@@ -28,10 +31,6 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.Collections.synchronizedMap
-
-internal interface SurfaceListener {
-    fun setSurfaceMap(surfaces: Map<StreamId, Surface>)
-}
 
 internal val virtualSessionDebugIds = atomic(0)
 
@@ -46,9 +45,9 @@ internal val virtualSessionDebugIds = atomic(0)
 internal class VirtualSessionState(
     private val graphProcessor: GraphProcessor,
     private val sessionFactory: SessionFactory,
-    private val requestProcessorFactory: RequestProcessor.Factory,
+    private val requestProcessorFactory: RequestProcessorFactory,
     private val scope: CoroutineScope
-) : CameraCaptureSessionWrapper.StateCallback, SurfaceListener {
+) : CameraCaptureSessionWrapper.StateCallback, StreamGraphImpl.SurfaceListener {
     private val debugId = virtualSessionDebugIds.incrementAndGet()
     private val lock = Any()
 
@@ -93,7 +92,7 @@ internal class VirtualSessionState(
 
     @GuardedBy("lock")
     private var _surfaceMap: Map<StreamId, Surface>? = null
-    override fun setSurfaceMap(surfaces: Map<StreamId, Surface>) {
+    override fun onSurfaceMapUpdated(surfaces: Map<StreamId, Surface>) {
         synchronized(lock) {
             if (state == State.CLOSING || state == State.CLOSED) {
                 return@synchronized

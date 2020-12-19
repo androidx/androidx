@@ -55,7 +55,7 @@ public class CameraPipe(config: Config) {
     /**
      * This provides access to information about the available cameras on the device.
      */
-    public fun cameras(): Cameras {
+    public fun cameras(): CameraDevices {
         return component.cameras()
     }
 

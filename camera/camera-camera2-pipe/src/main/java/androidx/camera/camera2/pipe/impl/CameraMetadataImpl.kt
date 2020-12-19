@@ -25,7 +25,11 @@ import android.os.Build
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Metadata
-import androidx.camera.camera2.pipe.impl.Timestamps.formatMs
+import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Timestamps
+import androidx.camera.camera2.pipe.core.Timestamps.formatMs
+import androidx.camera.camera2.pipe.wrapper.Api28Compat
 
 /**
  * This implementation provides access to CameraCharacteristics and lazy caching of properties
@@ -70,7 +74,7 @@ internal class CameraMetadataImpl constructor(
                     characteristics.keys.orEmpty().toSet()
                 }
             } catch (ignored: AssertionError) {
-                emptySet<CameraCharacteristics.Key<*>>()
+                emptySet()
             }
         }
 
@@ -82,7 +86,7 @@ internal class CameraMetadataImpl constructor(
                     characteristics.availableCaptureRequestKeys.orEmpty().toSet()
                 }
             } catch (ignored: AssertionError) {
-                emptySet<CaptureRequest.Key<*>>()
+                emptySet()
             }
         }
 
@@ -94,7 +98,7 @@ internal class CameraMetadataImpl constructor(
                     characteristics.availableCaptureResultKeys.orEmpty().toSet()
                 }
             } catch (ignored: AssertionError) {
-                emptySet<CaptureResult.Key<*>>()
+                emptySet()
             }
         }
 
@@ -110,7 +114,7 @@ internal class CameraMetadataImpl constructor(
                         characteristics.physicalCameraIds.orEmpty().map { CameraId(it) }.toSet()
                     }
                 } catch (ignored: AssertionError) {
-                    emptySet<CameraId>()
+                    emptySet()
                 }
             }
         }
@@ -122,11 +126,12 @@ internal class CameraMetadataImpl constructor(
             } else {
                 try {
                     Debug.trace("Camera-${camera.value}#availablePhysicalCameraRequestKeys") {
-                        @Suppress("UselessCallOnNotNull")
-                        characteristics.availablePhysicalCameraRequestKeys.orEmpty().toSet()
+                        Api28Compat.getAvailablePhysicalCameraRequestKeys(characteristics)
+                            .orEmpty()
+                            .toSet()
                     }
                 } catch (ignored: AssertionError) {
-                    emptySet<CaptureRequest.Key<*>>()
+                    emptySet()
                 }
             }
         }
@@ -138,11 +143,10 @@ internal class CameraMetadataImpl constructor(
             } else {
                 try {
                     Debug.trace("Camera-${camera.value}#availableSessionKeys") {
-                        @Suppress("UselessCallOnNotNull")
-                        characteristics.availableSessionKeys.orEmpty().toSet()
+                        Api28Compat.getAvailableSessionKeys(characteristics).orEmpty().toSet()
                     }
                 } catch (ignored: AssertionError) {
-                    emptySet<CaptureRequest.Key<*>>()
+                    emptySet()
                 }
             }
         }
