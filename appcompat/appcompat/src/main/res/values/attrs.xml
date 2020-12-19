@@ -309,7 +309,7 @@
         <attr name="panelMenuListWidth" format="dimension" />
         <!-- Default Panel Menu style. -->
         <attr name="panelMenuListTheme" format="reference" />
-        <!-- Drawable used as a background for selected list items. -->
+        <!-- Drawable used as a background for activated list items. -->
         <attr name="listChoiceBackgroundIndicator" format="reference" />
 
         <!-- ============= -->
