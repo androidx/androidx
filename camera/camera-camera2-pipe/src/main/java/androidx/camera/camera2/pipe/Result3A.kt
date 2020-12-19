@@ -21,7 +21,7 @@ package androidx.camera.camera2.pipe
  * operation is complete. The reason could be that the operation was talking a lot longer and an
  * enforced frame or time limit was reached, submitting the desired request to camera failed etc.
  */
-enum class Status3A {
+public enum class Status3A {
     OK,
     FRAME_LIMIT_REACHED,
     TIME_LIMIT_REACHED,
@@ -34,4 +34,4 @@ enum class Status3A {
  * @param frameNumber the latest [FrameNumber] at which the method succeeded or was aborted.
  * @param status [Status3A] of the 3A operation at the time of return.
  */
-data class Result3A(val frameNumber: FrameNumber, val status: Status3A)
+public data class Result3A(val frameNumber: FrameNumber, val status: Status3A)

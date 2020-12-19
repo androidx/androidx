@@ -31,7 +31,7 @@ import kotlinx.coroutines.withTimeout
 /**
  * Fake implementation of a [RequestProcessor] for tests.
  */
-class FakeRequestProcessor(private val graphState3A: GraphState3A) :
+internal class FakeRequestProcessor(private val graphState3A: GraphState3A) :
     RequestProcessor, RequestProcessor.Factory {
     private val eventChannel = Channel<Event>(Channel.UNLIMITED)
 
@@ -155,7 +155,7 @@ class FakeRequestProcessor(private val graphState3A: GraphState3A) :
     }
 }
 
-data class Event(
+internal data class Event(
     val request: FakeRequestProcessor.FakeRequest? = null,
     val rejected: Boolean = false,
     val abort: Boolean = false,

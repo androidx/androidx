@@ -35,7 +35,7 @@ import javax.inject.Singleton
  * accessing CameraMetadata.
  */
 @Singleton
-class CameraMetadataCache @Inject constructor(
+internal class CameraMetadataCache @Inject constructor(
     private val context: Context,
     private val threads: Threads,
     private val permissions: Permissions

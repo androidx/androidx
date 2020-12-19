@@ -25,6 +25,7 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.wrapper.AndroidOutputConfiguration
 import androidx.camera.camera2.pipe.wrapper.CameraDeviceWrapper
+import androidx.camera.camera2.pipe.wrapper.InputConfigData
 import androidx.camera.camera2.pipe.wrapper.OutputConfigurationWrapper
 import androidx.camera.camera2.pipe.wrapper.SessionConfigData
 import dagger.Module
@@ -35,7 +36,7 @@ import javax.inject.Provider
 /**
  * Creates a Camera2 CaptureSession from a CameraDevice
  */
-interface SessionFactory {
+internal interface SessionFactory {
     /**
      * Create a Camera2 CaptureSession using the given device, surfaces, and listener and return
      * a map of outputs that are not yet available.
@@ -48,7 +49,7 @@ interface SessionFactory {
 }
 
 @Module
-object SessionFactoryModule {
+internal object SessionFactoryModule {
     @CameraGraphScope
     @Provides
     fun provideSessionFactory(
@@ -89,7 +90,7 @@ object SessionFactoryModule {
     }
 }
 
-class AndroidLSessionFactory @Inject constructor(
+internal class AndroidLSessionFactory @Inject constructor(
     private val threads: Threads
 ) : SessionFactory {
     override fun create(
@@ -114,7 +115,7 @@ class AndroidLSessionFactory @Inject constructor(
 }
 
 @RequiresApi(Build.VERSION_CODES.M)
-class AndroidMSessionFactory @Inject constructor(
+internal class AndroidMSessionFactory @Inject constructor(
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config
 ) : SessionFactory {
@@ -162,7 +163,7 @@ class AndroidMSessionFactory @Inject constructor(
 }
 
 @RequiresApi(Build.VERSION_CODES.M)
-class AndroidMHighSpeedSessionFactory @Inject constructor(
+internal class AndroidMHighSpeedSessionFactory @Inject constructor(
     private val threads: Threads
 ) : SessionFactory {
     override fun create(
@@ -175,7 +176,7 @@ class AndroidMHighSpeedSessionFactory @Inject constructor(
 }
 
 @RequiresApi(Build.VERSION_CODES.N)
-class AndroidNSessionFactory @Inject constructor(
+internal class AndroidNSessionFactory @Inject constructor(
     private val threads: Threads,
     private val streamMap: StreamMap,
     private val graphConfig: CameraGraph.Config
@@ -200,7 +201,11 @@ class AndroidNSessionFactory @Inject constructor(
                 )
             } else {
                 cameraDevice.createReprocessableCaptureSessionByConfigurations(
-                    graphConfig.inputStream,
+                    InputConfigData(
+                        graphConfig.inputStream.width,
+                        graphConfig.inputStream.height,
+                        graphConfig.inputStream.format
+                    ),
                     outputs.all,
                     virtualSessionState,
                     threads.camera2Handler
@@ -217,7 +222,7 @@ class AndroidNSessionFactory @Inject constructor(
 }
 
 @RequiresApi(Build.VERSION_CODES.P)
-class AndroidPSessionFactory @Inject constructor(
+internal class AndroidPSessionFactory @Inject constructor(
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config,
     private val streamMap: StreamMap
@@ -242,7 +247,13 @@ class AndroidPSessionFactory @Inject constructor(
 
         val sessionConfig = SessionConfigData(
             operatingMode,
-            graphConfig.inputStream,
+            graphConfig.inputStream?.let {
+                InputConfigData(
+                    it.width,
+                    it.height,
+                    it.format
+                )
+            },
             outputs.all,
             threads.camera2Executor,
             virtualSessionState,

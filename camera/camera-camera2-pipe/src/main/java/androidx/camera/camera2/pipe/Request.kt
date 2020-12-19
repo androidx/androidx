@@ -25,7 +25,7 @@ import android.hardware.camera2.CaptureRequest
  * from what is specified in a request depending on how the request was submitted and on the
  * state of the camera.
  */
-data class Request(
+public data class Request(
     val streams: List<StreamId>,
     val requestParameters: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
     val extraRequestParameters: Map<Metadata.Key<*>, Any> = emptyMap(),
@@ -37,7 +37,7 @@ data class Request(
      * This listener is used to observe the state and progress of requests that are submitted to the
      * [CameraGraph] and can be attached to individual requests.
      */
-    interface Listener {
+    public interface Listener {
         /**
          * This event indicates that the camera sensor has started exposing the frame associated
          * with this Request. The timestamp will either be the beginning or end of the sensors
@@ -50,7 +50,7 @@ data class Request(
          * @param frameNumber the android frame number for this exposure
          * @param timestamp the android timestamp in nanos for this exposure
          */
-        fun onStarted(
+        public fun onStarted(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
             timestamp: CameraTimestamp
@@ -68,7 +68,7 @@ data class Request(
          * @param frameNumber the android frame number for this exposure
          * @param captureResult the current android capture result for this exposure
          */
-        fun onPartialCaptureResult(
+        public fun onPartialCaptureResult(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
             captureResult: FrameMetadata
@@ -87,7 +87,7 @@ data class Request(
          * @param frameNumber the android frame number for this exposure
          * @param totalCaptureResult the final android capture result for this exposure
          */
-        fun onTotalCaptureResult(
+        public fun onTotalCaptureResult(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
             totalCaptureResult: FrameInfo
@@ -105,7 +105,7 @@ data class Request(
          * @param frameNumber the android frame number for this exposure
          * @param result the package of metadata associated with this result.
          */
-        fun onComplete(
+        public fun onComplete(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
             result: FrameInfo
@@ -124,7 +124,7 @@ data class Request(
          * @param frameNumber the android frame number for this exposure
          * @param captureFailure the android [CaptureFailure] data
          */
-        fun onFailed(
+        public fun onFailed(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
             captureFailure: CaptureFailure
@@ -142,7 +142,7 @@ data class Request(
          * @param frameNumber the android frame number for this exposure
          * @param stream the internal stream that will not receive a buffer for this frame.
          */
-        fun onBufferLost(
+        public fun onBufferLost(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
             stream: StreamId
@@ -157,7 +157,7 @@ data class Request(
          *
          * @param request information about this specific request.
          */
-        fun onAborted(request: Request) {
+        public fun onAborted(request: Request) {
         }
 
         /**
@@ -167,7 +167,7 @@ data class Request(
          *
          * @param requestMetadata information about this specific request.
          */
-        fun onRequestSequenceCreated(requestMetadata: RequestMetadata) {
+        public fun onRequestSequenceCreated(requestMetadata: RequestMetadata) {
         }
 
         /**
@@ -176,7 +176,7 @@ data class Request(
          *
          * @param requestMetadata the data about the camera2 request that was sent to the camera.
          */
-        fun onRequestSequenceSubmitted(requestMetadata: RequestMetadata) {
+        public fun onRequestSequenceSubmitted(requestMetadata: RequestMetadata) {
         }
 
         /**
@@ -187,7 +187,7 @@ data class Request(
          *
          * @param requestMetadata the data about the camera2 request that was sent to the camera.
          */
-        fun onRequestSequenceAborted(requestMetadata: RequestMetadata) {
+        public fun onRequestSequenceAborted(requestMetadata: RequestMetadata) {
         }
 
         /**
@@ -200,25 +200,27 @@ data class Request(
          * @param requestMetadata the data about the camera2 request that was sent to the camera.
          * @param frameNumber the final frame number of this sequence.
          */
-        fun onRequestSequenceCompleted(
+        public fun onRequestSequenceCompleted(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber
         ) {
         }
     }
 
-    operator fun <T> get(key: CaptureRequest.Key<T>): T? = getUnchecked(key)
-    operator fun <T> get(key: Metadata.Key<T>): T? = getUnchecked(key)
+    public operator fun <T> get(key: CaptureRequest.Key<T>): T? = getUnchecked(key)
+    public operator fun <T> get(key: Metadata.Key<T>): T? = getUnchecked(key)
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T> getUnchecked(key: CaptureRequest.Key<T>): T? =
-        this.requestParameters[key] as T?
-
-    @Suppress("UNCHECKED_CAST")
-    private fun <T> getUnchecked(key: Metadata.Key<T>): T? =
+    private fun <T> Request.getUnchecked(key: Metadata.Key<T>): T? =
         this.extraRequestParameters[key] as T?
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <T> Request.getUnchecked(key: CaptureRequest.Key<T>): T? =
+        this.requestParameters[key] as T?
 }
 
-fun <T> Request.getOrDefault(key: Metadata.Key<T>, default: T): T = this[key] ?: default
-fun <T> Request.getOrDefault(key: CaptureRequest.Key<T>, default: T): T = this[key] ?: default
-fun Request.formatForLogs(): String = "Request($streams)@${Integer.toHexString(hashCode())}"
+public fun <T> Request.getOrDefault(key: Metadata.Key<T>, default: T): T = this[key] ?: default
+public fun <T> Request.getOrDefault(key: CaptureRequest.Key<T>, default: T): T =
+    this[key] ?: default
+
+public fun Request.formatForLogs(): String = "Request($streams)@${Integer.toHexString(hashCode())}"

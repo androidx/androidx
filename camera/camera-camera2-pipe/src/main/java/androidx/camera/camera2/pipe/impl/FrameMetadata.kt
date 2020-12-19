@@ -31,7 +31,7 @@ import androidx.camera.camera2.pipe.RequestMetadata
  * An implementation of [FrameMetadata] that retrieves values from a [CaptureResult] object
  */
 @Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
-class AndroidFrameMetadata constructor(
+internal class AndroidFrameMetadata constructor(
     private val captureResult: CaptureResult,
     override val camera: CameraId
 ) : FrameMetadata {
@@ -56,7 +56,7 @@ class AndroidFrameMetadata constructor(
 /**
  * A version of [FrameMetadata] that can override (fix) metadata.
  */
-class CorrectedFrameMetadata(
+internal class CorrectedFrameMetadata(
     private var frameMetadata: FrameMetadata,
     override var extraMetadata: Map<*, Any?>
 ) : FrameMetadata {
@@ -86,7 +86,7 @@ class CorrectedFrameMetadata(
  * An implementation of [FrameInfo] that retrieves values from a [TotalCaptureResult] object.
  */
 @Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
-class AndroidFrameInfo(
+internal class AndroidFrameInfo(
     private val totalCaptureResult: TotalCaptureResult,
     override val camera: CameraId,
     override val requestMetadata: RequestMetadata

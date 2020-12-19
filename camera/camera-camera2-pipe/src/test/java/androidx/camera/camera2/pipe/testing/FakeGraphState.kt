@@ -18,7 +18,7 @@ package androidx.camera.camera2.pipe.testing
 
 import androidx.camera.camera2.pipe.impl.GraphState
 
-class FakeGraphState : GraphState {
+internal class FakeGraphState : GraphState {
     var active = false
     var reconfigured = false
 

@@ -42,7 +42,7 @@ import kotlin.jvm.Throws
  * This interface has been modified to correct nullness, adjust exceptions, and to return or produce
  * wrapper interfaces instead of the native Camera2 types.
  */
-interface CameraDeviceWrapper : UnsafeWrapper<CameraDevice> {
+internal interface CameraDeviceWrapper : UnsafeWrapper<CameraDevice> {
     /** @see [CameraDevice.getId] */
     val cameraId: CameraId
 
@@ -107,11 +107,11 @@ interface CameraDeviceWrapper : UnsafeWrapper<CameraDevice> {
     fun createCaptureSession(config: SessionConfigData)
 }
 
-fun CameraDeviceWrapper?.closeWithTrace() {
+internal fun CameraDeviceWrapper?.closeWithTrace() {
     this?.unwrap().closeWithTrace()
 }
 
-fun CameraDevice?.closeWithTrace() {
+internal fun CameraDevice?.closeWithTrace() {
     this?.let {
         val start = Timestamps.now()
         Log.info { "Closing Camera ${it.id}" }
@@ -123,7 +123,7 @@ fun CameraDevice?.closeWithTrace() {
     }
 }
 
-class AndroidCameraDevice(
+internal class AndroidCameraDevice(
     private val cameraMetadata: CameraMetadata,
     private val cameraDevice: CameraDevice,
     override val cameraId: CameraId
@@ -146,6 +146,7 @@ class AndroidCameraDevice(
     }
 
     @RequiresApi(23)
+    @SuppressLint("UnsafeNewApiCall")
     override fun createReprocessableCaptureSession(
         input: InputConfiguration,
         outputs: List<Surface>,
@@ -165,6 +166,7 @@ class AndroidCameraDevice(
     }
 
     @RequiresApi(23)
+    @SuppressLint("UnsafeNewApiCall")
     override fun createConstrainedHighSpeedCaptureSession(
         outputs: List<Surface>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
@@ -182,6 +184,7 @@ class AndroidCameraDevice(
     }
 
     @RequiresApi(24)
+    @SuppressLint("UnsafeNewApiCall")
     override fun createCaptureSessionByOutputConfigurations(
         outputConfigurations: List<OutputConfigurationWrapper>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
@@ -199,6 +202,7 @@ class AndroidCameraDevice(
     }
 
     @RequiresApi(24)
+    @SuppressLint("UnsafeNewApiCall")
     override fun createReprocessableCaptureSessionByConfigurations(
         inputConfig: InputConfigData,
         outputs: List<OutputConfigurationWrapper>,

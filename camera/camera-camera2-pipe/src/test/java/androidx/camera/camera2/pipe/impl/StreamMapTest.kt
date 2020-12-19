@@ -40,7 +40,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class StreamMapTest {
+internal class StreamMapTest {
     private val fakeMetadata = FakeCameraMetadata(
         mapOf(INFO_SUPPORTED_HARDWARE_LEVEL to INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
     )

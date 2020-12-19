@@ -38,7 +38,7 @@ import java.util.concurrent.Executor
  * that a real instance can be constructed when creating a
  * [android.hardware.camera2.CameraCaptureSession] on newer versions of the OS.
  */
-data class SessionConfigData(
+internal data class SessionConfigData(
     val sessionType: Int,
     val inputConfiguration: InputConfigData?,
     val outputConfigurations: List<OutputConfigurationWrapper>,
@@ -60,7 +60,7 @@ data class SessionConfigData(
  * that a real instance can be constructed when creating a
  * [android.hardware.camera2.CameraCaptureSession] on newer versions of the OS.
  */
-data class InputConfigData(
+internal data class InputConfigData(
     val width: Int,
     val height: Int,
     val format: Int
@@ -75,7 +75,7 @@ data class InputConfigData(
  * [OutputConfiguration]'s are NOT immutable, and changing state of an [OutputConfiguration] may
  * require the CameraCaptureSession to be finalized or updated.
  */
-interface OutputConfigurationWrapper : UnsafeWrapper<OutputConfiguration> {
+internal interface OutputConfigurationWrapper : UnsafeWrapper<OutputConfiguration> {
     /**
      * This method will return null if the output configuration was created without a Surface,
      * and until addSurface is called for the first time.
@@ -118,7 +118,7 @@ interface OutputConfigurationWrapper : UnsafeWrapper<OutputConfiguration> {
 
 @RequiresApi(24)
 @SuppressLint("UnsafeNewApiCall")
-class AndroidOutputConfiguration(
+internal class AndroidOutputConfiguration(
     private val output: OutputConfiguration,
     override val surfaceSharing: Boolean,
     override val maxSharedSurfaceCount: Int,

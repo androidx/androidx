@@ -28,7 +28,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class CorrectedFrameMetadataTest {
+internal class CorrectedFrameMetadataTest {
 
     @Test
     fun canOverrideFrameMetadata() {

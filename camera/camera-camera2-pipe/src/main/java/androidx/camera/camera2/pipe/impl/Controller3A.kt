@@ -45,7 +45,7 @@ import kotlinx.coroutines.cancel
 /**
  * This class implements the 3A methods of [CameraGraphSessionImpl].
  */
-class Controller3A(
+internal class Controller3A(
     private val graphProcessor: GraphProcessor,
     private val graphState3A: GraphState3A,
     private val graphListener3A: Listener3A

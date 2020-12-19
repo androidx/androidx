@@ -35,7 +35,7 @@ internal val cameraPipeIds = atomic(0)
  * [android.hardware.camera2.CameraDevice] and [android.hardware.camera2.CameraCaptureSession] via
  * the [CameraGraph] interface.
  */
-class CameraPipe(config: Config) {
+public class CameraPipe(config: Config) {
     private val debugId = cameraPipeIds.incrementAndGet()
     private val component: CameraPipeComponent = DaggerCameraPipeComponent.builder()
         .cameraPipeConfigModule(CameraPipeConfigModule(config))
@@ -45,7 +45,7 @@ class CameraPipe(config: Config) {
      * This creates a new [CameraGraph] that can be used to interact with a single Camera on the
      * device. Multiple [CameraGraph]s can be created, but only one should be active at a time.
      */
-    fun create(config: CameraGraph.Config): CameraGraph {
+    public fun create(config: CameraGraph.Config): CameraGraph {
         return component.cameraGraphComponentBuilder()
             .cameraGraphConfigModule(CameraGraphConfigModule(config))
             .build()
@@ -55,7 +55,7 @@ class CameraPipe(config: Config) {
     /**
      * This provides access to information about the available cameras on the device.
      */
-    fun cameras(): Cameras {
+    public fun cameras(): Cameras {
         return component.cameras()
     }
 
@@ -63,7 +63,7 @@ class CameraPipe(config: Config) {
      * This is the application level configuration for [CameraPipe]. Nullable values are optional
      * and reasonable defaults will be provided if the values are not specified.
      */
-    data class Config(
+    public data class Config(
         val appContext: Context,
         val cameraThread: HandlerThread? = null
     )

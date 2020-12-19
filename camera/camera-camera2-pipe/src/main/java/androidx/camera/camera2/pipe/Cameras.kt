@@ -19,24 +19,24 @@ package androidx.camera.camera2.pipe
 /**
  * Methods for querying, iterating, and selecting the Cameras that are available on the device.
  */
-interface Cameras {
+public interface Cameras {
     /**
      * Iterate and return a list of CameraId's on the device that are capable of being opened. Some
      * camera devices may be hidden or un-openable if they are included as part of a logical camera
      * group.
      */
-    fun findAll(): List<CameraId>
+    public fun findAll(): List<CameraId>
 
     /**
      * Load CameraMetadata for a specific CameraId. Loading CameraMetadata can take a
      * non-zero amount of time to execute. If CameraMetadata is not already cached this function
      * will suspend until CameraMetadata can be loaded.
      */
-    suspend fun getMetadata(camera: CameraId): CameraMetadata
+    public suspend fun getMetadata(camera: CameraId): CameraMetadata
 
     /**
      * Load CameraMetadata for a specific CameraId and block the calling thread until the result is
      * available.
      */
-    fun awaitMetadata(camera: CameraId): CameraMetadata
+    public fun awaitMetadata(camera: CameraId): CameraMetadata
 }

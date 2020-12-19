@@ -58,7 +58,7 @@ import javax.inject.Inject
  * - Callbacks are expected to be invoked at very high frequency.
  * - One RequestProcessor instance per CameraCaptureSession
  */
-interface RequestProcessor {
+internal interface RequestProcessor {
 
     /**
      * Submit a single [Request] with an optional set of extra parameters.
@@ -144,7 +144,7 @@ interface RequestProcessor {
     }
 }
 
-class StandardRequestProcessorFactory @Inject constructor(
+internal class StandardRequestProcessorFactory @Inject constructor(
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config,
     @ForCameraGraph private val graphListeners: ArrayList<Request.Listener>,
@@ -172,7 +172,7 @@ internal fun nextRequestTag(): RequestNumber = RequestNumber(requestTags.increme
 /**
  * This class is designed to synchronously handle interactions with the Camera CaptureSession.
  */
-class StandardRequestProcessor(
+internal class StandardRequestProcessor(
     private val session: CameraCaptureSessionWrapper,
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config,
