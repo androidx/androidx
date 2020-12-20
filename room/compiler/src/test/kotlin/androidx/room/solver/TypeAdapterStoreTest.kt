@@ -72,7 +72,11 @@ class TypeAdapterStoreTest {
         runProcessorTest { invocation ->
             val store = TypeAdapterStore.create(Context(invocation.processingEnv))
             val primitiveType = invocation.processingEnv.requireType(TypeName.INT)
-            val adapter = store.findColumnTypeAdapter(primitiveType, null, false)
+            val adapter = store.findColumnTypeAdapter(
+                primitiveType,
+                null,
+                skipEnumConverter = false
+            )
             assertThat(adapter, notNullValue())
         }
     }
@@ -87,7 +91,11 @@ class TypeAdapterStoreTest {
                 .processingEnv
                 .requireType("java.lang.Boolean")
                 .makeNullable()
-            val adapter = store.findColumnTypeAdapter(boolean, null, false)
+            val adapter = store.findColumnTypeAdapter(
+                boolean,
+                null,
+                skipEnumConverter = false
+            )
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
             val composite = adapter as CompositeAdapter
@@ -121,7 +129,7 @@ class TypeAdapterStoreTest {
             val enum = invocation
                 .processingEnv
                 .requireType("foo.bar.Fruit")
-            val adapter = store.findColumnTypeAdapter(enum, null, false)
+            val adapter = store.findColumnTypeAdapter(enum, null, skipEnumConverter = false)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(EnumColumnTypeAdapter::class.java))
         }
@@ -132,7 +140,11 @@ class TypeAdapterStoreTest {
         runProcessorTest { invocation ->
             val store = TypeAdapterStore.create(Context(invocation.processingEnv))
             val booleanType = invocation.processingEnv.requireType(TypeName.BOOLEAN)
-            val adapter = store.findColumnTypeAdapter(booleanType, null, false)
+            val adapter = store.findColumnTypeAdapter(
+                booleanType,
+                null,
+                skipEnumConverter = false
+            )
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
             val bindScope = testCodeGenScope()
@@ -194,7 +206,11 @@ class TypeAdapterStoreTest {
                 pointTypeConverters(invocation.processingEnv)
             )
             val pointType = invocation.processingEnv.requireType("foo.bar.Point")
-            val adapter = store.findColumnTypeAdapter(pointType, null, false)
+            val adapter = store.findColumnTypeAdapter(
+                pointType,
+                null,
+                skipEnumConverter = false
+            )
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
 
@@ -269,7 +285,11 @@ class TypeAdapterStoreTest {
                 binders[1]
             )
 
-            val adapter = store.findColumnTypeAdapter(binders[0].from, null, false)
+            val adapter = store.findColumnTypeAdapter(
+                binders[0].from,
+                null,
+                skipEnumConverter = false
+            )
             assertThat(adapter, notNullValue())
 
             val bindScope = testCodeGenScope()
@@ -303,7 +323,11 @@ class TypeAdapterStoreTest {
         runProcessorTest { invocation ->
             val binders = createIntListToStringBinders(invocation)
             val store = TypeAdapterStore.create(Context(invocation.processingEnv), binders[0])
-            val adapter = store.findColumnTypeAdapter(binders[0].from, null, false)
+            val adapter = store.findColumnTypeAdapter(
+                binders[0].from,
+                null,
+                skipEnumConverter = false
+            )
             assertThat(adapter, nullValue())
 
             val stmtBinder = store.findStatementValueBinder(binders[0].from, null)
