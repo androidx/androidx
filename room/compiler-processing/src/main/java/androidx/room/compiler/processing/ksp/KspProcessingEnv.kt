@@ -88,8 +88,8 @@ internal class KspProcessingEnv(
         // this almost replicates what GeneratedAnnotations does except it doesn't check source
         // version because we don't have that property here yet. Instead, it tries the new one
         // first and falls back to the old one.
-        return findTypeElement("javax.annotation.processing.Generated")
-            ?: findTypeElement("javax.annotation.Generated")
+        // implement when https://github.com/google/ksp/issues/198 is fixed
+        return null
     }
 
     override fun getDeclaredType(type: XTypeElement, vararg types: XType): KspType {
