@@ -21,6 +21,7 @@ import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.isVoid
 import com.squareup.javapoet.ClassName
 
 /**

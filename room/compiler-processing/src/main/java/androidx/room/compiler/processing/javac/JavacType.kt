@@ -24,7 +24,6 @@ import androidx.room.compiler.processing.javac.kotlin.KmType
 import androidx.room.compiler.processing.ksp.ERROR_TYPE_NAME
 import androidx.room.compiler.processing.safeTypeName
 import com.google.auto.common.MoreTypes
-import com.squareup.javapoet.TypeName
 import javax.lang.model.element.ElementKind
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
@@ -56,18 +55,6 @@ internal abstract class JavacType(
         return typeMirror.kind == TypeKind.ERROR ||
             // https://kotlinlang.org/docs/reference/kapt.html#non-existent-type-correction
             (kotlinType != null && typeName == ERROR_TYPE_NAME)
-    }
-
-    override fun isInt(): Boolean {
-        return typeName == TypeName.INT || typeName == BOXED_INT
-    }
-
-    override fun isLong(): Boolean {
-        return typeName == TypeName.LONG || typeName == BOXED_LONG
-    }
-
-    override fun isByte(): Boolean {
-        return typeName == TypeName.BYTE || typeName == BOXED_BYTE
     }
 
     override val typeName by lazy {
@@ -179,12 +166,6 @@ internal abstract class JavacType(
         // unlike makeNullable, we don't try to degrade to primitives here because it is valid for
         // a boxed primitive to be marked as non-null.
         return copyWithNullability(XNullability.NONNULL)
-    }
-
-    companion object {
-        private val BOXED_INT = TypeName.INT.box()
-        private val BOXED_LONG = TypeName.LONG.box()
-        private val BOXED_BYTE = TypeName.BYTE.box()
     }
 
     override fun isEnum() = typeMirror.kind == TypeKind.DECLARED &&

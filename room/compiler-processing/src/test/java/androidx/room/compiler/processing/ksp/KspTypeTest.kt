@@ -19,6 +19,10 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.XNullability.NONNULL
 import androidx.room.compiler.processing.XNullability.NULLABLE
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.isByte
+import androidx.room.compiler.processing.isInt
+import androidx.room.compiler.processing.isLong
+import androidx.room.compiler.processing.isVoid
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.getField

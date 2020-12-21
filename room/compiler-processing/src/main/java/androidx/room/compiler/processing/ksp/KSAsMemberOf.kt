@@ -84,9 +84,17 @@ internal fun KSFunctionDeclaration.returnTypeAsMemberOf(
             // object
             resolved
         }
-        else -> resolver.asMemberOf(
-            function = this,
-            containing = ksType
-        ).returnType
+        else -> {
+            // workaround for https://github.com/google/ksp/issues/200
+            val resolvedReturnType = resolver.asMemberOf(
+                function = this,
+                containing = ksType
+            ).returnType
+            if (resolvedReturnType == null || resolvedReturnType.isError) {
+                resolved
+            } else {
+                resolvedReturnType
+            }
+        }
     } ?: error("cannot find return type for $this")
 }

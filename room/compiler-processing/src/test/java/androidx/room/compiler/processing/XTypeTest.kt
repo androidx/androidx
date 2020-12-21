@@ -359,4 +359,48 @@ class XTypeTest {
             }
         }
     }
+
+    @Test
+    fun isVoidObject() {
+        val javaBase = Source.java(
+            "JavaInterface.java",
+            """
+            import java.lang.Void;
+            interface JavaInterface {
+                // get void triggers a bug in KSP, which is why we keep it here.
+                // https://github.com/google/ksp/issues/200
+                Void getVoid();
+                Void anotherVoid();
+            }
+            """.trimIndent()
+        )
+        val kotlinSubject = Source.kotlin(
+            "Subject.kt",
+            """
+            abstract class KotlinSubject: JavaInterface {
+                fun voidMethod() {}
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(sources = listOf(javaBase, kotlinSubject)) { invocation ->
+            invocation.processingEnv.requireTypeElement("KotlinSubject").let {
+                it.getMethod("voidMethod").returnType.let {
+                    assertThat(it.isVoidObject()).isFalse()
+                    assertThat(it.isVoid()).isTrue()
+                    assertThat(it.isKotlinUnit()).isFalse()
+                }
+                val method = it.getMethod("getVoid")
+                method.returnType.let {
+                    assertThat(it.isVoidObject()).isTrue()
+                    assertThat(it.isVoid()).isFalse()
+                    assertThat(it.isKotlinUnit()).isFalse()
+                }
+                it.getMethod("anotherVoid").returnType.let {
+                    assertThat(it.isVoidObject()).isTrue()
+                    assertThat(it.isVoid()).isFalse()
+                    assertThat(it.isKotlinUnit()).isFalse()
+                }
+            }
+        }
+    }
 }

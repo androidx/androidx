@@ -22,6 +22,11 @@ import androidx.room.ext.N
 import androidx.room.ext.T
 import androidx.room.parser.QueryType
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.isInt
+import androidx.room.compiler.processing.isKotlinUnit
+import androidx.room.compiler.processing.isLong
+import androidx.room.compiler.processing.isVoid
+import androidx.room.compiler.processing.isVoidObject
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import com.squareup.javapoet.FieldSpec

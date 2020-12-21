@@ -142,6 +142,14 @@ internal fun Resolver.safeGetJvmName(
         // TODO remove this catch once that issue is fixed.
         // workaround for https://github.com/google/ksp/issues/164
         return declaration.simpleName.asString()
+    } catch (cannotFindDeclaration: IllegalStateException) {
+        // workaround for https://github.com/google/ksp/issues/200
+        val name = declaration.simpleName.asString()
+        if (name.startsWith("get") or name.startsWith("set")) {
+            return name
+        }
+        // we don't know why it happened so we better throw
+        throw cannotFindDeclaration
     }
 }
 
