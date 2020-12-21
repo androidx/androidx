@@ -875,13 +875,40 @@ class WatchFaceServiceTest {
         )
 
         // The delay should change when battery is low.
-        BroadcastReceivers.sendOnActionBatteryChangedForTesting(Intent(Intent.ACTION_BATTERY_LOW))
+        BroadcastReceivers.sendOnActionBatteryLowForTesting(Intent(Intent.ACTION_BATTERY_LOW))
         assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
             WatchFaceImpl.MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS
         )
 
         // And go back to normal when battery is OK.
-        BroadcastReceivers.sendOnActionBatteryChangedForTesting(Intent(Intent.ACTION_BATTERY_OKAY))
+        BroadcastReceivers.sendOnActionBatteryOkayForTesting(Intent(Intent.ACTION_BATTERY_OKAY))
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
+            INTERACTIVE_UPDATE_RATE_MS
+        )
+    }
+
+    @Test
+    fun interactiveFrameRate_restoreWhenPowerConnectedAfterBatteryLow() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
+            INTERACTIVE_UPDATE_RATE_MS
+        )
+
+        // The delay should change when battery is low.
+        BroadcastReceivers.sendOnActionBatteryLowForTesting(Intent(Intent.ACTION_BATTERY_LOW))
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
+            WatchFaceImpl.MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS
+        )
+
+        // And go back to normal when power is connected.
+        BroadcastReceivers.sendOnActionPowerConnectedForTesting(
+            Intent(Intent.ACTION_POWER_CONNECTED)
+        )
         assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
             INTERACTIVE_UPDATE_RATE_MS
         )
