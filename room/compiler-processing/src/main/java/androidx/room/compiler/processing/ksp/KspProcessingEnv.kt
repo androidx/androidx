@@ -142,7 +142,15 @@ internal class KspProcessingEnv(
         ksType = typeReference.resolve()
     )
 
-    fun wrap(ksTypeParam: KSTypeParameter, ksTypeArgument: KSTypeArgument): KspTypeArgumentType {
+    fun wrap(ksTypeParam: KSTypeParameter, ksTypeArgument: KSTypeArgument): KspType {
+        val typeRef = ksTypeArgument.type
+        if (typeRef != null && ksTypeArgument.variance == Variance.INVARIANT) {
+            // fully resolved type argument, return regular type.
+            return wrap(
+                ksType = typeRef.resolve(),
+                allowPrimitives = false
+            )
+        }
         return KspTypeArgumentType(
             env = this,
             typeArg = ksTypeArgument,
@@ -160,6 +168,17 @@ internal class KspProcessingEnv(
      */
     fun wrap(ksType: KSType, allowPrimitives: Boolean): KspType {
         val qName = ksType.declaration.qualifiedName?.asString()
+        val declaration = ksType.declaration
+        if (declaration is KSTypeParameter) {
+            return KspTypeArgumentType(
+                env = this,
+                typeArg = resolver.getTypeArgument(
+                    ksType.createTypeReference(),
+                    declaration.variance
+                ),
+                typeParam = declaration
+            )
+        }
         if (allowPrimitives && qName != null && ksType.nullability == Nullability.NOT_NULL) {
             // check for primitives
             val javaPrimitive = KspTypeMapper.getPrimitiveJavaTypeName(qName)

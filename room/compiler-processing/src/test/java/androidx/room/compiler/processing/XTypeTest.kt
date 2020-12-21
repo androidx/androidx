@@ -40,7 +40,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class XTypeTest {
     @Test
-    fun declaredTypeArguments() {
+    fun typeArguments() {
         val parent = Source.java(
             "foo.bar.Parent",
             """
@@ -333,6 +333,30 @@ class XTypeTest {
                 it.processingEnv.requireType(String::class)
             )
             assertThat(subject.rawType).isNotEqualTo(setOfStrings.rawType)
+        }
+    }
+
+    @Test
+    fun isKotlinUnit() {
+        val kotlinSubject = Source.kotlin(
+            "Subject.kt",
+            """
+            class KotlinSubject {
+                suspend fun unitSuspend() {}
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(sources = listOf(kotlinSubject)) { invocation ->
+            invocation.processingEnv.requireTypeElement("KotlinSubject").let {
+                val continuationParam = it.getMethod("unitSuspend").parameters.last()
+                val typeArg = continuationParam.type.typeArguments.first()
+                assertThat(
+                    typeArg.extendsBound()?.isKotlinUnit()
+                ).isTrue()
+                assertThat(
+                    typeArg.extendsBound()?.extendsBound()
+                ).isNull()
+            }
         }
     }
 }
