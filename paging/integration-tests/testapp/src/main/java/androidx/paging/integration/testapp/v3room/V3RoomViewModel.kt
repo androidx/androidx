@@ -25,6 +25,8 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
+import androidx.paging.insertFooterItem
+import androidx.paging.insertHeaderItem
 import androidx.paging.insertSeparators
 import androidx.paging.integration.testapp.room.Customer
 import androidx.paging.integration.testapp.room.SampleDatabase
