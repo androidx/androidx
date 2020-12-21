@@ -19,7 +19,6 @@ package androidx.appsearch.app.util;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.AppSearchBatchResult;
-import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByUriRequest;
@@ -33,14 +32,6 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 public class AppSearchTestUtils {
-
-    public static <V> V checkIsResultSuccess(Future<AppSearchResult<V>> future) throws Exception {
-        AppSearchResult<V> result = future.get();
-        if (!result.isSuccess()) {
-            throw new AssertionFailedError("AppSearchResult not successful: " + result);
-        }
-        return result.getResultValue();
-    }
 
     public static <K, V> AppSearchBatchResult<K, V> checkIsBatchResultSuccess(
             Future<AppSearchBatchResult<K, V>> future) throws Exception {
@@ -68,13 +59,13 @@ public class AppSearchTestUtils {
 
     public static List<GenericDocument> convertSearchResultsToDocuments(SearchResults searchResults)
             throws Exception {
-        List<SearchResult> results = checkIsResultSuccess(searchResults.getNextPage());
+        List<SearchResult> results = searchResults.getNextPage().get();
         List<GenericDocument> documents = new ArrayList<>();
         while (results.size() > 0) {
             for (SearchResult result : results) {
                 documents.add(result.getDocument());
             }
-            results = checkIsResultSuccess(searchResults.getNextPage());
+            results = searchResults.getNextPage().get();
         }
         return documents;
     }
