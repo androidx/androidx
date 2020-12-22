@@ -45,7 +45,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class Controller3AUpdate3ATest {
+internal class Controller3AUpdate3ATest {
     private val graphProcessor = FakeGraphProcessor()
     private val graphState3A = GraphState3A()
     private val requestProcessor = FakeRequestProcessor(graphState3A)

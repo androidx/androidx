@@ -24,7 +24,7 @@ import androidx.camera.camera2.pipe.impl.RequestProcessor
 /**
  * Fake implementation of a [GraphProcessor] for tests.
  */
-class FakeGraphProcessor : GraphProcessor {
+internal class FakeGraphProcessor : GraphProcessor {
     var active = true
         private set
     var closed = false

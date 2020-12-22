@@ -26,7 +26,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.asExecutor
 import java.util.concurrent.Executor
 
-object FakeThreads {
+internal object FakeThreads {
     @Suppress("deprecation")
     val fakeHandler = { Handler() }
     val forTests = Threads(

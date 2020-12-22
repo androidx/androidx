@@ -29,7 +29,7 @@ import javax.inject.Singleton
  * Provides utilities for querying cameras and accessing metadata about those cameras.
  */
 @Singleton
-class CamerasImpl @Inject constructor(
+internal class CamerasImpl @Inject constructor(
     private val cameraManager: Provider<CameraManager>,
     private val metadata: CameraMetadataCache
 ) : Cameras {

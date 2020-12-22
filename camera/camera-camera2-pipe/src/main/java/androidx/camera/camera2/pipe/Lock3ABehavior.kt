@@ -19,7 +19,7 @@ package androidx.camera.camera2.pipe
 /**
  * Requirement to consider prior to locking auto-exposure, auto-focus and auto-whitebalance.
  */
-enum class Lock3ABehavior {
+public enum class Lock3ABehavior {
     /**
      * This requirement means that we want to lock the values for 3A immediately.
      *
@@ -43,22 +43,22 @@ enum class Lock3ABehavior {
     AFTER_NEW_SCAN,
 }
 
-fun Lock3ABehavior?.shouldUnlockAe() =
+public fun Lock3ABehavior?.shouldUnlockAe(): Boolean =
     this == Lock3ABehavior.AFTER_NEW_SCAN
 
-fun Lock3ABehavior?.shouldUnlockAf() =
+public fun Lock3ABehavior?.shouldUnlockAf(): Boolean =
     this == Lock3ABehavior.AFTER_NEW_SCAN
 
-fun Lock3ABehavior?.shouldUnlockAwb() =
+public fun Lock3ABehavior?.shouldUnlockAwb(): Boolean =
     this == Lock3ABehavior.AFTER_NEW_SCAN
 
 // For ae and awb if we set the lock = true in the capture request the camera device
 // locks them immediately. So when we want to wait for ae to converge we have to explicitly
 // wait for it to converge.
-fun Lock3ABehavior?.shouldWaitForAeToConverge() =
+public fun Lock3ABehavior?.shouldWaitForAeToConverge(): Boolean =
     this != null && this != Lock3ABehavior.IMMEDIATE
 
-fun Lock3ABehavior?.shouldWaitForAwbToConverge() =
+public fun Lock3ABehavior?.shouldWaitForAwbToConverge(): Boolean =
     this != null && this != Lock3ABehavior.IMMEDIATE
 
 // TODO(sushilnath@): add the optimization to not wait for af to converge before sending the
@@ -72,5 +72,5 @@ fun Lock3ABehavior?.shouldWaitForAwbToConverge() =
 // sending a request to start a trigger locks the auto focus immediately, so if we want af to
 // converge first then we have to explicitly wait for it.
 // Ref: https://developer.android.com/reference/android/hardware/camera2/CaptureResult#CONTROL_AF_STATE
-fun Lock3ABehavior?.shouldWaitForAfToConverge() =
+public fun Lock3ABehavior?.shouldWaitForAfToConverge(): Boolean =
     this != null && this != Lock3ABehavior.IMMEDIATE

@@ -19,8 +19,8 @@ package androidx.camera.camera2.pipe
 import android.util.Size
 
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
-inline class StreamId(val value: Int) {
-    override fun toString() = "Stream-$value"
+public inline class StreamId(public val value: Int) {
+    override fun toString(): String = "Stream-$value"
 }
 
 /**
@@ -29,23 +29,23 @@ inline class StreamId(val value: Int) {
  * [CameraGraph]'s  while enforcing that each [Stream] will only work with that specific camera
  * [CameraGraph] instance.
  */
-interface Stream {
-    val id: StreamId
-    val size: Size
-    val format: StreamFormat
-    val camera: CameraId
-    val type: StreamType
+public interface Stream {
+    public val id: StreamId
+    public val size: Size
+    public val format: StreamFormat
+    public val camera: CameraId
+    public val type: StreamType
 }
 
 /**
  * Configuration object that provides the parameters for a specific input / output stream on Camera.
  */
-class StreamConfig(
-    val size: Size,
-    val format: StreamFormat,
-    val camera: CameraId,
-    val type: StreamType,
-    val deferrable: Boolean = true
+public class StreamConfig(
+    public val size: Size,
+    public val format: StreamFormat,
+    public val camera: CameraId,
+    public val type: StreamType,
+    public val deferrable: Boolean = true
 )
 
 /**
@@ -53,7 +53,7 @@ class StreamConfig(
  * This allows the camera to configure the internal pipeline with additional information about
  * the surface that has not yet been provided to the camera.
  */
-enum class StreamType {
+public enum class StreamType {
     SURFACE,
     SURFACE_VIEW,
     SURFACE_TEXTURE

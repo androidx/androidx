@@ -24,35 +24,35 @@ import android.os.SystemClock
  * A nanosecond timestamp
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
-inline class TimestampNs constructor(val value: Long) {
-    inline operator fun minus(other: TimestampNs): DurationNs =
+public inline class TimestampNs constructor(public val value: Long) {
+    public inline operator fun minus(other: TimestampNs): DurationNs =
         DurationNs(value - other.value)
 
-    inline operator fun plus(other: DurationNs): TimestampNs =
+    public inline operator fun plus(other: DurationNs): TimestampNs =
         TimestampNs(value + other.value)
 }
 
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
-inline class DurationNs(val value: Long) {
-    inline operator fun minus(other: DurationNs): DurationNs =
+public inline class DurationNs(public val value: Long) {
+    public inline operator fun minus(other: DurationNs): DurationNs =
         DurationNs(value - other.value)
 
-    inline operator fun plus(other: DurationNs): DurationNs =
+    public inline operator fun plus(other: DurationNs): DurationNs =
         DurationNs(value + other.value)
 
-    inline operator fun plus(other: TimestampNs): TimestampNs =
+    public inline operator fun plus(other: TimestampNs): TimestampNs =
         TimestampNs(value + other.value)
 }
 
-object Timestamps {
-    inline fun now(): TimestampNs = TimestampNs(SystemClock.elapsedRealtimeNanos())
+public object Timestamps {
+    public inline fun now(): TimestampNs = TimestampNs(SystemClock.elapsedRealtimeNanos())
 
-    inline fun DurationNs.formatNs() = "$this ns"
-    inline fun DurationNs.formatMs(decimals: Int = 3) =
+    public inline fun DurationNs.formatNs(): String = "$this ns"
+    public inline fun DurationNs.formatMs(decimals: Int = 3): String =
         "%.${decimals}f ms".format(null, this.value / 1_000_000.0)
 
-    inline fun TimestampNs.formatNs() = "$this ns"
-    inline fun TimestampNs.formatMs() = "${this.value / 1_000_000} ms"
+    public inline fun TimestampNs.formatNs(): String = "$this ns"
+    public inline fun TimestampNs.formatMs(): String = "${this.value / 1_000_000} ms"
 
-    inline fun TimestampNs.measureNow(): DurationNs = now() - this
+    public inline fun TimestampNs.measureNow(): DurationNs = now() - this
 }

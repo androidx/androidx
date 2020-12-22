@@ -46,7 +46,7 @@ import javax.inject.Singleton
         FakeCameras.FakeCameraPipeModule::class
     ]
 )
-interface CameraSessionTestComponent {
+internal interface CameraSessionTestComponent {
     fun graphConfig(): CameraGraph.Config
     fun sessionFactory(): SessionFactory
     fun streamMap(): StreamMap
@@ -55,7 +55,7 @@ interface CameraSessionTestComponent {
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 @OptIn(ExperimentalCoroutinesApi::class)
-class SessionFactoryTest {
+internal class SessionFactoryTest {
     private val context = ApplicationProvider.getApplicationContext() as Context
     private val mainLooper = Shadows.shadowOf(Looper.getMainLooper())
     private val cameraId = FakeCameras.create()

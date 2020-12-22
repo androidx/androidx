@@ -31,9 +31,9 @@ import androidx.camera.camera2.pipe.CameraMetadata
 /**
  * Internal debug utilities, constants, and checks.
  */
-object Debug {
-    const val ENABLE_LOGGING = true
-    const val ENABLE_TRACING = true
+public object Debug {
+    public const val ENABLE_LOGGING: Boolean = true
+    public const val ENABLE_TRACING: Boolean = true
 
     /**
      * Wrap the specified [block] in calls to [Trace.beginSection] (with the supplied [label])
@@ -42,7 +42,7 @@ object Debug {
      * @param label A name of the code section to appear in the trace.
      * @param block A block of code which is being traced.
      */
-    inline fun <T> trace(label: String, crossinline block: () -> T): T {
+    public inline fun <T> trace(label: String, crossinline block: () -> T): T {
         try {
             traceStart { label }
             return block()
@@ -54,7 +54,7 @@ object Debug {
     /**
      * Forwarding call to [Trace.beginSection] that can be statically disabled at compile time.
      */
-    inline fun traceStart(crossinline label: () -> String) {
+    public inline fun traceStart(crossinline label: () -> String) {
         if (ENABLE_TRACING) {
             Trace.beginSection(label())
         }
@@ -63,13 +63,13 @@ object Debug {
     /**
      * Forwarding call to [Trace.endSection] that can be statically disabled at compile time.
      */
-    inline fun traceStop() {
+    public inline fun traceStop() {
         if (ENABLE_TRACING) {
             Trace.endSection()
         }
     }
 
-    fun logConfiguration(
+    internal fun logConfiguration(
         graphId: String,
         metadata: CameraMetadata,
         graphConfig: CameraGraph.Config,
@@ -137,38 +137,38 @@ object Debug {
  *
  * Example: checkApi(Build.VERSION_CODES.LOLLIPOP, "createCameraDevice")
  */
-inline fun checkApi(requiredApi: Int, methodName: String) {
+public inline fun checkApi(requiredApi: Int, methodName: String) {
     check(Build.VERSION.SDK_INT >= requiredApi) {
         "$methodName is not supported on API ${Build.VERSION.SDK_INT} (requires API $requiredApi)"
     }
 }
 
 /** Asserts that this method was invoked on Android L (API 21) or higher. */
-inline fun checkLOrHigher(methodName: String) = checkApi(
+public inline fun checkLOrHigher(methodName: String): Unit = checkApi(
     Build.VERSION_CODES.LOLLIPOP, methodName
 )
 
 /** Asserts that this method was invoked on Android M (API 23) or higher. */
-inline fun checkMOrHigher(methodName: String) = checkApi(
+public inline fun checkMOrHigher(methodName: String): Unit = checkApi(
     Build.VERSION_CODES.M, methodName
 )
 
 /** Asserts that this method was invoked on Android N (API 24) or higher. */
-inline fun checkNOrHigher(methodName: String) = checkApi(
+public inline fun checkNOrHigher(methodName: String): Unit = checkApi(
     Build.VERSION_CODES.N, methodName
 )
 
 /** Asserts that this method was invoked on Android O (API 26) or higher. */
-inline fun checkOOrHigher(methodName: String) = checkApi(
+public inline fun checkOOrHigher(methodName: String): Unit = checkApi(
     Build.VERSION_CODES.O, methodName
 )
 
 /** Asserts that this method was invoked on Android P (API 28) or higher. */
-inline fun checkPOrHigher(methodName: String) = checkApi(
+public inline fun checkPOrHigher(methodName: String): Unit = checkApi(
     Build.VERSION_CODES.P, methodName
 )
 
 /** Asserts that this method was invoked on Android Q (API 29) or higher. */
-inline fun checkQOrHigher(methodName: String) = checkApi(
+public inline fun checkQOrHigher(methodName: String): Unit = checkApi(
     Build.VERSION_CODES.Q, methodName
 )

@@ -30,7 +30,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class CameraMetadataCacheTest {
+internal class CameraMetadataCacheTest {
     @Test
     fun metadataIsCachedAndShimmed() {
         val camera0 = FakeCameras.create(

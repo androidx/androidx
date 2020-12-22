@@ -45,7 +45,7 @@ import kotlin.io.use
  * Access the methods and properties of the [TokenLock] are ThreadSafe, and closing this object
  * multiple times has no effect.
  */
-interface TokenLock : AutoCloseable, Closeable {
+internal interface TokenLock : AutoCloseable, Closeable {
     val capacity: Long
     val available: Long
     val size: Long
@@ -86,10 +86,11 @@ interface TokenLock : AutoCloseable, Closeable {
 }
 
 /** Shorthand for "acquire(value, value)" */
-suspend inline fun TokenLock.acquire(value: Long): TokenLock.Token = this.acquire(value, value)
+internal suspend inline fun TokenLock.acquire(value: Long): TokenLock.Token =
+    this.acquire(value, value)
 
 /** Shorthand for "acquireOrNull(value, value)" */
-inline fun TokenLock.acquireOrNull(value: Long): TokenLock.Token? = this.acquireOrNull(
+internal inline fun TokenLock.acquireOrNull(value: Long): TokenLock.Token? = this.acquireOrNull(
     value,
     value
 )
@@ -97,7 +98,7 @@ inline fun TokenLock.acquireOrNull(value: Long): TokenLock.Token? = this.acquire
 /**
  * Executes the given action while holding a token.
  */
-suspend inline fun <T> TokenLock.withToken(
+internal suspend inline fun <T> TokenLock.withToken(
     value: Long,
     crossinline action: (token: TokenLock.Token) -> T
 ): T {
@@ -109,7 +110,7 @@ suspend inline fun <T> TokenLock.withToken(
 /**
  * Executes the given action while holding a token.
  */
-suspend inline fun <T> TokenLock.withToken(
+internal suspend inline fun <T> TokenLock.withToken(
     min: Long,
     max: Long,
     crossinline action: (token: TokenLock.Token) -> T
@@ -119,7 +120,7 @@ suspend inline fun <T> TokenLock.withToken(
     }
 }
 
-class TokenLockImpl(override val capacity: Long) : TokenLock {
+internal class TokenLockImpl(override val capacity: Long) : TokenLock {
     companion object {
         val closedException = CancellationException()
     }

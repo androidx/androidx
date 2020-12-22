@@ -25,7 +25,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class ModeEnum3ATest {
+internal class ModeEnum3ATest {
 
     @Test
     fun iterateAfModes() {

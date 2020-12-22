@@ -21,7 +21,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import java.util.concurrent.Executor
 
-class Threads(
+internal class Threads(
     val globalScope: CoroutineScope,
 
     val defaultExecutor: Executor,

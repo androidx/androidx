@@ -32,7 +32,7 @@ import javax.inject.Inject
  * look for desired 3A state changes.
  */
 @CameraGraphScope
-class Listener3A @Inject constructor() : Request.Listener {
+internal class Listener3A @Inject constructor() : Request.Listener {
     private val listeners: CopyOnWriteArrayList<Result3AStateListener> = CopyOnWriteArrayList()
 
     override fun onRequestSequenceCreated(requestMetadata: RequestMetadata) {

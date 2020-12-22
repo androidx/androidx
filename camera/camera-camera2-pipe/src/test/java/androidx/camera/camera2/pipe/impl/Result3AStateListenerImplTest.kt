@@ -32,7 +32,7 @@ import org.robolectric.annotation.Config
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 @OptIn(ExperimentalCoroutinesApi::class)
-class Result3AStateListenerImplTest {
+internal class Result3AStateListenerImplTest {
     @Test
     fun testWithEmptyExitConditionForKeys() {
         val listenerForKeys = Result3AStateListenerImpl(mapOf())

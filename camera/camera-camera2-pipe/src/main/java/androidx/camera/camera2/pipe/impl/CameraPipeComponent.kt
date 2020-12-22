@@ -37,7 +37,7 @@ import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Qualifier
-annotation class ForCameraPipe
+internal annotation class ForCameraPipe
 
 @Singleton
 @Component(
@@ -46,7 +46,7 @@ annotation class ForCameraPipe
         CameraPipeConfigModule::class
     ]
 )
-interface CameraPipeComponent {
+internal interface CameraPipeComponent {
     fun cameraGraphComponentBuilder(): CameraGraphComponent.Builder
     fun cameras(): Cameras
 }
@@ -54,13 +54,13 @@ interface CameraPipeComponent {
 @Module(
     subcomponents = [CameraGraphComponent::class]
 )
-class CameraPipeConfigModule(private val config: CameraPipe.Config) {
+internal class CameraPipeConfigModule(private val config: CameraPipe.Config) {
     @Provides
     fun provideCameraPipeConfig(): CameraPipe.Config = config
 }
 
 @Module
-abstract class CameraPipeModules {
+internal abstract class CameraPipeModules {
     @Binds
     abstract fun bindCameras(impl: CamerasImpl): Cameras
 
