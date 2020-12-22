@@ -40,4 +40,8 @@ internal class JavacRawType(
     override fun hashCode(): Int {
         return typeName.hashCode()
     }
+
+    override fun toString(): String {
+        return erased.toString()
+    }
 }

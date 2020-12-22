@@ -15,8 +15,8 @@
  */
 package androidx.room.solver.binderprovider
 
+import androidx.room.compiler.processing.XType
 import androidx.room.parser.ParsedQuery
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.processor.Context
 import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.query.result.QueryResultBinder
@@ -46,11 +46,11 @@ private class QueryResultBinderProviderWithRequiredArtifact(
         context.processingEnv.findTypeElement(requiredType) != null
     }
 
-    override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(declared: XType, query: ParsedQuery): QueryResultBinder {
         return delegate.provide(declared, query)
     }
 
-    override fun matches(declared: XDeclaredType): Boolean {
+    override fun matches(declared: XType): Boolean {
         val result = delegate.matches(declared)
         if (result && !hasRequiredArtifact) {
             context.logger.e(missingArtifactErrorMsg)

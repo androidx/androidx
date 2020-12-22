@@ -17,8 +17,8 @@
 package androidx.room.vo
 
 import androidx.room.parser.FtsVersion
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import mockElementAndType
 import org.hamcrest.CoreMatchers.`is`
@@ -41,7 +41,7 @@ class FtsEntityTest {
         val entity = FtsEntity(
             element = mock(XTypeElement::class.java),
             tableName = "Mail",
-            type = mock(XDeclaredType::class.java),
+            type = mock(XType::class.java),
             fields = listOf(
                 primaryKeyField, bodyField, languageIdField, dontIndexMe1Field,
                 dontIndexMe2Field
@@ -93,7 +93,7 @@ class FtsEntityTest {
         val entity = FtsEntity(
             element = mock(XTypeElement::class.java),
             tableName = "Mail",
-            type = mock(XDeclaredType::class.java),
+            type = mock(XType::class.java),
             fields = listOf(primaryKeyField, bodyField),
             embeddedFields = emptyList(),
             primaryKey = PrimaryKey(
@@ -134,7 +134,7 @@ class FtsEntityTest {
         val entity = FtsEntity(
             element = mock(XTypeElement::class.java),
             tableName = "Mail",
-            type = mock(XDeclaredType::class.java),
+            type = mock(XType::class.java),
             fields = listOf(primaryKeyField, bodyField),
             embeddedFields = emptyList(),
             primaryKey = PrimaryKey(
@@ -174,7 +174,7 @@ class FtsEntityTest {
         val entity = FtsEntity(
             element = mock(XTypeElement::class.java),
             tableName = "Mail",
-            type = mock(XDeclaredType::class.java),
+            type = mock(XType::class.java),
             fields = listOf(primaryKeyField, bodyField),
             embeddedFields = emptyList(),
             primaryKey = PrimaryKey(
@@ -215,7 +215,7 @@ class FtsEntityTest {
         val entity = FtsEntity(
             element = mock(XTypeElement::class.java),
             tableName = "Mail",
-            type = mock(XDeclaredType::class.java),
+            type = mock(XType::class.java),
             fields = listOf(primaryKeyField, bodyField),
             embeddedFields = emptyList(),
             primaryKey = PrimaryKey(

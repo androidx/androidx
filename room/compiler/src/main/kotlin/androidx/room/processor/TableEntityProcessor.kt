@@ -227,9 +227,8 @@ class TableEntityProcessor internal constructor(
                 )
                 return@map null
             }
-            val parentElement = try {
-                it.parent.asTypeElement()
-            } catch (noClass: IllegalArgumentException) {
+            val parentElement = it.parent.typeElement
+            if (parentElement == null) {
                 context.logger.e(element, ProcessorErrors.FOREIGN_KEY_CANNOT_FIND_PARENT)
                 return@map null
             }
@@ -392,7 +391,7 @@ class TableEntityProcessor internal constructor(
             val remainingFields = availableFields.filterNot {
                 it.element.enclosingTypeElement == typeElement
             }
-            collectPrimaryKeysFromEntityAnnotations(mySuper.asTypeElement(), remainingFields)
+            collectPrimaryKeysFromEntityAnnotations(mySuper.typeElement!!, remainingFields)
         } else {
             emptyList()
         }
@@ -445,7 +444,7 @@ class TableEntityProcessor internal constructor(
             // i have not declared anything, delegate to super
             val mySuper = typeElement.superType
             if (mySuper != null && mySuper.isNotNone()) {
-                return choosePrimaryKey(candidates, mySuper.asTypeElement())
+                return choosePrimaryKey(candidates, mySuper.typeElement!!)
             }
             PrimaryKey.MISSING
         } else {
@@ -522,8 +521,13 @@ class TableEntityProcessor internal constructor(
         if (typeMirror == null || typeMirror.isNone()) {
             return emptyList()
         }
-        val parentElement = typeMirror.asTypeElement()
-        val myIndices = parentElement
+        val parentTypeElement = typeMirror.typeElement
+        @Suppress("FoldInitializerAndIfToElvis")
+        if (parentTypeElement == null) {
+            // this is coming from a parent, shouldn't happen so no reason to report an error
+            return emptyList()
+        }
+        val myIndices = parentTypeElement
             .toAnnotationBox(androidx.room.Entity::class)?.let { annotation ->
                 val indices = extractIndices(annotation, tableName = "super")
                 if (indices.isEmpty()) {
@@ -540,15 +544,15 @@ class TableEntityProcessor internal constructor(
                 } else {
                     context.logger.w(
                         Warning.INDEX_FROM_PARENT_IS_DROPPED,
-                        parentElement,
+                        parentTypeElement,
                         ProcessorErrors.droppedSuperClassIndex(
                             childEntity = element.qualifiedName,
-                            superEntity = parentElement.qualifiedName
+                            superEntity = parentTypeElement.qualifiedName
                         )
                     )
                     emptyList()
                 }
             } ?: emptyList()
-        return myIndices + loadSuperIndices(parentElement.superType, tableName, inherit)
+        return myIndices + loadSuperIndices(parentTypeElement.superType, tableName, inherit)
     }
 }

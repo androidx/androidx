@@ -16,8 +16,8 @@
 
 package androidx.room.solver.binderprovider
 
+import androidx.room.compiler.processing.XType
 import androidx.room.parser.ParsedQuery
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.processor.Context
 import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.RxType
@@ -28,16 +28,16 @@ class RxCallableQueryResultBinderProvider private constructor(
     val context: Context,
     private val rxType: RxType
 ) : QueryResultBinderProvider {
-    override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(declared: XType, query: ParsedQuery): QueryResultBinder {
         val typeArg = declared.typeArguments.first()
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query)
         return RxCallableQueryResultBinder(rxType, typeArg, adapter)
     }
 
-    override fun matches(declared: XDeclaredType): Boolean =
+    override fun matches(declared: XType): Boolean =
         declared.typeArguments.size == 1 && matchesRxType(declared)
 
-    private fun matchesRxType(declared: XDeclaredType): Boolean {
+    private fun matchesRxType(declared: XType): Boolean {
         return declared.rawType.typeName == rxType.className
     }
 

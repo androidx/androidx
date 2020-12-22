@@ -17,10 +17,10 @@
 package androidx.room.writer
 
 import androidx.room.compiler.processing.MethodSpecHelper
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.addOriginatingElement
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
@@ -532,7 +532,7 @@ class DaoWriter(
 
     private fun overrideWithoutAnnotations(
         elm: XMethodElement,
-        owner: XDeclaredType
+        owner: XType
     ): MethodSpec.Builder {
         return MethodSpecHelper.overridingWithFinalParams(elm, owner)
     }

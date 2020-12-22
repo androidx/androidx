@@ -16,8 +16,8 @@
 package androidx.room.processor
 
 import androidx.room.Delete
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_DELETE_RESULT_ADAPTER
 import androidx.room.processor.ProcessorErrors.DELETION_MISSING_PARAMS
 import androidx.room.vo.DeletionMethod
@@ -33,7 +33,7 @@ class DeletionMethodProcessorTest : ShortcutMethodProcessorTest<DeletionMethod>(
 
     override fun process(
         baseContext: Context,
-        containing: XDeclaredType,
+        containing: XType,
         executableElement: XMethodElement
     ): DeletionMethod {
         return DeletionMethodProcessor(baseContext, containing, executableElement).process()

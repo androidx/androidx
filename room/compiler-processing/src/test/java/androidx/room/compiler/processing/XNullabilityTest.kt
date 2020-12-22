@@ -176,7 +176,7 @@ class XNullabilityTest {
             }
             element.getField("genericFieldWithNullableTypeParam").let { field ->
                 assertThat(field.type.nullability).isEqualTo(NONNULL)
-                val declared = field.type.asDeclaredType()
+                val declared = field.type
                 assertThat(declared.typeArguments.first().nullability).isEqualTo(NULLABLE)
             }
             element.getMethod("nullableReturn").let { method ->
@@ -195,9 +195,9 @@ class XNullabilityTest {
             element.getMethod("genericWithNullableTypeArgReturn").let { method ->
                 listOf(method.returnType, method.executableType.returnType).forEach { type ->
                     assertThat(type.nullability).isEqualTo(NONNULL)
-                    assertThat(type.asDeclaredType().typeArguments[0].nullability)
+                    assertThat(type.typeArguments[0].nullability)
                         .isEqualTo(NONNULL)
-                    assertThat(type.asDeclaredType().typeArguments[1].nullability)
+                    assertThat(type.typeArguments[1].nullability)
                         .isEqualTo(NULLABLE)
                 }
             }
@@ -206,15 +206,15 @@ class XNullabilityTest {
                 check(executableType.isSuspendFunction())
                 executableType.getSuspendFunctionReturnType().let { type ->
                     assertThat(type.nullability).isEqualTo(NONNULL)
-                    assertThat(type.asDeclaredType().typeArguments[0].nullability)
+                    assertThat(type.typeArguments[0].nullability)
                         .isEqualTo(NONNULL)
-                    assertThat(type.asDeclaredType().typeArguments[1].nullability)
+                    assertThat(type.typeArguments[1].nullability)
                         .isEqualTo(NULLABLE)
                 }
                 listOf(method.returnType, executableType.returnType).forEach { type ->
                     // kotlin suspend functions return nullable in jvm stub
                     assertThat(type.nullability).isEqualTo(NULLABLE)
-                    assertThat(type.asDeclaredType().typeArguments).isEmpty()
+                    assertThat(type.typeArguments).isEmpty()
                 }
             }
             element.getMethod("nonNullReturn").let { method ->
@@ -237,12 +237,12 @@ class XNullabilityTest {
                     .isEqualTo(NULLABLE)
                 assertThat(
                     method.parameters.filter {
-                        it.type.isDeclared() && it.type.asDeclaredType().typeArguments.isNotEmpty()
+                        it.type.typeArguments.isNotEmpty()
                     }.map {
                         Triple(
                             first = it.name,
                             second = it.type.nullability,
-                            third = it.type.asDeclaredType().typeArguments.single().nullability
+                            third = it.type.typeArguments.single().nullability
                         )
                     }
                 ).containsExactly(
@@ -299,12 +299,11 @@ class XNullabilityTest {
             listOf("KotlinClass", "JavaClass").forEach {
                 val subject = invocation.processingEnv.requireTypeElement(it)
                     .getField("subject").type
-                check(subject.isDeclared())
                 val typeArg = subject.typeArguments.first()
                 assertThat(typeArg.typeName).isEqualTo(TypeName.INT.box())
                 typeArg.makeNonNullable().let {
                     assertThat(it.typeName).isEqualTo(TypeName.INT.box())
-                    assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
+                    assertThat(it.nullability).isEqualTo(NONNULL)
                 }
                 typeArg.makeNonNullable().makeNullable().let {
                     assertThat(it.typeName).isEqualTo(TypeName.INT.box())
@@ -320,17 +319,14 @@ class XNullabilityTest {
             val subject = invocation.processingEnv.requireType("java.util.List")
             subject.makeNullable().let {
                 assertThat(it.nullability).isEqualTo(NULLABLE)
-                assertThat(it.isDeclared()).isTrue()
             }
             subject.makeNonNullable().let {
                 assertThat(it.nullability).isEqualTo(NONNULL)
-                assertThat(it.isDeclared()).isTrue()
             }
             // ksp defaults to non-null so we do double conversion here to ensure it flips
             // nullability
             subject.makeNullable().makeNonNullable().let {
                 assertThat(it.nullability).isEqualTo(NONNULL)
-                assertThat(it.isDeclared()).isTrue()
             }
         }
     }

@@ -18,8 +18,8 @@ package androidx.room.solver.binderprovider
 
 import androidx.room.ext.PagingTypeNames
 import androidx.room.parser.ParsedQuery
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XRawType
+import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
@@ -36,7 +36,7 @@ class DataSourceQueryResultBinderProvider(val context: Context) : QueryResultBin
         context.processingEnv.findType(PagingTypeNames.POSITIONAL_DATA_SOURCE)?.rawType
     }
 
-    override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(declared: XType, query: ParsedQuery): QueryResultBinder {
         if (query.tables.isEmpty()) {
             context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
         }
@@ -51,7 +51,7 @@ class DataSourceQueryResultBinderProvider(val context: Context) : QueryResultBin
         return PositionalDataSourceQueryResultBinder(listAdapter, tableNames)
     }
 
-    override fun matches(declared: XDeclaredType): Boolean {
+    override fun matches(declared: XType): Boolean {
         if (dataSourceType == null || positionalDataSourceType == null) {
             return false
         }

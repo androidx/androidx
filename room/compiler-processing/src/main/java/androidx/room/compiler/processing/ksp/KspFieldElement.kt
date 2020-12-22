@@ -17,7 +17,6 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XAnnotated
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XType
@@ -53,7 +52,7 @@ internal class KspFieldElement(
         )
     }
 
-    override fun asMemberOf(other: XDeclaredType): XType {
+    override fun asMemberOf(other: XType): XType {
         if (containing.type.isSameType(other)) {
             return type
         }

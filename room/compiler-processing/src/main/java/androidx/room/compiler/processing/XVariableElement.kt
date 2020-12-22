@@ -35,5 +35,5 @@ interface XVariableElement : XElement {
      * It is useful when this [XVariableElement] has a generic type declaration and its type is
      * specified in [other]. (e.g. Bar<T> vs Foo : Bar<String>)
      */
-    fun asMemberOf(other: XDeclaredType): XType
+    fun asMemberOf(other: XType): XType
 }

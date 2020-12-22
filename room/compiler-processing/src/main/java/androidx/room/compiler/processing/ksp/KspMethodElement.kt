@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
@@ -58,8 +57,8 @@ internal sealed class KspMethodElement(
             declaration.hasJvmDefaultAnnotation()
     }
 
-    override fun asMemberOf(other: XDeclaredType): XMethodType {
-        check(other is KspDeclaredType)
+    override fun asMemberOf(other: XType): XMethodType {
+        check(other is KspType)
         return KspMethodType.create(
             env = env,
             origin = this,

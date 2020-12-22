@@ -17,7 +17,6 @@
 package androidx.room.solver.binderprovider
 
 import androidx.room.ext.LifecyclesTypeNames
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
@@ -32,7 +31,7 @@ class LiveDataQueryResultBinderProvider(context: Context) :
         context.processingEnv.findType(LifecyclesTypeNames.LIVE_DATA)?.rawType
     }
 
-    override fun extractTypeArg(declared: XDeclaredType): XType = declared.typeArguments.first()
+    override fun extractTypeArg(declared: XType): XType = declared.typeArguments.first()
 
     override fun create(
         typeArg: XType,
@@ -46,10 +45,10 @@ class LiveDataQueryResultBinderProvider(context: Context) :
         )
     }
 
-    override fun matches(declared: XDeclaredType): Boolean =
+    override fun matches(declared: XType): Boolean =
         declared.typeArguments.size == 1 && isLiveData(declared)
 
-    private fun isLiveData(declared: XDeclaredType): Boolean {
+    private fun isLiveData(declared: XType): Boolean {
         if (liveDataType == null) {
             return false
         }

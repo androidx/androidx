@@ -16,10 +16,10 @@
 
 package androidx.room.solver.binderprovider
 
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.parser.ParsedQuery
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
@@ -45,7 +45,7 @@ class GuavaListenableFutureQueryResultBinderProviderImpl(
      *
      * <p>Emits a compiler error if the Guava Room extension library is not linked.
      */
-    override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(declared: XType, query: ParsedQuery): QueryResultBinder {
         // Use the type T inside ListenableFuture<T> as the type to adapt and to pass into
         // the binder.
         val adapter = context.typeAdapterStore.findQueryResultAdapter(
@@ -59,7 +59,7 @@ class GuavaListenableFutureQueryResultBinderProviderImpl(
     /**
      * Returns true iff the input {@code declared} type is ListenableFuture<T>.
      */
-    override fun matches(declared: XDeclaredType): Boolean =
+    override fun matches(declared: XType): Boolean =
         declared.typeArguments.size == 1 &&
             declared.rawType.typeName == GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
 }

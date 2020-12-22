@@ -17,7 +17,6 @@
 package androidx.room.verifier
 
 import androidx.room.compiler.processing.XConstructorElement
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XType
@@ -346,7 +345,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         return Entity(
             element = element,
             tableName = tableName,
-            type = mock(XDeclaredType::class.java),
+            type = mock(XType::class.java),
             fields = fields.toList(),
             embeddedFields = emptyList(),
             indices = emptyList(),
@@ -361,7 +360,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         return DatabaseView(
             element = mock(XTypeElement::class.java),
             viewName = viewName,
-            type = mock(XDeclaredType::class.java),
+            type = mock(XType::class.java),
             fields = fields.toList(),
             embeddedFields = emptyList(),
             query = SqlParser.parse(query),

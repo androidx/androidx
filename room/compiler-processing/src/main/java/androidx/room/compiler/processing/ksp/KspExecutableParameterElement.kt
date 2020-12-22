@@ -17,9 +17,9 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XAnnotated
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XExecutableParameterElement
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.METHOD_PARAMETER
 import com.google.devtools.ksp.symbol.KSValueParameter
 
@@ -50,7 +50,7 @@ internal class KspExecutableParameterElement(
         }
     }
 
-    override fun asMemberOf(other: XDeclaredType): KspType {
+    override fun asMemberOf(other: XType): KspType {
         if (method.containing.type.isSameType(other)) {
             return type
         }

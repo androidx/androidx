@@ -18,7 +18,6 @@ package androidx.room.solver.shortcut.binderprovider
 
 import androidx.room.ext.L
 import androidx.room.ext.T
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
@@ -39,17 +38,17 @@ open class RxCallableInsertMethodBinderProvider internal constructor(
      * [Single] and [Maybe] are generics but [Completable] is not so each implementation of this
      * class needs to define how to extract the type argument.
      */
-    open fun extractTypeArg(declared: XDeclaredType): XType = declared.typeArguments.first()
+    open fun extractTypeArg(declared: XType): XType = declared.typeArguments.first()
 
-    override fun matches(declared: XDeclaredType): Boolean =
+    override fun matches(declared: XType): Boolean =
         declared.typeArguments.size == 1 && matchesRxType(declared)
 
-    private fun matchesRxType(declared: XDeclaredType): Boolean {
+    private fun matchesRxType(declared: XType): Boolean {
         return declared.rawType.typeName == rxType.className
     }
 
     override fun provide(
-        declared: XDeclaredType,
+        declared: XType,
         params: List<ShortcutQueryParameter>
     ): InsertMethodBinder {
         val typeArg = extractTypeArg(declared)
@@ -84,12 +83,12 @@ private class RxCompletableInsertMethodBinderProvider(
      * Since Completable is not a generic, the supported return type should be Void.
      * Like this, the generated Callable.call method will return Void.
      */
-    override fun extractTypeArg(declared: XDeclaredType): XType =
+    override fun extractTypeArg(declared: XType): XType =
         context.COMMON_TYPES.VOID
 
-    override fun matches(declared: XDeclaredType): Boolean = isCompletable(declared)
+    override fun matches(declared: XType): Boolean = isCompletable(declared)
 
-    private fun isCompletable(declared: XDeclaredType): Boolean {
+    private fun isCompletable(declared: XType): Boolean {
         if (completableType == null) {
             return false
         }
