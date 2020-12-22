@@ -67,10 +67,18 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
                     _entity.setId(_tmpId);
                   }
                   if (_cursorIndexOfName != -1) {
-                    _entity.name = cursor.getString(_cursorIndexOfName);
+                    if (cursor.isNull(_cursorIndexOfName)) {
+                      _entity.name = null;
+                    } else {
+                      _entity.name = cursor.getString(_cursorIndexOfName);
+                    }
                   }
                   if (_cursorIndexOfLastName != -1) {
-                    _entity.lastName = cursor.getString(_cursorIndexOfLastName);
+                    if (cursor.isNull(_cursorIndexOfLastName)) {
+                      _entity.lastName = null;
+                    } else {
+                      _entity.lastName = cursor.getString(_cursorIndexOfLastName);
+                    }
                   }
                   if (_cursorIndexOfAge != -1) {
                     _entity.age = cursor.getInt(_cursorIndexOfAge);

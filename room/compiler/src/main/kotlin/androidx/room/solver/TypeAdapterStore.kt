@@ -146,9 +146,9 @@ class TypeAdapterStore private constructor(
             BoxedPrimitiveColumnTypeAdapter
                 .createBoxedPrimitiveAdapters(primitives)
                 .forEach(::addColumnAdapter)
-            addColumnAdapter(StringColumnTypeAdapter(context.processingEnv))
-            addColumnAdapter(ByteArrayColumnTypeAdapter(context.processingEnv))
-            addColumnAdapter(ByteBufferColumnTypeAdapter(context.processingEnv))
+            StringColumnTypeAdapter.create(context.processingEnv).forEach(::addColumnAdapter)
+            ByteArrayColumnTypeAdapter.create(context.processingEnv).forEach(::addColumnAdapter)
+            ByteBufferColumnTypeAdapter.create(context.processingEnv).forEach(::addColumnAdapter)
             PrimitiveBooleanToIntConverter.create(context.processingEnv).forEach(::addTypeConverter)
             BoxedBooleanToBoxedIntConverter.create(context.processingEnv)
                 .forEach(::addTypeConverter)
