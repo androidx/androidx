@@ -175,9 +175,30 @@ public class LocalStorage {
     public static ListenableFuture<AppSearchSession> createSearchSession(
             @NonNull SearchContext context) {
         Preconditions.checkNotNull(context);
-        return FutureUtil.execute(EXECUTOR_SERVICE, () -> {
+        return createSearchSession(context, EXECUTOR_SERVICE);
+    }
+
+    /**
+     * Opens a new {@link AppSearchSession} on this storage with executor.
+     *
+     * <p>This process requires a native search library. If it's not created, the initialization
+     * process will create one.
+     *
+     * @param context  The {@link SearchContext} contains all information to create a new
+     *                 {@link AppSearchSession}
+     * @param executor The executor of where tasks will execute.
+     * @hide
+     */
+    @NonNull
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static ListenableFuture<AppSearchSession> createSearchSession(
+            @NonNull SearchContext context, @NonNull ExecutorService executor) {
+        Preconditions.checkNotNull(context);
+        Preconditions.checkNotNull(executor);
+        return FutureUtil.execute(executor, () -> {
             LocalStorage instance = getOrCreateInstance(context.mContext);
-            return instance.doCreateSearchSession(context);
+            return instance.doCreateSearchSession(context, executor);
         });
     }
 
@@ -197,7 +218,7 @@ public class LocalStorage {
         Preconditions.checkNotNull(context);
         return FutureUtil.execute(EXECUTOR_SERVICE, () -> {
             LocalStorage instance = getOrCreateInstance(context.mContext);
-            return instance.doCreateGlobalSearchSession();
+            return instance.doCreateGlobalSearchSession(EXECUTOR_SERVICE);
         });
     }
 
@@ -230,13 +251,14 @@ public class LocalStorage {
     }
 
     @NonNull
-    private AppSearchSession doCreateSearchSession(@NonNull SearchContext context) {
-        return new SearchSessionImpl(mAppSearchImpl, EXECUTOR_SERVICE,
+    private AppSearchSession doCreateSearchSession(@NonNull SearchContext context,
+            @NonNull ExecutorService executor) {
+        return new SearchSessionImpl(mAppSearchImpl, executor,
                 context.mContext.getPackageName(), context.mDatabaseName);
     }
 
     @NonNull
-    private GlobalSearchSession doCreateGlobalSearchSession() {
-        return new GlobalSearchSessionImpl(mAppSearchImpl, EXECUTOR_SERVICE);
+    private GlobalSearchSession doCreateGlobalSearchSession(@NonNull ExecutorService executor) {
+        return new GlobalSearchSessionImpl(mAppSearchImpl, executor);
     }
 }

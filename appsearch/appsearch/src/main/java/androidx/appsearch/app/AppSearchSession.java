@@ -19,6 +19,7 @@ package androidx.appsearch.app;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -210,4 +211,13 @@ public interface AppSearchSession {
     @NonNull
     ListenableFuture<Void> removeByQuery(
             @NonNull String queryExpression, @NonNull SearchSpec searchSpec);
+
+    /**
+     * Closes the SearchSessionImpl to persists all update/delete requests to the disk.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    // TODO(b/175637134) when unhide it, extends Closeable and remove this method.
+    void close();
 }
