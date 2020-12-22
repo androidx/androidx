@@ -17,6 +17,7 @@
 package androidx.appsearch.app.util;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchSession;
@@ -24,8 +25,6 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByUriRequest;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
-
-import junit.framework.AssertionFailedError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,9 +35,8 @@ public class AppSearchTestUtils {
     public static <K, V> AppSearchBatchResult<K, V> checkIsBatchResultSuccess(
             Future<AppSearchBatchResult<K, V>> future) throws Exception {
         AppSearchBatchResult<K, V> result = future.get();
-        if (!result.isSuccess()) {
-            throw new AssertionFailedError("AppSearchBatchResult not successful: " + result);
-        }
+        assertWithMessage("AppSearchBatchResult not successful: " + result)
+                .that(result.isSuccess()).isTrue();
         return result;
     }
 
