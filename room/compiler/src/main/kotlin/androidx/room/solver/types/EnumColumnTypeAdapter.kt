@@ -96,9 +96,10 @@ class EnumColumnTypeAdapter(out: XType) :
                             addStatement("case $L: return $S", enumConstant.name, enumConstant.name)
                         }
                         addStatement(
-                            "default: throw new $T($S)",
+                            "default: throw new $T($S + $N)",
                             ILLEGAL_ARG_EXCEPTION,
-                            "Can't convert ${param.name} to string, unknown enum value."
+                            "Can't convert enum to string, unknown enum value: ",
+                            param
                         )
                         endControlFlow()
                     }
@@ -136,9 +137,10 @@ class EnumColumnTypeAdapter(out: XType) :
                             )
                         }
                         addStatement(
-                            "default: throw new $T($S)",
+                            "default: throw new $T($S + $N)",
                             ILLEGAL_ARG_EXCEPTION,
-                            "Can't convert ${param.name} to enum, unknown value."
+                            "Can't convert value to enum, unknown value: ",
+                            param
                         )
                         endControlFlow()
                     }
