@@ -310,7 +310,7 @@ public final class SearchSpec {
          */
         @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getSchemaTypes
         @NonNull
-        public Builder addSchemaByDataClass(@NonNull Collection<Class<?>> dataClasses)
+        public Builder addSchemaByDataClass(@NonNull Collection<? extends Class<?>> dataClasses)
                 throws AppSearchException {
             Preconditions.checkNotNull(dataClasses);
             Preconditions.checkState(!mBuilt, "Builder has already been used");

@@ -185,9 +185,9 @@ package androidx.appsearch.app {
   public static final class PutDocumentsRequest.Builder {
     ctor public PutDocumentsRequest.Builder();
     method public androidx.appsearch.app.PutDocumentsRequest.Builder addDataClass(java.lang.Object!...) throws androidx.appsearch.exceptions.AppSearchException;
-    method public androidx.appsearch.app.PutDocumentsRequest.Builder addDataClass(java.util.Collection<java.lang.Object!>) throws androidx.appsearch.exceptions.AppSearchException;
+    method public androidx.appsearch.app.PutDocumentsRequest.Builder addDataClass(java.util.Collection<?>) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.PutDocumentsRequest.Builder addGenericDocument(androidx.appsearch.app.GenericDocument!...);
-    method public androidx.appsearch.app.PutDocumentsRequest.Builder addGenericDocument(java.util.Collection<androidx.appsearch.app.GenericDocument!>);
+    method public androidx.appsearch.app.PutDocumentsRequest.Builder addGenericDocument(java.util.Collection<? extends androidx.appsearch.app.GenericDocument>);
     method public androidx.appsearch.app.PutDocumentsRequest build();
   }
 
@@ -256,7 +256,7 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchSpec.Builder addNamespace(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.SearchSpec.Builder addProjection(String, java.lang.String!...);
     method public androidx.appsearch.app.SearchSpec.Builder addProjection(String, java.util.Collection<java.lang.String!>);
-    method public androidx.appsearch.app.SearchSpec.Builder addSchemaByDataClass(java.util.Collection<java.lang.Class<?>!>) throws androidx.appsearch.exceptions.AppSearchException;
+    method public androidx.appsearch.app.SearchSpec.Builder addSchemaByDataClass(java.util.Collection<? extends java.lang.Class<?>>) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SearchSpec.Builder addSchemaByDataClass(Class<?>!...) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SearchSpec.Builder addSchemaType(java.lang.String!...);
     method public androidx.appsearch.app.SearchSpec.Builder addSchemaType(java.util.Collection<java.lang.String!>);
