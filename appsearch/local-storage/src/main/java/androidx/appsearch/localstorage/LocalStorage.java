@@ -18,12 +18,13 @@ package androidx.appsearch.localstorage;
 
 import android.content.Context;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.annotation.WorkerThread;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GlobalSearchSession;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.util.FutureUtil;
 import androidx.core.util.Preconditions;
 
@@ -54,7 +55,7 @@ public class LocalStorage {
     @VisibleForTesting
     public static final String DEFAULT_DATABASE_NAME = "";
 
-    private static volatile ListenableFuture<LocalStorage> sInstance;
+    private static final String ICING_LIB_ROOT_DIR = "appsearch";
 
     /** Contains information about how to create the search session. */
     public static final class SearchContext {
@@ -156,14 +157,10 @@ public class LocalStorage {
     // execute() won't return anything, we will hang forever waiting for the execution.
     // AppSearch multi-thread execution is guarded by Read & Write Lock in AppSearchImpl, all
     // mutate requests will need to gain write lock and query requests need to gain read lock.
-    private final ExecutorService mExecutorService = Executors.newCachedThreadPool();
+    private static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
+    private static volatile LocalStorage sInstance;
 
-    private static final String ICING_LIB_ROOT_DIR = "appsearch";
-
-    // Package-level visibility to allow SearchResultsImpl to access it without a synthetic
-    // accessor.
-    volatile AppSearchImpl mAppSearchImpl;
-
+    private final AppSearchImpl mAppSearchImpl;
 
     /**
      * Opens a new {@link AppSearchSession} on this storage.
@@ -178,8 +175,10 @@ public class LocalStorage {
     public static ListenableFuture<AppSearchSession> createSearchSession(
             @NonNull SearchContext context) {
         Preconditions.checkNotNull(context);
-        ListenableFuture<LocalStorage> instFuture = getInstance(context.mContext);
-        return FutureUtil.map(instFuture, (instance) -> instance.doCreateSearchSession(context));
+        return FutureUtil.execute(EXECUTOR_SERVICE, () -> {
+            LocalStorage instance = getOrCreateInstance(context.mContext);
+            return instance.doCreateSearchSession(context);
+        });
     }
 
     /**
@@ -196,8 +195,10 @@ public class LocalStorage {
     public static ListenableFuture<GlobalSearchSession> createGlobalSearchSession(
             @NonNull GlobalSearchContext context) {
         Preconditions.checkNotNull(context);
-        ListenableFuture<LocalStorage> instFuture = getInstance(context.mContext);
-        return FutureUtil.map(instFuture, LocalStorage::doCreateGlobalSearchSession);
+        return FutureUtil.execute(EXECUTOR_SERVICE, () -> {
+            LocalStorage instance = getOrCreateInstance(context.mContext);
+            return instance.doCreateGlobalSearchSession();
+        });
     }
 
     /**
@@ -207,39 +208,35 @@ public class LocalStorage {
      * {@code context}.
      */
     @NonNull
+    @WorkerThread
     @VisibleForTesting
-    static ListenableFuture<LocalStorage> getInstance(@NonNull Context context) {
+    static LocalStorage getOrCreateInstance(@NonNull Context context) throws AppSearchException {
         Preconditions.checkNotNull(context);
         if (sInstance == null) {
             synchronized (LocalStorage.class) {
                 if (sInstance == null) {
-                    sInstance = new LocalStorage().initialize(context);
+                    sInstance = new LocalStorage(context);
                 }
             }
         }
         return sInstance;
     }
 
-    private LocalStorage() {}
-
-    // NOTE: No instance of this class should be created or returned except via initialize().
-    // Once the ListenableFuture returned here is populated, the class is ready to use.
-    @GuardedBy("LocalStorage.class")
-    private ListenableFuture<LocalStorage> initialize(@NonNull Context context) {
+    @WorkerThread
+    private LocalStorage(@NonNull Context context) throws AppSearchException {
         Preconditions.checkNotNull(context);
-        return FutureUtil.execute(mExecutorService, () -> {
-            File icingDir = new File(context.getFilesDir(), ICING_LIB_ROOT_DIR);
-            mAppSearchImpl = AppSearchImpl.create(icingDir);
-            return this;
-        });
+        File icingDir = new File(context.getFilesDir(), ICING_LIB_ROOT_DIR);
+        mAppSearchImpl = AppSearchImpl.create(icingDir);
     }
 
-    AppSearchSession doCreateSearchSession(@NonNull SearchContext context) {
-        return new SearchSessionImpl(mAppSearchImpl, mExecutorService,
+    @NonNull
+    private AppSearchSession doCreateSearchSession(@NonNull SearchContext context) {
+        return new SearchSessionImpl(mAppSearchImpl, EXECUTOR_SERVICE,
                 context.mContext.getPackageName(), context.mDatabaseName);
     }
 
-    GlobalSearchSession doCreateGlobalSearchSession() {
-        return new GlobalSearchSessionImpl(mAppSearchImpl, mExecutorService);
+    @NonNull
+    private GlobalSearchSession doCreateGlobalSearchSession() {
+        return new GlobalSearchSessionImpl(mAppSearchImpl, EXECUTOR_SERVICE);
     }
 }
