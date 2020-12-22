@@ -86,7 +86,7 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
     }
 
     protected fun tearDown() {
-        CameraX.shutdown().get()
+        CameraX.shutdown().get(10, TimeUnit.SECONDS)
         mDevice.unfreezeRotation()
     }
 
@@ -186,7 +186,7 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
 
     companion object {
         protected const val IMAGES_COUNT = 30
-        protected const val TIMEOUT = 5L
+        protected const val TIMEOUT = 10L
         @JvmStatic
         protected val captureModes = arrayOf(
             CameraActivity.IMAGE_CAPTURE_MODE_IN_MEMORY,
