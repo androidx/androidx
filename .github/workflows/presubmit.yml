@@ -66,15 +66,15 @@ jobs:
         id: ktlint-file-args
         run: |
           set -x
-          KTLINT_FILES=`echo "${{ steps.changed-files.outputs.added_modified }}" | sed 's/[^ ]* */--file=&/g'`
-          echo "::set-output name=ktlint-file-args::\"$KTLINT_FILES\""
+          KTLINT_FILES=`echo "${{ steps.changed-files.outputs.added_modified }}" | sed 's|[^ ]* *|--file=${{ github.workspace }}/&|g'`
+          echo "::set-output name=ktlint-file-args::$KTLINT_FILES"
 
       - name: "ktlint"
         uses: eskatos/gradle-command-action@v1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: -q --continue :ktlintCheckFile ${{ steps.ktlint-file-args.outputs.ktlint-file-args }}
+          arguments: -q :ktlintCheckFile ${{ steps.ktlint-file-args.outputs.ktlint-file-args }}
           build-root-directory: activity
           gradle-executable: activity/gradlew
           wrapper-directory: activity/gradle/wrapper
