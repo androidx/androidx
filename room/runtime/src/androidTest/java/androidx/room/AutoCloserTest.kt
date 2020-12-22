@@ -79,6 +79,7 @@ public class AutoCloserTest {
             autoCloseExecutor
         ).also {
             it.init(delegateOpenHelper)
+            it.setAutoCloseCallback { }
         }
     }
 

@@ -50,6 +50,10 @@ final class AutoCloser {
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     // Package private for access from mAutoCloser
+    @Nullable
+    Runnable mOnAutoCloseCallback = null;
+
+    // Package private for access from mAutoCloser
     @NonNull
     final Object mLock = new Object();
 
@@ -102,6 +106,15 @@ final class AutoCloser {
                     return;
                 }
 
+                if (mOnAutoCloseCallback != null) {
+                    mOnAutoCloseCallback.run();
+                } else {
+                    throw new IllegalStateException("mOnAutoCloseCallback is null but it should"
+                            + " have been set before use. Please file a bug "
+                            + "against Room at: https://issuetracker.google"
+                            + ".com/issues/new?component=413107&template=1096568");
+                }
+
                 if (mDelegateDatabase != null) {
                     try {
                         mDelegateDatabase.close();
@@ -138,8 +151,9 @@ final class AutoCloser {
      */
     public void init(@NonNull SupportSQLiteOpenHelper delegateOpenHelper) {
         if (mDelegateOpenHelper != null) {
-            Log.e(Room.LOG_TAG, "AutoCloser initialized multiple times. This is probably a bug in"
-                    + " the room code.");
+            Log.e(Room.LOG_TAG, "AutoCloser initialized multiple times. Please file a bug against"
+                    + " room at: https://issuetracker.google"
+                    + ".com/issues/new?component=413107&template=1096568");
             return;
         }
         this.mDelegateOpenHelper = delegateOpenHelper;
@@ -194,8 +208,9 @@ final class AutoCloser {
             if (mDelegateOpenHelper != null) {
                 mDelegateDatabase = mDelegateOpenHelper.getWritableDatabase();
             } else {
-                throw new IllegalStateException("AutoCloser has not beeninitialized. This "
-                        + "shouldn't happen, but if it does it means there's a bug in our code");
+                throw new IllegalStateException("AutoCloser has not been initialized. Please file "
+                        + "a bug against Room at: "
+                        + "https://issuetracker.google.com/issues/new?component=413107&template=1096568");
             }
 
             return mDelegateDatabase;
@@ -252,5 +267,15 @@ final class AutoCloser {
         synchronized (mLock) {
             return mRefCount;
         }
+    }
+
+    /**
+     * Sets a callback that will be run every time the database is auto-closed. This callback
+     * needs to be lightweight since it is run while holding a lock.
+     *
+     * @param onAutoClose the callback to run
+     */
+    public void setAutoCloseCallback(Runnable onAutoClose) {
+        mOnAutoCloseCallback = onAutoClose;
     }
 }
