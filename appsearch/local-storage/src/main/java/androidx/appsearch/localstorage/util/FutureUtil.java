@@ -18,18 +18,13 @@ package androidx.appsearch.localstorage.util;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.arch.core.util.Function;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Utilities for working with {@link com.google.common.util.concurrent.ListenableFuture}.
@@ -58,52 +53,5 @@ public final class FutureUtil {
             }
         });
         return future;
-    }
-
-    /**
-     * Returns a new {@link ListenableFuture} by applying the given lambda to the result of the old
-     * future.
-     *
-     * <p>The lambda is applied as part of the get() call and its result is not cached.
-     */
-    @NonNull
-    public static <I, O> ListenableFuture<O> map(
-            @NonNull ListenableFuture<I> inputFuture, @NonNull Function<I, O> lambda) {
-        Preconditions.checkNotNull(inputFuture);
-        Preconditions.checkNotNull(lambda);
-        return new ListenableFuture<O>() {
-            @Override
-            public void addListener(Runnable listener, Executor executor) {
-                inputFuture.addListener(listener, executor);
-            }
-
-            @Override
-            public boolean cancel(boolean mayInterruptIfRunning) {
-                return inputFuture.cancel(mayInterruptIfRunning);
-            }
-
-            @Override
-            public boolean isCancelled() {
-                return inputFuture.isCancelled();
-            }
-
-            @Override
-            public boolean isDone() {
-                return inputFuture.isDone();
-            }
-
-            @Override
-            public O get() throws ExecutionException, InterruptedException {
-                I input = inputFuture.get();
-                return lambda.apply(input);
-            }
-
-            @Override
-            public O get(long timeout, TimeUnit unit)
-                    throws ExecutionException, InterruptedException, TimeoutException {
-                I input = inputFuture.get(timeout, unit);
-                return lambda.apply(input);
-            }
-        };
     }
 }
