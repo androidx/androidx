@@ -130,9 +130,8 @@ internal abstract class KspType(
     }
 
     override fun extendsBound(): XType? {
-        // NOTE: wildcard does not fully exist in kotlin and when we resolve, it always seems to
-        // be mapped to the upper bound. Might still need more investigation here
-        // https://kotlinlang.org/docs/reference/generics.html#star-projections
+        // when we detect that there should be an extends bounds, KspProcessingEnv creates
+        // [KspTypeArgumentType].
         return null
     }
 
