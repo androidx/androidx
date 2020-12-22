@@ -300,7 +300,7 @@ public final class ComplicationDrawable extends Drawable {
      * Sets the context used to render the complication. If a context is not set,
      * ComplicationDrawable will throw an {@link IllegalStateException} if one of
      * {@link #draw(Canvas)}, {@link #setBounds(Rect)}, or {@link
-     * #setComplicationData(ComplicationData)} is called.
+     * #setComplicationData(ComplicationData, boolean)} is called.
      *
      * <p>While this can be called from any context, ideally, a
      * androidx.wear.watchface.WatchFaceService object should be passed here to allow creating
@@ -619,10 +619,17 @@ public final class ComplicationDrawable extends Drawable {
     /**
      * Sets the complication data to be drawn. If {@code complicationData} is {@code null}, nothing
      * will be drawn when {@link #draw(Canvas)} is called.
+     *
+     * @param complicationData The [ComplicationData] to set
+     * @param loadDrawablesAsync If true any drawables should be loaded asynchronously,
+     *      otherwise they will be loaded synchronously.
      */
-    public void setComplicationData(@Nullable ComplicationData complicationData) {
+    public void setComplicationData(
+            @Nullable ComplicationData complicationData,
+            boolean loadDrawablesAsync
+    ) {
         assertInitialized();
-        mComplicationRenderer.setComplicationData(complicationData);
+        mComplicationRenderer.setComplicationData(complicationData, loadDrawablesAsync);
     }
 
     /**

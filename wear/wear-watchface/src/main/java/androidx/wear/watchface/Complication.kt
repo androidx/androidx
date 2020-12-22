@@ -82,6 +82,9 @@ public interface CanvasComplication {
 
     /** The [IdAndComplicationData] to render. */
     public var idAndData: IdAndComplicationData?
+
+    /** @hide */
+    public fun setIdComplicationDataSync(idAndComplicationData: IdAndComplicationData?)
 }
 
 /**
@@ -205,13 +208,28 @@ public open class CanvasComplicationDrawable(
             drawable.isHighlighted = value
         }
 
+    private var _idAndData: IdAndComplicationData? = null
+
     /** The [IdAndComplicationData] to use when rendering the complication. */
-    override var idAndData: IdAndComplicationData? = null
+    override var idAndData: IdAndComplicationData?
+        @UiThread
+        get() = _idAndData
         @UiThread
         set(value) {
-            drawable.complicationData = value?.complicationData?.asWireComplicationData()
-            field = value
+            drawable.setComplicationData(
+                value?.complicationData?.asWireComplicationData(),
+                true
+            )
+            _idAndData = value
         }
+
+    override fun setIdComplicationDataSync(idAndComplicationData: IdAndComplicationData?) {
+        _idAndData = idAndComplicationData
+        drawable.setComplicationData(
+            idAndComplicationData?.complicationData?.asWireComplicationData(),
+            false
+        )
+    }
 }
 
 /**
@@ -274,6 +292,7 @@ public class Complication internal constructor(
             ComplicationBoundsType.ROUND_RECT,
             complicationBounds
         )
+
         /**
          * Constructs a [Builder] for a complication with bound type
          * [ComplicationBoundsType.BACKGROUND] whose bounds cover the entire screen. A background
