@@ -91,18 +91,6 @@ internal abstract class KspType(
         }
     }
 
-    override fun isInt(): Boolean {
-        return env.commonTypes.nullableInt.isAssignableFrom(ksType)
-    }
-
-    override fun isLong(): Boolean {
-        return env.commonTypes.nullableLong.isAssignableFrom(ksType)
-    }
-
-    override fun isByte(): Boolean {
-        return env.commonTypes.nullableByte.isAssignableFrom(ksType)
-    }
-
     override fun isNone(): Boolean {
         // even void is converted to Unit so we don't have none type in KSP
         // see: KspTypeTest.noneType
