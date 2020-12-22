@@ -255,9 +255,9 @@ public interface CameraGraph : Closeable {
          * applied or the frame number at which the method returned early because either frame limit
          * or time limit was reached.
          */
-        public fun lock3AForCapture(
+        public suspend fun lock3AForCapture(
             frameLimit: Int = DEFAULT_FRAME_LIMIT,
-            timeLimitMs: Int = DEFAULT_TIME_LIMIT_MS
+            timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS
         ): Deferred<Result3A>
 
         /**
@@ -268,6 +268,6 @@ public interface CameraGraph : Closeable {
          * This method brings focus and exposure back to normal after high quality image captures
          * using [lock3AForCapture] method.
          */
-        public fun unlock3APostCapture(): Deferred<FrameNumber>
+        public suspend fun unlock3APostCapture(): Deferred<Result3A>
     }
 }
