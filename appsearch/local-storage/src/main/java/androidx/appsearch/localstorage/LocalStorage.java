@@ -16,20 +16,15 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.localstorage;
 
-import static androidx.appsearch.app.AppSearchResult.newSuccessfulResult;
-import static androidx.appsearch.app.AppSearchResult.throwableToFailedResult;
-
 import android.content.Context;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.localstorage.util.FutureUtil;
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -59,7 +54,7 @@ public class LocalStorage {
     @VisibleForTesting
     public static final String DEFAULT_DATABASE_NAME = "";
 
-    private static volatile ListenableFuture<AppSearchResult<LocalStorage>> sInstance;
+    private static volatile ListenableFuture<LocalStorage> sInstance;
 
     /** Contains information about how to create the search session. */
     public static final class SearchContext {
@@ -180,19 +175,11 @@ public class LocalStorage {
      *                {@link AppSearchSession}
      */
     @NonNull
-    public static ListenableFuture<AppSearchResult<AppSearchSession>> createSearchSession(
+    public static ListenableFuture<AppSearchSession> createSearchSession(
             @NonNull SearchContext context) {
         Preconditions.checkNotNull(context);
-        ListenableFuture<AppSearchResult<LocalStorage>> instFuture = getInstance(context.mContext);
-        return FutureUtil.map(instFuture, (instance) -> {
-            if (!instance.isSuccess()) {
-                return AppSearchResult.newFailedResult(
-                        instance.getResultCode(), instance.getErrorMessage());
-            }
-            AppSearchSession searchSession =
-                    instance.getResultValue().doCreateSearchSession(context);
-            return AppSearchResult.newSuccessfulResult(searchSession);
-        });
+        ListenableFuture<LocalStorage> instFuture = getInstance(context.mContext);
+        return FutureUtil.map(instFuture, (instance) -> instance.doCreateSearchSession(context));
     }
 
     /**
@@ -206,19 +193,11 @@ public class LocalStorage {
      * @hide
      */
     @NonNull
-    public static ListenableFuture<AppSearchResult<GlobalSearchSession>> createGlobalSearchSession(
+    public static ListenableFuture<GlobalSearchSession> createGlobalSearchSession(
             @NonNull GlobalSearchContext context) {
         Preconditions.checkNotNull(context);
-        ListenableFuture<AppSearchResult<LocalStorage>> instFuture = getInstance(context.mContext);
-        return FutureUtil.map(instFuture, (instance) -> {
-            if (!instance.isSuccess()) {
-                return AppSearchResult.newFailedResult(
-                        instance.getResultCode(), instance.getErrorMessage());
-            }
-            GlobalSearchSession searchSession =
-                    instance.getResultValue().doCreateGlobalSearchSession();
-            return AppSearchResult.newSuccessfulResult(searchSession);
-        });
+        ListenableFuture<LocalStorage> instFuture = getInstance(context.mContext);
+        return FutureUtil.map(instFuture, LocalStorage::doCreateGlobalSearchSession);
     }
 
     /**
@@ -229,9 +208,8 @@ public class LocalStorage {
      */
     @NonNull
     @VisibleForTesting
-    static ListenableFuture<AppSearchResult<LocalStorage>> getInstance(@NonNull Context context) {
+    static ListenableFuture<LocalStorage> getInstance(@NonNull Context context) {
         Preconditions.checkNotNull(context);
-
         if (sInstance == null) {
             synchronized (LocalStorage.class) {
                 if (sInstance == null) {
@@ -247,24 +225,13 @@ public class LocalStorage {
     // NOTE: No instance of this class should be created or returned except via initialize().
     // Once the ListenableFuture returned here is populated, the class is ready to use.
     @GuardedBy("LocalStorage.class")
-    private ListenableFuture<AppSearchResult<LocalStorage>> initialize(@NonNull Context context) {
+    private ListenableFuture<LocalStorage> initialize(@NonNull Context context) {
         Preconditions.checkNotNull(context);
-
-        ResolvableFuture<AppSearchResult<LocalStorage>> future = ResolvableFuture.create();
-        mExecutorService.execute(() -> {
-            if (!future.isCancelled()) {
-
-                File icingDir = new File(context.getFilesDir(), ICING_LIB_ROOT_DIR);
-                try {
-                    mAppSearchImpl = AppSearchImpl.create(icingDir);
-                } catch (Throwable t) {
-                    future.set(throwableToFailedResult(t));
-                }
-
-                future.set(newSuccessfulResult(this));
-            }
+        return FutureUtil.execute(mExecutorService, () -> {
+            File icingDir = new File(context.getFilesDir(), ICING_LIB_ROOT_DIR);
+            mAppSearchImpl = AppSearchImpl.create(icingDir);
+            return this;
         });
-        return future;
     }
 
     AppSearchSession doCreateSearchSession(@NonNull SearchContext context) {

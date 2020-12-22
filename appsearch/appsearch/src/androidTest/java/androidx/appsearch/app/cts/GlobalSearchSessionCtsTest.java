@@ -17,7 +17,6 @@
 package androidx.appsearch.app.cts;
 
 import static androidx.appsearch.app.util.AppSearchTestUtils.checkIsBatchResultSuccess;
-import static androidx.appsearch.app.util.AppSearchTestUtils.checkIsResultSuccess;
 import static androidx.appsearch.app.util.AppSearchTestUtils.convertSearchResultsToDocuments;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -60,19 +59,20 @@ public class GlobalSearchSessionCtsTest {
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
 
-        mDb1 = checkIsResultSuccess(LocalStorage.createSearchSession(
-                new LocalStorage.SearchContext.Builder(context)
-                        .setDatabaseName(DB_NAME_1).build()));
-        mDb2 = checkIsResultSuccess(LocalStorage.createSearchSession(
-                new LocalStorage.SearchContext.Builder(context)
-                        .setDatabaseName(DB_NAME_2).build()));
+        mDb1 = LocalStorage.createSearchSession(
+                new LocalStorage.SearchContext.Builder(context).setDatabaseName(DB_NAME_1).build())
+                .get();
+        mDb2 = LocalStorage.createSearchSession(
+                new LocalStorage.SearchContext.Builder(context).setDatabaseName(DB_NAME_2).build())
+                .get();
 
         // Cleanup whatever documents may still exist in these databases. This is needed in
         // addition to tearDown in case a test exited without completing properly.
         cleanup();
 
-        mGlobalAppSearchManager = checkIsResultSuccess(LocalStorage.createGlobalSearchSession(
-                new LocalStorage.GlobalSearchContext.Builder(context).build()));
+        mGlobalAppSearchManager = LocalStorage.createGlobalSearchSession(
+                new LocalStorage.GlobalSearchContext.Builder(context).build())
+                .get();
     }
 
     @After
@@ -82,10 +82,8 @@ public class GlobalSearchSessionCtsTest {
     }
 
     private void cleanup() throws Exception {
-        checkIsResultSuccess(mDb1.setSchema(
-                new SetSchemaRequest.Builder().setForceOverride(true).build()));
-        checkIsResultSuccess(mDb2.setSchema(
-                new SetSchemaRequest.Builder().setForceOverride(true).build()));
+        mDb1.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()).get();
+        mDb2.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()).get();
     }
 
     private List<GenericDocument> snapshotResults(String queryExpression, SearchSpec spec)
@@ -104,7 +102,7 @@ public class GlobalSearchSessionCtsTest {
      */
     private void assertAddedBetweenSnapshots(List<? extends GenericDocument> beforeDocuments,
             List<? extends GenericDocument> afterDocuments,
-            List<? extends GenericDocument> addedDocuments) throws Exception {
+            List<? extends GenericDocument> addedDocuments) {
         List<GenericDocument> expectedDocuments = new ArrayList<>(beforeDocuments);
         expectedDocuments.addAll(addedDocuments);
         assertThat(afterDocuments).containsExactlyElementsIn(expectedDocuments);
@@ -121,8 +119,8 @@ public class GlobalSearchSessionCtsTest {
                 exactSearchSpec);
 
         // Schema registration
-        checkIsResultSuccess(mDb1.setSchema(
-                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
+        mDb1.setSchema(new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build())
+                .get();
 
         // Index a document
         AppSearchEmail inEmail =
@@ -156,10 +154,10 @@ public class GlobalSearchSessionCtsTest {
         List<GenericDocument> beforeBodyDocuments = snapshotResults("body", exactSearchSpec);
 
         // Schema registration
-        checkIsResultSuccess(mDb1.setSchema(new SetSchemaRequest.Builder()
-                .addSchema(AppSearchEmail.SCHEMA).build()));
-        checkIsResultSuccess(mDb2.setSchema(new SetSchemaRequest.Builder()
-                .addSchema(AppSearchEmail.SCHEMA).build()));
+        mDb1.setSchema(new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build())
+                .get();
+        mDb2.setSchema(new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build())
+                .get();
 
         // Index a document to instance 1.
         AppSearchEmail inEmail1 =
@@ -198,8 +196,8 @@ public class GlobalSearchSessionCtsTest {
         List<GenericDocument> beforeBodyDocuments = snapshotResults("body", exactSearchSpec);
 
         // Schema registration
-        checkIsResultSuccess(mDb1.setSchema(
-                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
+        mDb1.setSchema(new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build())
+                .get();
         List<AppSearchEmail> emailList = new ArrayList<>();
         PutDocumentsRequest.Builder putDocumentsRequestBuilder = new PutDocumentsRequest.Builder();
 
@@ -231,7 +229,7 @@ public class GlobalSearchSessionCtsTest {
 
         // keep loading next page until it's empty.
         do {
-            results = checkIsResultSuccess(searchResults.getNextPage());
+            results = searchResults.getNextPage().get();
             ++pageNumber;
             for (SearchResult result : results) {
                 documents.add(result.getDocument());
@@ -275,12 +273,12 @@ public class GlobalSearchSessionCtsTest {
                 ).build();
 
         // db1 has both "Generic" and "builtin:Email"
-        checkIsResultSuccess(mDb1.setSchema(new SetSchemaRequest.Builder()
-                .addSchema(genericSchema).addSchema(AppSearchEmail.SCHEMA).build()));
+        mDb1.setSchema(new SetSchemaRequest.Builder()
+                .addSchema(genericSchema).addSchema(AppSearchEmail.SCHEMA).build()).get();
 
         // db2 only has "builtin:Email"
-        checkIsResultSuccess(mDb2.setSchema(new SetSchemaRequest.Builder()
-                .addSchema(AppSearchEmail.SCHEMA).build()));
+        mDb2.setSchema(new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build())
+                .get();
 
         // Index a generic document into db1
         GenericDocument genericDocument = new GenericDocument.Builder<>("uri2", "Generic")
@@ -333,10 +331,10 @@ public class GlobalSearchSessionCtsTest {
                 exactNamespace1SearchSpec);
 
         // Schema registration
-        checkIsResultSuccess(mDb1.setSchema(new SetSchemaRequest.Builder()
-                .addSchema(AppSearchEmail.SCHEMA).build()));
-        checkIsResultSuccess(mDb2.setSchema(new SetSchemaRequest.Builder()
-                .addSchema(AppSearchEmail.SCHEMA).build()));
+        mDb1.setSchema(new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build())
+                .get();
+        mDb2.setSchema(new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build())
+                .get();
 
         // Index two documents
         AppSearchEmail document1 =
