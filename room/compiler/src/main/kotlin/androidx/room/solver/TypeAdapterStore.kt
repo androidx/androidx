@@ -594,14 +594,28 @@ class TypeAdapterStore private constructor(
         val excludes = arrayListOf<XType>()
 
         val queue = LinkedList<TypeConverter>()
-        fun exactMatch(candidates: List<TypeConverter>): TypeConverter? {
-            return candidates.firstOrNull {
-                outputs.any { output -> it.to.isAssignableFromWithoutVariance(output) }
+        fun List<TypeConverter>.findMatchingConverter(): TypeConverter? {
+            // We prioritize exact match over assignable. To do that, this variable keeps any
+            // assignable match and if we cannot find exactly same type match, we'll return the
+            // assignable match.
+            var assignableMatchFallback: TypeConverter? = null
+            this.forEach { converter ->
+                outputs.forEach { output ->
+                    if (output.isSameType(converter.to)) {
+                        return converter
+                    } else if (assignableMatchFallback == null &&
+                        output.isAssignableFrom(converter.to)
+                    ) {
+                        // if we don't find exact match, we'll return this.
+                        assignableMatchFallback = converter
+                    }
+                }
             }
+            return assignableMatchFallback
         }
         inputs.forEach { input ->
             val candidates = getAllTypeConverters(input, excludes)
-            val match = exactMatch(candidates)
+            val match = candidates.findMatchingConverter()
             if (match != null) {
                 return match
             }
@@ -615,7 +629,7 @@ class TypeAdapterStore private constructor(
             val prev = queue.pop()
             val from = prev.to
             val candidates = getAllTypeConverters(from, excludes)
-            val match = exactMatch(candidates)
+            val match = candidates.findMatchingConverter()
             if (match != null) {
                 return CompositeTypeConverter(prev, match)
             }
