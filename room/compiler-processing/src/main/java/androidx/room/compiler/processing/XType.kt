@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 import kotlin.contracts.contract
 import kotlin.reflect.KClass
@@ -96,39 +97,9 @@ interface XType {
     fun boxed(): XType
 
     /**
-     * Returns `true` if this is a primitive or boxed it
-     */
-    fun isInt(): Boolean
-
-    /**
-     * Returns `true` if this is a primitive or boxed long
-     */
-    fun isLong(): Boolean
-
-    /**
      * Returns `true` if this is a [List]
      */
     fun isList(): Boolean = isTypeOf(List::class)
-
-    /**
-     * Returns `true` if this is `void`
-     */
-    fun isVoid() = typeName == TypeName.VOID
-
-    /**
-     * Returns `true` if this is a [Void]
-     */
-    fun isVoidObject(): Boolean = isTypeOf(Void::class)
-
-    /**
-     * Returns `true` if this is the kotlin [Unit] type.
-     */
-    fun isKotlinUnit(): Boolean = isTypeOf(Unit::class)
-
-    /**
-     * Returns `true` if this represents a `byte`.
-     */
-    fun isByte(): Boolean
 
     /**
      * Returns `true` if this is the None type.
@@ -230,4 +201,41 @@ private fun isAssignableWithoutVariance(from: XType, to: XType): Boolean {
             to = toTypeArgs[index]
         )
     }
+}
+
+/**
+ * Returns `true` if this is a primitive or boxed it
+ */
+fun XType.isInt(): Boolean = typeName == TypeName.INT || typeName == KnownTypeNames.BOXED_INT
+
+/**
+ * Returns `true` if this is a primitive or boxed long
+ */
+fun XType.isLong(): Boolean = typeName == TypeName.LONG || typeName == KnownTypeNames.BOXED_LONG
+/**
+ * Returns `true` if this is `void`
+ */
+fun XType.isVoid() = typeName == TypeName.VOID
+
+/**
+ * Returns `true` if this is a [Void]
+ */
+fun XType.isVoidObject(): Boolean = typeName == KnownTypeNames.BOXED_VOID
+
+/**
+ * Returns `true` if this is the kotlin [Unit] type.
+ */
+fun XType.isKotlinUnit(): Boolean = typeName == KnownTypeNames.KOTLIN_UNIT
+
+/**
+ * Returns `true` if this represents a `byte`.
+ */
+fun XType.isByte(): Boolean = typeName == TypeName.BYTE || typeName == KnownTypeNames.BOXED_BYTE
+
+internal object KnownTypeNames {
+    val BOXED_VOID = TypeName.VOID.box()
+    val BOXED_INT = TypeName.INT.box()
+    val BOXED_LONG = TypeName.LONG.box()
+    val BOXED_BYTE = TypeName.BYTE.box()
+    val KOTLIN_UNIT = ClassName.get("kotlin", "Unit")
 }

@@ -28,6 +28,7 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XVariableElement
 import androidx.room.compiler.processing.isCollection
+import androidx.room.compiler.processing.isVoid
 import androidx.room.ext.isNotVoid
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD

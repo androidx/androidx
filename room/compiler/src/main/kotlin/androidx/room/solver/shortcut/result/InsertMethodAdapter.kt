@@ -18,6 +18,10 @@ package androidx.room.solver.shortcut.result
 
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
+import androidx.room.compiler.processing.isKotlinUnit
+import androidx.room.compiler.processing.isLong
+import androidx.room.compiler.processing.isVoid
+import androidx.room.compiler.processing.isVoidObject
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
