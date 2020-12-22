@@ -35,11 +35,18 @@ class ByteBufferColumnTypeAdapter private constructor(out: XType) : ColumnTypeAd
         indexVarName: String,
         scope: CodeGenScope
     ) {
-        scope.builder()
-            .addStatement(
-                "$L = $T.wrap($L.getBlob($L))",
-                outVarName, TypeName.get(ByteBuffer::class.java), cursorVarName, indexVarName
-            )
+        scope.builder().apply {
+            beginControlFlow("if ($L.isNull($L))", cursorVarName, indexVarName).apply {
+                addStatement("$L = null", outVarName)
+            }
+            nextControlFlow("else").apply {
+                addStatement(
+                    "$L = $T.wrap($L.getBlob($L))",
+                    outVarName, TypeName.get(ByteBuffer::class.java), cursorVarName, indexVarName
+                )
+            }
+            endControlFlow()
+        }
     }
 
     override fun bindToStmt(
