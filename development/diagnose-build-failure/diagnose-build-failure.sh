@@ -26,6 +26,7 @@ function usage() {
   echo
   echo "  A) Some state saved in memory by the Gradle daemon is triggering an error"
   echo "  B) Your source files have been changed"
+  echo "     To (slowly) generate a simpler reproduction case, you can run simplify-build-failure.sh"
   echo "  C) Some file in the out/ dir is triggering an error"
   echo "     If this happens, $scriptName will identify which file(s) specifically"
   echo "  D) The build is nondeterministic and/or affected by timestamps"

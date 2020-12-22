@@ -253,7 +253,8 @@ function runGradle() {
     # Have to do this build-failure detection in gradlew rather than in build.gradle
     # so that this message still prints even if buildSrc itself fails
     echo
-    echo See also development/diagnose-build-failure for help with build failures in this project.
+    echo For help with unexpected failures, see development/diagnose-build-failure/README.md
+    echo
     return 1
   fi
 }
