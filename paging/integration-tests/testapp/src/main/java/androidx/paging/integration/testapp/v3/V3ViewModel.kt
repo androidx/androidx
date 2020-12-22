@@ -22,6 +22,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
+import androidx.paging.insertFooterItem
+import androidx.paging.insertHeaderItem
 import androidx.paging.insertSeparators
 import kotlinx.coroutines.flow.map
 
