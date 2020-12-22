@@ -16,14 +16,17 @@
 
 package androidx.room.solver.types
 
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.L
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.TypeName
 
-class ByteArrayColumnTypeAdapter(env: XProcessingEnv) : ColumnTypeAdapter(
-    out = env.getArrayType(TypeName.BYTE),
+class ByteArrayColumnTypeAdapter private constructor(
+    out: XType
+) : ColumnTypeAdapter(
+    out = out,
     typeAffinity = SQLTypeAffinity.BLOB
 ) {
     override fun readFromCursor(
@@ -32,8 +35,17 @@ class ByteArrayColumnTypeAdapter(env: XProcessingEnv) : ColumnTypeAdapter(
         indexVarName: String,
         scope: CodeGenScope
     ) {
-        scope.builder()
-            .addStatement("$L = $L.getBlob($L)", outVarName, cursorVarName, indexVarName)
+        scope.builder().apply {
+            // according to docs, getBlob might throw if the value is null
+            // https://developer.android.com/reference/android/database/Cursor#getBlob(int)
+            beginControlFlow("if ($L.isNull($L))", cursorVarName, indexVarName).apply {
+                addStatement("$L = null", outVarName)
+            }
+            nextControlFlow("else").apply {
+                addStatement("$L = $L.getBlob($L)", outVarName, cursorVarName, indexVarName)
+            }
+            endControlFlow()
+        }
     }
 
     override fun bindToStmt(
@@ -48,6 +60,24 @@ class ByteArrayColumnTypeAdapter(env: XProcessingEnv) : ColumnTypeAdapter(
             nextControlFlow("else")
                 .addStatement("$L.bindBlob($L, $L)", stmtName, indexVarName, valueVarName)
             endControlFlow()
+        }
+    }
+
+    companion object {
+        fun create(env: XProcessingEnv): List<ByteArrayColumnTypeAdapter> {
+            val arrayType = env.getArrayType(TypeName.BYTE)
+            return if (env.backend == XProcessingEnv.Backend.KSP) {
+                listOf(
+                    ByteArrayColumnTypeAdapter(arrayType.makeNonNullable()),
+                    ByteArrayColumnTypeAdapter(arrayType.makeNullable())
+                )
+            } else {
+                listOf(
+                    ByteArrayColumnTypeAdapter(
+                        out = arrayType
+                    )
+                )
+            }
         }
     }
 }

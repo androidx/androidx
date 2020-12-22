@@ -19,6 +19,8 @@ package androidx.room.parser
 import androidx.room.ColumnInfo
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.CommonTypeNames
+import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.TypeName
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
@@ -257,28 +259,41 @@ enum class SQLTypeAffinity {
     REAL,
     BLOB;
 
-    fun getTypeMirrors(env: XProcessingEnv): List<XType>? {
+    fun getTypeMirrors(env: XProcessingEnv): List<XType> {
         return when (this) {
-            TEXT -> listOf(env.requireType("java.lang.String"))
-            INTEGER -> withBoxedTypes(
+            TEXT -> withBoxedAndNullableTypes(env, CommonTypeNames.STRING)
+            INTEGER -> withBoxedAndNullableTypes(
                 env, TypeName.INT, TypeName.BYTE, TypeName.CHAR,
                 TypeName.LONG, TypeName.SHORT
             )
-            REAL -> withBoxedTypes(env, TypeName.DOUBLE, TypeName.FLOAT)
-            BLOB -> listOf(
-                env.getArrayType(TypeName.BYTE)
-            )
+            REAL -> withBoxedAndNullableTypes(env, TypeName.DOUBLE, TypeName.FLOAT)
+            BLOB -> withBoxedAndNullableTypes(env, ArrayTypeName.of(TypeName.BYTE))
             else -> emptyList()
         }
     }
 
-    private fun withBoxedTypes(env: XProcessingEnv, vararg primitives: TypeName):
-        List<XType> {
-            return primitives.flatMap {
-                val primitiveType = env.requireType(it)
-                listOf(primitiveType, primitiveType.boxed())
+    /**
+     * produce acceptable variations of the given type names.
+     * If it is primitive, we'll add boxed version
+     * If environment is KSP, we'll add a nullable version as well.
+     */
+    private fun withBoxedAndNullableTypes(
+        env: XProcessingEnv,
+        vararg typeNames: TypeName
+    ): List<XType> {
+        return typeNames.flatMap { typeName ->
+            sequence {
+                val type = env.requireType(typeName)
+                yield(type)
+                if (typeName.isPrimitive) {
+                    yield(type.boxed())
+                }
+                if (env.backend == XProcessingEnv.Backend.KSP) {
+                    yield(type.makeNullable())
+                }
             }
-        }
+        }.toList()
+    }
 
     companion object {
         fun fromAnnotationValue(value: Int?): SQLTypeAffinity? {
