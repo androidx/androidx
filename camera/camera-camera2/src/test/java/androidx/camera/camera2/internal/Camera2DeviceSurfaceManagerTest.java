@@ -150,7 +150,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     private CameraManagerCompat getCameraManagerCompat() {
-        return CameraManagerCompat.from(ApplicationProvider.getApplicationContext());
+        return CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext());
     }
 
     private CameraCharacteristicsCompat getCameraCharacteristicsCompat(String cameraId)
