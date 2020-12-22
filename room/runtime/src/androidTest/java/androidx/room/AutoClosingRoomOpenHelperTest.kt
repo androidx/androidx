@@ -237,4 +237,25 @@ public class AutoClosingRoomOpenHelperTest {
             assertThat(it.isNull(4)).isTrue()
         }
     }
+
+    @Test
+    public fun testGetDelegate() {
+        val delegateOpenHelper = FrameworkSQLiteOpenHelperFactory()
+            .create(
+                SupportSQLiteOpenHelper.Configuration
+                    .builder(ApplicationProvider.getApplicationContext())
+                    .callback(Callback())
+                    .name("name")
+                    .build()
+            )
+
+        val autoCloseExecutor = Executors.newSingleThreadExecutor()
+
+        val autoClosing = AutoClosingRoomOpenHelper(
+            delegateOpenHelper,
+            AutoCloser(0, TimeUnit.MILLISECONDS, autoCloseExecutor)
+        )
+
+        assertThat(autoClosing.getDelegate()).isSameInstanceAs(delegateOpenHelper)
+    }
 }

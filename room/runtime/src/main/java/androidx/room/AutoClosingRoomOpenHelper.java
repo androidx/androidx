@@ -48,7 +48,7 @@ import java.util.Locale;
 /**
  * A SupportSQLiteOpenHelper that has autoclose enabled for database connections.
  */
-final class AutoClosingRoomOpenHelper implements SupportSQLiteOpenHelper {
+final class AutoClosingRoomOpenHelper implements SupportSQLiteOpenHelper, DelegatingOpenHelper {
     @NonNull
     private final SupportSQLiteOpenHelper mDelegateOpenHelper;
 
@@ -114,6 +114,12 @@ final class AutoClosingRoomOpenHelper implements SupportSQLiteOpenHelper {
     @NonNull
     SupportSQLiteDatabase getAutoClosingDb() {
         return this.mAutoClosingDb;
+    }
+
+    @Override
+    @NonNull
+    public SupportSQLiteOpenHelper getDelegate() {
+        return mDelegateOpenHelper;
     }
 
     /**
