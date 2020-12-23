@@ -39,6 +39,7 @@ import androidx.room.util.SneakyThrow;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
+import androidx.testutils.AssertionsKt;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
@@ -72,6 +73,7 @@ public class AutoClosingRoomOpenHelperTest {
     @After
     public void cleanUp() throws Exception {
         mDb.clearAllTables();
+        mDb.close();
     }
 
     @Test
@@ -82,9 +84,9 @@ public class AutoClosingRoomOpenHelperTest {
         user.setName("bob");
         mUserDao.insert(user);
         assertTrue(mCallback.mOpened);
-        assertTrue(mDb.isOpen());
+
         Thread.sleep(100);
-        assertFalse(mDb.isOpen());
+        // Connection should be auto closed here
 
         User readUser = mUserDao.load(1);
         assertEquals(readUser.getName(), user.getName());
@@ -101,22 +103,22 @@ public class AutoClosingRoomOpenHelperTest {
         assertTrue(mCallback.mOpened);
         Thread.sleep(30);
         mUserDao.load(1);
-        assertTrue(mDb.isOpen());
+        // Connection should be auto closed here
+
 
         mDb.runInTransaction(
                 () -> {
                     try {
                         Thread.sleep(100);
-                        assertTrue(mDb.isOpen());
+                        // Connection would've been auto closed here
                     } catch (InterruptedException e) {
                         SneakyThrow.reThrow(e);
                     }
                 }
         );
 
-        assertTrue(mDb.isOpen());
         Thread.sleep(100);
-        assertFalse(mDb.isOpen());
+        // Connection should be auto closed here
     }
 
     @Test
@@ -128,17 +130,15 @@ public class AutoClosingRoomOpenHelperTest {
         mUserDao.insert(user);
         assertTrue(mCallback.mOpened);
         mUserDao.load(1);
-        assertTrue(mDb.isOpen());
 
         Cursor cursor = mDb.query("select * from user", null);
 
-        assertTrue(mDb.isOpen());
         Thread.sleep(100);
-        assertTrue(mDb.isOpen());
+
         cursor.close();
 
         Thread.sleep(100);
-        assertFalse(mDb.isOpen());
+        // Connection should be auto closed here
     }
 
     @Test
@@ -148,16 +148,14 @@ public class AutoClosingRoomOpenHelperTest {
         user1.setName("bob");
         mUserDao.insert(user1);
 
-        assertTrue(mDb.isOpen());
         Thread.sleep(100);
-        assertFalse(mDb.isOpen());
+        // Connection should be auto closed here
 
         User user2 = TestUtil.createUser(2);
         user2.setName("bob2");
         mUserDao.insert(user2);
-        assertTrue(mDb.isOpen());
         Thread.sleep(100);
-        assertFalse(mDb.isOpen());
+        // Connection should be auto closed here
     }
 
     @Test
@@ -184,7 +182,7 @@ public class AutoClosingRoomOpenHelperTest {
         assertFalse(observer.get());
 
         Thread.sleep(100);
-        assertFalse(mDb.isOpen());
+        // Connection should be auto closed here
 
         user.setAdmin(true);
         mUserDao.insertOrReplace(user);
@@ -203,6 +201,60 @@ public class AutoClosingRoomOpenHelperTest {
                         .build();
 
         mDb.getUserDao().insert(TestUtil.createUser(1));
+    }
+
+    @Test
+    public void testManuallyRoomDatabaseClose() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        // Create a new db since the other one is cleared in the @After
+        TestDatabase testDatabase = Room.databaseBuilder(context, TestDatabase.class, "testDb")
+                .setAutoCloseTimeout(10, TimeUnit.MILLISECONDS)
+                .addCallback(new ExecSqlInCallback())
+                .build();
+
+        testDatabase.close();
+
+        // We shouldn't be able to do anything with the database now...
+        AssertionsKt.assertThrows(IllegalStateException.class, () -> {
+            testDatabase.getUserDao().count();
+        }).hasMessageThat().contains("closed");
+
+        assertFalse(testDatabase.isOpen());
+
+        assertFalse(testDatabase.isOpen());
+        TestDatabase testDatabase2 = Room.databaseBuilder(context, TestDatabase.class, "testDb")
+                .setAutoCloseTimeout(10, TimeUnit.MILLISECONDS)
+                .addCallback(new ExecSqlInCallback())
+                .build();
+        testDatabase2.getUserDao().count(); // db should open now
+        testDatabase2.close();
+        assertFalse(testDatabase.isOpen());
+    }
+
+    @Test
+    public void testManuallyOpenHelperClose() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        // Create a new db since the other one is cleared in the @After
+        TestDatabase testDatabase = Room.databaseBuilder(context, TestDatabase.class, "testDb")
+                .setAutoCloseTimeout(10, TimeUnit.MILLISECONDS)
+                .addCallback(new ExecSqlInCallback())
+                .build();
+
+        testDatabase.getOpenHelper().close();
+
+        // We shouldn't be able to do anything with the database now...
+        AssertionsKt.assertThrows(IllegalStateException.class, () -> {
+            testDatabase.getUserDao().count();
+        }).hasMessageThat().contains("closed");
+
+        assertFalse(testDatabase.isOpen());
+        TestDatabase testDatabase2 = Room.databaseBuilder(context, TestDatabase.class, "testDb")
+                .setAutoCloseTimeout(10, TimeUnit.MILLISECONDS)
+                .addCallback(new ExecSqlInCallback())
+                .build();
+        testDatabase2.getUserDao().count(); // db should open now
+        testDatabase2.getOpenHelper().close();
+        assertFalse(testDatabase.isOpen());
     }
 
     @Test
@@ -229,7 +281,7 @@ public class AutoClosingRoomOpenHelperTest {
         assertEquals(2, invalidationCount.get());
 
         Thread.sleep(15);
-        assertFalse(mDb.isOpen());
+        // Connection should be closed now
 
         mUserDao.insert(TestUtil.createUser(2));
 

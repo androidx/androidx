@@ -342,6 +342,12 @@ public abstract class RoomDatabase {
      * @return true if the database connection is open, false otherwise.
      */
     public boolean isOpen() {
+        // We need to special case for the auto closing database because mDatabase is the
+        // underlying database and not the wrapped database.
+        if (mAutoCloser != null) {
+            return mAutoCloser.isActive();
+        }
+
         final SupportSQLiteDatabase db = mDatabase;
         return db != null && db.isOpen();
     }
@@ -1212,6 +1218,12 @@ public abstract class RoomDatabase {
          * {@link RoomDatabase.Callback.onOpen} will be called every time the database is re-opened.
          * <p>
          * The auto-closing database operation runs on the query executor.
+         * <p>
+         * The database will not be reopened if the RoomDatabase or the
+         * SupportSqliteOpenHelper is closed manually (by calling
+         * {@link RoomDatabase.close()} or {@link SupportSQLiteOpenHelper.close()}. If the
+         * database is closed manually, you must create a new database using
+         * {@link RoomDatabase.Builder.build()}.
          *
          * @param autoCloseTimeout  the amount of time after the last usage before closing the
          *                          database
