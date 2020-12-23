@@ -16,13 +16,18 @@
 
 package androidx.camera.camera2.pipe.impl
 
+import android.hardware.camera2.CameraMetadata.CONTROL_AE_PRECAPTURE_TRIGGER_START
 import android.hardware.camera2.CaptureRequest.CONTROL_AF_TRIGGER_CANCEL
 import android.hardware.camera2.CaptureRequest.CONTROL_AF_TRIGGER_START
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.CaptureRequest.CONTROL_AE_LOCK
+import android.hardware.camera2.CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER
 import android.hardware.camera2.CaptureRequest.CONTROL_AF_TRIGGER
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
+import android.os.Build
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
@@ -78,12 +83,23 @@ internal class Controller3A(
             CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
         )
 
+        private val aePostPrecaptureStateList = listOf(
+            CaptureResult.CONTROL_AE_STATE_CONVERGED,
+            CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED,
+            CaptureResult.CONTROL_AE_STATE_LOCKED
+        )
+
         val parameterForAfTriggerStart = mapOf<CaptureRequest.Key<*>, Any>(
             CONTROL_AF_TRIGGER to CONTROL_AF_TRIGGER_START
         )
 
         val parameterForAfTriggerCancel = mapOf<CaptureRequest.Key<*>, Any>(
             CONTROL_AF_TRIGGER to CONTROL_AF_TRIGGER_CANCEL
+        )
+
+        private val parametersForAePrecaptureAndAfTrigger = mapOf<CaptureRequest.Key<*>, Any>(
+            CONTROL_AF_TRIGGER to CONTROL_AF_TRIGGER_START,
+            CONTROL_AE_PRECAPTURE_TRIGGER to CONTROL_AE_PRECAPTURE_TRIGGER_START
         )
 
         private val result3ASubmitFailed = Result3A(FRAME_NUMBER_INVALID, Status3A.SUBMIT_FAILED)
@@ -321,6 +337,111 @@ internal class Controller3A(
                 awbLock = awbLockValue
             )
         }
+        graphProcessor.invalidate()
+        return listener.getDeferredResult()
+    }
+
+    suspend fun lock3AForCapture(
+        frameLimit: Int = CameraGraph.DEFAULT_FRAME_LIMIT,
+        timeLimitNs: Long = CameraGraph.DEFAULT_TIME_LIMIT_NS
+    ): Deferred<Result3A> {
+        val listener = Result3AStateListenerImpl(
+            mapOf<CaptureResult.Key<*>, List<Any>>(
+                CaptureResult.CONTROL_AE_STATE to aePostPrecaptureStateList,
+                CaptureResult.CONTROL_AF_STATE to afLockedStateList
+            ),
+            frameLimit,
+            timeLimitNs
+        )
+        graphListener3A.addListener(listener)
+
+        debug { "lock3AForCapture - sending a request to trigger ae precapture metering and af." }
+        if (!graphProcessor.submit(parametersForAePrecaptureAndAfTrigger)) {
+            debug {
+                "lock3AForCapture - request to trigger ae precapture metering and af failed, " +
+                    "returning early."
+            }
+            graphListener3A.removeListener(listener)
+            return CompletableDeferred(result3ASubmitFailed)
+        }
+
+        graphProcessor.invalidate()
+        return listener.getDeferredResult()
+    }
+
+    suspend fun unlock3APostCapture(): Deferred<Result3A> {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return unlock3APostCaptureAndroidMAndAbove()
+        }
+        return unlock3APostCaptureAndroidLAndBelow()
+    }
+
+    /**
+     * For api level below 23, to resume the normal scan of ae after precapture metering
+     * sequence, we have to first send a request with ae lock = true and then a request with ae
+     * lock = false. REF :
+     * https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_AE_PRECAPTURE_TRIGGER
+     */
+    private suspend fun unlock3APostCaptureAndroidLAndBelow(): Deferred<Result3A> {
+        debug { "unlock3AForCapture - sending a request to cancel af and turn on ae." }
+        if (!graphProcessor.submit(
+                mapOf(
+                        CONTROL_AF_TRIGGER to CONTROL_AF_TRIGGER_CANCEL,
+                        CONTROL_AE_LOCK to true
+                    )
+            )
+        ) {
+            debug { "unlock3AForCapture - request to cancel af and lock ae as failed." }
+            return CompletableDeferred(result3ASubmitFailed)
+        }
+
+        // Listener to monitor when we receive the capture result corresponding to the request
+        // below.
+        val listener = Result3AStateListenerImpl(mapOf())
+        graphListener3A.addListener(listener)
+
+        debug { "unlock3AForCapture - sending a request to turn off ae." }
+        if (!graphProcessor.submit(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to false))) {
+            debug { "unlock3AForCapture - request to unlock ae failed." }
+            graphListener3A.removeListener(listener)
+            return CompletableDeferred(result3ASubmitFailed)
+        }
+
+        return listener.getDeferredResult()
+    }
+
+    /**
+     * For API level 23 or newer versions, the sending a request with
+     * CONTROL_AE_PRECAPTURE_TRIGGER = CANCEL can be used to unlock the camera device's
+     * internally locked AE. REF :
+     * https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_AE_PRECAPTURE_TRIGGER
+     */
+    @RequiresApi(23)
+    private suspend fun unlock3APostCaptureAndroidMAndAbove(): Deferred<Result3A> {
+        debug { "unlock3APostCapture - sending a request to reset af and ae precapture metering." }
+        val parametersForAePrecaptureAndAfCancel = mapOf<CaptureRequest.Key<*>, Any>(
+            CONTROL_AF_TRIGGER to CONTROL_AF_TRIGGER_CANCEL,
+            CONTROL_AE_PRECAPTURE_TRIGGER to
+                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL
+        )
+        if (!graphProcessor.submit(parametersForAePrecaptureAndAfCancel)) {
+            debug {
+                "unlock3APostCapture - request to reset af and ae precapture metering failed, " +
+                    "returning early."
+            }
+            return CompletableDeferred(result3ASubmitFailed)
+        }
+
+        // Sending a request with ae precapture trigger = cancel does not have any specific affect
+        // on the ae state, so we don't need to listen for a specific state. As long as the request
+        // successfully reaches the camera device and the capture request corresponding to that
+        // request arrives back, it should suffice.
+        val listener = Result3AStateListenerImpl(
+            mapOf<CaptureResult.Key<*>, List<Any>>(
+                CaptureResult.CONTROL_AF_STATE to afUnlockedStateList
+            )
+        )
+        graphListener3A.addListener(listener)
         graphProcessor.invalidate()
         return listener.getDeferredResult()
     }
