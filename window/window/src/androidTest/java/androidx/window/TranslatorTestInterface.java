@@ -25,4 +25,5 @@ public interface TranslatorTestInterface {
     void testTranslateDeviceState();
     void testTranslateWindowLayoutInfo_filterRemovesHingeFeatureNotSpanningFullDimension();
     void testTranslateWindowLayoutInfo_filterRemovesFoldFeatureNotSpanningFullDimension();
+    void testTranslateWindowLayoutInfo_filterRemovesUnknownFeature();
 }

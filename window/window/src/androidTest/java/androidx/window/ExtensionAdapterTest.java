@@ -138,6 +138,27 @@ public class ExtensionAdapterTest implements TranslatorTestInterface {
 
     @Test
     @Override
+    public void testTranslateWindowLayoutInfo_filterRemovesUnknownFeature() {
+        Rect bounds = new Rect(WINDOW_BOUNDS.left, 0, WINDOW_BOUNDS.right, 0);
+        ExtensionDisplayFeature foldFeature = new ExtensionFoldingFeature(bounds,
+                0 /* unknown */, ExtensionFoldingFeature.STATE_FLAT);
+
+        List<ExtensionDisplayFeature> extensionDisplayFeatures = new ArrayList<>();
+        extensionDisplayFeatures.add(foldFeature);
+        ExtensionWindowLayoutInfo windowLayoutInfo =
+                new ExtensionWindowLayoutInfo(extensionDisplayFeatures);
+
+        Activity mockActivity = mock(Activity.class);
+
+        ExtensionAdapter adapter = new ExtensionAdapter();
+        WindowLayoutInfo actual = adapter.translate(mockActivity, windowLayoutInfo);
+
+        assertTrue("Remove fold feature not spanning full dimension",
+                actual.getDisplayFeatures().isEmpty());
+    }
+
+    @Test
+    @Override
     public void testTranslateDeviceState() {
         ExtensionAdapter extensionCallbackAdapter = new ExtensionAdapter();
         List<DeviceState> values = new ArrayList<>();

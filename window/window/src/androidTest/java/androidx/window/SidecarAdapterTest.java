@@ -195,6 +195,24 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
 
     @Test
     @Override
+    public void testTranslateWindowLayoutInfo_filterRemovesUnknownFeature() {
+        List<SidecarDisplayFeature> sidecarDisplayFeatures = new ArrayList<>();
+        Rect bounds = new Rect(WINDOW_BOUNDS.left, 0, WINDOW_BOUNDS.right, 0);
+        SidecarDisplayFeature unknownFeature = sidecarDisplayFeature(bounds, 0 /* unknown */);
+        sidecarDisplayFeatures.add(unknownFeature);
+
+        SidecarAdapter sidecarAdapter = new SidecarAdapter();
+        SidecarWindowLayoutInfo windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures);
+        Activity mockActivity = mock(Activity.class);
+        SidecarDeviceState state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED);
+
+        WindowLayoutInfo actual = sidecarAdapter.translate(mockActivity, windowLayoutInfo, state);
+
+        assertTrue(actual.getDisplayFeatures().isEmpty());
+    }
+
+    @Test
+    @Override
     public void testTranslateDeviceState() {
         SidecarAdapter sidecarCallbackAdapter = new SidecarAdapter();
         List<DeviceState> values = new ArrayList<>();
