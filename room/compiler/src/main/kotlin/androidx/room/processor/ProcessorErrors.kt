@@ -294,6 +294,8 @@ object ProcessorErrors {
         " have no-argument public constructors. Use a ProvidedTypeConverter annotation if you" +
         " need to take control over creating an instance of a TypeConverter."
     val TYPE_CONVERTER_MUST_BE_PUBLIC = "Type converters must be public."
+    val INNER_CLASS_TYPE_CONVERTER_MUST_BE_STATIC = "An inner class TypeConverter must be " +
+        "static."
 
     fun duplicateTypeConverters(converters: List<CustomTypeConverter>): String {
         return "Multiple methods define the same conversion. Conflicts with these:" +
