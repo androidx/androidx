@@ -94,14 +94,14 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
                     } else null
                 }
                 .insertHeaderItem(
-                    Customer().apply {
+                    item = Customer().apply {
                         id = Int.MIN_VALUE
                         name = "HEADER"
                         lastName = "HEADER"
                     }
                 )
                 .insertFooterItem(
-                    Customer().apply {
+                    item = Customer().apply {
                         id = Int.MAX_VALUE
                         name = "FOOTER"
                         lastName = "FOOTER"

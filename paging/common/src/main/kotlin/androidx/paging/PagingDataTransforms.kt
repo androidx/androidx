@@ -19,6 +19,7 @@
 package androidx.paging
 
 import androidx.annotation.CheckResult
+import androidx.paging.TerminalSeparatorType.FULLY_COMPLETE
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -116,13 +117,22 @@ fun <T : Any> PagingData<T>.filter(
  * Note that this transform is applied asynchronously, as pages are loaded. Potential
  * separators between pages are only computed once both pages are loaded.
  *
+ * @param terminalSeparatorType [TerminalSeparatorType] used to configure when the header and
+ * footer are added.
+ *
+ * @param generator Generator function used to construct a separator item given the item before
+ * and the item after. For terminal separators (header and footer), the arguments passed to the
+ * generator, `before` and `after`, will be `null` respectively. In cases where the fully paginated
+ * list is empty, a single separator will be added where both `before` and `after` items are `null`.
+ *
  * @sample androidx.paging.samples.insertSeparatorsSample
  * @sample androidx.paging.samples.insertSeparatorsUiModelSample
  */
 @CheckResult
 @JvmSynthetic
 fun <T : R, R : Any> PagingData<T>.insertSeparators(
-    generator: suspend (T?, T?) -> R?
+    terminalSeparatorType: TerminalSeparatorType = FULLY_COMPLETE,
+    generator: suspend (T?, T?) -> R?,
 ): PagingData<R> {
     // This function must be an extension method, as it indirectly imposes a constraint on
     // the type of T (because T extends R). Ideally it would be declared not be an
@@ -132,7 +142,7 @@ fun <T : R, R : Any> PagingData<T>.insertSeparators(
     //     class ItemModel: UiModel
     //     class SeparatorModel: UiModel
     return PagingData(
-        flow = flow.insertEventSeparators(generator),
+        flow = flow.insertEventSeparators(terminalSeparatorType, generator),
         receiver = receiver
     )
 }
@@ -227,16 +237,27 @@ fun <T : R, R : Any> PagingData<T>.insertSeparators(
  *         }
  *     }
  * }
- *
- *
  * ```
+ *
+ * @param terminalSeparatorType [TerminalSeparatorType] used to configure when the header and
+ * footer are added.
+ *
+ * @param executor [Executor] to run the [generator] function in.
+ *
+ * @param generator Generator function used to construct a separator item given the item before
+ * and the item after. For terminal separators (header and footer), the arguments passed to the
+ * generator, `before` and `after`, will be `null` respectively. In cases where the fully paginated
+ * list is empty, a single separator will be added where both `before` and `after` items are `null`.
+ *
  */
 @CheckResult
+@JvmOverloads
 fun <R : Any, T : R> PagingData<T>.insertSeparators(
+    terminalSeparatorType: TerminalSeparatorType = FULLY_COMPLETE,
     executor: Executor,
-    generator: (T?, T?) -> R?
+    generator: (T?, T?) -> R?,
 ): PagingData<R> {
-    return insertSeparators { before, after ->
+    return insertSeparators(terminalSeparatorType) { before, after ->
         withContext(executor.asCoroutineDispatcher()) {
             generator(before, after)
         }
@@ -248,18 +269,28 @@ fun <R : Any, T : R> PagingData<T>.insertSeparators(
  * to the start of the list.
  *
  * The header [item] is added to a loaded page which marks the end of the data stream in the
- * prepend direction by returning null in [PagingSource.LoadResult.Page.prevKey]. It will be
- * removed if the first page in the list is dropped, which can happen in the case of loaded
+ * [LoadType.PREPEND] direction by returning null in [PagingSource.LoadResult.Page.prevKey]. It
+ * will be removed if the first page in the list is dropped, which can happen in the case of loaded
  * pages exceeding [PagedList.Config.maxSize].
  *
  * Note: This operation is not idempotent, calling it multiple times will continually add
  * more headers to the start of the list, which can be useful if multiple header items are
  * required.
  *
+ * @param terminalSeparatorType [TerminalSeparatorType] used to configure when the header and
+ * footer are added.
+ *
+ * @param item The header to add to the front of the list once it is fully loaded in the
+ * [LoadType.PREPEND] direction.
+ *
  * @see [insertFooterItem]
  */
 @CheckResult
-fun <T : Any> PagingData<T>.insertHeaderItem(item: T) = insertSeparators { before, _ ->
+@JvmOverloads
+fun <T : Any> PagingData<T>.insertHeaderItem(
+    terminalSeparatorType: TerminalSeparatorType = FULLY_COMPLETE,
+    item: T,
+) = insertSeparators(terminalSeparatorType) { before, _ ->
     if (before == null) item else null
 }
 
@@ -268,17 +299,27 @@ fun <T : Any> PagingData<T>.insertHeaderItem(item: T) = insertSeparators { befor
  * to the end of the list.
  *
  * The footer [item] is added to a loaded page which marks the end of the data stream in the
- * append direction, either by returning null in [PagingSource.LoadResult.Page.nextKey]. It
- * will be removed if the first page in the list is dropped, which can happen in the case of
- * loaded* pages exceeding [PagedList.Config.maxSize].
+ * [LoadType.APPEND] direction, either by returning null in [PagingSource.LoadResult.Page.nextKey].
+ * It will be removed if the last page in the list is dropped, which can happen in the case of
+ * loaded pages exceeding [PagedList.Config.maxSize].
  *
  * Note: This operation is not idempotent, calling it multiple times will continually add
  * more footers to the end of the list, which can be useful if multiple footer items are
  * required.
  *
+ * @param terminalSeparatorType [TerminalSeparatorType] used to configure when the header and
+ * footer are added.
+ *
+ * @param item The footer to add to the end of the list once it is fully loaded in the
+ * [LoadType.APPEND] direction.
+ *
  * @see [insertHeaderItem]
  */
 @CheckResult
-fun <T : Any> PagingData<T>.insertFooterItem(item: T) = insertSeparators { _, after ->
+@JvmOverloads
+fun <T : Any> PagingData<T>.insertFooterItem(
+    terminalSeparatorType: TerminalSeparatorType = FULLY_COMPLETE,
+    item: T,
+) = insertSeparators(terminalSeparatorType) { _, after ->
     if (after == null) item else null
 }

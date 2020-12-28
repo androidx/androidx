@@ -23,8 +23,40 @@ import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert
 import androidx.paging.PageEvent.LoadStateUpdate
+import androidx.paging.TerminalSeparatorType.FULLY_COMPLETE
+import androidx.paging.TerminalSeparatorType.SOURCE_COMPLETE
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+
+/**
+ * Mode for configuring when terminal separators (header and footer) would be displayed by the
+ * [insertSeparators], [insertHeaderItem] or [insertFooterItem] operators on [PagingData].
+ */
+enum class TerminalSeparatorType {
+    /**
+     * Show terminal separators (header and footer) when both [PagingSource] and [RemoteMediator]
+     * reaches the end of pagination.
+     *
+     * End of paginations occurs when [CombinedLoadStates] has set
+     * [LoadState.endOfPaginationReached] to `true` for both [CombinedLoadStates.source] and
+     * [CombinedLoadStates.mediator] in the [PREPEND] direction for the header and in the
+     * [APPEND] direction for the footer.
+     *
+     * In cases where [RemoteMediator] isn't used, only [CombinedLoadStates.source] will be
+     * considered.
+     */
+    FULLY_COMPLETE,
+
+    /**
+     * Show terminal separators (header and footer) as soon as [PagingSource] reaches the end of
+     * pagination, regardless of [RemoteMediator]'s state.
+     *
+     * End of paginations occurs when [CombinedLoadStates] has set
+     * [LoadState.endOfPaginationReached] to `true` for [CombinedLoadStates.source] in the [PREPEND]
+     * direction for the header and in the [APPEND] direction for the footer.
+     */
+    SOURCE_COMPLETE,
+}
 
 /**
  * Create a TransformablePage with separators inside (ignoring edges)
@@ -146,6 +178,7 @@ internal fun <R : Any, T : R> MutableList<TransformablePage<R>>.addSeparatorPage
 }
 
 private class SeparatorState<R : Any, T : R>(
+    val terminalSeparatorType: TerminalSeparatorType,
     val generator: suspend (before: T?, after: T?) -> R?
 ) {
     /**
@@ -195,31 +228,37 @@ private class SeparatorState<R : Any, T : R>(
         return this as Insert<R>
     }
 
-    fun CombinedLoadStates.terminatesStart(): Boolean {
-        return source.prepend.endOfPaginationReached &&
-            mediator?.prepend?.endOfPaginationReached != false
+    fun <T : Any> Insert<T>.terminatesStart(terminalSeparatorType: TerminalSeparatorType): Boolean {
+        if (loadType == APPEND) {
+            return startTerminalSeparatorDeferred
+        }
+
+        return when (terminalSeparatorType) {
+            FULLY_COMPLETE -> {
+                combinedLoadStates.source.prepend.endOfPaginationReached &&
+                    combinedLoadStates.mediator?.prepend?.endOfPaginationReached != false
+            }
+            SOURCE_COMPLETE -> combinedLoadStates.source.prepend.endOfPaginationReached
+        }
     }
 
-    fun CombinedLoadStates.terminatesEnd(): Boolean {
-        return source.append.endOfPaginationReached &&
-            mediator?.append?.endOfPaginationReached != false
-    }
+    fun <T : Any> Insert<T>.terminatesEnd(terminalSeparatorType: TerminalSeparatorType): Boolean {
+        if (loadType == PREPEND) {
+            return endTerminalSeparatorDeferred
+        }
 
-    fun <T : Any> Insert<T>.terminatesStart(): Boolean = if (loadType == APPEND) {
-        startTerminalSeparatorDeferred
-    } else {
-        combinedLoadStates.terminatesStart()
-    }
-
-    fun <T : Any> Insert<T>.terminatesEnd(): Boolean = if (loadType == PREPEND) {
-        endTerminalSeparatorDeferred
-    } else {
-        combinedLoadStates.terminatesEnd()
+        return when (terminalSeparatorType) {
+            FULLY_COMPLETE -> {
+                combinedLoadStates.source.append.endOfPaginationReached &&
+                    combinedLoadStates.mediator?.append?.endOfPaginationReached != false
+            }
+            SOURCE_COMPLETE -> combinedLoadStates.source.append.endOfPaginationReached
+        }
     }
 
     suspend fun onInsert(event: Insert<T>): Insert<R> {
-        val eventTerminatesStart = event.terminatesStart()
-        val eventTerminatesEnd = event.terminatesEnd()
+        val eventTerminatesStart = event.terminatesStart(terminalSeparatorType)
+        val eventTerminatesEnd = event.terminatesEnd(terminalSeparatorType)
         val eventEmpty = event.pages.all { it.data.isEmpty() }
 
         require(!headerAdded || event.loadType != PREPEND || eventEmpty) {
@@ -240,31 +279,49 @@ private class SeparatorState<R : Any, T : R>(
             placeholdersAfter = event.placeholdersAfter
         }
 
+        // Special-case handling for empty events when the page stash is empty as the logic after
+        // this assumes we'll have some loaded items to use when generating separators, especially
+        // in the header / footer case.
         if (eventEmpty) {
-            if (eventTerminatesStart && eventTerminatesEnd) {
-                // if event is empty, and fully terminal, resolve single separator, and that's it
-                val separator = generator(null, null)
-                endTerminalSeparatorDeferred = false
-                startTerminalSeparatorDeferred = false
-                return if (separator == null) {
-                    event.asRType()
-                } else {
-                    event.transformPages {
-                        listOf(separatorPage(separator, intArrayOf(0), 0, 0))
+            // If event is non terminal no transformation necessary, just return it directly.
+            if (!eventTerminatesStart && !eventTerminatesEnd) {
+                return event.asRType()
+            }
+
+            // We only need to transform empty insert events if they would cause terminal
+            // separators to get added. If both terminal separators are already added we can just
+            // skip this and return the event directly.
+            if (headerAdded && footerAdded) {
+                return event.asRType()
+            }
+
+            // Only resolve separators for empty events if page stash is also empty, otherwise we
+            // can use the regular flow since we have loaded items to depend on.
+            if (pageStash.isEmpty()) {
+                if (eventTerminatesStart && eventTerminatesEnd && !headerAdded && !footerAdded) {
+                    // If event is empty and fully terminal, resolve a single separator.
+                    val separator = generator(null, null)
+                    endTerminalSeparatorDeferred = false
+                    startTerminalSeparatorDeferred = false
+                    headerAdded = true
+                    footerAdded = true
+                    return if (separator == null) {
+                        event.asRType()
+                    } else {
+                        event.transformPages {
+                            listOf(separatorPage(separator, intArrayOf(0), 0, 0))
+                        }
                     }
+                } else {
+                    // can't insert the appropriate separator yet - defer!
+                    if (eventTerminatesEnd && !footerAdded) {
+                        endTerminalSeparatorDeferred = true
+                    }
+                    if (eventTerminatesStart && !headerAdded) {
+                        startTerminalSeparatorDeferred = true
+                    }
+                    return event.asRType()
                 }
-            } else if (!eventTerminatesStart && !eventTerminatesEnd) {
-                // If event is non terminal simply ignore it.
-                return event.asRType()
-            } else if (pageStash.isEmpty()) {
-                // can't insert the appropriate separator yet - defer!
-                if (eventTerminatesEnd) {
-                    endTerminalSeparatorDeferred = true
-                }
-                if (eventTerminatesStart) {
-                    startTerminalSeparatorDeferred = true
-                }
-                return event.asRType()
             }
         }
 
@@ -288,8 +345,8 @@ private class SeparatorState<R : Any, T : R>(
             firstNonEmptyPageIndex = pageIndex
             firstNonEmptyPage = event.pages[pageIndex]
 
-            // Compute the last non-empty page index to be used as adjacent pages for creating separator
-            // pages.
+            // Compute the last non-empty page index to be used as adjacent pages for creating
+            // separator pages.
             // Note: We're guaranteed to have at least one non-empty page at this point.
             pageIndex = event.pages.lastIndex
             while (pageIndex > 0 && event.pages[pageIndex].data.isEmpty()) {
@@ -300,7 +357,7 @@ private class SeparatorState<R : Any, T : R>(
         }
 
         // Header separator
-        if (eventTerminatesStart) {
+        if (eventTerminatesStart && !headerAdded) {
             headerAdded = true
 
             // Using data from previous generation if event is empty, adjacent page otherwise.
@@ -394,7 +451,7 @@ private class SeparatorState<R : Any, T : R>(
         }
 
         // Footer separator
-        if (eventTerminatesEnd) {
+        if (eventTerminatesEnd && !footerAdded) {
             footerAdded = true
 
             // Using data from previous generation if event is empty, adjacent page otherwise.
@@ -511,8 +568,11 @@ private class SeparatorState<R : Any, T : R>(
  * with PagingData.insertSeparators, which is public
  */
 internal fun <T : R, R : Any> Flow<PageEvent<T>>.insertEventSeparators(
+    terminalSeparatorType: TerminalSeparatorType,
     generator: suspend (T?, T?) -> R?
 ): Flow<PageEvent<R>> {
-    val separatorState = SeparatorState { before: T?, after: T? -> generator(before, after) }
+    val separatorState = SeparatorState(terminalSeparatorType) { before: T?, after: T? ->
+        generator(before, after)
+    }
     return map { separatorState.onEvent(it) }
 }

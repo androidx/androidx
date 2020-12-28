@@ -48,12 +48,12 @@ class HeaderFooterTest {
     )
 
     private suspend fun <T : Any> PageEvent<T>.insertHeaderItem(item: T) = toPagingData()
-        .insertHeaderItem(item)
+        .insertHeaderItem(item = item)
         .flow
         .single()
 
     private suspend fun <T : Any> PageEvent<T>.insertFooterItem(item: T) = toPagingData()
-        .insertFooterItem(item)
+        .insertFooterItem(item = item)
         .flow
         .single()
 
