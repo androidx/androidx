@@ -479,6 +479,9 @@ package androidx.paging {
   public final class SeparatorsKt {
   }
 
+  public final class SimpleChannelFlowKt {
+  }
+
   public enum TerminalSeparatorType {
     enum_constant public static final androidx.paging.TerminalSeparatorType FULLY_COMPLETE;
     enum_constant public static final androidx.paging.TerminalSeparatorType SOURCE_COMPLETE;

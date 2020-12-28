@@ -2181,8 +2181,8 @@ class PageFetcherSnapshotTest {
         val expected = listOf(
             listOf(
                 LoadStateUpdate(REFRESH, true, Loading),
-                LoadStateUpdate(REFRESH, true, Error(EXCEPTION)),
                 LoadStateUpdate(REFRESH, false, Loading),
+                LoadStateUpdate(REFRESH, true, Error(EXCEPTION)),
                 createRefresh(
                     range = 0..2,
                     remoteLoadStatesOf(
@@ -2296,6 +2296,7 @@ class PageFetcherSnapshotTest {
         assertThat(state.newEvents()).isEqualTo(
             listOf(
                 LoadStateUpdate(loadType = REFRESH, fromMediator = true, loadState = Loading),
+                LoadStateUpdate(loadType = REFRESH, fromMediator = false, loadState = Loading),
                 LoadStateUpdate(
                     loadType = REFRESH,
                     fromMediator = true,
@@ -2311,7 +2312,6 @@ class PageFetcherSnapshotTest {
                     fromMediator = true,
                     loadState = NotLoading(endOfPaginationReached = true)
                 ),
-                LoadStateUpdate(loadType = REFRESH, fromMediator = false, loadState = Loading),
                 Refresh(
                     pages = listOf(
                         TransformablePage(
