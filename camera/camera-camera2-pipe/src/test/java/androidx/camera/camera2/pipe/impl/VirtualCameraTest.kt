@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.impl
 
 import android.os.Build
 import android.os.Looper.getMainLooper
+import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
 import androidx.camera.camera2.pipe.testing.FakeCameras
 import com.google.common.truth.Truth.assertThat

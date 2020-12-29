@@ -20,6 +20,9 @@ import android.annotation.SuppressLint
 import android.hardware.camera2.CameraManager
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Timestamps
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.pipe.impl
+package androidx.camera.camera2.pipe.core
 
 import android.util.Log
 

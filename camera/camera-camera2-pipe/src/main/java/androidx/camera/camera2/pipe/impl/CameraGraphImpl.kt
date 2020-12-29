@@ -19,9 +19,10 @@ package androidx.camera.camera2.pipe.impl
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.Stream
-import androidx.camera.camera2.pipe.StreamConfig
+import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.Log
 import kotlinx.atomicfu.atomic
 import javax.inject.Inject
 
@@ -32,7 +33,7 @@ internal class CameraGraphImpl @Inject constructor(
     graphConfig: CameraGraph.Config,
     metadata: CameraMetadata,
     private val graphProcessor: GraphProcessor,
-    private val streamMap: StreamMap,
+    private val streamGraph: StreamGraphImpl,
     private val graphState: GraphState,
     private val graphState3A: GraphState3A,
     private val listener3A: Listener3A
@@ -46,11 +47,11 @@ internal class CameraGraphImpl @Inject constructor(
 
     init {
         // Log out the configuration of the camera graph when it is created.
-        Debug.logConfiguration(this.toString(), metadata, graphConfig, streamMap)
+        Debug.formatCameraGraphProperties(metadata, graphConfig, this)
     }
 
-    override val streams: Map<StreamConfig, Stream>
-        get() = streamMap.streamConfigMap
+    override val streams: StreamGraph
+        get() = streamGraph
 
     override fun start() {
         Debug.traceStart { "$this#start" }
@@ -84,7 +85,7 @@ internal class CameraGraphImpl @Inject constructor(
 
     override fun setSurface(stream: StreamId, surface: Surface?) {
         Debug.traceStart { "$stream#setSurface" }
-        streamMap[stream] = surface
+        streamGraph[stream] = surface
         Debug.traceStop()
     }
 

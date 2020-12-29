@@ -17,7 +17,7 @@
 package androidx.camera.camera2.pipe.wrapper
 
 import android.hardware.camera2.CameraAccessException
-import androidx.camera.camera2.pipe.impl.Log
+import androidx.camera.camera2.pipe.core.Log
 import kotlin.jvm.Throws
 
 /**

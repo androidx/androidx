@@ -30,10 +30,10 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.UnsafeWrapper
-import androidx.camera.camera2.pipe.impl.Debug
-import androidx.camera.camera2.pipe.impl.Log
-import androidx.camera.camera2.pipe.impl.Timestamps
-import androidx.camera.camera2.pipe.impl.Timestamps.formatMs
+import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Timestamps
+import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.writeParameter
 import kotlin.jvm.Throws
 
@@ -248,7 +248,7 @@ internal class AndroidCameraDevice(
         // Iterate template parameters and CHECK BY NAME, as there have been cases where equality
         // checks did not pass.
         for ((key, value) in config.sessionParameters) {
-            if (key is CaptureRequest.Key<*> && sessionKeyNames.contains(key.name)) {
+            if (sessionKeyNames.contains(key.name)) {
                 requestBuilder.writeParameter(key, value)
             }
         }

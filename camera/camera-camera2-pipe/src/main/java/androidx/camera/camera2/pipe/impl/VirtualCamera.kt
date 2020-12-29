@@ -22,7 +22,12 @@ import android.hardware.camera2.CameraDevice
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.impl.Timestamps.formatMs
+import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.DurationNs
+import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.TimestampNs
+import androidx.camera.camera2.pipe.core.Timestamps
+import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.wrapper.AndroidCameraDevice
 import androidx.camera.camera2.pipe.wrapper.CameraDeviceWrapper
 import androidx.camera.camera2.pipe.wrapper.closeWithTrace

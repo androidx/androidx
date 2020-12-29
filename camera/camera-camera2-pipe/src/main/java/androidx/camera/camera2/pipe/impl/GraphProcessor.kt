@@ -16,12 +16,13 @@
 
 package androidx.camera.camera2.pipe.impl
 
-import android.hardware.camera2.CaptureRequest
 import androidx.annotation.GuardedBy
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.formatForLogs
-import androidx.camera.camera2.pipe.impl.Log.debug
-import androidx.camera.camera2.pipe.impl.Log.warn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -36,7 +37,7 @@ internal interface GraphProcessor {
     fun setRepeating(request: Request)
     fun submit(request: Request)
     fun submit(requests: List<Request>)
-    suspend fun submit(parameters: Map<CaptureRequest.Key<*>, Any>): Boolean
+    suspend fun submit(parameters: Map<*, Any>): Boolean
 
     /**
      * Abort all submitted requests that have not yet been submitted to the [RequestProcessor] as
@@ -61,6 +62,7 @@ internal interface GraphProcessor {
 @CameraGraphScope
 internal class GraphProcessorImpl @Inject constructor(
     private val threads: Threads,
+    private val cameraGraphConfig: CameraGraph.Config,
     @ForCameraGraph private val graphScope: CoroutineScope,
     @ForCameraGraph private val graphListeners: java.util.ArrayList<Request.Listener>
 ) : GraphProcessor {
@@ -176,7 +178,7 @@ internal class GraphProcessorImpl @Inject constructor(
     /**
      * Submit a request to the camera using only the current repeating request.
      */
-    override suspend fun submit(parameters: Map<CaptureRequest.Key<*>, Any>): Boolean =
+    override suspend fun submit(parameters: Map<*, Any>): Boolean =
         withContext(threads.ioDispatcher) {
             val processor: RequestProcessor?
             val request: Request?
@@ -191,8 +193,8 @@ internal class GraphProcessorImpl @Inject constructor(
                 processor == null || request == null -> false
                 else -> processor.submit(
                     request,
-                    parameters,
-                    requireSurfacesForAllStreams = false
+                    defaultParameters = cameraGraphConfig.defaultParameters,
+                    requiredParameters = parameters
                 )
             }
         }
@@ -246,11 +248,6 @@ internal class GraphProcessorImpl @Inject constructor(
         }
     }
 
-    private fun read3AState(): Map<CaptureRequest.Key<*>, Any> {
-        // TODO: Build extras from 3A state
-        return mapOf()
-    }
-
     private fun abortBurst(requests: List<Request>) {
         for (request in requests) {
             abortRequest(request)
@@ -281,10 +278,13 @@ internal class GraphProcessorImpl @Inject constructor(
         if (processor != null && request != null) {
 
             Debug.traceStart { "$this#setRepeating" }
-            val extras: Map<CaptureRequest.Key<*>, Any> = read3AState()
-
             synchronized(processor) {
-                if (processor.setRepeating(request, extras, requireSurfacesForAllStreams = true)) {
+                if (processor.setRepeating(
+                        request,
+                        cameraGraphConfig.defaultParameters,
+                        emptyMap<Any, Any>()
+                    )
+                ) {
                     // ONLY update the current repeating request if the update succeeds
                     synchronized(lock) {
                         if (processor === _requestProcessor) {
@@ -332,12 +332,19 @@ internal class GraphProcessorImpl @Inject constructor(
             var submitted = false
             Debug.traceStart { "$this#submit" }
             try {
-                val extras: Map<CaptureRequest.Key<*>, Any> = read3AState()
                 submitted = synchronized(processor) {
                     if (burst.size == 1) {
-                        processor.submit(burst[0], extras, true)
+                        processor.submit(
+                            burst[0],
+                            cameraGraphConfig.defaultParameters,
+                            emptyMap<Any, Any>()
+                        )
                     } else {
-                        processor.submit(burst, extras, true)
+                        processor.submit(
+                            burst,
+                            cameraGraphConfig.defaultParameters,
+                            emptyMap<Any, Any>()
+                        )
                     }
                 }
             } finally {

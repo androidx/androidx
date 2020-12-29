@@ -17,8 +17,8 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import androidx.camera.camera2.pipe.CameraPipe
-import androidx.camera.camera2.pipe.impl.Log.debug
-import androidx.camera.camera2.pipe.impl.Log.warn
+import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.UseCaseManager

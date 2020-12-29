@@ -19,7 +19,7 @@ import android.content.Context
 import android.graphics.ImageFormat
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraPipe
-import androidx.camera.camera2.pipe.impl.Log.debug
+import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
 import androidx.camera.core.impl.SurfaceConfig

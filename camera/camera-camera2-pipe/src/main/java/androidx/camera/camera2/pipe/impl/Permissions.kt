@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.core.Debug
 import javax.inject.Inject
 import javax.inject.Singleton
 
