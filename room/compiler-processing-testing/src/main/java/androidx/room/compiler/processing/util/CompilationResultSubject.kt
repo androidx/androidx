@@ -50,6 +50,14 @@ abstract class CompilationResult internal constructor(
 
     fun diagnosticsOfKind(kind: Diagnostic.Kind) = diagnostics[kind].orEmpty()
 
+    /**
+     * We report only errors reported via room diagnostics which means we might miss other
+     * compiler errors, warnings etc. This output is free-text for compilers to print whatever is
+     * relevant to them. Note that not including non-room diagnostic errors do not impact
+     * correctness as we always assert compilation result.
+     */
+    abstract fun rawOutput(): String
+
     override fun toString(): String {
         return buildString {
             appendLine("CompilationResult (with $testRunnerName)")
@@ -61,6 +69,8 @@ abstract class CompilationResult internal constructor(
                 }
                 appendLine()
             }
+            appendLine("RAW OUTPUT:")
+            appendLine(rawOutput())
         }
     }
 }
@@ -149,6 +159,19 @@ class CompilationResultSubject(
         }
     }
 
+    internal fun assertNoProcessorAssertionErrors() {
+        val processingException = compilationResult.processor.getProcessingException()
+        if (processingException != null) {
+            // processor has an error which we want to throw but we also want the subject, hence
+            // we wrap it
+            throw AssertionError(
+                "Processor reported an error. See the cause for details\n" +
+                    "$compilationResult",
+                processingException
+            )
+        }
+    }
+
     private fun hasDiagnosticWithMessage(
         kind: Diagnostic.Kind,
         expected: String,
@@ -195,7 +218,13 @@ internal class JavaCompileTestingCompilationResult(
     testRunnerName = testRunner.name,
     processor = processor,
     successfulCompilation = delegate.status() == Compilation.Status.SUCCESS
-)
+) {
+    override fun rawOutput(): String {
+        return delegate.diagnostics().joinToString {
+            it.toString()
+        }
+    }
+}
 
 internal class KotlinCompileTestingCompilationResult(
     testRunner: CompilationTestRunner,
@@ -207,4 +236,8 @@ internal class KotlinCompileTestingCompilationResult(
     testRunnerName = testRunner.name,
     processor = processor,
     successfulCompilation = successfulCompilation
-)
+) {
+    override fun rawOutput(): String {
+        return delegate.messages
+    }
+}

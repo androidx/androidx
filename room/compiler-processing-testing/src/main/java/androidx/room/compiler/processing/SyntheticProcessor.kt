@@ -37,9 +37,10 @@ internal interface SyntheticProcessor {
     val messageWatcher: RecordingXMessager
 
     /**
-     * Should throw if processor did throw an exception.
+     * Should return any assertion error that happened during processing.
+     *
      * When assertions fail, we don't fail the compilation to keep the stack trace, instead,
      * dispatch them afterwards.
      */
-    fun throwIfFailed()
+    fun getProcessingException(): Throwable?
 }

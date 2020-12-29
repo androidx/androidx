@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.util
 
+import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeSpec
@@ -56,7 +57,7 @@ class TestRunnerTest {
     @Test(expected = AssertionError::class)
     fun reportedError_unexpected() = reportedError(assertFailure = false)
 
-    fun reportedError(assertFailure: Boolean) {
+    private fun reportedError(assertFailure: Boolean) {
         runProcessorTest {
             it.processingEnv.messager.printMessage(
                 kind = Diagnostic.Kind.ERROR,
@@ -68,5 +69,69 @@ class TestRunnerTest {
                 }
             }
         }
+    }
+
+    @Test
+    fun syntacticErrorsAreVisibleInTheErrorMessage_java() {
+        val src = Source.java(
+            "test.Foo",
+            """
+            package test;
+            // static here is invalid, causes a Java syntax error
+            public static class Foo {}
+            """.trimIndent()
+        )
+        val errorMessage = "error: modifier static not allowed here"
+        val javapResult = runCatching {
+            runJavaProcessorTest(
+                sources = listOf(src),
+                classpath = emptyList()
+            ) {}
+        }
+        assertThat(javapResult.exceptionOrNull()).hasMessageThat()
+            .contains(errorMessage)
+
+        val kaptResult = runCatching {
+            runKaptTest(
+                sources = listOf(src)
+            ) {}
+        }
+        assertThat(kaptResult.exceptionOrNull()).hasMessageThat()
+            .contains(errorMessage)
+
+        val kspResult = runCatching {
+            runKspTest(
+                sources = listOf(src)
+            ) {}
+        }
+        assertThat(kspResult.exceptionOrNull()).hasMessageThat()
+            .contains(errorMessage)
+    }
+
+    @Test
+    fun syntacticErrorsAreVisibleInTheErrorMessage_kotlin() {
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
+            package foo;
+            bad code
+            """.trimIndent()
+        )
+        val errorMessage = "Expecting a top level declaration"
+        val kaptResult = runCatching {
+            runKaptTest(
+                sources = listOf(src)
+            ) {}
+        }
+        assertThat(kaptResult.exceptionOrNull()).hasMessageThat()
+            .contains(errorMessage)
+
+        val kspResult = runCatching {
+            runKspTest(
+                sources = listOf(src)
+            ) {}
+        }
+        assertThat(kspResult.exceptionOrNull()).hasMessageThat()
+            .contains(errorMessage)
     }
 }
