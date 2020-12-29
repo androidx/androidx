@@ -63,16 +63,15 @@ public class AutoClosingRoomOpenHelperTest {
     @Before
     public void createDb() throws TimeoutException, InterruptedException {
         Context context = ApplicationProvider.getApplicationContext();
+        context.deleteDatabase("testDb");
         mDb = Room.databaseBuilder(context, TestDatabase.class, "testDb")
                 .setAutoCloseTimeout(10, TimeUnit.MILLISECONDS)
                 .addCallback(mCallback).build();
         mUserDao = mDb.getUserDao();
-        drain();
     }
 
     @After
     public void cleanUp() throws Exception {
-        mDb.clearAllTables();
         drain();
         mDb.close();
     }
@@ -125,11 +124,9 @@ public class AutoClosingRoomOpenHelperTest {
     @Test
     @MediumTest
     public void slowCursorClosing_keepsDbAlive() throws Exception {
-        assertFalse(mCallback.mOpened);
         User user = TestUtil.createUser(1);
         user.setName("bob");
         mUserDao.insert(user);
-        assertTrue(mCallback.mOpened);
         mUserDao.load(1);
 
         Cursor cursor = mDb.query("select * from user", null);
@@ -195,20 +192,22 @@ public class AutoClosingRoomOpenHelperTest {
     @MediumTest
     public void testCanExecSqlInCallback() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-
-        mDb = Room.databaseBuilder(context, TestDatabase.class, "testDb")
+        context.deleteDatabase("testDb2");
+        TestDatabase db = Room.databaseBuilder(context, TestDatabase.class, "testDb2")
                         .setAutoCloseTimeout(10, TimeUnit.MILLISECONDS)
                         .addCallback(new ExecSqlInCallback())
                         .build();
 
-        mDb.getUserDao().insert(TestUtil.createUser(1));
+        db.getUserDao().insert(TestUtil.createUser(1));
+
+        db.close();
     }
 
     @Test
     public void testManuallyRoomDatabaseClose() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
         // Create a new db since the other one is cleared in the @After
-        TestDatabase testDatabase = Room.databaseBuilder(context, TestDatabase.class, "testDb")
+        TestDatabase testDatabase = Room.databaseBuilder(context, TestDatabase.class, "testDb2")
                 .setAutoCloseTimeout(10, TimeUnit.MILLISECONDS)
                 .addCallback(new ExecSqlInCallback())
                 .build();
@@ -223,7 +222,7 @@ public class AutoClosingRoomOpenHelperTest {
         assertFalse(testDatabase.isOpen());
 
         assertFalse(testDatabase.isOpen());
-        TestDatabase testDatabase2 = Room.databaseBuilder(context, TestDatabase.class, "testDb")
+        TestDatabase testDatabase2 = Room.databaseBuilder(context, TestDatabase.class, "testDb2")
                 .setAutoCloseTimeout(10, TimeUnit.MILLISECONDS)
                 .addCallback(new ExecSqlInCallback())
                 .build();
@@ -236,7 +235,7 @@ public class AutoClosingRoomOpenHelperTest {
     public void testManuallyOpenHelperClose() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
         // Create a new db since the other one is cleared in the @After
-        TestDatabase testDatabase = Room.databaseBuilder(context, TestDatabase.class, "testDb")
+        TestDatabase testDatabase = Room.databaseBuilder(context, TestDatabase.class, "testDb2")
                 .setAutoCloseTimeout(10, TimeUnit.MILLISECONDS)
                 .addCallback(new ExecSqlInCallback())
                 .build();
@@ -249,7 +248,7 @@ public class AutoClosingRoomOpenHelperTest {
         }).hasMessageThat().contains("closed");
 
         assertFalse(testDatabase.isOpen());
-        TestDatabase testDatabase2 = Room.databaseBuilder(context, TestDatabase.class, "testDb")
+        TestDatabase testDatabase2 = Room.databaseBuilder(context, TestDatabase.class, "testDb2")
                 .setAutoCloseTimeout(10, TimeUnit.MILLISECONDS)
                 .addCallback(new ExecSqlInCallback())
                 .build();
@@ -295,8 +294,8 @@ public class AutoClosingRoomOpenHelperTest {
     public void invalidationObserver_canRequeryDb() throws TimeoutException, InterruptedException {
         Context context = ApplicationProvider.getApplicationContext();
 
-        context.deleteDatabase("testDb");
-        mDb = Room.databaseBuilder(context, TestDatabase.class, "testDb")
+        context.deleteDatabase("testDb2");
+        TestDatabase db = Room.databaseBuilder(context, TestDatabase.class, "testDb2")
                 // create contention for callback
                 .setAutoCloseTimeout(0, TimeUnit.MILLISECONDS)
                 .addCallback(mCallback).build();
@@ -304,20 +303,21 @@ public class AutoClosingRoomOpenHelperTest {
         AtomicInteger userCount = new AtomicInteger(0);
 
         UserTableObserver userTableObserver = new UserTableObserver(
-                () -> userCount.set(mUserDao.count()));
+                () -> userCount.set(db.getUserDao().count()));
 
-        mDb.getInvalidationTracker().addObserver(userTableObserver);
+        db.getInvalidationTracker().addObserver(userTableObserver);
 
-        mDb.getUserDao().insert(TestUtil.createUser(1));
-        mDb.getUserDao().insert(TestUtil.createUser(2));
-        mDb.getUserDao().insert(TestUtil.createUser(3));
-        mDb.getUserDao().insert(TestUtil.createUser(4));
-        mDb.getUserDao().insert(TestUtil.createUser(5));
-        mDb.getUserDao().insert(TestUtil.createUser(6));
-        mDb.getUserDao().insert(TestUtil.createUser(7));
+        db.getUserDao().insert(TestUtil.createUser(1));
+        db.getUserDao().insert(TestUtil.createUser(2));
+        db.getUserDao().insert(TestUtil.createUser(3));
+        db.getUserDao().insert(TestUtil.createUser(4));
+        db.getUserDao().insert(TestUtil.createUser(5));
+        db.getUserDao().insert(TestUtil.createUser(6));
+        db.getUserDao().insert(TestUtil.createUser(7));
 
         drain();
         assertEquals(7, userCount.get());
+        db.close();
     }
 
     @Test
@@ -326,8 +326,8 @@ public class AutoClosingRoomOpenHelperTest {
             InterruptedException {
         Context context = ApplicationProvider.getApplicationContext();
 
-        context.deleteDatabase("testDb");
-        mDb = Room.databaseBuilder(context, TestDatabase.class, "testDb")
+        context.deleteDatabase("testDb2");
+        TestDatabase db = Room.databaseBuilder(context, TestDatabase.class, "testDb2")
                 // create contention for callback
                 .setAutoCloseTimeout(0, TimeUnit.MILLISECONDS)
                 .addCallback(mCallback).build();
@@ -337,21 +337,22 @@ public class AutoClosingRoomOpenHelperTest {
         UserTableObserver userTableObserver =
                 new UserTableObserver(invalidationCount::getAndIncrement);
 
-        mDb.getInvalidationTracker().addObserver(userTableObserver);
+        db.getInvalidationTracker().addObserver(userTableObserver);
 
 
-        mDb.getUserDao().insert(TestUtil.createUser(1));
+        db.getUserDao().insert(TestUtil.createUser(1));
 
         drain();
         assertEquals(1, invalidationCount.get());
 
         Thread.sleep(100); // Let db auto close
 
-        mDb.getInvalidationTracker().notifyObserversByTableNames("user");
+        db.getInvalidationTracker().notifyObserversByTableNames("user");
 
         drain();
         assertEquals(2, invalidationCount.get());
 
+        db.close();
     }
 
     private void drain() throws TimeoutException, InterruptedException {
