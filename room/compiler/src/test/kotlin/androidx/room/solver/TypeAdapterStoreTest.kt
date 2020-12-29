@@ -22,7 +22,6 @@ import androidx.paging.PagingSource
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
-import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.L
@@ -75,7 +74,6 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testInvalidNonStaticInnerClass() {
-        // TODO: (b/176180385)
         val converter = Source.java(
             "foo.bar.EmptyClass",
             """
@@ -116,7 +114,7 @@ class TypeAdapterStoreTest {
             }
             """.trimIndent()
         )
-        runKaptTest(
+        runProcessorTest(
             sources = listOf(entity, converter)
         ) { invocation ->
             val typeElement =

@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithDefaults
+import androidx.room.compiler.processing.testcode.JavaAnnotationWithTypeReferences
 import androidx.room.compiler.processing.testcode.JavaEnum
 import androidx.room.compiler.processing.testcode.MainAnnotation
 import androidx.room.compiler.processing.testcode.OtherAnnotation
@@ -198,6 +199,30 @@ class XAnnotationBoxTest {
                         assertThat(boxArray[1].value.value).isEqualTo("other list 2")
                     }
             }
+        }
+    }
+
+    @Test
+    fun typeReferenceArray_singleItemInJava() {
+        val src = Source.java(
+            "Subject",
+            """
+            import androidx.room.compiler.processing.testcode.JavaAnnotationWithTypeReferences;
+            @JavaAnnotationWithTypeReferences(String.class)
+            class Subject {
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(src)
+        ) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("Subject")
+            val annotationValue = subject.toAnnotationBox(
+                JavaAnnotationWithTypeReferences::class
+            )?.getAsTypeList("value")
+            assertThat(annotationValue?.map { it.typeName }).containsExactly(
+                ClassName.get(String::class.java)
+            )
         }
     }
 
