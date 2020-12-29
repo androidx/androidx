@@ -60,13 +60,12 @@ public class SearchSpecTest {
     public void testGetProjectionTypePropertyMasks() {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                .addProjectionTypePropertyPaths("TypeA", "field1", "field2.subfield2")
-                .addProjectionTypePropertyPaths("TypeB", "field7")
-                .addProjectionTypePropertyPaths("TypeC")
+                .addProjection("TypeA", "field1", "field2.subfield2")
+                .addProjection("TypeB", "field7")
+                .addProjection("TypeC")
                 .build();
 
-        Map<String, List<String>> typePropertyPathMap =
-                searchSpec.getProjectionTypePropertyPaths();
+        Map<String, List<String>> typePropertyPathMap = searchSpec.getProjections();
         assertThat(typePropertyPathMap.keySet())
                 .containsExactly("TypeA", "TypeB", "TypeC");
         assertThat(typePropertyPathMap.get("TypeA")).containsExactly("field1", "field2.subfield2");

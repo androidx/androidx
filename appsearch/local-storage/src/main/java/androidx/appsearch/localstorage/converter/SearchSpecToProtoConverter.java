@@ -26,6 +26,9 @@ import com.google.android.icing.proto.ScoringSpecProto;
 import com.google.android.icing.proto.SearchSpecProto;
 import com.google.android.icing.proto.TermMatchType;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Translates a {@link SearchSpec} into icing search protos.
  * @hide
@@ -56,14 +59,20 @@ public final class SearchSpecToProtoConverter {
     @NonNull
     public static ResultSpecProto toResultSpecProto(@NonNull SearchSpec spec) {
         Preconditions.checkNotNull(spec);
-        return ResultSpecProto.newBuilder()
+        ResultSpecProto.Builder builder = ResultSpecProto.newBuilder()
                 .setNumPerPage(spec.getResultCountPerPage())
                 .setSnippetSpec(
                         ResultSpecProto.SnippetSpecProto.newBuilder()
                                 .setNumToSnippet(spec.getSnippetCount())
                                 .setNumMatchesPerProperty(spec.getSnippetCountPerProperty())
-                                .setMaxWindowBytes(spec.getMaxSnippetSize()))
-                .build();
+                                .setMaxWindowBytes(spec.getMaxSnippetSize()));
+        Map<String, List<String>> projectionTypePropertyPaths = spec.getProjections();
+        for (Map.Entry<String, List<String>> e : projectionTypePropertyPaths.entrySet()) {
+            builder.addTypePropertyMasks(
+                    ResultSpecProto.TypePropertyMask.newBuilder().setSchemaType(
+                            e.getKey()).addAllPaths(e.getValue()));
+        }
+        return builder.build();
     }
 
     /** Extracts {@link ScoringSpecProto} information from a {@link SearchSpec}. */
