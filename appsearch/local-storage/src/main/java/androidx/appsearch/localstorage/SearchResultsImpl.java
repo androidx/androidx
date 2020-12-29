@@ -53,6 +53,8 @@ class SearchResultsImpl implements SearchResults {
 
     private boolean mIsFirstLoad = true;
 
+    private boolean mIsClosed = false;
+
     SearchResultsImpl(
             @NonNull AppSearchImpl appSearchImpl,
             @NonNull ExecutorService executorService,
@@ -71,6 +73,7 @@ class SearchResultsImpl implements SearchResults {
     @Override
     @NonNull
     public ListenableFuture<List<SearchResult>> getNextPage() {
+        Preconditions.checkState(!mIsClosed, "SearchResults has already been closed");
         return FutureUtil.execute(mExecutorService, () -> {
             SearchResultPage searchResultPage;
             if (mIsFirstLoad) {
@@ -104,9 +107,12 @@ class SearchResultsImpl implements SearchResults {
     public void close() {
         // Checking the future result is not needed here since this is a cleanup step which is not
         // critical to the correct functioning of the system; also, the return value is void.
-        FutureUtil.execute(mExecutorService, () -> {
-            mAppSearchImpl.invalidateNextPageToken(mNextPageToken);
-            return null;
-        });
+        if (!mIsClosed) {
+            FutureUtil.execute(mExecutorService, () -> {
+                mAppSearchImpl.invalidateNextPageToken(mNextPageToken);
+                mIsClosed = true;
+                return null;
+            });
+        }
     }
 }
