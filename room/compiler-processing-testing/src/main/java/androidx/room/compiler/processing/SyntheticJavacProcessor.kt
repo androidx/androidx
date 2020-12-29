@@ -48,15 +48,14 @@ class SyntheticJavacProcessor(
 
     override fun getSupportedAnnotationTypes() = setOf("*")
 
-    override fun throwIfFailed() {
-        val result = checkNotNull(result) {
-            "did not compile"
+    override fun getProcessingException(): Throwable? {
+        val result = this.result ?: return AssertionError("processor didn't run")
+        result.exceptionOrNull()?.let {
+            return it
         }
         if (result.isFailure) {
-            // throw AssertionError instead of re-throwing the same error to keep the stack trace
-            // of the failure in the exception's cause field. We cannot throw it as is since stack
-            // traces do not match.
-            throw AssertionError(result.exceptionOrNull()!!)
+            return AssertionError("processor failed but no exception is reported")
         }
+        return null
     }
 }
