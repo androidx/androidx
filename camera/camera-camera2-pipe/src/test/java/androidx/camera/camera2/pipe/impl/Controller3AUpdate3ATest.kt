@@ -57,9 +57,7 @@ internal class Controller3AUpdate3ATest {
         initGraphProcessor()
 
         val result = controller3A.update3A(afMode = AfMode.OFF)
-        assertThat(graphState3A.readState()[CaptureRequest.CONTROL_AF_MODE]).isEqualTo(
-            CaptureRequest.CONTROL_AE_MODE_OFF
-        )
+        assertThat(graphState3A.afMode!!.value).isEqualTo(CaptureRequest.CONTROL_AF_MODE_OFF)
         assertThat(result.isCompleted).isFalse()
     }
 
