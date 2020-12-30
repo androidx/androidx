@@ -43,16 +43,21 @@ internal class KspProcessingEnv(
     override val backend: XProcessingEnv.Backend = XProcessingEnv.Backend.KSP
 
     private val typeElementStore =
-        XTypeElementStore { qName ->
-            resolver.getClassDeclarationByName(
-                KspTypeMapper.swapWithKotlinType(qName)
-            )?.let {
-                KspTypeElement(
-                    env = this,
-                    declaration = it
+        XTypeElementStore(
+            findElement = {
+                resolver.getClassDeclarationByName(
+                    KspTypeMapper.swapWithKotlinType(it)
                 )
+            },
+            getQName = {
+                // for error types or local types, qualified name is null.
+                // it is best to just not cache them
+                it.qualifiedName?.asString()
+            },
+            wrap = {
+                KspTypeElement(this, it)
             }
-        }
+        )
 
     override val messager: XMessager = KspMessager(logger)
 
@@ -194,10 +199,7 @@ internal class KspProcessingEnv(
     }
 
     fun wrapClassDeclaration(declaration: KSClassDeclaration): KspTypeElement {
-        return KspTypeElement(
-            env = this,
-            declaration = declaration
-        )
+        return typeElementStore[declaration]
     }
 
     class CommonTypes(resolver: Resolver) {

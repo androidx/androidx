@@ -239,6 +239,28 @@ class XProcessingEnvTest {
         }
     }
 
+    @Test
+    fun typeElementsAreCached() {
+        val src = Source.java(
+            "JavaSubject",
+            """
+            class JavaSubject {
+                NestedClass nestedClass;
+                class NestedClass {
+                    int x;
+                }
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(src)
+        ) { invocation ->
+            val parent = invocation.processingEnv.requireTypeElement("JavaSubject")
+            val nested = invocation.processingEnv.requireTypeElement("JavaSubject.NestedClass")
+            assertThat(nested.enclosingTypeElement).isSameInstanceAs(parent)
+        }
+    }
+
     companion object {
         val PRIMITIVE_TYPES = listOf(
             TypeName.BOOLEAN,
