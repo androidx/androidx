@@ -58,11 +58,12 @@ class ExportToFramework:
                 print('Prune: remove "%s"' % abs_path)
                 os.remove(abs_path)
 
-    def _TransformAndCopyFile(self, source_path, dest_path, transform_func=None):
+    def _TransformAndCopyFile(
+            self, source_path, dest_path, transform_func=None, ignore_skips=False):
         with open(source_path, 'r') as fh:
             contents = fh.read()
 
-        if '@exportToFramework:skipFile()' in contents:
+        if not ignore_skips and '@exportToFramework:skipFile()' in contents:
             print('Skipping: "%s" -> "%s"' % (source_path, dest_path), file=sys.stderr)
             return
 
@@ -110,6 +111,7 @@ class ExportToFramework:
             .replace('@RestrictTo(RestrictTo.Scope.LIBRARY)', '')
             .replace('@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)', '')
             .replace('ObjectsCompat.', 'Objects.')
+            .replace('// @exportToFramework:skipFile()', '')
         )
 
     def _TransformTestCode(self, contents):
@@ -221,6 +223,14 @@ class ExportToFramework:
         print('~~~ Copying test utils ~~~')
         self._TransformAndCopyFolder(
                 test_util_source_dir, test_util_dest_dir, transform_func=self._TransformTestCode)
+        for iface_file in (
+                'AppSearchSession.java', 'GlobalSearchSession.java', 'SearchResults.java'):
+            dest_file_name = os.path.splitext(iface_file)[0] + 'Shim.java'
+            self._TransformAndCopyFile(
+                    os.path.join(api_source_dir, 'app/' + iface_file),
+                    os.path.join(test_util_dest_dir, dest_file_name),
+                    transform_func=self._TransformTestCode,
+                    ignore_skips=True)
 
     def _ExportImplCode(self):
         impl_source_dir = os.path.join(self._jetpack_appsearch_root, JETPACK_IMPL_ROOT)
