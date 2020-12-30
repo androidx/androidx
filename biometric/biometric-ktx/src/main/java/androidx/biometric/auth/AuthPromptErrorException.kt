@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-// see ../playground-common/README.md for details on how this works
-rootProject.name = "biometric-playground"
-apply from: "../playground-common/playground-include-settings.gradle"
-setupPlayground(this, "..")
-selectProjectsFromAndroidX({ name ->
-    if (name.startsWith(":biometric")) return true
-    if (name == ":annotation:annotation-sampled") return true
-    return false
-})
-
+package androidx.biometric.auth
+/**
+ * Thrown when an unrecoverable error has been encountered and authentication has stopped.
+ *
+ * @param errorCode An integer ID associated with the error.
+ * @param errorMessage A human-readable string that describes the error.
+ */
+public class AuthPromptErrorException(
+    public val errorCode: Int,
+    public val errorMessage: CharSequence
+) : Exception(errorMessage.toString())

@@ -26,7 +26,7 @@ import androidx.biometric.auth.AuthPrompt
 import androidx.biometric.auth.AuthPromptCallback
 import androidx.biometric.auth.startClass2BiometricAuthentication
 import androidx.biometric.auth.startClass2BiometricOrCredentialAuthentication
-import androidx.biometric.auth.startClass3BiometricAuthentication
+import androidx.biometric.auth.authenticateWithClass3Biometrics
 import androidx.biometric.auth.startClass3BiometricOrCredentialAuthentication
 import androidx.biometric.auth.startCredentialAuthentication
 import androidx.biometric.integration.testapp.R.string.biometric_prompt_description
@@ -191,7 +191,7 @@ class AuthPromptTestActivity : FragmentActivity() {
                 )
 
             R.id.class3_biometric_button ->
-                startClass3BiometricAuthentication(
+                authenticateWithClass3Biometrics(
                     crypto = createCryptoOrNull(),
                     title = title,
                     subtitle = subtitle,
