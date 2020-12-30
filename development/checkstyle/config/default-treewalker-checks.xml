@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2016 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+-->
+<module name="AvoidStarImport">
+  <property name="severity" value="error"/>
+  <property name="excludes" value="org.junit.Assert,org.mockito.Mockito,org.mockito.MockitoAnnotations,org.hamcrest.Matchers"/>
+</module>
+<module name="IllegalCatch">
+  <property name="severity" value="info"/>
+</module>
+<module name="RedundantImport">
+  <message key="import.redundant" value="Redundant import: {0}. Use Ctrl+Shift+O (Eclipse) or Ctrl+Alt+O (Intellij) to sort imports"/>
+  <property name="severity" value="error"/>
+</module>
+<module name="UnusedImports">
+  <message key="import.unused" value="Unused import: {0}. Use Ctrl+Shift+O (Eclipse) or Ctrl+Alt+O (Intellij) to sort imports"/>
+  <property name="severity" value="error"/>
+  <property name="processJavadoc" value="true"/>
+</module>
+<module name="PackageName">
+  <property name="severity" value="error"/>
+  <property name="format" value="^[a-z]+(\.[a-z][a-z0-9_]{1,})*$"/>
+</module>
+<module name="SimplifyBooleanExpression">
+  <property name="severity" value="error"/>
+</module>
+<module name="SimplifyBooleanReturn">
+  <property name="severity" value="error"/>
+</module>
+<module name="TypeName">
+  <property name="severity" value="error"/>
+  <property name="format" value="^[A-Z][a-zA-Z0-9_]*$"/>
+</module>
+<module name="ConstantName">
+  <property name="severity" value="error"/>
+  <property name="format" value="^([A-Z][A-Z0-9]*(_[A-Z0-9]+)*)|(s[A-Z][a-zA-Z0-9]*)$"/>
+  <message key="name.invalidPattern" value="Static final field names must either be all caps (e.g. int HEIGHT_PX) for 'true' constants, or start with s (e.g. AtomicInteger sNextId or Runnable sSuspendTask) for fields with mutable state or that don't 'feel' like constants."/>
+</module>
+<!-- Non-public, non-static field names start with m. -->
+<module name="MemberName">
+    <property name="severity" value="error"/>
+    <property name="format" value="^m[A-Z0-9][a-zA-Z0-9]*$"/>
+    <property name="applyToPublic" value="false"/>
+    <message key="name.invalidPattern" value="Non-public, non-static field names start with m and are camel-cased. (e.g. mSize)"/>
+</module>
+<!-- Static field names start with s. -->
+<module name="StaticVariableName">
+    <property name="severity" value="error"/>
+    <property name="format" value="^s[A-Z0-9][a-zA-Z0-9]*$"/>
+    <property name="applyToPublic" value="false"/>
+    <message key="name.invalidPattern" value="Static field names start with s and are camel-cased. (e.g. sFooBar)"/>
+</module>
+<module name="MethodName">
+    <property name="severity" value="error"/>
+    <property name="format" value="^[a-z][a-zA-Z0-9_]*$"/>
+    <message key="name.invalidPattern" value="Method names should start with a lower case letter (e.g. getWidth())"/>
+</module>
+<module name="ParameterName">
+  <property name="severity" value="error"/>
+</module>
+<module name="LocalFinalVariableName">
+  <property name="severity" value="error"/>
+  <property name="format" value="^m|s|((([ms][a-z0-9])|([a-ln-rt-z]))[a-zA-Z0-9]*)$"/>
+  <message key="name.invalidPattern" value="Local variables should be camel-cased (e.g. int minWidth = 4)."/>
+</module>
+<module name="LocalVariableName">
+  <property name="severity" value="error"/>
+  <property name="format" value="^m|s|((([ms][a-z0-9])|([a-ln-rt-z]))[a-zA-Z0-9]*)$"/>
+  <message key="name.invalidPattern" value="Local variables should be camel-cased (e.g. int minWidth = 4)."/>
+</module>
+<module name="LineLength">
+  <property name="severity" value="error"/>
+  <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
+  <property name="max" value="100"/>
+</module>
+<module name="LeftCurly">
+  <property name="severity" value="error"/>
+</module>
+<module name="RightCurly">
+  <property name="severity" value="error"/>
+</module>
+<module name="NeedBraces">
+  <message key="needBraces" value="if, for, while, and do require curly braces unless they are single-line statements."/>
+  <property name="severity" value="error"/>
+  <property name="tokens" value="LITERAL_FOR, LITERAL_WHILE, LITERAL_DO, LITERAL_IF"/>
+  <property name="allowSingleLineStatement" value="true"/>
+</module>
+<module name="EmptyBlock">
+  <property name="severity" value="error"/>
+  <property name="option" value="text"/>
+  <metadata name="altname" value="EmptyCatchBlock"/>
+</module>
+<module name="UpperEll">
+  <property name="severity" value="error"/>
+</module>
+<module name="FallThrough">
+  <property name="severity" value="error"/>
+  <property name="reliefPattern" value=".*"/>
+</module>
+<module name="ModifierOrder">
+  <property name="severity" value="error"/>
+</module>
+<module name="WhitespaceAround">
+  <property name="severity" value="error"/>
+  <property name="tokens" value="ASSIGN, BAND, BAND_ASSIGN, BOR, BOR_ASSIGN, BSR, BSR_ASSIGN, BXOR, BXOR_ASSIGN, COLON, DIV, DIV_ASSIGN, EQUAL, GE, GT, LAND, LE, LITERAL_ASSERT, LITERAL_CATCH, LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_FOR, LITERAL_IF, LITERAL_RETURN, LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_WHILE, LOR, LT, MINUS, MINUS_ASSIGN, MOD, MOD_ASSIGN, NOT_EQUAL, PLUS, PLUS_ASSIGN, QUESTION, SL, SLIST, SL_ASSIGN, SR, SR_ASSIGN, STAR, STAR_ASSIGN, TYPE_EXTENSION_AND" />
+  <property name="allowEmptyConstructors" value="true"/>
+  <property name="allowEmptyMethods" value="true"/>
+</module>
+<module name="WhitespaceAfter">
+  <property name="severity" value="error"/>
+  <property name="tokens" value="COMMA, SEMI, TYPECAST"/>
+</module>
+<module name="NoWhitespaceAfter">
+  <property name="severity" value="error"/>
+  <property name="tokens" value="BNOT, DEC, DOT, INC, LNOT, UNARY_MINUS, UNARY_PLUS"/>
+</module>
+<module name="NoWhitespaceBefore">
+  <property name="severity" value="error"/>
+  <property name="allowLineBreaks" value="true"/>
+  <property name="tokens" value="SEMI, DOT, POST_DEC, POST_INC"/>
+</module>
+<module name="GenericWhitespace">
+  <property name="severity" value="error"/>
+  <message key="ws.followed"
+   value="GenericWhitespace ''{0}'' is followed by whitespace."/>
+   <message key="ws.preceded"
+   value="GenericWhitespace ''{0}'' is preceded with whitespace."/>
+   <message key="ws.illegalFollow"
+   value="GenericWhitespace ''{0}'' should followed by whitespace."/>
+   <message key="ws.notPreceded"
+   value="GenericWhitespace ''{0}'' is not preceded with whitespace."/>
+</module>
+<module name="EmptyStatement">
+  <property name="severity" value="error"/>
+</module>
+<module name="NoFinalizer">
+  <property name="severity" value="info"/>
+</module>
+<module name="ParenPad">
+  <property name="severity" value="error"/>
+</module>
+<module name="MethodParamPad">
+  <property name="severity" value="error"/>
+</module>
+<module name="ImportOrder">
+  <property name="severity" value="error"/>
+  <message key="import.ordering" value="Wrong order for {0} import. Use Ctrl+Shift+O (Eclipse) or Ctrl+Alt+O (Intellij) to sort imports. https://source.android.com/setup/code-style#order-import-statements"/>
+  <property name="groups" value="android, androidx, com.android, dalvik, com, gov, junit, libcore, net, org, java, javax"/>
+  <property name="ordered" value="true"/>
+  <property name="option" value="top"/>
+  <property name="separated" value="true"/>
+</module>
+<module name="Indentation">
+  <property name="severity" value="error"/>
+  <property name="basicOffset" value="4"/>
+  <property name="throwsIndent" value="8"/>
+  <property name="lineWrappingIndentation" value="8"/>
+</module>
+<module name="OperatorWrap">
+  <property name="severity" value="error"/>
+  <property name="option" value="NL" />
+  <property name="tokens" value="BAND, BOR, BSR, BXOR, DIV, EQUAL, GE, GT, LAND, LE, LITERAL_INSTANCEOF, LOR, LT, MINUS, MOD, NOT_EQUAL, PLUS, QUESTION, SL, SR, STAR " />
+</module>
+<module name="OperatorWrap">
+ <property name="severity" value="error"/>
+ <property name="option" value="eol"/>
+ <property name="tokens" value="ASSIGN"/>
+</module>
+<module name="SeparatorWrap">
+  <property name="severity" value="error"/>
+  <property name="tokens" value="DOT"/>
+  <property name="option" value="nl"/>
+</module>
+<module name="SeparatorWrap">
+  <property name="severity" value="error"/>
+  <property name="tokens" value="COMMA"/>
+  <property name="option" value="EOL"/>
+</module>
+<module name="MissingDeprecated">
+  <property name="severity" value="error"/>
+</module>
+<module name="MissingOverride">
+  <property name="severity" value="error"/>
+</module>
+<module name="OneTopLevelClass">
+  <property name="severity" value="error"/>
+</module>
+<module name="StringLiteralEquality">
+  <property name="severity" value="error"/>
+</module>
+<module name="ArrayTypeStyle">
+  <property name="severity" value="error"/>
+</module>
+<module name="RedundantModifier">
+  <property name="severity" value="error"/>
+</module>
+<module name="OuterTypeFilename">
+  <property name="severity" value="error"/>
+</module>
+<module name="FileContentsHolder"/>
+<module name="SuppressionCommentFilter">
+  <property name="offCommentFormat" value="CHECKSTYLE:OFF IndentationCheck"/>
+  <property name="onCommentFormat" value="CHECKSTYLE:ON IndentationCheck"/>
+  <property name="checkFormat" value="IndentationCheck"/>
+</module>
+<module name="SuppressionCommentFilter">
+  <property name="offCommentFormat" value="CHECKSTYLE:OFF Generated code"/>
+  <property name="onCommentFormat" value="CHECKSTYLE:ON Generated code"/>
+</module>

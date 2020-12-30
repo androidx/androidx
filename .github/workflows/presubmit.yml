@@ -62,6 +62,27 @@ jobs:
           set -x
           ./development/apilint.py -f ${{ steps.changed-files.outputs.added_modified }}
 
+      - name: "Parse changed-files as checkstyle args"
+        id: checkstyle-file-args
+        run: |
+          set -x
+          CHECKSTYLE_FILES=`echo "${{ steps.changed-files.outputs.added_modified }}" | grep ".*\.java" | sed 's|[^ ]* *|--file=${{ github.workspace }}/&|g'`
+          echo "::set-output name=checkstyle-file-args::$CHECKSTYLE_FILES"
+
+      - name: "checkstyle"
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+        run: |
+          set -x
+          CHECKSTYLE_DIR="$HOME/checkstyle"
+          mkdir "$CHECKSTYLE_DIR"
+          wget https://android.googlesource.com/platform/prebuilts/checkstyle/+archive/refs/heads/master.tar.gz -P "$CHECKSTYLE_DIR"
+          tar -C "$CHECKSTYLE_DIR" -xvzf "$CHECKSTYLE_DIR/master.tar.gz"
+          java -cp "$CHECKSTYLE_DIR/checkstyle.jar" com.puppycrawl.tools.checkstyle.Main \
+              -c ${{ github.workspace }}/development/checkstyle/config/android-style.xml \
+              -f plain                                                                   \
+              ${{ steps.checkstyle-file-args.outputs.checkstyle-file-args }}
+
       - name: "Parse changed-files as ktlint args"
         id: ktlint-file-args
         run: |
