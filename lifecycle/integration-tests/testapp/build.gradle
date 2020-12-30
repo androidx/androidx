@@ -24,9 +24,12 @@ plugins {
 
 dependencies {
     implementation(KOTLIN_STDLIB)
-    implementation(project(":fragment:fragment"))
+    implementation(projectOrArtifact(":fragment:fragment")) {
+        exclude group: "androidx.lifecycle", module: "lifecycle-runtime"
+    }
     implementation(project(":lifecycle:lifecycle-process"))
     implementation(project(":lifecycle:lifecycle-common"))
+    implementation(project(":lifecycle:lifecycle-runtime"))
     annotationProcessor(project(":lifecycle:lifecycle-compiler"))
 
     androidTestAnnotationProcessor(project(":lifecycle:lifecycle-compiler"))
