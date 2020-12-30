@@ -79,6 +79,12 @@ class ExportToFramework:
         subprocess.check_call(google_java_format_cmd, cwd=self._framework_appsearch_root)
 
     def _TransformCommonCode(self, contents):
+        # Apply strips
+        contents = re.sub(
+                r'\/\/ @exportToFramework:startStrip\(\).*?\/\/ @exportToFramework:endStrip\(\)',
+                '',
+                contents,
+                flags=re.DOTALL)
         return (contents
             .replace('androidx.appsearch.app', 'android.app.appsearch')
             .replace(
@@ -91,6 +97,7 @@ class ExportToFramework:
             .replace(
                     'androidx.annotation.VisibleForTesting',
                     'com.android.internal.annotations.VisibleForTesting')
+            .replace('androidx.annotation.', 'android.annotation.')
             .replace('androidx.collection.ArrayMap', 'android.util.ArrayMap')
             .replace('androidx.collection.ArraySet', 'android.util.ArraySet')
             .replace(
@@ -100,18 +107,46 @@ class ExportToFramework:
                     'androidx.core.util.Preconditions',
                     'com.android.internal.util.Preconditions')
             .replace('import androidx.annotation.RestrictTo;', '')
+            .replace('@RestrictTo(RestrictTo.Scope.LIBRARY)', '')
             .replace('@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)', '')
             .replace('ObjectsCompat.', 'Objects.')
-            .replace('androidx.', 'android.')
         )
 
     def _TransformTestCode(self, contents):
         contents = (contents
-            .replace('org.junit.Assert.assertThrows',
-                    'org.testng.Assert.expectThrows')
+            .replace('org.junit.Assert.assertThrows', 'org.testng.Assert.expectThrows')
             .replace('assertThrows(', 'expectThrows(')
+            .replace('androidx.appsearch.app.util.', 'com.android.server.appsearch.testing.')
+            .replace(
+                    'package androidx.appsearch.app.util;',
+                    'package com.android.server.appsearch.testing;')
+            .replace('AppSearchSession;', 'AppSearchSessionShim;')
+            .replace('AppSearchSession ', 'AppSearchSessionShim ')
+            .replace('GlobalSearchSession;', 'GlobalSearchSessionShim;')
+            .replace('GlobalSearchSession ', 'GlobalSearchSessionShim ')
+            .replace('SearchResults;', 'SearchResultsShim;')
+            .replace('SearchResults ', 'SearchResultsShim ')
+            .replace(
+                    'LocalStorage.createSearchSession(',
+                    'AppSearchSessionShimImpl.createSearchSession(')
+            .replace(
+                    'LocalStorage.createGlobalSearchSession(',
+                    'GlobalSearchSessionShimImpl.createGlobalSearchSession(')
+            .replace(
+                    'new LocalStorage.SearchContext.Builder(context)',
+                    'new LocalStorage.SearchContext.Builder()')
+            .replace(
+                    'new LocalStorage.GlobalSearchContext.Builder(context).build()',
+                    '')
+            .replace('LocalStorage.', 'AppSearchManager.')
         )
         return self._TransformCommonCode(contents)
+
+    def _TransformCtsTestCode(self, contents):
+        contents = self._TransformTestCode(contents)
+        return (contents
+                .replace('android.app.appsearch.test', 'com.android.cts.appsearch')
+        )
 
     def _TransformAndCopyFolder(self, source_dir, dest_dir, transform_func=None):
         for currentpath, folders, files in os.walk(source_dir):
@@ -180,7 +215,7 @@ class ExportToFramework:
         # Copy CTS tests
         print('~~~ Copying CTS tests ~~~')
         self._TransformAndCopyFolder(
-                cts_test_source_dir, cts_test_dest_dir, transform_func=self._TransformTestCode)
+                cts_test_source_dir, cts_test_dest_dir, transform_func=self._TransformCtsTestCode)
 
         # Copy test utils
         print('~~~ Copying test utils ~~~')
