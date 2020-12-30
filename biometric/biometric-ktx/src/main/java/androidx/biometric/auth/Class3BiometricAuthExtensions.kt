@@ -21,26 +21,19 @@ import androidx.fragment.app.FragmentActivity
 import java.util.concurrent.Executor
 
 /**
- * Builds a [Class3BiometricAuthPrompt] hosted on the current [FragmentActivity], which configures a
- * [BiometricPrompt] for authentication with Class 3 biometric modalities
- * (fingerprint, iris, face, etc) and begins authentication.
+ * Prompts the user to authenticate with a **Class 3** biometric (e.g. fingerprint, face, or iris).
  *
- * Class 3 (formerly known as Strong) refers to the strength of the biometric sensor, as specified
- * in the Android 11 CDD. Class 3 authentication can be used for applications that use
- * cryptographic operations.
- *
- * @param crypto A crypto object to be associated with this authentication.
+ * @param crypto A cryptographic object to be associated with this authentication.
  * @param title The title to be displayed on the prompt.
- * @param negativeButtonText The label to be used for the negative button on the prompt.
- * @param executor The executor that will run authentication callback methods. If null, callback
- * methods will be executed on the main thread.
+ * @param negativeButtonText The label for the negative button on the prompt.
+ * @param subtitle An optional subtitle to be displayed on the prompt.
+ * @param description An optional description to be displayed on the prompt.
+ * @param confirmationRequired Whether user confirmation should be required for passive biometrics.
+ * @param executor An executor for [callback] methods. If `null`, these will run on the main thread.
  * @param callback The object that will receive and process authentication events.
- * @param subtitle The subtitle to be displayed on the prompt, null by default.
- * @param description The description to be displayed on the prompt, null by default.
- * @param confirmationRequired Whether explicit user confirmation is required after a passive
- *                             biometric, true by default.
- * @return [AuthPrompt] wrapper that can be used for cancellation and dismissal of the
- * biometric prompt using [AuthPrompt]#cancelAuthentication()
+ * @return An [AuthPrompt] handle to the shown prompt.
+ *
+ * @see Class3BiometricAuthPrompt
  */
 public fun FragmentActivity.startClass3BiometricAuthentication(
     crypto: BiometricPrompt.CryptoObject?,
@@ -66,26 +59,19 @@ public fun FragmentActivity.startClass3BiometricAuthentication(
 }
 
 /**
- * Builds a [Class3BiometricAuthPrompt] hosted on the current [Fragment], which configures a
- * [BiometricPrompt] for authentication with Class 3 biometric modalities (fingerprint, iris, face,
- * etc) and begins authentication.
+ * Prompts the user to authenticate with a **Class 3** biometric (e.g. fingerprint, face, or iris).
  *
- * Class 3 (formerly known as Strong) refers to the strength of the biometric sensor, as specified
- * in the Android 11 CDD. Class 3 authentication can be used for applications that use cryptographic
- * operations.
- *
- * @param crypto A crypto object to be associated with this authentication.
+ * @param crypto A cryptographic object to be associated with this authentication.
  * @param title The title to be displayed on the prompt.
- * @param negativeButtonText The label to be used for the negative button on the prompt.
- * @param executor The executor that will run authentication callback methods. If null, callback
- * methods will be executed on the main thread.
+ * @param negativeButtonText The label for the negative button on the prompt.
+ * @param subtitle An optional subtitle to be displayed on the prompt.
+ * @param description An optional description to be displayed on the prompt.
+ * @param confirmationRequired Whether user confirmation should be required for passive biometrics.
+ * @param executor An executor for [callback] methods. If `null`, these will run on the main thread.
  * @param callback The object that will receive and process authentication events.
- * @param subtitle The subtitle to be displayed on the prompt, null by default.
- * @param description The description to be displayed on the prompt, null by default.
- * @param confirmationRequired Whether explicit user confirmation is required after a passive
- *                             biometric, true by default.
- * @return [AuthPrompt] wrapper that can be used for cancellation and dismissal of the
- * biometric prompt using [AuthPrompt]#cancelAuthentication()
+ * @return An [AuthPrompt] handle to the shown prompt.
+ *
+ * @see Class3BiometricAuthPrompt
  */
 public fun Fragment.startClass3BiometricAuthentication(
     crypto: BiometricPrompt.CryptoObject?,
@@ -111,13 +97,10 @@ public fun Fragment.startClass3BiometricAuthentication(
 }
 
 /**
- * Helper function for shared logic in [Fragment.startClass3BiometricAuthentication] and
- * [FragmentActivity.startClass3BiometricAuthentication] for building the
- * [Class3BiometricAuthPrompt], starting authentication, and returning the AuthPrompt wrapper for
- * cancellation and dismissal of the biometric prompt using [AuthPrompt]#cancelAuthentication()
+ * Creates a [Class3BiometricAuthPrompt] with the given parameters and starts authentication.
  */
 private fun startClass3BiometricAuthenticationInternal(
-    authPromptHost: AuthPromptHost,
+    host: AuthPromptHost,
     crypto: BiometricPrompt.CryptoObject?,
     title: CharSequence,
     negativeButtonText: CharSequence,
@@ -127,21 +110,15 @@ private fun startClass3BiometricAuthenticationInternal(
     executor: Executor? = null,
     callback: AuthPromptCallback
 ): AuthPrompt {
-    val class3BiometricAuthBuilder =
-        if (executor != null) {
-            Class3BiometricAuthPrompt.Builder(
-                authPromptHost, title, negativeButtonText, executor, callback
-            )
-        } else {
-            Class3BiometricAuthPrompt.Builder(
-                authPromptHost, title, negativeButtonText, callback
-            )
-        }
-
-    return class3BiometricAuthBuilder.apply {
+    val prompt = Class3BiometricAuthPrompt.Builder(title, negativeButtonText).apply {
         subtitle?.let { setSubtitle(it) }
         description?.let { setDescription(it) }
         setConfirmationRequired(confirmationRequired)
-        crypto?.let { setCrypto(it) }
-    }.build().startAuthentication()
+    }.build()
+
+    return if (executor == null) {
+        prompt.startAuthentication(host, crypto, callback)
+    } else {
+        prompt.startAuthentication(host, crypto, executor, callback)
+    }
 }
