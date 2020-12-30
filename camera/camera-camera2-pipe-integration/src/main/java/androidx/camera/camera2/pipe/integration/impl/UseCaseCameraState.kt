@@ -173,7 +173,7 @@ class UseCaseCameraState @Inject constructor(
                     updateSignal = null
                     updating = false
                 }
-                it.setRepeating(request)
+                it.startRepeating(request)
             }
 
             // Complete the result after the session closes to allow other threads to acquire a

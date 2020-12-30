@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
@@ -26,34 +27,21 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.os.Handler
 import android.os.Looper
-import android.util.Size
-import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.CameraPipe
-import androidx.camera.camera2.pipe.CameraStream.Config
-import androidx.camera.camera2.pipe.StreamFormat
-import androidx.camera.camera2.pipe.impl.CameraGraphModules
-import androidx.camera.camera2.pipe.impl.CameraMetadataImpl
-import androidx.camera.camera2.pipe.impl.CameraPipeModules
-import androidx.camera.camera2.pipe.wrapper.AndroidCameraDevice
-import androidx.camera.camera2.pipe.wrapper.CameraDeviceWrapper
+import androidx.camera.camera2.pipe.wrapper.AndroidCameraMetadata
 import androidx.test.core.app.ApplicationProvider
-import dagger.Module
-import dagger.Provides
 import kotlinx.atomicfu.atomic
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowApplication
 import org.robolectric.shadows.ShadowCameraCharacteristics
 import org.robolectric.shadows.ShadowCameraManager
-import java.lang.UnsupportedOperationException
-import javax.inject.Singleton
 
 /**
- * Utility class for creating, configuring, and interacting with FakeCamera objects via Robolectric
+ * Utility class for creating, configuring, and interacting with Robolectric's [CameraManager].
  */
-internal object FakeCameras {
+public object RobolectricCameras {
     private val cameraIds = atomic(0)
 
     val application: Application
@@ -64,7 +52,7 @@ internal object FakeCameras {
             return app
         }
 
-    private val cameraManager: CameraManager
+    val cameraManager: CameraManager
         get() = application.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
     private val initializedCameraIds = mutableSetOf<CameraId>()
@@ -74,6 +62,7 @@ internal object FakeCameras {
      * CameraManager, which allows the camera characteristics to be queried for tests and for Fake
      * CameraDevice objects to be created for tests.
      */
+    @Suppress("MissingPermission")
     fun create(
         metadata: Map<CameraCharacteristics.Key<*>, Any> = emptyMap()
     ): CameraId {
@@ -90,8 +79,6 @@ internal object FakeCameras {
         }
 
         val cameraNumber = cameraIds.incrementAndGet()
-        // Note: It would be better if this was something like "Fake-Camera-1", but robolectric
-        // will not let you open a CameraDevice unless the id is numeric.
         val cameraId = CameraId("FakeCamera-$cameraNumber")
 
         // Add the camera to the camera service
@@ -102,37 +89,41 @@ internal object FakeCameras {
     }
 
     operator fun get(fakeCameraId: CameraId): CameraCharacteristics {
-        check(initializedCameraIds.contains(fakeCameraId))
+        check(initializedCameraIds.contains(fakeCameraId)) {
+            "CameraId ($fakeCameraId) MUST be created before being accessed!"
+        }
         return cameraManager.getCameraCharacteristics(fakeCameraId.value)
     }
 
+    @SuppressLint("MissingPermission")
     fun open(cameraId: CameraId): FakeCamera {
         check(initializedCameraIds.contains(cameraId))
         val characteristics = cameraManager.getCameraCharacteristics(cameraId.value)
-        val metadata = CameraMetadataImpl(cameraId, false, characteristics, emptyMap())
+        val metadata = AndroidCameraMetadata(cameraId, false, characteristics, emptyMap())
 
+        @Suppress("SyntheticAccessor")
         val callback = CameraStateCallback(cameraId)
         cameraManager.openCamera(
             cameraId.value,
             callback,
             Handler()
         )
+
+        // Wait until the camera is "opened" by robolectric.
         shadowOf(Looper.myLooper()).idle()
-
         val cameraDevice = callback.camera!!
-        val cameraDeviceWrapper = AndroidCameraDevice(metadata, cameraDevice, cameraId)
 
+        @Suppress("SyntheticAccessor")
         return FakeCamera(
             cameraId,
             characteristics,
             metadata,
-            cameraDevice,
-            cameraDeviceWrapper
+            cameraDevice
         )
     }
 
-    /** Remove all fake cameras */
-    fun removeAll() {
+    /** Remove all fake camera instances from Robolectric */
+    fun clear() {
         val shadowCameraManager = Shadow.extract<Any>(
             cameraManager
         ) as ShadowCameraManager
@@ -153,8 +144,7 @@ internal object FakeCameras {
         val cameraId: CameraId,
         val characteristics: CameraCharacteristics,
         val metadata: CameraMetadata,
-        val cameraDevice: CameraDevice,
-        val cameraDeviceWrapper: CameraDeviceWrapper
+        val cameraDevice: CameraDevice
     )
 
     private class CameraStateCallback(private val cameraId: CameraId) :
@@ -178,33 +168,4 @@ internal object FakeCameras {
             throw UnsupportedOperationException("onError is not expected for Robolectric Camera")
         }
     }
-
-    /**
-     * Utility module for testing the Dagger generated graph with a a reasonable default config.
-     */
-    @Module(includes = [CameraPipeModules::class])
-    class FakeCameraPipeModule(
-        private val context: Context,
-        private val fakeCamera: FakeCamera
-    ) {
-        @Provides
-        @Singleton
-        fun provideFakeCameraPipeConfig() = CameraPipe.Config(context)
-
-        @Provides
-        @Singleton
-        fun provideFakeGraphConfig(): CameraGraph.Config {
-            val stream = Config.create(
-                Size(640, 480),
-                StreamFormat.YUV_420_888
-            )
-            return CameraGraph.Config(
-                camera = fakeCamera.cameraId,
-                streams = listOf(stream),
-            )
-        }
-    }
-
-    @Module(includes = [CameraGraphModules::class])
-    class FakeCameraGraphModule
 }

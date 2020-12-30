@@ -16,9 +16,11 @@
 
 package androidx.camera.camera2.pipe.impl
 
+import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.impl.GraphController.GraphListener
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -38,7 +40,8 @@ internal annotation class ForCameraGraph
 @Subcomponent(
     modules = [
         CameraGraphModules::class,
-        CameraGraphConfigModule::class
+        CameraGraphConfigModule::class,
+        Camera2CameraGraphModules::class,
     ]
 )
 internal interface CameraGraphComponent {
@@ -57,11 +60,7 @@ internal class CameraGraphConfigModule(private val config: CameraGraph.Config) {
     fun provideCameraGraphConfig(): CameraGraph.Config = config
 }
 
-@Module(
-    includes = [
-        SessionFactoryModule::class
-    ]
-)
+@Module
 internal abstract class CameraGraphModules {
     @Binds
     abstract fun bindCameraGraph(cameraGraph: CameraGraphImpl): CameraGraph
@@ -70,12 +69,7 @@ internal abstract class CameraGraphModules {
     abstract fun bindGraphProcessor(graphProcessor: GraphProcessorImpl): GraphProcessor
 
     @Binds
-    abstract fun bindRequestProcessorFactory(
-        factory: StandardRequestProcessorFactory
-    ): RequestProcessorFactory
-
-    @Binds
-    abstract fun bindGraphState(graphState: GraphStateImpl): GraphState
+    abstract fun bindGraphListener(graphProcessor: GraphProcessorImpl): GraphListener
 
     companion object {
         @CameraGraphScope
@@ -88,9 +82,9 @@ internal abstract class CameraGraphModules {
         @Provides
         fun provideCameraMetadata(
             graphConfig: CameraGraph.Config,
-            cache: CameraMetadataCache
+            cameraDevices: CameraDevices
         ): CameraMetadata {
-            return cache.awaitMetadata(graphConfig.camera)
+            return cameraDevices.awaitMetadata(graphConfig.camera)
         }
 
         @CameraGraphScope
@@ -111,4 +105,19 @@ internal abstract class CameraGraphModules {
             return listeners
         }
     }
+}
+
+@Module(
+    includes = [
+        SessionFactoryModule::class
+    ]
+)
+internal abstract class Camera2CameraGraphModules {
+    @Binds
+    abstract fun bindRequestProcessorFactory(
+        factoryStandard: StandardCamera2RequestProcessorFactory
+    ): Camera2RequestProcessorFactory
+
+    @Binds
+    abstract fun bindGraphState(camera2CameraState: Camera2CameraController): GraphController
 }

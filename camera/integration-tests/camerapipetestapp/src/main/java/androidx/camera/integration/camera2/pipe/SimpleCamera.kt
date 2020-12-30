@@ -123,7 +123,7 @@ class SimpleCamera(
             cameraGraph.setSurface(yuvStream.id, imageReader.surface)
 
             cameraGraph.acquireSessionOrNull()!!.use {
-                it.setRepeating(
+                it.startRepeating(
                     Request(
                         streams = listOf(viewfinderStream.id, yuvStream.id)
                     )

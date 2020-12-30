@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
+import androidx.camera.camera2.pipe.RequestProcessor
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
@@ -37,30 +38,27 @@ import java.util.Collections.singletonList
 import java.util.Collections.singletonMap
 import javax.inject.Inject
 
-internal interface RequestProcessorFactory {
+internal interface Camera2RequestProcessorFactory {
     fun create(
         session: CameraCaptureSessionWrapper,
         surfaceMap: Map<StreamId, Surface>
     ): RequestProcessor
 }
 
-internal class StandardRequestProcessorFactory @Inject constructor(
+internal class StandardCamera2RequestProcessorFactory @Inject constructor(
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config,
-    @ForCameraGraph private val graphListeners: ArrayList<Request.Listener>,
-    private val graphState3A: GraphState3A
-) : RequestProcessorFactory {
+) : Camera2RequestProcessorFactory {
     override fun create(
         session: CameraCaptureSessionWrapper,
         surfaceMap: Map<StreamId, Surface>
     ): RequestProcessor =
-        StandardRequestProcessor(
+        @Suppress("SyntheticAccessor")
+        Camera2RequestProcessor(
             session,
             threads,
-            graphConfig,
-            surfaceMap,
-            graphListeners,
-            graphState3A
+            graphConfig.defaultTemplate,
+            surfaceMap
         )
 }
 
@@ -70,60 +68,61 @@ internal val requestTags = atomic(0L)
 internal fun nextRequestTag(): RequestNumber = RequestNumber(requestTags.incrementAndGet())
 
 /**
- * This class is designed to synchronously handle interactions with the Camera CaptureSession.
+ * This class is designed to synchronously handle interactions with a [CameraCaptureSessionWrapper].
  */
-internal class StandardRequestProcessor(
+internal class Camera2RequestProcessor(
     private val session: CameraCaptureSessionWrapper,
     private val threads: Threads,
-    private val graphConfig: CameraGraph.Config,
-    private val surfaceMap: Map<StreamId, Surface>,
-    private val graphListeners: List<Request.Listener>,
-    private val graphState3A: GraphState3A
+    private val template: RequestTemplate,
+    private val surfaceMap: Map<StreamId, Surface>
 ) : RequestProcessor {
 
     @GuardedBy("inFlightRequests")
-    private val inFlightRequests = mutableListOf<CaptureSequence>()
+    private val inFlightRequests = mutableListOf<Camera2CaptureSequence>()
     private val debugId = requestProcessorDebugIds.incrementAndGet()
     private val closed = atomic(false)
 
     override fun submit(
         request: Request,
-        defaultParameters: Map<*, Any>,
-        requiredParameters: Map<*, Any>
+        defaultParameters: Map<*, Any?>,
+        requiredParameters: Map<*, Any?>,
+        defaultListeners: List<Request.Listener>
     ): Boolean {
         return configureAndCapture(
             singletonList(request),
             defaultParameters,
             requiredParameters,
-            requireStreams = false,
+            defaultListeners,
             isRepeating = false
         )
     }
 
     override fun submit(
         requests: List<Request>,
-        defaultParameters: Map<*, Any>,
-        requiredParameters: Map<*, Any>
+        defaultParameters: Map<*, Any?>,
+        requiredParameters: Map<*, Any?>,
+        defaultListeners: List<Request.Listener>
     ): Boolean {
         return configureAndCapture(
             requests,
             defaultParameters,
             requiredParameters,
-            requireStreams = false,
+            defaultListeners,
             isRepeating = false
         )
     }
 
-    override fun setRepeating(
+    override fun startRepeating(
         request: Request,
-        defaultParameters: Map<*, Any>,
-        requiredParameters: Map<*, Any>
+        defaultParameters: Map<*, Any?>,
+        requiredParameters: Map<*, Any?>,
+        defaultListeners: List<Request.Listener>
     ): Boolean {
         return configureAndCapture(
             singletonList(request),
             defaultParameters,
             requiredParameters,
-            requireStreams = false,
+            defaultListeners,
             isRepeating = true
         )
     }
@@ -150,9 +149,9 @@ internal class StandardRequestProcessor(
 
     private fun configureAndCapture(
         requests: List<Request>,
-        defaultParameters: Map<*, Any>,
-        requiredParameters: Map<*, Any>,
-        requireStreams: Boolean,
+        defaultParameters: Map<*, Any?>,
+        requiredParameters: Map<*, Any?>,
+        defaultListeners: List<Request.Listener>,
         isRepeating: Boolean
     ): Boolean {
         // Reject incoming requests if this instance has been stopped or closed.
@@ -167,7 +166,7 @@ internal class StandardRequestProcessor(
         val streamToSurfaceMap = ArrayMap<StreamId, Surface>()
 
         for (request in requests) {
-            val requestTemplate = request.template ?: graphConfig.defaultTemplate
+            val requestTemplate = request.template ?: template
 
             Log.debug { "Building CaptureRequest for $request" }
 
@@ -188,7 +187,7 @@ internal class StandardRequestProcessor(
                     surfaceToStreamMap[surface] = stream
                     streamToSurfaceMap[stream] = surface
                     hasSurface = true
-                } else if (requireStreams) {
+                } else {
                     Log.info { "  Failed to bind surface to $stream" }
                     // If requireStreams is set we are required to map every stream to a valid
                     // Surface object for this request. If this condition is violated, then we
@@ -229,14 +228,14 @@ internal class StandardRequestProcessor(
             // surface per request.
             check(hasSurface)
 
-            // Apply default parameters to the request builder first.
+            // Apply default parameters to the builder first.
             requestBuilder.writeParameters(defaultParameters)
 
-            // Apply request parameters to the request builder.
+            // Apply request parameters to the builder.
             requestBuilder.writeParameters(request.parameters)
 
-            // Apply the 3A parameters. This gives the users of camerapipe the ability to
-            // still override the 3A parameters for complicated use cases.
+            // Finally, write required parameters to the request builder. This will override any
+            // value that has ben previously set.
             //
             // TODO(sushilnath@): Implement one of the two options. (1) Apply the 3A parameters
             // from internal 3A state machine at last and provide a flag in the Request object to
@@ -244,10 +243,6 @@ internal class StandardRequestProcessor(
             // directly. Add code to handle the flag. (2) Let clients override the 3A parameters
             // freely and when that happens intercept those parameters from the request and keep the
             // internal 3A state machine in sync.
-            graphState3A.writeTo(requestBuilder)
-
-            // Finally, write required parameters to the request builder. This will override any
-            // value that has ben previously set.
             requestBuilder.writeParameters(requiredParameters)
 
             // The tag must be set for every request. We use it to lookup listeners for the
@@ -274,8 +269,8 @@ internal class StandardRequestProcessor(
 
         // Create the captureSequence listener
         @Suppress("SyntheticAccessor")
-        val captureSequence = CaptureSequence(
-            graphListeners,
+        val captureSequence = Camera2CaptureSequence(
+            defaultListeners,
             if (requests.size == 1) {
                 singletonMap(requestMap.keyAt(0), requestMap.valueAt(0))
             } else {
@@ -316,7 +311,7 @@ internal class StandardRequestProcessor(
 
     private fun capture(
         captureRequests: List<CaptureRequest>,
-        captureSequence: CaptureSequence,
+        captureSequence: Camera2CaptureSequence,
         isRepeating: Boolean
     ) {
         captureSequence.invokeOnRequestSequenceCreated()
@@ -367,8 +362,8 @@ internal class StandardRequestProcessor(
 @Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
 internal class RequestInfo(
     private val captureRequest: CaptureRequest,
-    private val defaultParameters: Map<*, Any>,
-    private val requiredParameters: Map<*, Any>,
+    private val defaultParameters: Map<*, Any?>,
+    private val requiredParameters: Map<*, Any?>,
     override val streams: Map<StreamId, Surface>,
     override val template: RequestTemplate,
     override val repeating: Boolean,
@@ -380,8 +375,17 @@ internal class RequestInfo(
         get(key) ?: default
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> get(key: Metadata.Key<T>): T? =
-        (requiredParameters[key] ?: request.extras[key] ?: defaultParameters[key]) as T?
+    override fun <T> get(key: Metadata.Key<T>): T? = when {
+        requiredParameters.containsKey(key) -> {
+            requiredParameters[key] as T?
+        }
+        request.extras.containsKey(key) -> {
+            request.extras[key] as T?
+        }
+        else -> {
+            defaultParameters[key] as T?
+        }
+    }
 
     override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T = get(key) ?: default
 

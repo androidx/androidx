@@ -234,7 +234,7 @@ public inline class CameraTimestamp(public val value: Long)
 /**
  * Utility function to help deal with the unsafe nature of the typed Key/Value pairs.
  */
-public fun CaptureRequest.Builder.writeParameters(parameters: Map<*, Any>) {
+public fun CaptureRequest.Builder.writeParameters(parameters: Map<*, Any?>) {
     for ((key, value) in parameters) {
         writeParameter(key, value)
     }
@@ -243,7 +243,7 @@ public fun CaptureRequest.Builder.writeParameters(parameters: Map<*, Any>) {
 /**
  * Utility function to help deal with the unsafe nature of the typed Key/Value pairs.
  */
-public fun CaptureRequest.Builder.writeParameter(key: Any?, value: Any) {
+public fun CaptureRequest.Builder.writeParameter(key: Any?, value: Any?) {
     if (key != null && key is CaptureRequest.Key<*>) {
         @Suppress("UNCHECKED_CAST")
         this.set(key as CaptureRequest.Key<Any>, value)
