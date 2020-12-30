@@ -299,6 +299,7 @@ public final class SearchSpec {
             return this;
         }
 
+// @exportToFramework:startStrip()
         /**
          * Adds the Schema type of given data classes to the Schema type filter of
          * {@link SearchSpec} Entry. Only search for documents that have the specified schema types.
@@ -323,7 +324,9 @@ public final class SearchSpec {
             addSchemaType(schemaTypes);
             return this;
         }
+// @exportToFramework:endStrip()
 
+// @exportToFramework:startStrip()
         /**
          * Adds the Schema type of given data classes to the Schema type filter of
          * {@link SearchSpec} Entry. Only search for documents that have the specified schema types.
@@ -340,6 +343,7 @@ public final class SearchSpec {
             Preconditions.checkNotNull(dataClasses);
             return addSchemaByDataClass(Arrays.asList(dataClasses));
         }
+// @exportToFramework:endStrip()
 
         /**
          * Adds a namespace filter to {@link SearchSpec} Entry. Only search for documents that

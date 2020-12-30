@@ -69,6 +69,7 @@ public final class PutDocumentsRequest {
             return this;
         }
 
+// @exportToFramework:startStrip()
         /**
          * Adds one or more documents to the request.
          *
@@ -113,6 +114,7 @@ public final class PutDocumentsRequest {
             DataClassFactory<T> factory = registry.getOrCreateFactory(dataClass);
             return factory.toGenericDocument(dataClass);
         }
+// @exportToFramework:endStrip()
 
         /** Builds a new {@link PutDocumentsRequest}. */
         @NonNull

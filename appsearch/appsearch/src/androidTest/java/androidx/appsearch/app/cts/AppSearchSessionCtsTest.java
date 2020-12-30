@@ -109,12 +109,15 @@ public class AppSearchSessionCtsTest {
         mDb1.setSchema(new SetSchemaRequest.Builder().addSchema(emailSchema).build()).get();
     }
 
+// @exportToFramework:startStrip()
     @Test
     public void testSetSchema_dataClass() throws Exception {
         mDb1.setSchema(
                 new SetSchemaRequest.Builder().addDataClass(EmailDataClass.class).build()).get();
     }
+// @exportToFramework:endStrip()
 
+// @exportToFramework:startStrip()
     @Test
     public void testGetSchema() throws Exception {
         AppSearchSchema emailSchema1 = new AppSearchSchema.Builder("Email1")
@@ -160,6 +163,7 @@ public class AppSearchSessionCtsTest {
         assertThat(actual1).isEqualTo(request1.getSchemas());
         assertThat(actual2).isEqualTo(request2.getSchemas());
     }
+// @exportToFramework:endStrip()
 
     @Test
     public void testPutDocuments() throws Exception {
@@ -181,6 +185,7 @@ public class AppSearchSessionCtsTest {
         assertThat(result.getFailures()).isEmpty();
     }
 
+// @exportToFramework:startStrip()
     @Test
     public void testPutDocuments_dataClass() throws Exception {
         // Schema registration
@@ -198,6 +203,7 @@ public class AppSearchSessionCtsTest {
         assertThat(result.getSuccesses()).containsExactly("uri1", null);
         assertThat(result.getFailures()).isEmpty();
     }
+// @exportToFramework:endStrip()
 
     @Test
     public void testUpdateSchema() throws Exception {
@@ -439,6 +445,7 @@ public class AppSearchSessionCtsTest {
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
     }
 
+// @exportToFramework:startStrip()
     @Test
     public void testGetDocuments_dataClass() throws Exception {
         // Schema registration
@@ -461,6 +468,7 @@ public class AppSearchSessionCtsTest {
         assertThat(inEmail.subject).isEqualTo(outEmail.subject);
         assertThat(inEmail.body).isEqualTo(outEmail.body);
     }
+// @exportToFramework:endStrip()
 
     @Test
     public void testQuery() throws Exception {

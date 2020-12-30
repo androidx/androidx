@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class SetSchemaRequestTest {
-
+// @exportToFramework:startStrip()
     @AppSearchDocument
     static class Card {
         @AppSearchDocument.Uri
@@ -82,6 +82,7 @@ public class SetSchemaRequestTest {
                 (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
         String mString;
     }
+// @exportToFramework:endStrip()
 
     private static Collection<String> getSchemaTypesFromSetSchemaRequest(SetSchemaRequest request) {
         HashSet<String> schemaTypes = new HashSet<>();
@@ -132,6 +133,7 @@ public class SetSchemaRequestTest {
         assertThat(request.getSchemasNotVisibleToSystemUi()).containsExactly("Schema");
     }
 
+// @exportToFramework:startStrip()
     @Test
     public void testDataClassVisibilityForSystemUi_visible() throws Exception {
         // By default, the schema is visible.
@@ -154,6 +156,7 @@ public class SetSchemaRequestTest {
                         Card.class, false).build();
         assertThat(request.getSchemasNotVisibleToSystemUi()).containsExactly("Card");
     }
+// @exportToFramework:endStrip()
 
     @Test
     public void testSchemaTypeVisibilityForPackage_visible() {
@@ -231,6 +234,7 @@ public class SetSchemaRequestTest {
         assertThat(request.getSchemasVisibleToPackages()).isEmpty();
     }
 
+// @exportToFramework:startStrip()
     @Test
     public void testDataClassVisibilityForPackage_visible() throws Exception {
         // By default, the schema is not visible.
@@ -329,4 +333,5 @@ public class SetSchemaRequestTest {
         assertThat(getSchemaTypesFromSetSchemaRequest(request)).containsExactly("Queen",
                 "King");
     }
+// @exportToFramework:endStrip()
 }

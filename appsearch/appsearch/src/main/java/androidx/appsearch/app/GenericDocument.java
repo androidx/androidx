@@ -450,6 +450,7 @@ public class GenericDocument {
         }
     }
 
+// @exportToFramework:startStrip()
     /**
      * Converts this GenericDocument into an instance of the provided data class.
      *
@@ -471,6 +472,7 @@ public class GenericDocument {
         DataClassFactory<T> factory = registry.getOrCreateFactory(dataClass);
         return factory.fromGenericDocument(this);
     }
+// @exportToFramework:endStrip()
 
     @Override
     public boolean equals(@Nullable Object other) {
