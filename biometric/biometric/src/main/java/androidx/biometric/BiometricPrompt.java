@@ -23,6 +23,7 @@ import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -1034,3 +1035,4 @@ public class BiometricPrompt {
         return biometricFragment;
     }
 }
+
