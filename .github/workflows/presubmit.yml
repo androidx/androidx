@@ -258,7 +258,8 @@ jobs:
     outputs:
       status: ${{ steps.output-status.outputs.status }}
     env:
-      group-id: "lifecycle"
+      artifact-id: "lifecycle"
+      project-root: "lifecycle"
     steps:
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
@@ -284,16 +285,16 @@ jobs:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
           arguments: buildOnServer
-          build-root-directory: ${{ env.group-id }}
-          gradle-executable: ${{ env.group-id }}/gradlew
-          wrapper-directory: ${{ env.group-id }}/gradle/wrapper
+          build-root-directory: ${{ env.project-root }}
+          gradle-executable: ${{ env.project-root }}/gradlew
+          wrapper-directory: ${{ env.project-root }}/gradle/wrapper
 
       - name: "Upload build artifacts"
         continue-on-error: true
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: artifacts_${{ env.group-id }}
+          name: artifacts_${{ env.artifact-id }}
           path: ~/dist
 
       - name: "Report job status"
