@@ -463,12 +463,9 @@ public final class MediaRouter {
         checkCallingThread();
 
         // Choose the fallback route if it's not already selected.
-        // Otherwise, select the default route.
         RouteInfo fallbackRoute = sGlobal.chooseFallbackRoute();
         if (sGlobal.getSelectedRoute() != fallbackRoute) {
             sGlobal.selectRoute(fallbackRoute, reason);
-        } else {
-            sGlobal.selectRoute(sGlobal.getDefaultRoute(), reason);
         }
     }
 
