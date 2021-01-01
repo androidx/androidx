@@ -65,7 +65,7 @@ public class AppAuthenticator {
      * The tag to declare all packages signed with the enclosed signing identities are to be
      * granted to the enclosing permission.
      */
-    private static final String ALL_PACKAGES_TAG = "all-packages";
+    static final String ALL_PACKAGES_TAG = "all-packages";
     /**
      * The tag to declare a known signing certificate digest for the enclosing package.
      */
@@ -82,7 +82,7 @@ public class AppAuthenticator {
      * The default digest algorithm used for all certificate digests if one is not specified in
      * the root element.
      */
-    private static final String DEFAULT_DIGEST_ALGORITHM = "SHA-256";
+    static final String DEFAULT_DIGEST_ALGORITHM = "SHA-256";
     /**
      * The set of digest algorithms supported by the AppAuthenticator; insecure algorithms and
      * those that do not support all platform levels have been removed.

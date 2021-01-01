@@ -28,15 +28,27 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-
+    implementation(AUTO_VALUE_ANNOTATIONS)
+    annotationProcessor(AUTO_VALUE)
     implementation("androidx.collection:collection:1.1.0")
+
+    testImplementation("junit:junit:4.13")
+    testImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation(ANDROIDX_TEST_RULES)
+    testImplementation(MOCKITO_CORE)
+    testImplementation(ROBOLECTRIC)
 
     androidTestImplementation("junit:junit:4.13")
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(MOCKITO_CORE)
+}
+
+android {
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 androidx {
