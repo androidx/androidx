@@ -28,6 +28,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
+        android:name="androidx.multidex.MultiDexApplication"
         android:supportsRtl="true"
         android:theme="@style/TestActivityTheme">
         <activity android:name="androidx.core.widget.ListViewTestActivity"/>
