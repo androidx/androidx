@@ -121,15 +121,15 @@ internal class CameraGraphSessionImpl(
         throw UnsupportedOperationException()
     }
 
-    override fun lock3AForCapture(
+    override suspend fun lock3AForCapture(
         frameLimit: Int,
-        timeLimitMs: Int
+        timeLimitNs: Long
     ): Deferred<Result3A> {
-        TODO("Implement lock3AForCapture")
+        return controller3A.lock3AForCapture(frameLimit, timeLimitNs)
     }
 
-    override fun unlock3APostCapture(): Deferred<FrameNumber> {
-        TODO("Implement unlock3APostCapture")
+    override suspend fun unlock3APostCapture(): Deferred<Result3A> {
+        return controller3A.unlock3APostCapture()
     }
 
     override fun toString(): String = "CameraGraph.Session-$debugId"
