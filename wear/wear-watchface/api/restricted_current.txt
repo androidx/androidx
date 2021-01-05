@@ -59,6 +59,7 @@ package androidx.wear.watchface {
   public static final class Complication.Builder {
     method public androidx.wear.watchface.Complication build();
     method public androidx.wear.watchface.Complication.Builder setDefaultProviderType(androidx.wear.complications.data.ComplicationType defaultProviderType);
+    method public androidx.wear.watchface.Complication.Builder setEnabled(boolean enabled);
   }
 
   public static final class Complication.Companion {
