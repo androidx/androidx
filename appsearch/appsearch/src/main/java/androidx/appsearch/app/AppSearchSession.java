@@ -19,10 +19,10 @@ package androidx.appsearch.app;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.Closeable;
 import java.util.Set;
 
 /**
@@ -31,7 +31,7 @@ import java.util.Set;
  *
  * All implementations of this interface must be thread safe.
  */
-public interface AppSearchSession {
+public interface AppSearchSession extends Closeable {
 
     /**
      * Sets the schema that will be used by documents provided to the {@link #putDocuments} method.
@@ -213,11 +213,9 @@ public interface AppSearchSession {
             @NonNull String queryExpression, @NonNull SearchSpec searchSpec);
 
     /**
-     * Closes the SearchSessionImpl to persists all update/delete requests to the disk.
-     *
-     * @hide
+     * Closes the {@link AppSearchSession} to persist all schema and document updates, additions,
+     * and deletes to disk.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    // TODO(b/175637134) when unhide it, extends Closeable and remove this method.
+    @Override
     void close();
 }
