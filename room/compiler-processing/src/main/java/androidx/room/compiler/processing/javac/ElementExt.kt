@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.XNullability
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.Element
+import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
@@ -39,6 +40,8 @@ private val NULLABLE_ANNOTATIONS = arrayOf(
 /**
  * Returns all fields including private fields (including private fields in super). Removes
  * duplicate fields if class has a field with the same name as the parent.
+ * Note that enum constants are not included in the list even thought they are fields in java.
+ * To access enum constants, use [JavacTypeElement.JavacEnumTypeElement].
  */
 internal fun TypeElement.getAllFieldsIncludingPrivateSupers(
     elementUtils: Elements
@@ -46,6 +49,7 @@ internal fun TypeElement.getAllFieldsIncludingPrivateSupers(
     val selection = ElementFilter
         .fieldsIn(elementUtils.getAllMembers(this))
         .filterIsInstance<VariableElement>()
+        .filterNot { it.kind == ElementKind.ENUM_CONSTANT }
         .toMutableSet()
     val selectionNames = selection.mapTo(mutableSetOf()) {
         it.simpleName
