@@ -150,6 +150,7 @@ public class WorkerWrapper implements Runnable {
                         TAG,
                         String.format("Didn't find WorkSpec for id %s", mWorkSpecId));
                 resolve(false);
+                mWorkDatabase.setTransactionSuccessful();
                 return;
             }
 
@@ -192,6 +193,7 @@ public class WorkerWrapper implements Runnable {
                     // This is not a problem for JobScheduler because we will only reschedule
                     // work if JobScheduler is unaware of a jobId.
                     resolve(true);
+                    mWorkDatabase.setTransactionSuccessful();
                     return;
                 }
             }
