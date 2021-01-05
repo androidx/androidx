@@ -289,7 +289,7 @@ class WatchFaceConfigUiTest {
 
         verify(fragmentController).showComplicationConfig(
             LEFT_COMPLICATION_ID,
-            *ComplicationType.toWireTypes(leftComplication.supportedTypes)
+            leftComplication.supportedTypes
         )
     }
 
@@ -299,7 +299,7 @@ class WatchFaceConfigUiTest {
 
         verify(fragmentController).showComplicationConfig(
             BACKGROUND_COMPLICATION_ID,
-            *ComplicationType.toWireTypes(backgroundComplication.supportedTypes)
+            backgroundComplication.supportedTypes
         )
     }
 
