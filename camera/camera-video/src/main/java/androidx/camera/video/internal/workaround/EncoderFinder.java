@@ -40,8 +40,9 @@ public class EncoderFinder {
     }
 
     /**
-     * Select an encoder by a given MediaFormat.
-     * There is one particular case when get a video encoder on API 21.
+     * Selects an encoder by a given MediaFormat.
+     *
+     * <p>There is one particular case when get a video encoder on API 21.
      */
     @Nullable
     public String findEncoderForFormat(@NonNull MediaFormat mediaFormat,
