@@ -22,6 +22,7 @@ import androidx.paging.PagingSource
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.L
@@ -69,6 +70,62 @@ import toSources
 class TypeAdapterStoreTest {
     companion object {
         fun tmp(index: Int) = CodeGenScope._tmpVar(index)
+    }
+
+    @Test
+    fun testInvalidNonStaticInnerClass() {
+        // TODO: (b/176180385)
+        val converter = Source.java(
+            "foo.bar.EmptyClass",
+            """
+            package foo.bar;
+            import androidx.room.*;
+            public class EmptyClass {
+                public enum Color {
+                    RED,
+                    GREEN
+                }
+                public class ColorTypeConverter {
+                    @TypeConverter
+                    public Color fromIntToColorEnum(int colorInt) {
+                        if (colorInt == 1) {
+                            return Color.RED;
+                        } else {
+                            return Color.GREEN;
+                        }
+                    }
+                }
+            }
+            """.trimIndent()
+        )
+        val entity = Source.java(
+            "foo.bar.EntityWithOneWayEnum",
+            """
+            package foo.bar;
+            import androidx.room.*;
+            @Entity
+            @TypeConverters(EmptyClass.ColorTypeConverter.class)
+            public class EntityWithOneWayEnum {
+                public enum Color {
+                    RED,
+                    GREEN
+                }
+                @PrimaryKey public Long id;
+                public Color color;
+            }
+            """.trimIndent()
+        )
+        runKaptTest(
+            sources = listOf(entity, converter)
+        ) { invocation ->
+            val typeElement =
+                invocation.processingEnv.requireTypeElement("foo.bar.EntityWithOneWayEnum")
+            val context = Context(invocation.processingEnv)
+            CustomConverterProcessor.Companion.findConverters(context, typeElement)
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.INNER_CLASS_TYPE_CONVERTER_MUST_BE_STATIC)
+            }
+        }
     }
 
     @Test

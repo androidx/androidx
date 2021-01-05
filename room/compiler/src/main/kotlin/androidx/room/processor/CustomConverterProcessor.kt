@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.isVoid
+import androidx.room.processor.ProcessorErrors.INNER_CLASS_TYPE_CONVERTER_MUST_BE_STATIC
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_BAD_RETURN_TYPE
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_EMPTY_CLASS
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
@@ -81,7 +82,6 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
     }
 
     fun process(): List<CustomTypeConverter> {
-        // using element utils instead of MoreElements to include statics.
         val methods = element.getAllMethods()
         val converterMethods = methods.filter {
             it.hasAnnotation(TypeConverter::class)
@@ -92,6 +92,11 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
         val constructors = element.getConstructors()
         val isKotlinObjectDeclaration = element.isKotlinObject()
         if (!isProvidedConverter) {
+            context.checker.check(
+                element.enclosingTypeElement == null || element.isStatic(),
+                element,
+                INNER_CLASS_TYPE_CONVERTER_MUST_BE_STATIC
+            )
             context.checker.check(
                 isKotlinObjectDeclaration || allStatic || constructors.isEmpty() ||
                     constructors.any {
