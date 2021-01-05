@@ -42,7 +42,7 @@ dependencies {
     implementation("androidx.arch.core:core-runtime:2.0.1")
     compileOnly(projectOrArtifact(":paging:paging-common"))
     compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
-    implementation project(":annotation:annotation-experimental")
+    implementation projectOrArtifact(":annotation:annotation-experimental")
 
     testImplementation("androidx.arch.core:core-testing:2.0.1")
     testImplementation(JUNIT)
