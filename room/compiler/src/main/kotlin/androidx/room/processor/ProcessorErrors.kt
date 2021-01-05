@@ -260,7 +260,6 @@ object ProcessorErrors {
                 the mapping.
                 You can annotate the method with @RewriteQueriesToDropUnusedColumns to direct Room
                 to rewrite your query to avoid fetching unused columns.
-        ""${'"'}.trimIndent()
             """.trim()
         } else {
             ""
