@@ -100,7 +100,7 @@ As of 2020/03/20, you will need about 38 GB for a fully-built checkout.
 
 Use the following `repo` commands to check out your branch.
 
-#### Public main development branch {#source-checkout-main}
+#### Public main development branch {#androidx-main}
 
 All development should occur in this branch unless otherwise specified by the
 AndroidX Core team.
