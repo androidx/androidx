@@ -35,8 +35,8 @@ import java.io.File
  * new instance of DataStore each time it is called.
  *
  * @param fileName the filename relative to Context.filesDir that DataStore acts on. The File is
- * obtained by calling File(context.filesDir, fileName). No two instances of DataStore should
- * act on the same file at the same time.
+ * obtained by calling File(context.filesDir, "datastore/$fileName")). No two instances of DataStore
+ * should act on the same file at the same time.
  * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
  * [androidx.datastore.CorruptionException] when attempting to read data. CorruptionExceptions are
  * thrown by

@@ -61,8 +61,8 @@ public class RxDataStoreBuilder<T> {
      *
      * @param context the context from which we retrieve files directory.
      * @param fileName the filename relative to Context.filesDir that DataStore acts on. The File is
-     * obtained by calling File(context.filesDir, fileName). No two instances of DataStore should
-     * act on the same file at the same time.
+     * obtained by calling File(context.filesDir, "datastore/" + fileName). No two instances of
+     * DataStore should act on the same file at the same time.
      * @param serializer the serializer for the type that this DataStore acts on.
      */
     public constructor(context: Context, fileName: String, serializer: Serializer<T>) {
