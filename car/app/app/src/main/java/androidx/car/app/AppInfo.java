@@ -155,4 +155,11 @@ public final class AppInfo {
     public int getLatestCarAppApiLevel() {
         return mLatestCarAppApiLevel;
     }
+
+    @Override
+    public String toString() {
+        return "Library version: [" + getLibraryDisplayVersion() + "] Min Car Api Level: ["
+                + getMinCarAppApiLevel() + "] Latest Car App Api Level: ["
+                + getLatestCarAppApiLevel() + "]";
+    }
 }
