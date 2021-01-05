@@ -17,18 +17,17 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XAnnotated
-import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.METHOD_PARAMETER
 import com.google.devtools.ksp.symbol.KSValueParameter
 
 internal class KspExecutableParameterElement(
-    val env: KspProcessingEnv,
+    env: KspProcessingEnv,
     val method: KspExecutableElement,
     val parameter: KSValueParameter
-) : XExecutableParameterElement,
-    XEquality,
+) : KspElement(env, parameter),
+    XExecutableParameterElement,
     XAnnotated by KspAnnotated.create(env, parameter, METHOD_PARAMETER) {
 
     override val equalityItems: Array<out Any?>
@@ -69,13 +68,5 @@ internal class KspExecutableParameterElement(
 
     override fun kindName(): String {
         return "function parameter"
-    }
-
-    override fun equals(other: Any?): Boolean {
-        return XEquality.equals(this, other)
-    }
-
-    override fun hashCode(): Int {
-        return XEquality.hashCode(equalityItems)
     }
 }
