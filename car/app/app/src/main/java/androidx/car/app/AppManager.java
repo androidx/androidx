@@ -135,9 +135,11 @@ public class AppManager {
                                 templateWrapper = getCarContext().getCarService(
                                         ScreenManager.class).getTopTemplate();
                             } catch (RuntimeException e) {
+                                // Catch exceptions, notify the host of it, then rethrow it.
+                                // This allows the host to log, and show an error to the user.
                                 RemoteUtils.sendFailureResponse(callback,
                                         "getTemplate", e);
-                                throw new WrappedRuntimeException(e);
+                                throw new RuntimeException(e);
                             }
 
                             RemoteUtils.sendSuccessResponse(callback, "getTemplate",

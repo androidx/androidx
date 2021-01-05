@@ -32,7 +32,6 @@ import android.os.RemoteException;
 
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
-import androidx.car.app.WrappedRuntimeException;
 import androidx.car.app.model.ItemList.OnItemVisibilityChangedListener;
 import androidx.car.app.model.ItemList.OnSelectedListener;
 
@@ -198,7 +197,7 @@ public class ItemListTest {
         try {
             list.getOnItemsVisibilityChangedListener().onItemVisibilityChanged(0, 1,
                     onDoneCallback);
-        } catch (WrappedRuntimeException e) {
+        } catch (RuntimeException e) {
             assertThat(e.getMessage()).contains(testExceptionMessage);
         }
 
