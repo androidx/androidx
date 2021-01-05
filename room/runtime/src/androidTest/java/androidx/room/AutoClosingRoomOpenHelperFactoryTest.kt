@@ -45,6 +45,7 @@ public class AutoClosingRoomOpenHelperFactoryTest {
         return AutoClosingRoomOpenHelperFactory(
             delegateOpenHelperFactory,
             AutoCloser(timeoutMillis, TimeUnit.MILLISECONDS, Executors.newSingleThreadExecutor())
+                .also { it.mOnAutoCloseCallback = Runnable {} }
         )
     }
 

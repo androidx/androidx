@@ -54,6 +54,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -98,6 +99,9 @@ public abstract class RoomDatabase {
     protected List<Callback> mCallbacks;
 
     private final ReentrantReadWriteLock mCloseLock = new ReentrantReadWriteLock();
+
+    @Nullable
+    private AutoCloser mAutoCloser;
 
     /**
      * {@link InvalidationTracker} uses this lock to prevent the database from closing while it is
@@ -186,6 +190,15 @@ public abstract class RoomDatabase {
         if (copyOpenHelper != null) {
             copyOpenHelper.setDatabaseConfiguration(configuration);
         }
+
+        AutoClosingRoomOpenHelper autoClosingRoomOpenHelper =
+                unwrapOpenHelper(AutoClosingRoomOpenHelper.class, mOpenHelper);
+
+        if (autoClosingRoomOpenHelper != null) {
+            mAutoCloser = autoClosingRoomOpenHelper.getAutoCloser();
+            mInvalidationTracker.setAutoCloser(mAutoCloser);
+        }
+
 
         boolean wal = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -447,6 +460,18 @@ public abstract class RoomDatabase {
     @Deprecated
     public void beginTransaction() {
         assertNotMainThread();
+        if (mAutoCloser == null) {
+            internalBeginTransaction();
+        } else {
+            mAutoCloser.executeRefCountingFunction(db -> {
+                internalBeginTransaction();
+                return null;
+            });
+        }
+    }
+
+    private void internalBeginTransaction() {
+        assertNotMainThread();
         SupportSQLiteDatabase database = mOpenHelper.getWritableDatabase();
         mInvalidationTracker.syncTriggers(database);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
@@ -464,6 +489,17 @@ public abstract class RoomDatabase {
      */
     @Deprecated
     public void endTransaction() {
+        if (mAutoCloser == null) {
+            internalEndTransaction();
+        } else {
+            mAutoCloser.executeRefCountingFunction(db -> {
+                internalEndTransaction();
+                return null;
+            });
+        }
+    }
+
+    private void internalEndTransaction() {
         mOpenHelper.getWritableDatabase().endTransaction();
         if (!inTransaction()) {
             // enqueue refresh only if we are NOT in a transaction. Otherwise, wait for the last
@@ -658,6 +694,10 @@ public abstract class RoomDatabase {
         private boolean mMultiInstanceInvalidation;
         private boolean mRequireMigration;
         private boolean mAllowDestructiveMigrationOnDowngrade;
+
+        private long mAutoCloseTimeout = -1L;
+        private TimeUnit mAutoCloseTimeUnit;
+
         /**
          * Migrations, mapped by from-to pairs.
          */
@@ -1155,6 +1195,44 @@ public abstract class RoomDatabase {
         }
 
         /**
+         * Enables auto-closing for the database to free up unused resources. The underlying
+         * database will be closed after it's last use after the specified {@code
+         * autoCloseTimeout} has elapsed since its last usage. The database will be automatically
+         * re-opened the next time it is accessed.
+         * <p>
+         * Auto-closing is not compatible with in-memory databases since the data will be lost
+         * when the database is auto-closed.
+         * <p>
+         * Also, temp tables and temp triggers will be cleared each time the database is
+         * auto-closed. If you need to use them, please include them in your
+         * {@link RoomDatabase.Callback.OnOpen callback}.
+         * <p>
+         * All configuration should happen in your {@link RoomDatabase.Callback.onOpen}
+         * callback so it is re-applied every time the database is re-opened. Note that the
+         * {@link RoomDatabase.Callback.onOpen} will be called every time the database is re-opened.
+         * <p>
+         * The auto-closing database operation runs on the query executor.
+         *
+         * @param autoCloseTimeout  the amount of time after the last usage before closing the
+         *                          database
+         * @param autoCloseTimeUnit the timeunit for autoCloseTimeout.
+         * @return This {@link Builder} instance
+         *
+         * @hide until it's ready for use
+         */
+        @NonNull
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public Builder<T> setAutoCloseTimeout(long autoCloseTimeout,
+                @NonNull TimeUnit autoCloseTimeUnit) {
+            if (autoCloseTimeout < 0) {
+                throw new IllegalArgumentException("autoCloseTimeout must be >= 0");
+            }
+            mAutoCloseTimeout = autoCloseTimeout;
+            mAutoCloseTimeUnit = autoCloseTimeUnit;
+            return this;
+        }
+
+        /**
          * Creates the databases and initializes it.
          * <p>
          * By default, all RoomDatabases use in memory storage for TEMP tables and enables recursive
@@ -1198,10 +1276,24 @@ public abstract class RoomDatabase {
 
             SupportSQLiteOpenHelper.Factory factory;
 
+            AutoCloser autoCloser = null;
+
             if (mFactory == null) {
                 factory = new FrameworkSQLiteOpenHelperFactory();
             } else {
                 factory = mFactory;
+            }
+
+            if (mAutoCloseTimeout > 0) {
+                if (mName == null) {
+                    throw new IllegalArgumentException("Cannot create auto-closing database for "
+                            + "an in-memory database.");
+                }
+
+                autoCloser = new AutoCloser(mAutoCloseTimeout, mAutoCloseTimeUnit,
+                        mTransactionExecutor);
+
+                factory = new AutoClosingRoomOpenHelperFactory(factory, autoCloser);
             }
 
             if (mCopyFromAssetPath != null

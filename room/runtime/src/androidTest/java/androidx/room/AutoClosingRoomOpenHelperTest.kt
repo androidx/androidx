@@ -69,7 +69,10 @@ public class AutoClosingRoomOpenHelperTest {
 
         return AutoClosingRoomOpenHelper(
             delegateOpenHelper,
-            AutoCloser(timeoutMillis, TimeUnit.MILLISECONDS, autoCloseExecutor)
+            AutoCloser(timeoutMillis, TimeUnit.MILLISECONDS, autoCloseExecutor).apply {
+                init(delegateOpenHelper)
+                setAutoCloseCallback { }
+            }
         )
     }
 
