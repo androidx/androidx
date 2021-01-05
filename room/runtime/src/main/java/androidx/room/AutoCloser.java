@@ -78,6 +78,8 @@ final class AutoCloser {
     @Nullable
     SupportSQLiteDatabase mDelegateDatabase;
 
+    private boolean mManuallyClosed = false;
+
     private final Runnable mExecuteAutoCloser = new Runnable() {
         @Override
         public void run() {
@@ -115,7 +117,7 @@ final class AutoCloser {
                             + ".com/issues/new?component=413107&template=1096568");
                 }
 
-                if (mDelegateDatabase != null) {
+                if (mDelegateDatabase != null && mDelegateDatabase.isOpen()) {
                     try {
                         mDelegateDatabase.close();
                     } catch (IOException e) {
@@ -196,11 +198,12 @@ final class AutoCloser {
 
             mRefCount++;
 
+            if (mManuallyClosed) {
+                throw new IllegalStateException("Attempting to open already closed database.");
+            }
+
             if (mDelegateDatabase != null && mDelegateDatabase.isOpen()) {
                 return mDelegateDatabase;
-            } else if (mDelegateDatabase != null) {
-                // This shouldn't happen
-                throw new IllegalStateException("mDelegateDatabase is closed but non-null");
             }
 
             // Get the database while holding `mLock` so no other threads try to create it or
@@ -255,6 +258,33 @@ final class AutoCloser {
         synchronized (mLock) {
             return mDelegateDatabase;
         }
+    }
+
+    /**
+     * Close the database if it is still active.
+     *
+     * @throws IOException if an exception is encountered when closing the underlying db.
+     */
+    public void closeDatabaseIfOpen() throws IOException {
+        synchronized (mLock) {
+            mManuallyClosed = true;
+
+            if (mDelegateDatabase != null) {
+                mDelegateDatabase.close();
+            }
+            mDelegateDatabase = null;
+        }
+    }
+
+    /**
+     * The auto closer is still active if the database has not been closed. This means that
+     * whether or not the underlying database is closed, when active we will re-open it on the
+     * next access.
+     *
+     * @return a boolean indicating whether the auto closer is still active
+     */
+    public boolean isActive() {
+        return !mManuallyClosed;
     }
 
     /**

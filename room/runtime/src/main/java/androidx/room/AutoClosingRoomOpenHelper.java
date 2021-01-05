@@ -35,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.arch.core.util.Function;
+import androidx.room.util.SneakyThrow;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.SupportSQLiteQuery;
@@ -100,7 +101,11 @@ final class AutoClosingRoomOpenHelper implements SupportSQLiteOpenHelper, Delega
 
     @Override
     public void close() {
-        mAutoClosingDb.close();
+        try {
+            mAutoClosingDb.close();
+        } catch (IOException e) {
+            SneakyThrow.reThrow(e);
+        }
     }
 
     /**
@@ -483,12 +488,8 @@ final class AutoClosingRoomOpenHelper implements SupportSQLiteOpenHelper, Delega
         }
 
         @Override
-        public void close() {
-            //TODO: I might want to handle a manual close call here differently because as it is
-            // implemented right now, if someone calls close() then calls another method here,
-            // it'll automatically reopen the db, which may not be expected. However, having a
-            // single instance here makes this simpler.
-            throw new IllegalStateException("can't be manually closed yet");
+        public void close() throws IOException {
+            mAutoCloser.closeDatabaseIfOpen();
         }
     }
 

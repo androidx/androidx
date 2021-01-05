@@ -187,4 +187,23 @@ public class AutoCloserTest {
         Thread.sleep(5)
         countingTaskExecutorRule.drainTasks(10, TimeUnit.MILLISECONDS)
     }
+
+    @Test
+    public fun testDbCanBeManuallyClosed() {
+        val db = autoCloser.incrementCountAndEnsureDbIsOpen()
+
+        assertThat(db.isOpen).isTrue()
+
+        autoCloser.closeDatabaseIfOpen() // Should succeed...
+
+        assertThat(db.isOpen).isFalse()
+
+        assertThrows<IllegalStateException> { db.execSQL("select * from users") }
+
+        autoCloser.decrementCountAndScheduleClose() // Should succeed
+
+        assertThrows<IllegalStateException> {
+            autoCloser.incrementCountAndEnsureDbIsOpen()
+        }
+    }
 }
