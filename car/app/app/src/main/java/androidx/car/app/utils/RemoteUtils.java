@@ -34,7 +34,6 @@ import androidx.car.app.ISurfaceCallback;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.SurfaceContainer;
-import androidx.car.app.WrappedRuntimeException;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 
@@ -150,8 +149,6 @@ public final class RemoteUtils {
      *
      * <p>If the app throws an exception, will call {@link IOnDoneCallback#onFailure} with a {@link
      * FailureResponse} including information from the caught exception.
-     *
-     * @throws WrappedRuntimeException wrapping any exception that the client throws.
      */
     // TODO(rampara): Change method signature to change parameter order.
     @SuppressLint("LambdaLast")
@@ -167,7 +164,7 @@ public final class RemoteUtils {
                         throw new HostException("Serialization failure in " + callName, e);
                     } catch (RuntimeException e) {
                         sendFailureResponse(callback, callName, e);
-                        throw new WrappedRuntimeException(e);
+                        throw new RuntimeException(e);
                     }
                     sendSuccessResponse(callback, callName, null);
                 });

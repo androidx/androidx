@@ -28,7 +28,6 @@ import android.os.RemoteException;
 
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.TestUtils;
-import androidx.car.app.WrappedRuntimeException;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -183,7 +182,7 @@ public class SearchTemplateTest {
 
         try {
             searchTemplate.getSearchCallback().onSearchSubmitted(searchText, onDoneCallback);
-        } catch (WrappedRuntimeException e) {
+        } catch (RuntimeException e) {
             assertThat(e.getMessage()).contains(testExceptionMessage);
         }
 
