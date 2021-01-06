@@ -37,8 +37,8 @@ import java.util.concurrent.RejectedExecutionException;
  * A registry that tracks the state of cameras.
  *
  * <p>The registry tracks internally how many cameras are open and how many are available to open.
- * Cameras that are in a PENDING_OPEN can be be notified when there is a slot available to
- * open a camera.
+ * Cameras that are in a {@link CameraInternal.State#PENDING_OPEN} state can be notified when
+ * there is a slot available to open a camera.
  */
 public final class CameraStateRegistry {
     private static final String TAG = "CameraStateRegistry";
@@ -56,7 +56,7 @@ public final class CameraStateRegistry {
     /**
      * Creates a new registry with a limit of {@code maxAllowedOpenCameras} allowed to be opened.
      *
-     * @param maxAllowedOpenedCameras The limit of number of simultaneous open cameras.
+     * @param maxAllowedOpenedCameras The limit for number of simultaneous open cameras.
      */
     public CameraStateRegistry(int maxAllowedOpenedCameras) {
         mMaxAllowedOpenedCameras = maxAllowedOpenedCameras;
@@ -74,7 +74,7 @@ public final class CameraStateRegistry {
      * <p>Before attempting to open a camera, {@link #tryOpenCamera(Camera)} must be called and
      * callers should only continue to open the camera if it returns {@code true}.
      *
-     * <p>Cameras will be automatically unregistered when the are marked as being in a
+     * <p>Cameras will be automatically unregistered when they are marked as being in a
      * {@link CameraInternal.State#RELEASED} state.
      *
      * @param camera The camera to register.
@@ -203,14 +203,14 @@ public final class CameraStateRegistry {
             @NonNull CameraInternal.State state) {
         CameraInternal.State previousState = Preconditions.checkNotNull(mCameraStates.get(camera),
                 "Cannot update state of camera which has not yet been registered. Register with "
-                        + "CameraAvailabilityRegistry.registerCamera()").setState(state);
+                        + "CameraStateRegistry.registerCamera()").setState(state);
 
         if (state == CameraInternal.State.OPENING) {
             // A camera should only enter an OPENING state if it is already in an open state or
-            // it has been allowed to by tryOpen().
+            // it has been allowed to by tryOpenCamera().
             Preconditions.checkState(isOpen(state) || previousState == CameraInternal.State.OPENING,
                     "Cannot mark camera as opening until camera was successful at calling "
-                            + "CameraAvailabilityRegistry.tryOpen()");
+                            + "CameraStateRegistry.tryOpenCamera()");
         }
 
         // Only update the available camera count if the camera state has changed.
@@ -235,9 +235,9 @@ public final class CameraStateRegistry {
             mDebugString.append(
                     "-------------------------------------------------------------------\n");
         }
-        // Count the number of cameras that are not in a closed state state. Closed states are
+        // Count the number of cameras that are not in a closed state. Closed states are
         // considered to be CLOSED, PENDING_OPEN or OPENING, since we can't guarantee a camera
-        // has actually be open in these states. All cameras that are in a CLOSING or RELEASING
+        // has actually been open in these states. All cameras that are in a CLOSING or RELEASING
         // state may have previously been open, so we will count them as open.
         int openCount = 0;
         for (Map.Entry<Camera, CameraRegistration> entry : mCameraStates.entrySet()) {
