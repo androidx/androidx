@@ -139,6 +139,7 @@ public final class SetSchemaRequest {
             return this;
         }
 
+// @exportToFramework:startStrip()
         /**
          * Adds one or more types to the schema.
          *
@@ -181,6 +182,7 @@ public final class SetSchemaRequest {
             }
             return addSchema(schemas);
         }
+// @exportToFramework:endStrip()
 
         /**
          * Sets visibility on system UI surfaces for the given {@code schemaType}.
@@ -243,6 +245,7 @@ public final class SetSchemaRequest {
             return this;
         }
 
+// @exportToFramework:startStrip()
         /**
          * Sets visibility on system UI surfaces for the given {@code dataClass}.
          *
@@ -287,6 +290,7 @@ public final class SetSchemaRequest {
             return setSchemaTypeVisibilityForPackage(factory.getSchemaType(), visible,
                     packageIdentifier);
         }
+// @exportToFramework:endStrip()
 
         /**
          * Configures the {@link SetSchemaRequest} to delete any existing documents that don't
