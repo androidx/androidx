@@ -300,8 +300,8 @@ class WindowInsetsControllerPlayground : Activity() {
 
             override fun onStart(
                 animation: WindowInsetsAnimationCompat,
-                bounds: WindowInsetsAnimationCompat.Bounds
-            ): WindowInsetsAnimationCompat.Bounds {
+                bounds: WindowInsetsAnimationCompat.BoundsCompat
+            ): WindowInsetsAnimationCompat.BoundsCompat {
                 mTransitions.forEach { obj -> obj.onStart() }
                 return bounds
             }

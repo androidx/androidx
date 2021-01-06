@@ -65,11 +65,11 @@ public final class WindowInsetsAnimationControllerCompat {
      * to {@link View#getRootView}
      * <p>
      * If there are any animation listeners registered, this value is the same as
-     * {@link WindowInsetsAnimationCompat.Bounds#getLowerBound()} that is being be passed into the
-     * root view of the hierarchy.
+     * {@link WindowInsetsAnimationCompat.BoundsCompat#getLowerBound()} that is being be passed
+     * into the root view of the hierarchy.
      *
      * @return Insets when the windows this animation is controlling are fully hidden.
-     * @see WindowInsetsAnimationCompat.Bounds#getLowerBound()
+     * @see WindowInsetsAnimationCompat.BoundsCompat#getLowerBound()
      */
     @NonNull
     public Insets getHiddenStateInsets() {
@@ -84,11 +84,11 @@ public final class WindowInsetsAnimationControllerCompat {
      * to {@link View#getRootView}
      * <p>
      * If there are any animation listeners registered, this value is the same as
-     * {@link WindowInsetsAnimationCompat.Bounds#getUpperBound()} that is being passed into the root
-     * view of hierarchy.
+     * {@link WindowInsetsAnimationCompat.BoundsCompat#getUpperBound()} that is being passed
+     * into the root view of hierarchy.
      *
      * @return Insets when the windows this animation is controlling are fully shown.
-     * @see WindowInsetsAnimationCompat.Bounds#getUpperBound()
+     * @see WindowInsetsAnimationCompat.BoundsCompat#getUpperBound()
      */
     @NonNull
     public Insets getShownStateInsets() {

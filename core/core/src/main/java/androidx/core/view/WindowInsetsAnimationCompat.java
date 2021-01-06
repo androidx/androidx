@@ -209,18 +209,18 @@ public final class WindowInsetsAnimationCompat {
     /**
      * Class representing the range of an {@link WindowInsetsAnimationCompat}
      */
-    public static final class Bounds {
+    public static final class BoundsCompat {
 
         private final Insets mLowerBound;
         private final Insets mUpperBound;
 
-        public Bounds(@NonNull Insets lowerBound, @NonNull Insets upperBound) {
+        public BoundsCompat(@NonNull Insets lowerBound, @NonNull Insets upperBound) {
             mLowerBound = lowerBound;
             mUpperBound = upperBound;
         }
 
         @RequiresApi(30)
-        public Bounds(@NonNull WindowInsetsAnimation.Bounds bounds) {
+        private BoundsCompat(@NonNull WindowInsetsAnimation.Bounds bounds) {
             mLowerBound = Impl30.getLowerBounds(bounds);
             mUpperBound = Impl30.getHigherBounds(bounds);
         }
@@ -285,8 +285,8 @@ public final class WindowInsetsAnimationCompat {
          * @see WindowInsetsAnimationCompat.Callback#onStart
          */
         @NonNull
-        public Bounds inset(@NonNull Insets insets) {
-            return new Bounds(
+        public BoundsCompat inset(@NonNull Insets insets) {
+            return new BoundsCompat(
                     // TODO: refactor so that WindowInsets.insetInsets() is in a more appropriate
                     //  place eventually.
                     WindowInsetsCompat.insetInsets(
@@ -305,8 +305,18 @@ public final class WindowInsetsAnimationCompat {
          */
         @RequiresApi(30)
         @NonNull
-        public WindowInsetsAnimation.Bounds toPlatformBounds() {
+        public WindowInsetsAnimation.Bounds toBounds() {
             return Impl30.createPlatformBounds(this);
+        }
+
+        /**
+         * Create a new insance of {@link BoundsCompat} using the provided
+         * platform {@link android.view.WindowInsetsAnimation.Bounds}.
+         */
+        @RequiresApi(30)
+        @NonNull
+        public static BoundsCompat toBoundsCompat(@NonNull WindowInsetsAnimation.Bounds bounds) {
+            return new BoundsCompat(bounds);
         }
     }
 
@@ -456,7 +466,7 @@ public final class WindowInsetsAnimationCompat {
          * hierarchical: It will starts at the root of the view hierarchy and then traverse it
          * and invoke the callback of the specific {@link View} that is being traversed. The
          * method may return a modified instance of the bounds by calling
-         * {@link WindowInsetsAnimationCompat.Bounds#inset} to indicate that a part of the insets
+         * {@link BoundsCompat#inset} to indicate that a part of the insets
          * have been used to offset or clip its children, and the children shouldn't worry about
          * that part anymore. Furthermore, if {@link #getDispatchMode()} returns
          * {@link #DISPATCH_MODE_STOP}, children of this view will not receive the callback anymore.
@@ -468,9 +478,9 @@ public final class WindowInsetsAnimationCompat {
          * the subtree of the hierarchy.
          */
         @NonNull
-        public WindowInsetsAnimationCompat.Bounds onStart(
+        public BoundsCompat onStart(
                 @NonNull WindowInsetsAnimationCompat animation,
-                @NonNull WindowInsetsAnimationCompat.Bounds bounds) {
+                @NonNull BoundsCompat bounds) {
             return bounds;
         }
 
@@ -607,7 +617,7 @@ public final class WindowInsetsAnimationCompat {
         }
 
         @NonNull
-        static Bounds computeAnimationBounds(
+        static BoundsCompat computeAnimationBounds(
                 @NonNull WindowInsetsCompat targetInsets,
                 @NonNull WindowInsetsCompat startingInsets, int mask) {
             Insets targetInsetsInsets = targetInsets.getInsets(mask);
@@ -624,7 +634,7 @@ public final class WindowInsetsAnimationCompat {
                     Math.max(targetInsetsInsets.right, startingInsetsInsets.right),
                     Math.max(targetInsetsInsets.bottom, startingInsetsInsets.bottom)
             );
-            return new Bounds(lowerBound, upperBound);
+            return new BoundsCompat(lowerBound, upperBound);
         }
 
         @SuppressLint("WrongConstant") // We iterate over all the constants.
@@ -715,7 +725,7 @@ public final class WindowInsetsAnimationCompat {
                         anim.getDurationMillis());
 
                 // Compute the bounds of the animation
-                final Bounds animationBounds = computeAnimationBounds(targetInsets,
+                final BoundsCompat animationBounds = computeAnimationBounds(targetInsets,
                         startingInsets, animationMask
                 );
 
@@ -855,8 +865,7 @@ public final class WindowInsetsAnimationCompat {
                     @NonNull WindowInsetsAnimation.Bounds bounds) {
                 return mCompat.onStart(
                         getWindowInsetsAnimationCompat(animation),
-                        new Bounds(bounds))
-                        .toPlatformBounds();
+                        BoundsCompat.toBoundsCompat(bounds)).toBounds();
             }
 
             @NonNull
@@ -896,7 +905,8 @@ public final class WindowInsetsAnimationCompat {
         }
 
         @NonNull
-        public static WindowInsetsAnimation.Bounds createPlatformBounds(@NonNull Bounds bounds) {
+        public static WindowInsetsAnimation.Bounds createPlatformBounds(
+                @NonNull BoundsCompat bounds) {
             return new WindowInsetsAnimation.Bounds(bounds.getLowerBound().toPlatformInsets(),
                     bounds.getUpperBound().toPlatformInsets());
         }
