@@ -89,6 +89,61 @@ class PageFetcherTest {
     }
 
     @Test
+    fun refresh_sourceEndOfPaginationReached() = testScope.runBlockingTest {
+        @OptIn(ExperimentalPagingApi::class)
+        val pageFetcher = PageFetcher(
+            pagingSourceFactory = { TestPagingSource(items = emptyList()) },
+            initialKey = 0,
+            config = config,
+        )
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+
+        assertEquals(1, fetcherState.pagingDataList.size)
+        assertTrue { fetcherState.pageEventLists[0].isNotEmpty() }
+
+        pageFetcher.refresh()
+        advanceUntilIdle()
+
+        assertEquals(2, fetcherState.pagingDataList.size)
+        assertTrue { fetcherState.pageEventLists[1].isNotEmpty() }
+        fetcherState.job.cancel()
+    }
+
+    @Test
+    fun refresh_remoteEndOfPaginationReached() = testScope.runBlockingTest {
+        @OptIn(ExperimentalPagingApi::class)
+        val remoteMediator = RemoteMediatorMock().apply {
+            initializeResult = LAUNCH_INITIAL_REFRESH
+            loadCallback = { _, _ ->
+                RemoteMediator.MediatorResult.Success(endOfPaginationReached = true)
+            }
+        }
+        val pageFetcher = PageFetcher(
+            pagingSourceFactory = { TestPagingSource(items = emptyList()) },
+            initialKey = 0,
+            config = config,
+            remoteMediator = remoteMediator
+        )
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+
+        assertEquals(1, fetcherState.pagingDataList.size)
+        assertTrue { fetcherState.pageEventLists[0].isNotEmpty() }
+        assertEquals(1, remoteMediator.loadEvents.size)
+
+        pageFetcher.refresh()
+        advanceUntilIdle()
+
+        assertEquals(2, fetcherState.pagingDataList.size)
+        assertTrue { fetcherState.pageEventLists[1].isNotEmpty() }
+        assertEquals(2, remoteMediator.loadEvents.size)
+        fetcherState.job.cancel()
+    }
+
+    @Test
     fun refresh_fromPagingSource() = testScope.runBlockingTest {
         var pagingSource: PagingSource<Int, Int>? = null
         val pagingSourceFactory = suspend {

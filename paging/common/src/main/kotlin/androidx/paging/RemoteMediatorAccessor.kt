@@ -44,6 +44,7 @@ internal interface RemoteMediatorConnection<Key : Any, Value : Any> {
 internal interface RemoteMediatorAccessor<Key : Any, Value : Any> :
     RemoteMediatorConnection<Key, Value> {
     val state: StateFlow<LoadStates>
+
     suspend fun initialize(): RemoteMediator.InitializeAction
 }
 
@@ -138,7 +139,11 @@ private class AccessorState<Key : Any, Value : Any>() {
             return false
         }
         val blockState = blockStates[loadType.ordinal]
-        if (blockState != UNBLOCKED) {
+        // Ignore block state for REFRESH as it is only sent in cases where we want to clear all
+        // AccessorState, but we cannot simply generate a new one for an existing PageFetcher as
+        // we need to cancel in-flight requests and prevent races between clearing state and
+        // triggering remote REFRESH by clearing state as part of handling the load request.
+        if (blockState != UNBLOCKED && loadType != LoadType.REFRESH) {
             return false
         }
         if (loadType == LoadType.REFRESH) {

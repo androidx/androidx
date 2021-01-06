@@ -94,7 +94,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
                 previousGeneration?.snapshot?.close()
 
                 GenerationInfo(
-                    snapshot = PageFetcherSnapshot<Key, Value>(
+                    snapshot = PageFetcherSnapshot(
                         initialKey = initialKey,
                         pagingSource = pagingSource,
                         config = config,
@@ -112,7 +112,6 @@ internal class PageFetcher<Key : Any, Value : Any>(
             .mapLatest { generation ->
                 val downstreamFlow = generation.snapshot
                     .injectRemoteEvents(remoteMediatorAccessor)
-                // .mapRemoteCompleteAsTrailingInsertForSeparators()
 
                 PagingData(
                     flow = downstreamFlow,
