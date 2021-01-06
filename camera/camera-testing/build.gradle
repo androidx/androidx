@@ -63,10 +63,6 @@ android {
 
     externalNativeBuild {
         cmake {
-            // AGP doesn't allow us to use project.buildDir (or subdirs) for CMake's generated
-            // build files (ninja build files, CMakeCache.txt, etc.). Use a staging directory that
-            // lives alongside the project's buildDir.
-            buildStagingDirectory "${project.buildDir}/../nativeBuildStaging"
             path "src/main/cpp/CMakeLists.txt"
             version "3.10.2"
         }
