@@ -242,13 +242,14 @@ package androidx.wear.watchface {
   }
 
   public final class WatchState {
-    ctor public WatchState(androidx.wear.watchface.ObservableWatchData<java.lang.Integer> interruptionFilter, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isBatteryLowAndNotCharging, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible, boolean hasLowBitAmbient, boolean hasBurnInProtection, long analogPreviewReferenceTimeMillis, long digitalPreviewReferenceTimeMillis);
+    ctor public WatchState(androidx.wear.watchface.ObservableWatchData<java.lang.Integer> interruptionFilter, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isBatteryLowAndNotCharging, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible, boolean hasLowBitAmbient, boolean hasBurnInProtection, long analogPreviewReferenceTimeMillis, long digitalPreviewReferenceTimeMillis, boolean isHeadless);
     method public long getAnalogPreviewReferenceTimeMillis();
     method public long getDigitalPreviewReferenceTimeMillis();
     method public androidx.wear.watchface.ObservableWatchData<java.lang.Integer> getInterruptionFilter();
     method public boolean hasBurnInProtection();
     method public boolean hasLowBitAmbient();
     method public androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient();
+    method public boolean isHeadless();
     method public androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible();
     property public final long analogPreviewReferenceTimeMillis;
     property public final long digitalPreviewReferenceTimeMillis;
@@ -256,6 +257,7 @@ package androidx.wear.watchface {
     property public final boolean hasLowBitAmbient;
     property public final androidx.wear.watchface.ObservableWatchData<java.lang.Integer> interruptionFilter;
     property public final androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient;
+    property public final boolean isHeadless;
     property public final androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible;
   }
 
