@@ -132,7 +132,12 @@ private fun <R> Any.readAs(returnType: Class<R>): R? {
                     }
                 }
                 is Array<*> -> mapNotNull { it?.readAs(returnType.componentType) }
-                else -> error("unexpected type for array: $this / ${this::class.java}")
+                else -> {
+                    // If array syntax is not used in java code, KSP might return it as a single
+                    // item instead of list or array
+                    // see: https://github.com/google/ksp/issues/214
+                    listOf(this.readAs(returnType.componentType))
+                }
             }
             val resultArray = java.lang.reflect.Array.newInstance(
                 returnType.componentType,
