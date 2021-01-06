@@ -16,14 +16,20 @@
 
 package androidx.car.app.utils;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 /**
  * Utility functions to handle running functions on the main thread.
+ *
+ * @hide
  */
+@RestrictTo(LIBRARY)
 public class ThreadUtils {
     private static final Handler HANDLER = new Handler(Looper.getMainLooper());
 
