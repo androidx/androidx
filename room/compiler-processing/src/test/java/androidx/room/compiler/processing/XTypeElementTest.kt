@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.room.compiler.processing.ksp
+package androidx.room.compiler.processing
 
-import androidx.room.compiler.processing.XMethodElement
-import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.getAllFieldNames
@@ -36,7 +34,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class KspTypeElementTest {
+class XTypeElementTest {
     @Test
     fun qualifiedNames() {
         val src1 = Source.kotlin(
@@ -164,7 +162,7 @@ class KspTypeElementTest {
 
     @Test
     fun modifiers() {
-        val src = Source.kotlin(
+        val kotlinSrc = Source.kotlin(
             "Foo.kt",
             """
             open class OpenClass
@@ -173,9 +171,24 @@ class KspTypeElementTest {
             interface MyInterface
             class Final
             private class PrivateClass
+            class OuterKotlinClass {
+                inner class InnerKotlinClass
+                class NestedKotlinClass
+            }
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        val javaSrc = Source.java(
+            "OuterJavaClass",
+            """
+            public class OuterJavaClass {
+                public class InnerJavaClass {}
+                public static class NestedJavaClass {}
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(kotlinSrc, javaSrc)
+        ) { invocation ->
             fun getModifiers(element: XTypeElement): Set<String> {
                 val result = mutableSetOf<String>()
                 if (element.isAbstract()) result.add("abstract")
@@ -185,6 +198,7 @@ class KspTypeElementTest {
                 if (element.isPublic()) result.add("public")
                 if (element.isKotlinObject()) result.add("object")
                 if (element.isInterface()) result.add("interface")
+                if (element.isStatic()) result.add("static")
                 return result
             }
 
@@ -212,6 +226,14 @@ class KspTypeElementTest {
                         listOf("final")
                     }
                 )
+            assertThat(getModifiers("OuterKotlinClass.InnerKotlinClass"))
+                .containsExactly("final", "public")
+            assertThat(getModifiers("OuterKotlinClass.NestedKotlinClass"))
+                .containsExactly("final", "public", "static")
+            assertThat(getModifiers("OuterJavaClass.InnerJavaClass"))
+                .containsExactly("public")
+            assertThat(getModifiers("OuterJavaClass.NestedJavaClass"))
+                .containsExactly("public", "static")
         }
     }
 
