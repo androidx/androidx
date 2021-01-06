@@ -52,7 +52,7 @@ buildscript {
     }
 
     ext.repos = [:]
-    apply from: '../buildSrc/build_dependencies.gradle'
+    apply from: "$supportRootFolder/buildSrc/build_dependencies.gradle"
 
     dependencies {
         classpath build_libs.agp
@@ -62,8 +62,8 @@ buildscript {
     }
 }
 
-apply from: "../buildSrc/dependencies.gradle"
-apply from: "../playground-common/out.gradle"
+apply from: "$supportRootFolder/buildSrc/dependencies.gradle"
+apply from: "$supportRootFolder/playground-common/out.gradle"
 init.chooseOutDir("/${rootProject.name}")
 
 apply plugin: AndroidXRootPlugin
