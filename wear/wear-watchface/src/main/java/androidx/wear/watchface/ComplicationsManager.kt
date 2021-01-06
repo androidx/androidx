@@ -399,9 +399,7 @@ public class ComplicationsManager(
                 watchFaceHostApi.getContext(),
                 getComponentName(watchFaceHostApi.getContext()),
                 complicationId,
-                IntArray(complication.supportedTypes.size) {
-                    complication.supportedTypes[it].asWireComplicationType()
-                }
+                complication.supportedTypes
             ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         )
         for (complicationListener in complicationListeners) {

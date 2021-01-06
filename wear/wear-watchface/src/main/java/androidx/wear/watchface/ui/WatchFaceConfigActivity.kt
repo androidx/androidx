@@ -58,7 +58,7 @@ internal interface FragmentController {
     /** Lets the user configure the complication provider for a single complication slot. */
     fun showComplicationConfig(
         complicationId: Int,
-        vararg supportedComplicationDataTypes: Int
+        supportedComplicationDataTypes: Collection<ComplicationType>
     )
 }
 
@@ -153,7 +153,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 @SuppressWarnings("deprecation")
                 override fun showComplicationConfig(
                     complicationId: Int,
-                    vararg supportedComplicationDataTypes: Int
+                    supportedComplicationDataTypes: Collection<ComplicationType>
                 ) {
                     startActivityForResult(
                         ComplicationHelperActivity.createProviderChooserHelperIntent(
@@ -242,7 +242,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 val onlyComplication = watchFaceConfigDelegate.getComplicationsMap().values.first()
                 fragmentController.showComplicationConfig(
                     onlyComplication.id,
-                    *ComplicationType.toWireTypes(onlyComplication.supportedTypes)
+                    onlyComplication.supportedTypes
                 )
             }
 
