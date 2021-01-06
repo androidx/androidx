@@ -87,18 +87,24 @@ public class SliceBroadcastReceiver extends BroadcastReceiver {
             case SampleSliceProvider.ACTION_TOAST_DATE_VALUE:
                 long dateMillis = i.getExtras().getLong(EXTRA_RANGE_VALUE, 0);
                 DATE_MILLIS_VALUE = dateMillis;
-                Toast.makeText(context, "value: " + new Date(dateMillis),
+                Toast.makeText(context, "datevalue: " + new Date(dateMillis),
                         Toast.LENGTH_SHORT).show();
                 context.getContentResolver().notifyChange(getUri("picker",
+                        context),
+                        null);
+                context.getContentResolver().notifyChange(getUri("singlepicker",
                         context),
                         null);
                 break;
             case SampleSliceProvider.ACTION_TOAST_TIME_VALUE:
                 long timeMillis = i.getExtras().getLong(EXTRA_RANGE_VALUE, 0);
                 TIME_MILLIS_VALUE = timeMillis;
-                Toast.makeText(context, "value: " + new Date(timeMillis),
+                Toast.makeText(context, "timevalue: " + new Date(timeMillis),
                         Toast.LENGTH_SHORT).show();
                 context.getContentResolver().notifyChange(getUri("picker",
+                        context),
+                        null);
+                context.getContentResolver().notifyChange(getUri("singlepicker",
                         context),
                         null);
                 break;
