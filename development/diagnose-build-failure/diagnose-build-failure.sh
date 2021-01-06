@@ -231,7 +231,7 @@ echo
 echo "Binary-searching the contents of the two output directories until the relevant differences are identified."
 echo "This may take a while."
 echo
-filtererCommand="$(getBuildCommand \"$scriptPath/impl/restore-state.sh . $workingDir && cd $workingDir && ./gradlew --no-daemon $gradleArgs\")"
+filtererCommand="$(getBuildCommand "$scriptPath/impl/restore-state.sh . $workingDir && cd $workingDir && ./gradlew --no-daemon $gradleArgs")"
 if $supportRoot/development/file-utils/diff-filterer.py --assume-no-side-effects --assume-input-states-are-correct --work-path $tempDir $successState $tempDir/prev "$filtererCommand"; then
   echo
   echo "There should be something wrong with the above file state"
