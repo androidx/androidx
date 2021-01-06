@@ -27,12 +27,15 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.Nullability
+import com.google.devtools.ksp.symbol.Origin
 import com.google.devtools.ksp.symbol.Variance
+import java.lang.reflect.Method
 
 internal class KspProcessingEnv(
     override val options: Map<String, String>,
@@ -202,6 +205,13 @@ internal class KspProcessingEnv(
         return typeElementStore[declaration]
     }
 
+    // workaround until KSP stops returning fake overrides from methods.
+    private val fakeChecker = FakeOverrideChecker()
+
+    fun isFakeOverride(ksFunctionDeclaration: KSFunctionDeclaration): Boolean {
+        return fakeChecker.isFakeOverride(ksFunctionDeclaration)
+    }
+
     class CommonTypes(resolver: Resolver) {
         val nullableInt by lazy {
             resolver.builtIns.intType.makeNullable()
@@ -211,6 +221,60 @@ internal class KspProcessingEnv(
         }
         val nullableByte by lazy {
             resolver.builtIns.byteType.makeNullable()
+        }
+    }
+
+    /**
+     * Current version of KSP returns fake methods which kotlin generates for overrides. This
+     * create exceptions later on when we try to resolve them, and we don't want them.
+     * This class is a temporary band aid to filter them out.
+     * KSP already fixed this issue in 1.4.20-dev-experimental-20201222 but we cannot update to
+     * that version yet due to https://github.com/google/ksp/issues/216
+     * https://github.com/google/ksp/commit/93675bef1dc20be096ada7afa4baa46e04acdb12
+     */
+    @Suppress("BanUncheckedReflection")
+    private class FakeOverrideChecker {
+        private lateinit var kindMethod: Method
+        private lateinit var fakeOverrideKind: Any
+
+        private fun initializeIfNecessary(ref: Any) {
+            if (this::kindMethod.isInitialized) {
+                return
+            }
+            val callableDescriptorClass = ref.javaClass.classLoader
+                .loadClass(CALLABLE_MEMBER_DESCRIPTOR_CLASS_NAME)
+            kindMethod = callableDescriptorClass.getDeclaredMethod("getKind")
+            check(kindMethod.returnType.isEnum) {
+                "expected getKind method to return an enum"
+            }
+            fakeOverrideKind = kindMethod.returnType.enumConstants.firstOrNull {
+                it.toString() == FAKE_OVERRIDE_ENUM_VALUE
+            } ?: error("cannot find FAKE_OVERRIDE enum constant in ${kindMethod.returnType}")
+        }
+
+        /**
+         * Return true if this is a FAKE_OVERRIDE which kotlin generates for overrides when there
+         * is no real override and method is inherited.
+         */
+        fun isFakeOverride(declaration: KSFunctionDeclaration): Boolean {
+            if (declaration.origin != Origin.CLASS) return false
+
+            val descriptorField = try {
+                declaration::class.java.getDeclaredField("descriptor").also {
+                    it.trySetAccessible()
+                }
+            } catch (ignored: Throwable) {
+                null
+            }
+            val descriptor = descriptorField?.get(declaration) ?: return false
+            initializeIfNecessary(declaration)
+            return fakeOverrideKind == kindMethod.invoke(descriptor)
+        }
+
+        companion object {
+            private val CALLABLE_MEMBER_DESCRIPTOR_CLASS_NAME =
+                "org.jetbrains.kotlin.descriptors.CallableMemberDescriptor"
+            private val FAKE_OVERRIDE_ENUM_VALUE = "FAKE_OVERRIDE"
         }
     }
 }
