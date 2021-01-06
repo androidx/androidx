@@ -50,6 +50,7 @@ run $PROJECTS_ARG OUT_DIR=$OUT_DIR DIST_DIR=$DIST_DIR ANDROID_HOME=../../prebuil
     ./gradlew \
     --stacktrace \
     -Pandroidx.summarizeStderr \
+    -Pandroidx.allWarningsAsErrors \
     --no-watch-fs \
     "$@"
 

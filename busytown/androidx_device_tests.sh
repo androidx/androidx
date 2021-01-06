@@ -9,6 +9,6 @@ impl/build.sh --no-daemon zipTestConfigsWithApks -Pandroidx.validateNoUnrecogniz
     -PverifyUpToDate \
     -Pandroidx.coverageEnabled=true \
     -Pandroidx.enableAffectedModuleDetection \
-    -Pandroidx.allWarningsAsErrors --offline "$@"
+    --offline "$@"
 
 echo "Completing $0 at $(date)"
