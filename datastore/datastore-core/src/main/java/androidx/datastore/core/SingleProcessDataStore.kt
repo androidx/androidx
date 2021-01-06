@@ -16,16 +16,14 @@
 package androidx.datastore.core
 
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.completeWith
 import kotlinx.coroutines.flow.Flow
@@ -59,7 +57,7 @@ private class DataAndHash<T>(val value: T, val hashCode: Int) {
 /**
  * Single process implementation of DataStore. This is NOT multi-process safe.
  */
-@OptIn(ExperimentalCoroutinesApi::class, ObsoleteCoroutinesApi::class, FlowPreview::class)
+@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 internal class SingleProcessDataStore<T>(
     private val produceFile: () -> File,
     private val serializer: Serializer<T>,
@@ -86,7 +84,7 @@ internal class SingleProcessDataStore<T>(
         val dataChannel = downstreamChannel()
         val updateMsg = Message.Update<T>(transform, ack, dataChannel, coroutineContext)
 
-        actor.send(updateMsg)
+        actor.offer(updateMsg)
 
         // If no read has succeeded yet, we need to wait on the result of the next read so we can
         // bubble exceptions up to the caller. Read exceptions are not bubbled up through ack.
@@ -142,38 +140,39 @@ internal class SingleProcessDataStore<T>(
     /**
      * Consumes messages. All state changes should happen within actor.
      */
-    private val actor: SendChannel<Message<T>> = scope.actor(
-        capacity = UNLIMITED
-    ) {
-        try {
-            messageConsumer@ for (msg in channel) {
-                if (msg.dataChannel.isClosedForSend) {
-                    // The message was sent with an old, now closed, dataChannel. This means that
-                    // our read failed.
-                    continue@messageConsumer
-                }
-
-                try {
-                    readAndInitOnce(msg.dataChannel)
-                } catch (ex: Throwable) {
-                    resetDataChannel(ex)
-                    continue@messageConsumer
-                }
-
-                // We have successfully read data and sent it to downstreamChannel.
-
-                if (msg is Message.Update) {
-                    msg.ack.completeWith(
-                        runCatching {
-                            transformAndWrite(msg.transform, downstreamChannel(), msg.callerContext)
-                        }
-                    )
-                }
-            }
-        } finally {
+    private val actor = SimpleActor<Message<T>>(
+        scope = scope,
+        onComplete = {
             // The scope has been cancelled. Cancel downstream in case there are any collectors
             // still active.
-            downstreamChannel().cancel()
+            if (it is CancellationException) {
+                downstreamChannel().cancel(it)
+            } else if (it is Throwable) {
+                downstreamChannel().close(it)
+            }
+        }
+    ) { msg ->
+        if (msg.dataChannel.isClosedForSend) {
+            // The message was sent with an old, now closed, dataChannel. This means that
+            // our read failed.
+            return@SimpleActor
+        }
+
+        try {
+            readAndInitOnce(msg.dataChannel)
+        } catch (ex: Throwable) {
+            resetDataChannel(ex)
+            return@SimpleActor
+        }
+
+        // We have successfully read data and sent it to downstreamChannel.
+
+        if (msg is Message.Update) {
+            msg.ack.completeWith(
+                runCatching {
+                    transformAndWrite(msg.transform, downstreamChannel(), msg.callerContext)
+                }
+            )
         }
     }
 
