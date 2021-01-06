@@ -17,26 +17,27 @@
 
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/ScreenLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+
     <TextView
+        style="@style/LabelText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/select_activity_label"
-        android:textColor="?android:textColorPrimary"
-        android:textSize="20sp"/>
+        android:text="@string/select_activity_label" />
 
     <Button
-        android:id="@+id/biometricprompt_api"
+        android:id="@+id/biometric_prompt_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/biometricprompt_test_app_title" />
+        android:text="@string/biometric_prompt_test_title" />
 
     <Button
-        android:id="@+id/authprompt_api"
+        android:id="@+id/auth_prompt_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/authprompt_test_app_title" />
+        android:text="@string/auth_prompt_test_title" />
 
 </LinearLayout>
