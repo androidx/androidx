@@ -287,8 +287,11 @@ includeProject(":datastore:datastore-preferences-core:datastore-preferences-prot
         "datastore/datastore-preferences-core/datastore-preferences-proto", [BuildType.MAIN])
 includeProject(":datastore:datastore-preferences-rxjava2",
         "datastore/datastore-preferences-rxjava2", [BuildType.MAIN])
+includeProject(":datastore:datastore-preferences-rxjava3",
+        "datastore/datastore-preferences-rxjava3", [BuildType.MAIN])
 includeProject(":datastore:datastore-proto", "datastore/datastore-proto", [BuildType.MAIN])
 includeProject(":datastore:datastore-rxjava2", "datastore/datastore-rxjava2", [BuildType.MAIN])
+includeProject(":datastore:datastore-rxjava3", "datastore/datastore-rxjava3", [BuildType.MAIN])
 includeProject(":datastore:datastore-sampleapp", "datastore/datastore-sampleapp", [BuildType.MAIN])
 includeProject(":documentfile:documentfile", "documentfile/documentfile", [BuildType.MAIN])
 includeProject(":drawerlayout:drawerlayout", "drawerlayout/drawerlayout", [BuildType.MAIN])
