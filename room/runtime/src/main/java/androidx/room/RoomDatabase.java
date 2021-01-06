@@ -1211,29 +1211,29 @@ public abstract class RoomDatabase {
          * <p>
          * Also, temp tables and temp triggers will be cleared each time the database is
          * auto-closed. If you need to use them, please include them in your
-         * {@link RoomDatabase.Callback.OnOpen callback}.
+         * {@link RoomDatabase.Callback#onOpen callback}.
          * <p>
-         * All configuration should happen in your {@link RoomDatabase.Callback.onOpen}
+         * All configuration should happen in your {@link RoomDatabase.Callback#onOpen}
          * callback so it is re-applied every time the database is re-opened. Note that the
-         * {@link RoomDatabase.Callback.onOpen} will be called every time the database is re-opened.
+         * {@link RoomDatabase.Callback#onOpen} will be called every time the database is re-opened.
          * <p>
          * The auto-closing database operation runs on the query executor.
          * <p>
          * The database will not be reopened if the RoomDatabase or the
          * SupportSqliteOpenHelper is closed manually (by calling
-         * {@link RoomDatabase.close()} or {@link SupportSQLiteOpenHelper.close()}. If the
+         * {@link RoomDatabase#close()} or {@link SupportSQLiteOpenHelper#close()}. If the
          * database is closed manually, you must create a new database using
-         * {@link RoomDatabase.Builder.build()}.
+         * {@link RoomDatabase.Builder#build()}.
          *
          * @param autoCloseTimeout  the amount of time after the last usage before closing the
          *                          database
          * @param autoCloseTimeUnit the timeunit for autoCloseTimeout.
          * @return This {@link Builder} instance
-         *
-         * @hide until it's ready for use
          */
         @NonNull
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        @ExperimentalRoomApi // When experimental is removed, add these parameters to
+        // DatabaseConfiguration
         public Builder<T> setAutoCloseTimeout(long autoCloseTimeout,
                 @NonNull TimeUnit autoCloseTimeUnit) {
             if (autoCloseTimeout < 0) {
