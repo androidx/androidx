@@ -244,7 +244,12 @@ public class Complication internal constructor(
     canvasComplication: CanvasComplication,
     supportedTypes: List<ComplicationType>,
     defaultProviderPolicy: DefaultComplicationProviderPolicy,
-    defaultProviderType: ComplicationType
+    defaultProviderType: ComplicationType,
+    /**
+     * The initial state of the complication. Note complications can be enabled / disabled by
+     * [UserStyleSetting.ComplicationsUserStyleSetting].
+     */
+    initiallyEnabled: Boolean
 ) {
     public companion object {
         internal val unitSquare = RectF(0f, 0f, 1f, 1f)
@@ -346,6 +351,7 @@ public class Complication internal constructor(
         private val complicationBounds: ComplicationBounds
     ) {
         private var defaultProviderType = ComplicationType.NOT_CONFIGURED
+        private var initiallyEnabled = true
 
         /**
          * Sets the initial [ComplicationType] to use with the initial complication provider.
@@ -359,6 +365,11 @@ public class Complication internal constructor(
             return this
         }
 
+        public fun setEnabled(enabled: Boolean): Builder {
+            this.initiallyEnabled = enabled
+            return this
+        }
+
         /** Constructs the [Complication]. */
         public fun build(): Complication = Complication(
             id,
@@ -367,7 +378,8 @@ public class Complication internal constructor(
             renderer,
             supportedTypes,
             defaultProviderPolicy,
-            defaultProviderType
+            defaultProviderType,
+            initiallyEnabled
         )
     }
 
@@ -412,7 +424,7 @@ public class Complication internal constructor(
     internal var enabledDirty = true
 
     /** Whether or not the complication should be drawn and accept taps. */
-    public var enabled: Boolean = true
+    public var enabled: Boolean = initiallyEnabled
         @JvmName("isEnabled")
         @UiThread
         get
