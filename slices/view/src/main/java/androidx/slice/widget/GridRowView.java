@@ -68,6 +68,7 @@ import android.widget.TimePicker;
 import androidx.annotation.ColorInt;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.core.content.ContextCompat;
 import androidx.slice.CornerDrawable;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceHints;
@@ -311,12 +312,17 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         // Default see more, create it
         LayoutInflater inflater = LayoutInflater.from(getContext());
         TextView extraText;
+        View extraTint;
         ViewGroup seeMoreView;
         if (mGridContent.isAllImages()) {
             seeMoreView = (FrameLayout) inflater.inflate(R.layout.abc_slice_grid_see_more_overlay,
                     mViewContainer, false);
             seeMoreView.addView(last, 0, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
             extraText = seeMoreView.findViewById(R.id.text_see_more_count);
+            extraTint = seeMoreView.findViewById(R.id.overlay_see_more);
+            extraTint.setBackground(new CornerDrawable(SliceViewUtil.getDrawable(
+                    getContext(), android.R.attr.colorForeground),
+                    mSliceStyle.getImageCornerRadius()));
         } else {
             seeMoreView = (LinearLayout) inflater.inflate(
                     R.layout.abc_slice_grid_see_more, mViewContainer, false);
@@ -522,12 +528,16 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         // add overlay on top of the ImageView
         LayoutInflater inflater = LayoutInflater.from(getContext());
         TextView overlayText;
+        View overlayTint;
         ViewGroup overlayView;
         overlayView = (FrameLayout) inflater.inflate(R.layout.abc_slice_grid_text_overlay_image,
                 container, false);
         overlayView.addView(iv, 0, new LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
         overlayText = overlayView.findViewById(R.id.text_overlay);
         overlayText.setText(overlayItem.getText());
+        overlayTint = overlayView.findViewById(R.id.tint_overlay);
+        overlayTint.setBackground(new CornerDrawable(ContextCompat.getDrawable(getContext(),
+                R.drawable.abc_slice_gradient), mSliceStyle.getImageCornerRadius()));
         container.addView(overlayView, lp);
         return true;
     }
