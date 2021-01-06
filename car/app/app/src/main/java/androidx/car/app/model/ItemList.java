@@ -20,10 +20,14 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 import android.os.Looper;
+import android.os.RemoteException;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.IOnDoneCallback;
+import androidx.car.app.OnDoneCallback;
+import androidx.car.app.utils.RemoteUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -347,5 +351,37 @@ public final class ItemList {
         }
 
         return null;
+    }
+
+    static OnSelectedListenerWrapper createOnSelectedListener(
+            @NonNull OnSelectedListener listener) {
+        return new OnSelectedListenerWrapper() {
+            private final IOnSelectedListener mStubListener = new OnSelectedListenerStub(listener);
+
+            @Override
+            public void onSelected(int selectedIndex, @NonNull OnDoneCallback callback) {
+                try {
+                    mStubListener.onSelected(selectedIndex,
+                            RemoteUtils.createOnDoneCallbackStub(callback));
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+    }
+
+    @Keep // We need to keep these stub for Bundler serialization logic.
+    private static class OnSelectedListenerStub extends IOnSelectedListener.Stub {
+        private final OnSelectedListener mOnSelectedListener;
+
+        OnSelectedListenerStub(OnSelectedListener onSelectedListener) {
+            this.mOnSelectedListener = onSelectedListener;
+        }
+
+        @Override
+        public void onSelected(int index, IOnDoneCallback callback) {
+            RemoteUtils.dispatchHostCall(
+                    () -> mOnSelectedListener.onSelected(index), callback, "onSelectedListener");
+        }
     }
 }

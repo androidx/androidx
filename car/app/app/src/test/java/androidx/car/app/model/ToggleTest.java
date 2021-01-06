@@ -24,7 +24,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import androidx.car.app.OnDoneCallback;
-import androidx.car.app.WrappedRuntimeException;
 import androidx.car.app.model.Toggle.OnCheckedChangeListener;
 
 import org.junit.Rule;
@@ -73,7 +72,7 @@ public class ToggleTest {
 
         try {
             toggle.getOnCheckedChangeListener().onCheckedChange(false, onDoneCallback);
-        } catch (WrappedRuntimeException e) {
+        } catch (RuntimeException e) {
             assertThat(e.getMessage()).contains(testExceptionMessage);
         }
         verify(mMockOnCheckedChangeListener).onCheckedChange(false);

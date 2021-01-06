@@ -148,10 +148,6 @@ package androidx.car.app {
     method public int getWidth();
   }
 
-  public class WrappedRuntimeException extends java.lang.RuntimeException {
-    ctor public WrappedRuntimeException(Throwable?);
-  }
-
 }
 
 package androidx.car.app.annotations {

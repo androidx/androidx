@@ -26,7 +26,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
-import androidx.car.app.WrappedRuntimeException;
 import androidx.car.app.utils.RemoteUtils;
 
 /**
@@ -55,7 +54,7 @@ public class OnClickListenerWrapperImpl implements OnClickListenerWrapper {
         try {
             mListener.onClick(RemoteUtils.createOnDoneCallbackStub(callback));
         } catch (RemoteException e) {
-            throw new WrappedRuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
 
