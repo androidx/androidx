@@ -157,8 +157,8 @@ public class WindowInsetsAnimationCompatActivityTest {
 
                 override fun onStart(
                     animation: WindowInsetsAnimationCompat,
-                    bounds: WindowInsetsAnimationCompat.Bounds
-                ): WindowInsetsAnimationCompat.Bounds {
+                    bounds: WindowInsetsAnimationCompat.BoundsCompat
+                ): WindowInsetsAnimationCompat.BoundsCompat {
                     res.add("start")
                     latch.countDown()
                     return bounds
