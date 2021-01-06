@@ -1,0 +1,19 @@
+// Signature format: 4.0
+package androidx.appsearch.platformstorage {
+
+  @RequiresApi(android.os.Build.VERSION_CODES.S) public class PlatformStorage {
+    method public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchSession!> createSearchSession(androidx.appsearch.platformstorage.PlatformStorage.SearchContext);
+  }
+
+  public static final class PlatformStorage.SearchContext {
+    method public String getDatabaseName();
+  }
+
+  public static final class PlatformStorage.SearchContext.Builder {
+    ctor public PlatformStorage.SearchContext.Builder(android.content.Context);
+    method public androidx.appsearch.platformstorage.PlatformStorage.SearchContext build();
+    method public androidx.appsearch.platformstorage.PlatformStorage.SearchContext.Builder setDatabaseName(String);
+  }
+
+}
+

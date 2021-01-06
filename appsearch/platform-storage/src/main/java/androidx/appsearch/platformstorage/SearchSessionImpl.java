@@ -1,0 +1,189 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package androidx.appsearch.platformstorage;
+
+import android.os.Build;
+import android.util.ArraySet;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.AppSearchBatchResult;
+import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.GetByUriRequest;
+import androidx.appsearch.app.PutDocumentsRequest;
+import androidx.appsearch.app.RemoveByUriRequest;
+import androidx.appsearch.app.SearchResults;
+import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.app.SetSchemaRequest;
+import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.platformstorage.converter.AppSearchResultToPlatformConverter;
+import androidx.appsearch.platformstorage.converter.GenericDocumentToPlatformConverter;
+import androidx.appsearch.platformstorage.converter.RequestToPlatformConverter;
+import androidx.appsearch.platformstorage.converter.SchemaToPlatformConverter;
+import androidx.appsearch.platformstorage.converter.SearchSpecToPlatformConverter;
+import androidx.appsearch.platformstorage.util.BatchResultCallbackAdapter;
+import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.util.Preconditions;
+
+import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+
+/**
+ * An implementation of {@link AppSearchSession} which proxies to a platform
+ * {@link android.app.appsearch.AppSearchSession}.
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RequiresApi(Build.VERSION_CODES.S)
+class SearchSessionImpl implements AppSearchSession {
+    private final android.app.appsearch.AppSearchSession mPlatformSession;
+    private final ExecutorService mExecutorService;
+
+    SearchSessionImpl(
+            @NonNull android.app.appsearch.AppSearchSession platformSession,
+            @NonNull ExecutorService executorService) {
+        mPlatformSession = Preconditions.checkNotNull(platformSession);
+        mExecutorService = Preconditions.checkNotNull(executorService);
+    }
+
+    @Override
+    @NonNull
+    public ListenableFuture<Void> setSchema(@NonNull SetSchemaRequest request) {
+        Preconditions.checkNotNull(request);
+        ResolvableFuture<Void> future = ResolvableFuture.create();
+        mPlatformSession.setSchema(
+                RequestToPlatformConverter.toPlatformSetSchemaRequest(request),
+                mExecutorService,
+                result -> AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
+                        result, future));
+        return future;
+    }
+
+    @Override
+    @NonNull
+    public ListenableFuture<Set<AppSearchSchema>> getSchema() {
+        ResolvableFuture<Set<AppSearchSchema>> future = ResolvableFuture.create();
+        mPlatformSession.getSchema(
+                mExecutorService,
+                result -> {
+                    if (result.isSuccess()) {
+                        Set<android.app.appsearch.AppSearchSchema> platformSchemas =
+                                result.getResultValue();
+                        Set<AppSearchSchema> jetpackSchemas =
+                                new ArraySet<>(platformSchemas.size());
+                        for (android.app.appsearch.AppSearchSchema platformSchema :
+                                platformSchemas) {
+                            jetpackSchemas.add(
+                                    SchemaToPlatformConverter.toJetpackSchema(platformSchema));
+                        }
+                        future.set(jetpackSchemas);
+                    } else {
+                        handleFailedPlatformResult(result, future);
+                    }
+                });
+        return future;
+    }
+
+    @Override
+    @NonNull
+    public ListenableFuture<AppSearchBatchResult<String, Void>> putDocuments(
+            @NonNull PutDocumentsRequest request) {
+        Preconditions.checkNotNull(request);
+        ResolvableFuture<AppSearchBatchResult<String, Void>> future = ResolvableFuture.create();
+        mPlatformSession.putDocuments(
+                RequestToPlatformConverter.toPlatformPutDocumentsRequest(request),
+                mExecutorService,
+                BatchResultCallbackAdapter.forSameValueType(future));
+        return future;
+    }
+
+    @Override
+    @NonNull
+    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByUri(
+            @NonNull GetByUriRequest request) {
+        Preconditions.checkNotNull(request);
+        ResolvableFuture<AppSearchBatchResult<String, GenericDocument>> future =
+                ResolvableFuture.create();
+        mPlatformSession.getByUri(
+                RequestToPlatformConverter.toPlatformGetByUriRequest(request),
+                mExecutorService,
+                new BatchResultCallbackAdapter<>(
+                        future, GenericDocumentToPlatformConverter::toJetpackGenericDocument));
+        return future;
+    }
+
+    @Override
+    @NonNull
+    public SearchResults query(
+            @NonNull String queryExpression,
+            @NonNull SearchSpec searchSpec) {
+        Preconditions.checkNotNull(queryExpression);
+        Preconditions.checkNotNull(searchSpec);
+        android.app.appsearch.SearchResults platformSearchResults =
+                mPlatformSession.query(
+                        queryExpression,
+                        SearchSpecToPlatformConverter.toPlatformSearchSpec(searchSpec),
+                        mExecutorService);
+        return new SearchResultsImpl(platformSearchResults);
+    }
+
+    @Override
+    @NonNull
+    public ListenableFuture<AppSearchBatchResult<String, Void>> removeByUri(
+            @NonNull RemoveByUriRequest request) {
+        Preconditions.checkNotNull(request);
+        ResolvableFuture<AppSearchBatchResult<String, Void>> future = ResolvableFuture.create();
+        mPlatformSession.removeByUri(
+                RequestToPlatformConverter.toPlatformRemoveByUriRequest(request),
+                mExecutorService,
+                BatchResultCallbackAdapter.forSameValueType(future));
+        return future;
+    }
+
+    @Override
+    @NonNull
+    public ListenableFuture<Void> removeByQuery(
+            @NonNull String queryExpression, @NonNull SearchSpec searchSpec) {
+        Preconditions.checkNotNull(queryExpression);
+        Preconditions.checkNotNull(searchSpec);
+        ResolvableFuture<Void> future = ResolvableFuture.create();
+        mPlatformSession.removeByQuery(
+                queryExpression,
+                SearchSpecToPlatformConverter.toPlatformSearchSpec(searchSpec),
+                mExecutorService,
+                result -> AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
+                        result, future));
+        return future;
+    }
+
+    @Override
+    public void close() {
+        // TODO(b/175637134); Support close() once the method is exposed in the platform sdk
+    }
+
+    private void handleFailedPlatformResult(
+            @NonNull android.app.appsearch.AppSearchResult<?> platformResult,
+            @NonNull ResolvableFuture<?> future) {
+        future.setException(
+                new AppSearchException(
+                        platformResult.getResultCode(), platformResult.getErrorMessage()));
+    }
+}
