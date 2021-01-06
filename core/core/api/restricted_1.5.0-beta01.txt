@@ -3053,13 +3053,13 @@ package androidx.core.view {
     method public void setFraction(@FloatRange(from=0.0f, to=1.0f) float);
   }
 
-  public static final class WindowInsetsAnimationCompat.Bounds {
-    ctor public WindowInsetsAnimationCompat.Bounds(androidx.core.graphics.Insets, androidx.core.graphics.Insets);
-    ctor @RequiresApi(30) public WindowInsetsAnimationCompat.Bounds(android.view.WindowInsetsAnimation.Bounds);
+  public static final class WindowInsetsAnimationCompat.BoundsCompat {
+    ctor public WindowInsetsAnimationCompat.BoundsCompat(androidx.core.graphics.Insets, androidx.core.graphics.Insets);
     method public androidx.core.graphics.Insets getLowerBound();
     method public androidx.core.graphics.Insets getUpperBound();
-    method public androidx.core.view.WindowInsetsAnimationCompat.Bounds inset(androidx.core.graphics.Insets);
-    method @RequiresApi(30) public android.view.WindowInsetsAnimation.Bounds toPlatformBounds();
+    method public androidx.core.view.WindowInsetsAnimationCompat.BoundsCompat inset(androidx.core.graphics.Insets);
+    method @RequiresApi(30) public android.view.WindowInsetsAnimation.Bounds toBounds();
+    method @RequiresApi(30) public static androidx.core.view.WindowInsetsAnimationCompat.BoundsCompat toBoundsCompat(android.view.WindowInsetsAnimation.Bounds);
   }
 
   public abstract static class WindowInsetsAnimationCompat.Callback {
@@ -3068,7 +3068,7 @@ package androidx.core.view {
     method public void onEnd(androidx.core.view.WindowInsetsAnimationCompat);
     method public void onPrepare(androidx.core.view.WindowInsetsAnimationCompat);
     method public abstract androidx.core.view.WindowInsetsCompat onProgress(androidx.core.view.WindowInsetsCompat, java.util.List<androidx.core.view.WindowInsetsAnimationCompat!>);
-    method public androidx.core.view.WindowInsetsAnimationCompat.Bounds onStart(androidx.core.view.WindowInsetsAnimationCompat, androidx.core.view.WindowInsetsAnimationCompat.Bounds);
+    method public androidx.core.view.WindowInsetsAnimationCompat.BoundsCompat onStart(androidx.core.view.WindowInsetsAnimationCompat, androidx.core.view.WindowInsetsAnimationCompat.BoundsCompat);
     field public static final int DISPATCH_MODE_CONTINUE_ON_SUBTREE = 1; // 0x1
     field public static final int DISPATCH_MODE_STOP = 0; // 0x0
   }
