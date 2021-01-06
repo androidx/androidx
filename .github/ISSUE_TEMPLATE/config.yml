@@ -9,6 +9,9 @@ contact_links:
   - name: Fragment
     url: https://issuetracker.google.com/issues/new?component=460964&template=1182267
     about: File a bug or feature request for Fragment
+  - name: Lifecycle
+    url: https://issuetracker.google.com/issues/new?component=413132&template=1096619
+    about: File a bug or feature request for Lifecycle
   - name: Navigation
     url: https://issuetracker.google.com/issues/new?component=409828&template=1093757
     about: File a bug or feature request for Navigation

@@ -12,6 +12,7 @@ You can start contributing to any of the following library groups from GitHub:
   - [Activity](https://developer.android.com/guide/components/activities/intro-activities)
   - [Biometric](https://developer.android.com/training/sign-in/biometric-auth)
   - [Fragment](https://developer.android.com/guide/components/fragments)
+  - [Lifecycle](https://developer.android.com/topic/libraries/architecture/lifecycle)
   - [Navigation](https://developer.android.com/guide/navigation)
   - [Paging](https://developer.android.com/topic/libraries/architecture/paging)
   - [Room](https://developer.android.com/topic/libraries/architecture/room)
@@ -48,6 +49,7 @@ androidx
   -- activity
   -- biometric
   -- fragment
+  -- lifecycle
   -- navigation
   -- paging
   -- room
