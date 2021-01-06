@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -249,7 +248,6 @@ class AsyncPagingDataDiffer<T : Any> @JvmOverloads constructor(
      *
      * @sample androidx.paging.samples.loadStateFlowSample
      */
-    @OptIn(FlowPreview::class)
     val loadStateFlow: Flow<CombinedLoadStates> = differBase.loadStateFlow
 
     /**

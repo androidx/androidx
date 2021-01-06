@@ -30,15 +30,12 @@ import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
-import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.conflate
@@ -73,8 +70,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val hintChannel = BroadcastChannel<ViewportHint>(CONFLATED)
+    private val hintSharedFlow = MutableSharedFlow<ViewportHint>(replay = 1)
     private var lastHint: ViewportHint.Access? = null
 
     private val pageEventChCollected = AtomicBoolean(false)
@@ -83,7 +79,6 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
     private val pageEventChannelFlowJob = Job()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     val pageEventFlow: Flow<PageEvent<Value>> = cancelableChannelFlow(pageEventChannelFlowJob) {
         check(pageEventChCollected.compareAndSet(false, true)) {
             "Attempt to collect twice from pageEventFlow, which is an illegal operation. Did you " +
@@ -97,6 +92,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 // Protect against races where a subsequent call to submitData invoked close(),
                 // but a pageEvent arrives after closing causing ClosedSendChannelException.
                 try {
+                    @OptIn(ExperimentalCoroutinesApi::class)
                     send(it)
                 } catch (e: ClosedSendChannelException) {
                     // Safe to drop PageEvent here, since collection has been cancelled.
@@ -184,8 +180,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     "Cannot retry APPEND / PREPEND load on PagingSource without ViewportHint"
                 }
 
-                @OptIn(ExperimentalCoroutinesApi::class)
-                hintChannel.offer(viewportHint)
+                hintSharedFlow.tryEmit(viewportHint)
             }
         }
     }
@@ -195,8 +190,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             lastHint = viewportHint
         }
 
-        @OptIn(ExperimentalCoroutinesApi::class)
-        hintChannel.offer(viewportHint)
+        hintSharedFlow.tryEmit(viewportHint)
     }
 
     fun close() {
@@ -216,12 +210,11 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     private fun CoroutineScope.startConsumingHints() {
         // Pseudo-tiling via invalidation on jumps.
         if (config.jumpThreshold != COUNT_UNDEFINED) {
             launch {
-                hintChannel.asFlow()
+                hintSharedFlow
                     .filter { hint ->
                         hint.presentedItemsBefore * -1 > config.jumpThreshold ||
                             hint.presentedItemsAfter * -1 > config.jumpThreshold
@@ -243,7 +236,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
     /**
      * Maps a [Flow] of generation ids from [PageFetcherSnapshotState] to [ViewportHint]s from
-     * [hintChannel] with back-pressure handling via conflation by prioritizing hints which
+     * [hintSharedFlow] with back-pressure handling via conflation by prioritizing hints which
      * either update presenter state or those that would load the most items.
      *
      * @param loadType [PREPEND] or [APPEND]
@@ -265,8 +258,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             }
         }
 
-        @OptIn(FlowPreview::class)
-        hintChannel.asFlow()
+        hintSharedFlow
             // Prevent infinite loop when competing PREPEND / APPEND cancel each other
             .drop(if (generationId == 0) 0 else 1)
             .map { hint -> GenerationalViewportHint(generationId, hint) }
