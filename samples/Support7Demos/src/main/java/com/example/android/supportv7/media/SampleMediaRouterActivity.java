@@ -233,7 +233,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
             Log.d(TAG, "onPrepareTransfer: from=" + fromRoute.getId()
                     + ", to=" + toRoute.getId());
             return CallbackToFutureAdapter.getFuture(completer -> {
-                completer.set(null);
+                mHandler.postDelayed(() -> completer.set(null), 3000);
                 return "onPrepareTransfer";
             });
         });
