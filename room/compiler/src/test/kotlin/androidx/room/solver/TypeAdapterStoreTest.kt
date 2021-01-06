@@ -42,6 +42,7 @@ import androidx.room.solver.binderprovider.DataSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.LiveDataQueryResultBinderProvider
 import androidx.room.solver.binderprovider.PagingSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxQueryResultBinderProvider
+import androidx.room.solver.query.parameter.CollectionQueryParameterAdapter
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureInsertMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxCallableDeleteOrUpdateMethodBinderProvider
@@ -840,6 +841,42 @@ class TypeAdapterStoreTest {
                 ),
                 `is`(true)
             )
+        }
+    }
+
+    @Test
+    fun findQueryParameterAdapter_collections() {
+        runProcessorTest { invocation ->
+            val store = TypeAdapterStore.create(
+                context = invocation.context
+            )
+            val javacCollectionTypes = listOf(
+                "java.util.Set",
+                "java.util.List",
+                "java.util.ArrayList"
+            )
+            val kotlinCollectionTypes = listOf(
+                "kotlin.collections.List",
+                "kotlin.collections.MutableList"
+            )
+            val collectionTypes = if (invocation.isKsp) {
+                javacCollectionTypes + kotlinCollectionTypes
+            } else {
+                javacCollectionTypes
+            }
+            collectionTypes.map { collectionType ->
+                invocation.processingEnv.getDeclaredType(
+                    invocation.processingEnv.requireTypeElement(collectionType),
+                    invocation.processingEnv.requireType(TypeName.INT).boxed()
+                )
+            }.forEach { type ->
+                val adapter = store.findQueryParameterAdapter(
+                    typeMirror = type,
+                    isMultipleParameter = true
+                )
+                assertThat(adapter).isNotNull()
+                assertThat(adapter).isInstanceOf(CollectionQueryParameterAdapter::class.java)
+            }
         }
     }
 

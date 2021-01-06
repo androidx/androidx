@@ -101,8 +101,12 @@ class Context private constructor(
         val STRING: XType by lazy {
             processingEnv.requireType("java.lang.String")
         }
-        val COLLECTION: XType by lazy {
-            processingEnv.requireType("java.util.Collection")
+        val READONLY_COLLECTION: XType by lazy {
+            if (processingEnv.backend == XProcessingEnv.Backend.KSP) {
+                processingEnv.requireType("kotlin.collections.Collection")
+            } else {
+                processingEnv.requireType("java.util.Collection")
+            }
         }
     }
 
