@@ -28,7 +28,7 @@ import androidx.annotation.VisibleForTesting
  *
  * @param pagingSourceFactory The [PagingSource] factory that returns a PagingSource when called
  */
-abstract class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
+open class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
     private val pagingSourceFactory: () -> PagingSource<Key, Value>
 ) : () -> PagingSource<Key, Value> {
 
