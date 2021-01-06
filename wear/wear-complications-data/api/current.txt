@@ -148,7 +148,7 @@ package androidx.wear.complications {
   public final class ComplicationHelperActivity extends android.app.Activity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback {
     ctor public ComplicationHelperActivity();
     method public static android.content.Intent createPermissionRequestHelperIntent(android.content.Context, android.content.ComponentName);
-    method public static android.content.Intent createProviderChooserHelperIntent(android.content.Context, android.content.ComponentName, int, int[]);
+    method public static android.content.Intent createProviderChooserHelperIntent(android.content.Context, android.content.ComponentName, int, java.util.Collection<androidx.wear.complications.data.ComplicationType!>);
   }
 
   public final class DefaultComplicationProviderPolicy {

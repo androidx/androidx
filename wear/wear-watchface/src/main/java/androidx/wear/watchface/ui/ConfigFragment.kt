@@ -37,7 +37,6 @@ import androidx.annotation.RestrictTo
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.complications.ProviderInfoRetriever
-import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.R
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.widget.SwipeDismissFrameLayout
@@ -193,7 +192,7 @@ internal class ConfigFragment : Fragment() {
                     ]!!
                 watchFaceConfigActivity.fragmentController.showComplicationConfig(
                     backgroundComplication.id,
-                    *ComplicationType.toWireTypes(backgroundComplication.supportedTypes)
+                    backgroundComplication.supportedTypes
                 )
             }
 
