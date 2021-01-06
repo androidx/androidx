@@ -22,6 +22,8 @@ import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.SUBTYPE_MAX;
+import static android.app.slice.Slice.SUBTYPE_MILLIS;
+import static android.app.slice.Slice.SUBTYPE_TOGGLE;
 import static android.app.slice.Slice.SUBTYPE_VALUE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
@@ -36,20 +38,29 @@ import static androidx.slice.core.SliceHints.HINT_RAW;
 import static androidx.slice.core.SliceHints.HINT_SELECTION_OPTION;
 import static androidx.slice.core.SliceHints.INDETERMINATE_RANGE;
 import static androidx.slice.core.SliceHints.STAR_RATING;
+import static androidx.slice.core.SliceHints.SUBTYPE_DATE_PICKER;
 import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_KEY;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_VALUE;
+import static androidx.slice.core.SliceHints.SUBTYPE_TIME_PICKER;
 import static androidx.slice.widget.EventInfo.ACTION_TYPE_BUTTON;
+import static androidx.slice.widget.EventInfo.ACTION_TYPE_DATE_PICK;
 import static androidx.slice.widget.EventInfo.ACTION_TYPE_SELECTION;
 import static androidx.slice.widget.EventInfo.ACTION_TYPE_SLIDER;
+import static androidx.slice.widget.EventInfo.ACTION_TYPE_TIME_PICK;
 import static androidx.slice.widget.EventInfo.ACTION_TYPE_TOGGLE;
+import static androidx.slice.widget.EventInfo.ROW_TYPE_DATE_PICK;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_LIST;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_SELECTION;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_SLIDER;
+import static androidx.slice.widget.EventInfo.ROW_TYPE_TIME_PICK;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_TOGGLE;
 import static androidx.slice.widget.SliceView.MODE_SMALL;
 
+import android.app.DatePickerDialog;
+import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
@@ -72,6 +83,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -79,6 +91,7 @@ import android.widget.RatingBar;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -96,6 +109,8 @@ import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -202,17 +217,17 @@ public class RowView extends SliceChildView implements View.OnClickListener,
                 R.layout.abc_slice_small_template, this, false);
         addView(mRootView);
 
-        mStartContainer = (LinearLayout) findViewById(R.id.icon_frame);
-        mContent = (LinearLayout) findViewById(android.R.id.content);
-        mSubContent = (LinearLayout) findViewById(R.id.subcontent);
-        mPrimaryText = (TextView) findViewById(android.R.id.title);
-        mSecondaryText = (TextView) findViewById(android.R.id.summary);
-        mLastUpdatedText = (TextView) findViewById(R.id.last_updated);
+        mStartContainer = findViewById(R.id.icon_frame);
+        mContent = findViewById(android.R.id.content);
+        mSubContent = findViewById(R.id.subcontent);
+        mPrimaryText = findViewById(android.R.id.title);
+        mSecondaryText = findViewById(android.R.id.summary);
+        mLastUpdatedText = findViewById(R.id.last_updated);
         mBottomDivider = findViewById(R.id.bottom_divider);
         mActionDivider = findViewById(R.id.action_divider);
         mActionSpinner = findViewById(R.id.action_sent_indicator);
         SliceViewUtil.tintIndeterminateProgressBar(getContext(), mActionSpinner);
-        mEndContainer = (LinearLayout) findViewById(android.R.id.widget_frame);
+        mEndContainer = findViewById(android.R.id.widget_frame);
         ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
         ViewCompat.setImportantForAccessibility(
                 mContent, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
@@ -488,12 +503,22 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         SliceItem primaryAction = mRowContent.getPrimaryAction();
         if (primaryAction != null && primaryAction != mStartItem) {
             mRowAction = new SliceActionImpl(primaryAction);
-            if (mRowAction.isToggle()) {
-                // If primary action is a toggle, add it and we're done
-                addAction(mRowAction, mTintColor, mEndContainer, false /* isStart */);
-                // TODO: if start item is tappable, touch feedback should exclude it
-                setViewClickable(mRootView, true);
-                return;
+            if (mRowAction.getSubtype() != null) {
+                switch (mRowAction.getSubtype()) {
+                    case SUBTYPE_TOGGLE:
+                        // If primary action is a toggle, add it and we're done
+                        addAction(mRowAction, mTintColor, mEndContainer, false /* isStart */);
+                        // TODO: if start item is tappable, touch feedback should exclude it
+                        setViewClickable(mRootView, true);
+                        return;
+                    case SUBTYPE_DATE_PICKER:
+                        setViewClickable(mRootView, true);
+                        return;
+                    case SUBTYPE_TIME_PICKER:
+                        setViewClickable(mRootView, true);
+                        return;
+                    default:
+                }
             }
         }
 
@@ -891,7 +916,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
 
         mSelectionSpinner.setOnItemSelectedListener(this);
     }
-
     /**
      * Add an action view to the container.
      */
@@ -1064,9 +1088,24 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         if (mRowAction == null || mRowAction.getActionItem() == null) {
             return;
         }
-        SliceActionView sav = mRowAction.isToggle()
-                ? mToggles.get(mRowAction)
-                : mActions.get(mRowAction);
+        SliceActionView sav;
+        if (mRowAction.getSubtype() != null) {
+            switch (mRowAction.getSubtype()) {
+                case SUBTYPE_TOGGLE:
+                    sav = mToggles.get(mRowAction);
+                    break;
+                case SUBTYPE_DATE_PICKER:
+                    onClickPicker(/*isDatePicker*/ true);
+                    return;
+                case SUBTYPE_TIME_PICKER:
+                    onClickPicker(/*isDatePicker*/ false);
+                    return;
+                default:
+                    sav = mActions.get(mRowAction);
+            }
+        } else {
+            sav = mActions.get(mRowAction);
+        }
         if (sav != null && !(view instanceof SliceActionView)) {
             // Row might have a single action item set on it, in that case we activate that item
             // and it will handle displaying any loading states / updating state for toggles
@@ -1092,6 +1131,106 @@ public class RowView extends SliceChildView implements View.OnClickListener,
                     }
                     updateActionSpinner();
                 } catch (CanceledException e) {
+                    Log.e(TAG, "PendingIntent for slice cannot be sent", e);
+                }
+            }
+        }
+    }
+
+    private void onClickPicker(boolean isDatePicker) {
+        if (mRowAction == null) {
+            return;
+        }
+        Log.d("ASDF", "ASDF" + isDatePicker + ":" + mRowAction.getSliceItem());
+        SliceItem dateTimeItem = SliceQuery.findSubtype(mRowAction.getSliceItem(), FORMAT_LONG,
+                SUBTYPE_MILLIS);
+        if (dateTimeItem == null) {
+            return;
+        }
+        int rowIndex = mRowIndex;
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date(dateTimeItem.getLong()));
+        if (isDatePicker) {
+            DatePickerDialog dialog = new DatePickerDialog(
+                    getContext(),
+                    R.style.DialogTheme,
+                    new DateSetListener(mRowAction.getSliceItem(), rowIndex),
+                    cal.get(Calendar.YEAR),
+                    cal.get(Calendar.MONTH),
+                    cal.get(Calendar.DAY_OF_MONTH));
+            dialog.show();
+        } else {
+            TimePickerDialog dialog = new TimePickerDialog(
+                    getContext(),
+                    R.style.DialogTheme,
+                    new TimeSetListener(mRowAction.getSliceItem(), rowIndex),
+                    cal.get(Calendar.HOUR_OF_DAY),
+                    cal.get(Calendar.MINUTE),
+                    false);
+            dialog.show();
+        }
+    }
+
+    private class DateSetListener implements DatePickerDialog.OnDateSetListener {
+        private final SliceItem mActionItem;
+        private final int mRowIndex;
+
+        DateSetListener(SliceItem datePickerItem, int mRowIndex) {
+            this.mActionItem = datePickerItem;
+            this.mRowIndex = mRowIndex;
+        }
+
+        @Override
+        public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+            Calendar c = Calendar.getInstance();
+            c.set(year, month, day);
+            Date date = c.getTime();
+            if (mActionItem != null) {
+                try {
+                    mActionItem.fireAction(getContext(),
+                            new Intent().addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+                                    .putExtra(EXTRA_RANGE_VALUE, date.getTime()));
+                    if (mObserver != null) {
+                        EventInfo info = new EventInfo(getMode(), ACTION_TYPE_DATE_PICK,
+                                ROW_TYPE_DATE_PICK,
+                                mRowIndex);
+                        mObserver.onSliceAction(info, mActionItem);
+                    }
+                } catch (PendingIntent.CanceledException e) {
+                    Log.e(TAG, "PendingIntent for slice cannot be sent", e);
+                }
+            }
+        }
+    }
+
+    private class TimeSetListener implements TimePickerDialog.OnTimeSetListener {
+        private final SliceItem mActionItem;
+        private final int mRowIndex;
+
+        TimeSetListener(SliceItem timePickerItem, int mRowIndex) {
+            this.mActionItem = timePickerItem;
+            this.mRowIndex = mRowIndex;
+        }
+
+        @Override
+        public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+            Calendar c = Calendar.getInstance();
+            Date time = c.getTime();
+            time.setHours(hour);
+            time.setMinutes(minute);
+
+            if (mActionItem != null) {
+                try {
+                    mActionItem.fireAction(getContext(),
+                            new Intent().addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+                                    .putExtra(EXTRA_RANGE_VALUE, time.getTime()));
+                    if (mObserver != null) {
+                        EventInfo info = new EventInfo(getMode(), ACTION_TYPE_TIME_PICK,
+                                ROW_TYPE_TIME_PICK,
+                                mRowIndex);
+                        mObserver.onSliceAction(info, mActionItem);
+                    }
+                } catch (PendingIntent.CanceledException e) {
                     Log.e(TAG, "PendingIntent for slice cannot be sent", e);
                 }
             }
