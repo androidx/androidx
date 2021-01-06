@@ -139,7 +139,8 @@ public class SampleSliceProvider extends SliceProvider {
             "selection",
             "notification",
             "tts",
-            "textbutton"
+            "textbutton",
+            "gridrowsliceaction"
     };
 
     @SuppressWarnings("deprecation")
@@ -270,6 +271,8 @@ public class SampleSliceProvider extends SliceProvider {
                 return createTtsSlice(sliceUri);
             case "/textbutton":
                 return createTextButtonSlice(sliceUri);
+            case "/gridrowsliceaction":
+                return createGridRowSliceAction(sliceUri);
         }
         Log.w(TAG, String.format("Unknown uri: %s", sliceUri));
         return null;
@@ -383,6 +386,59 @@ public class SampleSliceProvider extends SliceProvider {
                                         TIME_MILLIS_VALUE
                                 ))
                         ));
+        return lb.build();
+    }
+
+    private Slice createGridRowSliceAction(Uri sliceUri) {
+        SliceAction primaryAction = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "PrimaryAction"),
+                IconCompat.createWithResource(getContext(), R.drawable.slices_1),
+                LARGE_IMAGE,
+                "PrimaryAction");
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
+        lb.addRow(new RowBuilder()
+                .setTitle("Grid Row SliceAction Example")
+                .setPrimaryAction(primaryAction))
+                .addGridRow(new GridRowBuilder()
+                        .addCell(new CellBuilder()
+                                .addImage(IconCompat.createWithResource(getContext(),
+                                        R.drawable.weather_1), SMALL_IMAGE)
+                                .addText("pendingIntent")
+                                .addTitleText("from ContentIntent")
+                                .setContentIntent(getBroadcastIntent(ACTION_TOAST, "ContentIntent"))
+                        )
+                        .addCell(new CellBuilder()
+                                .addImage(IconCompat.createWithResource(getContext(),
+                                        R.drawable.weather_1), SMALL_IMAGE)
+                                .addText("pendingIntent")
+                                .addTitleText("from SliceAction")
+                                .setSliceAction(
+                                    SliceAction.create(
+                                            getBroadcastIntent(ACTION_TOAST, "SliceAction"),
+                                            IconCompat.createWithResource(getContext(),
+                                                    R.drawable.weather_1),
+                                            SMALL_IMAGE, "SliceAction"
+                                ))
+                        )
+                )
+                .addGridRow(new GridRowBuilder()
+                        .addCell(new CellBuilder()
+                                .addTitleText("Toggle 1")
+                                .setSliceAction(SliceAction.createToggle(
+                                        getBroadcastIntent(ACTION_TOAST, "Toggled 1"),
+                                        "Toggle Title", true /* isChecked */)))
+                        .addCell(new CellBuilder()
+                                .addTitleText("Toggle 2")
+                                .setSliceAction(SliceAction.createToggle(
+                                        getBroadcastIntent(ACTION_TOAST, "Toggled 2"),
+                                        "Toggle Title", false /* isChecked */)))
+                        .addCell(new CellBuilder().addTitleText("Time Picker").setSliceAction(
+                                SliceAction.createTimePicker(
+                                        getBroadcastIntent(ACTION_TOAST_TIME_VALUE, null),
+                                        DateFormat.getTimeInstance(DateFormat.SHORT,
+                                                Locale.ENGLISH).format(new Date(TIME_MILLIS_VALUE)),
+                                        TIME_MILLIS_VALUE
+                                ))));
         return lb.build();
     }
 
