@@ -151,6 +151,7 @@ package androidx.slice.widget {
     method public androidx.slice.SliceItem? getPicker();
     method public int getTextCount();
     method public androidx.slice.SliceItem? getTitleItem();
+    method public androidx.slice.SliceItem? getToggleItem();
     method public boolean hasImage();
     method public boolean isImageOnly();
     method public boolean isValid();
