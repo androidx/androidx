@@ -49,4 +49,4 @@ run $PROJECTS_ARG OUT_DIR=$OUT_DIR DIST_DIR=$DIST_DIR ANDROID_HOME=./prebuilts/f
     "$@"
 
 # check that no unexpected modifications were made to the source repository, such as new cache directories
-$SCRIPT_DIR/verify_no_caches_in_source_repo.sh $BUILD_START_MARKER
+DIST_DIR=$DIST_DIR $SCRIPT_DIR/verify_no_caches_in_source_repo.sh $BUILD_START_MARKER
