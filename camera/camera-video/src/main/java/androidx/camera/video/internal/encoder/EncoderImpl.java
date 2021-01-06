@@ -28,6 +28,7 @@ import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.S
 
 import android.annotation.SuppressLint;
 import android.media.MediaCodec;
+import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.os.Build;
 import android.os.Bundle;
@@ -42,6 +43,7 @@ import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.video.internal.workaround.EncoderFinder;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
 import androidx.core.util.Preconditions;
@@ -150,6 +152,7 @@ public class EncoderImpl implements Encoder {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     InternalState mState;
 
+    final EncoderFinder mEncoderFinder = new EncoderFinder();
     /**
      * Creates the encoder with a {@link EncoderConfig}
      *
@@ -188,14 +191,8 @@ public class EncoderImpl implements Encoder {
             throw new InvalidConfigException("Unknown encoder config type");
         }
 
-        try {
-            mMediaCodec = MediaCodec.createEncoderByType(encoderConfig.getMimeType());
-        } catch (IOException e) {
-            throw new InvalidConfigException(
-                    "Unsupported mime type: " + encoderConfig.getMimeType(), e);
-        }
-
         mMediaFormat = encoderConfig.toMediaFormat();
+        mMediaCodec = selectMediaCodecEncoder(mMediaFormat);
 
         try {
             reset();
@@ -423,7 +420,7 @@ public class EncoderImpl implements Encoder {
     @ExecutedBy("mEncoderExecutor")
     private void updatePauseToMediaCodec(boolean paused) {
         Bundle bundle = new Bundle();
-        bundle.putBoolean(MediaCodec.PARAMETER_KEY_SUSPEND, paused);
+        bundle.putInt(MediaCodec.PARAMETER_KEY_SUSPEND, paused ? 1 : 0);
         mMediaCodec.setParameters(bundle);
     }
 
@@ -561,6 +558,26 @@ public class EncoderImpl implements Encoder {
                 }
             }
         }
+    }
+
+    @NonNull
+    private MediaCodec selectMediaCodecEncoder(@NonNull MediaFormat mediaFormat)
+            throws InvalidConfigException {
+        MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.ALL_CODECS);
+        String encoderName;
+
+        encoderName = mEncoderFinder.findEncoderForFormat(mediaFormat, mediaCodecList);
+
+        MediaCodec codec;
+
+        try {
+            codec = MediaCodec.createByCodecName(encoderName);
+        } catch (IOException | NullPointerException | IllegalArgumentException e) {
+            throw new InvalidConfigException("Encoder cannot created: " + encoderName, e);
+        }
+        Logger.i(TAG, "Selected encoder: " + codec.getName());
+
+        return codec;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
