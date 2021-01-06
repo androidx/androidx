@@ -17,6 +17,8 @@
 package androidx.camera.camera2.pipe.impl
 
 import android.os.Build
+import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
@@ -45,6 +47,11 @@ internal class GraphProcessorTest {
     private val requestListener2 = FakeRequestListener()
     private val request2 = Request(listOf(StreamId(0)), listeners = listOf(requestListener2))
 
+    private val graphConfig = CameraGraph.Config(
+        camera = CameraId.fromCamera2Id("CameraId-Test"),
+        streams = listOf()
+    )
+
     @Test
     fun graphProcessorSubmitsRequests() {
         // The graph processor uses 'launch' within the coroutine scope to invoke updates on the
@@ -53,6 +60,7 @@ internal class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
                 this,
                 arrayListOf(globalListener)
             )
@@ -74,6 +82,7 @@ internal class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
                 this,
                 arrayListOf(globalListener)
             )
@@ -100,6 +109,7 @@ internal class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
                 this,
                 arrayListOf(globalListener)
             )
@@ -126,6 +136,7 @@ internal class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
                 this,
                 arrayListOf(globalListener)
             )
@@ -144,6 +155,7 @@ internal class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
                 this,
                 arrayListOf(globalListener)
             )
@@ -178,6 +190,7 @@ internal class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
                 this,
                 arrayListOf(globalListener)
             )
@@ -220,6 +233,7 @@ internal class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
                 this,
                 arrayListOf(globalListener)
             )
@@ -237,6 +251,7 @@ internal class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
                 this,
                 arrayListOf(globalListener)
             )
@@ -258,6 +273,7 @@ internal class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
                 this,
                 arrayListOf(globalListener)
             )
@@ -278,6 +294,7 @@ internal class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
                 this,
                 arrayListOf(globalListener)
             )
@@ -297,6 +314,7 @@ internal class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
                 this,
                 arrayListOf(globalListener)
             )
@@ -322,6 +340,7 @@ internal class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
                 this,
                 arrayListOf(globalListener)
             )

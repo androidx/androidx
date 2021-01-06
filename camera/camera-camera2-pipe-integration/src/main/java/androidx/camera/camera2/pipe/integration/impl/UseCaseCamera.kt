@@ -16,18 +16,15 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
-import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.FrameNumber
-import androidx.camera.camera2.pipe.RequestTemplate
-import androidx.camera.camera2.pipe.StreamConfig
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.StreamType
 import androidx.camera.camera2.pipe.TorchState
-import androidx.camera.camera2.pipe.impl.Log.debug
+import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.core.UseCase
@@ -152,31 +149,28 @@ class UseCaseCameraImpl(
                 callbackMap: CameraCallbackMap,
                 coroutineScope: CoroutineScope,
             ): UseCaseCamera {
-                val streamConfigs = mutableListOf<StreamConfig>()
-                val useCaseMap = mutableMapOf<StreamConfig, UseCase>()
+                val streamConfigs = mutableListOf<CameraStream.Config>()
+                val useCaseMap = mutableMapOf<CameraStream.Config, UseCase>()
 
                 // TODO: This may need to combine outputs that are (or will) share the same output
                 //  imageReader or surface. Right now, each UseCase gets its own [StreamConfig]
                 // TODO: useCases only have a single `attachedSurfaceResolution`, yet they have a
                 //  list of deferrableSurfaces.
                 for (useCase in useCases) {
-                    val config = StreamConfig(
+                    val outputConfig = CameraStream.Config.create(
                         size = useCase.attachedSurfaceResolution!!,
                         format = StreamFormat(useCase.imageFormat),
-                        camera = cameraConfig.cameraId,
-                        type = StreamType.SURFACE,
-                        deferrable = false
+                        camera = cameraConfig.cameraId
                     )
-                    streamConfigs.add(config)
-                    useCaseMap[config] = useCase
+                    streamConfigs.add(outputConfig)
+                    useCaseMap[outputConfig] = useCase
                 }
 
                 // Build up a config (using TEMPLATE_PREVIEW by default)
                 val config = CameraGraph.Config(
                     camera = cameraConfig.cameraId,
                     streams = streamConfigs,
-                    listeners = listOf(callbackMap),
-                    template = RequestTemplate(CameraDevice.TEMPLATE_PREVIEW)
+                    defaultListeners = listOf(callbackMap),
                 )
                 val graph = cameraPipe.create(config)
 
@@ -189,7 +183,7 @@ class UseCaseCameraImpl(
                     //  this code assumes only a single surface per UseCase.
                     val deferredSurfaces = useCaseSessionConfig?.surfaces
                     if (stream != null && deferredSurfaces != null && deferredSurfaces.size == 1) {
-                        val deferredSurface = deferredSurfaces[0]
+                        val deferredSurface = deferredSurfaces.first()
                         graph.setSurface(stream.id, deferredSurface.surface.get())
                         surfaceToStreamMap[deferredSurface] = stream.id
                     }

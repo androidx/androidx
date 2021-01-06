@@ -76,8 +76,8 @@ public class RequestMetadataTest {
             requestParameters = mapOf(CaptureRequest.JPEG_QUALITY to 95),
             request = Request(
                 streams = listOf(),
-                requestParameters = mapOf(CaptureRequest.JPEG_QUALITY to 20),
-                extraRequestParameters = mapOf(FakeMetadata.TEST_KEY to 42)
+                parameters = mapOf(CaptureRequest.JPEG_QUALITY to 20),
+                extras = mapOf(FakeMetadata.TEST_KEY to 42)
             )
         )
 
@@ -124,8 +124,8 @@ public class MetadataTransformTest {
         requestParameters = mapOf(CaptureRequest.JPEG_QUALITY to 95),
         request = Request(
             streams = listOf(),
-            requestParameters = mapOf(CaptureRequest.JPEG_QUALITY to 20),
-            extraRequestParameters = mapOf(FakeMetadata.TEST_KEY to 42)
+            parameters = mapOf(CaptureRequest.JPEG_QUALITY to 20),
+            extras = mapOf(FakeMetadata.TEST_KEY to 42)
         )
     )
 

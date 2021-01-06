@@ -97,13 +97,13 @@ public class FakeCameraMetadata(
  */
 public class FakeRequestMetadata(
     private val requestParameters: Map<CaptureRequest.Key<*>, Any?> = emptyMap(),
-    extraRequestParameters: Map<Metadata.Key<*>, Any?> = emptyMap(),
+    metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
     override val template: RequestTemplate = RequestTemplate(0),
     override val streams: Map<StreamId, Surface> = mapOf(),
     override val repeating: Boolean = false,
     override val request: Request = Request(listOf()),
     override val requestNumber: RequestNumber = RequestNumber(4321)
-) : FakeMetadata(request.extraRequestParameters.plus(extraRequestParameters)), RequestMetadata {
+) : FakeMetadata(request.extras.plus(metadata)), RequestMetadata {
 
     override fun <T> get(key: CaptureRequest.Key<T>): T? = requestParameters[key] as T?
     override fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T = get(key) ?: default

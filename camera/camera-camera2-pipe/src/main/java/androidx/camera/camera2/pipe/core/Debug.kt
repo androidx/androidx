@@ -16,7 +16,7 @@
 
 @file:Suppress("NOTHING_TO_INLINE")
 
-package androidx.camera.camera2.pipe.impl
+package androidx.camera.camera2.pipe.core
 
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCharacteristics.LENS_FACING
@@ -69,66 +69,68 @@ public object Debug {
         }
     }
 
-    internal fun logConfiguration(
-        graphId: String,
+    public fun formatCameraGraphProperties(
         metadata: CameraMetadata,
         graphConfig: CameraGraph.Config,
-        streamMap: StreamMap
-    ) {
-        Log.info {
-            val lensFacing = when (metadata[LENS_FACING]) {
-                CameraCharacteristics.LENS_FACING_FRONT -> "Front"
-                CameraCharacteristics.LENS_FACING_BACK -> "Back"
-                CameraCharacteristics.LENS_FACING_EXTERNAL -> "External"
-                else -> "Unknown"
-            }
+        cameraGraph: CameraGraph
+    ): String {
+        val lensFacing = when (metadata[LENS_FACING]) {
+            CameraCharacteristics.LENS_FACING_FRONT -> "Front"
+            CameraCharacteristics.LENS_FACING_BACK -> "Back"
+            CameraCharacteristics.LENS_FACING_EXTERNAL -> "External"
+            else -> "Unknown"
+        }
 
-            val operatingMode = when (graphConfig.operatingMode) {
-                CameraGraph.OperatingMode.HIGH_SPEED -> "High Speed"
-                CameraGraph.OperatingMode.NORMAL -> "Normal"
-            }
+        val operatingMode = when (graphConfig.sessionMode) {
+            CameraGraph.OperatingMode.HIGH_SPEED -> "High Speed"
+            CameraGraph.OperatingMode.NORMAL -> "Normal"
+        }
 
-            val capabilities = metadata[REQUEST_AVAILABLE_CAPABILITIES]
-            val cameraType = if (capabilities != null &&
-                capabilities.contains(
-                        REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
-                    )
-            ) {
-                "Logical"
-            } else {
-                "Physical"
-            }
+        val capabilities = metadata[REQUEST_AVAILABLE_CAPABILITIES]
+        val cameraType = if (capabilities != null &&
+            capabilities.contains(REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA)
+        ) {
+            "Logical"
+        } else {
+            "Physical"
+        }
 
-            StringBuilder().apply {
-                append("$graphId (Camera ${graphConfig.camera.value})\n")
-                append("  Facing:    $lensFacing ($cameraType)\n")
-                append("  Mode:      $operatingMode\n")
-                append("Streams:\n")
-                for (stream in streamMap.streamConfigMap) {
+        return StringBuilder().apply {
+            append("$cameraGraph (Camera ${graphConfig.camera.value})\n")
+            append("  Facing:    $lensFacing ($cameraType)\n")
+            append("  Mode:      $operatingMode\n")
+            append("Outputs:\n")
+            for (stream in cameraGraph.streams.streams) {
+                stream.outputs.forEachIndexed { i, output ->
                     append("  ")
-                    append(stream.value.id.toString().padEnd(12, ' '))
-                    append(stream.value.size.toString().padEnd(12, ' '))
-                    append(stream.value.format.name.padEnd(16, ' '))
-                    append(stream.value.type.toString().padEnd(16, ' '))
+                    val streamId = if (i == 0) output.stream.id.toString() else ""
+                    append(streamId.padEnd(10, ' '))
+                    append(output.id.toString().padEnd(10, ' '))
+                    append(output.size.toString().padEnd(12, ' '))
+                    append(output.format.name.padEnd(16, ' '))
+                    if (output.camera != graphConfig.camera) {
+                        append(" [")
+                        append(output.camera)
+                        append("]")
+                    }
                     append("\n")
                 }
+            }
 
-                if (graphConfig.defaultParameters.isEmpty()) {
-                    append("Default Parameters: (None)")
-                } else {
-                    append("Default Parameters:\n")
-                    for (
-                        parameter in graphConfig.defaultParameters.filter {
-                            it is CaptureRequest.Key<*>
-                        }
-                    ) {
-                        append("  ")
-                        append((parameter.key as CaptureRequest.Key<*>).name.padEnd(50, ' '))
-                        append(parameter.value)
-                    }
+            if (graphConfig.defaultParameters.isEmpty()) {
+                append("Session Parameters: (None)")
+            } else {
+                append("Session Parameters:\n")
+                val captureRequestParameters = graphConfig.sessionParameters.filter {
+                    it is CaptureRequest.Key<*>
                 }
-            }.toString()
-        }
+                for (parameter in captureRequestParameters) {
+                    append("  ")
+                    append((parameter.key).name.padEnd(50, ' '))
+                    append(parameter.value)
+                }
+            }
+        }.toString()
     }
 }
 

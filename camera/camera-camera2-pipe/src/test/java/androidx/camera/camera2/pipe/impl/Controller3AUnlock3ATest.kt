@@ -85,7 +85,7 @@ internal class Controller3AUnlock3ATest {
 
         // There should be one request to lock AE.
         val request1 = requestProcessor.nextEvent().request
-        Truth.assertThat(request1!!.extraRequestParameters[CaptureRequest.CONTROL_AE_LOCK])
+        Truth.assertThat(request1!!.parameters[CaptureRequest.CONTROL_AE_LOCK])
             .isEqualTo(false)
 
         GlobalScope.launch {
@@ -146,7 +146,7 @@ internal class Controller3AUnlock3ATest {
 
         // There should be one request to unlock AF.
         val request1 = requestProcessor.nextEvent().request
-        Truth.assertThat(request1!!.extraRequestParameters[CaptureRequest.CONTROL_AF_TRIGGER])
+        Truth.assertThat(request1!!.parameters[CaptureRequest.CONTROL_AF_TRIGGER])
             .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
 
         GlobalScope.launch {
@@ -209,7 +209,7 @@ internal class Controller3AUnlock3ATest {
 
         // There should be one request to lock AWB.
         val request1 = requestProcessor.nextEvent().request
-        Truth.assertThat(request1!!.extraRequestParameters[CaptureRequest.CONTROL_AWB_LOCK])
+        Truth.assertThat(request1!!.parameters[CaptureRequest.CONTROL_AWB_LOCK])
             .isEqualTo(false)
 
         GlobalScope.launch {
@@ -271,11 +271,11 @@ internal class Controller3AUnlock3ATest {
 
         // There should be one request to unlock AF.
         val request1 = requestProcessor.nextEvent().request
-        Truth.assertThat(request1!!.extraRequestParameters[CaptureRequest.CONTROL_AF_TRIGGER])
+        Truth.assertThat(request1!!.parameters[CaptureRequest.CONTROL_AF_TRIGGER])
             .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
         // Then request to unlock AE.
         val request2 = requestProcessor.nextEvent().request
-        Truth.assertThat(request2!!.extraRequestParameters[CaptureRequest.CONTROL_AE_LOCK])
+        Truth.assertThat(request2!!.parameters[CaptureRequest.CONTROL_AE_LOCK])
             .isEqualTo(false)
 
         GlobalScope.launch {

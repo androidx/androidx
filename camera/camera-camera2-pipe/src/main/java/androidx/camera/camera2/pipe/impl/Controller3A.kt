@@ -36,7 +36,7 @@ import androidx.camera.camera2.pipe.CameraGraph.Constants3A.FRAME_NUMBER_INVALID
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.Status3A
-import androidx.camera.camera2.pipe.impl.Log.debug
+import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.shouldUnlockAe
 import androidx.camera.camera2.pipe.shouldUnlockAf
 import androidx.camera.camera2.pipe.shouldUnlockAwb

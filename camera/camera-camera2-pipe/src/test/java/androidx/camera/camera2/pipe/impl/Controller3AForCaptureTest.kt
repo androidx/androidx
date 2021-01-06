@@ -109,10 +109,10 @@ class Controller3AForCaptureTest {
         // We now check if the correct sequence of requests were submitted by lock3AForCapture call.
         // There should be a request to trigger AF and AE precapture metering.
         val request1 = requestProcessor.nextEvent().request
-        assertThat(request1!!.extraRequestParameters[CaptureRequest.CONTROL_AF_TRIGGER]).isEqualTo(
+        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER]).isEqualTo(
             CaptureRequest.CONTROL_AF_TRIGGER_START
         )
-        assertThat(request1.extraRequestParameters[CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER])
+        assertThat(request1.requiredParameters[CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER])
             .isEqualTo(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
     }
 
@@ -186,10 +186,10 @@ class Controller3AForCaptureTest {
         // We now check if the correct sequence of requests were submitted by unlock3APostCapture
         // call. There should be a request to cancel AF and AE precapture metering.
         val request1 = requestProcessor.nextEvent().request
-        assertThat(request1!!.extraRequestParameters[CaptureRequest.CONTROL_AF_TRIGGER]).isEqualTo(
+        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER]).isEqualTo(
             CaptureRequest.CONTROL_AF_TRIGGER_CANCEL
         )
-        assertThat(request1.extraRequestParameters[CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER])
+        assertThat(request1.requiredParameters[CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER])
             .isEqualTo(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL)
     }
 
@@ -223,15 +223,15 @@ class Controller3AForCaptureTest {
         // We now check if the correct sequence of requests were submitted by unlock3APostCapture
         // call. There should be a request to cancel AF and lock ae.
         val request1 = requestProcessor.nextEvent().request
-        assertThat(request1!!.extraRequestParameters[CaptureRequest.CONTROL_AF_TRIGGER]).isEqualTo(
+        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER]).isEqualTo(
             CaptureRequest.CONTROL_AF_TRIGGER_CANCEL
         )
-        assertThat(request1.extraRequestParameters[CaptureRequest.CONTROL_AE_LOCK])
+        assertThat(request1.requiredParameters[CaptureRequest.CONTROL_AE_LOCK])
             .isEqualTo(true)
 
         // Then another request to unlock ae.
         val request2 = requestProcessor.nextEvent().request
-        assertThat(request2!!.extraRequestParameters[CaptureRequest.CONTROL_AE_LOCK])
+        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK])
             .isEqualTo(false)
     }
 

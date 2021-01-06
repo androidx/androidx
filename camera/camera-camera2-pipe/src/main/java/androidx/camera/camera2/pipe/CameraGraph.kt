@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe
 
+import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
 import android.view.Surface
 import kotlinx.coroutines.Deferred
@@ -25,7 +26,7 @@ import java.io.Closeable
  * A CameraGraph represents the combined configuration and state of a camera.
  */
 public interface CameraGraph : Closeable {
-    public val streams: Map<StreamConfig, Stream>
+    public val streams: StreamGraph
 
     /**
      * This will cause the CameraGraph to start opening the camera and configuring the Camera2
@@ -61,28 +62,23 @@ public interface CameraGraph : Closeable {
     public fun setSurface(stream: StreamId, surface: Surface?)
 
     /**
-     * This defines the configuration, flags, and pre-defined behavior of a CameraGraph instance.
+     * This defines the configuration, flags, and pre-defined structure of a CameraGraph instance.
      */
     public data class Config(
         val camera: CameraId,
-        val streams: List<StreamConfig>,
-        val template: RequestTemplate,
-        val defaultParameters: Map<Any?, Any> = emptyMap(),
-        val inputStream: InputStreamConfig? = null,
-        val operatingMode: OperatingMode = OperatingMode.NORMAL,
-        val listeners: List<Request.Listener> = listOf(),
+        val streams: List<CameraStream.Config>,
+        val streamSharingGroups: List<List<CameraStream.Config>> = listOf(),
+        val input: InputStream.Config? = null,
+        val sessionTemplate: RequestTemplate = RequestTemplate(1),
+        val sessionParameters: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
+        val sessionMode: OperatingMode = OperatingMode.NORMAL,
+        val defaultTemplate: RequestTemplate = RequestTemplate(1),
+        val defaultParameters: Map<*, Any> = emptyMap<Any, Any>(),
+        val defaultListeners: List<Request.Listener> = listOf(),
         val metadataTransform: MetadataTransform = MetadataTransform(),
         val flags: Flags = Flags()
-    )
 
-    /**
-     * Configuration for defining the properties of a Camera2 InputStream for reprocessing
-     * requests.
-     */
-    public data class InputStreamConfig(
-        val width: Int,
-        val height: Int,
-        val format: Int
+        // TODO: Internal error handling. May be better at the CameraPipe level.
     )
 
     /**
@@ -248,7 +244,7 @@ public interface CameraGraph : Closeable {
          *
          * @param frameLimit the maximum number of frames to wait before we give up waiting for
          * this operation to complete.
-         * @param timeLimitMs the maximum time limit in ms we wait before we give up waiting for
+         * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
          * this operation to complete.
          *
          * @return [Result3A], which will contain the latest frame number at which the locks were

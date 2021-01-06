@@ -25,7 +25,7 @@ import android.os.Handler
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.UnsafeWrapper
-import androidx.camera.camera2.pipe.impl.Log
+import androidx.camera.camera2.pipe.core.Log
 import kotlinx.atomicfu.atomic
 import java.io.Closeable
 import kotlin.jvm.Throws

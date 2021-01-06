@@ -16,7 +16,7 @@
 
 @file:Suppress("NOTHING_TO_INLINE")
 
-package androidx.camera.camera2.pipe.impl
+package androidx.camera.camera2.pipe.core
 
 import android.os.SystemClock
 

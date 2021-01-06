@@ -166,8 +166,8 @@ class UseCaseCameraState @Inject constructor(
                     request = Request(
                         template = currentTemplate,
                         streams = currentStreams.toList(),
-                        requestParameters = currentParameters.toMap(),
-                        extraRequestParameters = currentInternalParameters.toMap(),
+                        parameters = currentParameters.toMap(),
+                        extras = currentInternalParameters.toMap()
                     )
                     result = updateSignal
                     updateSignal = null

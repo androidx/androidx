@@ -49,7 +49,7 @@ import javax.inject.Singleton
 internal interface CameraSessionTestComponent {
     fun graphConfig(): CameraGraph.Config
     fun sessionFactory(): SessionFactory
-    fun streamMap(): StreamMap
+    fun streamMap(): StreamGraphImpl
 }
 
 @RunWith(CameraPipeRobolectricTestRunner::class)
@@ -89,13 +89,14 @@ internal class SessionFactoryTest {
 
         val sessionFactory = component.sessionFactory()
         val streamMap = component.streamMap()
-        val streamConfig = component.graphConfig().streams.first()
-        val stream1 = streamMap.streamConfigMap[streamConfig]!!
+        val cameraStreamConfig = component.graphConfig().streams.first()
+        val stream1 = streamMap[cameraStreamConfig]!!
+        val stream1Output = stream1.outputs.first()
 
         val surfaceTexture = SurfaceTexture(0)
         surfaceTexture.setDefaultBufferSize(
-            stream1.size.width,
-            stream1.size.height
+            stream1Output.size.width,
+            stream1Output.size.height
         )
         val surface = Surface(surfaceTexture)
 

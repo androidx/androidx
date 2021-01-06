@@ -22,7 +22,10 @@ import android.util.ArrayMap
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.impl.Timestamps.formatMs
+import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Timestamps
+import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import kotlinx.coroutines.withContext
 import java.lang.IllegalStateException
 import javax.inject.Inject

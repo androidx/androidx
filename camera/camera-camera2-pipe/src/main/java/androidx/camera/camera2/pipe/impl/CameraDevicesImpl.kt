@@ -19,8 +19,8 @@ package androidx.camera.camera2.pipe.impl
 import android.hardware.camera2.CameraManager
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.Cameras
-import androidx.camera.camera2.pipe.impl.Debug.trace
+import androidx.camera.camera2.pipe.CameraDevices
+import androidx.camera.camera2.pipe.core.Debug.trace
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
@@ -29,10 +29,10 @@ import javax.inject.Singleton
  * Provides utilities for querying cameras and accessing metadata about those cameras.
  */
 @Singleton
-internal class CamerasImpl @Inject constructor(
+internal class CameraDevicesImpl @Inject constructor(
     private val cameraManager: Provider<CameraManager>,
     private val metadata: CameraMetadataCache
-) : Cameras {
+) : CameraDevices {
 
     private val cameras = lazy(LazyThreadSafetyMode.PUBLICATION) {
         // NOTE: Publication safety mode may cause this method to be invoked more than once if there

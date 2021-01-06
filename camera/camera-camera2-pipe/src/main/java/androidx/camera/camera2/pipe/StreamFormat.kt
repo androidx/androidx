@@ -21,6 +21,7 @@ package androidx.camera.camera2.pipe
  *
  * Using this inline class prevents missing values on platforms where the format is not present
  * or not listed.
+ * // TODO: Consider adding data-space as a separate property, or finding a way to work it in.
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 public inline class StreamFormat(public val value: Int) {

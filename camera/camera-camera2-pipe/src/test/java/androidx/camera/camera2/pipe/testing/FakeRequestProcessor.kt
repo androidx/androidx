@@ -16,11 +16,11 @@
 
 package androidx.camera.camera2.pipe.testing
 
-import android.hardware.camera2.CaptureRequest
 import android.view.Surface
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.impl.GraphState3A
+import androidx.camera.camera2.pipe.impl.RequestProcessorFactory
 import androidx.camera.camera2.pipe.impl.RequestProcessor
 import androidx.camera.camera2.pipe.impl.TokenLock
 import androidx.camera.camera2.pipe.impl.TokenLockImpl
@@ -32,7 +32,7 @@ import kotlinx.coroutines.withTimeout
  * Fake implementation of a [RequestProcessor] for tests.
  */
 internal class FakeRequestProcessor(private val graphState3A: GraphState3A) :
-    RequestProcessor, RequestProcessor.Factory {
+    RequestProcessor, RequestProcessorFactory {
     private val eventChannel = Channel<Event>(Channel.UNLIMITED)
 
     val requestQueue: MutableList<FakeRequest> = mutableListOf()
@@ -54,7 +54,10 @@ internal class FakeRequestProcessor(private val graphState3A: GraphState3A) :
 
     data class FakeRequest(
         val burst: List<Request>,
-        val extraRequestParameters: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
+        val defaultParameters: Map<*, Any>,
+        val internalParameters: Map<*, Any>,
+        val requiredParameters: Map<*, Any>,
+        val parameters: Map<*, Any>,
         val requireStreams: Boolean = false
     )
 
@@ -69,11 +72,11 @@ internal class FakeRequestProcessor(private val graphState3A: GraphState3A) :
 
     override fun submit(
         request: Request,
-        extraRequestParameters: Map<CaptureRequest.Key<*>, Any>,
-        requireSurfacesForAllStreams: Boolean
+        defaultParameters: Map<*, Any>,
+        requiredParameters: Map<*, Any>
     ): Boolean {
         val fakeRequest =
-            createFakeRequest(listOf(request), extraRequestParameters, requireSurfacesForAllStreams)
+            createFakeRequest(listOf(request), defaultParameters, requiredParameters)
 
         if (rejectRequests || closeInvoked) {
             check(eventChannel.offer(Event(request = fakeRequest, rejected = true)))
@@ -88,11 +91,11 @@ internal class FakeRequestProcessor(private val graphState3A: GraphState3A) :
 
     override fun submit(
         requests: List<Request>,
-        extraRequestParameters: Map<CaptureRequest.Key<*>, Any>,
-        requireSurfacesForAllStreams: Boolean
+        defaultParameters: Map<*, Any>,
+        requiredParameters: Map<*, Any>
     ): Boolean {
         val fakeRequest =
-            createFakeRequest(requests, extraRequestParameters, requireSurfacesForAllStreams)
+            createFakeRequest(requests, defaultParameters, requiredParameters)
         if (rejectRequests || closeInvoked) {
             check(eventChannel.offer(Event(request = fakeRequest, rejected = true)))
             return false
@@ -106,11 +109,11 @@ internal class FakeRequestProcessor(private val graphState3A: GraphState3A) :
 
     override fun setRepeating(
         request: Request,
-        extraRequestParameters: Map<CaptureRequest.Key<*>, Any>,
-        requireSurfacesForAllStreams: Boolean
+        defaultParameters: Map<*, Any>,
+        requiredParameters: Map<*, Any>
     ): Boolean {
         val fakeRequest =
-            createFakeRequest(listOf(request), extraRequestParameters, requireSurfacesForAllStreams)
+            createFakeRequest(listOf(request), defaultParameters, requiredParameters)
         if (rejectRequests || closeInvoked) {
             check(eventChannel.offer(Event(request = fakeRequest, rejected = true)))
             return false
@@ -145,13 +148,29 @@ internal class FakeRequestProcessor(private val graphState3A: GraphState3A) :
 
     private fun createFakeRequest(
         burst: List<Request>,
-        extraRequestParameters: Map<CaptureRequest.Key<*>, Any>,
-        requireStreams: Boolean
+        defaultParameters: Map<*, Any>,
+        requiredParameters: Map<*, Any>
     ): FakeRequest {
-        val parameterMap = mutableMapOf<CaptureRequest.Key<*>, Any>()
-        parameterMap.putAll(graphState3A.readState())
-        parameterMap.putAll(extraRequestParameters)
-        return FakeRequest(burst, parameterMap, requireStreams)
+        val internalParameters = graphState3A.readState()
+        val parameterMap = mutableMapOf<Any, Any>()
+        for ((k, v) in defaultParameters) {
+            if (k != null) {
+                parameterMap[k] = v
+            }
+        }
+        parameterMap.putAll(internalParameters)
+        for ((k, v) in requiredParameters) {
+            if (k != null) {
+                parameterMap[k] = v
+            }
+        }
+        return FakeRequest(
+            burst,
+            defaultParameters,
+            internalParameters,
+            requiredParameters,
+            parameterMap
+        )
     }
 }
 
