@@ -73,6 +73,7 @@ public class AutoClosingRoomOpenHelperTest {
     @After
     public void cleanUp() throws Exception {
         mDb.clearAllTables();
+        drain();
         mDb.close();
     }
 
