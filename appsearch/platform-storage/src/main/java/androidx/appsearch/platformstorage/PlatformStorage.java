@@ -37,9 +37,7 @@ import java.util.concurrent.Executors;
 /**
  * An AppSearch storage system which stores data in the central AppSearch service, available on
  * Android S+.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
 public class PlatformStorage {
     /**
