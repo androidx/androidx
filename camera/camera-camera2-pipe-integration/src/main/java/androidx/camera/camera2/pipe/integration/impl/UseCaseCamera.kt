@@ -20,7 +20,7 @@ import android.hardware.camera2.CaptureRequest
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
-import androidx.camera.camera2.pipe.FrameNumber
+import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.TorchState
@@ -48,7 +48,7 @@ interface UseCaseCamera {
     fun <T> setParametersAsync(values: Map<CaptureRequest.Key<*>, Any>): Deferred<Unit>
 
     // 3A
-    suspend fun setTorchAsync(enabled: Boolean): Deferred<FrameNumber>
+    suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A>
 
     // Capture
 
@@ -87,7 +87,7 @@ class UseCaseCameraImpl(
         cameraGraph.close()
     }
 
-    override suspend fun setTorchAsync(enabled: Boolean): Deferred<FrameNumber> {
+    override suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A> {
         return cameraGraph.acquireSession().use {
             it.setTorch(
                 when (enabled) {

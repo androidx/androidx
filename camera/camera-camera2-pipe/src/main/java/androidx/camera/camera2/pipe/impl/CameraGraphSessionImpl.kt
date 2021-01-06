@@ -67,7 +67,14 @@ internal class CameraGraphSessionImpl(
         afRegions: List<MeteringRectangle>?,
         awbRegions: List<MeteringRectangle>?
     ): Deferred<Result3A> {
-        return controller3A.update3A(aeMode, afMode, awbMode, aeRegions, afRegions, awbRegions)
+        return controller3A.update3A(
+            aeMode = aeMode,
+            afMode = afMode,
+            awbMode = awbMode,
+            aeRegions = aeRegions,
+            afRegions = afRegions,
+            awbRegions = awbRegions
+        )
     }
 
     override suspend fun submit3A(
@@ -81,8 +88,10 @@ internal class CameraGraphSessionImpl(
         return controller3A.submit3A(aeMode, afMode, awbMode, aeRegions, afRegions, awbRegions)
     }
 
-    override fun setTorch(torchState: TorchState): Deferred<FrameNumber> {
-        TODO("Implement setTorch")
+    override fun setTorch(torchState: TorchState): Deferred<Result3A> {
+        // TODO(sushilnath): First check whether the camera device has a flash unit. Ref:
+        // https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#FLASH_INFO_AVAILABLE
+        return controller3A.setTorch(torchState)
     }
 
     override suspend fun lock3A(

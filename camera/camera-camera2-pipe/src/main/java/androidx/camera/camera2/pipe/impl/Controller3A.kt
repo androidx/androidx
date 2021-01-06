@@ -33,9 +33,11 @@ import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.FRAME_NUMBER_INVALID
+import androidx.camera.camera2.pipe.FlashMode
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.Status3A
+import androidx.camera.camera2.pipe.TorchState
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.shouldUnlockAe
 import androidx.camera.camera2.pipe.shouldUnlockAf
@@ -135,26 +137,27 @@ internal class Controller3A(
         aeMode: AeMode? = null,
         afMode: AfMode? = null,
         awbMode: AwbMode? = null,
+        flashMode: FlashMode? = null,
         aeRegions: List<MeteringRectangle>? = null,
         afRegions: List<MeteringRectangle>? = null,
         awbRegions: List<MeteringRectangle>? = null
     ): Deferred<Result3A> {
         // Add the listener to a global pool of 3A listeners to monitor the state change to the
         // desired one.
-        val listener = createListenerFor3AParams(aeMode, afMode, awbMode)
+        val listener = createListenerFor3AParams(aeMode, afMode, awbMode, flashMode)
         graphListener3A.addListener(listener)
 
         // Update the 3A state of the graph. This will make sure then when GraphProcessor builds
         // the next request it will apply the 3A parameters corresponding to the updated 3A state
         // to the request.
-        graphState3A.update(aeMode, afMode, awbMode, aeRegions, afRegions, awbRegions, null, null)
+        graphState3A.update(aeMode, afMode, awbMode, flashMode, aeRegions, afRegions, awbRegions)
         // Try submitting a new repeating request with the 3A parameters corresponding to the new
         // 3A state and corresponding listeners.
         graphProcessor.invalidate()
 
         val result = listener.getDeferredResult()
         synchronized(this) {
-            lastUpdate3AResult?.cancel("A newer update3A call initiated.")
+            lastUpdate3AResult?.cancel("A newer call for 3A state update initiated.")
             lastUpdate3AResult = result
         }
         return result
@@ -228,7 +231,7 @@ internal class Controller3A(
         afLockBehavior: Lock3ABehavior? = null,
         awbLockBehavior: Lock3ABehavior? = null,
         frameLimit: Int = CameraGraph.DEFAULT_FRAME_LIMIT,
-        timeLimitMsNs: Long? = CameraGraph.DEFAULT_TIME_LIMIT_NS
+        timeLimitNs: Long? = CameraGraph.DEFAULT_TIME_LIMIT_NS
     ): Deferred<Result3A> {
         // If we explicitly need to unlock af first before proceeding to lock it, we need to send
         // a single request with TRIGGER = TRIGGER_CANCEL so that af can start a fresh scan.
@@ -252,7 +255,7 @@ internal class Controller3A(
             val listener = Result3AStateListenerImpl(
                 converged3AExitConditions,
                 frameLimit,
-                timeLimitMsNs
+                timeLimitNs
             )
             graphListener3A.addListener(listener)
 
@@ -291,7 +294,7 @@ internal class Controller3A(
             }
         }
 
-        return lock3ANow(aeLockBehavior, afLockBehavior, awbLockBehavior, frameLimit, timeLimitMsNs)
+        return lock3ANow(aeLockBehavior, afLockBehavior, awbLockBehavior, frameLimit, timeLimitNs)
     }
 
     /**
@@ -446,12 +449,22 @@ internal class Controller3A(
         return listener.getDeferredResult()
     }
 
+    fun setTorch(torchState: TorchState): Deferred<Result3A> {
+        // Determine the flash mode based on the torch state.
+        val flashMode = if (torchState == TorchState.ON) FlashMode.TORCH else FlashMode.OFF
+        // To use the flash control, AE mode must be set to ON or OFF.
+        val currAeMode = graphState3A.aeMode
+        val desiredAeMode = if (currAeMode == AeMode.ON || currAeMode == AeMode.OFF) null else
+            AeMode.ON
+        return update3A(aeMode = desiredAeMode, flashMode = flashMode)
+    }
+
     private suspend fun lock3ANow(
         aeLockBehavior: Lock3ABehavior?,
         afLockBehavior: Lock3ABehavior?,
         awbLockBehavior: Lock3ABehavior?,
         frameLimit: Int?,
-        timeLimitMsNs: Long?
+        timeLimitNs: Long?
     ): Deferred<Result3A> {
         val finalAeLockValue = if (aeLockBehavior == null) null else true
         val finalAwbLockValue = if (awbLockBehavior == null) null else true
@@ -466,7 +479,7 @@ internal class Controller3A(
             val listener = Result3AStateListenerImpl(
                 locked3AExitConditions,
                 frameLimit,
-                timeLimitMsNs
+                timeLimitNs
             )
             graphListener3A.addListener(listener)
             graphState3A.update(aeLock = finalAeLockValue, awbLock = finalAwbLockValue)
@@ -566,14 +579,16 @@ internal class Controller3A(
     // exact match between the metering regions sent in the capture request and the metering
     // regions received from the camera device.
     private fun createListenerFor3AParams(
-        aeMode: AeMode?,
-        afMode: AfMode?,
-        awbMode: AwbMode?
+        aeMode: AeMode? = null,
+        afMode: AfMode? = null,
+        awbMode: AwbMode? = null,
+        flashMode: FlashMode? = null,
     ): Result3AStateListenerImpl {
         val resultModesMap = mutableMapOf<CaptureResult.Key<*>, List<Any>>()
         aeMode?.let { resultModesMap.put(CaptureResult.CONTROL_AE_MODE, listOf(it.value)) }
         afMode?.let { resultModesMap.put(CaptureResult.CONTROL_AF_MODE, listOf(it.value)) }
         awbMode?.let { resultModesMap.put(CaptureResult.CONTROL_AWB_MODE, listOf(it.value)) }
+        flashMode?.let { resultModesMap.put(CaptureResult.FLASH_MODE, listOf(it.value)) }
         return Result3AStateListenerImpl(resultModesMap.toMap())
     }
 }
