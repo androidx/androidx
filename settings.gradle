@@ -285,6 +285,8 @@ includeProject(":datastore:datastore-preferences-core", "datastore/datastore-pre
         [BuildType.MAIN])
 includeProject(":datastore:datastore-preferences-core:datastore-preferences-proto",
         "datastore/datastore-preferences-core/datastore-preferences-proto", [BuildType.MAIN])
+includeProject(":datastore:datastore-preferences-rxjava2",
+        "datastore/datastore-preferences-rxjava2", [BuildType.MAIN])
 includeProject(":datastore:datastore-proto", "datastore/datastore-proto", [BuildType.MAIN])
 includeProject(":datastore:datastore-rxjava2", "datastore/datastore-rxjava2", [BuildType.MAIN])
 includeProject(":datastore:datastore-sampleapp", "datastore/datastore-sampleapp", [BuildType.MAIN])
