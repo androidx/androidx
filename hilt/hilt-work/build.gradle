@@ -28,7 +28,7 @@ plugins {
 
 android {
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 }
 
@@ -46,9 +46,9 @@ android.libraryVariants.all { variant ->
 
     // Create jar<variant> task for testImplementation in hilt-compiler.
     project.tasks.register("jar${suffix}", Jar).configure {
-        dependsOn variant.javaCompileProvider
-        from variant.javaCompileProvider.map { task -> task.destinationDir}
-        destinationDir new File(project.buildDir, "libJar")
+        dependsOn(variant.javaCompileProvider)
+        from(variant.javaCompileProvider.map { task -> task.destinationDir})
+        destinationDir(new File(project.buildDir, "libJar"))
     }
 }
 

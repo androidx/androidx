@@ -22,12 +22,12 @@
 // settings.gradle . For example, if Support Library is at the file path ~/support-library, then
 // to include Support Library in your build, add this line to the bottom of your settings.gradle:
 //
-//   apply(from:'~/support-library/frameworks/support/include-support-library.gradle')
+//   apply(from:"~/support-library/frameworks/support/include-support-library.gradle")
 
 String buildScriptDir = buildscript.sourceFile.parent
 
 // include any builds required by Support Library
-apply(from:new File(buildScriptDir, 'include-composite-deps.gradle'))
+apply(from:new File(buildScriptDir, "include-composite-deps.gradle"))
 
 // include Support Library itself
 includeBuild(buildScriptDir)

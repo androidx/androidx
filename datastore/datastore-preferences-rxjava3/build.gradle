@@ -28,8 +28,8 @@ plugins {
 
 android {
     sourceSets {
-        test.java.srcDirs += 'src/test-common/java'
-        androidTest.java.srcDirs += 'src/test-common/java'
+        test.java.srcDirs += "src/test-common/java"
+        androidTest.java.srcDirs += "src/test-common/java"
     }
 }
 

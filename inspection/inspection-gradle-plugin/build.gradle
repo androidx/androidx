@@ -31,15 +31,15 @@ SdkResourceGenerator.generateForHostTest(project)
 apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
 
 dependencies {
-    implementation findGradleKotlinDsl()
-    implementation gradleApi()
+    implementation(findGradleKotlinDsl())
+    implementation(gradleApi())
     implementation(AGP_STABLE)
     implementation(KOTLIN_STDLIB)
     implementation("gradle.plugin.com.google.protobuf:protobuf-gradle-plugin:0.8.13")
     implementation("com.github.jengelman.gradle.plugins:shadow:5.2.0")
 
     testImplementation(project(":internal-testutils-gradle-plugin"))
-    testImplementation gradleTestKit()
+    testImplementation(gradleTestKit())
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
     testImplementation(KOTLIN_TEST)

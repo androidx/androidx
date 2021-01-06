@@ -27,10 +27,10 @@ plugins {
 }
 
 dependencies {
-    testImplementation LINT_CORE
-    testImplementation LINT_API_LATEST
-    testImplementation KOTLIN_STDLIB
-    testImplementation LINT_TESTS
+    testImplementation(LINT_CORE)
+    testImplementation(LINT_API_LATEST)
+    testImplementation(KOTLIN_STDLIB)
+    testImplementation(LINT_TESTS)
     testImplementation("androidx.annotation:annotation:1.0.0")
-    testImplementation project(":lint-checks")
+    testImplementation(project(":lint-checks"))
 }

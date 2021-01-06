@@ -26,8 +26,8 @@ plugins {
 }
 
 dependencies {
-    implementation gradleApi()
-    testImplementation JUNIT
+    implementation(gradleApi())
+    testImplementation(JUNIT)
     implementation(project.files(new File(BuildServerConfigurationKt.getRootOutDirectory(project), "buildSrc/build/libs/buildSrc.jar")))
 }
 

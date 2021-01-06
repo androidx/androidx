@@ -98,28 +98,28 @@ dependencies {
     // this is a temporary attribute until KSP and AndroidX plugin supports variants.
     if (useKsp) {
         kspAndroidTest(
-                project(path: ":room:room-compiler", configuration: 'shadowAndImplementation')
+                project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
         )
     } else {
         kaptAndroidTest(
-                project(path: ":room:room-compiler", configuration: 'shadowAndImplementation')
+                project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
         )
     }
     androidTestImplementation(projectOrArtifact(":arch:core:core-runtime")) // Added for b/155802460
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER) {
-        exclude module: 'support-annotations'
-        exclude module: 'hamcrest-core'
+        exclude module: "support-annotations"
+        exclude module: "hamcrest-core"
     }
     androidTestImplementation(ESPRESSO_CORE, {
-        exclude group: 'com.android.support', module: 'support-annotations'
+        exclude group: "com.android.support", module: "support-annotations"
         exclude module: "hamcrest-core"
     })
     androidTestImplementation(TRUTH)
-    androidTestImplementation project(':room:room-guava')
-    androidTestImplementation project(':room:room-testing')
-    androidTestImplementation project(':room:room-rxjava2')
+    androidTestImplementation(project(":room:room-guava"))
+    androidTestImplementation(project(":room:room-testing"))
+    androidTestImplementation(project(":room:room-rxjava2"))
     androidTestImplementation(project(":room:room-rxjava3"))
     androidTestImplementation(project(":room:room-ktx"))
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")

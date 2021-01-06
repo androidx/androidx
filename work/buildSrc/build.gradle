@@ -9,8 +9,8 @@ sourceSets {
 gradlePlugin {
     plugins {
         inspection {
-            id = 'androidx.inspection'
-            implementationClass = 'androidx.inspection.gradle.InspectionPlugin'
+            id = "androidx.inspection"
+            implementationClass = "androidx.inspection.gradle.InspectionPlugin"
         }
     }
 }

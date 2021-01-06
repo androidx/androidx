@@ -38,9 +38,9 @@ android {
 
     sourceSets {
         main.java.srcDirs += [
-                'common',
-                'kitkat',
-                'api21',
+                "common",
+                "kitkat",
+                "api21",
         ]
     }
 }

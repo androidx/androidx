@@ -27,7 +27,7 @@ project.ext.noDocs = true
 dependencies {
     api(KOTLIN_STDLIB)
     implementation(project(":startup:startup-runtime"))
-    implementation project(':work:work-runtime-ktx')
+    implementation(project(":work:work-runtime-ktx"))
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
