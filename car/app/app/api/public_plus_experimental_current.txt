@@ -1022,15 +1022,6 @@ package androidx.car.app.serialization {
 
 }
 
-package androidx.car.app.utils {
-
-  public class ThreadUtils {
-    method public static void checkMainThread();
-    method public static void runOnMain(Runnable);
-  }
-
-}
-
 package androidx.car.app.versioning {
 
   public class CarAppApiLevels {
