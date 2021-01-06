@@ -45,6 +45,8 @@ import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
 
+import com.google.common.util.concurrent.MoreExecutors;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -1284,5 +1286,73 @@ public class AppSearchSessionCtsTest {
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+    }
+
+    @Test
+    public void testCloseAndReopen() throws Exception {
+        // Schema registration
+        mDb1.setSchema(new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build());
+
+        // Index a document
+        AppSearchEmail inEmail =
+                new AppSearchEmail.Builder("uri1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
+
+        // close and re-open the appSearchSession
+        mDb1.close();
+        Context context = ApplicationProvider.getApplicationContext();
+        mDb1 = LocalStorage.createSearchSession(
+                new LocalStorage.SearchContext.Builder(context)
+                        .setDatabaseName(DB_NAME_1).build()).get();
+
+        // Query for the document
+        SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(inEmail);
+    }
+
+    @Test
+    public void testCallAfterClose() throws Exception {
+
+        // Create a same-thread database by inject an executor which could help us maintain the
+        // execution order of those async tasks.
+        Context context = ApplicationProvider.getApplicationContext();
+        AppSearchSession sameThreadDb = LocalStorage.createSearchSession(
+                new LocalStorage.SearchContext.Builder(context)
+                        .setDatabaseName("sameThreadDb").build(),
+                MoreExecutors.newDirectExecutorService()).get();
+
+        try {
+            // Schema registration -- just mutate something
+            sameThreadDb.setSchema(
+                    new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()).get();
+
+            // Close the database. No further call will be allowed.
+            sameThreadDb.close();
+
+            // Try to query the closed database
+            // We are using the same-thread db here to make sure it has been closed.
+            IllegalStateException e = assertThrows(IllegalStateException.class, () ->
+                    sameThreadDb.query("query", new SearchSpec.Builder()
+                            .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                            .build()));
+            assertThat(e).hasMessageThat().contains("AppSearchSession has already been closed");
+        } finally {
+            // To clean the data that has been added in the test, need to re-open the session and
+            // set an empty schema.
+            AppSearchSession reopen = LocalStorage.createSearchSession(
+                    new LocalStorage.SearchContext.Builder(context)
+                            .setDatabaseName("sameThreadDb").build(),
+                    MoreExecutors.newDirectExecutorService()).get();
+            reopen.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()).get();
+        }
     }
 }
