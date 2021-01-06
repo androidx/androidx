@@ -221,7 +221,8 @@ public class SliceContent {
                     Intent launchIntent = pm.getLaunchIntentForPackage(appInfo.packageName);
                     if (launchIntent != null) {
                         actionItem = new SliceItem(
-                                PendingIntent.getActivity(context, 0, launchIntent, 0),
+                                PendingIntent.getActivity(context, 0, launchIntent,
+                                PendingIntent.FLAG_IMMUTABLE),
                                 new Slice.Builder(uri).build(), FORMAT_ACTION,
                                 null /* subtype */, new String[]{});
                     }
