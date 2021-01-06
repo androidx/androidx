@@ -20,7 +20,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("kotlin-android")
-    id("kotlin-android-extensions")
 }
 
 android {
@@ -49,9 +48,14 @@ android {
             shrinkResources true
         }
     }
+
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
+    implementation(project(":annotation:annotation"))
     implementation(project(":biometric:biometric-ktx"))
     implementation("androidx.activity:activity-ktx:1.1.0")
     implementation("androidx.core:core-ktx:1.3.2")
