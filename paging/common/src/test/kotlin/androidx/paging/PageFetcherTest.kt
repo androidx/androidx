@@ -267,6 +267,47 @@ class PageFetcherTest {
     }
 
     @Test
+    fun invalidate_unregistersListener() = testScope.runBlockingTest {
+        var i = 0
+        val pagingSources = mutableListOf<PagingSource<Int, Int>>()
+        val pageFetcher = PageFetcher(
+            pagingSourceFactory = {
+                TestPagingSource().also {
+                    pagingSources.add(it)
+
+                    if (i == 0) {
+                        // Force PageFetcher to create a second PagingSource before finding a
+                        // valid one when instantiating first generation.
+                        it.invalidate()
+                    }
+                    i++
+                }
+            },
+            initialKey = 50,
+            config = config
+        )
+
+        val state = collectFetcherState(pageFetcher)
+
+        // Wait for first generation to instantiate.
+        advanceUntilIdle()
+
+        // The first PagingSource is immediately invalid, so we shouldn't keep an invalidate
+        // listener registered on it.
+        assertThat(pagingSources).hasSize(2)
+        assertThat(pagingSources[0].onInvalidatedCallbacks).isEmpty()
+        assertThat(pagingSources[1].onInvalidatedCallbacks).hasSize(1)
+
+        // Trigger new generation, should unregister from older PagingSource.
+        pageFetcher.refresh()
+        advanceUntilIdle()
+        assertThat(pagingSources[1].onInvalidatedCallbacks).isEmpty()
+        assertThat(pagingSources[2].onInvalidatedCallbacks).hasSize(1)
+
+        state.job.cancel()
+    }
+
+    @Test
     fun collectTwice() = testScope.runBlockingTest {
         val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)

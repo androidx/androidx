@@ -65,12 +65,10 @@ internal class PageFetcher<Key : Any, Value : Any>(
             .scan(null) { previousGeneration: GenerationInfo<Key, Value>?,
                 triggerRemoteRefresh: Boolean ->
                 var pagingSource = generateNewPagingSource(
-                    previousGeneration?.snapshot?.pagingSource
+                    previousPagingSource = previousGeneration?.snapshot?.pagingSource
                 )
                 while (pagingSource.invalid) {
-                    pagingSource = generateNewPagingSource(
-                        previousGeneration?.snapshot?.pagingSource
-                    )
+                    pagingSource = generateNewPagingSource(previousPagingSource = pagingSource)
                 }
 
                 var previousPagingState = previousGeneration?.snapshot?.refreshKeyInfo()

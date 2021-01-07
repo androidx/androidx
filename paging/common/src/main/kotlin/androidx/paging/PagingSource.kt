@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.paging.LoadType.REFRESH
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
@@ -317,7 +318,8 @@ abstract class PagingSource<Key : Any, Value : Any> {
      */
     open fun getRefreshKey(state: PagingState<Key, Value>): Key? = null
 
-    private val onInvalidatedCallbacks = CopyOnWriteArrayList<() -> Unit>()
+    @VisibleForTesting
+    internal val onInvalidatedCallbacks = CopyOnWriteArrayList<() -> Unit>()
 
     private val _invalid = AtomicBoolean(false)
 
