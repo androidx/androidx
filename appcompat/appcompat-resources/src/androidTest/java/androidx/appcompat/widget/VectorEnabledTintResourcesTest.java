@@ -32,7 +32,7 @@ import org.junit.runner.RunWith;
 @SuppressWarnings("deprecation")
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class TintResourcesTest {
+public class VectorEnabledTintResourcesTest {
     @Rule
     public final androidx.test.rule.ActivityTestRule<Activity> mActivityTestRule =
             new androidx.test.rule.ActivityTestRule<>(Activity.class);
@@ -41,7 +41,7 @@ public class TintResourcesTest {
      * Ensures that TintResources delegates calls to the wrapped Resources object.
      */
     @Test
-    public void testTintResourcesDelegateBackToOriginalResources() {
+    public void testVectorEnabledTintResourcesDelegateBackToOriginalResources() {
         final TestResources testResources =
                 new TestResources(mActivityTestRule.getActivity().getResources());
 
@@ -51,7 +51,7 @@ public class TintResourcesTest {
 
         // Now wrap in a TintResources instance and get a Drawable
         final Resources tintResources =
-                new TintResources(mActivityTestRule.getActivity(), testResources);
+                new VectorEnabledTintResources(mActivityTestRule.getActivity(), testResources);
         tintResources.getDrawable(android.R.drawable.ic_delete);
 
         // ...and assert that the flag was flipped
