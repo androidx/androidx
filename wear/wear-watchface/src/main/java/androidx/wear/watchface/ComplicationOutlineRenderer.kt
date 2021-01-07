@@ -24,7 +24,7 @@ import androidx.annotation.ColorInt
 
 /**
  * Helper for rendering a thick outline around a complication. Intended for use with
- * [LayerMode#DRAW_HIGHLIGHTED].
+ * [LayerMode#DRAW_OUTLINED].
  */
 public class ComplicationOutlineRenderer {
     public companion object {

@@ -114,7 +114,7 @@ package androidx.wear.watchface {
 
   public enum LayerMode {
     enum_constant public static final androidx.wear.watchface.LayerMode DRAW;
-    enum_constant public static final androidx.wear.watchface.LayerMode DRAW_HIGHLIGHTED;
+    enum_constant public static final androidx.wear.watchface.LayerMode DRAW_OUTLINED;
     enum_constant public static final androidx.wear.watchface.LayerMode HIDE;
   }
 
@@ -168,17 +168,17 @@ package androidx.wear.watchface {
   }
 
   public final class RenderParameters {
-    ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Map<androidx.wear.watchface.style.Layer,? extends androidx.wear.watchface.LayerMode> layerParameters, Integer? highlightedComplicationId, @ColorInt int highlightTint);
+    ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Map<androidx.wear.watchface.style.Layer,? extends androidx.wear.watchface.LayerMode> layerParameters, Integer? selectedComplicationId, @ColorInt int outlineTint);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public RenderParameters(androidx.wear.watchface.data.RenderParametersWireFormat wireFormat);
     method public androidx.wear.watchface.DrawMode getDrawMode();
-    method public int getHighlightTint();
-    method public Integer? getHighlightedComplicationId();
     method public java.util.Map<androidx.wear.watchface.style.Layer,androidx.wear.watchface.LayerMode> getLayerParameters();
+    method public int getOutlineTint();
+    method public Integer? getSelectedComplicationId();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.data.RenderParametersWireFormat toWireFormat();
     property public final androidx.wear.watchface.DrawMode drawMode;
-    property public final int highlightTint;
-    property public final Integer? highlightedComplicationId;
     property public final java.util.Map<androidx.wear.watchface.style.Layer,androidx.wear.watchface.LayerMode> layerParameters;
+    property public final int outlineTint;
+    property public final Integer? selectedComplicationId;
     field public static final androidx.wear.watchface.RenderParameters.Companion Companion;
     field public static final androidx.wear.watchface.RenderParameters DEFAULT_INTERACTIVE;
     field public static final java.util.Map<androidx.wear.watchface.style.Layer,androidx.wear.watchface.LayerMode> DRAW_ALL_LAYERS;
