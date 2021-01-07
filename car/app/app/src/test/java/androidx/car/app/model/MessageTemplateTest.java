@@ -118,7 +118,7 @@ public class MessageTemplateTest {
         assertThat(template.getMessage().toString()).isEqualTo(mMessage);
         assertThat(template.getTitle().toString()).isEqualTo(mTitle);
         assertThat(template.getDebugMessage().toString()).isEqualTo(
-                Log.getStackTraceString(exception));
+                Log.getStackTraceString(exception).trim());
         assertThat(template.getIcon()).isEqualTo(icon);
         assertThat(template.getHeaderAction()).isEqualTo(Action.BACK);
         assertThat(template.getActions().getList()).containsExactly(action);

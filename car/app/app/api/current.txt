@@ -267,14 +267,12 @@ package androidx.car.app.model {
   }
 
   public class CarText {
-    ctor public CarText();
     method public static androidx.car.app.model.CarText create(CharSequence);
     method public java.util.List<androidx.car.app.model.CarText.SpanWrapper!> getSpans();
-    method public String? getText();
+    method public String getText();
     method public boolean isEmpty();
     method public static boolean isNullOrEmpty(androidx.car.app.model.CarText?);
     method public static String? toShortString(androidx.car.app.model.CarText?);
-    field public static final androidx.car.app.model.CarText EMPTY;
   }
 
   public static class CarText.SpanWrapper {
