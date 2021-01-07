@@ -118,6 +118,7 @@ package androidx.appsearch.app {
     method public long getCreationTimestampMillis();
     method public static int getMaxIndexedProperties();
     method public String getNamespace();
+    method public Object? getProperty(String);
     method public boolean getPropertyBoolean(String);
     method public boolean[]? getPropertyBooleanArray(String);
     method public byte[]? getPropertyBytes(String);
