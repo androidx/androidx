@@ -133,7 +133,7 @@ public final class WorkSpec {
      * high priority job.
      */
     @ColumnInfo(name = "run_in_foreground")
-    public boolean runImmediately;
+    public boolean expedited;
 
     public WorkSpec(@NonNull String id, @NonNull String workerClassName) {
         this.id = id;
@@ -157,7 +157,7 @@ public final class WorkSpec {
         periodStartTime = other.periodStartTime;
         minimumRetentionDuration = other.minimumRetentionDuration;
         scheduleRequestedAt = other.scheduleRequestedAt;
-        runImmediately = other.runImmediately;
+        expedited = other.expedited;
     }
 
     /**
@@ -313,7 +313,7 @@ public final class WorkSpec {
         if (periodStartTime != workSpec.periodStartTime) return false;
         if (minimumRetentionDuration != workSpec.minimumRetentionDuration) return false;
         if (scheduleRequestedAt != workSpec.scheduleRequestedAt) return false;
-        if (runImmediately != workSpec.runImmediately) return false;
+        if (expedited != workSpec.expedited) return false;
         if (!id.equals(workSpec.id)) return false;
         if (state != workSpec.state) return false;
         if (!workerClassName.equals(workSpec.workerClassName)) return false;
@@ -346,7 +346,7 @@ public final class WorkSpec {
         result = 31 * result + (int) (periodStartTime ^ (periodStartTime >>> 32));
         result = 31 * result + (int) (minimumRetentionDuration ^ (minimumRetentionDuration >>> 32));
         result = 31 * result + (int) (scheduleRequestedAt ^ (scheduleRequestedAt >>> 32));
-        result = 31 * result + (runImmediately ? 1 : 0);
+        result = 31 * result + (expedited ? 1 : 0);
         return result;
     }
 

@@ -90,8 +90,8 @@ public class ParcelableWorkRequest implements Parcelable {
         workSpec.minimumRetentionDuration = in.readLong();
         // scheduleRequestedAt
         workSpec.scheduleRequestedAt = in.readLong();
-        // runImmediately
-        workSpec.runImmediately = readBooleanValue(in);
+        // expedited
+        workSpec.expedited = readBooleanValue(in);
         mWorkRequest = new WorkRequestHolder(UUID.fromString(id), workSpec, tagsSet);
     }
 
@@ -152,8 +152,8 @@ public class ParcelableWorkRequest implements Parcelable {
         parcel.writeLong(workSpec.minimumRetentionDuration);
         // scheduleRequestedAt
         parcel.writeLong(workSpec.scheduleRequestedAt);
-        // runImmediately
-        writeBooleanValue(parcel, workSpec.runImmediately);
+        // expedited
+        writeBooleanValue(parcel, workSpec.expedited);
     }
 
     @NonNull

@@ -29,11 +29,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * An API surface for immediate {@link WorkRequest}s.
+ * An API surface for expedited {@link WorkRequest}s.
  */
 @Retention(CLASS)
 @Target({TYPE, METHOD, PACKAGE})
 @Experimental(level = ERROR)
-public @interface ExperimentalImmediateWork {
+public @interface ExperimentalExpeditedWork {
 
 }

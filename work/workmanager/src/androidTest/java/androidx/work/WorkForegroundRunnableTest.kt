@@ -96,9 +96,9 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
     @Test
     @MediumTest
     @SdkSuppress(maxSdkVersion = 30)
-    public fun callGetForeground_forImmediateWork1() {
+    public fun callGetForeground_forExpeditedWork1() {
         val work = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setImmediate()
+            .setExpedited()
             .build()
 
         insertWork(work)
@@ -124,9 +124,9 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
     @Test
     @SmallTest
     @SdkSuppress(maxSdkVersion = 30)
-    public fun callGetForeground_forImmediateWork2() {
+    public fun callGetForeground_forExpeditedWork2() {
         val work = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setImmediate()
+            .setExpedited()
             .build()
 
         insertWork(work)
