@@ -333,7 +333,7 @@ class WatchFaceServiceImageTest {
                             DrawMode.INTERACTIVE,
                             mapOf(
                                 Layer.BASE_LAYER to LayerMode.DRAW,
-                                Layer.COMPLICATIONS to LayerMode.DRAW_HIGHLIGHTED,
+                                Layer.COMPLICATIONS to LayerMode.DRAW_OUTLINED,
                                 Layer.TOP_LAYER to LayerMode.DRAW
                             ),
                             null,
@@ -371,7 +371,7 @@ class WatchFaceServiceImageTest {
                             DrawMode.INTERACTIVE,
                             mapOf(
                                 Layer.BASE_LAYER to LayerMode.DRAW,
-                                Layer.COMPLICATIONS to LayerMode.DRAW_HIGHLIGHTED,
+                                Layer.COMPLICATIONS to LayerMode.DRAW_OUTLINED,
                                 Layer.TOP_LAYER to LayerMode.DRAW
                             ),
                             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,

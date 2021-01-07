@@ -158,20 +158,18 @@ public open class CanvasComplicationDrawable(
                 drawable.currentTimeMillis = calendar.timeInMillis
                 drawable.draw(canvas)
             }
-            LayerMode.DRAW_HIGHLIGHTED -> {
+            LayerMode.DRAW_OUTLINED -> {
                 drawable.bounds = bounds
                 drawable.currentTimeMillis = calendar.timeInMillis
+                val wasHighlighted = drawable.isHighlighted
+                drawable.isHighlighted =
+                    renderParameters.selectedComplicationId == idAndData?.complicationId
                 drawable.draw(canvas)
+                drawable.isHighlighted = wasHighlighted
 
                 // It's only sensible to render a highlight for non-background complications.
                 if (attachedComplication?.boundsType != ComplicationBoundsType.BACKGROUND) {
-                    // If [RenderParameters.highlightedComplicationId] is set then only highlight if
-                    // the ids match.
-                    if (renderParameters.highlightedComplicationId == null ||
-                        renderParameters.highlightedComplicationId == idAndData?.complicationId
-                    ) {
-                        drawOutline(canvas, bounds, calendar, renderParameters.highlightTint)
-                    }
+                    drawOutline(canvas, bounds, calendar, renderParameters.outlineTint)
                 }
             }
             LayerMode.HIDE -> return
