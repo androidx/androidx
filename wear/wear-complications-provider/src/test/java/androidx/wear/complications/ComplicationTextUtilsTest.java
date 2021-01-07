@@ -20,6 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.text.format.DateFormat;
 
+import androidx.test.core.app.ApplicationProvider;
+import androidx.wear.complications.data.ComplicationText;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -144,6 +147,32 @@ public class ComplicationTextUtilsTest {
     public void fallbackDayOfWeekFormat() {
         assertThat(ComplicationTextUtils.shortTextDayOfWeekFormat(new Locale("mfe")))
                 .isEqualTo("EEEEE");
+    }
+
+    @Test
+    public void japaneseDayOfWeekFormat() {
+        assertThat(ComplicationTextUtils.shortTextDayOfWeekFormat(new Locale("ja", "JP")))
+                .isEqualTo("EEEE");
+    }
+
+    @Test
+    public void japaneseDayOfWeekString() {
+        long testTimeMillis = 1610093242000000L;  // Fri, 08 Jan 2021 08:07:22 +0000
+        Locale locale = new Locale("ja", "JP");
+
+        Locale defaultLocale = Locale.getDefault();
+        try {
+            Locale.setDefault(locale);
+            String format = ComplicationTextUtils.shortTextDayOfWeekFormat(locale);
+            assertThat(
+                    ComplicationText.timeFormatBuilder(format).build()
+                            .getTextAt(
+                                    ApplicationProvider.getApplicationContext().getResources(),
+                                    testTimeMillis))
+                    .isEqualTo("金曜日");
+        } finally {
+            Locale.setDefault(defaultLocale);
+        }
     }
 
     /** Robolectric shadow for Android DateFormat. */
