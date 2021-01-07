@@ -73,7 +73,7 @@ public class WorkForegroundRunnable implements Runnable {
     @Override
     @SuppressLint("UnsafeExperimentalUsageError")
     public void run() {
-        if (!mWorkSpec.runImmediately || Build.VERSION.SDK_INT > 30) {
+        if (!mWorkSpec.expedited || Build.VERSION.SDK_INT > 30) {
             mFuture.set(null);
             return;
         }

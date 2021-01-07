@@ -25,7 +25,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.Data
-import androidx.work.ExperimentalImmediateWork
+import androidx.work.ExperimentalExpeditedWork
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
@@ -55,7 +55,7 @@ class ForegroundWorker(context: Context, parameters: WorkerParameters) :
         return Result.success()
     }
 
-    @ExperimentalImmediateWork
+    @ExperimentalExpeditedWork
     override suspend fun getForegroundInfo(): ForegroundInfo {
         val notificationId = inputData.getInt(InputNotificationId, NotificationId)
         return getForegroundInfo(notificationId)

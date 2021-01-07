@@ -89,12 +89,12 @@ public abstract class CoroutineWorker(
     public abstract suspend fun doWork(): Result
 
     /**
-     * @return The [ForegroundInfo] instance if the [WorkRequest] is marked as immediate.
+     * @return The [ForegroundInfo] instance if the [WorkRequest] is marked as expedited.
      *
      * @throws [IllegalStateException] when not overridden. Override this method when the
-     * corresponding [WorkRequest] is marked immediate.
+     * corresponding [WorkRequest] is marked expedited.
      */
-    @ExperimentalImmediateWork
+    @ExperimentalExpeditedWork
     public open suspend fun getForegroundInfo(): ForegroundInfo {
         throw IllegalStateException("Not implemented")
     }
@@ -117,7 +117,7 @@ public abstract class CoroutineWorker(
      * @param foregroundInfo The [ForegroundInfo]
      */
     @Deprecated(
-        message = "Use WorkRequest.Builder.setImmediate() and ListenableWorker.getForegroundInfo()",
+        message = "Use WorkRequest.Builder.setExpedited() and ListenableWorker.getForegroundInfo()",
         replaceWith = ReplaceWith("TODO(\"Replace with getForegroundInfo()\")"),
         level = DeprecationLevel.WARNING
     )
@@ -127,7 +127,7 @@ public abstract class CoroutineWorker(
     }
 
     @Suppress("DEPRECATION")
-    @ExperimentalImmediateWork
+    @ExperimentalExpeditedWork
     public final override fun getForegroundInfoAsync(): ListenableFuture<ForegroundInfo> {
         val job = Job()
         val scope = CoroutineScope(coroutineContext + job)

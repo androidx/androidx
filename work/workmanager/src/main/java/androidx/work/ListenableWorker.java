@@ -220,7 +220,7 @@ public abstract class ListenableWorker {
      * @param foregroundInfo The {@link ForegroundInfo}
      * @return A {@link ListenableFuture} which resolves after the {@link ListenableWorker}
      * transitions to running in the context of a foreground {@link android.app.Service}.
-     * @deprecated Use {@link WorkRequest.Builder#setImmediate()} and
+     * @deprecated Use {@link WorkRequest.Builder#setExpedited()} and
      * {@link ListenableWorker#getForegroundInfoAsync()} instead.
      */
     @NonNull
@@ -245,10 +245,10 @@ public abstract class ListenableWorker {
      *
      * @return A {@link ListenableFuture} of {@link ForegroundInfo} instance if the WorkRequest
      * is marked immediate. For more information look at
-     * {@link WorkRequest.Builder#setImmediate()}.
+     * {@link WorkRequest.Builder#setExpedited()}.
      */
     @NonNull
-    @ExperimentalImmediateWork
+    @ExperimentalExpeditedWork
     public ListenableFuture<ForegroundInfo> getForegroundInfoAsync() {
         SettableFuture<ForegroundInfo> future = SettableFuture.create();
         future.setException(new IllegalStateException("Not implemented"));

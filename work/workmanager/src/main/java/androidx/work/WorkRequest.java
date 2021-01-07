@@ -293,10 +293,10 @@ public abstract class WorkRequest {
          * Marks the {@link WorkRequest} as important to the user.  In this case, WorkManager
          * provides an additional signal to the OS that this work is important.
          */
-        @ExperimentalImmediateWork
+        @ExperimentalExpeditedWork
         @SuppressLint("MissingGetterMatchingBuilder")
-        public @NonNull B setImmediate() {
-            mWorkSpec.runImmediately = true;
+        public @NonNull B setExpedited() {
+            mWorkSpec.expedited = true;
             return getThis();
         }
 
@@ -307,18 +307,17 @@ public abstract class WorkRequest {
          */
         public final @NonNull W build() {
             W returnValue = buildInternal();
-            // Check for immediate jobs.
+            // Check for expedited jobs.
             Constraints constraints = mWorkSpec.constraints;
-            boolean hasNonNetworkConstraints =
+            boolean hasUnsupportedConstraints =
                     (Build.VERSION.SDK_INT >= 24 && constraints.hasContentUriTriggers())
                             || constraints.requiresBatteryNotLow()
                             || constraints.requiresCharging()
-                            || (Build.VERSION.SDK_INT >= 23 && constraints.requiresDeviceIdle())
-                            || constraints.requiresStorageNotLow();
+                            || (Build.VERSION.SDK_INT >= 23 && constraints.requiresDeviceIdle());
 
-            if (mWorkSpec.runImmediately && hasNonNetworkConstraints) {
+            if (mWorkSpec.expedited && hasUnsupportedConstraints) {
                 throw new IllegalArgumentException(
-                        "Immediate jobs only support network constraints");
+                        "Expedited jobs only support network and storage constraints");
             }
             // Create a new id and WorkSpec so this WorkRequest.Builder can be used multiple times.
             mId = UUID.randomUUID();

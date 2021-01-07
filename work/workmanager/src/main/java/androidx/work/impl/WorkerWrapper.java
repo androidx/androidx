@@ -283,12 +283,12 @@ public class WorkerWrapper implements Runnable {
                     );
             mWorkTaskExecutor.getMainThreadExecutor().execute(foregroundRunnable);
 
-            final ListenableFuture<Void> runImmediately = foregroundRunnable.getFuture();
-            runImmediately.addListener(new Runnable() {
+            final ListenableFuture<Void> runExpedited = foregroundRunnable.getFuture();
+            runExpedited.addListener(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        runImmediately.get();
+                        runExpedited.get();
                         Logger.get().debug(TAG,
                                 String.format("Starting work for %s", mWorkSpec.workerClassName));
                         // Call mWorker.startWork() on the main thread.
