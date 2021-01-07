@@ -18,6 +18,10 @@ package androidx.appsearch.localstorage;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.appsearch.app.PackageIdentifier;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import org.junit.Before;
@@ -65,10 +69,11 @@ public class VisibilityStoreTest {
     }
 
     @Test
-    public void testSetVisibility() throws Exception {
+    public void testSetVisibility_platformSurfaceable() throws Exception {
         mVisibilityStore.setVisibility("prefix",
                 /*schemasNotPlatformSurfaceable=*/
-                ImmutableSet.of("prefix/schema1", "prefix/schema2"));
+                ImmutableSet.of("prefix/schema1", "prefix/schema2"),
+                /*schemasPackageAccessible=*/ Collections.emptyMap());
         assertThat(
                 mVisibilityStore.isSchemaPlatformSurfaceable("prefix", "prefix/schema1")).isFalse();
         assertThat(
@@ -78,7 +83,8 @@ public class VisibilityStoreTest {
         // "schema2" isn't preserved.
         mVisibilityStore.setVisibility("prefix",
                 /*schemasNotPlatformSurfaceable=*/
-                ImmutableSet.of("prefix/schema1", "prefix/schema3"));
+                ImmutableSet.of("prefix/schema1", "prefix/schema3"),
+                /*schemasPackageAccessible=*/ Collections.emptyMap());
         assertThat(
                 mVisibilityStore.isSchemaPlatformSurfaceable("prefix", "prefix/schema1")).isFalse();
         assertThat(
@@ -86,8 +92,9 @@ public class VisibilityStoreTest {
         assertThat(
                 mVisibilityStore.isSchemaPlatformSurfaceable("prefix", "prefix/schema3")).isFalse();
 
-        mVisibilityStore.setVisibility(
-                "prefix", /*schemasNotPlatformSurfaceable=*/ Collections.emptySet());
+        mVisibilityStore.setVisibility("prefix",
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptySet(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap());
         assertThat(
                 mVisibilityStore.isSchemaPlatformSurfaceable("prefix", "prefix/schema1")).isTrue();
         assertThat(
@@ -97,12 +104,77 @@ public class VisibilityStoreTest {
     }
 
     @Test
+    public void testSetVisibility_packageAccessible() throws Exception {
+        PackageIdentifier package1 = new PackageIdentifier(
+                "package1", /*sha256Certificate=*/ new byte[]{100});
+        PackageIdentifier package2 = new PackageIdentifier(
+                "package2", /*sha256Certificate=*/ new byte[]{100});
+        PackageIdentifier package3 = new PackageIdentifier(
+                "package3", /*sha256Certificate=*/ new byte[]{100});
+
+        mVisibilityStore.setVisibility("prefix",
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptySet(),
+                /*schemasPackageAccessible=*/ ImmutableMap.of(
+                        "prefix/schema1", ImmutableList.of(package1),
+                        "prefix/schema2", ImmutableList.of(package2)));
+        assertThat(
+                mVisibilityStore.isSchemaPackageAccessible("prefix", "prefix/schema1",
+                        package1)).isTrue();
+        assertThat(
+                mVisibilityStore.isSchemaPackageAccessible("prefix", "prefix/schema2",
+                        package2)).isTrue();
+
+        // New .setVisibility() call completely overrides previous visibility settings. So
+        // "schema2" isn't preserved.
+        mVisibilityStore.setVisibility("prefix",
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptySet(),
+                /*schemasPackageAccessible=*/ ImmutableMap.of(
+                        "prefix/schema1", ImmutableList.of(package1),
+                        "prefix/schema3", ImmutableList.of(package3)));
+        assertThat(
+                mVisibilityStore.isSchemaPackageAccessible("prefix", "prefix/schema1",
+                        package1)).isTrue();
+        assertThat(
+                mVisibilityStore.isSchemaPackageAccessible("prefix", "prefix/schema2",
+                        package2)).isFalse();
+        assertThat(
+                mVisibilityStore.isSchemaPackageAccessible("prefix", "prefix/schema3",
+                        package3)).isTrue();
+
+        mVisibilityStore.setVisibility("prefix",
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptySet(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap());
+        assertThat(
+                mVisibilityStore.isSchemaPackageAccessible("prefix", "prefix/schema1",
+                        package1)).isFalse();
+        assertThat(
+                mVisibilityStore.isSchemaPackageAccessible("prefix", "prefix/schema2",
+                        package2)).isFalse();
+        assertThat(
+                mVisibilityStore.isSchemaPackageAccessible("prefix", "prefix/schema3",
+                        package3)).isFalse();
+    }
+
+    @Test
     public void testEmptyPrefix() throws Exception {
-        mVisibilityStore.setVisibility(/*prefix=*/ "",
-                /*schemasNotPlatformSurfaceable=*/ ImmutableSet.of("schema1", "schema2"));
+        PackageIdentifier package1 = new PackageIdentifier(
+                "package1", /*sha256Certificate=*/ new byte[]{100});
+        PackageIdentifier package2 = new PackageIdentifier(
+                "package2", /*sha256Certificate=*/ new byte[]{100});
+
+        mVisibilityStore.setVisibility(
+                /*prefix=*/ "",
+                /*schemasNotPlatformSurfaceable=*/ ImmutableSet.of("schema1", "schema2"),
+                /*schemasPackageAccessible=*/ ImmutableMap.of(
+                        "schema1", ImmutableList.of(package1),
+                        "schema2", ImmutableList.of(package2)));
         assertThat(
                 mVisibilityStore.isSchemaPlatformSurfaceable(/*prefix=*/ "", "schema1")).isFalse();
         assertThat(
                 mVisibilityStore.isSchemaPlatformSurfaceable(/*prefix=*/ "", "schema2")).isFalse();
+        assertThat(mVisibilityStore.isSchemaPackageAccessible(/*prefix=*/ "", "schema1", package1))
+                .isTrue();
+        assertThat(mVisibilityStore.isSchemaPackageAccessible(/*prefix=*/ "", "schema2", package2))
+                .isTrue();
     }
 }
