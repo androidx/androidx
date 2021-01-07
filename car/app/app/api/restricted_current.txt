@@ -258,9 +258,8 @@ package androidx.car.app.model {
     method public static androidx.car.app.model.CarIconSpan create(androidx.car.app.model.CarIcon);
     method public static androidx.car.app.model.CarIconSpan create(androidx.car.app.model.CarIcon, int);
     method public int getAlignment();
-    method public androidx.car.app.model.CarIcon? getIcon();
+    method public androidx.car.app.model.CarIcon getIcon();
     method public void updateDrawState(android.text.TextPaint?);
-    method public static int validateAlignment(int);
     field public static final int ALIGN_BASELINE = 1; // 0x1
     field public static final int ALIGN_BOTTOM = 0; // 0x0
     field public static final int ALIGN_CENTER = 2; // 0x2

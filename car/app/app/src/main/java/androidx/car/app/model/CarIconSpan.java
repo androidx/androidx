@@ -137,17 +137,11 @@ public class CarIconSpan extends CharacterStyle {
     @NonNull
     public static CarIconSpan create(@NonNull CarIcon icon, @Alignment int alignment) {
         CarIconConstraints.DEFAULT.validateOrThrow(icon);
-        return new CarIconSpan(requireNonNull(icon), validateAlignment(alignment));
-    }
-
-    /**
-     * Ensures that the {@code alignment} is of one of the supported types.
-     */
-    public static int validateAlignment(int alignment) {
         if (alignment != ALIGN_BASELINE && alignment != ALIGN_BOTTOM && alignment != ALIGN_CENTER) {
             throw new IllegalStateException("Invalid alignment value: " + alignment);
         }
-        return alignment;
+
+        return new CarIconSpan(requireNonNull(icon), alignment);
     }
 
     private CarIconSpan(@Nullable CarIcon icon, @Alignment int alignment) {
@@ -160,9 +154,9 @@ public class CarIconSpan extends CharacterStyle {
         mAlignment = ALIGN_BASELINE;
     }
 
-    @Nullable
+    @NonNull
     public CarIcon getIcon() {
-        return mIcon;
+        return requireNonNull(mIcon);
     }
 
     @Alignment
