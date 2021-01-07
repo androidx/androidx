@@ -46,7 +46,7 @@ import java.util.Set;
 public class GenericDocument {
     private static final String TAG = "AppSearchGenericDocumen";
 
-    /** The default empty namespace.*/
+    /** The default empty namespace. */
     public static final String DEFAULT_NAMESPACE = "";
 
     /**
@@ -90,11 +90,11 @@ public class GenericDocument {
         return MAX_INDEXED_PROPERTIES;
     }
 
-    /** Contains {@link GenericDocument} basic information (uri, schemaType etc).*/
+    /** Contains {@link GenericDocument} basic information (uri, schemaType etc). */
     @NonNull
     final Bundle mBundle;
 
-    /** Contains all properties in {@link GenericDocument} to support getting properties via keys.*/
+    /** Contains all properties in {@link GenericDocument} to support getting properties via keys */
     @NonNull
     private final Bundle mProperties;
 
@@ -108,6 +108,7 @@ public class GenericDocument {
 
     /**
      * Rebuilds a {@link GenericDocument} by the a bundle.
+     *
      * @param bundle Contains {@link GenericDocument} basic information (uri, schemaType etc) and
      *               a properties bundle contains all properties in {@link GenericDocument} to
      *               support getting properties via keys.
@@ -135,6 +136,7 @@ public class GenericDocument {
 
     /**
      * Returns the {@link Bundle} populated by this builder.
+     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -178,7 +180,7 @@ public class GenericDocument {
      * time base, the document will be auto-deleted.
      *
      * <p>The default value is 0, which means the document is permanent and won't be auto-deleted
-     *    until the app is uninstalled.
+     * until the app is uninstalled.
      */
     public long getTtlMillis() {
         return mBundle.getLong(TTL_MILLIS_FIELD, DEFAULT_TTL_MILLIS);
@@ -206,11 +208,29 @@ public class GenericDocument {
     }
 
     /**
+     * Retrieves the property value with the given key as {@link Object}.
+     *
+     * @param key The key to look for.
+     * @return The entry with the given key as an object or {@code null} if there is no such key.
+     */
+    @Nullable
+    public Object getProperty(@NonNull String key) {
+        Preconditions.checkNotNull(key);
+        Object property = mProperties.get(key);
+        if (property instanceof ArrayList) {
+            return getPropertyBytesArray(key);
+        } else if (property instanceof Bundle[]) {
+            return getPropertyDocumentArray(key);
+        }
+        return property;
+    }
+
+    /**
      * Retrieves a {@link String} value by key.
      *
      * @param key The key to look for.
-     * @return The first {@link String} associated with the given key or {@code null} if there
-     *         is no such key or the value is of a different type.
+     * @return The first {@link String} associated with the given key or {@code null} if there is
+     * no such key or the value is of a different type.
      */
     @Nullable
     public String getPropertyString(@NonNull String key) {
@@ -228,7 +248,7 @@ public class GenericDocument {
      *
      * @param key The key to look for.
      * @return The first {@code long} associated with the given key or default value {@code 0} if
-     *         there is no such key or the value is of a different type.
+     * there is no such key or the value is of a different type.
      */
     public long getPropertyLong(@NonNull String key) {
         Preconditions.checkNotNull(key);
@@ -245,7 +265,7 @@ public class GenericDocument {
      *
      * @param key The key to look for.
      * @return The first {@code double} associated with the given key or default value {@code 0.0}
-     *         if there is no such key or the value is of a different type.
+     * if there is no such key or the value is of a different type.
      */
     public double getPropertyDouble(@NonNull String key) {
         Preconditions.checkNotNull(key);
@@ -262,7 +282,7 @@ public class GenericDocument {
      *
      * @param key The key to look for.
      * @return The first {@code boolean} associated with the given key or default value
-     *         {@code false} if there is no such key or the value is of a different type.
+     * {@code false} if there is no such key or the value is of a different type.
      */
     public boolean getPropertyBoolean(@NonNull String key) {
         Preconditions.checkNotNull(key);
@@ -278,8 +298,8 @@ public class GenericDocument {
      * Retrieves a {@code byte[]} value by key.
      *
      * @param key The key to look for.
-     * @return The first {@code byte[]} associated with the given key or {@code null} if there
-     *         is no such key or the value is of a different type.
+     * @return The first {@code byte[]} associated with the given key or {@code null} if there is
+     * no such key or the value is of a different type.
      */
     @Nullable
     public byte[] getPropertyBytes(@NonNull String key) {
@@ -297,7 +317,7 @@ public class GenericDocument {
      *
      * @param key The key to look for.
      * @return The first {@link GenericDocument} associated with the given key or {@code null} if
-     *         there is no such key or the value is of a different type.
+     * there is no such key or the value is of a different type.
      */
     @Nullable
     public GenericDocument getPropertyDocument(@NonNull String key) {
@@ -325,8 +345,8 @@ public class GenericDocument {
      * Retrieves a repeated {@code String} property by key.
      *
      * @param key The key to look for.
-     * @return The {@code String[]} associated with the given key, or {@code null} if no value
-     *         is set or the value is of a different type.
+     * @return The {@code String[]} associated with the given key, or {@code null} if no value is
+     * set or the value is of a different type.
      */
     @Nullable
     public String[] getPropertyStringArray(@NonNull String key) {
@@ -339,7 +359,7 @@ public class GenericDocument {
      *
      * @param key The key to look for.
      * @return The {@code long[]} associated with the given key, or {@code null} if no value is
-     *         set or the value is of a different type.
+     * set or the value is of a different type.
      */
     @Nullable
     public long[] getPropertyLongArray(@NonNull String key) {
@@ -351,8 +371,8 @@ public class GenericDocument {
      * Retrieves a repeated {@code double} property by key.
      *
      * @param key The key to look for.
-     * @return The {@code double[]} associated with the given key, or {@code null} if no value
-     *         is set or the value is of a different type.
+     * @return The {@code double[]} associated with the given key, or {@code null} if no value is
+     * set or the value is of a different type.
      */
     @Nullable
     public double[] getPropertyDoubleArray(@NonNull String key) {
@@ -365,7 +385,7 @@ public class GenericDocument {
      *
      * @param key The key to look for.
      * @return The {@code boolean[]} associated with the given key, or {@code null} if no value
-     *         is set or the value is of a different type.
+     * is set or the value is of a different type.
      */
     @Nullable
     public boolean[] getPropertyBooleanArray(@NonNull String key) {
@@ -377,8 +397,8 @@ public class GenericDocument {
      * Retrieves a {@code byte[][]} property by key.
      *
      * @param key The key to look for.
-     * @return The {@code byte[][]} associated with the given key, or {@code null} if no value
-     *         is set or the value is of a different type.
+     * @return The {@code byte[][]} associated with the given key, or {@code null} if no value is
+     * set or the value is of a different type.
      */
     @SuppressLint("ArrayReturn")
     @Nullable
@@ -411,7 +431,7 @@ public class GenericDocument {
      *
      * @param key The key to look for.
      * @return The {@link GenericDocument}[] associated with the given key, or {@code null} if no
-     *         value is set or the value is of a different type.
+     * value is set or the value is of a different type.
      */
     @SuppressLint("ArrayReturn")
     @Nullable
@@ -463,7 +483,7 @@ public class GenericDocument {
      * would be an empty or partially populated result.
      *
      * @param dataClass a class annotated with
-     *        {@link androidx.appsearch.annotation.AppSearchDocument}.
+     *                  {@link androidx.appsearch.annotation.AppSearchDocument}.
      */
     @NonNull
     public <T> T toDataClass(@NonNull Class<T> dataClass) throws AppSearchException {
@@ -575,12 +595,14 @@ public class GenericDocument {
         /**
          * Create a new {@link GenericDocument.Builder}.
          *
-         * @param uri The uri of {@link GenericDocument}.
+         * @param uri        The uri of {@link GenericDocument}.
          * @param schemaType The schema type of the {@link GenericDocument}. The passed-in
-         *        {@code schemaType} must be defined using {@link AppSearchSession#setSchema} prior
-         *        to inserting a document of this {@code schemaType} into the AppSearch index using
-         *        {@link AppSearchSession#putDocuments}. Otherwise, the document will be
-         *        rejected by {@link AppSearchSession#putDocuments}.
+         *                   {@code schemaType} must be defined using
+         *                   {@link AppSearchSession#setSchema} prior
+         *                   to inserting a document of this {@code schemaType} into the
+         *                   AppSearch index using
+         *                   {@link AppSearchSession#putDocuments}. Otherwise, the document will be
+         *                   rejected by {@link AppSearchSession#putDocuments}.
          */
         @SuppressWarnings("unchecked")
         public Builder(@NonNull String uri, @NonNull String schemaType) {
@@ -676,7 +698,7 @@ public class GenericDocument {
          * Sets one or multiple {@code String} values for a property, replacing its previous
          * values.
          *
-         * @param key The key associated with the {@code values}.
+         * @param key    The key associated with the {@code values}.
          * @param values The {@code String} values of the property.
          */
         @NonNull
@@ -692,7 +714,7 @@ public class GenericDocument {
          * Sets one or multiple {@code boolean} values for a property, replacing its previous
          * values.
          *
-         * @param key The key associated with the {@code values}.
+         * @param key    The key associated with the {@code values}.
          * @param values The {@code boolean} values of the property.
          */
         @NonNull
@@ -708,7 +730,7 @@ public class GenericDocument {
          * Sets one or multiple {@code long} values for a property, replacing its previous
          * values.
          *
-         * @param key The key associated with the {@code values}.
+         * @param key    The key associated with the {@code values}.
          * @param values The {@code long} values of the property.
          */
         @NonNull
@@ -724,7 +746,7 @@ public class GenericDocument {
          * Sets one or multiple {@code double} values for a property, replacing its previous
          * values.
          *
-         * @param key The key associated with the {@code values}.
+         * @param key    The key associated with the {@code values}.
          * @param values The {@code double} values of the property.
          */
         @NonNull
@@ -739,7 +761,7 @@ public class GenericDocument {
         /**
          * Sets one or multiple {@code byte[]} for a property, replacing its previous values.
          *
-         * @param key The key associated with the {@code values}.
+         * @param key    The key associated with the {@code values}.
          * @param values The {@code byte[]} of the property.
          */
         @NonNull
@@ -755,7 +777,7 @@ public class GenericDocument {
          * Sets one or multiple {@link GenericDocument} values for a property, replacing its
          * previous values.
          *
-         * @param key The key associated with the {@code values}.
+         * @param key    The key associated with the {@code values}.
          * @param values The {@link GenericDocument} values of the property.
          */
         @NonNull
@@ -776,7 +798,7 @@ public class GenericDocument {
                     throw new IllegalArgumentException("The String at " + i + " is null.");
                 } else if (values[i].length() > MAX_STRING_LENGTH) {
                     throw new IllegalArgumentException("The String at " + i + " length is: "
-                            + values[i].length()  + ", which exceeds length limit: "
+                            + values[i].length() + ", which exceeds length limit: "
                             + MAX_STRING_LENGTH + ".");
                 }
             }
