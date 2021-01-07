@@ -215,7 +215,6 @@ public final class ImageAnalysis extends UseCase {
 
         tryUpdateRelativeRotation();
 
-        mImageAnalysisAbstractAnalyzer.open();
         imageReaderProxy.setOnImageAvailableListener(mImageAnalysisAbstractAnalyzer,
                 backgroundExecutor);
 
@@ -233,7 +232,8 @@ public final class ImageAnalysis extends UseCase {
 
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
             clearPipeline();
-
+            // Clear cache so app won't get a outdated image.
+            mImageAnalysisAbstractAnalyzer.clearCache();
             // Ensure the attached camera has not changed before resetting.
             // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
             //  to this use case so we don't need to do this check.
@@ -256,8 +256,6 @@ public final class ImageAnalysis extends UseCase {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void clearPipeline() {
         Threads.checkMainThread();
-        mImageAnalysisAbstractAnalyzer.close();
-
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
             mDeferrableSurface = null;
@@ -272,7 +270,6 @@ public final class ImageAnalysis extends UseCase {
     public void clearAnalyzer() {
         synchronized (mAnalysisLock) {
             mImageAnalysisAbstractAnalyzer.setAnalyzer(null, null);
-            mImageAnalysisAbstractAnalyzer.close();
             if (mSubscribedAnalyzer != null) {
                 notifyInactive();
             }
@@ -363,7 +360,6 @@ public final class ImageAnalysis extends UseCase {
      */
     public void setAnalyzer(@NonNull Executor executor, @NonNull Analyzer analyzer) {
         synchronized (mAnalysisLock) {
-            mImageAnalysisAbstractAnalyzer.open();
             mImageAnalysisAbstractAnalyzer.setAnalyzer(executor, image -> {
                 if (getViewPortCropRect() != null) {
                     image.setCropRect(getViewPortCropRect());
@@ -430,6 +426,7 @@ public final class ImageAnalysis extends UseCase {
     @Override
     public void onDetached() {
         clearPipeline();
+        mImageAnalysisAbstractAnalyzer.detach();
     }
 
     /**
@@ -460,14 +457,7 @@ public final class ImageAnalysis extends UseCase {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void onAttached() {
-        synchronized (mAnalysisLock) {
-            // The use case should be reused so that mSubscribedAnalyzer is not null but
-            // mImageAnalysisAbstractAnalyzer is closed. Re-open mImageAnalysisAbstractAnalyzer
-            // after the use case is attached to make it work again.
-            if (mSubscribedAnalyzer != null && mImageAnalysisAbstractAnalyzer.isClosed()) {
-                mImageAnalysisAbstractAnalyzer.open();
-            }
-        }
+        mImageAnalysisAbstractAnalyzer.attach();
     }
 
     /**
