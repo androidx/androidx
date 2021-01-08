@@ -72,4 +72,14 @@ public class SearchSpecTest {
         assertThat(typePropertyPathMap.get("TypeB")).containsExactly("field7");
         assertThat(typePropertyPathMap.get("TypeC")).isEmpty();
     }
+
+    @Test
+    public void testGetRankingStrategy() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
+                .build();
+        assertThat(searchSpec.getRankingStrategy()).isEqualTo(
+                SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE);
+    }
 }
