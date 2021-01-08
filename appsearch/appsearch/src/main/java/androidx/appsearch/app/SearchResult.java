@@ -51,26 +51,16 @@ public final class SearchResult {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String MATCHES_FIELD = "matches";
 
-    @NonNull
-    private final Bundle mBundle;
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String PACKAGE_NAME_FIELD = "packageName";
 
     @NonNull
-    private final Bundle mDocumentBundle;
+    private final Bundle mBundle;
 
     /** Cache of the inflated document. Comes from inflating mDocumentBundle at first use. */
     @Nullable
     private GenericDocument mDocument;
-
-    /**
-     * Contains a list of MatchInfo bundles that matched the request.
-     *
-     * Only populated when requested in both {@link SearchSpec.Builder#setSnippetCount} and
-     * {@link SearchSpec.Builder#setSnippetCountPerProperty}.
-     *
-     * @see #getMatches()
-     */
-    @NonNull
-    private final List<Bundle> mMatchBundles;
 
     /** Cache of the inflated matches. Comes from inflating mMatchBundles at first use. */
     @Nullable
@@ -80,8 +70,6 @@ public final class SearchResult {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public SearchResult(@NonNull Bundle bundle) {
         mBundle = Preconditions.checkNotNull(bundle);
-        mDocumentBundle = Preconditions.checkNotNull(bundle.getBundle(DOCUMENT_FIELD));
-        mMatchBundles = Preconditions.checkNotNull(bundle.getParcelableArrayList(MATCHES_FIELD));
     }
 
     /** @hide */
@@ -93,12 +81,14 @@ public final class SearchResult {
 
     /**
      * Contains the matching {@link GenericDocument}.
+     *
      * @return Document object which matched the query.
      */
     @NonNull
     public GenericDocument getDocument() {
         if (mDocument == null) {
-            mDocument = new GenericDocument(mDocumentBundle);
+            mDocument = new GenericDocument(
+                    Preconditions.checkNotNull(mBundle.getBundle(DOCUMENT_FIELD)));
         }
         return mDocument;
     }
@@ -114,13 +104,27 @@ public final class SearchResult {
     @NonNull
     public List<MatchInfo> getMatches() {
         if (mMatches == null) {
-            mMatches = new ArrayList<>(mMatchBundles.size());
-            for (int i = 0; i < mMatchBundles.size(); i++) {
-                MatchInfo matchInfo = new MatchInfo(getDocument(), mMatchBundles.get(i));
+            List<Bundle> matchBundles =
+                    Preconditions.checkNotNull(mBundle.getParcelableArrayList(MATCHES_FIELD));
+            mMatches = new ArrayList<>(matchBundles.size());
+            for (int i = 0; i < matchBundles.size(); i++) {
+                MatchInfo matchInfo = new MatchInfo(getDocument(), matchBundles.get(i));
                 mMatches.add(matchInfo);
             }
         }
         return mMatches;
+    }
+
+    /**
+     * Contains the package name that stored the {@link GenericDocument}.
+     *
+     * @return Package name that stored the document
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public String getPackageName() {
+        return Preconditions.checkNotNull(mBundle.getString(PACKAGE_NAME_FIELD));
     }
 
     /**
@@ -168,6 +172,7 @@ public final class SearchResult {
     public static final class MatchInfo {
         /**
          * The path of the matching snippet property.
+         *
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -176,6 +181,7 @@ public final class SearchResult {
         /**
          * The index of matching value in its property. A property may have multiple values. This
          * index indicates which value is the match.
+         *
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -312,7 +318,6 @@ public final class SearchResult {
      * side of the range.
      *
      * <p> Example: MatchRange(0, 100) represent a hundred ints from 0 to 99."
-     *
      */
     public static final class MatchRange {
         private final int mEnd;
@@ -324,7 +329,7 @@ public final class SearchResult {
          * must be lesser or equal to {@code end}.
          *
          * @param start The start point (inclusive)
-         * @param end The end point (exclusive)
+         * @param end   The end point (exclusive)
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
