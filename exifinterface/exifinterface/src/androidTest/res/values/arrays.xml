@@ -367,7 +367,7 @@
         <item>0</item>
         <item>0</item>
     </array>
-    <array name="heic_with_exif">
+    <array name="heif_with_exif">
         <!--Whether thumbnail exists-->
         <item>false</item>
         <item>0</item>
