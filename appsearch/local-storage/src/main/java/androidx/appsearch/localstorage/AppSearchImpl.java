@@ -499,23 +499,29 @@ public final class AppSearchImpl {
             @NonNull Set<String> prefixes, @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec)
             throws AppSearchException {
-        SearchSpecProto searchSpecProto =
-                SearchSpecToProtoConverter.toSearchSpecProto(searchSpec);
-        SearchSpecProto.Builder searchSpecBuilder = searchSpecProto.toBuilder()
-                .setQuery(queryExpression);
-
-        ResultSpecProto resultSpec = SearchSpecToProtoConverter.toResultSpecProto(searchSpec);
-        ScoringSpecProto scoringSpec = SearchSpecToProtoConverter.toScoringSpecProto(searchSpec);
-        SearchResultProto searchResultProto;
-
+        SearchSpecProto.Builder searchSpecBuilder =
+                SearchSpecToProtoConverter.toSearchSpecProto(searchSpec).toBuilder().setQuery(
+                        queryExpression);
         // rewriteSearchSpecForPrefixesLocked will return false if none of the prefixes that the
         // client is trying to search on exist, so we can return an empty SearchResult and skip
         // sending request to Icing.
         if (!rewriteSearchSpecForPrefixesLocked(searchSpecBuilder, prefixes)) {
             return new SearchResultPage(Bundle.EMPTY);
         }
-        searchResultProto = mIcingSearchEngineLocked.search(
-                searchSpecBuilder.build(), scoringSpec, resultSpec);
+
+        ResultSpecProto.Builder resultSpecBuilder =
+                SearchSpecToProtoConverter.toResultSpecProto(searchSpec).toBuilder();
+
+        // rewriteResultSpecForPrefixesLocked will return false if none of the prefixes that the
+        // client is trying to search on exist, so we can return an empty SearchResult and skip
+        // sending request to Icing.
+        if (!rewriteResultSpecForPrefixesLocked(resultSpecBuilder, prefixes)) {
+            return new SearchResultPage(Bundle.EMPTY);
+        }
+
+        ScoringSpecProto scoringSpec = SearchSpecToProtoConverter.toScoringSpecProto(searchSpec);
+        SearchResultProto searchResultProto = mIcingSearchEngineLocked.search(
+                searchSpecBuilder.build(), scoringSpec, resultSpecBuilder.build());
         checkSuccess(searchResultProto.getStatus());
 
         return rewriteSearchResultProto(searchResultProto);
@@ -905,6 +911,47 @@ public final class AppSearchImpl {
             }
         }
 
+        return true;
+    }
+
+    /**
+     * Rewrites the typePropertyMasks that exist in {@code prefixes}.
+     *
+     * <p>This method should be only called in query methods and get the READ lock to keep thread
+     * safety.
+     *
+     * @return false if none of the requested prefixes exist.
+     */
+    @VisibleForTesting
+    @GuardedBy("mReadWriteLock")
+    boolean rewriteResultSpecForPrefixesLocked(
+            @NonNull ResultSpecProto.Builder resultSpecBuilder,
+            @NonNull Set<String> prefixes) {
+        // Create a copy since retainAll() modifies the original set.
+        Set<String> existingPrefixes = new ArraySet<>(mNamespaceMapLocked.keySet());
+        existingPrefixes.retainAll(prefixes);
+
+        if (existingPrefixes.isEmpty()) {
+            // None of the prefixes exist, empty query.
+            return false;
+        }
+
+        List<ResultSpecProto.TypePropertyMask> prefixedTypePropertyMasks = new ArrayList<>();
+        // Rewrite filters to include a database prefix.
+        for (String prefix : existingPrefixes) {
+            Set<String> existingSchemaTypes = mSchemaMapLocked.get(prefix);
+            // Qualify the given schema types
+            for (ResultSpecProto.TypePropertyMask typePropertyMask :
+                    resultSpecBuilder.getTypePropertyMasksList()) {
+                String qualifiedType = prefix + typePropertyMask.getSchemaType();
+                if (existingSchemaTypes.contains(qualifiedType)) {
+                    prefixedTypePropertyMasks.add(
+                            typePropertyMask.toBuilder().setSchemaType(qualifiedType).build());
+                }
+            }
+        }
+        resultSpecBuilder.clearTypePropertyMasks().addAllTypePropertyMasks(
+                prefixedTypePropertyMasks);
         return true;
     }
 

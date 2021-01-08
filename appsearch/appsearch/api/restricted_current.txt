@@ -232,6 +232,7 @@ package androidx.appsearch.app {
     method public int getMaxSnippetSize();
     method public java.util.List<java.lang.String!> getNamespaces();
     method public int getOrder();
+    method public java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!> getProjections();
     method public int getRankingStrategy();
     method public int getResultCountPerPage();
     method public java.util.List<java.lang.String!> getSchemaTypes();
@@ -240,6 +241,7 @@ package androidx.appsearch.app {
     method public int getTermMatch();
     field public static final int ORDER_ASCENDING = 1; // 0x1
     field public static final int ORDER_DESCENDING = 0; // 0x0
+    field public static final String PROJECTION_SCHEMA_TYPE_WILDCARD = "*";
     field public static final int RANKING_STRATEGY_CREATION_TIMESTAMP = 2; // 0x2
     field public static final int RANKING_STRATEGY_DOCUMENT_SCORE = 1; // 0x1
     field public static final int RANKING_STRATEGY_NONE = 0; // 0x0
@@ -251,6 +253,8 @@ package androidx.appsearch.app {
     ctor public SearchSpec.Builder();
     method public androidx.appsearch.app.SearchSpec.Builder addNamespace(java.lang.String!...);
     method public androidx.appsearch.app.SearchSpec.Builder addNamespace(java.util.Collection<java.lang.String!>);
+    method public androidx.appsearch.app.SearchSpec.Builder addProjection(String, java.lang.String!...);
+    method public androidx.appsearch.app.SearchSpec.Builder addProjection(String, java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.SearchSpec.Builder addSchemaByDataClass(java.util.Collection<java.lang.Class<?>!>) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SearchSpec.Builder addSchemaByDataClass(Class<?>!...) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SearchSpec.Builder addSchemaType(java.lang.String!...);
