@@ -20,6 +20,7 @@ Here are the highlights of this release:
 \- Declare the version of Java your build requires
 \- Java [0-9]+ support
 For more details see https\:\/\/docs\.gradle\.org\/[0-9]+\.[0-9]+\.[0-9]+\/release\-notes\.html
+Starting a Gradle Daemon \(subsequent builds will be faster\)
 To honour the JVM settings for this build a new JVM will be forked\. Please consider using the daemon\: https\:\/\/docs\.gradle\.org\/[0-9]+\.[0-9]+\.[0-9]+\/userguide\/gradle_daemon\.html\.
 For more details see https://docs\.gradle\.org/[0-9]+\.[0-9]+/release\-notes\.html
 To honour the JVM settings for this build a new JVM will be forked\. Please consider using the daemon: https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/gradle_daemon\.html\.
@@ -676,3 +677,14 @@ w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/android
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/OnApplyWindowInsetsListenerTest\.kt\: \([0-9]+\, [0-9]+\)\: \'consumeDisplayCutout\(\)\: WindowInsetsCompat\' is deprecated\. Deprecated in Java
 # > Task :contentpager:contentpager:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/contentpager/contentpager/src/androidTest/java/androidx/contentpager/content/LoaderQueryRunnerTest\.java uses or overrides a deprecated API\.
+# > Task :wear:wear-tiles:generateApi
+src/main/java/androidx/wear/tiles/builders/ActionBuilders\.java:[0-9]+: info: Unresolved import: `androidx\.wear\.tiles\.proto\.ActionProto` \[UnresolvedImport\]
+src/main/java/androidx/wear/tiles/builders/ColorBuilders\.java:[0-9]+: info: Unresolved import: `androidx\.wear\.tiles\.proto\.ColorProto` \[UnresolvedImport\]
+src/main/java/androidx/wear/tiles/readers/DeviceParametersReaders\.java:[0-9]+: info: Unresolved import: `androidx\.wear\.tiles\.proto\.DeviceParametersProto` \[UnresolvedImport\]
+src/main/java/androidx/wear/tiles/builders/DimensionBuilders\.java:[0-9]+: info: Unresolved import: `androidx\.wear\.tiles\.proto\.DimensionProto` \[UnresolvedImport\]
+src/main/java/androidx/wear/tiles/builders/LayoutElementBuilders\.java:[0-9]+: info: Unresolved import: `androidx\.wear\.tiles\.proto\.LayoutElementProto` \[UnresolvedImport\]
+src/main/java/androidx/wear/tiles/builders/LayoutElementBuilders\.java:[0-9]+: info: Unresolved import: `androidx\.wear\.tiles\.proto\.TypesProto` \[UnresolvedImport\]
+src/main/java/androidx/wear/tiles/readers/RequestReaders\.java:[0-9]+: info: Unresolved import: `androidx\.wear\.tiles\.proto\.RequestProto` \[UnresolvedImport\]
+src/main/java/androidx/wear/tiles/builders/ResourceBuilders\.java:[0-9]+: info: Unresolved import: `androidx\.wear\.tiles\.proto\.ResourceProto` \[UnresolvedImport\]
+src/main/java/androidx/wear/tiles/builders/TileBuilders\.java:[0-9]+: info: Unresolved import: `androidx\.wear\.tiles\.proto\.TileProto` \[UnresolvedImport\]
+src/main/java/androidx/wear/tiles/builders/TimelineBuilders\.java:[0-9]+: info: Unresolved import: `androidx\.wear\.tiles\.proto\.TimelineProto` \[UnresolvedImport\]
