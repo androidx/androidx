@@ -42,7 +42,8 @@ public final class JpegHalCorruptImageQuirk implements SoftwareJpegEncodingPrefe
 
     private static final Set<String> KNOWN_AFFECTED_DEVICES = new HashSet<>(
             Arrays.asList(
-                    "heroqltevzw"
+                    "heroqltevzw",
+                    "heroqltetmo"
             ));
 
     // TODO: This quirk is limited to FULL/LEVEL_3 cameras currently since it will use a YUV stream
