@@ -62,16 +62,26 @@ package androidx.navigation {
     method public String? getAction();
     method public String? getMimeType();
     method public android.net.Uri? getUri();
+    property public String? action;
+    property public String? mimeType;
+    property public android.net.Uri? uri;
   }
 
   public static final class NavDeepLinkRequest.Builder {
     method public androidx.navigation.NavDeepLinkRequest build();
-    method public static androidx.navigation.NavDeepLinkRequest.Builder fromAction(String);
-    method public static androidx.navigation.NavDeepLinkRequest.Builder fromMimeType(String);
-    method public static androidx.navigation.NavDeepLinkRequest.Builder fromUri(android.net.Uri);
-    method public androidx.navigation.NavDeepLinkRequest.Builder setAction(String);
-    method public androidx.navigation.NavDeepLinkRequest.Builder setMimeType(String);
-    method public androidx.navigation.NavDeepLinkRequest.Builder setUri(android.net.Uri);
+    method public static androidx.navigation.NavDeepLinkRequest.Builder fromAction(String action);
+    method public static androidx.navigation.NavDeepLinkRequest.Builder fromMimeType(String mimeType);
+    method public static androidx.navigation.NavDeepLinkRequest.Builder fromUri(android.net.Uri uri);
+    method public androidx.navigation.NavDeepLinkRequest.Builder setAction(String action);
+    method public androidx.navigation.NavDeepLinkRequest.Builder setMimeType(String mimeType);
+    method public androidx.navigation.NavDeepLinkRequest.Builder setUri(android.net.Uri uri);
+    field public static final androidx.navigation.NavDeepLinkRequest.Builder.Companion Companion;
+  }
+
+  public static final class NavDeepLinkRequest.Builder.Companion {
+    method public androidx.navigation.NavDeepLinkRequest.Builder fromAction(String action);
+    method public androidx.navigation.NavDeepLinkRequest.Builder fromMimeType(String mimeType);
+    method public androidx.navigation.NavDeepLinkRequest.Builder fromUri(android.net.Uri uri);
   }
 
   public class NavDestination {
