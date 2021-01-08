@@ -38,6 +38,7 @@ import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
 import com.google.android.icing.IcingSearchEngine;
+import com.google.android.icing.proto.DeleteByQueryResultProto;
 import com.google.android.icing.proto.DeleteResultProto;
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.GetAllNamespacesResultProto;
@@ -606,7 +607,7 @@ public final class AppSearchImpl {
                 SearchSpecToProtoConverter.toSearchSpecProto(searchSpec);
         SearchSpecProto.Builder searchSpecBuilder = searchSpecProto.toBuilder()
                 .setQuery(queryExpression);
-        DeleteResultProto deleteResultProto;
+        DeleteByQueryResultProto deleteResultProto;
         mReadWriteLock.writeLock().lock();
         try {
             // Only rewrite SearchSpec for non empty prefixes.
