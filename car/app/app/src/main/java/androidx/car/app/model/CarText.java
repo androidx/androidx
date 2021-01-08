@@ -32,13 +32,8 @@ import java.util.Objects;
  * A model used to send text with attached spans to the host.
  */
 public class CarText {
-    /** An empty CarText for convenience. */
-    @NonNull
-    public static final CarText EMPTY = CarText.create("");
-
     @Keep
-    @Nullable
-    private String mText;
+    private final String mText;
     @Keep
     private final List<SpanWrapper> mSpans;
 
@@ -47,12 +42,7 @@ public class CarText {
      * false} otherwise.
      */
     public static boolean isNullOrEmpty(@Nullable CarText carText) {
-        if (carText == null) {
-            return true;
-        }
-
-        String text = carText.mText;
-        return text == null || text.isEmpty();
+        return carText == null || carText.isEmpty();
     }
 
     /**
@@ -65,13 +55,13 @@ public class CarText {
         return new CarText(text);
     }
 
-    @Nullable
+    @NonNull
     public String getText() {
         return mText;
     }
 
     public boolean isEmpty() {
-        return mText == null || mText.isEmpty();
+        return mText.isEmpty();
     }
 
     /** Returns the optional list of spans attached to the text. */
@@ -83,8 +73,7 @@ public class CarText {
     @NonNull
     @Override
     public String toString() {
-        String text = getText();
-        return text == null ? "" : text;
+        return getText();
     }
 
     /**
@@ -95,13 +84,13 @@ public class CarText {
         return text == null ? null : StringUtils.shortenString(text.toString());
     }
 
-    public CarText() {
-        mText = null;
+    private CarText() {
+        mText = "";
         mSpans = Collections.emptyList();
     }
 
     private CarText(CharSequence text) {
-        this.mText = text.toString();
+        this.mText = text.toString().trim();
 
         mSpans = new ArrayList<>();
 
