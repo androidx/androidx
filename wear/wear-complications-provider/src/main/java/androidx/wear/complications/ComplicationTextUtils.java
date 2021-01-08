@@ -74,7 +74,11 @@ public class ComplicationTextUtils {
         new FormatMapping("no", "HHmm", "HH.mm"),
         new FormatMapping("no", "hmm", "h.mm a"),
         new FormatMapping("nb", "HHmm", "HH.mm"),
-        new FormatMapping("nb", "hmm", "h.mm a")
+        new FormatMapping("nb", "hmm", "h.mm a"),
+
+        // Japanese day of week should use the full form instead of the abbreviated one as that is
+        // three characters anyway.
+        new FormatMapping("ja", "EEE", "EEEE"),
     };
 
     /**
