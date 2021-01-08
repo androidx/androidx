@@ -106,7 +106,8 @@ public final class SearchSpec {
     @IntDef(value = {
             RANKING_STRATEGY_NONE,
             RANKING_STRATEGY_DOCUMENT_SCORE,
-            RANKING_STRATEGY_CREATION_TIMESTAMP
+            RANKING_STRATEGY_CREATION_TIMESTAMP,
+            RANKING_STRATEGY_RELEVANCE_SCORE
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface RankingStrategy {}
@@ -117,6 +118,8 @@ public final class SearchSpec {
     public static final int RANKING_STRATEGY_DOCUMENT_SCORE = 1;
     /** Ranked by document creation timestamps. */
     public static final int RANKING_STRATEGY_CREATION_TIMESTAMP = 2;
+    /** Ranked by document relevance score. */
+    public static final int RANKING_STRATEGY_RELEVANCE_SCORE = 3;
 
     /**
      * Order for query result.
@@ -385,7 +388,7 @@ public final class SearchSpec {
         public Builder setRankingStrategy(@RankingStrategy int rankingStrategy) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkArgumentInRange(rankingStrategy, RANKING_STRATEGY_NONE,
-                    RANKING_STRATEGY_CREATION_TIMESTAMP, "Result ranking strategy");
+                    RANKING_STRATEGY_RELEVANCE_SCORE, "Result ranking strategy");
             mBundle.putInt(RANKING_STRATEGY_FIELD, rankingStrategy);
             return this;
         }
