@@ -40,19 +40,28 @@ package androidx.navigation {
   }
 
   public final class NavDeepLink {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public NavDeepLink(String uri);
     method public String? getAction();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.os.Bundle? getMatchingArguments(android.net.Uri deepLink, java.util.Map<java.lang.String,androidx.navigation.NavArgument> arguments);
     method public String? getMimeType();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getMimeTypeMatchRating(String mimeType);
     method public String? getUriPattern();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean isExactDeepLink();
+    property public final String? action;
+    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final boolean isExactDeepLink;
+    property public final String? mimeType;
+    property public final String? uriPattern;
   }
 
   public static final class NavDeepLink.Builder {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public NavDeepLink.Builder();
     method public androidx.navigation.NavDeepLink build();
-    method public static androidx.navigation.NavDeepLink.Builder fromAction(String);
-    method public static androidx.navigation.NavDeepLink.Builder fromMimeType(String);
-    method public static androidx.navigation.NavDeepLink.Builder fromUriPattern(String);
-    method public androidx.navigation.NavDeepLink.Builder setAction(String);
-    method public androidx.navigation.NavDeepLink.Builder setMimeType(String);
-    method public androidx.navigation.NavDeepLink.Builder setUriPattern(String);
+    method public static androidx.navigation.NavDeepLink.Builder fromAction(String action);
+    method public static androidx.navigation.NavDeepLink.Builder fromMimeType(String mimeType);
+    method public static androidx.navigation.NavDeepLink.Builder fromUriPattern(String uriPattern);
+    method public androidx.navigation.NavDeepLink.Builder setAction(String action);
+    method public androidx.navigation.NavDeepLink.Builder setMimeType(String mimeType);
+    method public androidx.navigation.NavDeepLink.Builder setUriPattern(String uriPattern);
   }
 
   public class NavDeepLinkRequest {
