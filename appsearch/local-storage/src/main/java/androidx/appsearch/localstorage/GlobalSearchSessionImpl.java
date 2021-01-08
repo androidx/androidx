@@ -16,6 +16,8 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.localstorage;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GlobalSearchSession;
@@ -36,12 +38,15 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     private final AppSearchImpl mAppSearchImpl;
     private final ExecutorService mExecutorService;
     private boolean mIsClosed = false;
+    private final Context mContext;
 
     GlobalSearchSessionImpl(
             @NonNull AppSearchImpl appSearchImpl,
-            @NonNull ExecutorService executorService) {
+            @NonNull ExecutorService executorService,
+            @NonNull Context context) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
         mExecutorService = Preconditions.checkNotNull(executorService);
+        mContext = Preconditions.checkNotNull(context);
     }
 
     @NonNull
@@ -54,7 +59,8 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         return new SearchResultsImpl(
                 mAppSearchImpl,
                 mExecutorService,
-                /*packageName=*/ null,
+                mContext,
+                mContext.getPackageName(),
                 /*databaseName=*/ null,
                 queryExpression,
                 searchSpec);

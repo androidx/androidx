@@ -49,6 +49,7 @@ import java.util.concurrent.Executors;
 public class LocalStorage {
     /**
      * The default empty database name.
+     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -208,8 +209,9 @@ public class LocalStorage {
      * <p>This process requires a native search library. If it's not created, the initialization
      * process will create one.
      *
-     * @param context The {@link GlobalSearchContext} contains all information to create a new
-     *                {@link GlobalSearchSession}
+     * @param context                  The {@link GlobalSearchContext} contains all information
+     *                                 to create a new
+     *                                 {@link GlobalSearchSession}
      * @hide
      */
     @NonNull
@@ -218,7 +220,7 @@ public class LocalStorage {
         Preconditions.checkNotNull(context);
         return FutureUtil.execute(EXECUTOR_SERVICE, () -> {
             LocalStorage instance = getOrCreateInstance(context.mContext);
-            return instance.doCreateGlobalSearchSession(EXECUTOR_SERVICE);
+            return instance.doCreateGlobalSearchSession(context, EXECUTOR_SERVICE);
         });
     }
 
@@ -247,18 +249,21 @@ public class LocalStorage {
     private LocalStorage(@NonNull Context context) throws AppSearchException {
         Preconditions.checkNotNull(context);
         File icingDir = new File(context.getFilesDir(), ICING_LIB_ROOT_DIR);
-        mAppSearchImpl = AppSearchImpl.create(icingDir);
+
+        // There is no global querier for a local storage instance.
+        mAppSearchImpl = AppSearchImpl.create(icingDir, context, /*globalQuerierPackage=*/ "");
     }
 
     @NonNull
     private AppSearchSession doCreateSearchSession(@NonNull SearchContext context,
             @NonNull ExecutorService executor) {
-        return new SearchSessionImpl(mAppSearchImpl, executor,
+        return new SearchSessionImpl(mAppSearchImpl, executor, context.mContext,
                 context.mContext.getPackageName(), context.mDatabaseName);
     }
 
     @NonNull
-    private GlobalSearchSession doCreateGlobalSearchSession(@NonNull ExecutorService executor) {
-        return new GlobalSearchSessionImpl(mAppSearchImpl, executor);
+    private GlobalSearchSession doCreateGlobalSearchSession(@NonNull GlobalSearchContext context,
+            @NonNull ExecutorService executor) {
+        return new GlobalSearchSessionImpl(mAppSearchImpl, executor, context.mContext);
     }
 }
