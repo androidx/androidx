@@ -79,17 +79,19 @@ package android.support.wearable.complications {
   }
 
   public final class ComplicationProviderInfo implements android.os.Parcelable {
-    ctor public ComplicationProviderInfo(String, String, android.graphics.drawable.Icon, int);
+    ctor public ComplicationProviderInfo(String, String, android.graphics.drawable.Icon, int, android.content.ComponentName);
     ctor public ComplicationProviderInfo(android.os.Parcel);
     method public int describeContents();
     method public String? getAppName();
     method public int getComplicationType();
+    method public android.content.ComponentName? getProviderComponentName();
     method public android.graphics.drawable.Icon? getProviderIcon();
     method public String? getProviderName();
-    method public void setAppName(String?);
+    method public void setAppName(String);
     method public void setComplicationType(int);
-    method public void setProviderIcon(android.graphics.drawable.Icon?);
-    method public void setProviderName(String?);
+    method public void setProviderComponentName(android.content.ComponentName);
+    method public void setProviderIcon(android.graphics.drawable.Icon);
+    method public void setProviderName(String);
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.support.wearable.complications.ComplicationProviderInfo!> CREATOR;
   }
