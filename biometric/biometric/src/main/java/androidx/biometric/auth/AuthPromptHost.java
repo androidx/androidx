@@ -22,28 +22,49 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 /**
- * A wrapper class for {@link FragmentActivity} and {@link Fragment} with the FragmentActivity or
- * Fragment that hosts the AuthPrompt
+ * A wrapper class for the component that will be used to host an auth prompt.
  */
 public class AuthPromptHost {
-    @Nullable private Fragment mFragment;
     @Nullable private FragmentActivity mActivity;
+    @Nullable private Fragment mFragment;
 
-    public AuthPromptHost(@NonNull Fragment fragment) {
-        mFragment = fragment;
-    }
-
+    /**
+     * Constructs an {@link AuthPromptHost} wrapper for the given activity.
+     *
+     * @param activity The activity that will host the prompt.
+     */
     public AuthPromptHost(@NonNull FragmentActivity activity) {
         mActivity = activity;
     }
 
-    @Nullable
-    public Fragment getFragment() {
-        return mFragment;
+    /**
+     * Constructs an {@link AuthPromptHost} wrapper for the given fragment.
+     *
+     * @param fragment The fragment that will host the prompt.
+     */
+    public AuthPromptHost(@NonNull Fragment fragment) {
+        mFragment = fragment;
     }
 
+    /**
+     * Gets the activity that will host the prompt, if set.
+     *
+     * @return The activity that will host the prompt, or {@code null} if the prompt will be hosted
+     * by a different type of component.
+     */
     @Nullable
     public FragmentActivity getActivity() {
         return mActivity;
+    }
+
+    /**
+     * Gets the fragment that will host the prompt, if set.
+     *
+     * @return The fragment that will host the prompt, or {@code null} if the prompt will be hosted
+     * by a different type of component.
+     */
+    @Nullable
+    public Fragment getFragment() {
+        return mFragment;
     }
 }

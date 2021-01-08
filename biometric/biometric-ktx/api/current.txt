@@ -17,13 +17,13 @@ package androidx.biometric.auth {
   }
 
   public final class Class3BiometricOrCredentialAuthExtensionsKt {
-    method public static androidx.biometric.auth.AuthPrompt startClass3BiometricOrCredentialAuthentication(androidx.fragment.app.FragmentActivity, androidx.biometric.BiometricPrompt.CryptoObject? crypto, CharSequence title, optional CharSequence? subtitle, optional CharSequence? description, optional boolean confirmationRequired, optional java.util.concurrent.Executor? executor, androidx.biometric.auth.AuthPromptCallback callback);
-    method public static androidx.biometric.auth.AuthPrompt startClass3BiometricOrCredentialAuthentication(androidx.fragment.app.Fragment, androidx.biometric.BiometricPrompt.CryptoObject? crypto, CharSequence title, optional CharSequence? subtitle, optional CharSequence? description, optional boolean confirmationRequired, optional java.util.concurrent.Executor? executor, androidx.biometric.auth.AuthPromptCallback callback);
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) public static androidx.biometric.auth.AuthPrompt startClass3BiometricOrCredentialAuthentication(androidx.fragment.app.FragmentActivity, androidx.biometric.BiometricPrompt.CryptoObject? crypto, CharSequence title, optional CharSequence? subtitle, optional CharSequence? description, optional boolean confirmationRequired, optional java.util.concurrent.Executor? executor, androidx.biometric.auth.AuthPromptCallback callback);
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) public static androidx.biometric.auth.AuthPrompt startClass3BiometricOrCredentialAuthentication(androidx.fragment.app.Fragment, androidx.biometric.BiometricPrompt.CryptoObject? crypto, CharSequence title, optional CharSequence? subtitle, optional CharSequence? description, optional boolean confirmationRequired, optional java.util.concurrent.Executor? executor, androidx.biometric.auth.AuthPromptCallback callback);
   }
 
   public final class CredentialAuthExtensionsKt {
-    method public static androidx.biometric.auth.AuthPrompt startCredentialAuthentication(androidx.fragment.app.FragmentActivity, androidx.biometric.BiometricPrompt.CryptoObject? crypto, CharSequence title, optional CharSequence? description, optional java.util.concurrent.Executor? executor, androidx.biometric.auth.AuthPromptCallback callback);
-    method public static androidx.biometric.auth.AuthPrompt startCredentialAuthentication(androidx.fragment.app.Fragment, androidx.biometric.BiometricPrompt.CryptoObject? crypto, CharSequence title, optional CharSequence? description, optional java.util.concurrent.Executor? executor, androidx.biometric.auth.AuthPromptCallback callback);
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) public static androidx.biometric.auth.AuthPrompt startCredentialAuthentication(androidx.fragment.app.FragmentActivity, androidx.biometric.BiometricPrompt.CryptoObject? crypto, CharSequence title, optional CharSequence? description, optional java.util.concurrent.Executor? executor, androidx.biometric.auth.AuthPromptCallback callback);
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) public static androidx.biometric.auth.AuthPrompt startCredentialAuthentication(androidx.fragment.app.Fragment, androidx.biometric.BiometricPrompt.CryptoObject? crypto, CharSequence title, optional CharSequence? description, optional java.util.concurrent.Executor? executor, androidx.biometric.auth.AuthPromptCallback callback);
   }
 
 }
