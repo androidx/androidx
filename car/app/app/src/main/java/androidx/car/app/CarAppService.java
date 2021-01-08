@@ -53,7 +53,8 @@ import java.security.InvalidParameterException;
  * The app must extend the {@link CarAppService} to be bound by the car host. The service must also
  * respond to {@link Intent} actions coming from the host, by adding an
  * <code>intent-filter</code> to the service in the <code>AndroidManifest.xml</code> that handles
- * the {@link #SERVICE_INTERFACE} action. For example:
+ * the {@link #SERVICE_INTERFACE} action. The app must also declare what category of application
+ * it is (e.g. {@link #CATEGORY_NAVIGATION_APP}). For example:
  *
  * <pre>{@code
  * <service
@@ -61,6 +62,7 @@ import java.security.InvalidParameterException;
  *   android:exported="true">
  *   <intent-filter>
  *     <action android:name="androidx.car.app.CarAppService" />
+ *     <category android:name="androidx.car.app.category.NAVIGATION"/>
  *   </intent-filter>
  * </service>
  * }</pre>
@@ -83,6 +85,22 @@ public abstract class CarAppService extends Service {
      * The {@link Intent} that must be declared as handled by the service.
      */
     public static final String SERVICE_INTERFACE = "androidx.car.app.CarAppService";
+
+    /**
+     * Used to declare that this app is a navigation app in the manifest.
+     */
+    public static final String CATEGORY_NAVIGATION_APP = "androidx.car.app.category.NAVIGATION";
+
+    /**
+     * Used to declare that this app is a parking app in the manifest.
+     */
+    public static final String CATEGORY_PARKING_APP = "androidx.car.app.category.PARKING";
+
+    /**
+     * Used to declare that this app is a charging app in the manifest.
+     */
+    public static final String CATEGORY_CHARGING_APP = "androidx.car.app.category.CHARGING";
+
     private static final String TAG = "CarAppService";
     private static final String AUTO_DRIVE = "AUTO_DRIVE";
 

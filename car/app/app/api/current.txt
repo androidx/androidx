@@ -18,6 +18,7 @@ package androidx.car.app {
     method public static void checkHasLibraryPermission(android.content.Context, String);
     method public static void checkHasPermission(android.content.Context, String);
     field public static final String ACCESS_SURFACE = "androidx.car.app.ACCESS_SURFACE";
+    field public static final String MAP_TEMPLATES = "androidx.car.app.MAP_TEMPLATES";
     field public static final String NAVIGATION_TEMPLATES = "androidx.car.app.NAVIGATION_TEMPLATES";
   }
 
@@ -29,6 +30,9 @@ package androidx.car.app {
     method @CallSuper public final android.os.IBinder? onBind(android.content.Intent);
     method public abstract androidx.car.app.Session onCreateSession();
     method public final boolean onUnbind(android.content.Intent);
+    field public static final String CATEGORY_CHARGING_APP = "androidx.car.app.category.CHARGING";
+    field public static final String CATEGORY_NAVIGATION_APP = "androidx.car.app.category.NAVIGATION";
+    field public static final String CATEGORY_PARKING_APP = "androidx.car.app.category.PARKING";
     field public static final String SERVICE_INTERFACE = "androidx.car.app.CarAppService";
   }
 
