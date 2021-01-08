@@ -34,7 +34,6 @@ import androidx.room.compiler.processing.ksp.KspHasModifiers
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspTypeElement
 import androidx.room.compiler.processing.ksp.overrides
-import androidx.room.compiler.processing.ksp.safeGetJvmName
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.KSPropertyAccessor
 import java.util.Locale
@@ -121,9 +120,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
         @OptIn(KspExperimental::class)
         override val name: String by lazy {
             field.declaration.getter?.let {
-                return@lazy env.resolver.safeGetJvmName(it) {
-                    computeGetterName(field.name)
-                }
+                return@lazy env.resolver.getJvmName(it)
             }
             computeGetterName(field.name)
         }
@@ -183,9 +180,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
         @OptIn(KspExperimental::class)
         override val name: String by lazy {
             field.declaration.setter?.let {
-                return@lazy env.resolver.safeGetJvmName(it) {
-                    computeSetterName(field.name)
-                }
+                return@lazy env.resolver.getJvmName(it)
             }
             computeSetterName(field.name)
         }

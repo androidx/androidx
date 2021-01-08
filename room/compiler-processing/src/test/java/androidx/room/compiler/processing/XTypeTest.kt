@@ -367,8 +367,6 @@ class XTypeTest {
             """
             import java.lang.Void;
             interface JavaInterface {
-                // get void triggers a bug in KSP, which is why we keep it here.
-                // https://github.com/google/ksp/issues/200
                 Void getVoid();
                 Void anotherVoid();
             }

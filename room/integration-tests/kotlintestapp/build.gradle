@@ -33,7 +33,7 @@ plugins {
 // (b/153917176)
 def useKsp = project.properties.getOrDefault("useKsp", "false").toBoolean()
 if (useKsp) {
-    apply plugin:"symbol-processing"
+    apply plugin: "com.google.devtools.ksp"
 } else {
     apply plugin: "kotlin-kapt"
 }
