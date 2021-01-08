@@ -61,7 +61,6 @@ Note\: Recompile with \-Xlint\:unchecked for details\.
 # > Task :benchmark:benchmark-junit4:processDebugAndroidTestManifest
 # > Task :benchmark:benchmark-common:processDebugAndroidTestManifest
 # > Task :tracing:tracing:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/tracing/tracing/src/androidTest/java/androidx/tracing/TraceTest\.java uses or overrides a deprecated API\.
 # > Task :ui:ui-tooling:processDebugAndroidTestManifest
 application@android:debuggable was tagged at manifestMerger[0-9]+\.xml:[0-9]+ to replace other declarations but no other declaration present
 # > Task :generateSdkApi
@@ -132,20 +131,14 @@ src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl\.kt:[0-9]
 See the profiling report at\: file\:\/\/\$OUT_DIR\/androidx\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 See the profiling report at\: file\:\/\/\$OUT_DIR\/gradle\/external\/doclava\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 # > Task :lifecycle:lifecycle-common:compileJava
-Note: \$SUPPORT/lifecycle/lifecycle\-common/src/main/java/androidx/lifecycle/Lifecycling\.java uses or overrides a deprecated API\.
-Note\: Recompile with \-Xlint\:deprecation for details\.
+Note: \$SUPPORT/[^ ]+ uses or overrides a deprecated API\.
+Note: Recompile with \-Xlint\:deprecation for details\.
 # > Task :concurrent:concurrent-futures:compileJava
-Note: \$SUPPORT/concurrent/futures/src/main/java/androidx/concurrent/futures/CallbackToFutureAdapter\.java uses or overrides a deprecated API\.
 # > Task :contentpager:contentpager:compileReleaseJavaWithJavac
-Note: \$SUPPORT/contentpager/contentpager/src/main/java/androidx/contentpager/content/LoaderQueryRunner\.java uses or overrides a deprecated API\.
 # > Task :coordinatorlayout:coordinatorlayout:compileReleaseJavaWithJavac
-Note: \$SUPPORT/coordinatorlayout/coordinatorlayout/src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout\.java uses or overrides a deprecated API\.
 # > Task :customview:customview:compileReleaseJavaWithJavac
-Note: \$SUPPORT/customview/customview/src/main/java/androidx/customview/widget/ExploreByTouchHelper\.java uses or overrides a deprecated API\.
 # > Task :recommendation:recommendation:compileReleaseJavaWithJavac
-Note: \$SUPPORT/recommendation/recommendation/src/main/java/androidx/recommendation/app/ContentRecommendation\.java uses or overrides a deprecated API\.
 # > Task :textclassifier:textclassifier:compileReleaseJavaWithJavac
-Note: \$SUPPORT/textclassifier/textclassifier/src/main/java/androidx/textclassifier/TextClassifier\.java uses or overrides a deprecated API\.
 # > Task :publicDocsTask
 [0-9]+ warnings
 # > Task :appsearch:appsearch-local-storage:externalNativeBuildRelease
@@ -171,32 +164,23 @@ In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/inte
 In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/json_util\.cc:[0-9]+:
 In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/default_value_objectwriter\.cc:[0-9]+:
 # > Task :support-animation-demos:compileDebugJavaWithJavac
-Note: \$SUPPORT/samples/SupportAnimationDemos/src/main/java/com/example/android/support/animation/SpringView\.java uses or overrides a deprecated API\.
 # > Task :lint-demos:lint-demo-appcompat:compileDebugJavaWithJavac
-Note: \$SUPPORT/lint\-demos/lint\-demo\-appcompat/src/main/java/com/example/android/appcompat/AppCompatLintDemo\.java uses or overrides a deprecated API\.
 # > Task :support-transition-demos:compileDebugJavaWithJavac
-Note: \$SUPPORT/samples/SupportTransitionDemos/src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage\.java uses or overrides a deprecated API\.
 # > Task :support-content-demos:compileDebugJavaWithJavac
-Note: \$SUPPORT/samples/SupportContentDemos/src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity\.java uses or overrides a deprecated API\.
 # > Task :support-preference-demos:compileDebugJavaWithJavac
-Note: \$SUPPORT/samples/SupportPreferenceDemos/src/main/java/com/example/androidx/preference/LeanbackPreferences\.java uses or overrides a deprecated API\.
 # > Task :startup:integration-tests:first-library:processDebugManifest
 \$SUPPORT/startup/integration\-tests/first\-library/src/main/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 provider\#androidx\.work\.impl\.WorkManagerInitializer was tagged at AndroidManifest\.xml:[0-9]+ to remove other declarations but no other declaration present
 # > Task :camera:integration-tests:camera-testapp-extensions:compileDebugJavaWithJavac
-Note: \$SUPPORT/camera/integration\-tests/extensionstestapp/src/main/java/androidx/camera/integration/extensions/CameraExtensionsActivity\.java uses or overrides a deprecated API\.
 # > Task :camera:integration-tests:camera-testapp-core:compileDebugJavaWithJavac
-Note: \$SUPPORT/camera/integration\-tests/coretestapp/src/main/java/androidx/camera/integration/core/CameraXActivity\.java uses or overrides a deprecated API\.
 # > Task :room:integration-tests:room-testapp:processDebugMainManifest
 \[androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+\] \$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/vectordrawable\-animated\-[0-9]+\.[0-9]+\.[0-9]+/AndroidManifest\.xml Warning:
 Package name 'androidx\.vectordrawable' used in: androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+, androidx\.vectordrawable:vectordrawable:[0-9]+\.[0-9]+\.[0-9]+\.
 # > Task :lifecycle:integration-tests:lifecycle-testapp:compileDebugJavaWithJavac
-Note: \$SUPPORT/lifecycle/integration\-tests/testapp/src/main/java/androidx/lifecycle/testapp/FrameworkLifecycleRegistryActivity\.java uses or overrides a deprecated API\.
 # > Task :support-slices-demos:compileDebugJavaWithJavac
 Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/slice/demos/SliceBrowser\.java uses unchecked or unsafe operations\.
 # > Task :ads-identifier:processDebugAndroidTestManifest
 # > Task :sharetarget:integration-tests:testapp:compileDebugJavaWithJavac
-Note: \$SUPPORT/sharetarget/integration\-tests/testapp/src/main/java/androidx/sharetarget/testapp/MainActivity\.java uses or overrides a deprecated API\.
 # > Task :ads-identifier-provider:processDebugAndroidTestManifest
 # > Task :hilt:integration-tests:hilt-testapp-viewmodel:compileDebugJavaWithJavac
 Note: \$OUT_DIR/androidx/hilt/integration\-tests/hilt\-testapp\-viewmodel/build/generated/source/kapt/debug/androidx/hilt/integration/viewmodelapp/Hilt_SimpleFragment\.java uses or overrides a deprecated API\.
@@ -210,7 +194,6 @@ Note: \$OUT_DIR/androidx/hilt/integration\-tests/hilt\-testapp\-viewmodel/build/
 # > Task :slice-remotecallback:processDebugAndroidTestManifest
 # > Task :slice-view:processDebugAndroidTestManifest
 # > Task :slice-benchmark:compileReleaseAndroidTestJavaWithJavac
-Note: \$SUPPORT/slices/benchmark/src/androidTest/java/androidx/slice/SliceSerializeMetrics\.java uses or overrides a deprecated API\.
 # > Task :support-media2-test-service:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/media[0-9]+/session/version\-compat\-tests/current/service/src/androidTest/java/androidx/media[0-9]+/test/service/MockPlayer\.java uses unchecked or unsafe operations\.
 # > Task :support-media2-test-service-previous:compileDebugAndroidTestJavaWithJavac
@@ -237,14 +220,11 @@ Note: \$SUPPORT/camera/camera\-extensions/src/androidTest/java/androidx/camera/e
 # > Task :core:core-ktx:processDebugAndroidTestManifest
 # > Task :appsearch:appsearch:processDebugAndroidTestManifest
 # > Task :customview:customview:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/customview/customview/src/androidTest/java/androidx/customview/widget/ExploreByTouchHelperTest\.java uses or overrides a deprecated API\.
 # > Task :core:core:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/core/core/src/androidTest/java/androidx/core/content/pm/ShortcutManagerCompatTest\.java uses unchecked or unsafe operations\.
 # > Task :exifinterface:exifinterface:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/exifinterface/exifinterface/src/androidTest/java/androidx/exifinterface/media/ExifInterfaceTest\.java uses or overrides a deprecated API\.
 Note: \$SUPPORT/exifinterface/exifinterface/src/androidTest/java/androidx/exifinterface/media/ExifInterfaceTest\.java uses unchecked or unsafe operations\.
 # > Task :gridlayout:gridlayout:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/gridlayout/gridlayout/src/androidTest/java/androidx/gridlayout/widget/GridLayoutTest\.java uses or overrides a deprecated API\.
 # > Task :leanback:leanback:processDebugAndroidTestManifest
 Package name 'androidx\.testutils' used in: :internal\-testutils\-runtime, :internal\-testutils\-espresso\.
 # > Task :leanback:leanback-tab:processDebugAndroidTestManifest
@@ -267,19 +247,16 @@ warning: unknown enum constant AnnotationTarget\.ANNOTATION_CLASS
 # > Task :lifecycle:lifecycle-service:processDebugAndroidTestManifest
 # > Task :lifecycle:lifecycle-viewmodel-savedstate:processDebugAndroidTestManifest
 # > Task :leanback:leanback-tab:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/leanback/leanback\-tab/src/androidTest/java/androidx/leanback/tab/app/PagerAdapter\.java uses or overrides a deprecated API\.
 # > Task :media2:media2-common:processDebugAndroidTestManifest
 # > Task :media2:media2-player:processDebugAndroidTestManifest
 # > Task :media2:media2-session:processDebugAndroidTestManifest
 # > Task :media2:media2-common:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/media[0-9]+/common/src/androidTest/java/androidx/media[0-9]+/common/SubtitleDataTest\.java uses or overrides a deprecated API\.
 # > Task :navigation:navigation-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/navigation/navigation\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :navigation:navigation-dynamic-features-runtime:processDebugAndroidTestManifest
 # > Task :navigation:navigation-fragment:processDebugAndroidTestManifest
 Package name 'androidx\.testutils' used in: :internal\-testutils\-runtime, :internal\-testutils\-navigation\.
 # > Task :mediarouter:mediarouter:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/mediarouter/mediarouter/src/androidTest/java/androidx/mediarouter/app/MediaRouteChooserDialogTest\.java uses or overrides a deprecated API\.
 # > Task :palette:palette:processDebugAndroidTestManifest
 # > Task :percentlayout:percentlayout:processDebugAndroidTestManifest
 # > Task :preference:preference-ktx:processDebugAndroidTestManifest
@@ -290,7 +267,6 @@ Note: \$SUPPORT/mediarouter/mediarouter/src/androidTest/java/androidx/mediaroute
 Note: \$SUPPORT/preference/preference/src/androidTest/java/androidx/preference/tests/PreferenceDataStoreTest\.java uses unchecked or unsafe operations\.
 # > Task :remotecallback:remotecallback:processDebugAndroidTestManifest
 # > Task :recyclerview:recyclerview-selection:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/recyclerview/recyclerview\-selection/src/androidTest/java/androidx/recyclerview/selection/DefaultSelectionTrackerTest\.java uses or overrides a deprecated API\.
 # > Task :savedstate:savedstate:processDebugAndroidTestManifest
 # > Task :room:room-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/room/room\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
@@ -300,14 +276,12 @@ Note: \$SUPPORT/room/runtime/src/androidTest/java/androidx/room/migration/TableI
 \$OUT_DIR/androidx/room/room\-benchmark/build/tmp/kapt[0-9]+/stubs/releaseAndroidTest/androidx/room/benchmark/RelationBenchmark\.java:[0-9]+: warning: The return value includes a POJO with a @Relation\. It is usually desired to annotate this method with @Transaction to avoid possibility of inconsistent results between the POJO and its relations\. See https://developer\.android\.com/reference/androidx/room/Transaction\.html for details\.
 public abstract java\.util\.List<androidx\.room\.benchmark\.RelationBenchmark\.UserWithItems> getUserWithItems\(\);
 # > Task :sharetarget:sharetarget:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/sharetarget/sharetarget/src/androidTest/java/androidx/sharetarget/ChooserTargetServiceCompatTest\.java uses or overrides a deprecated API\.
 Note: \$SUPPORT/sharetarget/sharetarget/src/androidTest/java/androidx/sharetarget/ChooserTargetServiceCompatTest\.java uses unchecked or unsafe operations\.
 # > Task :viewpager2:viewpager2:processDebugAndroidTestManifest
 Package name 'androidx\.testutils' used in: :internal\-testutils\-appcompat, :internal\-testutils\-runtime, :internal\-testutils\-espresso\.
 # > Task :wear:wear-watchface:processDebugAndroidTestManifest
 # > Task :window:window:processDebugAndroidTestManifest
 # > Task :webkit:webkit:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/webkit/webkit/src/androidTest/java/androidx/webkit/WebSettingsCompatForceDarkTest\.java uses or overrides a deprecated API\.
 # > Task :work:work-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/work/work\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :benchmark:integration-tests:dry-run-benchmark:processReleaseAndroidTestManifest
@@ -317,7 +291,6 @@ Note: \$SUPPORT/webkit/webkit/src/androidTest/java/androidx/webkit/WebSettingsCo
 # > Task :camera:integration-tests:camera-testapp-core:externalNativeBuildDebug
 Build opengl_renderer_jni_.*
 # > Task :camera:integration-tests:camera-testapp-extensions:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/camera/integration\-tests/extensionstestapp/src/androidTest/java/androidx/camera/integration/extensions/ToggleButtonTest\.java uses or overrides a deprecated API\.
 # > Task :camera:integration-tests:camera-testapp-camera2-pipe:minifyReleaseWithR8
 R[0-9]+: Missing class: java\.lang\.instrument\.ClassFileTransformer
 R[0-9]+: Missing class: sun\.misc\.SignalHandler
@@ -328,7 +301,6 @@ R[0-9]+: Missing class: java\.lang\.ClassValue
 UserAndPets getUserWithPets\(long id\);
 List<UserAndPet> getUsersWithPet\(\);
 # > Task :textclassifier:integration-tests:testapp:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/textclassifier/integration\-tests/testapp/src/androidTest/java/androidx/textclassifier/integration/testapp/MainActivityTest\.java uses or overrides a deprecated API\.
 # > Task :room:integration-tests:room-testapp:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/room/integration\-tests/testapp/src/androidTest/java/androidx/room/integration/testapp/test/TestUtil\.java uses unchecked or unsafe operations\.
 # > Task :hilt:integration-tests:hilt-testapp-worker:kaptDebugAndroidTestKotlin
@@ -424,11 +396,9 @@ WARNING: Please consider reporting this to the maintainers of org\.robolectric\.
 # > Task :compose:compiler:compiler-hosted:integration-tests:test
 wrote dependency log to \$DIST_DIR/affected_module_detector_log\.txt
 # > Task :enterprise-feedback-testing:compileDebugUnitTestJavaWithJavac
-Note: \$SUPPORT/enterprise/feedback/testing/src/test/java/androidx/enterprise/feedback/FakeKeyedAppStatesReporterTest\.java uses or overrides a deprecated API\.
 # > Task :biometric:biometric:compileDebugUnitTestJavaWithJavac
 Note: \$SUPPORT/biometric/biometric/src/test/java/androidx/biometric/KeyguardUtilsTest\.java uses unchecked or unsafe operations\.
 # > Task :lifecycle:lifecycle-process:compileDebugUnitTestJavaWithJavac
-Note: \$SUPPORT/lifecycle/lifecycle\-process/src/test/java/androidx/lifecycle/DispatcherActivityCallbackTest\.java uses or overrides a deprecated API\.
 # > Task :lifecycle:lifecycle-viewmodel:compileDebugUnitTestJavaWithJavac
 Note: \$SUPPORT/lifecycle/lifecycle\-viewmodel/src/test/java/androidx/lifecycle/ViewModelProviderTest\.java uses unchecked or unsafe operations\.
 # > Task :ipc:ipc-compiler:kaptTestKotlin
@@ -436,11 +406,8 @@ Annotation processors discovery from compile classpath is deprecated\.
 Set 'kapt\.includeCompileClasspath = false' to disable discovery\.
 Run the build with '\-\-info' for more details\.
 # > Task :camera:camera-core:compileDebugUnitTestJavaWithJavac
-Note\: \$SUPPORT\/camera\/camera\-core\/src\/test\/java\/androidx\/camera\/core\/CameraSelectorTest\.java uses or overrides a deprecated API\.
-Note: \$SUPPORT/camera/camera\-core/src/test/java/androidx/camera/core/ProcessingImageReaderTest\.java uses or overrides a deprecated API\.
 Note: \$SUPPORT/camera/camera\-core/src/test/java/androidx/camera/core/impl/DeferrableSurfaceTest\.java uses unchecked or unsafe operations\.
 # > Task :wear:wear-input:compileDebugUnitTestJavaWithJavac
-Note: \$SUPPORT/wear/wear\-input/src/test/java/androidx/wear/input/WearableButtonsTest\.java uses or overrides a deprecated API\.
 # > Task :lifecycle:integration-tests:incrementality:compileTestKotlin
 \$GRADLE_USER_HOME\/wrapper\/dists\/gradle\-[^/]*-bin\/[0-9a-z]+\/gradle\-[^/]*/lib\/kotlin\-stdlib\-[0-9.]*.jar \(version [^/]*\)
 \$GRADLE_USER_HOME\/wrapper\/dists\/gradle\-[^/]*-bin\/[0-9a-z]+\/gradle\-[^/]*/lib\/kotlin\-stdlib\-common\-[0-9.]*.jar \(version [^/]*\)
@@ -454,7 +421,6 @@ WARNING: Please consider reporting this to the maintainers of org\.jetbrains\.ko
 WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion\$isFromCompiledClass\$[0-9]+ \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\.jar\) to field com\.sun\.tools\.javac\.code\.Symbol\$ClassSymbol\.classfile
 WARNING: Please consider reporting this to the maintainers of androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion\$isFromCompiledClass\$[0-9]+
 # > Task :wear:wear-watchface-complications-rendering:compileDebugUnitTestJavaWithJavac
-Note\: \$SUPPORT\/wear\/wear\-watchface\-complications\-rendering\/src\/test\/java\/androidx\/wear\/watchface\/complications\/rendering\/RoundedDrawableTest\.java uses or overrides a deprecated API\.
 # > Task :benchmark:benchmark-perfetto:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path '.*'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :docs-runner:dokkaJavaTipOfTreeDocs
@@ -599,15 +565,10 @@ switch \(type\) \{
 # > Task :camera:camera-core:compileDebugJavaWithJavac
 warning: unknown enum constant AnnotationRetention\.BINARY
 # > Task :drawerlayout:drawerlayout:compileDebugJavaWithJavac
-Note: \$SUPPORT/drawerlayout/drawerlayout/src/main/java/androidx/drawerlayout/widget/DrawerLayout\.java uses or overrides a deprecated API\.
 # > Task :viewpager:viewpager:compileDebugJavaWithJavac
-Note: \$SUPPORT/viewpager/viewpager/src/main/java/androidx/viewpager/widget/ViewPager\.java uses or overrides a deprecated API\.
 # > Task :fragment:fragment:compileDebugJavaWithJavac
-Note: \$SUPPORT/fragment/fragment/src/main/java/androidx/fragment/app/FragmentStateManagerControl\.java uses or overrides a deprecated API\.
 # > Task :core:core-animation:compileDebugJavaWithJavac
-Note: \$SUPPORT/core/core\-animation/src/main/java/androidx/core/animation/ValueAnimator\.java uses or overrides a deprecated API\.
 # > Task :biometric:biometric:compileDebugJavaWithJavac
-Note: \$SUPPORT/biometric/biometric/src/main/java/androidx/biometric/BiometricFragment\.java uses or overrides a deprecated API\.
 # > Task :camera:camera-camera2:compileDebugUnitTestJavaWithJavac
 \$SUPPORT/camera/camera\-camera[0-9]+/src/test/java/androidx/camera/camera[0-9]+/internal/compat/workaround/ExcludedSupportedSizesContainerTest\.java:[0-9]+: warning: non\-varargs call of varargs method with inexact argument type for last parameter;
 assertThat\(excludedSizes\)\.containsExactly\(mConfig\.mExcludedSizes\);
@@ -676,7 +637,6 @@ w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/android
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/OnApplyWindowInsetsListenerTest\.kt\: \([0-9]+\, [0-9]+\)\: \'consumeStableInsets\(\)\: WindowInsetsCompat\' is deprecated\. Deprecated in Java
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/OnApplyWindowInsetsListenerTest\.kt\: \([0-9]+\, [0-9]+\)\: \'consumeDisplayCutout\(\)\: WindowInsetsCompat\' is deprecated\. Deprecated in Java
 # > Task :contentpager:contentpager:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/contentpager/contentpager/src/androidTest/java/androidx/contentpager/content/LoaderQueryRunnerTest\.java uses or overrides a deprecated API\.
 # > Task :wear:wear-tiles:generateApi
 src/main/java/androidx/wear/tiles/builders/ActionBuilders\.java:[0-9]+: info: Unresolved import: `androidx\.wear\.tiles\.proto\.ActionProto` \[UnresolvedImport\]
 src/main/java/androidx/wear/tiles/builders/ColorBuilders\.java:[0-9]+: info: Unresolved import: `androidx\.wear\.tiles\.proto\.ColorProto` \[UnresolvedImport\]
