@@ -92,6 +92,7 @@ public class NavigationTemplate implements Template {
     private final ActionStrip mActionStrip;
 
     /** Constructs a new builder of {@link NavigationTemplate}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -191,9 +192,6 @@ public class NavigationTemplate implements Template {
         TravelEstimate mDestinationTravelEstimate;
         ActionStrip mActionStrip;
 
-        Builder() {
-        }
-
         /**
          * Sets the navigation information to display on the template, or {@code null} to not
          * display navigation information on top of the map.
@@ -273,6 +271,10 @@ public class NavigationTemplate implements Template {
                 throw new IllegalStateException("Action strip for this template must be set.");
             }
             return new NavigationTemplate(this);
+        }
+
+        /** Constructs an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

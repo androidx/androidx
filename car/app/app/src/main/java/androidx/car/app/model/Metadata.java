@@ -34,6 +34,7 @@ public class Metadata {
     private final Place mPlace;
 
     /** Constructs a new builder of a {@link Metadata} instance. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -112,7 +113,8 @@ public class Metadata {
             return new Metadata(this);
         }
 
-        Builder() {
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
 
         Builder(Metadata metadata) {

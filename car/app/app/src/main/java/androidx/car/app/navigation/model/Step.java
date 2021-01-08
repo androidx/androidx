@@ -64,6 +64,7 @@ public final class Step {
      * @throws NullPointerException if {@code cue} is {@code null}.
      * @see Builder#setCue(CharSequence)
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder(@NonNull CharSequence cue) {
         return new Builder(requireNonNull(cue));
@@ -174,8 +175,22 @@ public final class Step {
         @Nullable
         private CarText mRoad;
 
-        Builder(CharSequence cue) {
-            this.mCue = CarText.create(cue);
+        /**
+         * Constructs a new builder of {@link Step} with a cue.
+         *
+         * <p>A cue must always be set when the step is created and is used as a fallback when
+         * {@link
+         * Maneuver} is not set or is unavailable.
+         *
+         * <p>Some cluster displays do not support UTF-8 encoded characters, in which case
+         * unsupported
+         * characters will not be displayed properly.
+         *
+         * @throws NullPointerException if {@code cue} is {@code null}.
+         * @see Builder#setCue(CharSequence)
+         */
+        public Builder(@NonNull CharSequence cue) {
+            this.mCue = CarText.create(requireNonNull(cue));
         }
 
         Builder(Step step) {
@@ -267,7 +282,7 @@ public final class Step {
          * <pre>{@code
          * SpannableString string = new SpannableString("Turn right on 520 East");
          * string.setSpan(textWithImage.setSpan(
-         *     CarIconSpan.create(CarIcon.of(
+         *     CarIconSpan.create(new CarIcon.Builder(
          *         IconCompat.createWithResource(getCarContext(), R.drawable.ic_520_highway))),
          *         14, 17, SPAN_INCLUSIVE_EXCLUSIVE));
          * }</pre>

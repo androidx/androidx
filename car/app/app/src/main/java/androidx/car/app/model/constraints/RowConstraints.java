@@ -29,12 +29,12 @@ import androidx.car.app.model.Row;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class RowConstraints {
     @NonNull
-    public static final RowConstraints UNCONSTRAINED = RowConstraints.builder().build();
+    public static final RowConstraints UNCONSTRAINED = new RowConstraints.Builder().build();
 
     /** Conservative constraints for a row. */
     @NonNull
     public static final RowConstraints ROW_CONSTRAINTS_CONSERVATIVE =
-            RowConstraints.builder()
+            new RowConstraints.Builder()
                     .setMaxActionsExclusive(0)
                     .setImageAllowed(false)
                     .setMaxTextLinesPerRow(1)
@@ -45,7 +45,7 @@ public class RowConstraints {
     /** The constraints for a full-width row in a pane. */
     @NonNull
     public static final RowConstraints ROW_CONSTRAINTS_PANE =
-            RowConstraints.builder()
+            new RowConstraints.Builder()
                     .setMaxActionsExclusive(2)
                     .setImageAllowed(true)
                     .setMaxTextLinesPerRow(2)
@@ -56,7 +56,7 @@ public class RowConstraints {
     /** The constraints for a simple row (2 rows of text and 1 image */
     @NonNull
     public static final RowConstraints ROW_CONSTRAINTS_SIMPLE =
-            RowConstraints.builder()
+            new RowConstraints.Builder()
                     .setMaxActionsExclusive(0)
                     .setImageAllowed(true)
                     .setMaxTextLinesPerRow(2)
@@ -79,6 +79,7 @@ public class RowConstraints {
     /**
      * Returns a new {@link Builder}.
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -223,6 +224,7 @@ public class RowConstraints {
             return new RowConstraints(this);
         }
 
+        /** Returns an empty {@link Builder} instance. */
         Builder() {
         }
 

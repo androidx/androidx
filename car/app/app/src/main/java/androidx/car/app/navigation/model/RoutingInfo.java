@@ -49,6 +49,7 @@ public class RoutingInfo implements NavigationInfo {
     private final boolean mIsLoading;
 
     /** Constructs a new builder of {@link RoutingInfo}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -134,9 +135,6 @@ public class RoutingInfo implements NavigationInfo {
         @Nullable
         CarIcon mJunctionImage;
         boolean mIsLoading;
-
-        Builder() {
-        }
 
         /**
          * Sets the current {@link Step} and {@link Distance} to display in the template.
@@ -258,6 +256,10 @@ public class RoutingInfo implements NavigationInfo {
                 }
             }
             return new RoutingInfo(this);
+        }
+
+        /** Constructs an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

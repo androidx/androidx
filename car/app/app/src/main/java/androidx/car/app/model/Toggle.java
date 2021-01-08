@@ -47,6 +47,7 @@ public class Toggle {
      *
      * @throws NullPointerException if {@code onCheckedChangeListener} is {@code null}.
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     @SuppressLint("ExecutorRegistration")
     public static Builder builder(@NonNull OnCheckedChangeListener onCheckedChangeListener) {
@@ -139,15 +140,25 @@ public class Toggle {
             return this;
         }
 
-        Builder(@NonNull OnCheckedChangeListener onCheckedChangeListener) {
-            this.mOnCheckedChangeListener =
-                    OnCheckedChangeListenerWrapperImpl.create(onCheckedChangeListener);
-        }
-
         /** Constructs the {@link Toggle} defined by this builder. */
         @NonNull
         public Toggle build() {
             return new Toggle(this);
+        }
+
+        /**
+         * Returns a new instance of a {@link Builder} with the given
+         * {@link OnCheckedChangeListener}.
+         *
+         * <p>Note that the listener relates to UI events and will be executed on the main thread
+         * using {@link Looper#getMainLooper()}.
+         *
+         * @throws NullPointerException if {@code onCheckedChangeListener} is {@code null}.
+         */
+        @SuppressLint("ExecutorRegistration")
+        public Builder(@NonNull OnCheckedChangeListener onCheckedChangeListener) {
+            mOnCheckedChangeListener =
+                    OnCheckedChangeListenerWrapperImpl.create(onCheckedChangeListener);
         }
     }
 }

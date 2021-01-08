@@ -49,7 +49,6 @@ public class CarAppApiLevels {
 
     /**
      * @return true if the given integer is a valid {@link CarAppApiLevel}
-     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -73,5 +72,6 @@ public class CarAppApiLevels {
         return LEVEL_1;
     }
 
-    private CarAppApiLevels() {}
+    private CarAppApiLevels() {
+    }
 }

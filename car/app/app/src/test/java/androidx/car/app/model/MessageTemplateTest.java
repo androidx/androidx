@@ -50,7 +50,7 @@ public class MessageTemplateTest {
     @Test
     public void emptyMessage_throws() {
         assertThrows(
-                IllegalStateException.class, () -> MessageTemplate.builder("").setTitle(
+                IllegalStateException.class, () -> new MessageTemplate.Builder("").setTitle(
                         mTitle).build());
     }
 
@@ -60,24 +60,25 @@ public class MessageTemplateTest {
         builder.scheme(ContentResolver.SCHEME_CONTENT);
         builder.appendPath("foo/bar");
         Uri iconUri = builder.build();
-        CarIcon carIcon = CarIcon.of(IconCompat.createWithContentUri(iconUri));
+        CarIcon carIcon = new CarIcon.Builder(IconCompat.createWithContentUri(iconUri)).build();
         assertThrows(
                 IllegalArgumentException.class,
-                () -> MessageTemplate.builder("hello").setTitle(mTitle).setIcon(carIcon));
+                () -> new MessageTemplate.Builder("hello").setTitle(mTitle).setIcon(carIcon));
     }
 
     @Test
     public void noHeaderTitleOrAction_throws() {
-        assertThrows(IllegalStateException.class, () -> MessageTemplate.builder(mMessage).build());
+        assertThrows(IllegalStateException.class,
+                () -> new MessageTemplate.Builder(mMessage).build());
 
         // Positive cases.
-        MessageTemplate.builder(mMessage).setTitle(mTitle).build();
-        MessageTemplate.builder(mMessage).setHeaderAction(mAction).build();
+        new MessageTemplate.Builder(mMessage).setTitle(mTitle).build();
+        new MessageTemplate.Builder(mMessage).setHeaderAction(mAction).build();
     }
 
     @Test
     public void createDefault_valuesAreNull() {
-        MessageTemplate template = MessageTemplate.builder(mMessage).setTitle(mTitle).build();
+        MessageTemplate template = new MessageTemplate.Builder(mMessage).setTitle(mTitle).build();
         assertThat(template.getMessage().toString()).isEqualTo(mMessage);
         assertThat(template.getTitle().getText()).isEqualTo("header");
         assertThat(template.getIcon()).isNull();
@@ -91,9 +92,9 @@ public class MessageTemplateTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        MessageTemplate.builder(mMessage)
+                        new MessageTemplate.Builder(mMessage)
                                 .setHeaderAction(
-                                        Action.builder().setTitle("Action").setOnClickListener(
+                                        new Action.Builder().setTitle("Action").setOnClickListener(
                                                 () -> {
                                                 }).build())
                                 .build());
@@ -103,11 +104,11 @@ public class MessageTemplateTest {
     public void createWithContents_hasProperValuesSet() {
         Throwable exception = new IllegalStateException();
         CarIcon icon = BACK;
-        Action action = Action.builder().setOnClickListener(() -> {
+        Action action = new Action.Builder().setOnClickListener(() -> {
         }).setTitle("foo").build();
 
         MessageTemplate template =
-                MessageTemplate.builder(mMessage)
+                new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setHeaderAction(Action.BACK)
                         .setDebugCause(exception)
@@ -127,7 +128,7 @@ public class MessageTemplateTest {
     @Test
     public void equals() {
         MessageTemplate template1 =
-                MessageTemplate.builder(mMessage)
+                new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
                         .setDebugCause(mCause)
@@ -136,7 +137,7 @@ public class MessageTemplateTest {
                         .setIcon(mIcon)
                         .build();
         MessageTemplate template2 =
-                MessageTemplate.builder(mMessage)
+                new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
                         .setDebugCause(mCause)
@@ -151,7 +152,7 @@ public class MessageTemplateTest {
     @Test
     public void notEquals_differentDebugMessage() {
         MessageTemplate template1 =
-                MessageTemplate.builder(mMessage)
+                new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
                         .setDebugCause(mCause)
@@ -159,7 +160,7 @@ public class MessageTemplateTest {
                         .setIcon(mIcon)
                         .build();
         MessageTemplate template2 =
-                MessageTemplate.builder(mMessage)
+                new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage("yo")
                         .setDebugCause(mCause)
@@ -173,7 +174,7 @@ public class MessageTemplateTest {
     @Test
     public void notEquals_differentCause() {
         MessageTemplate template1 =
-                MessageTemplate.builder(mMessage)
+                new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
                         .setDebugCause(mCause)
@@ -181,7 +182,7 @@ public class MessageTemplateTest {
                         .setIcon(mIcon)
                         .build();
         MessageTemplate template2 =
-                MessageTemplate.builder(mMessage)
+                new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
                         .setDebugCause(new IllegalStateException("something else bad"))
@@ -195,7 +196,7 @@ public class MessageTemplateTest {
     @Test
     public void notEquals_differentMessage() {
         MessageTemplate template1 =
-                MessageTemplate.builder(mMessage)
+                new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
                         .setDebugCause(mCause)
@@ -204,7 +205,7 @@ public class MessageTemplateTest {
                         .setIcon(mIcon)
                         .build();
         MessageTemplate template2 =
-                MessageTemplate.builder("bar")
+                new MessageTemplate.Builder("bar")
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
                         .setDebugCause(mCause)
@@ -218,7 +219,7 @@ public class MessageTemplateTest {
     @Test
     public void notEquals_differentHeaderAction() {
         MessageTemplate template1 =
-                MessageTemplate.builder(mMessage)
+                new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
                         .setDebugCause(mCause)
@@ -227,7 +228,7 @@ public class MessageTemplateTest {
                         .setIcon(mIcon)
                         .build();
         MessageTemplate template2 =
-                MessageTemplate.builder(mMessage)
+                new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
                         .setDebugCause(mCause)
@@ -242,7 +243,7 @@ public class MessageTemplateTest {
     @Test
     public void notEquals_differentActions() {
         MessageTemplate template1 =
-                MessageTemplate.builder(mMessage)
+                new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
                         .setDebugCause(mCause)
@@ -250,7 +251,7 @@ public class MessageTemplateTest {
                         .setIcon(mIcon)
                         .build();
         MessageTemplate template2 =
-                MessageTemplate.builder(mMessage)
+                new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
                         .setDebugCause(mCause)
@@ -264,7 +265,7 @@ public class MessageTemplateTest {
     @Test
     public void notEquals_differentIcon() {
         MessageTemplate template1 =
-                MessageTemplate.builder(mMessage)
+                new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
                         .setDebugCause(mCause)
@@ -272,7 +273,7 @@ public class MessageTemplateTest {
                         .setIcon(mIcon)
                         .build();
         MessageTemplate template2 =
-                MessageTemplate.builder(mMessage)
+                new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
                         .setDebugCause(mCause)
@@ -286,7 +287,7 @@ public class MessageTemplateTest {
     @Test
     public void notEquals_differentTitle() {
         MessageTemplate template1 =
-                MessageTemplate.builder(mMessage)
+                new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
                         .setDebugCause(mCause)
@@ -294,7 +295,7 @@ public class MessageTemplateTest {
                         .setIcon(mIcon)
                         .build();
         MessageTemplate template2 =
-                MessageTemplate.builder(mMessage)
+                new MessageTemplate.Builder(mMessage)
                         .setTitle("Header2")
                         .setDebugMessage(mDebugMessage)
                         .setDebugCause(mCause)

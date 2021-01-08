@@ -469,9 +469,9 @@ public class CarContext extends ContextWrapper {
      * @return a value between {@link AppInfo#getMinCarAppApiLevel()} and
      * {@link AppInfo#getLatestCarAppApiLevel()}. In case of incompatibility, the host will
      * disconnect from the service before completing the handshake.
-     *
      * @throws IllegalStateException if invoked before the connection handshake with the host has
-     * been completed (for example, before {@link Session#onCreateScreen(Intent)}).
+     *                               been completed (for example, before
+     *                               {@link Session#onCreateScreen(Intent)}).
      */
     @CarAppApiLevel
     public int getCarAppApiLevel() {

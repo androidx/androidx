@@ -50,6 +50,7 @@ public final class Trip {
     private final boolean mIsLoading;
 
     /** Constructs a new builder of {@link Trip}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -290,6 +291,10 @@ public final class Trip {
                 throw new IllegalArgumentException("Step information may not be set while loading");
             }
             return new Trip(this);
+        }
+
+        /** Constructs an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

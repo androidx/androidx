@@ -64,6 +64,7 @@ public final class PaneTemplate implements Template {
      *
      * @throws NullPointerException if {@code pane} is {@code null}
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder(@NonNull Pane pane) {
         return new Builder(requireNonNull(pane));
@@ -140,10 +141,6 @@ public final class PaneTemplate implements Template {
         Action mHeaderAction;
         @Nullable
         ActionStrip mActionStrip;
-
-        Builder(Pane pane) {
-            this.mPane = pane;
-        }
 
         /**
          * Sets the {@link CharSequence} to show as the template's title, or {@code null} to not
@@ -237,6 +234,15 @@ public final class PaneTemplate implements Template {
             }
 
             return new PaneTemplate(this);
+        }
+
+        /**
+         * Returns a new instance of a @link Builder}.
+         *
+         * @throws NullPointerException if {@code pane} is {@code null}
+         */
+        public Builder(@NonNull Pane pane) {
+            mPane = pane;
         }
     }
 }

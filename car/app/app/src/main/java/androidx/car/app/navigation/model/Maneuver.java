@@ -476,6 +476,7 @@ public final class Maneuver {
      * @param type one of the {@code TYPE_*} static constants defined in this class.
      * @throws IllegalArgumentException if {@code type} is not a valid maneuver type.
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder(@Type int type) {
         if (!isValidType(type)) {
@@ -593,7 +594,7 @@ public final class Maneuver {
         mIcon = null;
     }
 
-    private static boolean isValidType(@Type int type) {
+    static boolean isValidType(@Type int type) {
         return (type >= TYPE_UNKNOWN && type <= TYPE_FERRY_TRAIN_RIGHT);
     }
 
@@ -620,7 +621,22 @@ public final class Maneuver {
         @Nullable
         private CarIcon mIcon;
 
-        Builder(@Type int type) {
+        /**
+         * Constructs a new instance of a {@link Builder}.
+         *
+         * <p>The type should be chosen to reflect the closest semantic meaning of the maneuver.
+         * In some
+         * cases, an exact type match is not possible, but choosing a similar or slightly more
+         * general type is preferred. Using {@link #TYPE_UNKNOWN} is allowed, but some head units
+         * will not display any information in that case.
+         *
+         * @param type one of the {@code TYPE_*} static constants defined in this class.
+         * @throws IllegalArgumentException if {@code type} is not a valid maneuver type.
+         */
+        public Builder(@Type int type) {
+            if (!isValidType(type)) {
+                throw new IllegalArgumentException("Maneuver must have a valid type");
+            }
             this.mType = type;
         }
 

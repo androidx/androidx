@@ -43,12 +43,14 @@ public final class Destination {
      * @throws NullPointerException if {@code name} is {@code null}.
      * @throws NullPointerException if {@code address} is {@code null}.
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder(@NonNull CharSequence name, @NonNull CharSequence address) {
         return builder().setName(name).setAddress(address);
     }
 
     /** Constructs a new builder of {@link Destination}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -183,7 +185,8 @@ public final class Destination {
             return new Destination(this);
         }
 
-        Builder() {
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

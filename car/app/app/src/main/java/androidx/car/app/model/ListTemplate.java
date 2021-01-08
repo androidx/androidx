@@ -72,6 +72,7 @@ public final class ListTemplate implements Template {
     private final ActionStrip mActionStrip;
 
     /** Constructs a new builder of {@link ListTemplate}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -344,6 +345,7 @@ public final class ListTemplate implements Template {
             return new ListTemplate(this);
         }
 
+        /** Returns an empty {@link Builder} instance. */
         Builder() {
         }
     }

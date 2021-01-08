@@ -106,6 +106,7 @@ public class Row implements Item {
     private final int mRowImageType;
 
     /** Constructs a new builder of {@link Row}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -491,7 +492,8 @@ public class Row implements Item {
             return new Row(this);
         }
 
-        Builder() {
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

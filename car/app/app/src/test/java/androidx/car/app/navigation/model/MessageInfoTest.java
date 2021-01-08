@@ -42,16 +42,16 @@ public class MessageInfoTest {
         builder.scheme(ContentResolver.SCHEME_CONTENT);
         builder.appendPath("foo/bar");
         Uri iconUri = builder.build();
-        CarIcon carIcon = CarIcon.of(IconCompat.createWithContentUri(iconUri));
+        CarIcon carIcon = new CarIcon.Builder(IconCompat.createWithContentUri(iconUri)).build();
         assertThrows(
                 IllegalArgumentException.class,
-                () -> MessageInfo.builder("Message").setImage(carIcon));
+                () -> new MessageInfo.Builder("Message").setImage(carIcon));
     }
 
     /** Tests basic construction of a template with a minimal data. */
     @Test
     public void createMinimalInstance() {
-        MessageInfo messageInfo = MessageInfo.builder("Message").build();
+        MessageInfo messageInfo = new MessageInfo.Builder("Message").build();
         assertThat(messageInfo.getTitle().getText()).isEqualTo("Message");
         assertThat(messageInfo.getText()).isNull();
         assertThat(messageInfo.getImage()).isNull();
@@ -61,7 +61,7 @@ public class MessageInfoTest {
     @Test
     public void createFullInstance() {
         MessageInfo messageInfo =
-                MessageInfo.builder("Message").setImage(CarIcon.APP_ICON).setText(
+                new MessageInfo.Builder("Message").setImage(CarIcon.APP_ICON).setText(
                         "Secondary").build();
         assertThat(messageInfo.getTitle().getText()).isEqualTo("Message");
         assertThat(messageInfo.getText().getText()).isEqualTo("Secondary");
@@ -70,7 +70,7 @@ public class MessageInfoTest {
 
     @Test
     public void no_message_throws() {
-        assertThrows(NullPointerException.class, () -> MessageInfo.builder(null));
+        assertThrows(NullPointerException.class, () -> new MessageInfo.Builder(null));
     }
 
     @Test
@@ -79,10 +79,10 @@ public class MessageInfoTest {
         final String text = "Secondary";
 
         MessageInfo messageInfo =
-                MessageInfo.builder(title).setText(text).setImage(CarIcon.APP_ICON).build();
+                new MessageInfo.Builder(title).setText(text).setImage(CarIcon.APP_ICON).build();
 
         assertThat(messageInfo)
-                .isEqualTo(MessageInfo.builder(title).setText(text).setImage(
+                .isEqualTo(new MessageInfo.Builder(title).setText(text).setImage(
                         CarIcon.APP_ICON).build());
     }
 
@@ -92,20 +92,20 @@ public class MessageInfoTest {
         final String text = "Secondary";
 
         MessageInfo messageInfo =
-                MessageInfo.builder(title).setText(text).setImage(CarIcon.APP_ICON).build();
+                new MessageInfo.Builder(title).setText(text).setImage(CarIcon.APP_ICON).build();
 
         assertThat(messageInfo)
                 .isNotEqualTo(
-                        MessageInfo.builder("Not Primary").setText(text).setImage(
+                        new MessageInfo.Builder("Not Primary").setText(text).setImage(
                                 CarIcon.APP_ICON).build());
 
         assertThat(messageInfo)
                 .isNotEqualTo(
-                        MessageInfo.builder(title).setText("Not Secondary").setImage(
+                        new MessageInfo.Builder(title).setText("Not Secondary").setImage(
                                 CarIcon.APP_ICON).build());
 
         assertThat(messageInfo)
-                .isNotEqualTo(MessageInfo.builder(title).setText(text).setImage(
+                .isNotEqualTo(new MessageInfo.Builder(title).setText(text).setImage(
                         CarIcon.ERROR).build());
     }
 

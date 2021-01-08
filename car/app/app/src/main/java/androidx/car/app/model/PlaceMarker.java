@@ -57,7 +57,7 @@ public class PlaceMarker {
      */
     public static final int TYPE_IMAGE = 1;
 
-    private static final PlaceMarker DEFAULT_INSTANCE = PlaceMarker.builder().build();
+    private static final PlaceMarker DEFAULT_INSTANCE = new PlaceMarker.Builder().build();
     private static final int MAX_LABEL_LENGTH = 3;
 
     @Keep
@@ -85,6 +85,7 @@ public class PlaceMarker {
     /**
      * Returns a {@link Builder} for a {@link PlaceMarker}.
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -290,7 +291,8 @@ public class PlaceMarker {
             return new PlaceMarker(this);
         }
 
-        Builder() {
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

@@ -41,7 +41,7 @@ public class RowListConstraints {
     /** Conservative constraints for all types lists. */
     @NonNull
     public static final RowListConstraints ROW_LIST_CONSTRAINTS_CONSERVATIVE =
-            RowListConstraints.builder()
+            new RowListConstraints.Builder()
                     .setMaxActions(0)
                     .setRowConstraints(ROW_CONSTRAINTS_CONSERVATIVE)
                     .setAllowSelectableLists(false)
@@ -88,8 +88,9 @@ public class RowListConstraints {
     private final boolean mAllowSelectableLists;
 
     /** A builder of {@link RowListConstraints}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
-    public static RowListConstraints.Builder builder() {
+    public static Builder builder() {
         return new Builder();
     }
 
@@ -215,7 +216,8 @@ public class RowListConstraints {
             return new RowListConstraints(this);
         }
 
-        Builder() {
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
 
         Builder(RowListConstraints constraints) {

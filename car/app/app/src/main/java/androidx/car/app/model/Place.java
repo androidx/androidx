@@ -39,6 +39,7 @@ public class Place {
      * @param latLng the geographical location associated with the place.
      * @throws NullPointerException if {@code latLng} is {@code null}.
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder(@NonNull LatLng latLng) {
         return new Builder(requireNonNull(latLng));
@@ -102,8 +103,14 @@ public class Place {
         @Nullable
         PlaceMarker mMarker;
 
-        Builder(LatLng latLng) {
-            this.mLatLng = latLng;
+        /**
+         * Returns a builder instance for a {@link LatLng}.
+         *
+         * @param latLng the geographical location associated with the place.
+         * @throws NullPointerException if {@code latLng} is {@code null}.
+         */
+        public Builder(@NonNull LatLng latLng) {
+            mLatLng = latLng;
         }
 
         Builder(Place place) {
