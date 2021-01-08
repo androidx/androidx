@@ -22,9 +22,11 @@ import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.localstorage.converter.GenericDocumentToProtoConverter;
 import androidx.appsearch.localstorage.converter.SchemaToProtoConverter;
 
 import com.google.android.icing.proto.DocumentProto;
@@ -33,6 +35,7 @@ import com.google.android.icing.proto.PropertyConfigProto;
 import com.google.android.icing.proto.PropertyProto;
 import com.google.android.icing.proto.SchemaProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
+import com.google.android.icing.proto.SearchResultProto;
 import com.google.android.icing.proto.SearchSpecProto;
 import com.google.android.icing.proto.StringIndexingConfig;
 import com.google.android.icing.proto.TermMatchType;
@@ -253,13 +256,13 @@ public class AppSearchImplTest {
     public void testRemoveDocumentTypePrefixes() throws Exception {
         DocumentProto insideDocument = DocumentProto.newBuilder()
                 .setUri("inside-uri")
-                .setSchema("package$databaseName1/type")
-                .setNamespace("package$databaseName2/namespace")
+                .setSchema("package$databaseName/type")
+                .setNamespace("package$databaseName/namespace")
                 .build();
         DocumentProto documentProto = DocumentProto.newBuilder()
                 .setUri("uri")
-                .setSchema("package$databaseName2/type")
-                .setNamespace("package$databaseName3/namespace")
+                .setSchema("package$databaseName/type")
+                .setNamespace("package$databaseName/namespace")
                 .addProperties(PropertyProto.newBuilder().addDocumentValues(insideDocument))
                 .build();
 
@@ -277,8 +280,46 @@ public class AppSearchImplTest {
                 .build();
 
         DocumentProto.Builder actualDocument = documentProto.toBuilder();
-        mAppSearchImpl.removePrefixesFromDocument(actualDocument);
+        assertThat(mAppSearchImpl.removePrefixesFromDocument(actualDocument)).isEqualTo(
+                "package$databaseName/");
         assertThat(actualDocument.build()).isEqualTo(expectedDocumentProto);
+    }
+
+    @Test
+    public void testRemoveDatabasesFromDocumentThrowsException() throws Exception {
+        // Set two different database names in the document, which should never happen
+        DocumentProto documentProto = DocumentProto.newBuilder()
+                .setUri("uri")
+                .setSchema("prefix1/type")
+                .setNamespace("prefix2/namespace")
+                .build();
+
+        DocumentProto.Builder actualDocument = documentProto.toBuilder();
+        AppSearchException e = assertThrows(AppSearchException.class, () ->
+                mAppSearchImpl.removePrefixesFromDocument(actualDocument));
+        assertThat(e).hasMessageThat().contains("Found unexpected multiple prefix names");
+    }
+
+    @Test
+    public void testNestedRemoveDatabasesFromDocumentThrowsException() throws Exception {
+        // Set two different database names in the outer and inner document, which should never
+        // happen.
+        DocumentProto insideDocument = DocumentProto.newBuilder()
+                .setUri("inside-uri")
+                .setSchema("prefix1/type")
+                .setNamespace("prefix1/namespace")
+                .build();
+        DocumentProto documentProto = DocumentProto.newBuilder()
+                .setUri("uri")
+                .setSchema("prefix2/type")
+                .setNamespace("prefix2/namespace")
+                .addProperties(PropertyProto.newBuilder().addDocumentValues(insideDocument))
+                .build();
+
+        DocumentProto.Builder actualDocument = documentProto.toBuilder();
+        AppSearchException e = assertThrows(AppSearchException.class, () ->
+                mAppSearchImpl.removePrefixesFromDocument(actualDocument));
+        assertThat(e).hasMessageThat().contains("Found unexpected multiple prefix names");
     }
 
     @Test
@@ -678,5 +719,39 @@ public class AppSearchImplTest {
                         VisibilityStore.DATABASE_NAME),
                 AppSearchImpl.createPrefix("package", "database1"), AppSearchImpl.createPrefix(
                         "package", "database2"));
+    }
+
+    @Test
+    public void testRewriteSearchResultProto() throws Exception {
+        final String database =
+                "com.package.foo" + AppSearchImpl.PACKAGE_DELIMITER + "databaseName"
+                        + AppSearchImpl.DATABASE_DELIMITER;
+        final String uri = "uri";
+        final String namespace = database + "namespace";
+        final String schemaType = database + "schema";
+
+        // Building the SearchResult received from query.
+        DocumentProto documentProto = DocumentProto.newBuilder()
+                .setUri(uri)
+                .setNamespace(namespace)
+                .setSchema(schemaType)
+                .build();
+        SearchResultProto.ResultProto resultProto = SearchResultProto.ResultProto.newBuilder()
+                .setDocument(documentProto)
+                .build();
+        SearchResultProto searchResultProto = SearchResultProto.newBuilder()
+                .addResults(resultProto)
+                .build();
+
+        DocumentProto.Builder strippedDocumentProto = documentProto.toBuilder();
+        AppSearchImpl.removePrefixesFromDocument(strippedDocumentProto);
+        SearchResultPage searchResultPage =
+                AppSearchImpl.rewriteSearchResultProto(searchResultProto);
+        for (SearchResult result : searchResultPage.getResults()) {
+            assertThat(result.getPackageName()).isEqualTo("com.package.foo");
+            assertThat(result.getDocument()).isEqualTo(
+                    GenericDocumentToProtoConverter.toGenericDocument(
+                            strippedDocumentProto.build()));
+        }
     }
 }
