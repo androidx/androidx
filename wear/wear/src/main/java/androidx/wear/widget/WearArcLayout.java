@@ -134,6 +134,10 @@ public class WearArcLayout extends ViewGroup {
         @VerticalAlignment
         private int mVerticalAlignment = VALIGN_CENTER;
 
+        // Internally used during layout/draw
+        // Stores the angle of the child, used to handle touch events.
+        float mMiddleAngle;
+
         /**
          * Creates a new set of layout parameters. The values are extracted from the supplied
          * attributes set and context.
@@ -250,12 +254,6 @@ public class WearArcLayout extends ViewGroup {
     private float mAnchorAngleDegrees;
     private boolean mClockwise;
 
-    // Stores the center angles of the children, used to handle touch events.
-    private float[] mAngles = new float[0];
-
-    // Temporary variables using during a draw cycle.
-    private float mCurrentCumulativeAngle = 0;
-    private int mAnglesIndex = 0;
     @SuppressWarnings("SyntheticAccessor")
     private final ChildArcAngles mChildArcAngles = new ChildArcAngles();
 
@@ -441,43 +439,57 @@ public class WearArcLayout extends ViewGroup {
                         topPx + child.getMeasuredHeight());
             }
         }
-    }
 
-    @Override
-    protected void dispatchDraw(@NonNull Canvas canvas) {
-        mCurrentCumulativeAngle = calculateInitialRotation();
-        mAnglesIndex = 0;
-        if (mAngles.length < getChildCount()) {
-            mAngles = new float[getChildCount()];
+        // Once dimensions are set, also layout the children in the arc, computing the
+        // center angle where they should be drawn.
+        float currentCumulativeAngle = calculateInitialRotation();
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+
+            if (child.getVisibility() == GONE) {
+                continue;
+            }
+
+            calculateArcAngle(child, mChildArcAngles);
+            float preRotation = mChildArcAngles.leftMarginAsAngle
+                    + mChildArcAngles.actualChildAngle / 2f;
+            float multiplier = mClockwise ? 1f : -1f;
+
+            float middleAngle = multiplier * (currentCumulativeAngle + preRotation);
+            LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
+            childLayoutParams.mMiddleAngle = middleAngle;
+
+            currentCumulativeAngle += mChildArcAngles.getTotalAngle();
         }
-        super.dispatchDraw(canvas);
     }
 
     // When a view (that can handle it) receives a TOUCH_DOWN event, it will get all subsequent
     // events until the touch is released, even if the pointer goes outside of it's bounds.
-    // We store the view that it's being touched and it's position (angle). This is easier to keep
-    // updated when child views are added/removed.
     private View mTouchedView = null;
-    private float mTouchedViewAngle = 0;
 
     @Override
     public boolean onInterceptTouchEvent(@NonNull MotionEvent event) {
-        if (mTouchedView == null && event.getActionMasked() == MotionEvent.ACTION_DOWN
-                && mAngles.length >= getChildCount()) {
+        if (mTouchedView == null && event.getActionMasked() == MotionEvent.ACTION_DOWN) {
             for (int i = 0; i < getChildCount(); i++) {
-                // First we map the event to the child's coordinate system
                 View child = getChildAt(i);
-                float angle = mAngles[i];
+                // Ensure that the view is visible
+                if (child.getVisibility() != VISIBLE) {
+                    continue;
+                }
+
+                // Map the event to the child's coordinate system
+                LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
+                float angle = childLayoutParams.mMiddleAngle;
 
                 float[] point = new float[]{event.getX(), event.getY()};
                 mapPoint(child, angle, point);
 
+                // Check if the click is actually in the child area
                 float x = point[0];
                 float y = point[1];
 
                 if (insideChildClickArea(child, x, y)) {
                     mTouchedView = child;
-                    mTouchedViewAngle = angle;
                     break;
                 }
             }
@@ -515,14 +527,16 @@ public class WearArcLayout extends ViewGroup {
     @SuppressLint("ClickableViewAccessibility")
     public boolean onTouchEvent(@NonNull MotionEvent event) {
         if (mTouchedView != null) {
+            // Map the event's coordinates to the child's coordinate space
             float[] point = new float[]{event.getX(), event.getY()};
-            mapPoint(mTouchedView, mTouchedViewAngle, point);
+            LayoutParams touchedViewLayoutParams = (LayoutParams) mTouchedView.getLayoutParams();
+            mapPoint(mTouchedView, touchedViewLayoutParams.mMiddleAngle, point);
 
             float dx = point[0] - event.getX();
             float dy = point[1] - event.getY();
-
             event.offsetLocation(dx, dy);
-            mTouchedView.onTouchEvent(event);
+
+            mTouchedView.dispatchTouchEvent(event);
 
             if (event.getActionMasked() == MotionEvent.ACTION_UP
                     || event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
@@ -539,22 +553,12 @@ public class WearArcLayout extends ViewGroup {
         // Rotate the canvas to make the children render in the right place.
         canvas.save();
 
-        calculateArcAngle(child, mChildArcAngles);
-        float preRotation = mChildArcAngles.leftMarginAsAngle
-                + mChildArcAngles.actualChildAngle / 2f;
-        float multiplier = mClockwise ? 1f : -1f;
-
-        // Store the center angle of each child to handle touch events.
-        float middleAngle = multiplier * (mCurrentCumulativeAngle + preRotation);
-        mAngles[mAnglesIndex++] = middleAngle;
-        if (child == mTouchedView) {
-            // We keep this updated, in case the view has changed angle.
-            mTouchedViewAngle = middleAngle;
-        }
+        LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
+        float middleAngle = childLayoutParams.mMiddleAngle;
 
         // Rotate the child widget.
         canvas.rotate(
-                multiplier * (mCurrentCumulativeAngle + preRotation),
+                middleAngle,
                 getMeasuredWidth() / 2f,
                 getMeasuredHeight() / 2f);
 
@@ -576,7 +580,7 @@ public class WearArcLayout extends ViewGroup {
             } else {
                 // Un-rotate about the top of the canvas, around the center of the actual child.
                 // This compounds with the initial rotation into a translation.
-                angleToRotate = -multiplier * (mCurrentCumulativeAngle + preRotation);
+                angleToRotate = -middleAngle;
             }
 
             // Do the actual rotation. Note that the strange rotation center is because the child
@@ -588,9 +592,6 @@ public class WearArcLayout extends ViewGroup {
                     child.getMeasuredHeight() / 2f + childInset
             );
         }
-
-        mCurrentCumulativeAngle += mChildArcAngles.getTotalAngle();
-
         boolean wasInvalidateIssued = super.drawChild(canvas, child, drawingTime);
 
         canvas.restore();
