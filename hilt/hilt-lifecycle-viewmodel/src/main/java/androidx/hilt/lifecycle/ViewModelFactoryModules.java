@@ -31,6 +31,8 @@ import androidx.savedstate.SavedStateRegistryOwner;
 
 import java.util.Map;
 
+import javax.inject.Provider;
+
 import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
@@ -50,23 +52,15 @@ import dagger.multibindings.Multibinds;
 public final class ViewModelFactoryModules {
 
     /**
-     * Hilt module for providing the empty multi-binding map of ViewModels.
-     */
-    @Module
-    @InstallIn(ViewModelComponent.class)
-    public abstract static class ViewModelModule {
-        @NonNull
-        @Multibinds
-        @InternalViewModelInjectMap
-        abstract Map<String, ViewModel> viewModelFactoriesMap();
-    }
-
-    /**
-     * Hilt module for providing the activity level ViewModelFactory
+     * Hilt Modules for providing the activity level ViewModelFactory
      */
     @Module
     @InstallIn(ActivityComponent.class)
-    public static class ActivityModule {
+    public abstract static class ActivityModule {
+
+        @NonNull
+        @Multibinds
+        abstract Map<String, ViewModelAssistedFactory<? extends ViewModel>> viewModelFactoriesMap();
 
         @Provides
         @IntoSet
@@ -75,22 +69,20 @@ public final class ViewModelFactoryModules {
         static ViewModelProvider.Factory provideFactory(
                 @NonNull Activity activity,
                 @NonNull Application application,
-                @NonNull ViewModelComponent.Builder componentBuilder) {
+                @NonNull Map<String, Provider<ViewModelAssistedFactory<? extends ViewModel>>>
+                        viewModelFactories) {
             // Hilt guarantees concrete activity is a subclass of ComponentActivity.
             SavedStateRegistryOwner owner = (ComponentActivity) activity;
             Bundle defaultArgs = activity.getIntent() != null
                     ? activity.getIntent().getExtras() : null;
             SavedStateViewModelFactory delegate =
                     new SavedStateViewModelFactory(application, owner, defaultArgs);
-            return new HiltViewModelFactory(owner, defaultArgs, delegate, componentBuilder);
-        }
-
-        private ActivityModule() {
+            return new HiltViewModelFactory(owner, defaultArgs, delegate, viewModelFactories);
         }
     }
 
     /**
-     * Hilt module for providing the fragment level ViewModelFactory
+     * Hilt Modules for providing the fragment level ViewModelFactory
      */
     @Module
     @InstallIn(FragmentComponent.class)
@@ -103,11 +95,12 @@ public final class ViewModelFactoryModules {
         static ViewModelProvider.Factory provideFactory(
                 @NonNull Fragment fragment,
                 @NonNull Application application,
-                @NonNull ViewModelComponent.Builder componentBuilder) {
+                @NonNull Map<String, Provider<ViewModelAssistedFactory<? extends ViewModel>>>
+                        viewModelFactories) {
             Bundle defaultArgs = fragment.getArguments();
             SavedStateViewModelFactory delegate =
                     new SavedStateViewModelFactory(application, fragment, defaultArgs);
-            return new HiltViewModelFactory(fragment, defaultArgs, delegate, componentBuilder);
+            return new HiltViewModelFactory(fragment, defaultArgs, delegate, viewModelFactories);
         }
 
         private FragmentModule() {
