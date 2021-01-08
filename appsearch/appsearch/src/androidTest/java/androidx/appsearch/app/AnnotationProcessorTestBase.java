@@ -23,11 +23,11 @@ import static androidx.appsearch.app.util.AppSearchTestUtils.convertSearchResult
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.content.Context;
-
+import androidx.annotation.NonNull;
 import androidx.appsearch.annotation.AppSearchDocument;
 import androidx.appsearch.localstorage.LocalStorage;
-import androidx.test.core.app.ApplicationProvider;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
@@ -37,17 +37,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class AnnotationProcessorTest {
+public abstract class AnnotationProcessorTestBase {
     private AppSearchSession mSession;
     private static final String DB_NAME_1 = LocalStorage.DEFAULT_DATABASE_NAME;
 
+    protected abstract ListenableFuture<AppSearchSession> createSearchSession(
+            @NonNull String dbName);
+
     @Before
     public void setUp() throws Exception {
-        Context context = ApplicationProvider.getApplicationContext();
-
-        mSession = LocalStorage.createSearchSession(
-                new LocalStorage.SearchContext.Builder(context)
-                        .setDatabaseName(DB_NAME_1).build()).get();
+        mSession = createSearchSession(DB_NAME_1).get();
 
         // Cleanup whatever documents may still exist in these databases. This is needed in
         // addition to tearDown in case a test exited without completing properly.

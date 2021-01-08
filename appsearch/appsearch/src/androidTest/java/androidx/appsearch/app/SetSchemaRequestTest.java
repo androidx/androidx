@@ -52,10 +52,10 @@ public class SetSchemaRequestTest {
             if (this == other) {
                 return true;
             }
-            if (!(other instanceof AnnotationProcessorTest.Card)) {
+            if (!(other instanceof AnnotationProcessorTestBase.Card)) {
                 return false;
             }
-            AnnotationProcessorTest.Card otherCard = (AnnotationProcessorTest.Card) other;
+            AnnotationProcessorTestBase.Card otherCard = (AnnotationProcessorTestBase.Card) other;
             assertThat(otherCard.mUri).isEqualTo(this.mUri);
             return true;
         }

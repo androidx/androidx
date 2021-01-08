@@ -26,6 +26,7 @@ import static org.junit.Assert.assertThrows;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchEmail;
 import androidx.appsearch.app.AppSearchResult;
@@ -45,6 +46,7 @@ import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import org.junit.After;
@@ -56,23 +58,26 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 
-public class AppSearchSessionCtsTest {
+public abstract class AppSearchSessionCtsTestBase {
     private AppSearchSession mDb1;
     private static final String DB_NAME_1 = LocalStorage.DEFAULT_DATABASE_NAME;
     private AppSearchSession mDb2;
     private static final String DB_NAME_2 = "testDb2";
 
+    protected abstract ListenableFuture<AppSearchSession> createSearchSession(
+            @NonNull String dbName);
+
+    protected abstract ListenableFuture<AppSearchSession> createSearchSession(
+            @NonNull String dbName, @NonNull ExecutorService executor);
+
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
 
-        mDb1 = LocalStorage.createSearchSession(
-                new LocalStorage.SearchContext.Builder(context)
-                        .setDatabaseName(DB_NAME_1).build()).get();
-        mDb2 = LocalStorage.createSearchSession(
-                new LocalStorage.SearchContext.Builder(context)
-                        .setDatabaseName(DB_NAME_2).build()).get();
+        mDb1 = createSearchSession(DB_NAME_1).get();
+        mDb2 = createSearchSession(DB_NAME_2).get();
 
         // Cleanup whatever documents may still exist in these databases. This is needed in
         // addition to tearDown in case a test exited without completing properly.
@@ -1314,10 +1319,7 @@ public class AppSearchSessionCtsTest {
 
         // close and re-open the appSearchSession
         mDb1.close();
-        Context context = ApplicationProvider.getApplicationContext();
-        mDb1 = LocalStorage.createSearchSession(
-                new LocalStorage.SearchContext.Builder(context)
-                        .setDatabaseName(DB_NAME_1).build()).get();
+        mDb1 = createSearchSession(DB_NAME_1).get();
 
         // Query for the document
         SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
@@ -1333,10 +1335,8 @@ public class AppSearchSessionCtsTest {
         // Create a same-thread database by inject an executor which could help us maintain the
         // execution order of those async tasks.
         Context context = ApplicationProvider.getApplicationContext();
-        AppSearchSession sameThreadDb = LocalStorage.createSearchSession(
-                new LocalStorage.SearchContext.Builder(context)
-                        .setDatabaseName("sameThreadDb").build(),
-                MoreExecutors.newDirectExecutorService()).get();
+        AppSearchSession sameThreadDb = createSearchSession(
+                "sameThreadDb", MoreExecutors.newDirectExecutorService()).get();
 
         try {
             // Schema registration -- just mutate something
@@ -1356,10 +1356,8 @@ public class AppSearchSessionCtsTest {
         } finally {
             // To clean the data that has been added in the test, need to re-open the session and
             // set an empty schema.
-            AppSearchSession reopen = LocalStorage.createSearchSession(
-                    new LocalStorage.SearchContext.Builder(context)
-                            .setDatabaseName("sameThreadDb").build(),
-                    MoreExecutors.newDirectExecutorService()).get();
+            AppSearchSession reopen = createSearchSession(
+                    "sameThreadDb", MoreExecutors.newDirectExecutorService()).get();
             reopen.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()).get();
         }
     }
