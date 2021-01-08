@@ -24,6 +24,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -68,8 +69,10 @@ public class FailureResponse {
     public static final int RUNTIME_EXCEPTION = 5;
     public static final int REMOTE_EXCEPTION = 6;
 
+    @Keep
     @Nullable
     private final String mStackTrace;
+    @Keep
     @ErrorType
     private final int mErrorType;
 
