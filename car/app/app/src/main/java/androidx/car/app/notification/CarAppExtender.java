@@ -99,16 +99,21 @@ import java.util.List;
  * frequently with navigation information, the notification UI has a slightly different behavior.
  * The app can post a TBT notification by calling {@code
  * NotificationCompat.Builder#setOngoing(true)} and {@code
- * NotificationCompat.Builder#setCategory(NotificationCompat.CATEGORY_NAVIGATION)}. The car screen
- * UI is affected in the following ways:
- *
+ * NotificationCompat.Builder#setCategory(NotificationCompat.CATEGORY_NAVIGATION)}.
+ * <p>TBT notifications behave the same as regular notifications with the following
+ * exceptions:
  * <ul>
- *   <li>The same heads-up-notification (HUN) behavior as regular notifications.
- *   <li>A rail widget at the bottom of the screen will show when the navigation app is in the
- *       background.
+ *     <li>The notification will not be displayed if the navigation app is not the currently active
+ *     navigation app, or if the app is already displaying routing information in the navigation
+ *     template.
+ *     <li>The heads-up-notification (HUN) can be customized with a background color through
+ *     {@link Builder#setColor}.
+ *     <li>The notification will not be displayed in the notification center.
  * </ul>
+ * <p>In addition to that, the information in the navigation notification will be displayed in the
+ * rail widget at the bottom of the screen when the app is in the background.
  *
- * Note that frequent HUNs distract the driver. The recommended practice is to update the TBT
+ * <p>Note that frequent HUNs distract the driver. The recommended practice is to update the TBT
  * notification regularly on distance changes, which updates the rail widget, but call {@code
  * NotificationCompat.Builder#setOnlyAlertOnce(true)} unless there is a significant navigation turn
  * event.
@@ -555,8 +560,8 @@ public class CarAppExtender implements NotificationCompat.Extender {
          * <p>This method is equivalent to {@link NotificationCompat.Builder#setColor(int)} for
          * the car screen.
          *
-         * <p>The notification background color, if applied, must be updated in response to the
-         * light and dark mode changes even if a {@link CarColor} is not used.
+         * <p>This color is only used for navigation notifications. See the "Navigation" section
+         * of {@link CarAppExtender} for more details.
          */
         @NonNull
         public Builder setColor(@Nullable CarColor color) {
