@@ -4629,9 +4629,6 @@ public class ExifInterface {
                         getRawAttributes(inputStream);
                         break;
                     }
-                    default: {
-                        break;
-                    }
                 }
             } else {
                 getStandaloneAttributes(inputStream);
@@ -4639,7 +4636,7 @@ public class ExifInterface {
             // Set thumbnail image offset and length
             inputStream.seek(mOffsetToExifData);
             setThumbnailData(inputStream);
-        } catch (IOException e) {
+        } catch (IOException | UnsupportedOperationException e) {
             // Ignore exceptions in order to keep the compatibility with the old versions of
             // ExifInterface.
             if (DEBUG) {
@@ -5842,10 +5839,12 @@ public class ExifInterface {
         }
     }
 
+    // Support for getting MediaMetadataRetriever.METADATA_KEY_EXIF_OFFSET and
+    // MediaMetadataRetriever.METADATA_KEY_EXIF_LENGTH was added SDK 28.
     private void getHeifAttributes(final ByteOrderedDataInputStream in) throws IOException {
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        try {
-            if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 28) {
+            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            try {
                 retriever.setDataSource(new MediaDataSource() {
                     long mPosition;
 
@@ -5898,110 +5897,105 @@ public class ExifInterface {
                         return -1;
                     }
                 });
-            } else {
-                if (mSeekableFileDescriptor != null) {
-                    retriever.setDataSource(mSeekableFileDescriptor);
-                } else if (mFilename != null) {
-                    retriever.setDataSource(mFilename);
-                } else {
-                    return;
-                }
-            }
 
-            String exifOffsetStr = retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_EXIF_OFFSET);
-            String exifLengthStr = retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_EXIF_LENGTH);
-            String hasImage = retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_HAS_IMAGE);
-            String hasVideo = retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO);
+                String exifOffsetStr = retriever.extractMetadata(
+                        MediaMetadataRetriever.METADATA_KEY_EXIF_OFFSET);
+                String exifLengthStr = retriever.extractMetadata(
+                        MediaMetadataRetriever.METADATA_KEY_EXIF_LENGTH);
+                String hasImage = retriever.extractMetadata(
+                        MediaMetadataRetriever.METADATA_KEY_HAS_IMAGE);
+                String hasVideo = retriever.extractMetadata(
+                        MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO);
 
-            String width = null;
-            String height = null;
-            String rotation = null;
-            final String metadataValueYes = "yes";
-            // If the file has both image and video, prefer image info over video info.
-            // App querying ExifInterface is most likely using the bitmap path which
-            // picks the image first.
-            if (metadataValueYes.equals(hasImage)) {
-                width = retriever.extractMetadata(
-                        MediaMetadataRetriever.METADATA_KEY_IMAGE_WIDTH);
-                height = retriever.extractMetadata(
-                        MediaMetadataRetriever.METADATA_KEY_IMAGE_HEIGHT);
-                rotation = retriever.extractMetadata(
-                        MediaMetadataRetriever.METADATA_KEY_IMAGE_ROTATION);
-            } else if (metadataValueYes.equals(hasVideo)) {
-                width = retriever.extractMetadata(
-                        MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
-                height = retriever.extractMetadata(
-                        MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
-                rotation = retriever.extractMetadata(
-                        MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
-            }
-
-            if (width != null) {
-                mAttributes[IFD_TYPE_PRIMARY].put(TAG_IMAGE_WIDTH,
-                        ExifAttribute.createUShort(Integer.parseInt(width), mExifByteOrder));
-            }
-
-            if (height != null) {
-                mAttributes[IFD_TYPE_PRIMARY].put(TAG_IMAGE_LENGTH,
-                        ExifAttribute.createUShort(Integer.parseInt(height), mExifByteOrder));
-            }
-
-            if (rotation != null) {
-                int orientation = ExifInterface.ORIENTATION_NORMAL;
-
-                // all rotation angles in CW
-                switch (Integer.parseInt(rotation)) {
-                    case 90:
-                        orientation = ExifInterface.ORIENTATION_ROTATE_90;
-                        break;
-                    case 180:
-                        orientation = ExifInterface.ORIENTATION_ROTATE_180;
-                        break;
-                    case 270:
-                        orientation = ExifInterface.ORIENTATION_ROTATE_270;
-                        break;
+                String width = null;
+                String height = null;
+                String rotation = null;
+                final String metadataValueYes = "yes";
+                // If the file has both image and video, prefer image info over video info.
+                // App querying ExifInterface is most likely using the bitmap path which
+                // picks the image first.
+                if (metadataValueYes.equals(hasImage)) {
+                    width = retriever.extractMetadata(
+                            MediaMetadataRetriever.METADATA_KEY_IMAGE_WIDTH);
+                    height = retriever.extractMetadata(
+                            MediaMetadataRetriever.METADATA_KEY_IMAGE_HEIGHT);
+                    rotation = retriever.extractMetadata(
+                            MediaMetadataRetriever.METADATA_KEY_IMAGE_ROTATION);
+                } else if (metadataValueYes.equals(hasVideo)) {
+                    width = retriever.extractMetadata(
+                            MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
+                    height = retriever.extractMetadata(
+                            MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
+                    rotation = retriever.extractMetadata(
+                            MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
                 }
 
-                mAttributes[IFD_TYPE_PRIMARY].put(TAG_ORIENTATION,
-                        ExifAttribute.createUShort(orientation, mExifByteOrder));
-            }
-
-            if (exifOffsetStr != null && exifLengthStr != null) {
-                int offset = Integer.parseInt(exifOffsetStr);
-                int length = Integer.parseInt(exifLengthStr);
-                if (length <= 6) {
-                    throw new IOException("Invalid exif length");
-                }
-                in.seek(offset);
-                byte[] identifier = new byte[6];
-                if (in.read(identifier) != 6) {
-                    throw new IOException("Can't read identifier");
-                }
-                offset += 6;
-                length -= 6;
-                if (!Arrays.equals(identifier, IDENTIFIER_EXIF_APP1)) {
-                    throw new IOException("Invalid identifier");
+                if (width != null) {
+                    mAttributes[IFD_TYPE_PRIMARY].put(TAG_IMAGE_WIDTH,
+                            ExifAttribute.createUShort(Integer.parseInt(width), mExifByteOrder));
                 }
 
-                // TODO: Need to handle potential OutOfMemoryError
-                byte[] bytes = new byte[length];
-                if (in.read(bytes) != length) {
-                    throw new IOException("Can't read exif");
+                if (height != null) {
+                    mAttributes[IFD_TYPE_PRIMARY].put(TAG_IMAGE_LENGTH,
+                            ExifAttribute.createUShort(Integer.parseInt(height), mExifByteOrder));
                 }
-                // Save offset to EXIF data for handling thumbnail and attribute offsets.
-                mOffsetToExifData = offset;
-                readExifSegment(bytes, IFD_TYPE_PRIMARY);
-            }
 
-            if (DEBUG) {
-                Log.d(TAG, "Heif meta: " + width + "x" + height + ", rotation " + rotation);
+                if (rotation != null) {
+                    int orientation = ExifInterface.ORIENTATION_NORMAL;
+
+                    // all rotation angles in CW
+                    switch (Integer.parseInt(rotation)) {
+                        case 90:
+                            orientation = ExifInterface.ORIENTATION_ROTATE_90;
+                            break;
+                        case 180:
+                            orientation = ExifInterface.ORIENTATION_ROTATE_180;
+                            break;
+                        case 270:
+                            orientation = ExifInterface.ORIENTATION_ROTATE_270;
+                            break;
+                    }
+
+                    mAttributes[IFD_TYPE_PRIMARY].put(TAG_ORIENTATION,
+                            ExifAttribute.createUShort(orientation, mExifByteOrder));
+                }
+
+                if (exifOffsetStr != null && exifLengthStr != null) {
+                    int offset = Integer.parseInt(exifOffsetStr);
+                    int length = Integer.parseInt(exifLengthStr);
+                    if (length <= 6) {
+                        throw new IOException("Invalid exif length");
+                    }
+                    in.seek(offset);
+                    byte[] identifier = new byte[6];
+                    if (in.read(identifier) != 6) {
+                        throw new IOException("Can't read identifier");
+                    }
+                    offset += 6;
+                    length -= 6;
+                    if (!Arrays.equals(identifier, IDENTIFIER_EXIF_APP1)) {
+                        throw new IOException("Invalid identifier");
+                    }
+
+                    // TODO: Need to handle potential OutOfMemoryError
+                    byte[] bytes = new byte[length];
+                    if (in.read(bytes) != length) {
+                        throw new IOException("Can't read exif");
+                    }
+                    // Save offset to EXIF data for handling thumbnail and attribute offsets.
+                    mOffsetToExifData = offset;
+                    readExifSegment(bytes, IFD_TYPE_PRIMARY);
+                }
+
+                if (DEBUG) {
+                    Log.d(TAG, "Heif meta: " + width + "x" + height + ", rotation " + rotation);
+                }
+            } finally {
+                retriever.release();
             }
-        } finally {
-            retriever.release();
+        } else {
+            throw new UnsupportedOperationException("Reading EXIF from HEIF files "
+                    + "is supported from SDK 28 and above");
         }
     }
 
