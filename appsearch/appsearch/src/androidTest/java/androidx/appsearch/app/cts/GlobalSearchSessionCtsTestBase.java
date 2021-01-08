@@ -23,6 +23,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchEmail;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
@@ -38,6 +39,7 @@ import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
@@ -47,7 +49,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class GlobalSearchSessionCtsTest {
+public abstract class GlobalSearchSessionCtsTestBase {
     private AppSearchSession mDb1;
     private static final String DB_NAME_1 = LocalStorage.DEFAULT_DATABASE_NAME;
     private AppSearchSession mDb2;
@@ -55,24 +57,22 @@ public class GlobalSearchSessionCtsTest {
 
     private GlobalSearchSession mGlobalAppSearchManager;
 
+    protected abstract ListenableFuture<AppSearchSession> createSearchSession(
+            @NonNull String dbName);
+    protected abstract ListenableFuture<GlobalSearchSession> createGlobalSearchSession();
+
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
 
-        mDb1 = LocalStorage.createSearchSession(
-                new LocalStorage.SearchContext.Builder(context).setDatabaseName(DB_NAME_1).build())
-                .get();
-        mDb2 = LocalStorage.createSearchSession(
-                new LocalStorage.SearchContext.Builder(context).setDatabaseName(DB_NAME_2).build())
-                .get();
+        mDb1 = createSearchSession(DB_NAME_1).get();
+        mDb2 = createSearchSession(DB_NAME_2).get();
 
         // Cleanup whatever documents may still exist in these databases. This is needed in
         // addition to tearDown in case a test exited without completing properly.
         cleanup();
 
-        mGlobalAppSearchManager = LocalStorage.createGlobalSearchSession(
-                new LocalStorage.GlobalSearchContext.Builder(context).build())
-                .get();
+        mGlobalAppSearchManager = createGlobalSearchSession().get();
     }
 
     @After

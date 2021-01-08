@@ -122,26 +122,13 @@ class ExportToFramework:
             .replace(
                     'package androidx.appsearch.app.util;',
                     'package com.android.server.appsearch.testing;')
-            .replace('AppSearchSession;', 'AppSearchSessionShim;')
-            .replace('AppSearchSession ', 'AppSearchSessionShim ')
-            .replace('GlobalSearchSession;', 'GlobalSearchSessionShim;')
-            .replace('GlobalSearchSession ', 'GlobalSearchSessionShim ')
-            .replace('SearchResults;', 'SearchResultsShim;')
-            .replace('SearchResults ', 'SearchResultsShim ')
             .replace(
-                    'LocalStorage.createSearchSession(',
-                    'AppSearchSessionShimImpl.createSearchSession(')
-            .replace(
-                    'LocalStorage.createGlobalSearchSession(',
-                    'GlobalSearchSessionShimImpl.createGlobalSearchSession(')
-            .replace(
-                    'new LocalStorage.SearchContext.Builder(context)',
-                    'new LocalStorage.SearchContext.Builder()')
-            .replace(
-                    'new LocalStorage.GlobalSearchContext.Builder(context).build()',
-                    '')
+                    'androidx.appsearch.localstorage.LocalStorage',
+                    'android.app.appsearch.AppSearchManager')
             .replace('LocalStorage.', 'AppSearchManager.')
         )
+        for shim in ['AppSearchSession', 'GlobalSearchSession', 'SearchResults']:
+            contents = re.sub(r"([^a-zA-Z])(%s)([^a-zA-Z0-9])" % shim, r'\1\2Shim\3', contents)
         return self._TransformCommonCode(contents)
 
     def _TransformCtsTestCode(self, contents):
