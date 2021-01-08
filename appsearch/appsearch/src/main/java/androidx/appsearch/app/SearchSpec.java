@@ -45,12 +45,10 @@ import java.util.Set;
 // TODO(sidchhabra) : AddResultSpec fields for Snippets etc.
 public final class SearchSpec {
     /**
-     * Schema type to be used in {@link SearchSpec.Builder#addProjectionTypePropertyPath} to apply
+     * Schema type to be used in {@link SearchSpec.Builder#addProjection} to apply
      * property paths to all results, excepting any types that have had their own, specific
      * property paths set.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String PROJECTION_SCHEMA_TYPE_WILDCARD = "*";
 
     static final String TERM_MATCH_TYPE_FIELD = "termMatchType";
@@ -229,11 +227,9 @@ public final class SearchSpec {
      *
      * <p>Calling this function repeatedly is inefficient. Prefer to retain the Map returned
      * by this function, rather than calling it multiple times.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
-    public Map<String, List<String>> getProjectionTypePropertyPaths() {
+    public Map<String, List<String>> getProjections() {
         Bundle typePropertyPathsBundle =
                 mBundle.getBundle(PROJECTION_TYPE_PROPERTY_PATHS_FIELD);
         Set<String> schemaTypes = typePropertyPathsBundle.keySet();
@@ -524,14 +520,12 @@ public final class SearchSpec {
          *   subject: "IMPORTANT"
          * }
          * }</pre>
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
-        public SearchSpec.Builder addProjectionTypePropertyPaths(
+        public SearchSpec.Builder addProjection(
                 @NonNull String schemaType, @NonNull String... propertyPaths) {
             Preconditions.checkNotNull(propertyPaths);
-            return addProjectionTypePropertyPaths(schemaType, Arrays.asList(propertyPaths));
+            return addProjection(schemaType, Arrays.asList(propertyPaths));
         }
 
         /**
@@ -548,12 +542,10 @@ public final class SearchSpec {
          * apply to all results, excepting any types that have their own, specific property paths
          * set.
          *
-         * {@see SearchSpec.Builder#addProjectionTypePropertyPath(String, String...)}
-         * @hide
+         * {@see SearchSpec.Builder#addProjection(String, String...)}
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
-        public SearchSpec.Builder addProjectionTypePropertyPaths(
+        public SearchSpec.Builder addProjection(
                 @NonNull String schemaType, @NonNull Collection<String> propertyPaths) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(schemaType);
