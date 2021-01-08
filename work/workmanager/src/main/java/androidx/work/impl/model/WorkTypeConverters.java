@@ -27,10 +27,12 @@ import static androidx.work.WorkInfo.State.SUCCEEDED;
 
 import android.net.Uri;
 
+import androidx.annotation.NonNull;
 import androidx.room.TypeConverter;
 import androidx.work.BackoffPolicy;
 import androidx.work.ContentUriTriggers;
 import androidx.work.NetworkType;
+import androidx.work.OutOfQuotaPolicy;
 import androidx.work.WorkInfo;
 
 import java.io.ByteArrayInputStream;
@@ -76,6 +78,14 @@ public class WorkTypeConverters {
         int UNMETERED = 2;
         int NOT_ROAMING = 3;
         int METERED = 4;
+    }
+
+    /**
+     * Integer identifiers that map to {@link OutOfQuotaPolicy}.
+     */
+    public interface OutOfPolicyIds {
+        int RUN_AS_NON_EXPEDITED_WORK_REQUEST = 0;
+        int DROP_WORK_REQUEST = 1;
     }
 
     /**
@@ -243,6 +253,45 @@ public class WorkTypeConverters {
             default:
                 throw new IllegalArgumentException(
                         "Could not convert " + value + " to NetworkType");
+        }
+    }
+
+    /**
+     * Converts a {@link OutOfQuotaPolicy} to an int.
+     *
+     * @param policy The {@link OutOfQuotaPolicy} policy being used
+     * @return the corresponding int representation.
+     */
+    @TypeConverter
+    public static int outOfQuotaPolicyToInt(@NonNull OutOfQuotaPolicy policy) {
+        switch (policy) {
+            case RUN_AS_NON_EXPEDITED_WORK_REQUEST:
+                return OutOfPolicyIds.RUN_AS_NON_EXPEDITED_WORK_REQUEST;
+            case DROP_WORK_REQUEST:
+                return OutOfPolicyIds.DROP_WORK_REQUEST;
+            default:
+                throw new IllegalArgumentException(
+                        "Could not convert " + policy + " to int");
+        }
+    }
+
+    /**
+     * Converter from an int to a {@link OutOfQuotaPolicy}.
+     *
+     * @param value The input integer
+     * @return An {@link OutOfQuotaPolicy}
+     */
+    @TypeConverter
+    @NonNull
+    public static OutOfQuotaPolicy intToOutOfQuotaPolicy(int value) {
+        switch (value) {
+            case OutOfPolicyIds.RUN_AS_NON_EXPEDITED_WORK_REQUEST:
+                return OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST;
+            case OutOfPolicyIds.DROP_WORK_REQUEST:
+                return OutOfQuotaPolicy.DROP_WORK_REQUEST;
+            default:
+                throw new IllegalArgumentException(
+                        "Could not convert " + value + " to OutOfQuotaPolicy");
         }
     }
 

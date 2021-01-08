@@ -23,8 +23,10 @@ import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.core.os.BuildCompat;
 import androidx.work.ForegroundInfo;
 import androidx.work.ForegroundUpdater;
+import androidx.work.Logger;
 import androidx.work.WorkInfo;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.foreground.ForegroundProcessor;
@@ -45,6 +47,8 @@ import java.util.UUID;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkForegroundUpdater implements ForegroundUpdater {
+
+    private static final String TAG = Logger.tagWithPrefix("WMFgUpdater");
 
     private final TaskExecutor mTaskExecutor;
 
@@ -79,6 +83,9 @@ public class WorkForegroundUpdater implements ForegroundUpdater {
             @Override
             public void run() {
                 try {
+                    if (BuildCompat.isAtLeastS()) {
+                        throw new IllegalStateException("Use an expedited job instead.");
+                    }
                     if (!future.isCancelled()) {
                         String workSpecId = id.toString();
                         WorkInfo.State state = mWorkSpecDao.getState(workSpecId);

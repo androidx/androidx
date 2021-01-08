@@ -59,6 +59,7 @@ public class WorkDatabaseMigrations {
     public static final int VERSION_9 = 9;
     public static final int VERSION_10 = 10;
     public static final int VERSION_11 = 11;
+    public static final int VERSION_12 = 12;
 
     private static final String CREATE_SYSTEM_ID_INFO =
             "CREATE TABLE IF NOT EXISTS `SystemIdInfo` (`work_spec_id` TEXT NOT NULL, `system_id`"
@@ -105,6 +106,9 @@ public class WorkDatabaseMigrations {
     private static final String CREATE_PREFERENCE =
             "CREATE TABLE IF NOT EXISTS `Preference` (`key` TEXT NOT NULL, `long_value` INTEGER, "
                     + "PRIMARY KEY(`key`))";
+
+    private static final String CREATE_OUT_OF_QUOTA_POLICY =
+            "ALTER TABLE workspec ADD COLUMN `out_of_quota_policy` INTEGER NOT NULL DEFAULT 0";
 
     /**
      * Removes the {@code alarmInfo} table and substitutes it for a more general
@@ -228,4 +232,15 @@ public class WorkDatabaseMigrations {
             IdGenerator.migrateLegacyIdGenerator(mContext, database);
         }
     }
+
+    /**
+     * Adds a notification_provider to the {@link WorkSpec}.
+     */
+    @NonNull
+    public static Migration MIGRATION_11_12 = new Migration(VERSION_11, VERSION_12) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL(CREATE_OUT_OF_QUOTA_POLICY);
+        }
+    };
 }

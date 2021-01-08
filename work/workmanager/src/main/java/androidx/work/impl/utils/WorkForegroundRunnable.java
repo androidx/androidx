@@ -18,10 +18,10 @@ package androidx.work.impl.utils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.core.os.BuildCompat;
 import androidx.work.ForegroundInfo;
 import androidx.work.ForegroundUpdater;
 import androidx.work.ListenableWorker;
@@ -73,7 +73,7 @@ public class WorkForegroundRunnable implements Runnable {
     @Override
     @SuppressLint("UnsafeExperimentalUsageError")
     public void run() {
-        if (!mWorkSpec.expedited || Build.VERSION.SDK_INT > 30) {
+        if (!mWorkSpec.expedited || BuildCompat.isAtLeastS()) {
             mFuture.set(null);
             return;
         }
