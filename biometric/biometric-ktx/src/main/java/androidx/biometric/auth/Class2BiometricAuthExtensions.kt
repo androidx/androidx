@@ -15,31 +15,26 @@
  */
 package androidx.biometric.auth
 
-import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import java.util.concurrent.Executor
 
 /**
- * Builds a [Class2BiometricAuthPrompt] hosted on the current [FragmentActivity], which configures
- * a [BiometricPrompt] for authentication via Class 2 biometric modalities (fingerprint, iris, face,
- * etc) and begins authentication.
+ * Prompts the user to authenticate with a **Class 2** biometric (e.g. fingerprint, face, or iris).
  *
- * Class 2 (formerly known as Weak) refers to the strength of the biometric sensor, as specified
- * in the Android 11 CDD. Class 2 authentication can be used for applications that don't require
- * cryptographic operations.
+ * Note that **Class 3** biometrics are guaranteed to meet the requirements for **Class 2** and thus
+ * will also be accepted.
  *
  * @param title The title to be displayed on the prompt.
- * @param negativeButtonText The label to be used for the negative button on the prompt.
- * @param executor The executor that will run authentication callback methods. If null, callback
- * methods will be executed on the main thread.
+ * @param negativeButtonText The label for the negative button on the prompt.
+ * @param subtitle An optional subtitle to be displayed on the prompt.
+ * @param description An optional description to be displayed on the prompt.
+ * @param confirmationRequired Whether user confirmation should be required for passive biometrics.
+ * @param executor An executor for [callback] methods. If `null`, these will run on the main thread.
  * @param callback The object that will receive and process authentication events.
- * @param subtitle The subtitle to be displayed on the prompt, null by default.
- * @param description The description to be displayed on the prompt, null by default.
- * @param confirmationRequired Whether explicit user confirmation is required after a passive
- *                             biometric, true by default.
- * @return [AuthPrompt] wrapper that can be used for cancellation and dismissal of the
- * biometric prompt using [AuthPrompt]#cancelAuthentication()
+ * @return An [AuthPrompt] handle to the shown prompt.
+ *
+ * @see Class2BiometricAuthPrompt
  */
 public fun FragmentActivity.startClass2BiometricAuthentication(
     title: CharSequence,
@@ -63,25 +58,21 @@ public fun FragmentActivity.startClass2BiometricAuthentication(
 }
 
 /**
- * Builds a [Class2BiometricAuthPrompt] hosted on the current [Fragment], which configures a
- * [BiometricPrompt] for authentication with Class 2 biometric modalities (fingerprint, iris,
- * face, etc) and begins authentication.
+ * Prompts the user to authenticate with a **Class 2** biometric (e.g. fingerprint, face, or iris).
  *
- * Class 2 (formerly known as Weak) refers to the strength of the biometric sensor, as specified
- * in the Android 11 CDD. Class 2 authentication can be used for applications that don't require
- * cryptographic operations.
+ * Note that **Class 3** biometrics are guaranteed to meet the requirements for **Class 2** and thus
+ * will also be accepted.
  *
  * @param title The title to be displayed on the prompt.
- * @param negativeButtonText The label to be used for the negative button on the prompt.
- * @param executor The executor that will run authentication callback methods. If null, callback
- * methods will be executed on the main thread.
+ * @param negativeButtonText The label for the negative button on the prompt.
+ * @param subtitle An optional subtitle to be displayed on the prompt.
+ * @param description An optional description to be displayed on the prompt.
+ * @param confirmationRequired Whether user confirmation should be required for passive biometrics.
+ * @param executor An executor for [callback] methods. If `null`, these will run on the main thread.
  * @param callback The object that will receive and process authentication events.
- * @param subtitle The subtitle to be displayed on the prompt, null by default.
- * @param description The description to be displayed on the prompt, null by default.
- * @param confirmationRequired Whether explicit user confirmation is required after a passive
- *                             biometric, true by default.
- * @return [AuthPrompt] wrapper that can be used for cancellation and dismissal of the
- * biometric prompt using [AuthPrompt]#cancelAuthentication()
+ * @return An [AuthPrompt] handle to the shown prompt.
+ *
+ * @see Class2BiometricAuthPrompt
  */
 public fun Fragment.startClass2BiometricAuthentication(
     title: CharSequence,
@@ -105,13 +96,10 @@ public fun Fragment.startClass2BiometricAuthentication(
 }
 
 /**
- * Helper function for shared logic in [Fragment.startClass2BiometricAuthentication] and
- * [FragmentActivity.startClass2BiometricAuthentication] for building the
- * [Class2BiometricAuthPrompt], starting authentication, and returning the AuthPrompt wrapper for
- * cancellation and dismissal of the biometric prompt using [AuthPrompt]#cancelAuthentication()
+ * Creates a [Class2BiometricAuthPrompt] with the given parameters and starts authentication.
  */
 private fun startClass2BiometricAuthenticationInternal(
-    authPromptHost: AuthPromptHost,
+    host: AuthPromptHost,
     title: CharSequence,
     negativeButtonText: CharSequence,
     subtitle: CharSequence? = null,
@@ -120,20 +108,15 @@ private fun startClass2BiometricAuthenticationInternal(
     executor: Executor? = null,
     callback: AuthPromptCallback
 ): AuthPrompt {
-    val class2BiometricAuthBuilder =
-        if (executor != null) {
-            Class2BiometricAuthPrompt.Builder(
-                authPromptHost, title, negativeButtonText, executor, callback
-            )
-        } else {
-            Class2BiometricAuthPrompt.Builder(
-                authPromptHost, title, negativeButtonText, callback
-            )
-        }
-
-    return class2BiometricAuthBuilder.apply {
+    val prompt = Class2BiometricAuthPrompt.Builder(title, negativeButtonText).apply {
         subtitle?.let { setSubtitle(it) }
         description?.let { setDescription(it) }
         setConfirmationRequired(confirmationRequired)
-    }.build().startAuthentication()
+    }.build()
+
+    return if (executor == null) {
+        prompt.startAuthentication(host, callback)
+    } else {
+        prompt.startAuthentication(host, executor, callback)
+    }
 }

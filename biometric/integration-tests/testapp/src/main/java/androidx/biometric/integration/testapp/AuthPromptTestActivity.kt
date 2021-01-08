@@ -19,7 +19,6 @@ package androidx.biometric.integration.testapp
 import android.os.Build
 import android.os.Bundle
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators
 import androidx.biometric.BiometricPrompt
@@ -99,7 +98,6 @@ class AuthPromptTestActivity : FragmentActivity() {
                 binding.credentialButton.isChecked
         }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = AuthPromptTestActivityBinding.inflate(layoutInflater)
@@ -176,7 +174,6 @@ class AuthPromptTestActivity : FragmentActivity() {
     /**
      * Launches the appropriate [AuthPrompt] to begin authentication.
      */
-    @RequiresApi(Build.VERSION_CODES.M)
     private fun authenticate() {
         val title = getString(biometric_prompt_title)
         val subtitle = getString(biometric_prompt_subtitle)
@@ -194,24 +191,14 @@ class AuthPromptTestActivity : FragmentActivity() {
                 )
 
             R.id.class3_biometric_button ->
-                if (binding.common.useCryptoAuthCheckbox.isChecked) {
-                    startClass3BiometricAuthentication(
-                        crypto = createCryptoObject(isBiometricAllowed, isCredentialAllowed),
-                        title = title,
-                        subtitle = subtitle,
-                        description = description,
-                        negativeButtonText = negativeButtonText,
-                        callback = callback
-                    )
-                } else {
-                    startClass3BiometricAuthentication(
-                        crypto = null,
-                        title = title,
-                        description = description,
-                        negativeButtonText = negativeButtonText,
-                        callback = callback
-                    )
-                }
+                startClass3BiometricAuthentication(
+                    crypto = createCryptoOrNull(),
+                    title = title,
+                    subtitle = subtitle,
+                    description = description,
+                    negativeButtonText = negativeButtonText,
+                    callback = callback
+                )
 
             R.id.class2_biometric_or_credential_button ->
                 startClass2BiometricOrCredentialAuthentication(
@@ -223,9 +210,9 @@ class AuthPromptTestActivity : FragmentActivity() {
                 )
 
             R.id.class3_biometric_or_credential_button ->
-                if (binding.common.useCryptoAuthCheckbox.isChecked) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     startClass3BiometricOrCredentialAuthentication(
-                        crypto = createCryptoObject(isBiometricAllowed, isCredentialAllowed),
+                        crypto = createCryptoOrNull(),
                         title = title,
                         subtitle = subtitle,
                         description = description,
@@ -233,34 +220,40 @@ class AuthPromptTestActivity : FragmentActivity() {
                         callback = callback
                     )
                 } else {
-                    startClass3BiometricOrCredentialAuthentication(
-                        crypto = null,
-                        title = title,
-                        subtitle = subtitle,
-                        description = description,
-                        confirmationRequired = confirmationRequired,
-                        callback = callback
-                    )
+                    val sdkInt = Build.VERSION.SDK_INT
+                    log("Error: Class 3 biometric or credential auth not supported on API $sdkInt.")
+                    null
                 }
 
             R.id.credential_button ->
-                if (binding.common.useCryptoAuthCheckbox.isChecked) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     startCredentialAuthentication(
-                        crypto = createCryptoObject(isBiometricAllowed, isCredentialAllowed),
+                        crypto = createCryptoOrNull(),
                         title = title,
                         description = description,
                         callback = callback
                     )
                 } else {
-                    startCredentialAuthentication(
-                        crypto = null,
-                        title = title,
-                        description = description,
-                        callback = callback
-                    )
+                    val sdkInt = Build.VERSION.SDK_INT
+                    log("Error: Credential-only auth not supported on API $sdkInt.")
+                    null
                 }
 
             else -> throw IllegalStateException("Invalid checked button ID: $buttonId")
+        }
+    }
+
+    /**
+     * Returns a new crypto object for authentication or `null`, based on the selected options.
+     */
+    private fun createCryptoOrNull(): BiometricPrompt.CryptoObject? {
+        return if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+            binding.common.useCryptoAuthCheckbox.isChecked
+        ) {
+            createCryptoObject(isBiometricAllowed, isCredentialAllowed)
+        } else {
+            null
         }
     }
 
