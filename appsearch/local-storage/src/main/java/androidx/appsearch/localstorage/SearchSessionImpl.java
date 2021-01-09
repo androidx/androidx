@@ -24,12 +24,14 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByUriRequest;
+import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByUriRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.localstorage.util.FutureUtil;
+import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
@@ -37,6 +39,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -73,11 +76,22 @@ class SearchSessionImpl implements AppSearchSession {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
         return execute(() -> {
+            // Convert the inner set into a List since Binder can't handle Set.
+            Map<String, Set<PackageIdentifier>> schemasPackageAccessible =
+                    request.getSchemasVisibleToPackagesInternal();
+            Map<String, List<PackageIdentifier>> copySchemasPackageAccessible = new ArrayMap<>();
+            for (Map.Entry<String, Set<PackageIdentifier>> entry :
+                    schemasPackageAccessible.entrySet()) {
+                copySchemasPackageAccessible.put(entry.getKey(),
+                        new ArrayList<>(entry.getValue()));
+            }
+
             mAppSearchImpl.setSchema(
                     mPackageName,
                     mDatabaseName,
                     new ArrayList<>(request.getSchemas()),
                     new ArrayList<>(request.getSchemasNotVisibleToSystemUi()),
+                    copySchemasPackageAccessible,
                     request.isForceOverride());
             mIsMutated = true;
             return null;

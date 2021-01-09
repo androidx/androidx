@@ -27,6 +27,7 @@ import androidx.annotation.WorkerThread;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -34,6 +35,7 @@ import androidx.appsearch.localstorage.converter.GenericDocumentToProtoConverter
 import androidx.appsearch.localstorage.converter.SchemaToProtoConverter;
 import androidx.appsearch.localstorage.converter.SearchResultToProtoConverter;
 import androidx.appsearch.localstorage.converter.SearchSpecToProtoConverter;
+import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
@@ -236,6 +238,7 @@ public final class AppSearchImpl {
      * @param schemas                       Schemas to set for this app.
      * @param schemasNotPlatformSurfaceable Schema types that should not be surfaced on platform
      *                                      surfaces.
+     * @param schemasPackageAccessible      Schema types that are visible to the specified packages.
      * @param forceOverride                 Whether to force-apply the schema even if it is
      *                                      incompatible. Documents
      *                                      which do not comply with the new schema will be deleted.
@@ -246,6 +249,7 @@ public final class AppSearchImpl {
             @NonNull String databaseName,
             @NonNull List<AppSearchSchema> schemas,
             @NonNull List<String> schemasNotPlatformSurfaceable,
+            @NonNull Map<String, List<PackageIdentifier>> schemasPackageAccessible,
             boolean forceOverride) throws AppSearchException {
         mReadWriteLock.writeLock().lock();
         try {
@@ -297,8 +301,16 @@ public final class AppSearchImpl {
                 prefixedSchemasNotPlatformSurfaceable.add(
                         prefix + schemasNotPlatformSurfaceable.get(i));
             }
+
+            Map<String, List<PackageIdentifier>> prefixedSchemasPackageAccessible =
+                    new ArrayMap<>(schemasNotPlatformSurfaceable.size());
+            for (Map.Entry<String, List<PackageIdentifier>> entry :
+                    schemasPackageAccessible.entrySet()) {
+                prefixedSchemasPackageAccessible.put(prefix + entry.getKey(), entry.getValue());
+            }
+
             mVisibilityStoreLocked.setVisibility(prefix,
-                    prefixedSchemasNotPlatformSurfaceable);
+                    prefixedSchemasNotPlatformSurfaceable, prefixedSchemasPackageAccessible);
 
             // Determine whether to schedule an immediate optimize.
             if (setSchemaResultProto.getDeletedSchemaTypesCount() > 0
