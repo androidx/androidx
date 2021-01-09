@@ -303,8 +303,11 @@ package androidx.paging {
   public final class PagingDataTransforms {
     method @CheckResult public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function1<? super T,? extends java.lang.Iterable<? extends R>> transform);
+    method @CheckResult public static <T> androidx.paging.PagingData<T> insertFooterItem(androidx.paging.PagingData<T>, optional androidx.paging.TerminalSeparatorType terminalSeparatorType, T item);
     method @CheckResult public static <T> androidx.paging.PagingData<T> insertFooterItem(androidx.paging.PagingData<T>, T item);
+    method @CheckResult public static <T> androidx.paging.PagingData<T> insertHeaderItem(androidx.paging.PagingData<T>, optional androidx.paging.TerminalSeparatorType terminalSeparatorType, T item);
     method @CheckResult public static <T> androidx.paging.PagingData<T> insertHeaderItem(androidx.paging.PagingData<T>, T item);
+    method @CheckResult public static <R, T extends R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, optional androidx.paging.TerminalSeparatorType terminalSeparatorType, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
     method @CheckResult public static <R, T extends R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
     method @CheckResult public static <T, R> androidx.paging.PagingData<R> map(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function1<? super T,? extends R> transform);
   }
@@ -473,6 +476,11 @@ package androidx.paging {
   }
 
   public final class SeparatorsKt {
+  }
+
+  public enum TerminalSeparatorType {
+    enum_constant public static final androidx.paging.TerminalSeparatorType FULLY_COMPLETE;
+    enum_constant public static final androidx.paging.TerminalSeparatorType SOURCE_COMPLETE;
   }
 
 }
