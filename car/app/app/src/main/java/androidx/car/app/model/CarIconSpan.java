@@ -20,9 +20,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import static java.util.Objects.requireNonNull;
 
-import android.text.TextPaint;
-import android.text.style.CharacterStyle;
-
 import androidx.annotation.IntDef;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
@@ -61,7 +58,7 @@ import java.util.Objects;
  *
  * @see CarIcon
  */
-public class CarIconSpan extends CharacterStyle {
+public class CarIconSpan extends CarSpan {
     /**
      * Indicates how to align a car icon span with its surrounding text.
      *
@@ -162,11 +159,6 @@ public class CarIconSpan extends CharacterStyle {
     @Alignment
     public int getAlignment() {
         return mAlignment;
-    }
-
-    @Override
-    public void updateDrawState(@Nullable TextPaint paint) {
-        // Not relevant.
     }
 
     @Override
