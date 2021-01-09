@@ -20,18 +20,18 @@ import android.content.Context
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraPipe
-import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
-import androidx.camera.camera2.pipe.testing.FakeCameras
+import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-@RunWith(CameraPipeRobolectricTestRunner::class)
+@RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class CameraPipeComponentTest {
-    private val fakeCameraId = FakeCameras.create()
+    private val fakeCameraId = RobolectricCameras.create()
 
     @Test
     fun createCameraPipeComponent() {

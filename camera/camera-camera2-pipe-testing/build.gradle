@@ -37,6 +37,7 @@ dependencies {
     implementation(KOTLIN_COROUTINES_GUAVA)
     implementation(project(":camera:camera-camera2-pipe"))
 
+    compileOnly(ANDROIDX_TEST_CORE)
     compileOnly(JUNIT)
     compileOnly(ROBOLECTRIC)
 

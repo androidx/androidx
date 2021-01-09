@@ -56,7 +56,7 @@ public class DataWithInlineClassJUnitTest {
     }
 }
 
-@RunWith(CameraPipeRobolectricTestRunner::class)
+@RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class DataWithInlineClassRobolectricTest {
     @Test

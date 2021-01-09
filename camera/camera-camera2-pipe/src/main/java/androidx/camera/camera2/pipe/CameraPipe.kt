@@ -22,6 +22,10 @@ import androidx.camera.camera2.pipe.impl.CameraGraphConfigModule
 import androidx.camera.camera2.pipe.impl.CameraPipeComponent
 import androidx.camera.camera2.pipe.impl.CameraPipeConfigModule
 import androidx.camera.camera2.pipe.impl.DaggerCameraPipeComponent
+import androidx.camera.camera2.pipe.impl.DaggerExternalCameraPipeComponent
+import androidx.camera.camera2.pipe.impl.ExternalCameraGraphComponent
+import androidx.camera.camera2.pipe.impl.ExternalCameraGraphConfigModule
+import androidx.camera.camera2.pipe.impl.ExternalCameraPipeComponent
 import kotlinx.atomicfu.atomic
 
 internal val cameraPipeIds = atomic(0)
@@ -69,4 +73,37 @@ public class CameraPipe(config: Config) {
     )
 
     override fun toString(): String = "CameraPipe-$debugId"
+
+    /**
+     * External may be used if the underlying implementation needs to delegate to another library
+     * or system.
+     */
+    class External {
+        private val component: ExternalCameraPipeComponent = DaggerExternalCameraPipeComponent
+            .builder()
+            .build()
+
+        /**
+         * This creates a new [CameraGraph] instance that is configured to use an externally
+         * defined [RequestProcessor].
+         *
+         * TODO: Consider changing cameraDevices to be a single device + physical metadata.
+         */
+        public fun create(
+            config: CameraGraph.Config,
+            cameraDevices: CameraDevices,
+            requestProcessor: RequestProcessor
+        ): CameraGraph {
+            val componentBuilder = component.cameraGraphBuilder()
+            val component: ExternalCameraGraphComponent = componentBuilder
+                .externalCameraGraphConfigModule(
+                    ExternalCameraGraphConfigModule(
+                        config,
+                        cameraDevices,
+                        requestProcessor
+                    )
+                ).build()
+            return component.cameraGraph()
+        }
+    }
 }

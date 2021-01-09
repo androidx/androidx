@@ -20,7 +20,7 @@ import android.hardware.camera2.CaptureResult
 import android.os.Build
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
-import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
+import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.UpdateCounting3AStateListener
@@ -30,7 +30,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-@RunWith(CameraPipeRobolectricTestRunner::class)
+@RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class Listener3ATest {

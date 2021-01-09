@@ -18,8 +18,8 @@ package androidx.camera.camera2.pipe.impl
 
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
-import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
-import androidx.camera.camera2.pipe.testing.FakeCameras
+import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -27,13 +27,13 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-@RunWith(CameraPipeRobolectricTestRunner::class)
+@RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class CameraMetadataCacheTest {
     @Test
     fun metadataIsCachedAndShimmed() {
-        val camera0 = FakeCameras.create(
+        val camera0 = RobolectricCameras.create(
             mapOf(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to CameraCharacteristics
                     .INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
@@ -43,7 +43,7 @@ internal class CameraMetadataCacheTest {
             )
         )
 
-        val camera1 = FakeCameras.create(
+        val camera1 = RobolectricCameras.create(
             mapOf(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to CameraCharacteristics
                     .INFO_SUPPORTED_HARDWARE_LEVEL_3,
@@ -54,9 +54,9 @@ internal class CameraMetadataCacheTest {
         )
 
         val cache = CameraMetadataCache(
-            FakeCameras.application,
+            RobolectricCameras.application,
             FakeThreads.forTests,
-            Permissions(FakeCameras.application)
+            Permissions(RobolectricCameras.application)
         )
 
         val metadata0 = cache.awaitMetadata(camera0)

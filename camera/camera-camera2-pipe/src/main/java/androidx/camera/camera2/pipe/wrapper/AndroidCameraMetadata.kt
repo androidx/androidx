@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.pipe.impl
+package androidx.camera.camera2.pipe.wrapper
 
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
@@ -29,14 +29,13 @@ import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
-import androidx.camera.camera2.pipe.wrapper.Api28Compat
 
 /**
  * This implementation provides access to CameraCharacteristics and lazy caching of properties
  * that are either expensive to create and access, or that only exist on newer versions of the
  * OS.
  */
-internal class CameraMetadataImpl constructor(
+public class AndroidCameraMetadata constructor(
     override val camera: CameraId,
     override val isRedacted: Boolean,
     private val characteristics: CameraCharacteristics,

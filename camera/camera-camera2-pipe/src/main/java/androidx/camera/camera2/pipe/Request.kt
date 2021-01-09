@@ -18,12 +18,25 @@ package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraDevice
 
 /**
- * An immutable package of settings and outputs needed to capture a single image from the camera
- * device. The exact set of keys and surfaces used in the CaptureRequest builder may be different
- * from what is specified in a request depending on how the request was submitted and on the
- * state of the camera.
+ * A [Request] is an immutable package of outputs and parameters needed to issue a [CaptureRequest]
+ * to a Camera2 [CameraCaptureSession].
+ *
+ * [Request] objects are handled by camera2 via the [RequestProcessor] interface, and will
+ * translate each [Request] object into a corresponding [CaptureRequest] object using the active
+ * [CameraDevice], [CameraCaptureSession], and [CameraGraph.Config]. Requests may be queued up and
+ * submitted after a delay, or reused (in the case of repeating requests) if the
+ * [CameraCaptureSession] is reconfigured or recreated.
+ *
+ * Depending on the [CameraGraph.Config], it is possible that not all parameters that are set on
+ * the [Request] will be honored when a [Request] is sent to the camera. Specifically, Camera2
+ * parameters related to 3A State and any required parameters specified on the [CameraGraph.Config]
+ * will override parameters specified in a [Request]
+ *
+ * @param streams The list of streams to submit. Each request *must* have 1 or more valid streams.
  */
 public data class Request(
     val streams: List<StreamId>,
@@ -34,8 +47,11 @@ public data class Request(
 ) {
 
     /**
-     * This listener is used to observe the state and progress of requests that are submitted to the
-     * [CameraGraph] and can be attached to individual requests.
+     * This listener is used to observe the state and progress of a [Request] that has been issued
+     * to the [CameraGraph]. Listeners will be invoked on background threads at high speed, and
+     * should avoid blocking work or accessing synchronized resources if possible. [Listener]s used
+     * in a repeating request may be issued multiple times within the same session, and should not
+     * rely on [onRequestSequenceSubmitted] from being invoked only once.
      */
     public interface Listener {
         /**

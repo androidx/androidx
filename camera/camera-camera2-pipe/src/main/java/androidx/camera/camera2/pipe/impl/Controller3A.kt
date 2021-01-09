@@ -17,12 +17,12 @@
 package androidx.camera.camera2.pipe.impl
 
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_PRECAPTURE_TRIGGER_START
-import android.hardware.camera2.CaptureRequest.CONTROL_AF_TRIGGER_CANCEL
-import android.hardware.camera2.CaptureRequest.CONTROL_AF_TRIGGER_START
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_LOCK
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER
 import android.hardware.camera2.CaptureRequest.CONTROL_AF_TRIGGER
+import android.hardware.camera2.CaptureRequest.CONTROL_AF_TRIGGER_CANCEL
+import android.hardware.camera2.CaptureRequest.CONTROL_AF_TRIGGER_START
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import android.os.Build
@@ -31,7 +31,8 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
-import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
+import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.FRAME_NUMBER_INVALID
 import androidx.camera.camera2.pipe.FlashMode
 import androidx.camera.camera2.pipe.Lock3ABehavior
@@ -230,8 +231,8 @@ internal class Controller3A(
         aeLockBehavior: Lock3ABehavior? = null,
         afLockBehavior: Lock3ABehavior? = null,
         awbLockBehavior: Lock3ABehavior? = null,
-        frameLimit: Int = CameraGraph.DEFAULT_FRAME_LIMIT,
-        timeLimitNs: Long? = CameraGraph.DEFAULT_TIME_LIMIT_NS
+        frameLimit: Int = DEFAULT_FRAME_LIMIT,
+        timeLimitNs: Long? = DEFAULT_TIME_LIMIT_NS
     ): Deferred<Result3A> {
         // If we explicitly need to unlock af first before proceeding to lock it, we need to send
         // a single request with TRIGGER = TRIGGER_CANCEL so that af can start a fresh scan.
@@ -345,8 +346,8 @@ internal class Controller3A(
     }
 
     suspend fun lock3AForCapture(
-        frameLimit: Int = CameraGraph.DEFAULT_FRAME_LIMIT,
-        timeLimitNs: Long = CameraGraph.DEFAULT_TIME_LIMIT_NS
+        frameLimit: Int = DEFAULT_FRAME_LIMIT,
+        timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS
     ): Deferred<Result3A> {
         val listener = Result3AStateListenerImpl(
             mapOf<CaptureResult.Key<*>, List<Any>>(
