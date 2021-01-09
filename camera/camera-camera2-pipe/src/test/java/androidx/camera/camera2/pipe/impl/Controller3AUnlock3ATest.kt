@@ -24,7 +24,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Status3A
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
+import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
@@ -39,12 +39,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-@RunWith(CameraPipeRobolectricTestRunner::class)
+@RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class Controller3AUnlock3ATest {
-    private val graphProcessor = FakeGraphProcessor()
     private val graphState3A = GraphState3A()
-    private val requestProcessor = FakeRequestProcessor(graphState3A)
+    private val graphProcessor = FakeGraphProcessor(graphState3A = graphState3A)
+    private val requestProcessor = FakeRequestProcessor()
     private val listener3A = Listener3A()
     private val controller3A = Controller3A(graphProcessor, graphState3A, listener3A)
 
@@ -84,8 +84,8 @@ internal class Controller3AUnlock3ATest {
         Truth.assertThat(result.isCompleted).isFalse()
 
         // There should be one request to lock AE.
-        val request1 = requestProcessor.nextEvent().request
-        Truth.assertThat(request1!!.parameters[CaptureRequest.CONTROL_AE_LOCK])
+        val request1 = requestProcessor.nextEvent().requestSequence
+        Truth.assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK])
             .isEqualTo(false)
 
         GlobalScope.launch {
@@ -145,8 +145,8 @@ internal class Controller3AUnlock3ATest {
         Truth.assertThat(result.isCompleted).isFalse()
 
         // There should be one request to unlock AF.
-        val request1 = requestProcessor.nextEvent().request
-        Truth.assertThat(request1!!.parameters[CaptureRequest.CONTROL_AF_TRIGGER])
+        val request1 = requestProcessor.nextEvent().requestSequence
+        Truth.assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
             .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
 
         GlobalScope.launch {
@@ -208,8 +208,8 @@ internal class Controller3AUnlock3ATest {
         Truth.assertThat(result.isCompleted).isFalse()
 
         // There should be one request to lock AWB.
-        val request1 = requestProcessor.nextEvent().request
-        Truth.assertThat(request1!!.parameters[CaptureRequest.CONTROL_AWB_LOCK])
+        val request1 = requestProcessor.nextEvent().requestSequence
+        Truth.assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AWB_LOCK])
             .isEqualTo(false)
 
         GlobalScope.launch {
@@ -270,12 +270,12 @@ internal class Controller3AUnlock3ATest {
         Truth.assertThat(result.isCompleted).isFalse()
 
         // There should be one request to unlock AF.
-        val request1 = requestProcessor.nextEvent().request
-        Truth.assertThat(request1!!.parameters[CaptureRequest.CONTROL_AF_TRIGGER])
+        val request1 = requestProcessor.nextEvent().requestSequence
+        Truth.assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
             .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
         // Then request to unlock AE.
-        val request2 = requestProcessor.nextEvent().request
-        Truth.assertThat(request2!!.parameters[CaptureRequest.CONTROL_AE_LOCK])
+        val request2 = requestProcessor.nextEvent().requestSequence
+        Truth.assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK])
             .isEqualTo(false)
 
         GlobalScope.launch {
@@ -303,8 +303,8 @@ internal class Controller3AUnlock3ATest {
     }
 
     private fun initGraphProcessor() {
-        graphProcessor.attach(requestProcessor)
-        graphProcessor.setRepeating(Request(streams = listOf(StreamId(1))))
+        graphProcessor.onGraphStarted(requestProcessor)
+        graphProcessor.startRepeating(Request(streams = listOf(StreamId(1))))
     }
 
     companion object {

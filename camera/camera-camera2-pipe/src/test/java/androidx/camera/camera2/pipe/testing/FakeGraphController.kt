@@ -16,9 +16,9 @@
 
 package androidx.camera.camera2.pipe.testing
 
-import androidx.camera.camera2.pipe.impl.GraphState
+import androidx.camera.camera2.pipe.impl.GraphController
 
-internal class FakeGraphState : GraphState {
+internal class FakeGraphController : GraphController {
     var active = false
     var reconfigured = false
 
@@ -30,7 +30,7 @@ internal class FakeGraphState : GraphState {
         active = false
     }
 
-    override fun reconfigure() {
+    override fun restart() {
         reconfigured = true
     }
 }

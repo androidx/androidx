@@ -26,11 +26,11 @@ import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Status3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.TorchState
-import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
+import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -39,12 +39,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-@RunWith(CameraPipeRobolectricTestRunner::class)
+@RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class Controller3ASetTorchTest {
-    private val graphProcessor = FakeGraphProcessor()
     private val graphState3A = GraphState3A()
-    private val requestProcessor = FakeRequestProcessor(graphState3A)
+    private val graphProcessor = FakeGraphProcessor(graphState3A = graphState3A)
+    private val requestProcessor = FakeRequestProcessor()
     private val listener3A = Listener3A()
     private val controller3A = Controller3A(graphProcessor, graphState3A, listener3A)
 
@@ -149,7 +149,7 @@ internal class Controller3ASetTorchTest {
     }
 
     private fun initGraphProcessor() {
-        graphProcessor.attach(requestProcessor)
-        graphProcessor.setRepeating(Request(streams = listOf(StreamId(1))))
+        graphProcessor.onGraphStarted(requestProcessor)
+        graphProcessor.startRepeating(Request(streams = listOf(StreamId(1))))
     }
 }

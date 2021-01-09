@@ -21,16 +21,17 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.internal.bytecode.InstrumentationConfiguration
 
 /**
- * A [RobolectricTestRunner] for [androidx.camera.camera2.pipe.testing] unit tests.
+ * A [RobolectricTestRunner] for [androidx.camera.camera2.pipe] unit tests.
  *
- * It has instrumentation turned off for the [androidx.camera.camera2.pipe.testing] package.
+ * This test runner disables instrumentation for the [androidx.camera.camera2.pipe] and
+ * [androidx.camera.camera2.pipe.testing] packages.
  *
  * Robolectric tries to instrument Kotlin classes, and it throws errors when it encounters
  * companion objects, constructors with default values for parameters, and data classes with
  * inline classes. We don't need shadowing of our classes because we want to use the actual
  * objects in our tests.
  */
-public class CameraPipeRobolectricTestRunner(testClass: Class<*>) :
+public class RobolectricCameraPipeTestRunner(testClass: Class<*>) :
     RobolectricTestRunner(testClass) {
     override fun createClassLoaderConfig(method: FrameworkMethod?): InstrumentationConfiguration {
         val builder = InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))

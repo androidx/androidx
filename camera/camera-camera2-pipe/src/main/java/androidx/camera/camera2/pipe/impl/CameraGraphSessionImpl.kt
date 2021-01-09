@@ -46,12 +46,16 @@ internal class CameraGraphSessionImpl(
         graphProcessor.submit(requests)
     }
 
-    override fun setRepeating(request: Request) {
-        graphProcessor.setRepeating(request)
+    override fun startRepeating(request: Request) {
+        graphProcessor.startRepeating(request)
     }
 
     override fun abort() {
         graphProcessor.abort()
+    }
+
+    override fun stopRepeating() {
+        graphProcessor.stopRepeating()
     }
 
     override fun close() {

@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.impl
 
 import android.view.Surface
 import androidx.annotation.GuardedBy
+import androidx.camera.camera2.pipe.RequestProcessor
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
@@ -43,9 +44,9 @@ internal val virtualSessionDebugIds = atomic(0)
  * being created when shutdown / disconnect was called.
  */
 internal class VirtualSessionState(
-    private val graphProcessor: GraphProcessor,
+    private val graphListener: GraphController.GraphListener,
     private val sessionFactory: SessionFactory,
-    private val requestProcessorFactory: RequestProcessorFactory,
+    private val requestProcessorFactory: Camera2RequestProcessorFactory,
     private val scope: CoroutineScope
 ) : CameraCaptureSessionWrapper.StateCallback, StreamGraphImpl.SurfaceListener {
     private val debugId = virtualSessionDebugIds.incrementAndGet()
@@ -195,7 +196,7 @@ internal class VirtualSessionState(
                     "Configured $this in ${duration.formatMs()}"
                 }
 
-                graphProcessor.attach(it.processor)
+                graphListener.onGraphStarted(it.processor)
             }
         }
     }
@@ -217,7 +218,7 @@ internal class VirtualSessionState(
         }
 
         if (captureSession != null) {
-            graphProcessor.detach(captureSession.processor)
+            graphListener.onGraphStopped(captureSession.processor)
         }
 
         synchronized(this) {
@@ -245,8 +246,8 @@ internal class VirtualSessionState(
         if (captureSession != null) {
             Debug.traceStart { "$this#shutdown" }
 
-            Debug.traceStart { "$graphProcessor#detach" }
-            graphProcessor.detach(captureSession.processor)
+            Debug.traceStart { "$graphListener#onGraphStopped" }
+            graphListener.onGraphStopped(captureSession.processor)
             Debug.traceStop()
 
             Debug.traceStart { "$this#stopRepeating" }
@@ -306,7 +307,7 @@ internal class VirtualSessionState(
             }
 
             if (tryResubmit && retryAllowed) {
-                graphProcessor.invalidate()
+                graphListener.onGraphModified(captureSession.processor)
             }
             Debug.traceStop()
         }

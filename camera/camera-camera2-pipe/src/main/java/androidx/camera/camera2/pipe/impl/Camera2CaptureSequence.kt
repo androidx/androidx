@@ -32,15 +32,15 @@ import androidx.camera.camera2.pipe.StreamId
 
 /**
  * This class responds to events from a set of one or more requests. It uses the tag field on
- * a CaptureRequest object to lookup and invoke per-request listeners so that a listener can be
+ * a [CaptureRequest] object to lookup and invoke per-request listeners so that a listener can be
  * defined on a specific request within a burst.
  */
-internal class CaptureSequence(
+internal class Camera2CaptureSequence(
     private val internalListeners: List<Request.Listener>,
     private val requests: Map<RequestNumber, RequestInfo>,
     private val captureRequests: List<CaptureRequest>,
     private val surfaceMap: Map<Surface, StreamId>,
-    private val inFlightRequests: MutableList<CaptureSequence>,
+    private val inFlightRequests: MutableList<Camera2CaptureSequence>,
     private val camera: CameraId
 ) : CameraCaptureSession.CaptureCallback() {
     private val debugId = requestSequenceDebugIds.incrementAndGet()

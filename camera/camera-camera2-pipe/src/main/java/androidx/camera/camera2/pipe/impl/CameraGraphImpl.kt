@@ -34,7 +34,7 @@ internal class CameraGraphImpl @Inject constructor(
     metadata: CameraMetadata,
     private val graphProcessor: GraphProcessor,
     private val streamGraph: StreamGraphImpl,
-    private val graphState: GraphState,
+    private val graphController: GraphController,
     private val graphState3A: GraphState3A,
     private val listener3A: Listener3A
 ) : CameraGraph {
@@ -47,7 +47,9 @@ internal class CameraGraphImpl @Inject constructor(
 
     init {
         // Log out the configuration of the camera graph when it is created.
-        Debug.formatCameraGraphProperties(metadata, graphConfig, this)
+        Log.info {
+            Debug.formatCameraGraphProperties(metadata, graphConfig, this)
+        }
     }
 
     override val streams: StreamGraph
@@ -56,14 +58,14 @@ internal class CameraGraphImpl @Inject constructor(
     override fun start() {
         Debug.traceStart { "$this#start" }
         Log.info { "Starting $this" }
-        graphState.start()
+        graphController.start()
         Debug.traceStop()
     }
 
     override fun stop() {
         Debug.traceStart { "$this#stop" }
         Log.info { "Stopping $this" }
-        graphState.stop()
+        graphController.stop()
         Debug.traceStop()
     }
 
@@ -94,7 +96,7 @@ internal class CameraGraphImpl @Inject constructor(
         Log.info { "Closing $this" }
         sessionLock.close()
         graphProcessor.close()
-        graphState.stop()
+        graphController.stop()
         Debug.traceStop()
     }
 

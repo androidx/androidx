@@ -22,12 +22,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-internal interface GraphState {
-    fun start()
-    fun stop()
-    fun reconfigure()
-}
-
 /**
  * This represents the core state loop for a Camera Graph instance.
  *
@@ -38,15 +32,15 @@ internal interface GraphState {
  * TODO: Reorganize these constructor parameters.
  */
 @CameraGraphScope
-internal class GraphStateImpl @Inject constructor(
+internal class Camera2CameraController @Inject constructor(
     @ForCameraGraph private val scope: CoroutineScope,
     private val config: CameraGraph.Config,
-    private val graphProcessor: GraphProcessor,
+    private val graphListener: GraphController.GraphListener,
     private val sessionFactory: SessionFactory,
-    private val requestProcessorFactory: RequestProcessorFactory,
+    private val requestProcessorFactory: Camera2RequestProcessorFactory,
     private val virtualCameraManager: VirtualCameraManager,
     private val streamGraph: StreamGraphImpl
-) : GraphState {
+) : GraphController {
     private var currentCamera: VirtualCamera? = null
     private var currentSession: VirtualSessionState? = null
 
@@ -61,7 +55,7 @@ internal class GraphStateImpl @Inject constructor(
 
             currentCamera = camera
             currentSession = VirtualSessionState(
-                graphProcessor,
+                graphListener,
                 sessionFactory,
                 requestProcessorFactory,
                 scope
@@ -87,7 +81,7 @@ internal class GraphStateImpl @Inject constructor(
         }
     }
 
-    override fun reconfigure() {
+    override fun restart() {
         val oldSession: VirtualSessionState?
         val newSession: VirtualSessionState?
 
@@ -96,7 +90,7 @@ internal class GraphStateImpl @Inject constructor(
 
             oldSession = currentSession
             newSession = VirtualSessionState(
-                graphProcessor,
+                graphListener,
                 sessionFactory,
                 requestProcessorFactory,
                 scope
