@@ -116,12 +116,10 @@ public final class SearchResult {
     }
 
     /**
-     * Contains the package name that stored the {@link GenericDocument}.
+     * Contains the package name of the app that stored the {@link GenericDocument}.
      *
      * @return Package name that stored the document
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public String getPackageName() {
         return Preconditions.checkNotNull(mBundle.getString(PACKAGE_NAME_FIELD));
