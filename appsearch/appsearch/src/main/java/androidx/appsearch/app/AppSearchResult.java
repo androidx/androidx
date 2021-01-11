@@ -16,6 +16,8 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.app;
 
+import android.util.Log;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -191,6 +193,8 @@ public final class AppSearchResult<ValueType> {
     @NonNull
     public static <ValueType> AppSearchResult<ValueType> throwableToFailedResult(
             @NonNull Throwable t) {
+        Log.d("AppSearchResult", "Converting throwable to failed result.", t);
+
         if (t instanceof AppSearchException) {
             return ((AppSearchException) t).toAppSearchResult();
         }
@@ -205,6 +209,6 @@ public final class AppSearchResult<ValueType> {
         } else {
             resultCode = AppSearchResult.RESULT_UNKNOWN_ERROR;
         }
-        return AppSearchResult.newFailedResult(resultCode, t.toString());
+        return AppSearchResult.newFailedResult(resultCode, t.getMessage());
     }
 }
