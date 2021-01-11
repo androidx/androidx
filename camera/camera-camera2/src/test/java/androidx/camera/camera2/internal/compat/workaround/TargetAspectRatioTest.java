@@ -84,6 +84,15 @@ public class TargetAspectRatioTest {
         data.add(new Object[]{new Config("Samsung", "SM-T580", false,
                 INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_16_9, RATIO_ORIGINAL,
                 ALL_API_LEVELS)});
+        data.add(new Object[]{new Config("Samsung", "SM-J327U", true,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_4_3, RATIO_16_9, ALL_API_LEVELS)});
+        data.add(new Object[]{new Config("Samsung", "SM-J327U", true,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_16_9, RATIO_16_9, ALL_API_LEVELS)});
+        data.add(new Object[]{new Config("Samsung", "SM-J327U", false,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_4_3, RATIO_ORIGINAL, ALL_API_LEVELS)});
+        data.add(new Object[]{new Config("Samsung", "SM-J327U", false,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_16_9, RATIO_ORIGINAL,
+                ALL_API_LEVELS)});
         data.add(new Object[]{new Config("Google", "Nexus 4", true,
                 INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, RATIO_4_3, RATIO_MAX_JPEG,
                 new Range<>(21, 22))});

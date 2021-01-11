@@ -27,17 +27,21 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Quirk that produces stretched preview on certain Samsung devices.
+ * Quirk that produces stretched or incorrect FOV preview on certain Samsung devices.
  *
  * <p> On certain Samsung devices, the HAL provides 16:9 preview even when the Surface size is
  * set to 4:3, which causes the preview to be stretched in PreviewView.
+ *
+ * <p> On certain Samsung devices, the HAL crops the preview images from the cropped 16:9 area but
+ * not the full active array area, which causes the preview FOV incorrect when using non-16:9 sizes.
  */
 public class SamsungPreviewTargetAspectRatioQuirk implements Quirk {
 
     // List of devices with the issue.
     private static final List<String> DEVICE_MODELS = Arrays.asList(
             "SM-J710MN", // b/170762209
-            "SM-T580" // b/169471824
+            "SM-T580", // b/169471824
+            "SM-J327U" // b/176474000
     );
 
     static boolean load() {
