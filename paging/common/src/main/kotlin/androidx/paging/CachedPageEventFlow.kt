@@ -19,12 +19,10 @@ package androidx.paging
 import androidx.annotation.VisibleForTesting
 import androidx.paging.multicast.Multicaster
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.emitAll
@@ -80,8 +78,7 @@ internal class CachedPageEventFlow<T : Any>(
         multicastedSrc.close()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val downstreamFlow = channelFlow {
+    val downstreamFlow = simpleChannelFlow<PageEvent<T>> {
         // get a new snapshot. this will immediately hook us to the upstream channel
         val snapshot = pageController.createTemporaryDownstream()
         var lastReceivedHistoryIndex = Int.MIN_VALUE
