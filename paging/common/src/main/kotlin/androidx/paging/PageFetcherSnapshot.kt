@@ -45,7 +45,6 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.runningReduce
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -263,7 +262,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             .map { hint -> GenerationalViewportHint(generationId, hint) }
     }
         // Prioritize new hints that would load the maximum number of items.
-        .runningReduce { previous, next ->
+        .simpleRunningReduce { previous, next ->
             if (next.shouldPrioritizeOver(previous, loadType)) next else previous
         }
         .conflate()

@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.launch
 
 internal class PageFetcher<Key : Any, Value : Any>(
@@ -61,7 +60,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
                 @OptIn(ExperimentalPagingApi::class)
                 emit(remoteMediatorAccessor?.initialize() == LAUNCH_INITIAL_REFRESH)
             }
-            .scan(null) { previousGeneration: GenerationInfo<Key, Value>?,
+            .simpleScan(null) { previousGeneration: GenerationInfo<Key, Value>?,
                 triggerRemoteRefresh: Boolean ->
                 var pagingSource = generateNewPagingSource(
                     previousPagingSource = previousGeneration?.snapshot?.pagingSource
