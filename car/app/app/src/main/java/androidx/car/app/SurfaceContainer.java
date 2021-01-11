@@ -18,14 +18,19 @@ package androidx.car.app;
 
 import android.view.Surface;
 
+import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 
 /** A container for the {@link Surface} created by the host and its associated properties. */
 public class SurfaceContainer {
+    @Keep
     @Nullable
     private final Surface mSurface;
+    @Keep
     private final int mWidth;
+    @Keep
     private final int mHeight;
+    @Keep
     private final int mDpi;
 
     public SurfaceContainer(@Nullable Surface surface, int width, int height, int dpi) {
