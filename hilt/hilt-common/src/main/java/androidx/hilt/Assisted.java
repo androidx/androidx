@@ -22,9 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a parameter in a {@link androidx.hilt.lifecycle.ViewModelInject}-annotated constructor
- * or a {@link androidx.hilt.work.WorkerInject}-annotated constructor to be assisted
- * injected at runtime via a factory.
+ * Marks a parameter in a {@link androidx.hilt.lifecycle.ViewModelInject}-annotated constructor.
  *
  * @deprecated Use {@link dagger.assisted.Assisted}
  */

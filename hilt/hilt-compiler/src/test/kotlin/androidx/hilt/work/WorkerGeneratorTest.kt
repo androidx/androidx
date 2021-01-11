@@ -41,14 +41,16 @@ class WorkerGeneratorTest {
         package androidx.hilt.work.test;
 
         import android.content.Context;
-        import androidx.hilt.Assisted;
-        import androidx.hilt.work.WorkerInject;
+        import androidx.hilt.work.HiltWorker;
         import androidx.work.Worker;
         import androidx.work.WorkerParameters;
+        import dagger.assisted.Assisted;
+        import dagger.assisted.AssistedInject;
         import java.lang.String;
 
+        @HiltWorker
         class MyWorker extends Worker {
-            @WorkerInject
+            @AssistedInject
             MyWorker(@Assisted Context context, @Assisted WorkerParameters params, String s,
                     Foo f, long l) {
                 super(context, params);
@@ -59,37 +61,13 @@ class WorkerGeneratorTest {
         val expected = """
         package androidx.hilt.work.test;
 
-        import android.content.Context;
-        import androidx.annotation.NonNull;
         import androidx.hilt.work.WorkerAssistedFactory;
-        import androidx.work.WorkerParameters;
-        import java.lang.Long;
-        import java.lang.Override;
-        import java.lang.String;
+        import dagger.assisted.AssistedFactory;
         import $GENERATED_TYPE;
-        import javax.inject.Inject;
-        import javax.inject.Provider;
 
         $GENERATED_ANNOTATION
-        public final class MyWorker_AssistedFactory implements
-                WorkerAssistedFactory<MyWorker> {
-
-            private final Provider<String> s;
-            private final Provider<Foo> f;
-            private final Provider<Long> l;
-
-            @Inject
-            MyWorker_AssistedFactory(Provider<String> s, Provider<Foo> f, Provider<Long> l) {
-                this.s = s;
-                this.f = f;
-                this.l = l;
-            }
-
-            @Override
-            @NonNull
-            public MyWorker create(Context context, WorkerParameters parameters) {
-                return new MyWorker(context, parameters, s.get(), f.get(), l.get());
-            }
+        @AssistedFactory
+        public interface MyWorker_AssistedFactory extends WorkerAssistedFactory<MyWorker> {
         }
         """.toJFO("androidx.hilt.work.test.MyWorker_AssistedFactory")
 
@@ -111,13 +89,15 @@ class WorkerGeneratorTest {
         package androidx.hilt.work.test;
 
         import android.content.Context;
-        import androidx.hilt.Assisted;
-        import androidx.hilt.work.WorkerInject;
+        import androidx.hilt.work.HiltWorker;
         import androidx.work.Worker;
         import androidx.work.WorkerParameters;
+        import dagger.assisted.Assisted;
+        import dagger.assisted.AssistedInject;
 
+        @HiltWorker
         class MyWorker extends Worker {
-            @WorkerInject
+            @AssistedInject
             MyWorker(@Assisted Context context, @Assisted WorkerParameters params) {
                 super(context, params);
             }

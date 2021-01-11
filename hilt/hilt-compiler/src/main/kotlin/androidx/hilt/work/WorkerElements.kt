@@ -27,7 +27,7 @@ import javax.lang.model.element.TypeElement
 /**
  * Data class that represents a Hilt injected Worker
  */
-internal data class WorkerInjectElements(
+internal data class WorkerElements(
     val typeElement: TypeElement,
     val constructorElement: ExecutableElement
 ) {

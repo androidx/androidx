@@ -59,7 +59,10 @@ internal fun VariableElement.toDependencyRequest(): DependencyRequest {
     return DependencyRequest(
         name = simpleName.toString(),
         type = type,
-        isAssisted = hasAnnotation(ClassNames.ASSISTED.canonicalName()) && qualifier == null,
+        isAssisted = (
+            hasAnnotation(ClassNames.ANDROIDX_ASSISTED.canonicalName()) ||
+                hasAnnotation(ClassNames.ASSISTED.canonicalName())
+            ) && qualifier == null,
         qualifier = qualifier
     )
 }

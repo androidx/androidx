@@ -23,7 +23,6 @@ import com.google.auto.common.MoreElements
 import com.squareup.javapoet.TypeName
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
-import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.NestingKind
 import javax.lang.model.element.TypeElement
@@ -33,7 +32,7 @@ import javax.tools.Diagnostic
 /**
  * Processing step that generates code enabling assisted injection of Workers using Hilt.
  */
-class WorkerInjectStep(
+class WorkerStep(
     private val processingEnv: ProcessingEnvironment
 ) : AndroidXHiltProcessor.Step {
 
@@ -41,17 +40,14 @@ class WorkerInjectStep(
     private val types = processingEnv.typeUtils
     private val messager = processingEnv.messager
 
-    override fun annotation() = ClassNames.WORKER_INJECT.canonicalName()
+    override fun annotation() = ClassNames.HILT_WORKER.canonicalName()
 
     override fun process(annotatedElements: Set<Element>) {
         val parsedElements = mutableSetOf<TypeElement>()
         annotatedElements.forEach { element ->
-            val constructorElement =
-                MoreElements.asExecutable(element)
-            val typeElement =
-                MoreElements.asType(constructorElement.enclosingElement)
+            val typeElement = MoreElements.asType(element)
             if (parsedElements.add(typeElement)) {
-                parse(typeElement, constructorElement)?.let { worker ->
+                parse(typeElement)?.let { worker ->
                     WorkerGenerator(
                         processingEnv,
                         worker
@@ -61,15 +57,12 @@ class WorkerInjectStep(
         }
     }
 
-    private fun parse(
-        typeElement: TypeElement,
-        constructorElement: ExecutableElement
-    ): WorkerInjectElements? {
+    private fun parse(typeElement: TypeElement): WorkerElements? {
         var valid = true
 
         if (elements.getTypeElement(ClassNames.WORKER_ASSISTED_FACTORY.toString()) == null) {
             error(
-                "To use @WorkerInject you must add the 'work' artifact. " +
+                "To use @HiltWorker you must add the 'work' artifact. " +
                     "androidx.hilt:hilt-work:<version>"
             )
             valid = false
@@ -81,76 +74,77 @@ class WorkerInjectStep(
             )
         ) {
             error(
-                "@WorkerInject is only supported on types that subclass " +
+                "@HiltWorker is only supported on types that subclass " +
                     "${ClassNames.LISTENABLE_WORKER}."
             )
             valid = false
         }
 
-        ElementFilter.constructorsIn(typeElement.enclosedElements).filter {
-            it.hasAnnotation(ClassNames.WORKER_INJECT.canonicalName())
-        }.let { constructors ->
-            if (constructors.size > 1) {
-                error("Multiple @WorkerInject annotated constructors found.", typeElement)
+        val constructors = ElementFilter.constructorsIn(typeElement.enclosedElements).filter {
+            if (it.hasAnnotation(ClassNames.INJECT.canonicalName())) {
+                error(
+                    "Worker constructor should be annotated with @AssistedInject instead of " +
+                        "@Inject."
+                )
                 valid = false
             }
-            constructors.filter { it.modifiers.contains(Modifier.PRIVATE) }.forEach {
-                error("@WorkerInject annotated constructors must not be private.", it)
-                valid = false
-            }
+            it.hasAnnotation(ClassNames.ASSISTED_INJECT.canonicalName())
+        }
+        if (constructors.size != 1) {
+            error(
+                "@HiltWorker annotated class should contain exactly one @AssistedInject " +
+                    "annotated constructor.",
+                typeElement
+            )
+            valid = false
+        }
+        constructors.filter { it.modifiers.contains(Modifier.PRIVATE) }.forEach {
+            error("@AssistedInject annotated constructors must not be private.", it)
+            valid = false
         }
 
         if (typeElement.nestingKind == NestingKind.MEMBER &&
             !typeElement.modifiers.contains(Modifier.STATIC)
         ) {
             error(
-                "@WorkerInject may only be used on inner classes if they are static.",
+                "@HiltWorker may only be used on inner classes if they are static.",
                 typeElement
             )
             valid = false
         }
 
-        constructorElement.parameters.filter {
-            TypeName.get(it.asType()) == ClassNames.CONTEXT
-        }.apply {
-            if (size != 1) {
-                error(
-                    "Expected exactly one constructor argument of type " +
-                        "${ClassNames.CONTEXT}, found $size",
-                    constructorElement
-                )
-                valid = false
-            }
-            firstOrNull()?.let {
-                if (!it.hasAnnotation(ClassNames.ASSISTED.canonicalName())) {
-                    error("Missing @Assisted annotation in param '${it.simpleName}'.", it)
+        if (!valid) return null
+
+        val injectConstructor = constructors.first()
+        var contextIndex = -1
+        var workerParametersIndex = -1
+        injectConstructor.parameters.forEachIndexed { index, param ->
+            if (TypeName.get(param.asType()) == ClassNames.CONTEXT) {
+                if (!param.hasAnnotation(ClassNames.ASSISTED.canonicalName())) {
+                    error("Missing @Assisted annotation in param '${param.simpleName}'.", param)
                     valid = false
                 }
+                contextIndex = index
+            }
+            if (TypeName.get(param.asType()) == ClassNames.WORKER_PARAMETERS) {
+                if (!param.hasAnnotation(ClassNames.ASSISTED.canonicalName())) {
+                    error("Missing @Assisted annotation in param '${param.simpleName}'.", param)
+                    valid = false
+                }
+                workerParametersIndex = index
             }
         }
-
-        constructorElement.parameters.filter {
-            TypeName.get(it.asType()) == ClassNames.WORKER_PARAMETERS
-        }.apply {
-            if (size != 1) {
-                error(
-                    "Expected exactly one constructor argument of type " +
-                        "${ClassNames.WORKER_PARAMETERS}, found $size",
-                    constructorElement
-                )
-                valid = false
-            }
-            firstOrNull()?.let {
-                if (!it.hasAnnotation(ClassNames.ASSISTED.canonicalName())) {
-                    error("Missing @Assisted annotation in param '${it.simpleName}'.", it)
-                    valid = false
-                }
-            }
+        if (contextIndex > workerParametersIndex) {
+            error(
+                "The 'Context' parameter must be declared before the 'WorkerParameters' in the " +
+                    "@AssistedInject constructor of a @HiltWorker annotated class.",
+                injectConstructor
+            )
         }
 
         if (!valid) return null
 
-        return WorkerInjectElements(typeElement, constructorElement)
+        return WorkerElements(typeElement, injectConstructor)
     }
 
     private fun error(message: String, element: Element? = null) {
