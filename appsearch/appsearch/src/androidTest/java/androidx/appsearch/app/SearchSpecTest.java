@@ -16,16 +16,25 @@
 
 package androidx.appsearch.app;
 
+import static androidx.appsearch.app.AppSearchSchema.PropertyConfig.INDEXING_TYPE_PREFIXES;
+import static androidx.appsearch.app.AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Bundle;
+
+import androidx.appsearch.annotation.AppSearchDocument;
+
+import com.google.common.collect.ImmutableSet;
 
 import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class SearchSpecTest {
+
     @Test
     public void testGetBundle() {
         SearchSpec searchSpec = new SearchSpec.Builder()
@@ -85,4 +94,31 @@ public class SearchSpecTest {
         assertThat(searchSpec.getRankingStrategy()).isEqualTo(
                 SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE);
     }
+
+// @exportToFramework:startStrip()
+    @AppSearchDocument
+    static class King extends Card {
+        @AppSearchDocument.Uri
+        String mUri;
+
+        @AppSearchDocument.Property
+                (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
+        String mString;
+    }
+
+    static class Card {}
+
+    @Test
+    public void testAddSchemaByDataClass_byCollection() throws Exception {
+        Set<Class<King>> cardClassSet = ImmutableSet.of(King.class);
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .addSchemaByDataClass(cardClassSet)
+                .build();
+
+        Bundle bundle = searchSpec.getBundle();
+        assertThat(bundle.getStringArrayList(SearchSpec.SCHEMA_TYPE_FIELD)).containsExactly(
+                "King");
+    }
+// @exportToFramework:endStrip()
 }
