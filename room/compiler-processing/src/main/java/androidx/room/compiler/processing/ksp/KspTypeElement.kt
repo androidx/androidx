@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XConstructorElement
+import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMethodElement
@@ -40,7 +41,7 @@ import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Origin
 import com.squareup.javapoet.ClassName
 
-internal class KspTypeElement(
+internal sealed class KspTypeElement(
     env: KspProcessingEnv,
     override val declaration: KSClassDeclaration
 ) : KspElement(env, declaration),
@@ -341,5 +342,37 @@ internal class KspTypeElement(
 
     override fun toString(): String {
         return declaration.toString()
+    }
+
+    private class DefaultKspTypeElement(
+        env: KspProcessingEnv,
+        declaration: KSClassDeclaration
+    ) : KspTypeElement(env, declaration)
+
+    private class KspEnumTypeElement(
+        env: KspProcessingEnv,
+        declaration: KSClassDeclaration
+    ) : KspTypeElement(env, declaration), XEnumTypeElement {
+        override val enumConstantNames: Set<String> by lazy {
+            // TODO this does not work for java sources
+            // https://github.com/google/ksp/issues/234
+            declaration.declarations.filter {
+                it is KSClassDeclaration && it.classKind == ClassKind.ENUM_ENTRY
+            }.mapTo(mutableSetOf()) {
+                it.simpleName.asString()
+            }
+        }
+    }
+
+    companion object {
+        fun create(
+            env: KspProcessingEnv,
+            ksClassDeclaration: KSClassDeclaration
+        ): KspTypeElement {
+            return when (ksClassDeclaration.classKind) {
+                ClassKind.ENUM_CLASS -> KspEnumTypeElement(env, ksClassDeclaration)
+                else -> DefaultKspTypeElement(env, ksClassDeclaration)
+            }
+        }
     }
 }

@@ -18,6 +18,7 @@ package androidx.room.solver
 
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
+import androidx.room.compiler.processing.isEnum
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaBaseTypeNames
 import androidx.room.ext.isEntityElement
@@ -346,8 +347,9 @@ class TypeAdapterStore private constructor(
     }
 
     private fun createEnumTypeAdapter(type: XType): ColumnTypeAdapter? {
-        if (type.isEnum()) {
-            return EnumColumnTypeAdapter(type)
+        val typeElement = type.typeElement ?: return null
+        if (typeElement.isEnum()) {
+            return EnumColumnTypeAdapter(typeElement)
         }
         return null
     }

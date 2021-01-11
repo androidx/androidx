@@ -57,8 +57,8 @@ internal class KspProcessingEnv(
                 // it is best to just not cache them
                 it.qualifiedName?.asString()
             },
-            wrap = {
-                KspTypeElement(this, it)
+            wrap = { classDeclaration ->
+                KspTypeElement.create(this, classDeclaration)
             }
         )
 
