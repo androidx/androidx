@@ -59,9 +59,12 @@ import dagger.hilt.GeneratesRootInput;
  * Only dependencies available in the
  * {@link dagger.hilt.android.components.ActivityRetainedComponent} can be injected into the
  * {@code ViewModel}.
+ *
+ * @deprecated Use {@link dagger.hilt.android.lifecycle.HiltViewModel}.
  */
 @Target(ElementType.CONSTRUCTOR)
 @Retention(RetentionPolicy.CLASS)
 @GeneratesRootInput
+@Deprecated
 public @interface ViewModelInject {
 }

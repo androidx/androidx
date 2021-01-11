@@ -49,6 +49,7 @@ import dagger.multibindings.Multibinds;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@SuppressWarnings("deprecation")
 public final class ViewModelFactoryModules {
 
     /**
