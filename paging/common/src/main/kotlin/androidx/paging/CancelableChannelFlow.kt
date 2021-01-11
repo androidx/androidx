@@ -16,19 +16,14 @@
 
 package androidx.paging
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-import kotlin.experimental.ExperimentalTypeInference
 
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalTypeInference::class)
 internal fun <T> cancelableChannelFlow(
     controller: Job,
-    @BuilderInference block: suspend ProducerScope<T>.() -> Unit
+    block: suspend SimpleProducerScope<T>.() -> Unit
 ): Flow<T> {
-    return channelFlow {
+    return simpleChannelFlow<T> {
         controller.invokeOnCompletion {
             close()
         }

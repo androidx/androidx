@@ -92,7 +92,6 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 // Protect against races where a subsequent call to submitData invoked close(),
                 // but a pageEvent arrives after closing causing ClosedSendChannelException.
                 try {
-                    @OptIn(ExperimentalCoroutinesApi::class)
                     send(it)
                 } catch (e: ClosedSendChannelException) {
                     // Safe to drop PageEvent here, since collection has been cancelled.

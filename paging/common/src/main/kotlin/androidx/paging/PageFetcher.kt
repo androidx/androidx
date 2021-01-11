@@ -22,7 +22,6 @@ import androidx.paging.LoadType.REFRESH
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.mapLatest
@@ -52,7 +51,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
     // The object built by paging builder can maintain the scope so that on rotation we don't stop
     // the paging.
     @OptIn(ExperimentalCoroutinesApi::class)
-    val flow: Flow<PagingData<Value>> = channelFlow {
+    val flow: Flow<PagingData<Value>> = simpleChannelFlow {
         val remoteMediatorAccessor = remoteMediator?.let {
             RemoteMediatorAccessor(this, it)
         }
@@ -122,8 +121,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
     ): Flow<PageEvent<Value>> {
         if (accessor == null) return pageEventFlow
 
-        @OptIn(ExperimentalCoroutinesApi::class)
-        return channelFlow {
+        return simpleChannelFlow {
             val loadStates = MutableLoadStateCollection()
 
             suspend fun dispatchIfValid(type: LoadType, state: LoadState) {
@@ -164,7 +162,6 @@ internal class PageFetcher<Key : Any, Value : Any>(
                     prev = it
                 }
             }
-
             this@injectRemoteEvents.pageEventFlow.collect { event ->
                 when (event) {
                     is PageEvent.Insert -> {

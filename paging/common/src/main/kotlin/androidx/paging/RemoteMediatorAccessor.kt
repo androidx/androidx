@@ -21,7 +21,6 @@ import androidx.paging.AccessorState.BlockState.REQUIRES_REFRESH
 import androidx.paging.AccessorState.BlockState.UNBLOCKED
 import androidx.paging.RemoteMediator.MediatorResult
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -40,7 +39,7 @@ internal interface RemoteMediatorConnection<Key : Any, Value : Any> {
     fun retryFailed(pagingState: PagingState<Key, Value>)
 }
 
-@OptIn(ExperimentalPagingApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalPagingApi::class)
 internal interface RemoteMediatorAccessor<Key : Any, Value : Any> :
     RemoteMediatorConnection<Key, Value> {
     val state: StateFlow<LoadStates>
@@ -58,7 +57,6 @@ internal fun <Key : Any, Value : Any> RemoteMediatorAccessor(
 /**
  * Simple wrapper around the local state of accessor to ensure we don't concurrently change it.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 private class AccessorStateHolder<Key : Any, Value : Any> {
     private val lock = ReentrantLock()
     private val _loadStates = MutableStateFlow(LoadStates.IDLE)
@@ -209,7 +207,7 @@ private class AccessorState<Key : Any, Value : Any>() {
     }
 }
 
-@OptIn(ExperimentalPagingApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalPagingApi::class)
 private class RemoteMediatorAccessImpl<Key : Any, Value : Any>(
     private val scope: CoroutineScope,
     private val remoteMediator: RemoteMediator<Key, Value>
