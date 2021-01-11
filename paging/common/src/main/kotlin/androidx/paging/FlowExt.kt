@@ -16,8 +16,12 @@
 
 package androidx.paging
 
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 
 /**
@@ -26,6 +30,7 @@ import kotlinx.coroutines.flow.flow
  */
 
 private val NULL = Any()
+
 /**
  * Temporary `scan` operator on Flow without experimental APIs.
  */
@@ -57,5 +62,40 @@ internal fun <T> Flow<T>.simpleRunningReduce(
         }
         @Suppress("UNCHECKED_CAST")
         emit(accumulator as T)
+    }
+}
+
+/**
+ * This is a similar implementation to transformLatest using a channel Flow.
+ */
+internal fun <T, R> Flow<T>.simpleTransformLatest(
+    transform: suspend FlowCollector<R>.(value: T) -> Unit
+): Flow<R> = simpleChannelFlow {
+    val origin = this@simpleTransformLatest
+    val collector = ChannelFlowCollector(this@simpleChannelFlow)
+    origin.collectLatest { value ->
+        collector.transform(value)
+    }
+}
+
+/**
+ * flatMapLatest without experimental APIs
+ */
+internal inline fun <T, R> Flow<T>.simpleFlatMapLatest(
+    crossinline transform: suspend (value: T) -> Flow<R>
+): Flow<R> = simpleTransformLatest { emitAll(transform(it)) }
+
+/**
+ * mapLatest without experimental APIs
+ */
+internal inline fun <T, R> Flow<T>.simpleMapLatest(
+    crossinline transform: suspend (value: T) -> R
+): Flow<R> = simpleTransformLatest { emit(transform(it)) }
+
+internal class ChannelFlowCollector<T>(
+    val channel: SendChannel<T>
+) : FlowCollector<T> {
+    override suspend fun emit(value: T) {
+        channel.send(value)
     }
 }

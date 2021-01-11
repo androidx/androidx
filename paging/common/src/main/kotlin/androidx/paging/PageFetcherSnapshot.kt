@@ -29,7 +29,6 @@ import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
@@ -42,7 +41,6 @@ import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -239,10 +237,9 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
      *
      * @param loadType [PREPEND] or [APPEND]
      */
-    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun Flow<Int>.collectAsGenerationalViewportHints(
         loadType: LoadType
-    ) = flatMapLatest { generationId ->
+    ) = simpleFlatMapLatest { generationId ->
         // Reset state to Idle and setup a new flow for consuming incoming load hints.
         // Subsequent generationIds are normally triggered by cancellation.
         stateHolder.withLock { state ->
@@ -250,7 +247,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             // direction. In the case of the terminal page getting dropped, a new
             // generationId will be sent after load state is updated to Idle.
             if (state.sourceLoadStates.get(loadType) == NotLoading.Complete) {
-                return@flatMapLatest flowOf()
+                return@simpleFlatMapLatest flowOf()
             } else if (state.sourceLoadStates.get(loadType) !is Error) {
                 state.setSourceLoadState(loadType, NotLoading.Incomplete)
             }

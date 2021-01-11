@@ -18,8 +18,11 @@ package androidx.paging
 
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -71,6 +74,60 @@ class SimpleFlowExtTest {
             emptyFlow<Int>().simpleRunningReduce { acc, value ->
                 acc + value
             }.toList()
+        ).isEmpty()
+    }
+
+    @Test
+    fun mapLatest() = testScope.runBlockingTest {
+        assertThat(
+            flowOf(1, 2, 3, 4)
+                .onEach {
+                    delay(1)
+                }
+                .simpleMapLatest { value ->
+                    delay(value.toLong())
+                    "$value-$value"
+                }.toList()
+        ).containsExactly(
+            "1-1", "4-4"
+        ).inOrder()
+    }
+
+    @Test
+    fun mapLatest_empty() = testScope.runBlockingTest {
+        assertThat(
+            emptyFlow<Int>().simpleMapLatest { value ->
+                "$value-$value"
+            }.toList()
+        ).isEmpty()
+    }
+
+    @Test
+    fun flatMapLatest() = testScope.runBlockingTest {
+        assertThat(
+            flowOf(1, 2, 3, 4)
+                .onEach {
+                    delay(1)
+                }
+                .simpleFlatMapLatest { value ->
+                    flow {
+                        repeat(value) {
+                            emit(value)
+                        }
+                    }
+                }.toList()
+        ).containsExactly(
+            1, 2, 2, 3, 3, 3, 4, 4, 4, 4
+        ).inOrder()
+    }
+
+    @Test
+    fun flatMapLatest_empty() = testScope.runBlockingTest {
+        assertThat(
+            emptyFlow<Int>()
+                .simpleFlatMapLatest {
+                    flowOf(it)
+                }.toList()
         ).isEmpty()
     }
 }
