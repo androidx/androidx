@@ -25,6 +25,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -64,10 +65,13 @@ public final class AppInfo {
     @VisibleForTesting
     public static final String MIN_API_LEVEL_MANIFEST_KEY = "androidx.car.app.min-api-level";
 
+    @Keep
     @Nullable
     private final String mLibraryVersion;
+    @Keep
     @CarAppApiLevel
     private final int mMinCarAppApiLevel;
+    @Keep
     @CarAppApiLevel
     private final int mLatestCarAppApiLevel;
 

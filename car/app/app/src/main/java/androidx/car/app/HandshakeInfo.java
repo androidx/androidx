@@ -18,6 +18,7 @@ package androidx.car.app;
 
 import static java.util.Objects.requireNonNull;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -26,8 +27,10 @@ import androidx.annotation.Nullable;
  * completed.
  */
 public class HandshakeInfo {
+    @Keep
     @Nullable
     private final String mHostPackageName;
+    @Keep
     private final int mHostCarAppApiLevel;
 
     /**

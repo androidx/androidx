@@ -18,6 +18,7 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -33,6 +34,7 @@ import java.util.Objects;
  * homogeneous lists of {@link Action} items.
  */
 public class ActionList {
+    @Keep
     private final List<Action> mList;
 
     /**
