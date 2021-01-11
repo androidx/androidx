@@ -165,10 +165,33 @@ public final class Trip {
          * surfaces may or may not use the destination and if multiple destinations are added the
          * display may only show information about the first destination.
          *
+         * <p>For every destination added, a corresponding {@link TravelEstimate} must be
+         * provided. Display surfaces may or may not use the destination travel estimate and if
+         * multiple destination travel estimates are added the display may only show information
+         * about the first destination travel estimate.
+         */
+        @NonNull
+        public Builder addDestination(@NonNull Destination destination,
+                @NonNull TravelEstimate destinationTravelEstimate) {
+            mDestinations.add(requireNonNull(destination));
+            mDestinationTravelEstimates.add(requireNonNull(destinationTravelEstimate));
+            return this;
+        }
+
+        /**
+         * Adds a destination to the trip.
+         *
+         * <p>Destinations must be added in order of arrival. A destination is not required. Display
+         * surfaces may or may not use the destination and if multiple destinations are added the
+         * display may only show information about the first destination.
+         *
          * <p>For every destination added, a corresponding {@link TravelEstimate} must be added via
          * {@link #addDestinationTravelEstimate}.They are added separately so that travel
          * estimates can be updated frequently based on location.
+         *
+         * @deprecated Use {@link #addDestination(Destination, TravelEstimate)}.
          */
+        @Deprecated
         @NonNull
         public Builder addDestination(@NonNull Destination destination) {
             mDestinations.add(requireNonNull(destination));
@@ -189,10 +212,32 @@ public final class Trip {
          * may or may not use the step and if multiple steps are added the display may only show
          * information about the first step.
          *
+         * <p>For every step added, a corresponding {@link TravelEstimate} must be provided.
+         * Display surfaces may or may not use the step travel estimate and if multiple
+         * step travel estimates are added the display may only show information about the first
+         * step travel estimate.
+         */
+        @NonNull
+        public Builder addStep(@Nullable Step step, @NonNull TravelEstimate stepTravelEstimate) {
+            mSteps.add(requireNonNull(step));
+            mStepTravelEstimates.add(requireNonNull(stepTravelEstimate));
+            return this;
+        }
+
+        /**
+         * Adds a step to the trip.
+         *
+         * <p>Steps must be added in order of arrival. A step is not required. Display surfaces
+         * may or may not use the step and if multiple steps are added the display may only show
+         * information about the first step.
+         *
          * <p>For every step added, a corresponding {@link TravelEstimate} must be added via {@link
          * #addStepTravelEstimate}. They are added separately so that travel estimates can be
          * updated frequently based on location.
+         *
+         * @deprecated Use {@link #addStep(Step, TravelEstimate)}.
          */
+        @Deprecated
         @NonNull
         public Builder addStep(@Nullable Step step) {
             mSteps.add(requireNonNull(step));
@@ -217,7 +262,10 @@ public final class Trip {
          * <p>For every destination travel estimate added, a corresponding destination must also be
          * added. They are added separately so that travel estimates can be updated frequently
          * based on location.
+         *
+         * @deprecated User {@link #addDestination(Destination, TravelEstimate)}.
          */
+        @Deprecated
         @NonNull
         public Builder addDestinationTravelEstimate(
                 @NonNull TravelEstimate destinationTravelEstimate) {
@@ -241,7 +289,10 @@ public final class Trip {
          * step travel estimate.
          *
          * <p>For every step travel estimate added, a corresponding step must also be added.
+         *
+         * @deprecated Use {@link #addStep(Step, TravelEstimate)}.
          */
+        @Deprecated
         @NonNull
         public Builder addStepTravelEstimate(@NonNull TravelEstimate stepTravelEstimate) {
             mStepTravelEstimates.add(requireNonNull(stepTravelEstimate));
