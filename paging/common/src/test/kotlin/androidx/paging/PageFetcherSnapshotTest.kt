@@ -1218,6 +1218,8 @@ class PageFetcherSnapshotTest {
                 delay(2000)
                 fail("Should never get here")
             }
+
+            override fun getRefreshKey(state: PagingState<Int, Int>): Int? = null
         }
         val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryBus.flow)
 
@@ -1529,6 +1531,8 @@ class PageFetcherSnapshotTest {
                     nextResult = null
                     return result ?: LoadResult.Error(LOAD_ERROR)
                 }
+
+                override fun getRefreshKey(state: PagingState<Int, Int>): Int? = null
             }
             val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryBus.flow)
 
@@ -3054,6 +3058,8 @@ class PageFetcherSnapshotTest {
                     }.also {
                         loads++
                     }
+
+                    override fun getRefreshKey(state: PagingState<Int, Int>): Int? = null
                 },
                 config = config,
                 retryFlow = retryBus.flow
@@ -3108,6 +3114,8 @@ class PageFetcherSnapshotTest {
                         is LoadParams.Refresh -> Page(listOf(0, 0), 0, 0)
                         else -> Page(listOf(0), 0, 0)
                     }
+
+                    override fun getRefreshKey(state: PagingState<Int, Int>): Int? = null
                 },
                 config = config,
                 retryFlow = retryBus.flow
@@ -3172,6 +3180,8 @@ class PageFetcherSnapshotTest {
                     }.also {
                         loads++
                     }
+
+                    override fun getRefreshKey(state: PagingState<Int, Int>): Int? = null
                 },
                 config = config,
                 retryFlow = retryBus.flow

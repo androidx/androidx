@@ -32,6 +32,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingSource
+import androidx.paging.PagingState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import androidx.paging.compose.itemsIndexed
@@ -88,6 +89,13 @@ class MyBackend {
                     prevKey = prevKey,
                     nextKey = nextKey
                 )
+            }
+
+            override fun getRefreshKey(state: PagingState<Int, String>): Int? {
+                return state.anchorPosition?.let {
+                    state.closestPageToPosition(it)?.prevKey?.plus(1)
+                        ?: state.closestPageToPosition(it)?.nextKey?.minus(1)
+                }
             }
         }
     }

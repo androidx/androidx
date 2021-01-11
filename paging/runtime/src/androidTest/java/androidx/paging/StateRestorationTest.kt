@@ -488,6 +488,8 @@ class StateRestorationTest {
                 )
             }
         }
+
+        override fun getRefreshKey(state: PagingState<Int, Item>): Int? = null
     }
 
     /**
