@@ -44,6 +44,7 @@ import androidx.work.ExistingWorkPolicy;
 import androidx.work.ExperimentalExpeditedWork;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.OutOfQuotaPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
@@ -410,7 +411,7 @@ public class MainActivity extends AppCompatActivity {
                 OneTimeWorkRequest request =
                         new OneTimeWorkRequest.Builder(ForegroundWorker.class)
                                 .setInputData(inputData)
-                                .setExpedited()
+                                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                                 .setConstraints(new Constraints.Builder()
                                         .setRequiredNetworkType(NetworkType.CONNECTED).build()
                                 ).build();

@@ -19,6 +19,7 @@ package androidx.work
 import android.app.Notification
 import android.content.Context
 import android.util.Log
+import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -95,10 +96,13 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
 
     @Test
     @MediumTest
-    @SdkSuppress(maxSdkVersion = 30)
     public fun callGetForeground_forExpeditedWork1() {
+        if (BuildCompat.isAtLeastS()) {
+            return
+        }
+
         val work = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setExpedited()
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .build()
 
         insertWork(work)
@@ -123,10 +127,13 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
 
     @Test
     @SmallTest
-    @SdkSuppress(maxSdkVersion = 30)
     public fun callGetForeground_forExpeditedWork2() {
+        if (BuildCompat.isAtLeastS()) {
+            return
+        }
+
         val work = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setExpedited()
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .build()
 
         insertWork(work)

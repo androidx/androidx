@@ -18,6 +18,7 @@ package androidx.work.impl.utils
 
 import android.app.Notification
 import android.content.Context
+import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -28,6 +29,7 @@ import androidx.work.impl.foreground.ForegroundProcessor
 import androidx.work.impl.model.WorkSpecDao
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,9 +39,8 @@ import org.mockito.Mockito.mock
 import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
-// Mockito tries to class load android.os.CancellationSignal which is only available on API >= 16
-@SdkSuppress(minSdkVersion = 16)
-class WorkForegroundUpdaterTest {
+
+public class WorkForegroundUpdaterTest {
 
     private lateinit var mContext: Context
     private lateinit var mDatabase: WorkDatabase
@@ -49,7 +50,7 @@ class WorkForegroundUpdaterTest {
     private lateinit var mForegroundInfo: ForegroundInfo
 
     @Before
-    fun setUp() {
+    public fun setUp() {
         mContext = mock(Context::class.java)
         mDatabase = mock(WorkDatabase::class.java)
         mWorkSpecDao = mock(WorkSpecDao::class.java)
@@ -62,7 +63,9 @@ class WorkForegroundUpdaterTest {
 
     @Test(expected = IllegalStateException::class)
     @MediumTest
-    fun setForeground_whenWorkReplaced() {
+    // Mockito tries to class load android.os.CancellationSignal which is only available on API >= 16
+    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 29)
+    public fun setForeground_whenWorkReplaced() {
         val foregroundUpdater =
             WorkForegroundUpdater(mDatabase, mForegroundProcessor, mTaskExecutor)
         val uuid = UUID.randomUUID()
@@ -75,7 +78,9 @@ class WorkForegroundUpdaterTest {
 
     @Test(expected = IllegalStateException::class)
     @MediumTest
-    fun setForeground_whenWorkFinished() {
+    // Mockito tries to class load android.os.CancellationSignal which is only available on API >= 16
+    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 29)
+    public fun setForeground_whenWorkFinished() {
         `when`(mWorkSpecDao.getState(anyString())).thenReturn(WorkInfo.State.SUCCEEDED)
         val foregroundUpdater =
             WorkForegroundUpdater(mDatabase, mForegroundProcessor, mTaskExecutor)
@@ -85,5 +90,24 @@ class WorkForegroundUpdaterTest {
         } catch (exception: Throwable) {
             throw exception.cause ?: exception
         }
+    }
+
+    @MediumTest
+    @SdkSuppress(minSdkVersion = 16)
+    public fun setForeground_onSApi() {
+        if (!BuildCompat.isAtLeastS()) {
+            return
+        }
+        `when`(mWorkSpecDao.getState(anyString())).thenReturn(WorkInfo.State.RUNNING)
+        var exceptional = false
+        val foregroundUpdater =
+            WorkForegroundUpdater(mDatabase, mForegroundProcessor, mTaskExecutor)
+        val uuid = UUID.randomUUID()
+        try {
+            foregroundUpdater.setForegroundAsync(mContext, uuid, mForegroundInfo).get()
+        } catch (exception: IllegalStateException) {
+            exceptional = true
+        }
+        assertTrue(exceptional)
     }
 }

@@ -292,11 +292,14 @@ public abstract class WorkRequest {
         /**
          * Marks the {@link WorkRequest} as important to the user.  In this case, WorkManager
          * provides an additional signal to the OS that this work is important.
+         *
+         * @param policy The {@link OutOfQuotaPolicy} to be used.
          */
         @ExperimentalExpeditedWork
         @SuppressLint("MissingGetterMatchingBuilder")
-        public @NonNull B setExpedited() {
+        public @NonNull B setExpedited(@NonNull OutOfQuotaPolicy policy) {
             mWorkSpec.expedited = true;
+            mWorkSpec.outOfQuotaPolicy = policy;
             return getThis();
         }
 
@@ -307,8 +310,8 @@ public abstract class WorkRequest {
          */
         public final @NonNull W build() {
             W returnValue = buildInternal();
-            // Check for expedited jobs.
             Constraints constraints = mWorkSpec.constraints;
+            // Check for unsupported constraints.
             boolean hasUnsupportedConstraints =
                     (Build.VERSION.SDK_INT >= 24 && constraints.hasContentUriTriggers())
                             || constraints.requiresBatteryNotLow()

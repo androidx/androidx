@@ -75,7 +75,7 @@ import java.util.concurrent.TimeUnit;
         WorkName.class,
         WorkProgress.class,
         Preference.class},
-        version = 11)
+        version = 12)
 @TypeConverters(value = {Data.class, WorkTypeConverters.class})
 public abstract class WorkDatabase extends RoomDatabase {
     // Delete rows in the workspec table that...
@@ -150,6 +150,7 @@ public abstract class WorkDatabase extends RoomDatabase {
                 .addMigrations(
                         new WorkDatabaseMigrations.RescheduleMigration(context, VERSION_10,
                                 VERSION_11))
+                .addMigrations(WorkDatabaseMigrations.MIGRATION_11_12)
                 .fallbackToDestructiveMigration()
                 .build();
     }

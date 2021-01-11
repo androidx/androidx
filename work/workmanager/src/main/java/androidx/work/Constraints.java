@@ -290,6 +290,27 @@ public final class Constraints {
         long mTriggerContentMaxDelay = -1;
         ContentUriTriggers mContentUriTriggers = new ContentUriTriggers();
 
+        public Builder() {
+            // default public constructor
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public Builder(@NonNull Constraints constraints) {
+            mRequiresCharging = constraints.requiresCharging();
+            mRequiresDeviceIdle = Build.VERSION.SDK_INT >= 23 && constraints.requiresDeviceIdle();
+            mRequiredNetworkType = constraints.getRequiredNetworkType();
+            mRequiresBatteryNotLow = constraints.requiresBatteryNotLow();
+            mRequiresStorageNotLow = constraints.requiresStorageNotLow();
+            if (Build.VERSION.SDK_INT >= 24) {
+                mTriggerContentUpdateDelay = constraints.getTriggerContentUpdateDelay();
+                mTriggerContentMaxDelay = constraints.getTriggerMaxContentDelay();
+                mContentUriTriggers = constraints.getContentUriTriggers();
+            }
+        }
+
         /**
          * Sets whether device should be charging for the {@link WorkRequest} to run.  The
          * default value is {@code false}.

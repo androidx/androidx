@@ -220,7 +220,7 @@ public abstract class ListenableWorker {
      * @param foregroundInfo The {@link ForegroundInfo}
      * @return A {@link ListenableFuture} which resolves after the {@link ListenableWorker}
      * transitions to running in the context of a foreground {@link android.app.Service}.
-     * @deprecated Use {@link WorkRequest.Builder#setExpedited()} and
+     * @deprecated Use {@link WorkRequest.Builder#setExpedited(OutOfQuotaPolicy)} and
      * {@link ListenableWorker#getForegroundInfoAsync()} instead.
      */
     @NonNull
@@ -245,7 +245,7 @@ public abstract class ListenableWorker {
      *
      * @return A {@link ListenableFuture} of {@link ForegroundInfo} instance if the WorkRequest
      * is marked immediate. For more information look at
-     * {@link WorkRequest.Builder#setExpedited()}.
+     * {@link WorkRequest.Builder#setExpedited(OutOfQuotaPolicy)}.
      */
     @NonNull
     @ExperimentalExpeditedWork
@@ -260,6 +260,7 @@ public abstract class ListenableWorker {
      * explicit cancellation signal by the user, or because the system has decided to preempt the
      * task. In these cases, the results of the work will be ignored by WorkManager and it is safe
      * to stop the computation.  WorkManager will retry the work at a later time if necessary.
+     *
      *
      * @return {@code true} if the work operation has been interrupted
      */
