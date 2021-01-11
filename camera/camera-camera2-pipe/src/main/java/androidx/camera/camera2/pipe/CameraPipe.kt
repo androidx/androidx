@@ -18,14 +18,14 @@ package androidx.camera.camera2.pipe
 
 import android.content.Context
 import android.os.HandlerThread
-import androidx.camera.camera2.pipe.impl.CameraGraphConfigModule
-import androidx.camera.camera2.pipe.impl.CameraPipeComponent
-import androidx.camera.camera2.pipe.impl.CameraPipeConfigModule
-import androidx.camera.camera2.pipe.impl.DaggerCameraPipeComponent
-import androidx.camera.camera2.pipe.impl.DaggerExternalCameraPipeComponent
-import androidx.camera.camera2.pipe.impl.ExternalCameraGraphComponent
-import androidx.camera.camera2.pipe.impl.ExternalCameraGraphConfigModule
-import androidx.camera.camera2.pipe.impl.ExternalCameraPipeComponent
+import androidx.camera.camera2.pipe.config.CameraGraphConfigModule
+import androidx.camera.camera2.pipe.config.CameraPipeComponent
+import androidx.camera.camera2.pipe.config.CameraPipeConfigModule
+import androidx.camera.camera2.pipe.config.DaggerCameraPipeComponent
+import androidx.camera.camera2.pipe.config.DaggerExternalCameraPipeComponent
+import androidx.camera.camera2.pipe.config.ExternalCameraGraphComponent
+import androidx.camera.camera2.pipe.config.ExternalCameraGraphConfigModule
+import androidx.camera.camera2.pipe.config.ExternalCameraPipeComponent
 import kotlinx.atomicfu.atomic
 
 internal val cameraPipeIds = atomic(0)
