@@ -131,7 +131,7 @@ src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl\.kt:[0-9]
 See the profiling report at\: file\:\/\/\$OUT_DIR\/androidx\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 See the profiling report at\: file\:\/\/\$OUT_DIR\/gradle\/external\/doclava\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 # > Task :lifecycle:lifecycle-common:compileJava
-Note: \$SUPPORT/[^ ]+ uses or overrides a deprecated API\.
+Note: \$[^ ]+ uses or overrides a deprecated API\.
 Note: Recompile with \-Xlint\:deprecation for details\.
 # > Task :concurrent:concurrent-futures:compileJava
 # > Task :contentpager:contentpager:compileReleaseJavaWithJavac
@@ -183,7 +183,6 @@ Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/sli
 # > Task :sharetarget:integration-tests:testapp:compileDebugJavaWithJavac
 # > Task :ads-identifier-provider:processDebugAndroidTestManifest
 # > Task :hilt:integration-tests:hilt-testapp-viewmodel:compileDebugJavaWithJavac
-Note: \$OUT_DIR/androidx/hilt/integration\-tests/hilt\-testapp\-viewmodel/build/generated/source/kapt/debug/androidx/hilt/integration/viewmodelapp/Hilt_SimpleFragment\.java uses or overrides a deprecated API\.
 # > Task :ads-identifier-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/ads\-identifier\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :internal-testutils-runtime:processDebugAndroidTestManifest
@@ -306,7 +305,6 @@ Note: \$SUPPORT/room/integration\-tests/testapp/src/androidTest/java/androidx/ro
 # > Task :hilt:integration-tests:hilt-testapp-worker:kaptDebugAndroidTestKotlin
 warning: The following options were not recognized by any processor: '\[dagger\.hilt\.android\.internal\.disableAndroidSuperclassValidation, kapt\.kotlin\.generated\]'
 # > Task :hilt:integration-tests:hilt-testapp-viewmodel:compileReleaseJavaWithJavac
-Note: \$OUT_DIR/androidx/hilt/integration\-tests/hilt\-testapp\-viewmodel/build/generated/source/kapt/release/androidx/hilt/integration/viewmodelapp/Hilt_SimpleFragment\.java uses or overrides a deprecated API\.
 # > Task :slice-core:generateApi
 src/main/java/androidx/slice/compat/SliceProviderCompat\.java:[0-9]+: warning: Parameter permissionManager references hidden type androidx\.slice\.compat\.CompatPermissionManager\. \[HiddenTypeParameter\]
 # > Task :appsearch:appsearch-compiler:lint
