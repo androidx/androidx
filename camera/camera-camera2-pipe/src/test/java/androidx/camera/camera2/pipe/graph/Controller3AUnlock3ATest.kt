@@ -22,7 +22,7 @@ import android.os.Build
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestNumber
-import androidx.camera.camera2.pipe.Status3A
+import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
@@ -108,7 +108,7 @@ internal class Controller3AUnlock3ATest {
 
         val result3A = result.await()
         Truth.assertThat(result3A.frameNumber.value).isEqualTo(101L)
-        Truth.assertThat(result3A.status).isEqualTo(Status3A.OK)
+        Truth.assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
     @Test
@@ -169,7 +169,7 @@ internal class Controller3AUnlock3ATest {
 
         val result3A = result.await()
         Truth.assertThat(result3A.frameNumber.value).isEqualTo(101L)
-        Truth.assertThat(result3A.status).isEqualTo(Status3A.OK)
+        Truth.assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
     @Test
@@ -232,7 +232,7 @@ internal class Controller3AUnlock3ATest {
 
         val result3A = result.await()
         Truth.assertThat(result3A.frameNumber.value).isEqualTo(101L)
-        Truth.assertThat(result3A.status).isEqualTo(Status3A.OK)
+        Truth.assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
     @Test
@@ -299,7 +299,7 @@ internal class Controller3AUnlock3ATest {
 
         val result3A = result.await()
         Truth.assertThat(result3A.frameNumber.value).isEqualTo(101L)
-        Truth.assertThat(result3A.status).isEqualTo(Status3A.OK)
+        Truth.assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
     private fun initGraphProcessor() {

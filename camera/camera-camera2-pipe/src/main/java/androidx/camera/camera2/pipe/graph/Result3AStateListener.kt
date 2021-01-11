@@ -22,7 +22,6 @@ import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
-import androidx.camera.camera2.pipe.Status3A
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 
@@ -50,10 +49,15 @@ internal class Result3AStateListenerImpl(
     private val timeLimitNs: Long? = null
 ) : Result3AStateListener {
 
-    private val deferred = CompletableDeferred<Result3A>()
+    private val _result = CompletableDeferred<Result3A>()
+    val result: Deferred<Result3A>
+        get() = _result
 
-    @Volatile private var frameNumberOfFirstUpdate: FrameNumber? = null
-    @Volatile private var timestampOfFirstUpdateNs: Long? = null
+    @Volatile
+    private var frameNumberOfFirstUpdate: FrameNumber? = null
+    @Volatile
+    private var timestampOfFirstUpdateNs: Long? = null
+
     @GuardedBy("this")
     private var initialRequestNumber: RequestNumber? = null
 
@@ -67,7 +71,7 @@ internal class Result3AStateListenerImpl(
 
     override fun update(requestNumber: RequestNumber, frameMetadata: FrameMetadata): Boolean {
         // Save some compute if the task is already complete or has been canceled.
-        if (deferred.isCompleted || deferred.isCancelled) {
+        if (_result.isCompleted || _result.isCancelled) {
             return true
         }
 
@@ -92,8 +96,8 @@ internal class Result3AStateListenerImpl(
             currentTimestampNs != null &&
             currentTimestampNs - timestampOfFirstUpdateNs > timeLimitNs
         ) {
-            deferred.complete(
-                Result3A(frameMetadata.frameNumber, Status3A.TIME_LIMIT_REACHED)
+            _result.complete(
+                Result3A(frameMetadata.frameNumber, Result3A.Status.TIME_LIMIT_REACHED)
             )
             return true
         }
@@ -106,23 +110,23 @@ internal class Result3AStateListenerImpl(
         if (frameNumberOfFirstUpdate != null && frameLimit != null &&
             currentFrameNumber.value - frameNumberOfFirstUpdate.value > frameLimit
         ) {
-            deferred.complete(
-                Result3A(frameMetadata.frameNumber, Status3A.FRAME_LIMIT_REACHED)
+            _result.complete(
+                Result3A(frameMetadata.frameNumber, Result3A.Status.FRAME_LIMIT_REACHED)
             )
             return true
         }
 
         for ((k, v) in exitConditionForKeys) {
-            val valueInCaptureResult = frameMetadata.get(k)
+            val valueInCaptureResult = frameMetadata[k]
             if (!v.contains(valueInCaptureResult)) {
                 return false
             }
         }
-        deferred.complete(Result3A(frameMetadata.frameNumber, Status3A.OK))
+        _result.complete(Result3A(frameMetadata.frameNumber, Result3A.Status.OK))
         return true
     }
 
     fun getDeferredResult(): Deferred<Result3A> {
-        return deferred
+        return _result
     }
 }
