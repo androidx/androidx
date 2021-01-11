@@ -54,6 +54,7 @@ public final class SearchSpec {
     static final String TERM_MATCH_TYPE_FIELD = "termMatchType";
     static final String SCHEMA_TYPE_FIELD = "schemaType";
     static final String NAMESPACE_FIELD = "namespace";
+    static final String PACKAGE_NAME_FIELD = "packageName";
     static final String NUM_PER_PAGE_FIELD = "numPerPage";
     static final String RANKING_STRATEGY_FIELD = "rankingStrategy";
     static final String ORDER_FIELD = "order";
@@ -178,7 +179,7 @@ public final class SearchSpec {
     }
 
     /**
-     * Returns the list of namespaces to search for.
+     * Returns the list of namespaces to search over.
      *
      * <p>If empty, the query will search over all namespaces.
      */
@@ -189,6 +190,24 @@ public final class SearchSpec {
             return Collections.emptyList();
         }
         return Collections.unmodifiableList(namespaces);
+    }
+
+    /**
+     * Returns the list of package names to search over.
+     *
+     * <p>If unset, the query will search over all packages that the caller has access to.
+     * If package names are specified which caller doesn't have access to, then those package
+     * names will be ignored.
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public List<String> getPackageNames() {
+        List<String> packageNames = mBundle.getStringArrayList(PACKAGE_NAME_FIELD);
+        if (packageNames == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(packageNames);
     }
 
     /** Returns the number of results per page in the result set. */
@@ -250,6 +269,7 @@ public final class SearchSpec {
         private final Bundle mBundle;
         private final ArrayList<String> mSchemaTypes = new ArrayList<>();
         private final ArrayList<String> mNamespaces = new ArrayList<>();
+        private final ArrayList<String> mPackageNames = new ArrayList<>();
         private final Bundle mProjectionTypePropertyMasks = new Bundle();
         private boolean mBuilt = false;
 
@@ -366,6 +386,41 @@ public final class SearchSpec {
             Preconditions.checkNotNull(namespaces);
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             mNamespaces.addAll(namespaces);
+            return this;
+        }
+
+        /**
+         * Adds a package name filter to {@link SearchSpec} Entry. Only search for documents that
+         * were indexed from the specified packages.
+         *
+         * <p>If unset, the query will search over all packages that the caller has access to.
+         * If package names are specified which caller doesn't have access to, then those package
+         * names will be ignored.
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder addFilterPackageNames(@NonNull String... packageNames) {
+            Preconditions.checkNotNull(packageNames);
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            return addFilterPackageNames(Arrays.asList(packageNames));
+        }
+
+        /**
+         * Adds a package name filter to {@link SearchSpec} Entry. Only search for documents that
+         * were indexed from the specified packages.
+         *
+         * <p>If unset, the query will search over all packages that the caller has access to.
+         * If package names are specified which caller doesn't have access to, then those package
+         * names will be ignored.
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder addFilterPackageNames(@NonNull Collection<String> packageNames) {
+            Preconditions.checkNotNull(packageNames);
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            mPackageNames.addAll(packageNames);
             return this;
         }
 
@@ -575,6 +630,7 @@ public final class SearchSpec {
             }
             mBundle.putStringArrayList(NAMESPACE_FIELD, mNamespaces);
             mBundle.putStringArrayList(SCHEMA_TYPE_FIELD, mSchemaTypes);
+            mBundle.putStringArrayList(PACKAGE_NAME_FIELD, mPackageNames);
             mBundle.putBundle(PROJECTION_TYPE_PROPERTY_PATHS_FIELD, mProjectionTypePropertyMasks);
             mBuilt = true;
             return new SearchSpec(mBundle);

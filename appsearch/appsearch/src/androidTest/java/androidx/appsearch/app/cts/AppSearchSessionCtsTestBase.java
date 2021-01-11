@@ -116,6 +116,7 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
 // @exportToFramework:startStrip()
+
     @Test
     public void testSetSchema_dataClass() throws Exception {
         mDb1.setSchema(
@@ -124,6 +125,7 @@ public abstract class AppSearchSessionCtsTestBase {
 // @exportToFramework:endStrip()
 
 // @exportToFramework:startStrip()
+
     @Test
     public void testGetSchema() throws Exception {
         AppSearchSchema emailSchema1 = new AppSearchSchema.Builder("Email1")
@@ -192,6 +194,7 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
 // @exportToFramework:startStrip()
+
     @Test
     public void testPutDocuments_dataClass() throws Exception {
         // Schema registration
@@ -452,6 +455,7 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
 // @exportToFramework:startStrip()
+
     @Test
     public void testGetDocuments_dataClass() throws Exception {
         // Schema registration
@@ -602,6 +606,40 @@ public abstract class AppSearchSessionCtsTestBase {
         documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).hasSize(1);
         assertThat(documents).containsExactly(inDoc);
+    }
+
+    @Test
+    public void testQuery_packageFilter() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()).get();
+
+        // Index documents
+        AppSearchEmail email =
+                new AppSearchEmail.Builder("uri1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("foo")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(email).build()));
+
+        // Query for the document within our package
+        SearchResults searchResults = mDb1.query("foo", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .addFilterPackageNames(ApplicationProvider.getApplicationContext().getPackageName())
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(email);
+
+        // Query for the document in some other package, which won't exist
+        searchResults = mDb1.query("foo", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .addFilterPackageNames("some.other.package")
+                .build());
+        List<SearchResult> results = searchResults.getNextPage().get();
+        assertThat(results).isEmpty();
     }
 
     @Test
@@ -1048,6 +1086,46 @@ public abstract class AppSearchSessionCtsTestBase {
                 .get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri2").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+    }
+
+    @Test
+    public void testRemoveByQuery_packageFilter() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()).get();
+
+        // Index documents
+        AppSearchEmail email =
+                new AppSearchEmail.Builder("uri1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("foo")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(email).build()));
+
+        // Check the presence of the documents
+        assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
+
+        // Try to delete email with query "foo", but restricted to a different package name.
+        // Won't work and email will still exist.
+        mDb1.removeByQuery("foo",
+                new SearchSpec.Builder().setTermMatch(
+                        SearchSpec.TERM_MATCH_PREFIX).addFilterPackageNames(
+                        "some.other.package").build()).get();
+        assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
+
+        // Delete the email by query "foo", restricted to the correct package this time.
+        mDb1.removeByQuery("foo", new SearchSpec.Builder().setTermMatch(
+                SearchSpec.TERM_MATCH_PREFIX).addFilterPackageNames(
+                ApplicationProvider.getApplicationContext().getPackageName()).build()).get();
+        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
+                new GetByUriRequest.Builder().addUri("uri1", "uri2").build())
+                .get();
+        assertThat(getResult.isSuccess()).isFalse();
+        assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
     }
 

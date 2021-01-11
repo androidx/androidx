@@ -372,6 +372,68 @@ public abstract class GlobalSearchSessionCtsTestBase {
                 ImmutableList.of(document1));
     }
 
+    @Test
+    public void testGlobalQuery_packageFilter() throws Exception {
+        // Snapshot what documents may already exist on the device.
+        SearchSpec otherPackageSearchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .addFilterPackageNames("some.other.package")
+                .build();
+        List<GenericDocument> beforeOtherPackageDocuments = snapshotResults("body",
+                otherPackageSearchSpec);
+
+        SearchSpec testPackageSearchSpec =
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterPackageNames(
+                                ApplicationProvider.getApplicationContext().getPackageName())
+                        .build();
+        List<GenericDocument> beforeTestPackageDocuments = snapshotResults("body",
+                testPackageSearchSpec);
+
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()).get();
+        mDb2.setSchema(
+                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()).get();
+
+        // Index two documents
+        AppSearchEmail document1 =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocument(document1).build()));
+
+        AppSearchEmail document2 =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace2")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb2.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(document2).build()));
+
+        // Query in some other package
+        List<GenericDocument> afterOtherPackageDocuments = snapshotResults("body",
+                otherPackageSearchSpec);
+        assertAddedBetweenSnapshots(beforeOtherPackageDocuments, afterOtherPackageDocuments,
+                Collections.emptyList());
+
+        // Query within our package
+        List<GenericDocument> afterTestPackageDocuments = snapshotResults("body",
+                testPackageSearchSpec);
+        assertAddedBetweenSnapshots(beforeTestPackageDocuments, afterTestPackageDocuments,
+                ImmutableList.of(document1, document2));
+    }
+
     // TODO(b/175039682) Add test cases for wildcard projection once go/oag/1534646 is submitted.
     @Test
     public void testGlobalQuery_projectionTwoInstances() throws Exception {
