@@ -62,7 +62,8 @@ public final class PutDocumentsRequest {
         /** Adds one or more documents to the request. */
         @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getDocuments()
         @NonNull
-        public Builder addGenericDocument(@NonNull Collection<GenericDocument> documents) {
+        public Builder addGenericDocument(
+                @NonNull Collection<? extends GenericDocument> documents) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(documents);
             mDocuments.addAll(documents);
@@ -95,7 +96,7 @@ public final class PutDocumentsRequest {
          */
         @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getDocuments()
         @NonNull
-        public Builder addDataClass(@NonNull Collection<Object> dataClasses)
+        public Builder addDataClass(@NonNull Collection<?> dataClasses)
                 throws AppSearchException {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(dataClasses);
