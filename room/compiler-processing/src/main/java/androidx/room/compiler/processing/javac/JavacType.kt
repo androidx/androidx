@@ -24,7 +24,6 @@ import androidx.room.compiler.processing.javac.kotlin.KmType
 import androidx.room.compiler.processing.ksp.ERROR_TYPE_NAME
 import androidx.room.compiler.processing.safeTypeName
 import com.google.auto.common.MoreTypes
-import javax.lang.model.element.ElementKind
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import kotlin.reflect.KClass
@@ -167,7 +166,4 @@ internal abstract class JavacType(
         // a boxed primitive to be marked as non-null.
         return copyWithNullability(XNullability.NONNULL)
     }
-
-    override fun isEnum() = typeMirror.kind == TypeKind.DECLARED &&
-        MoreTypes.asElement(typeMirror).kind == ElementKind.ENUM
 }

@@ -21,7 +21,6 @@ import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.tryBox
 import androidx.room.compiler.processing.tryUnbox
-import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeReference
@@ -137,10 +136,6 @@ internal abstract class KspType(
 
     override fun toString(): String {
         return ksType.toString()
-    }
-
-    override fun isEnum(): Boolean {
-        return (ksType.declaration as? KSClassDeclaration)?.classKind == ClassKind.ENUM_CLASS
     }
 
     abstract override fun boxed(): KspType

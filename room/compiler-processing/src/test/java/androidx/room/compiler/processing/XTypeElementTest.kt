@@ -18,13 +18,14 @@ package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getAllFieldNames
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
@@ -764,9 +765,80 @@ class XTypeElementTest {
                 )
 
             subjects.forEach {
-                Truth.assertWithMessage(it)
+                assertWithMessage(it)
                     .that(invocation.processingEnv.requireTypeElement(it).findPrimaryConstructor())
                     .isNull()
+            }
+        }
+    }
+
+    @Test
+    fun enumTypeElement() {
+        fun createSources(packageName: String) = listOf(
+            Source.kotlin(
+                "$packageName/KotlinEnum.kt",
+                """
+                package $packageName
+                enum class KotlinEnum(private val x:Int) {
+                    VAL1(1),
+                    VAL2(2);
+
+                    fun enumMethod():Unit {}
+                }
+                """.trimIndent()
+            ),
+            Source.java(
+                "$packageName.JavaEnum",
+                """
+                package $packageName;
+                public enum JavaEnum {
+                    VAL1(1),
+                    VAL2(2);
+
+                    private int x;
+
+                    JavaEnum(int x) {
+                        this.x = x;
+                    }
+                    void enumMethod() {}
+                }
+                """.trimIndent()
+            )
+        )
+        val classpath = compileFiles(
+            createSources("lib")
+        )
+        runProcessorTest(
+            sources = createSources("app"),
+            classpath = listOf(classpath)
+        ) { invocation ->
+            listOf(
+                "lib.KotlinEnum", "lib.JavaEnum",
+                "app.KotlinEnum", "app.JavaEnum"
+            ).forEach { qName ->
+                val typeElement = invocation.processingEnv.requireTypeElement(qName)
+                assertWithMessage("$qName is enum")
+                    .that(typeElement.isEnum())
+                    .isTrue()
+                assertWithMessage("$qName does not report enum constants in methods")
+                    .that(typeElement.getDeclaredMethods().map { it.name })
+                    .run {
+                        contains("enumMethod")
+                        containsNoneOf("VAL1", "VAL2")
+                    }
+                if (qName != "app.JavaEnum" || !invocation.isKsp) {
+                    // KSP does not properly return enum constants for java sources yet
+                    // https://github.com/google/ksp/issues/234
+                    assertWithMessage("$qName can return enum constants")
+                        .that((typeElement as XEnumTypeElement).enumConstantNames)
+                        .containsExactly("VAL1", "VAL2")
+                    assertWithMessage("$qName  does not report enum constants in fields")
+                        .that(typeElement.getAllFieldNames())
+                        .run {
+                            contains("x")
+                            containsNoneOf("VAL1", "VAL2")
+                        }
+                }
             }
         }
     }

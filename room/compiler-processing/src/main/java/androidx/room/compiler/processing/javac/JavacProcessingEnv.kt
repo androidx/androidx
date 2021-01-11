@@ -46,8 +46,8 @@ internal class JavacProcessingEnv(
             findElement = { qName ->
                 delegate.elementUtils.getTypeElement(qName)
             },
-            wrap = {
-                JavacTypeElement(this, it)
+            wrap = { typeElement ->
+                JavacTypeElement.create(this, typeElement)
             },
             getQName = {
                 it.qualifiedName.toString()
