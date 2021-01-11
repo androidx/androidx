@@ -230,6 +230,7 @@ package androidx.appsearch.app {
   }
 
   public final class SearchSpec {
+    method public java.util.List<java.lang.String!> getFilterPackageNames();
     method public int getMaxSnippetSize();
     method public java.util.List<java.lang.String!> getNamespaces();
     method public int getOrder();
@@ -253,6 +254,8 @@ package androidx.appsearch.app {
 
   public static final class SearchSpec.Builder {
     ctor public SearchSpec.Builder();
+    method public androidx.appsearch.app.SearchSpec.Builder addFilterPackageNames(java.lang.String!...);
+    method public androidx.appsearch.app.SearchSpec.Builder addFilterPackageNames(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.SearchSpec.Builder addNamespace(java.lang.String!...);
     method public androidx.appsearch.app.SearchSpec.Builder addNamespace(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.SearchSpec.Builder addProjection(String, java.lang.String!...);

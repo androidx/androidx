@@ -193,6 +193,22 @@ public final class SearchSpec {
     }
 
     /**
+     * Returns the list of package name filters to search over.
+     *
+     * <p>If empty, the query will search over all packages that the caller has access to. If
+     * package names are specified which caller doesn't have access to, then those package names
+     * will be ignored.
+     */
+    @NonNull
+    public List<String> getFilterPackageNames() {
+        List<String> packageNames = mBundle.getStringArrayList(PACKAGE_NAME_FIELD);
+        if (packageNames == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(packageNames);
+    }
+
+    /**
      * Returns the list of package names to search over.
      *
      * <p>If unset, the query will search over all packages that the caller has access to.
@@ -396,9 +412,10 @@ public final class SearchSpec {
          * <p>If unset, the query will search over all packages that the caller has access to.
          * If package names are specified which caller doesn't have access to, then those package
          * names will be ignored.
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        // Getter is called "getFilterPackageNames" (as opposed to the suggested
+        // "getFilterPackageNameses")
+        @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder addFilterPackageNames(@NonNull String... packageNames) {
             Preconditions.checkNotNull(packageNames);
@@ -413,9 +430,10 @@ public final class SearchSpec {
          * <p>If unset, the query will search over all packages that the caller has access to.
          * If package names are specified which caller doesn't have access to, then those package
          * names will be ignored.
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        // Getter is called "getFilterPackageNames" (as opposed to the suggested
+        // "getFilterPackageNameses")
+        @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder addFilterPackageNames(@NonNull Collection<String> packageNames) {
             Preconditions.checkNotNull(packageNames);
