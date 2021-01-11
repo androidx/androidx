@@ -107,17 +107,17 @@ internal class GraphState3A @Inject constructor() {
         }
     }
 
-    fun writeTo(builder: CaptureRequest.Builder) {
+    fun writeTo(map: MutableMap<Any, Any?>) {
         synchronized(this) {
-            aeMode?.let { builder.set(CaptureRequest.CONTROL_AE_MODE, it.value) }
-            afMode?.let { builder.set(CaptureRequest.CONTROL_AF_MODE, it.value) }
-            awbMode?.let { builder.set(CaptureRequest.CONTROL_AWB_MODE, it.value) }
-            flashMode?.let { builder.set(CaptureRequest.FLASH_MODE, it.value) }
-            aeRegions?.let { builder.set(CaptureRequest.CONTROL_AE_REGIONS, it.toTypedArray()) }
-            afRegions?.let { builder.set(CaptureRequest.CONTROL_AF_REGIONS, it.toTypedArray()) }
-            awbRegions?.let { builder.set(CaptureRequest.CONTROL_AWB_REGIONS, it.toTypedArray()) }
-            aeLock?.let { builder.set(CaptureRequest.CONTROL_AE_LOCK, it) }
-            awbLock?.let { builder.set(CaptureRequest.CONTROL_AWB_LOCK, it) }
+            aeMode?.let { map[CaptureRequest.CONTROL_AE_MODE] = it.value }
+            afMode?.let { map[CaptureRequest.CONTROL_AF_MODE] = it.value }
+            awbMode?.let { map[CaptureRequest.CONTROL_AWB_MODE] = it.value }
+            flashMode?.let { map[CaptureRequest.FLASH_MODE] = it.value }
+            aeRegions?.let { map[CaptureRequest.CONTROL_AE_REGIONS] = it.toTypedArray() }
+            afRegions?.let { map[CaptureRequest.CONTROL_AF_REGIONS] = it.toTypedArray() }
+            awbRegions?.let { map[CaptureRequest.CONTROL_AWB_REGIONS] = it.toTypedArray() }
+            aeLock?.let { map[CaptureRequest.CONTROL_AE_LOCK] = it }
+            awbLock?.let { map[CaptureRequest.CONTROL_AWB_LOCK] = it }
         }
     }
 }

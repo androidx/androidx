@@ -45,7 +45,7 @@ internal class CameraGraphImplTest {
         cameraId = fakeCameraId
     )
     private val fakeGraphProcessor = FakeGraphProcessor()
-    private val fakeGraphController = FakeCameraController()
+    private val fakeCameraController = FakeCameraController()
     private lateinit var impl: CameraGraphImpl
 
     @Before
@@ -62,7 +62,7 @@ internal class CameraGraphImplTest {
                 fakeMetadata,
                 config
             ),
-            fakeGraphController,
+            fakeCameraController,
             GraphState3A(),
             Listener3A()
         )
@@ -145,15 +145,15 @@ internal class CameraGraphImplTest {
 
     @Test
     fun stoppingCameraGraphStopsGraphProcessor() {
-        assertThat(fakeGraphController.active).isFalse()
+        assertThat(fakeCameraController.active).isFalse()
         impl.start()
-        assertThat(fakeGraphController.active).isTrue()
+        assertThat(fakeCameraController.active).isTrue()
         impl.stop()
-        assertThat(fakeGraphController.active).isFalse()
+        assertThat(fakeCameraController.active).isFalse()
         impl.start()
-        assertThat(fakeGraphController.active).isTrue()
+        assertThat(fakeCameraController.active).isTrue()
         impl.close()
         assertThat(fakeGraphProcessor.closed).isTrue()
-        assertThat(fakeGraphController.active).isFalse()
+        assertThat(fakeCameraController.active).isFalse()
     }
 }
