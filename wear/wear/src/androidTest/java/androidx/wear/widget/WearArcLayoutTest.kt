@@ -260,11 +260,11 @@ class WearArcLayoutTest {
     }
 
     // Extension functions to make the margin test more readable.
-    fun WearArcLayout.addSeparator() {
+    fun WearArcLayout.addSeparator(angle: Float = 10f) {
         addView(
             WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
                 text = " "
-                minSweepDegrees = 10f
+                minSweepDegrees = angle
                 setBackgroundColor(Color.rgb(100, 100, 100))
                 clockwise = true
                 textSize = 40f
@@ -276,10 +276,16 @@ class WearArcLayoutTest {
     fun WearArcLayout.addCurvedText(
         text: String,
         color: Int,
-        marginLeft: Int = 0,
-        marginTop: Int = 0,
-        marginRight: Int = 0,
-        marginBottom: Int = 0,
+        marginLeft: Int? = null,
+        marginTop: Int? = null,
+        marginRight: Int? = null,
+        marginBottom: Int? = null,
+        margin: Int? = null,
+        paddingLeft: Int? = null,
+        paddingTop: Int? = null,
+        paddingRight: Int? = null,
+        paddingBottom: Int? = null,
+        padding: Int? = null,
         vAlign: Int = VALIGN_CENTER,
         clockwise: Boolean = true,
         textSize: Float = 14f,
@@ -294,11 +300,22 @@ class WearArcLayoutTest {
                 it.textSize = textSize
                 it.textAlignment = textAlignment
                 it.minSweepDegrees = minSweep
+                it.setPadding(
+                    paddingLeft ?: padding ?: 0,
+                    paddingTop ?: padding ?: 0,
+                    paddingRight ?: padding ?: 0,
+                    paddingBottom ?: padding ?: 0
+                )
                 it.layoutParams = WearArcLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 ).apply {
-                    setMargins(marginLeft, marginTop, marginRight, marginBottom)
+                    setMargins(
+                        marginLeft ?: margin ?: 0,
+                        marginTop ?: margin ?: 0,
+                        marginRight ?: margin ?: 0,
+                        marginBottom ?: margin ?: 0
+                    )
                     verticalAlignment = vAlign
                 }
             }
@@ -416,6 +433,59 @@ class WearArcLayoutTest {
                     addCurvedText("Third", Color.BLUE, textSize = 30f, clockwise = false)
                 }
             )
+        )
+    }
+
+    private fun createArcsWithPaddingAndMargins() = listOf(
+        WearArcLayout(ApplicationProvider.getApplicationContext()).apply {
+            anchorType = WearArcLayout.ANCHOR_CENTER
+            listOf(VALIGN_INNER, VALIGN_CENTER, VALIGN_OUTER).forEach { align ->
+                addSeparator()
+                addCurvedText("None", 0xFFFF0000.toInt(), vAlign = align)
+                addSeparator(angle = 1f)
+                addCurvedText("Pad", 0xFF80FF00.toInt(), padding = 8, vAlign = align)
+                addSeparator(angle = 1f)
+                addCurvedText("Mar", 0xFF00FFFF.toInt(), margin = 8, vAlign = align)
+                addSeparator(angle = 1f)
+                addCurvedText("Both", 0xFF8000FF.toInt(), padding = 8, margin = 8, vAlign = align)
+            }
+            addSeparator()
+        },
+        WearArcLayout(ApplicationProvider.getApplicationContext()).apply {
+            anchorType = WearArcLayout.ANCHOR_CENTER
+            anchorAngleDegrees = 180f
+            addSeparator()
+            addCurvedText("Top", 0xFFFF0000.toInt(), paddingTop = 16)
+            addSeparator()
+            addCurvedText("Bottom", 0xFF80FF00.toInt(), paddingBottom = 16)
+            addSeparator()
+            addCurvedText("Left", 0xFF00FFFF.toInt(), paddingLeft = 16)
+            addSeparator()
+            addCurvedText("Right", 0xFF8000FF.toInt(), paddingRight = 16)
+            addSeparator()
+        }
+    )
+
+    @Test
+    fun testMarginsAndPadding() {
+        doOneTest(
+            "margin_padding_test",
+            createArcsWithPaddingAndMargins()
+        )
+    }
+
+    @Test
+    fun testMarginsAndPaddingCcw() {
+        doOneTest(
+            "margin_padding_ccw_test",
+            // For each WearArcLayout, change all WearCurvedTextView children to counter-clockwise
+            createArcsWithPaddingAndMargins().map {
+                it.apply {
+                    children.forEach { child ->
+                        (child as? WearCurvedTextView)?.let { cv -> cv.clockwise = false }
+                    }
+                }
+            }
         )
     }
 
