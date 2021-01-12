@@ -237,7 +237,7 @@ public open class CanvasComplicationDrawable(
  */
 public class Complication internal constructor(
     internal val id: Int,
-    @ComplicationBoundsType internal val boundsType: Int,
+    @ComplicationBoundsType public val boundsType: Int,
     complicationBounds: ComplicationBounds,
     canvasComplication: CanvasComplication,
     supportedTypes: List<ComplicationType>,
@@ -602,7 +602,7 @@ public class Complication internal constructor(
     }
 
     /** Computes the bounds of the complication by converting the unitSquareBounds to pixels. */
-    internal fun computeBounds(screen: Rect): Rect {
+    public fun computeBounds(screen: Rect): Rect {
         // Try the current type if there is one, otherwise fall back to the bounds for the default
         // provider type.
         val unitSquareBounds =

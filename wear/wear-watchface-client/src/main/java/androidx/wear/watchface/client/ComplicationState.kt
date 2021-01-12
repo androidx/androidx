@@ -17,6 +17,7 @@
 package androidx.wear.watchface.client
 
 import android.graphics.Rect
+import androidx.annotation.RestrictTo
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
@@ -48,7 +49,9 @@ public class ComplicationState(
     /** The [ComplicationType] of the complication's current [ComplicationData]. */
     public val currentType: ComplicationType
 ) {
-    internal constructor(
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(
         complicationStateWireFormat: ComplicationStateWireFormat
     ) : this(
         complicationStateWireFormat.bounds,

@@ -9,6 +9,7 @@ package androidx.wear.watchface.style {
 
   public final class UserStyle {
     ctor public UserStyle(java.util.Map<androidx.wear.watchface.style.UserStyleSetting,? extends androidx.wear.watchface.style.UserStyleSetting.Option> selectedOptions);
+    ctor public UserStyle(androidx.wear.watchface.style.UserStyle userStyle);
     ctor public UserStyle(java.util.Map<java.lang.String,java.lang.String> userStyle, androidx.wear.watchface.style.UserStyleSchema styleSchema);
     method public java.util.Map<androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option> getSelectedOptions();
     method public java.util.Map<java.lang.String,java.lang.String> toMap();

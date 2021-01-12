@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchface.ui
+package androidx.wear.watchface.editor.sample
 
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.support.wearable.watchface.Constants
-import android.util.Log
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import androidx.annotation.RestrictTo
@@ -31,10 +27,12 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.wear.complications.ComplicationHelperActivity
-import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.ComplicationData
+import androidx.wear.watchface.editor.EditorSession
+import androidx.wear.watchface.editor.setWatchRequestResult
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
+import com.google.common.util.concurrent.ListenableFuture
 
 /** @hide */
 @RestrictTo(LIBRARY)
@@ -56,74 +54,39 @@ internal interface FragmentController {
     )
 
     /** Lets the user configure the complication provider for a single complication slot. */
-    fun showComplicationConfig(
-        complicationId: Int,
-        supportedComplicationDataTypes: Collection<ComplicationType>
-    )
+    fun showComplicationConfig(complicationId: Int): ListenableFuture<Boolean>
 }
+
+// Reference time for editor screenshots for analog watch faces.
+// 2020/10/10 at 09:30 Note the date doesn't matter, only the hour.
+private const val ANALOG_WATCHFACE_REFERENCE_TIME_MS = 1602318600000L
+
+// Reference time for editor screenshots for digital watch faces.
+// 2020/10/10 at 10:10 Note the date doesn't matter, only the hour.
+private const val DIGITAL_WATCHFACE_REFERENCE_TIME_MS = 1602321000000L
 
 /**
  * Config activity for the watch face, which supports complication and provider selection, as well
  * as userStyle configuration.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@TargetApi(16)
-@SuppressWarnings("ForbiddenSuperClass")
-public // Not intended to be composable.
 class WatchFaceConfigActivity : FragmentActivity() {
-    internal lateinit var watchFaceConfigDelegate: WatchFaceConfigDelegate
-        private set
+    internal val complicationData = HashMap<Int, ComplicationData>()
 
-    internal lateinit var styleSchema: UserStyleSchema
-        private set
-
-    internal lateinit var watchFaceComponentName: ComponentName
-        private set
-
+    internal lateinit var editorSession: EditorSession
     internal lateinit var fragmentController: FragmentController
-
-    internal var backgroundComplicationId: Int? = null
-        private set
-
-    public companion object {
-        private const val TAG = "WatchFaceConfigActivity"
-
-        private val sComponentNameToIWatchFaceConfig =
-            HashMap<ComponentName, WatchFaceConfigDelegate>()
-
-        /** @hide */
-        @SuppressWarnings("SyntheticAccessor")
-        @JvmStatic
-        public fun registerWatchFace(
-            componentName: ComponentName,
-            watchFaceConfigDelegate: WatchFaceConfigDelegate
-        ) {
-            sComponentNameToIWatchFaceConfig[componentName] = watchFaceConfigDelegate
-        }
-
-        @SuppressWarnings("SyntheticAccessor")
-        @JvmStatic
-        public fun unregisterWatchFace(componentName: ComponentName) {
-            sComponentNameToIWatchFaceConfig.remove(componentName)
-        }
-
-        @SuppressWarnings("SyntheticAccessor")
-        @JvmStatic
-        internal fun getIWatchFaceConfig(componentName: ComponentName): WatchFaceConfigDelegate? {
-            return sComponentNameToIWatchFaceConfig[componentName]
-        }
-    }
+    internal lateinit var handler: Handler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val context = this as Context
-        val componentName: ComponentName =
-            intent.getParcelableExtra(Constants.EXTRA_WATCH_FACE_COMPONENT) ?: return
-
+        val editorSession = EditorSession.createOnWatchEditingSession(
+            this,
+            intent!!.apply {
+                // TODO(alexclarke): Remove this when SysUI creates compatible intents.
+                putExtra("INSTANCE_ID", "FakeID")
+            }
+        )!!
         init(
-            componentName,
+            editorSession,
             object : FragmentController {
                 @SuppressLint("SyntheticAccessor")
                 override fun showConfigFragment() {
@@ -152,20 +115,11 @@ class WatchFaceConfigActivity : FragmentActivity() {
                  */
                 @SuppressWarnings("deprecation")
                 override fun showComplicationConfig(
-                    complicationId: Int,
-                    supportedComplicationDataTypes: Collection<ComplicationType>
-                ) {
-                    startActivityForResult(
-                        ComplicationHelperActivity.createProviderChooserHelperIntent(
-                            context,
-                            watchFaceComponentName,
-                            complicationId,
-                            supportedComplicationDataTypes
-                        ),
-                        Constants.PROVIDER_CHOOSER_REQUEST_CODE
-                    )
-                }
-            }
+                    complicationId: Int
+                ): ListenableFuture<Boolean> =
+                    editorSession.launchComplicationProviderChooser(complicationId)
+            },
+            Handler(Looper.getMainLooper())
         )
     }
 
@@ -196,16 +150,13 @@ class WatchFaceConfigActivity : FragmentActivity() {
 
     @VisibleForTesting
     internal fun init(
-        watchFaceComponentName: ComponentName,
-        fragmentController: FragmentController
+        editorSession: EditorSession,
+        fragmentController: FragmentController,
+        handler: Handler
     ) {
-        this.watchFaceComponentName = watchFaceComponentName
+        this.editorSession = editorSession
         this.fragmentController = fragmentController
-
-        watchFaceConfigDelegate = getIWatchFaceConfig(watchFaceComponentName) ?: run {
-            Log.e(TAG, "Unknown watchFace $watchFaceComponentName")
-            return
-        }
+        this.handler = handler
 
         supportFragmentManager
             .addOnBackStackChangedListener {
@@ -216,16 +167,12 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 }
             }
 
-        styleSchema = UserStyleSchema(watchFaceConfigDelegate.getUserStyleSchema())
-
-        backgroundComplicationId = watchFaceConfigDelegate.getBackgroundComplicationId()
-
-        var topLevelOptionCount = styleSchema.userStyleSettings.size
-        val hasBackgroundComplication = backgroundComplicationId != null
+        var topLevelOptionCount = editorSession.userStyleSchema.userStyleSettings.size
+        val hasBackgroundComplication = editorSession.backgroundComplicationId != null
         if (hasBackgroundComplication) {
             topLevelOptionCount++
         }
-        val numComplications = watchFaceConfigDelegate.getComplicationsMap().size
+        val numComplications = editorSession.complicationState.size
         val hasNonBackgroundComplication =
             numComplications > (if (hasBackgroundComplication) 1 else 0)
         if (hasNonBackgroundComplication) {
@@ -239,34 +186,28 @@ class WatchFaceConfigActivity : FragmentActivity() {
 
             // For a single complication go directly to the provider selector.
             numComplications == 1 -> {
-                val onlyComplication = watchFaceConfigDelegate.getComplicationsMap().values.first()
-                fragmentController.showComplicationConfig(
-                    onlyComplication.id,
-                    onlyComplication.supportedTypes
-                )
+                val onlyComplication = editorSession.complicationState.entries.first()
+                fragmentController.showComplicationConfig(onlyComplication.key)
             }
 
             // For multiple complications select the complication to configure first.
             numComplications > 1 -> fragmentController.showComplicationConfigSelectionFragment()
 
             // For a single style, go select the option.
-            styleSchema.userStyleSettings.size == 1 -> {
+            editorSession.userStyleSchema.userStyleSettings.size == 1 -> {
                 // There should only be a single userStyle setting if we get here.
-                val onlyStyleSetting = styleSchema.userStyleSettings.first()
+                val onlyStyleSetting = editorSession.userStyleSchema.userStyleSettings.first()
                 fragmentController.showStyleConfigFragment(
                     onlyStyleSetting.id,
-                    styleSchema,
-                    UserStyle(
-                        watchFaceConfigDelegate.getUserStyle(),
-                        styleSchema
-                    )
+                    editorSession.userStyleSchema,
+                    editorSession.userStyle
                 )
             }
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        finish()
+    override fun onStop() {
+        super.onStop()
+        setWatchRequestResult(editorSession)
     }
 }

@@ -29,6 +29,9 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 public class UserStyle(
     public val selectedOptions: Map<UserStyleSetting, UserStyleSetting.Option>
 ) {
+    /** Constructs a UserStyle with a deep copy of the [selectedOptions]. */
+    public constructor(userStyle: UserStyle) : this(HashMap(userStyle.selectedOptions))
+
     /**
      * Constructs a [UserStyle] from a Map<String, String> and the [UserStyleSchema]. Unrecognized
      * style settings will be ignored. Unlisted style settings will be initialized with that
