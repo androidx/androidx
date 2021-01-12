@@ -35,6 +35,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.lang.IllegalArgumentException
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -188,6 +189,63 @@ class NavHostControllerTest {
         assertWithMessage("there should be 2 destination on back stack when using singleTop")
             .that(navigator.backStack.size)
             .isEqualTo(2)
+    }
+
+    @Test
+    fun testGetBackStackEntry() {
+        lateinit var navController: NavController
+        composeTestRule.setContent {
+            navController = TestNavHostController(AmbientContext.current)
+
+            navController.graph = navController.createGraph(startDestination = FIRST_DESTINATION) {
+                test(FIRST_DESTINATION)
+                test(SECOND_DESTINATION)
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            navController.navigate(SECOND_DESTINATION)
+        }
+
+        assertWithMessage("first destination should be on back stack")
+            .that(
+                navController.getBackStackEntry(FIRST_DESTINATION).arguments?.getString(KEY_ROUTE)
+            )
+            .isEqualTo(FIRST_DESTINATION)
+
+        assertWithMessage("second destination should be on back stack")
+            .that(
+                navController.getBackStackEntry(SECOND_DESTINATION).arguments?.getString(KEY_ROUTE)
+            )
+            .isEqualTo(SECOND_DESTINATION)
+    }
+
+    @Test
+    fun testGetBackStackEntryNoEntryFound() {
+        lateinit var navController: NavController
+        composeTestRule.setContent {
+            navController = TestNavHostController(AmbientContext.current)
+
+            navController.graph = navController.createGraph(startDestination = FIRST_DESTINATION) {
+                test(FIRST_DESTINATION)
+                test(SECOND_DESTINATION)
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            navController.navigate(SECOND_DESTINATION)
+        }
+
+        try {
+            navController.getBackStackEntry(SECOND_DESTINATION)
+        } catch (e: IllegalArgumentException) {
+            assertThat(e)
+                .hasMessageThat().contains(
+                    "No destination with route $SECOND_DESTINATION is on the NavController's " +
+                        "back stack. The current destination is " +
+                        navController.currentBackStackEntry?.destination
+                )
+        }
     }
 }
 

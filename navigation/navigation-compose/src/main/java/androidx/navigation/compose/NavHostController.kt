@@ -127,4 +127,25 @@ fun NavController.createGraph(
     builder
 )
 
+/**
+ * Gets the topmost {@link NavBackStackEntry} for a route.
+ * <p>
+ * This is always safe to use with {@link #getCurrentDestination() the current destination} or
+ * {@link NavDestination#getParent() its parent} or grandparent navigation graphs as these
+ * destinations are guaranteed to be on the back stack.
+ *
+ * @param route route of a destination that exists on the back stack
+ * @throws IllegalArgumentException if the destination is not on the back stack
+ */
+public fun NavController.getBackStackEntry(route: String): NavBackStackEntry {
+    try {
+        return getBackStackEntry(createRoute(route).hashCode())
+    } catch (e: IllegalArgumentException) {
+        throw IllegalArgumentException(
+            "No destination with route $route is on the NavController's back stack. The current " +
+                "destination is $currentDestination"
+        )
+    }
+}
+
 internal fun createRoute(route: String) = "android-app://androidx.navigation.compose/$route"
