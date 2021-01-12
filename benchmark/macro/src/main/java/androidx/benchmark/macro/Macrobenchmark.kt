@@ -22,6 +22,7 @@ import androidx.benchmark.BenchmarkResult
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.MetricResult
 import androidx.benchmark.ResultWriter
+import androidx.benchmark.perfetto.executeShellScript
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
@@ -79,6 +80,21 @@ public class MacrobenchmarkScope(
     fun killProcess() {
         Log.d(TAG, "Killing process $packageName")
         device.executeShellCommand("am force-stop $packageName")
+    }
+
+    /**
+     * Drop Kernel's in-memory cache of disk pages.
+     *
+     * Enables measuring disk-based startup cost, without simply accessing cache of disk data
+     * held in memory, such as during [cold startup](StartupMode.COLD).
+     */
+    fun dropKernelPageCache() {
+        val result = device.executeShellScript(
+            "echo 3 > /proc/sys/vm/drop_caches && echo Success || echo Failure"
+        ).trim()
+        check(result == "Success") {
+            "Failed to drop kernel page cache, result: '$result'"
+        }
     }
 }
 
@@ -236,6 +252,8 @@ fun startupMacrobenchmark(
         setupBlock = { firstIterAfterCompile ->
             if (startupMode == StartupMode.COLD) {
                 killProcess()
+                // drop app pages from page cache to ensure it is loaded from disk, from scratch
+                dropKernelPageCache()
             } else if (firstIterAfterCompile) {
                 // warmup process by launching the activity, unmeasured
                 performStartup()
