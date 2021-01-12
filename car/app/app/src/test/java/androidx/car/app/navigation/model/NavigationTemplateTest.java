@@ -22,13 +22,11 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import androidx.car.app.CarAppPermission;
 import androidx.car.app.TestUtils;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Distance;
-import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -359,31 +357,5 @@ public class NavigationTemplateTest {
                                 .setActionStrip(mActionStrip)
                                 .setBackgroundColor(CarColor.GREEN)
                                 .build());
-    }
-
-    @Test
-    public void checkPermissions_hasPermissions() {
-        NavigationTemplate template =
-                NavigationTemplate.builder()
-                        .setActionStrip(mActionStrip)
-                        .setBackgroundColor(CarColor.BLUE)
-                        .build();
-
-        // Expect that it does not throw
-        template.checkPermissions(
-                TestUtils.getMockContextWithPermission(CarAppPermission.NAVIGATION_TEMPLATES));
-    }
-
-    @Test
-    public void checkPermissions_doesNotHavePermissions() {
-        NavigationTemplate template =
-                NavigationTemplate.builder()
-                        .setActionStrip(mActionStrip)
-                        .setBackgroundColor(CarColor.BLUE)
-                        .build();
-
-        assertThrows(
-                SecurityException.class,
-                () -> template.checkPermissions(ApplicationProvider.getApplicationContext()));
     }
 }

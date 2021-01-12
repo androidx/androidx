@@ -657,7 +657,6 @@ package androidx.car.app.model {
   }
 
   public interface Template {
-    method public default void checkPermissions(android.content.Context);
   }
 
   public final class TemplateInfo {
