@@ -16,10 +16,12 @@
 
 package androidx.benchmark
 
+import android.annotation.SuppressLint
 import android.util.Log
 import java.io.File
 import java.io.IOException
 
+@SuppressLint("ClassVerificationFailure")
 internal object CpuInfo {
     private const val TAG = "Benchmark"
 
@@ -31,14 +33,16 @@ internal object CpuInfo {
      * Representation of clock info in `/sys/devices/system/cpu/cpu#/`
      */
     data class CoreDir(
+        val path: String,
+
         // online, or true if can't access
         val online: Boolean,
 
         // sorted list of scaling_available_frequencies, or listOf(-1) if can't access
-        val availableFreqs: List<Int>,
+        val availableFreqs: List<Long>,
 
-        // scaling_min_freq, or -1 if can't access
-        val currentMinFreq: Int,
+        // scaling_setspeed, or scaling_min_freq if inaccessible, or -1 if can't access either
+        val setSpeedKhz: Long,
 
         // cpuinfo_max_freq, or -1 if can't access
         val maxFreqKhz: Long
@@ -48,9 +52,13 @@ internal object CpuInfo {
         val cpuDir = File("/sys/devices/system/cpu")
         coreDirs = cpuDir.list { current, name ->
             File(current, name).isDirectory && name.matches(Regex("^cpu[0-9]+"))
-        }?.map {
-            val path = "${cpuDir.path}/$it"
+        }?.map { coreDir ->
+            val path = "${cpuDir.absolutePath}/$coreDir"
+
             CoreDir(
+                // enables testing
+                path = path,
+
                 // online, or true if can't access
                 online = readFileTextOrNull("$path/online") != "0",
 
@@ -58,12 +66,13 @@ internal object CpuInfo {
                 availableFreqs = readFileTextOrNull("$path/cpufreq/scaling_available_frequencies")
                     ?.split(Regex("\\s+"))
                     ?.filter { it.isNotBlank() }
-                    ?.map { Integer.parseInt(it) }
+                    ?.map { it.toLong() }
                     ?.sorted()
                     ?: listOf(-1),
 
                 // scaling_min_freq, or -1 if can't access
-                currentMinFreq = readFileTextOrNull("$path/cpufreq/scaling_min_freq")?.toInt()
+                setSpeedKhz = Shell.catProcFileLong("$path/cpufreq/scaling_setspeed")
+                    ?: readFileTextOrNull("$path/cpufreq/scaling_min_freq")?.toLong()
                     ?: -1,
                 maxFreqKhz = readFileTextOrNull("$path/cpufreq/cpuinfo_max_freq")?.toLong() ?: -1L
             )
@@ -83,20 +92,18 @@ internal object CpuInfo {
     fun isCpuLocked(coreDirs: List<CoreDir>): Boolean {
         val onlineCores = coreDirs.filter { it.online }
 
-        if (onlineCores.any {
-            it.availableFreqs.maxOrNull() != onlineCores[0].availableFreqs.maxOrNull()
-        }
-        ) {
-            Log.d(TAG, "Clocks not locked: cores with different max frequencies")
-            return false
-        }
-
-        if (onlineCores.any { it.currentMinFreq != onlineCores[0].currentMinFreq }) {
-            Log.d(TAG, "Clocks not locked: cores with different current min freq")
-            return false
+        onlineCores.groupBy { it.availableFreqs }.forEach { (_, similarCores) ->
+            if (similarCores.any { it.setSpeedKhz != similarCores.first().setSpeedKhz }) {
+                Log.d(
+                    TAG,
+                    "Clocks not locked: cores with same available frequencies " +
+                        "running with different current min freq"
+                )
+                return false
+            }
         }
 
-        if (onlineCores.any { it.availableFreqs.minOrNull() == it.currentMinFreq }) {
+        if (onlineCores.any { it.availableFreqs.minOrNull() == it.setSpeedKhz }) {
             Log.d(TAG, "Clocks not locked: online cores with min freq == min avail freq")
             return false
         }
