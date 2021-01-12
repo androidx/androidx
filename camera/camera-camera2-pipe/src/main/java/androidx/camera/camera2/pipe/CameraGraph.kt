@@ -53,12 +53,12 @@ public interface CameraGraph : Closeable {
     public fun stop()
 
     /**
-     * Acquire and exclusive access to the CameraGraph in a suspending fashion.
+     * Acquire and exclusive access to the [CameraGraph] in a suspending fashion.
      */
     public suspend fun acquireSession(): Session
 
     /**
-     * Try acquiring an exclusive access the CameraGraph. Returns null if it can't be acquired
+     * Try acquiring an exclusive access the [CameraGraph]. Returns null if it can't be acquired
      * immediately.
      */
     public fun acquireSessionOrNull(): Session?
@@ -160,20 +160,36 @@ public interface CameraGraph : Closeable {
      * Example: A [Session] should *not* be held during video recording.
      */
     public interface Session : Closeable {
-        public fun submit(request: Request)
-        public fun submit(requests: List<Request>)
-        public fun startRepeating(request: Request)
-
         /**
-         * Abort in-flight requests. This will abort *all* requests in the current
-         * CameraCaptureSession as well as any requests that are currently enqueued.
+         * Causes the CameraGraph to start or update the current repeating request with the
+         * provided [Request] object. The [Request] object may be cached, and may be used for
+         * other interactions with the camera (such as updating 3A, or issuing 3A triggers).
          */
-        public fun abort()
+        public fun startRepeating(request: Request)
 
         /**
          * Stop the current repeating request.
          */
         public fun stopRepeating()
+
+        /**
+         * Add the [Request] into an in-flight request queue. Requests will be issued to the
+         * Camera exactly once.
+         */
+        public fun submit(request: Request)
+
+        /**
+         * Add the [Request] into an in-flight request queue. Requests will be issued to the
+         * Camera exactly once. The list of [Request]s is guaranteed to be submitted together.
+         */
+        public fun submit(requests: List<Request>)
+
+        /**
+         * Abort in-flight requests. This will abort *all* requests in the current
+         * CameraCaptureSession as well as any requests that are enqueued, but that have not yet
+         * been submitted to the camera.
+         */
+        public fun abort()
 
         /**
          * Applies the given 3A parameters to the camera device.
