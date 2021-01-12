@@ -97,21 +97,36 @@ public class NavigationTemplate implements Template {
         return new Builder();
     }
 
+    /**
+     * Returns the navigation information displayed on the template, or {@code null} if there is no
+     * navigation information on top of the map.
+     */
     @Nullable
     public NavigationInfo getNavigationInfo() {
         return mNavigationInfo;
     }
 
+    /**
+     * Returns the background color used for the navigation information, or {@code null} if set to
+     * the default value.
+     */
     @Nullable
     public CarColor getBackgroundColor() {
         return mBackgroundColor;
     }
 
+    /**
+     * Returns the {@link TravelEstimate} to the final destination, or {@code null} if there is no
+     * travel estimate information.
+     */
     @Nullable
     public TravelEstimate getDestinationTravelEstimate() {
         return mDestinationTravelEstimate;
     }
 
+    /**
+     * Returns the {@link ActionStrip} with a list of the template-scoped actions for this template.
+     */
     @NonNull
     public ActionStrip getActionStrip() {
         return requireNonNull(mActionStrip);
