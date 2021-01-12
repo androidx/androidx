@@ -69,8 +69,8 @@ public class RemoteWorkManagerClientTest {
     @Test
     @MediumTest
     public fun failGracefullyWhenBindFails() {
-        if (Build.VERSION.SDK_INT <= 26) {
-            // Exclude <= API 26, from tests because it causes a SIGSEGV.
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
             return
         }
 
