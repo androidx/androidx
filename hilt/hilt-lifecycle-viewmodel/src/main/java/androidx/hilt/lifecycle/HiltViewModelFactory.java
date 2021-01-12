@@ -31,10 +31,6 @@ import java.util.Map;
 
 import javax.inject.Provider;
 
-import dagger.hilt.EntryPoint;
-import dagger.hilt.EntryPoints;
-import dagger.hilt.InstallIn;
-
 /**
  * View Model Provider Factory for the Hilt Extension.
  * <p>
@@ -46,19 +42,11 @@ import dagger.hilt.InstallIn;
  */
 public final class HiltViewModelFactory extends AbstractSavedStateViewModelFactory {
 
-    /** @hide */
-    @EntryPoint
-    @InstallIn(ViewModelComponent.class)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    interface ViewModelFactoriesEntryPoint {
-        @InternalViewModelInjectMap
-        Map<String, Provider<ViewModel>> getProviderMap();
-    }
-
     private static final String KEY_PREFIX = "androidx.hilt.lifecycle.HiltViewModelFactory";
 
     private final SavedStateViewModelFactory mDelegateFactory;
-    private final ViewModelComponent.Builder mViewModelComponentBuilder;
+    private final Map<String,
+            Provider<ViewModelAssistedFactory<? extends ViewModel>>> mViewModelFactories;
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -66,10 +54,11 @@ public final class HiltViewModelFactory extends AbstractSavedStateViewModelFacto
             @NonNull SavedStateRegistryOwner owner,
             @Nullable Bundle defaultArgs,
             @NonNull SavedStateViewModelFactory delegateFactory,
-            @NonNull ViewModelComponent.Builder viewModelComponentBuilder) {
+            @NonNull Map<String,
+                    Provider<ViewModelAssistedFactory<? extends ViewModel>>> viewModelFactories) {
         super(owner, defaultArgs);
         this.mDelegateFactory = delegateFactory;
-        this.mViewModelComponentBuilder = viewModelComponentBuilder;
+        this.mViewModelFactories = viewModelFactories;
     }
 
     @NonNull
@@ -77,11 +66,9 @@ public final class HiltViewModelFactory extends AbstractSavedStateViewModelFacto
     @SuppressWarnings("unchecked")
     protected <T extends ViewModel> T create(@NonNull String key, @NonNull Class<T> modelClass,
             @NonNull SavedStateHandle handle) {
-        ViewModelComponent component = mViewModelComponentBuilder.bindHandle(handle).build();
-        Provider<? extends ViewModel> provider =
-                EntryPoints.get(component, ViewModelFactoriesEntryPoint.class)
-                        .getProviderMap().get(modelClass.getName());
-        if (provider == null) {
+        Provider<ViewModelAssistedFactory<? extends ViewModel>> factoryProvider =
+                mViewModelFactories.get(modelClass.getName());
+        if (factoryProvider == null) {
             // Delegate to factory that will attempt to reflectively construct the ViewModel.
             // A prefixed key is used to avoid collisions since the
             // AbstractSavedStateViewModelFactory already registered a key for us before invoking
@@ -89,7 +76,6 @@ public final class HiltViewModelFactory extends AbstractSavedStateViewModelFacto
             // TODO(danysantiago): Warn about missing @ViewModelInject if this fails.
             return mDelegateFactory.create(KEY_PREFIX + ":" + key, modelClass);
         }
-        return (T) provider.get();
+        return (T) factoryProvider.get().create(handle);
     }
-
 }
