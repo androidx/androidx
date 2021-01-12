@@ -168,9 +168,9 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         if (navOptions != null) {
             int popEnterAnim = navOptions.getPopEnterAnim();
             int popExitAnim = navOptions.getPopExitAnim();
-            if ((popEnterAnim != -1
+            if ((popEnterAnim > 0
                     && resources.getResourceTypeName(popEnterAnim).equals("animator"))
-                    || (popExitAnim != -1
+                    || (popExitAnim > 0
                     && resources.getResourceTypeName(popExitAnim).equals("animator"))) {
                 Log.w(LOG_TAG, "Activity destinations do not support Animator resource. Ignoring "
                         + "popEnter resource " + resources.getResourceName(popEnterAnim) + " and "
@@ -196,19 +196,17 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         if (navOptions != null && mHostActivity != null) {
             int enterAnim = navOptions.getEnterAnim();
             int exitAnim = navOptions.getExitAnim();
-            if (enterAnim != -1 || exitAnim != -1) {
-                if (resources.getResourceTypeName(enterAnim).equals("animator")
-                        || resources.getResourceTypeName(exitAnim).equals("animator")
-                ) {
+            if ((enterAnim > 0 && resources.getResourceTypeName(enterAnim).equals("animator"))
+                    || (exitAnim > 0
+                    && resources.getResourceTypeName(exitAnim).equals("animator"))) {
                     Log.w(LOG_TAG, "Activity destinations do not support Animator resource. "
                             + "Ignoring " + "enter resource " + resources.getResourceName(enterAnim)
                             + " and exit resource " + resources.getResourceName(exitAnim) + "when "
                             + "launching " + destination);
-                } else {
-                    enterAnim = enterAnim != -1 ? enterAnim : 0;
-                    exitAnim = exitAnim != -1 ? exitAnim : 0;
-                    mHostActivity.overridePendingTransition(enterAnim, exitAnim);
-                }
+            } else if (enterAnim >= 0 || exitAnim >= 0) {
+                enterAnim = Math.max(enterAnim, 0);
+                exitAnim = Math.max(exitAnim, 0);
+                mHostActivity.overridePendingTransition(enterAnim, exitAnim);
             }
         }
 
