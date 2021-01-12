@@ -13,26 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package dagger.hilt.android.components;
 
-package androidx.hilt.lifecycle;
+public interface ActivityRetainedComponent {
 
-import androidx.annotation.RestrictTo;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import javax.inject.Qualifier;
-
-/**
- * Qualifier for the multibinding map of ViewModels used by the {@link HiltViewModelFactory}.
- *
- * @hide
- */
-@Qualifier
-@Retention(RetentionPolicy.CLASS)
-@Target({ElementType.METHOD, ElementType.PARAMETER})
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public @interface InternalViewModelInjectMap {
 }
