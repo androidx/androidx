@@ -1,6 +1,8 @@
 # This file is a list of regexes of innocuous messages that might appear in stdout/stderr
 # Messages that are expected to appear in a build should be exempted in messages.ignore instead, because that file is subject to garbage collection whereas this one is not
 # Before adding a suppression to this file, please attempt to suppress the output inside the generating tool instead.
+# If the developer is using remote build cache, we mention it in the output
+Using AndroidX remote build cache
 # > Task :sqlite:integration-tests:inspection-room-testapp:kaptDebugAndroidTestKotlin
 ZipFile closed
 # > Task :room:integration-tests:room-testapp:runErrorProne
