@@ -29,6 +29,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchEmail;
+import androidx.appsearch.app.AppSearchMigrationHelper;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
@@ -154,6 +155,65 @@ public abstract class AppSearchSessionCtsTestBase {
 
         actualSchemaTypes = mDb1.getSchema().get();
         assertThat(actualSchemaTypes).containsExactly(newSchema);
+    }
+
+    @Test
+    public void testSetSchema_migrate() throws Exception {
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()).get();
+
+        AppSearchEmail email = new AppSearchEmail.Builder("uri1")
+                .setFrom("from@example.com")
+                .setTo("to1@example.com", "to2@example.com")
+                .setSubject("testPut example")
+                .setBody("This is the body of the testPut email")
+                .build();
+
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(email).build()));
+        assertThat(result.getSuccesses()).containsExactly("uri1", null);
+        assertThat(result.getFailures()).isEmpty();
+
+        AppSearchSchema newEmailSchema = new AppSearchSchema.Builder(AppSearchEmail.SCHEMA_TYPE)
+                .setVersion(1)     // upgrade version
+                .addProperty(new AppSearchSchema.PropertyConfig.Builder("subject")
+                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(PropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .build();
+
+        mDb1.setSchema(new SetSchemaRequest.Builder().addSchema(newEmailSchema)
+                .setMigrator(AppSearchEmail.SCHEMA_TYPE, new AppSearchSchema.Migrator() {
+                    @Override
+                    public void onUpgrade(int currentVersion, int targetVersion,
+                            @NonNull AppSearchMigrationHelper helper)
+                            throws Exception {
+                        helper.queryAndTransform(AppSearchEmail.SCHEMA_TYPE,
+                                (currentVersion1, finalVersion1, document) ->
+                                        new AppSearchEmail.Builder(
+                                                document.getUri() + "migrated")
+                                                .setSubject("testPut example migrated")
+                                                .setCreationTimestampMillis(12345)
+                                                .build());
+                    }
+                }).build()).get();
+
+        // Check the schema has been saved
+        Set<AppSearchSchema> actualSchema = new HashSet<>();
+        actualSchema.add(newEmailSchema);
+        assertThat(actualSchema).isEqualTo(mDb1.getSchema().get());
+
+
+        // Check the document has been migrated
+        AppSearchEmail expected = new AppSearchEmail.Builder("uri1migrated")
+                .setSubject("testPut example migrated")
+                .setCreationTimestampMillis(12345)
+                .build();
+
+        assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE,
+                "uri1migrated")).containsExactly(expected);
     }
 
 // @exportToFramework:startStrip()
@@ -341,7 +401,7 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(failResult1).isInstanceOf(AppSearchException.class);
         assertThat(failResult1).hasMessageThat().contains("Schema is incompatible");
         assertThat(failResult1).hasMessageThat().contains(
-                "Deleted types: [androidx.appsearch.test$" + DB_NAME_1 + "/builtin:Email]");
+                "Deleted types: [builtin:Email]");
 
         // Try to remove the email schema again, which should now work as we set forceOverride to
         // be true.
@@ -415,7 +475,7 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(failResult1).isInstanceOf(AppSearchException.class);
         assertThat(failResult1).hasMessageThat().contains("Schema is incompatible");
         assertThat(failResult1).hasMessageThat().contains(
-                "Deleted types: [androidx.appsearch.test$" + DB_NAME_1 + "/builtin:Email]");
+                "Deleted types: [builtin:Email]");
 
         // Try to remove the email schema again, which should now work as we set forceOverride to
         // be true.

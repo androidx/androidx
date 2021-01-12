@@ -16,6 +16,8 @@
 
 package androidx.appsearch.localstorage;
 
+import static androidx.appsearch.app.AppSearchResult.RESULT_OK;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -27,6 +29,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.app.SetSchemaResult;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.converter.GenericDocumentToProtoConverter;
 import androidx.collection.ArraySet;
@@ -610,6 +613,40 @@ public class AppSearchImplTest {
     }
 
     @Test
+    public void testSetSchema_incompatible() throws Exception {
+        List<SchemaTypeConfigProto> existingSchemas =
+                mAppSearchImpl.getSchemaProtoLocked().getTypesList();
+
+        List<AppSearchSchema> oldSchemas = new ArrayList<>();
+        oldSchemas.add(new AppSearchSchema.Builder("Email")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("foo")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build())
+                .build());
+        oldSchemas.add(new AppSearchSchema.Builder("Text").build());
+        // Set schema Email to AppSearch database1
+        mAppSearchImpl.setSchema("package", "database1", oldSchemas,
+                /*schemasNotPlatformSurfaceable=*/  Collections.emptyList(),
+                /*schemasPackageAccessible=*/  Collections.emptyMap(),
+                /*forceOverride=*/ false);
+
+        // Create incompatible schema
+        List<AppSearchSchema> newSchemas =
+                Collections.singletonList(new AppSearchSchema.Builder("Email").build());
+
+        // set email incompatible and delete text
+        SetSchemaResult setSchemaResult = mAppSearchImpl.setSchema("package", "database1",
+                newSchemas,  /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap(), /*forceOverride=*/ true);
+        assertThat(setSchemaResult.getDeletedSchemaTypes()).containsExactly("Text");
+        assertThat(setSchemaResult.getIncompatibleSchemaTypes()).containsExactly("Email");
+        assertThat(setSchemaResult.getResultCode()).isEqualTo(RESULT_OK);
+    }
+
+    @Test
     public void testRemoveSchema() throws Exception {
         List<SchemaTypeConfigProto> existingSchemas =
                 mAppSearchImpl.getSchemaProtoLocked().getTypesList();
@@ -640,14 +677,14 @@ public class AppSearchImplTest {
 
         final List<AppSearchSchema> finalSchemas = Collections.singletonList(
                 new AppSearchSchema.Builder("Email").build());
-        // Check the incompatible error has been thrown.
-        AppSearchException e = assertThrows(AppSearchException.class, () ->
+        SetSchemaResult setSchemaResult =
                 mAppSearchImpl.setSchema("package", "database1", finalSchemas,
-                        /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                        /*schemasPackageAccessible=*/ Collections.emptyMap(),
-                        /*forceOverride=*/ false));
-        assertThat(e).hasMessageThat().contains("Schema is incompatible");
-        assertThat(e).hasMessageThat().contains("Deleted types: [package$database1/Document]");
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false);
+
+        // Check the Document type has been deleted.
+        assertThat(setSchemaResult.getDeletedSchemaTypes()).containsExactly("Document");
 
         // ForceOverride to delete.
         mAppSearchImpl.setSchema("package", "database1", finalSchemas,

@@ -166,10 +166,10 @@ public final class AppSearchSchema {
          * of a {@link AppSearchSchema} type at a time.
          *
          * <p>Setting a version number that is different from the version number of the schema
-         * currently stored in AppSearch will result in AppSearch calling the Migrator provided to
-         * {@link AppSearchSession#setSchema} to migrate the documents already in AppSearch from the
-         * previous version to the one set in this request. The version number can be updated
-         * without any other changes to the schema.
+         * currently stored in AppSearch will result in AppSearch calling the {@link Migrator}
+         * provided to  {@link AppSearchSession#setSchema} to migrate the documents already in
+         * AppSearch from the previous version to the one set in this request. The version number
+         * can be updated  without any other changes to the schema.
          *
          * <p>The version number can stay the same, increase, or decrease relative to the current
          * version number of the {@link AppSearchSchema} type that is already stored in the
@@ -186,8 +186,9 @@ public final class AppSearchSchema {
          *                               used.
          *
          * @see AppSearchSession#setSchema
+         * @see AppSearchSchema.Migrator
+         * @see SetSchemaRequest.Builder#setMigrator
          */
-        //TODO(b/177266929) link to Migrator in once it's ready.
         @NonNull
         public AppSearchSchema.Builder setVersion(@IntRange(from = 0) int version) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
@@ -851,6 +852,45 @@ public final class AppSearchSchema {
                 mBuilt = true;
                 return new DocumentPropertyConfig(mBundle);
             }
+        }
+    }
+
+    /**
+     * A migrator class to translate {@link GenericDocument} from different version of
+     * {@link AppSearchSchema}
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface Migrator {
+
+        /**
+         * Migrates {@link GenericDocument} to a newer version of {@link AppSearchSchema}.
+         *
+         * <p>This methods will be invoked only if the {@link SetSchemaRequest} is setting a
+         * higher version number than the current {@link AppSearchSchema} saved in AppSearch.
+         *
+         * @param currentVersion The current version of the document's schema.
+         * @param targetVersion  The final version that documents need to be migrated to.
+         * @param helper         The helper class could help to query all documents need to be
+         *                       migrated.
+         */
+        default void onUpgrade(int currentVersion, int targetVersion,
+                @NonNull AppSearchMigrationHelper helper) throws Exception {
+        }
+
+        /**
+         * Migrates {@link GenericDocument} to an older version of {@link AppSearchSchema}.
+         *
+         * <p> The methods will be invoked only if the {@link SetSchemaRequest} is setting a
+         * higher version number than the current {@link AppSearchSchema} saved in AppSearch.
+         *
+         * @param currentVersion The current version of the document's schema.
+         * @param targetVersion  The final version that documents need to be migrated to.
+         * @param helper         The helper class could help to query all documents need to be
+         *                       migrated.
+         */
+        default void onDowngrade(int currentVersion, int targetVersion,
+                @NonNull AppSearchMigrationHelper helper) throws Exception {
         }
     }
 }
