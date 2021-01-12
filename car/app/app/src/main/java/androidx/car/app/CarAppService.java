@@ -186,9 +186,9 @@ public abstract class CarAppService extends Service {
      * &#64;Override
      * public void onConfigureHostValidation(&#64;NonNull HostValidator hostValidator) {
      *     boolean isDebugMode =
-     *         (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
-     *     hostValidator.setAllowUnknownHosts(isDebugMode);
-     *     hostValidator.addAllowListedHosts(R.array.hosts_allowlist_sample);
+     *         (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+     *     hostValidator.setAllowUnknownHostsEnabled(isDebugMode);
+     *     hostValidator.addAllowListedHosts(androidx.car.app.R.array.hosts_allowlist_sample);
      * }
      * </pre>
      *
