@@ -1725,8 +1725,8 @@ import java.util.concurrent.Executor;
      * Thrown when a DRM method is called before preparing a DRM scheme through prepareDrm().
      * Extends MediaDrm.MediaDrmException
      */
-    public static class NoDrmSchemeException extends Exception {
-        public NoDrmSchemeException(String detailMessage) {
+    /* package */ static class NoDrmSchemeException extends Exception {
+        /* package */ NoDrmSchemeException(String detailMessage) {
             super(detailMessage);
         }
     }

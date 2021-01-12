@@ -1451,6 +1451,11 @@ public class MediaController implements Closeable {
     /** @hide */
     @RestrictTo(LIBRARY)
     public interface ControllerCallbackRunnable {
+        /**
+         * Runs the {@link ControllerCallback}.
+         *
+         * @param callback the callback
+         */
         void run(@NonNull ControllerCallback callback);
     }
 
