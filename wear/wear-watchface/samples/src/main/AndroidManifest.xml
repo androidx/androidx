@@ -140,7 +140,7 @@
             android:exported="false" />
 
         <activity
-            android:name="androidx.wear.watchface.ui.WatchFaceConfigActivity"
+            android:name="androidx.wear.watchface.editor.sample.WatchFaceConfigActivity"
             android:exported="true"
             android:label="Config"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">

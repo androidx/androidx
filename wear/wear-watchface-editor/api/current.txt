@@ -1,0 +1,73 @@
+// Signature format: 4.0
+package androidx.wear.watchface.editor {
+
+  public final class EditorRequest {
+    ctor public EditorRequest(android.content.ComponentName watchFaceComponentName, String watchFaceInstanceId, java.util.Map<java.lang.String,java.lang.String>? initialUserStyle);
+    method public static androidx.wear.watchface.editor.EditorRequest? createFromIntent(android.content.Intent intent);
+    method public java.util.Map<java.lang.String,java.lang.String>? getInitialUserStyle();
+    method public android.content.ComponentName getWatchFaceComponentName();
+    method public String getWatchFaceInstanceId();
+    property public final java.util.Map<java.lang.String,java.lang.String>? initialUserStyle;
+    property public final android.content.ComponentName watchFaceComponentName;
+    property public final String watchFaceInstanceId;
+    field public static final androidx.wear.watchface.editor.EditorRequest.Companion Companion;
+  }
+
+  public static final class EditorRequest.Companion {
+    method public androidx.wear.watchface.editor.EditorRequest? createFromIntent(android.content.Intent intent);
+  }
+
+  public final class EditorResult {
+    ctor public EditorResult(java.util.Map<java.lang.String,java.lang.String> userStyle);
+    method public java.util.Map<java.lang.String,java.lang.String> getUserStyle();
+    property public final java.util.Map<java.lang.String,java.lang.String> userStyle;
+  }
+
+  public interface EditorSession {
+    method @RequiresApi(27) @UiThread public default static androidx.wear.watchface.editor.EditorSession? createHeadlessEditingSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, androidx.wear.watchface.client.HeadlessWatchFaceClient headlessWatchFaceClient);
+    method @UiThread public default static androidx.wear.watchface.editor.EditorSession? createOnWatchEditingSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent);
+    method public Integer? getBackgroundComplicationId();
+    method @UiThread public Integer? getComplicationIdAt(@Px int x, @Px int y);
+    method public java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> getComplicationPreviewData();
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationState();
+    method public String getInstanceId();
+    method public long getPreviewReferenceTimeMillis();
+    method public androidx.wear.watchface.style.UserStyle getUserStyle();
+    method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
+    method public android.content.ComponentName getWatchFaceComponentName();
+    method @UiThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Boolean> launchComplicationProviderChooser(int complicationId);
+    method public void setUserStyle(androidx.wear.watchface.style.UserStyle p);
+    method @UiThread public android.graphics.Bitmap takeWatchFaceScreenshot(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
+    property public abstract Integer? backgroundComplicationId;
+    property public abstract java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> complicationPreviewData;
+    property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationState;
+    property public abstract String instanceId;
+    property public abstract long previewReferenceTimeMillis;
+    property public abstract androidx.wear.watchface.style.UserStyle userStyle;
+    property public abstract androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
+    property public abstract android.content.ComponentName watchFaceComponentName;
+    field public static final androidx.wear.watchface.editor.EditorSession.Companion Companion;
+  }
+
+  public static final class EditorSession.Companion {
+    method @RequiresApi(27) @UiThread public androidx.wear.watchface.editor.EditorSession? createHeadlessEditingSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, androidx.wear.watchface.client.HeadlessWatchFaceClient headlessWatchFaceClient);
+    method @UiThread public androidx.wear.watchface.editor.EditorSession? createOnWatchEditingSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent);
+  }
+
+  public final class EditorSessionKt {
+    method public static void setWatchRequestResult(android.app.Activity, androidx.wear.watchface.editor.EditorSession editorSession);
+  }
+
+  public class WatchFaceEditorContract extends androidx.activity.result.contract.ActivityResultContract<androidx.wear.watchface.editor.EditorRequest,androidx.wear.watchface.editor.EditorResult> {
+    ctor public WatchFaceEditorContract();
+    method public android.content.Intent createIntent(android.content.Context context, androidx.wear.watchface.editor.EditorRequest input);
+    method public androidx.wear.watchface.editor.EditorResult parseResult(int resultCode, android.content.Intent? intent);
+    field public static final String ACTION_WATCH_FACE_EDITOR = "androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR";
+    field public static final androidx.wear.watchface.editor.WatchFaceEditorContract.Companion Companion;
+  }
+
+  public static final class WatchFaceEditorContract.Companion {
+  }
+
+}
+

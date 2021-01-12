@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchface.ui
+package androidx.wear.watchface.editor.sample
 
 import android.content.Context
 import android.os.Bundle
@@ -26,9 +26,6 @@ import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.ToggleButton
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.LIBRARY
-import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.versionedparcelable.ParcelUtils
@@ -48,21 +45,16 @@ import androidx.wear.widget.WearableRecyclerView
 
 /**
  * Fragment for selecting a userStyle setting within a particular setting.
- *
- * @hide
  */
-@RestrictTo(LIBRARY)
 internal class StyleConfigFragment : Fragment(), ClickListener {
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    internal lateinit var watchFaceConfigActivity: WatchFaceConfigActivity
     private lateinit var settingId: String
     private lateinit var styleSchema: UserStyleSchema
     private lateinit var styleSetting: UserStyleSetting
     private lateinit var userStyle: UserStyle
 
     companion object {
-        const val CATEGORY_ID = "CATEGORY_ID"
+        const val SETTING_ID = "SETTING_ID"
         const val USER_STYLE = "USER_STYLE"
         const val STYLE_SCHEMA = "STYLE_SCHEMA"
 
@@ -72,7 +64,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
             userStyle: UserStyle
         ) = StyleConfigFragment().apply {
             arguments = Bundle().apply {
-                putCharSequence(CATEGORY_ID, settingId)
+                putCharSequence(SETTING_ID, settingId)
                 putParcelable(
                     STYLE_SCHEMA,
                     ParcelUtils.toParcelable(styleSchema.toWireFormat())
@@ -80,12 +72,6 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                 putParcelable(USER_STYLE, ParcelUtils.toParcelable(userStyle.toWireFormat()))
             }
         }
-    }
-
-    @SuppressWarnings("deprecation")
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        watchFaceConfigActivity = activity as WatchFaceConfigActivity
     }
 
     override fun onCreateView(
@@ -204,7 +190,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
     }
 
     internal fun readOptionsFromArguments() {
-        settingId = requireArguments().getCharSequence(CATEGORY_ID).toString()
+        settingId = requireArguments().getCharSequence(SETTING_ID).toString()
 
         styleSchema = UserStyleSchema(
             ParcelUtils.fromParcelable(requireArguments().getParcelable(STYLE_SCHEMA)!!) as
@@ -224,12 +210,13 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
         val hashmap =
             userStyle.selectedOptions as HashMap<UserStyleSetting, UserStyleSetting.Option>
         hashmap[styleSetting] = userStyleOption
-        watchFaceConfigActivity.watchFaceConfigDelegate.setUserStyle(userStyle.toWireFormat())
+
+        (activity as WatchFaceConfigActivity).editorSession.userStyle = userStyle
     }
 
     override fun onItemClick(userStyleOption: UserStyleSetting.Option) {
         setUserStyleOption(userStyleOption)
-        activity?.finish()
+        parentFragmentManager.popBackStackImmediate()
     }
 }
 
