@@ -33,8 +33,7 @@ import java.util.Objects;
  */
 public final class Pane {
     @Keep
-    @Nullable
-    private final ActionList mActionList;
+    private final List<Action> mActionList;
     @Keep
     private final List<Object> mRows;
     @Keep
@@ -49,9 +48,21 @@ public final class Pane {
 
     /**
      * Returns the list of {@link Action}s displayed alongside the {@link Row}s in this pane.
+     *
+     * @deprecated use {@link #getActionList()} instead.
      */
+    // TODO(jayyoo): remove once {@link #getActionList()} is used in the host.
+    @Deprecated
     @Nullable
     public ActionList getActions() {
+        return mActionList.isEmpty() ? null : ActionList.create(mActionList);
+    }
+
+    /**
+     * Returns the list of {@link Action}s displayed alongside the {@link Row}s in this pane.
+     */
+    @NonNull
+    public List<Action> getActionList() {
         return mActionList;
     }
 
@@ -102,22 +113,21 @@ public final class Pane {
 
     Pane(Builder builder) {
         mRows = new ArrayList<>(builder.mRows);
-        mActionList = builder.mActionList;
+        mActionList = new ArrayList<>(builder.mActionList);
         mIsLoading = builder.mIsLoading;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Pane() {
         mRows = Collections.emptyList();
-        mActionList = null;
+        mActionList = Collections.emptyList();
         mIsLoading = false;
     }
 
     /** A builder of {@link Pane}. */
     public static final class Builder {
         final List<Object> mRows = new ArrayList<>();
-        @Nullable
-        ActionList mActionList;
+        List<Action> mActionList = new ArrayList<>();
         boolean mIsLoading;
 
         /**
@@ -154,10 +164,32 @@ public final class Pane {
          * <p>By default, no actions are displayed.
          *
          * @throws NullPointerException if {@code actions} is {@code null}.
+         * @deprecated use {@link #setActionList(List)} instead.
          */
+        // TODO(jayyoo): remove once {@link #setActionList(List)} is used in the host.
+        @Deprecated
         @NonNull
         public Builder setActions(@NonNull List<Action> actions) {
-            mActionList = ActionList.create(requireNonNull(actions));
+            return setActionList(actions);
+        }
+
+        /**
+         * Sets multiple {@link Action}s to display alongside the rows in the pane.
+         *
+         * <p>By default, no actions are displayed.
+         *
+         * @throws NullPointerException if {@code actions} is {@code null}.
+         */
+        @NonNull
+        public Builder setActionList(@NonNull List<Action> actions) {
+            requireNonNull(actions);
+            for (Action action : actions) {
+                if (action == null) {
+                    throw new IllegalArgumentException(
+                            "Disallowed null action found in action list");
+                }
+                mActionList.add(action);
+            }
             return this;
         }
 
