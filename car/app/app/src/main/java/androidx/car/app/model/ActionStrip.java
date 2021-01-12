@@ -73,14 +73,30 @@ public class ActionStrip {
     }
 
     /**
-     * Returns the {@link Action} associated with the input {@code actionType}, or {@code null} if
-     * no matching {@link Action} is found.
+     * Returns the first {@link Action} associated with the input {@code actionType}, or {@code
+     * null} if no matching {@link Action} is found.
+     *
+     * @deprecated use {@link #getFirstActionOfType(int)} instead.
      */
+    // TODO(jayyoo): remove once {@link #getFirstActionOfType(int)} is used in the host.
+    @Deprecated
     @Nullable
     public Action getActionOfType(@ActionType int actionType) {
-        for (Action action : mActions) {
-            if (action.getType() == actionType) {
-                return action;
+        return getFirstActionOfType(actionType);
+    }
+
+    /**
+     * Returns the first {@link Action} associated with the input {@code actionType}, or {@code
+     * null} if no matching {@link Action} is found.
+     */
+    @Nullable
+    public Action getFirstActionOfType(@ActionType int actionType) {
+        for (Object object : mActions) {
+            if (object instanceof Action) {
+                Action action = (Action) object;
+                if (action.getType() == actionType) {
+                    return action;
+                }
             }
         }
 
