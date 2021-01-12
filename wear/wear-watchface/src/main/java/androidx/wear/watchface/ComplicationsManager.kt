@@ -178,12 +178,6 @@ public class ComplicationsManager(
                 override?.complicationBounds ?: initialConfig.complicationBounds
             complication.enabled =
                 override?.enabled ?: initialConfig.enabled
-            complication.supportedTypes =
-                override?.supportedTypes ?: initialConfig.supportedTypes
-            complication.defaultProviderPolicy =
-                override?.defaultProviderPolicy ?: initialConfig.defaultProviderPolicy
-            complication.defaultProviderType =
-                override?.defaultProviderType ?: initialConfig.defaultProviderType
         }
     }
 
