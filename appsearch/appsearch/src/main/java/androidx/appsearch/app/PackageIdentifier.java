@@ -16,16 +16,19 @@
 
 package androidx.appsearch.app;
 
-import androidx.annotation.NonNull;
-import androidx.core.util.ObjectsCompat;
-import androidx.core.util.Preconditions;
+import android.os.Bundle;
 
-import java.util.Arrays;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.appsearch.util.BundleUtil;
+import androidx.core.util.Preconditions;
 
 /** This class represents a uniquely identifiable package. */
 public class PackageIdentifier {
-    private final String mPackageName;
-    private final byte[] mSha256Certificate;
+    private static final String PACKAGE_NAME_FIELD = "packageName";
+    private static final String SHA256_CERTIFICATE_FIELD = "sha256Certificate";
+
+    private final Bundle mBundle;
 
     /**
      * Creates a unique identifier for a package.
@@ -34,18 +37,32 @@ public class PackageIdentifier {
      * @param sha256Certificate SHA256 certificate digest of the package.
      */
     public PackageIdentifier(@NonNull String packageName, @NonNull byte[] sha256Certificate) {
-        mPackageName = Preconditions.checkNotNull(packageName);
-        mSha256Certificate = Preconditions.checkNotNull(sha256Certificate);
+        mBundle = new Bundle();
+        mBundle.putString(PACKAGE_NAME_FIELD, packageName);
+        mBundle.putByteArray(SHA256_CERTIFICATE_FIELD, sha256Certificate);
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public PackageIdentifier(@NonNull Bundle bundle) {
+        mBundle = Preconditions.checkNotNull(bundle);
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public Bundle getBundle() {
+        return mBundle;
     }
 
     @NonNull
     public String getPackageName() {
-        return mPackageName;
+        return Preconditions.checkNotNull(mBundle.getString(PACKAGE_NAME_FIELD));
     }
 
     @NonNull
     public byte[] getSha256Certificate() {
-        return mSha256Certificate;
+        return Preconditions.checkNotNull(mBundle.getByteArray(SHA256_CERTIFICATE_FIELD));
     }
 
     @Override
@@ -57,12 +74,11 @@ public class PackageIdentifier {
             return false;
         }
         final PackageIdentifier other = (PackageIdentifier) obj;
-        return this.mPackageName.equals(other.mPackageName)
-                && Arrays.equals(this.mSha256Certificate, other.mSha256Certificate);
+        return BundleUtil.deepEquals(mBundle, other.mBundle);
     }
 
     @Override
     public int hashCode() {
-        return ObjectsCompat.hash(mPackageName, Arrays.hashCode(mSha256Certificate));
+        return BundleUtil.deepHashCode(mBundle);
     }
 }
