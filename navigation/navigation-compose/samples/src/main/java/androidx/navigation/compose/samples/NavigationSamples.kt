@@ -18,12 +18,13 @@ package androidx.navigation.compose.samples
 
 import androidx.annotation.Sampled
 import androidx.annotation.StringRes
-import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
@@ -117,8 +118,8 @@ fun Scrollable(navController: NavController) {
         NavigateButton(stringResource(Screen.Dashboard.resourceId)) {
             navController.navigate(Screen.Dashboard.route)
         }
-        ScrollableColumn(Modifier.weight(1f)) {
-            phrases.forEach { phrase ->
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            items(phrases) { phrase ->
                 Text(phrase, fontSize = 30.sp)
             }
         }
