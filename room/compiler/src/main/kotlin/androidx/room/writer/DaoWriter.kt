@@ -44,6 +44,7 @@ import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.ShortcutEntity
 import androidx.room.vo.ShortcutMethod
 import androidx.room.vo.TransactionMethod
+import androidx.room.vo.UpdateMethod
 import androidx.room.vo.WriteQueryMethod
 import capitalize
 import com.squareup.javapoet.ClassName
@@ -426,8 +427,15 @@ class DaoWriter(
             if (entities.isEmpty()) {
                 null
             } else {
+                val onConflict = if (method is UpdateMethod) {
+                    OnConflictProcessor.onConflictText(method.onConflictStrategy)
+                } else {
+                    ""
+                }
                 val fields = entities.mapValues {
-                    val spec = getOrCreateField(DeleteOrUpdateAdapterField(it.value, methodPrefix))
+                    val spec = getOrCreateField(
+                        DeleteOrUpdateAdapterField(it.value, methodPrefix, onConflict)
+                    )
                     val impl = implCallback(method, it.value)
                     spec to impl
                 }
@@ -577,7 +585,8 @@ class DaoWriter(
 
     class DeleteOrUpdateAdapterField(
         val shortcutEntity: ShortcutEntity,
-        val methodPrefix: String
+        val methodPrefix: String,
+        val onConflictText: String
     ) : SharedFieldSpec(
         baseName = "${methodPrefix}AdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
         type = ParameterizedTypeName.get(
@@ -589,7 +598,8 @@ class DaoWriter(
         }
 
         override fun getUniqueKey(): String {
-            return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}$methodPrefix"
+            return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}" +
+                "$methodPrefix$onConflictText"
         }
     }
 
