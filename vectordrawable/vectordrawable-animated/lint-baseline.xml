@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="UnsafeNewApiCall"
@@ -43,17 +43,6 @@
             file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"
             line="926"
             column="43"/>
-    </issue>
-
-    <issue
-        id="Recycle"
-        message="This animation should be started with `#start()`"
-        errorLine1="            anim = new ValueAnimator();"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatorInflaterCompat.java"
-            line="879"
-            column="20"/>
     </issue>
 
     <issue

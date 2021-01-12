@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="UnsafeNewApiCall"
@@ -19,7 +19,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
-            line="391"
+            line="390"
             column="12"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
-            line="416"
+            line="415"
             column="12"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
-            line="430"
+            line="429"
             column="12"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
-            line="448"
+            line="447"
             column="12"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
-            line="461"
+            line="460"
             column="12"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
-            line="461"
+            line="460"
             column="29"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
-            line="473"
+            line="472"
             column="35"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
-            line="490"
+            line="489"
             column="12"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
-            line="490"
+            line="489"
             column="32"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
-            line="509"
+            line="508"
             column="38"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
-            line="541"
+            line="540"
             column="12"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
-            line="795"
+            line="810"
             column="29"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
-            line="814"
+            line="829"
             column="32"/>
     </issue>
 
@@ -294,7 +294,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"
-            line="79"
+            line="78"
             column="28"/>
     </issue>
 
@@ -305,7 +305,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"
-            line="99"
+            line="98"
             column="28"/>
     </issue>
 
@@ -316,7 +316,7 @@
         errorLine2="                               ~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"
-            line="113"
+            line="112"
             column="32"/>
     </issue>
 
@@ -327,7 +327,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"
-            line="113"
+            line="112"
             column="42"/>
     </issue>
 
@@ -338,7 +338,7 @@
         errorLine2="                               ~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"
-            line="127"
+            line="126"
             column="32"/>
     </issue>
 
@@ -349,7 +349,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"
-            line="127"
+            line="126"
             column="42"/>
     </issue>
 
@@ -360,7 +360,7 @@
         errorLine2="           ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"
-            line="138"
+            line="137"
             column="12"/>
     </issue>
 
@@ -371,7 +371,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"
-            line="150"
+            line="149"
             column="12"/>
     </issue>
 
@@ -382,7 +382,7 @@
         errorLine2="                                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"
-            line="150"
+            line="149"
             column="38"/>
     </issue>
 

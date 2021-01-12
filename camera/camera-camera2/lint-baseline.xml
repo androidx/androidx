@@ -1,155 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="ObsoleteLintCustomCheck"
-        message="Lint found an issue registry (`androidx.annotation.experimental.lint.ExperimentalIssueRegistry`) which did not specify the Lint API version it was compiled with.&#xA;&#xA;**This means that the lint checks are likely not compatible.**&#xA;&#xA;If you are the author of this lint check, make your lint `IssueRegistry` class contain&#xA;  override val api: Int = com.android.tools.lint.detector.api.CURRENT_API&#xA;or from Java,&#xA;  @Override public int getApi() { return com.android.tools.lint.detector.api.ApiKt.CURRENT_API; }&#xA;&#xA;If you are just using lint checks from a third party library you have no control over, you can disable these lint checks (if they misbehave) like this:&#xA;&#xA;    android {&#xA;        lintOptions {&#xA;            disable &quot;UnsafeExperimentalUsageError&quot;,&#xA;                    &quot;UnsafeExperimentalUsageWarning&quot;&#xA;        }&#xA;    }&#xA;">
-        <location
-            file="../../../../../../home/jeffrygaston/.gradle/caches/transforms-2/files-2.1/7ae453d98f1dd49cba0e6a30280a6bcf/annotation-experimental-1.0.0-rc01/jars/lint.jar"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
-        errorLine1="        return String.format(&quot;%s (%d): %s&quot;, problemString, problem, message);"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/CameraAccessExceptionCompat.java"
-            line="255"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="        return new AutoValue_CameraDeviceId(brand.toLowerCase(), device.toLowerCase(),"
-        errorLine2="                                                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/CameraDeviceId.java"
-            line="39"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="        return new AutoValue_CameraDeviceId(brand.toLowerCase(), device.toLowerCase(),"
-        errorLine2="                                                                        ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/CameraDeviceId.java"
-            line="39"
-            column="73"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="                model.toLowerCase(), cameraId.toLowerCase());"
-        errorLine2="                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/CameraDeviceId.java"
-            line="40"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="                model.toLowerCase(), cameraId.toLowerCase());"
-        errorLine2="                                              ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/CameraDeviceId.java"
-            line="40"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="        return &quot;SAMSUNG&quot;.equals(Build.MANUFACTURER.toUpperCase())"
-        errorLine2="                                                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.java"
-            line="31"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="                &amp;&amp; android.os.Build.MODEL.toUpperCase().startsWith(&quot;SM-A300&quot;);"
-        errorLine2="                                          ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.java"
-            line="33"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="        return &quot;GOOGLE&quot;.equals(Build.BRAND.toUpperCase()) &amp;&amp; Build.VERSION.SDK_INT &lt; 23"
-        errorLine2="                                           ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/Nexus4AndroidLTargetAspectRatioQuirk.java"
-            line="41"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="                &amp;&amp; DEVICE_MODELS.contains(android.os.Build.MODEL.toUpperCase());"
-        errorLine2="                                                                 ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/Nexus4AndroidLTargetAspectRatioQuirk.java"
-            line="42"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="        return &quot;SAMSUNG&quot;.equals(Build.BRAND.toUpperCase())"
-        errorLine2="                                            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/SamsungPreviewTargetAspectRatioQuirk.java"
-            line="44"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="                &amp;&amp; DEVICE_MODELS.contains(android.os.Build.MODEL.toUpperCase());"
-        errorLine2="                                                                 ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/SamsungPreviewTargetAspectRatioQuirk.java"
-            line="45"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="PrivateApi"
-        message="Accessing internal APIs via reflection is not supported and may not work on all devices or in the future"
-        errorLine1="                Class&lt;?> legacyCameraDeviceClass = Class.forName(LEGACY_CAMERA_DEVICE_CLASS);"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatBaseImpl.java"
-            line="232"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="PrivateApi"
-        message="Accessing internal APIs via reflection is not supported and may not work on all devices or in the future"
-        errorLine1="                Class&lt;?> legacyCameraDeviceClass = Class.forName(LEGACY_CAMERA_DEVICE_CLASS);"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatBaseImpl.java"
-            line="249"
-            column="52"/>
-    </issue>
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="BanUncheckedReflection"
@@ -202,7 +52,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/internal/CameraBurstCaptureCallback.java"
-            line="57"
+            line="58"
             column="22"/>
     </issue>
 
@@ -268,7 +118,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/internal/compat/CameraManagerCompat.java"
-            line="272"
+            line="303"
             column="46"/>
     </issue>
 
@@ -303,39 +153,6 @@
             file="src/main/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionStateCallbacks.java"
             line="136"
             column="48"/>
-    </issue>
-
-    <issue
-        id="SwitchIntDef"
-        message="Switch statement on an `int` with known associated constant missing case `ImageCapture.FLASH_MODE_UNKNOWN`"
-        errorLine1="            switch (mFlashMode) {"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/Camera2CameraControlImpl.java"
-            line="513"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SwitchIntDef"
-        message="Switch statement on an `int` with known associated constant missing case `CameraAccessExceptionCompat.CAMERA_CHARACTERISTICS_CREATION_ERROR`, `CameraAccessExceptionCompat.CAMERA_DISABLED`, `CameraAccessExceptionCompat.CAMERA_DISCONNECTED`, `CameraAccessExceptionCompat.CAMERA_ERROR`, `CameraAccessExceptionCompat.CAMERA_IN_USE`, `CameraAccessExceptionCompat.MAX_CAMERAS_IN_USE`"
-        errorLine1="            switch (e.getReason()) {"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/Camera2CameraImpl.java"
-            line="910"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SwitchIntDef"
-        message="Switch statement on an `int` with known associated constant missing case `CameraAccessExceptionCompat.CAMERA_CHARACTERISTICS_CREATION_ERROR`"
-        errorLine1="        switch (e.getReason()) {"
-        errorLine2="        ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/CameraUnavailableExceptionHelper.java"
-            line="39"
-            column="9"/>
     </issue>
 
     <issue

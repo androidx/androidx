@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" version="4.2.0-alpha15">
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" version="4.2.0-beta02">
 
     <issue
         id="BanUncheckedReflection"
@@ -96,7 +96,7 @@
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/Lifecycling.java"
-            line="205"
+            line="206"
             column="19"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/Lifecycling.java"
-            line="205"
+            line="206"
             column="41"/>
     </issue>
 

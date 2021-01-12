@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="BanSynchronizedMethods"
@@ -79,17 +79,6 @@
     </issue>
 
     <issue
-        id="BatteryLife"
-        message="Declaring a broadcastreceiver for `android.net.conn.CONNECTIVITY_CHANGE` is deprecated for apps targeting N and higher. In general, apps should not rely on this broadcast and instead use `WorkManager`."
-        errorLine1="                &lt;action android:name=&quot;android.net.conn.CONNECTIVITY_CHANGE&quot;/>"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="99"
-            column="39"/>
-    </issue>
-
-    <issue
         id="UnsafeNewApiCall"
         message="This call is to a method from API 19, the call containing class androidx.work.impl.background.systemalarm.Alarms is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
         errorLine1="                alarmManager.setExact(RTC_WAKEUP, triggerAtMillis, pendingIntent);"
@@ -107,7 +96,7 @@
         errorLine2="                                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/Constraints.java"
-            line="408"
+            line="429"
             column="51"/>
     </issue>
 
@@ -118,7 +107,7 @@
         errorLine2="                                               ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/Constraints.java"
-            line="443"
+            line="464"
             column="48"/>
     </issue>
 
@@ -129,7 +118,7 @@
         errorLine2="                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="292"
+            line="294"
             column="30"/>
     </issue>
 
@@ -250,7 +239,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="102"
+            line="104"
             column="25"/>
     </issue>
 
@@ -261,7 +250,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="109"
+            line="111"
             column="25"/>
     </issue>
 
@@ -272,7 +261,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="111"
+            line="113"
             column="21"/>
     </issue>
 
@@ -283,7 +272,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="112"
+            line="114"
             column="21"/>
     </issue>
 
@@ -294,7 +283,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="119"
+            line="121"
             column="21"/>
     </issue>
 
@@ -305,7 +294,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="120"
+            line="122"
             column="21"/>
     </issue>
 
@@ -316,7 +305,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="130"
+            line="136"
             column="16"/>
     </issue>
 
@@ -404,7 +393,7 @@
         errorLine2="                                                       ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/WorkRequest.java"
-            line="174"
+            line="175"
             column="56"/>
     </issue>
 
@@ -415,7 +404,7 @@
         errorLine2="                                                          ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/WorkRequest.java"
-            line="251"
+            line="252"
             column="59"/>
     </issue>
 
@@ -426,85 +415,8 @@
         errorLine2="                                              ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/WorkRequest.java"
-            line="283"
+            line="284"
             column="47"/>
-    </issue>
-
-    <issue
-        id="UnsafeProtectedBroadcastReceiver"
-        message="This broadcast receiver declares an intent-filter for a protected broadcast action string, which can only be sent by the system, not third-party applications. However, the receiver&apos;s onReceive method does not appear to call getAction to ensure that the received Intent&apos;s action string matches the expected value, potentially making it possible for another actor to send a spoofed intent with no action string or a different action string and cause undesired behavior. In this case, it is possible that the onReceive method passed the received Intent to another method that checked the action string. If so, this finding can safely be ignored."
-        errorLine1="    public void onReceive(Context context, Intent intent) {"
-        errorLine2="                ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemalarm/RescheduleReceiver.java"
-            line="35"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="WakelockTimeout"
-        message="Provide a timeout when requesting a wakelock with `PowerManager.Wakelock.acquire(long timeout)`. This will ensure the OS will cleanup any wakelocks that last longer than you intend, and will save your user&apos;s battery."
-        errorLine1="        mWakeLock.acquire();"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemalarm/DelayMetCommandHandler.java"
-            line="191"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="WakelockTimeout"
-        message="Provide a timeout when requesting a wakelock with `PowerManager.Wakelock.acquire(long timeout)`. This will ensure the OS will cleanup any wakelocks that last longer than you intend, and will save your user&apos;s battery."
-        errorLine1="                    mForegroundLock.acquire();"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/Processor.java"
-            line="155"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="WakelockTimeout"
-        message="Provide a timeout when requesting a wakelock with `PowerManager.Wakelock.acquire(long timeout)`. This will ensure the OS will cleanup any wakelocks that last longer than you intend, and will save your user&apos;s battery."
-        errorLine1="            processCommandLock.acquire();"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemalarm/SystemAlarmDispatcher.java"
-            line="251"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="WakelockTimeout"
-        message="Provide a timeout when requesting a wakelock with `PowerManager.Wakelock.acquire(long timeout)`. This will ensure the OS will cleanup any wakelocks that last longer than you intend, and will save your user&apos;s battery."
-        errorLine1="                            wakeLock.acquire();"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemalarm/SystemAlarmDispatcher.java"
-            line="276"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="Do not place Android context classes in static fields (static reference to `WorkManagerImpl` which has field `mContext` pointing to `Context`); this is a memory leak"
-        errorLine1="    private static WorkManagerImpl sDelegatedInstance = null;"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/WorkManagerImpl.java"
-            line="100"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="Do not place Android context classes in static fields (static reference to `WorkManagerImpl` which has field `mContext` pointing to `Context`); this is a memory leak"
-        errorLine1="    private static WorkManagerImpl sDefaultInstance = null;"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/WorkManagerImpl.java"
-            line="101"
-            column="13"/>
     </issue>
 
     <issue
@@ -584,11 +496,11 @@
         errorLine2="                   ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="178"
+            line="188"
             column="20"/>
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="191"
+            line="201"
             column="17"/>
     </issue>
 
@@ -940,7 +852,7 @@
         errorLine2="                                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/Constraints.java"
-            line="407"
+            line="428"
             column="53"/>
     </issue>
 
@@ -951,7 +863,7 @@
         errorLine2="                                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/Constraints.java"
-            line="442"
+            line="463"
             column="50"/>
     </issue>
 
@@ -1050,7 +962,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="311"
+            line="313"
             column="31"/>
     </issue>
 
@@ -1061,7 +973,7 @@
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="311"
+            line="313"
             column="48"/>
     </issue>
 
@@ -1754,7 +1666,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="77"
+            line="78"
             column="13"/>
     </issue>
 
@@ -1765,7 +1677,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="78"
+            line="79"
             column="13"/>
     </issue>
 
@@ -1776,7 +1688,7 @@
         errorLine2="            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="79"
+            line="80"
             column="13"/>
     </issue>
 
@@ -1787,7 +1699,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="80"
+            line="81"
             column="13"/>
     </issue>
 
@@ -1798,7 +1710,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="180"
+            line="181"
             column="34"/>
     </issue>
 
@@ -1996,7 +1908,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="76"
+            line="77"
             column="12"/>
     </issue>
 
@@ -2007,7 +1919,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="365"
+            line="377"
             column="16"/>
     </issue>
 
@@ -2018,7 +1930,7 @@
         errorLine2="               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="368"
+            line="380"
             column="16"/>
     </issue>
 
@@ -2029,7 +1941,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="395"
+            line="407"
             column="16"/>
     </issue>
 
@@ -2040,7 +1952,7 @@
         errorLine2="               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="398"
+            line="410"
             column="16"/>
     </issue>
 
@@ -2051,7 +1963,7 @@
         errorLine2="               ~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="401"
+            line="413"
             column="16"/>
     </issue>
 
@@ -2062,7 +1974,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="411"
+            line="423"
             column="16"/>
     </issue>
 
@@ -2073,7 +1985,7 @@
         errorLine2="               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="420"
+            line="432"
             column="16"/>
     </issue>
 
@@ -2139,7 +2051,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="88"
+            line="98"
             column="34"/>
     </issue>
 
@@ -2150,7 +2062,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="121"
+            line="131"
             column="19"/>
     </issue>
 
@@ -2161,7 +2073,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="154"
+            line="164"
             column="42"/>
     </issue>
 
@@ -2172,7 +2084,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="175"
+            line="185"
             column="19"/>
     </issue>
 
@@ -2183,7 +2095,7 @@
         errorLine2="                                       ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="196"
+            line="206"
             column="40"/>
     </issue>
 
@@ -2194,7 +2106,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="226"
+            line="236"
             column="19"/>
     </issue>
 
@@ -2205,7 +2117,7 @@
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="255"
+            line="304"
             column="19"/>
     </issue>
 
@@ -2216,7 +2128,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="255"
+            line="304"
             column="56"/>
     </issue>
 
@@ -2227,7 +2139,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="293"
+            line="342"
             column="19"/>
     </issue>
 
@@ -2238,7 +2150,7 @@
         errorLine2="                                                                   ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkTypeConverters.java"
-            line="293"
+            line="342"
             column="68"/>
     </issue>
 
@@ -2250,17 +2162,6 @@
         <location
             file="src/main/java/androidx/work/WorkerParameters.java"
             line="208"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public WorkerWrapper build() {"
-        errorLine2="               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/WorkerWrapper.java"
-            line="683"
             column="16"/>
     </issue>
 

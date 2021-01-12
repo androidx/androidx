@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha16" client="gradle" variant="debug" version="4.2.0-alpha16">
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="BanSynchronizedMethods"
@@ -32,17 +32,6 @@
             file="src/main/java/androidx/sqlite/db/framework/FrameworkSQLiteOpenHelper.java"
             line="199"
             column="9"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.sqlite.db.framework.FrameworkSQLiteDatabase is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            mDelegate.execPerConnectionSQL(sql, bindArgs);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sqlite/db/framework/FrameworkSQLiteDatabase.java"
-            line="128"
-            column="23"/>
     </issue>
 
     <issue
