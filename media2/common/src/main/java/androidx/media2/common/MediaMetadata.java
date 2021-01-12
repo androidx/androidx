@@ -85,7 +85,8 @@ import java.util.Set;
  * <p>
  * The {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession} would require
  * the explicit browsable type for the media items returned by the
- * {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback}.
+ * {@link
+ * androidx.media2.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback}.
  * <h3 id="Playable">{@link MediaMetadata#METADATA_KEY_PLAYABLE Playable type}</h3>
  * <p>
  * Playable defines whether the media item can be played or not. It may be possible for a playlist
@@ -93,7 +94,8 @@ import java.util.Set;
  * <p>
  * The {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession} would require
  * the explicit playable value for the media items returned by the
- * {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback}.
+ * {@link
+ * androidx.media2.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback}.
  * <h3 id="Duration">{@link MediaMetadata#METADATA_KEY_DURATION Duration}</h3>
  * The duration is the length of the contents. The {@link androidx.media2.session.MediaController}
  * can only get the duration through the metadata. This tells when would the playback ends, and also
