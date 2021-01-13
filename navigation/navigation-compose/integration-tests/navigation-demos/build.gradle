@@ -16,7 +16,6 @@
 
 
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import static androidx.build.dependencies.DependenciesKt.getKOTLIN_STDLIB
 
@@ -36,14 +35,6 @@ dependencies {
     implementation projectOrArtifact(":compose:material:material")
     implementation projectOrArtifact(":navigation:navigation-compose")
     implementation projectOrArtifact(":navigation:navigation-compose:navigation-compose-samples")
-}
-
-android {
-    tasks.withType(KotlinCompile).configureEach {
-        kotlinOptions {
-            useIR = true
-        }
-    }
 }
 
 androidx {
