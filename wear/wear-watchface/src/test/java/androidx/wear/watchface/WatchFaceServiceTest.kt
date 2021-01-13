@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.graphics.RectF
+import android.os.BatteryManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -1886,5 +1887,85 @@ class WatchFaceServiceTest {
 
         // This should not throw an exception.
         renderer.invalidate()
+    }
+
+    @Test
+    fun watchStateObservableWatchDataMembersHaveValues() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "interactiveInstanceId",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                SystemState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null
+            )
+        )
+
+        assertTrue(watchState.interruptionFilter.hasValue())
+        assertTrue(watchState.isAmbient.hasValue())
+        assertTrue(watchState.isBatteryLowAndNotCharging.hasValue())
+        assertTrue(watchState.isVisible.hasValue())
+    }
+
+    @Test
+    fun setIsBatteryLowAndNotChargingFromBatteryStatus() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "interactiveInstanceId",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                SystemState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null
+            )
+        )
+
+        watchFaceImpl.setIsBatteryLowAndNotChargingFromBatteryStatus(
+            Intent().apply {
+                putExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_DISCHARGING)
+                putExtra(BatteryManager.EXTRA_LEVEL, 0)
+                putExtra(BatteryManager.EXTRA_SCALE, 100)
+            }
+        )
+        assertTrue(watchState.isBatteryLowAndNotCharging.value)
+
+        watchFaceImpl.setIsBatteryLowAndNotChargingFromBatteryStatus(
+            Intent().apply {
+                putExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_CHARGING)
+                putExtra(BatteryManager.EXTRA_LEVEL, 0)
+                putExtra(BatteryManager.EXTRA_SCALE, 100)
+            }
+        )
+        assertFalse(watchState.isBatteryLowAndNotCharging.value)
+
+        watchFaceImpl.setIsBatteryLowAndNotChargingFromBatteryStatus(
+            Intent().apply {
+                putExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_DISCHARGING)
+                putExtra(BatteryManager.EXTRA_LEVEL, 80)
+                putExtra(BatteryManager.EXTRA_SCALE, 100)
+            }
+        )
+        assertFalse(watchState.isBatteryLowAndNotCharging.value)
+
+        watchFaceImpl.setIsBatteryLowAndNotChargingFromBatteryStatus(Intent())
+        assertFalse(watchState.isBatteryLowAndNotCharging.value)
+
+        watchFaceImpl.setIsBatteryLowAndNotChargingFromBatteryStatus(null)
+        assertFalse(watchState.isBatteryLowAndNotCharging.value)
     }
 }
