@@ -17,12 +17,10 @@
 package androidx.wear.watchface.style.data;
 
 import android.annotation.SuppressLint;
-import android.content.ComponentName;
 import android.graphics.RectF;
 import android.graphics.drawable.Icon;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.wearable.complications.ComplicationData;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,7 +29,6 @@ import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
-import androidx.wear.complications.SystemProviders;
 import androidx.wear.complications.data.ComplicationType;
 
 import java.util.List;
@@ -68,7 +65,6 @@ public class ComplicationsUserStyleSettingWireFormat extends UserStyleSettingWir
         public static final int ENABLED_UNKNOWN = -1;
         public static final int ENABLED_YES = 1;
         public static final int ENABLED_NO = 0;
-        public static final int NO_DEFAULT_PROVIDER_TYPE = -1;
 
         @ParcelField(1)
         public int mComplicationId;
@@ -84,40 +80,12 @@ public class ComplicationsUserStyleSettingWireFormat extends UserStyleSettingWir
         @Nullable
         public Map<ComplicationType, RectF> mPerComplicationTypeBounds;
 
-        @ParcelField(4)
-        @Nullable
-        public int[] mSupportedTypes;
-
-        @ParcelField(5)
-        @Nullable
-        public List<ComponentName> mDefaultProviders;
-
-        /**
-         * VersionedParcelable doesn't support boxed Integer, but that's OK, this is only valid when
-         * mDefaultProviders is non null.
-         */
-        @ParcelField(6)
-        @SystemProviders.ProviderId
-        public int mSystemProviderFallback;
-
-        /**
-         * VersionedParcelable doesn't support boxed Integer so NO_DEFAULT_PROVIDER_TYPE is used to
-         * represent null.
-         */
-        @ParcelField(7)
-        @ComplicationData.ComplicationType
-        public int mDefaultProviderType;
-
         ComplicationOverlayWireFormat() {}
 
         public ComplicationOverlayWireFormat(
                 int complicationId,
                 @Nullable Boolean enabled,
-                @Nullable Map<ComplicationType, RectF> perComplicationTypeBounds,
-                @Nullable int[] supportedTypes,
-                @Nullable List<ComponentName> defaultProviders,
-                @Nullable Integer systemProviderFallback,
-                @Nullable @ComplicationData.ComplicationType Integer defaultProviderType
+                @Nullable Map<ComplicationType, RectF> perComplicationTypeBounds
         ) {
             mComplicationId = complicationId;
             if (enabled != null) {
@@ -126,13 +94,6 @@ public class ComplicationsUserStyleSettingWireFormat extends UserStyleSettingWir
                 mEnabled = ENABLED_UNKNOWN;
             }
             mPerComplicationTypeBounds = perComplicationTypeBounds;
-            mSupportedTypes = supportedTypes;
-            mDefaultProviders = defaultProviders;
-            if (systemProviderFallback != null) {
-                mSystemProviderFallback = systemProviderFallback;
-            }
-            mDefaultProviderType =
-                    (defaultProviderType != null) ? defaultProviderType : NO_DEFAULT_PROVIDER_TYPE;
         }
 
         @Override

@@ -278,21 +278,16 @@ package androidx.wear.watchface.style.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public static class ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat(int, Boolean?, java.util.Map<androidx.wear.complications.data.ComplicationType!,android.graphics.RectF!>?, int[]?, java.util.List<android.content.ComponentName!>?, Integer?, @android.support.wearable.complications.ComplicationData.ComplicationType Integer?);
+    ctor public ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat(int, Boolean?, java.util.Map<androidx.wear.complications.data.ComplicationType!,android.graphics.RectF!>?);
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.style.data.ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat!>! CREATOR;
     field public static final int ENABLED_NO = 0; // 0x0
     field public static final int ENABLED_UNKNOWN = -1; // 0xffffffff
     field public static final int ENABLED_YES = 1; // 0x1
-    field public static final int NO_DEFAULT_PROVIDER_TYPE = -1; // 0xffffffff
     field @androidx.versionedparcelable.ParcelField(1) public int mComplicationId;
-    field @android.support.wearable.complications.ComplicationData.ComplicationType @androidx.versionedparcelable.ParcelField(7) public int mDefaultProviderType;
-    field @androidx.versionedparcelable.ParcelField(5) public java.util.List<android.content.ComponentName!>? mDefaultProviders;
     field @androidx.versionedparcelable.ParcelField(2) public int mEnabled;
     field @androidx.versionedparcelable.ParcelField(3) public java.util.Map<androidx.wear.complications.data.ComplicationType!,android.graphics.RectF!>? mPerComplicationTypeBounds;
-    field @androidx.versionedparcelable.ParcelField(4) public int[]? mSupportedTypes;
-    field @androidx.versionedparcelable.ParcelField(6) @androidx.wear.complications.SystemProviders.ProviderId public int mSystemProviderFallback;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public static class ComplicationsUserStyleSettingWireFormat.ComplicationsOptionWireFormat extends androidx.wear.watchface.style.data.UserStyleSettingWireFormat.OptionWireFormat {
