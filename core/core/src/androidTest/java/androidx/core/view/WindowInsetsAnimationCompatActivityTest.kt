@@ -30,6 +30,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assume
@@ -301,15 +302,16 @@ public class WindowInsetsAnimationCompatActivityTest {
         val child = scenario.withActivity { findViewById(R.id.view) }
         var parentListenerCalled = false
         var insetsAnimationCallbackCalled = false
-        var childListenerCalled = false
+        var childListenerCalledCount = 0
         var savedInsets: WindowInsetsCompat? = null
         var savedView: View? = null
-        val latch = CountDownLatch(3) // Insets will be dispatched 3 times
+        var applyInsetsLatch = CountDownLatch(2) // Insets will be dispatched 3 times
+        var onPrepareLatch = CountDownLatch(2)
         val childLatch = CountDownLatch(1)
         val animationCallback = createCallback(
             onPrepare = {
                 insetsAnimationCallbackCalled = true
-                latch.countDown()
+                onPrepareLatch.countDown()
             },
 
             onEnd = {
@@ -319,25 +321,26 @@ public class WindowInsetsAnimationCompatActivityTest {
 
         val childCallback = createCallback(
             onEnd = {
-                childListenerCalled = true
+                ++childListenerCalledCount
                 childLatch.countDown()
             }
         )
 
-        val insetListener: (v: View, insets: WindowInsetsCompat) -> WindowInsetsCompat =
+        // First we check that when the parent consume the insets, the child listener is not called
+        val consumingListener: (v: View, insets: WindowInsetsCompat) -> WindowInsetsCompat =
             { v, insetsCompat ->
                 parentListenerCalled = true
                 savedInsets = insetsCompat
                 savedView = v
-                latch.countDown()
+                applyInsetsLatch.countDown()
                 WindowInsetsCompat.CONSUMED
             }
 
         ViewCompat.setWindowInsetsAnimationCallback(container, animationCallback)
         ViewCompat.setWindowInsetsAnimationCallback(child, childCallback)
-        ViewCompat.setOnApplyWindowInsetsListener(container, insetListener)
+        ViewCompat.setOnApplyWindowInsetsListener(container, consumingListener)
         triggerInsetAnimation(container)
-        latch.await(4, TimeUnit.SECONDS)
+        applyInsetsLatch.await(4, TimeUnit.SECONDS)
         assertTrue(
             "The WindowInsetsAnimationCallback has not been called",
             insetsAnimationCallbackCalled
@@ -347,12 +350,25 @@ public class WindowInsetsAnimationCompatActivityTest {
             parentListenerCalled
         )
         // Parent consumed the insets, child listener won't be called
-        assertFalse(
-            "child listener should not have been called",
-            childListenerCalled
-        )
+        assertEquals("child listener should not have been called", 0, childListenerCalledCount)
 
-        // We dispatch with the same insets as before
+        // Then we do the same but without consuming the insets in the parent, so the child
+        // listener should be called.
+        resetBars(container)
+        applyInsetsLatch = CountDownLatch(2)
+        onPrepareLatch = CountDownLatch(2)
+        val nonConsumingListener: (v: View, insets: WindowInsetsCompat) -> WindowInsetsCompat =
+            { v, insetsCompat ->
+                parentListenerCalled = true
+                savedInsets = insetsCompat
+                savedView = v
+                applyInsetsLatch.countDown()
+                insetsCompat
+            }
+
+        ViewCompat.setOnApplyWindowInsetsListener(container, nonConsumingListener)
+        triggerInsetAnimation(container)
+        applyInsetsLatch.await(4, TimeUnit.SECONDS)
         childLatch.await(4, TimeUnit.SECONDS)
         assertTrue(
             "The WindowInsetsAnimationCallback has not been called",
@@ -362,9 +378,12 @@ public class WindowInsetsAnimationCompatActivityTest {
             "parent listener has not been called",
             parentListenerCalled
         )
-        assertTrue(
-            "child listener has not been called",
-            childListenerCalled
+        // Parent consumed the insets, child listener won't be called
+        assertEquals(
+            "child listener should have been called 1 time but was called " +
+                "$childListenerCalledCount times",
+            1,
+            childListenerCalledCount
         )
     }
 
