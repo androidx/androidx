@@ -19,7 +19,6 @@ package androidx.slice.widget;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -742,6 +741,7 @@ public class SliceViewTest {
         assertEquals(desired.isDefaultToggle(), actual.isDefaultToggle());
         assertEquals(desired.isChecked(), actual.isChecked());
         assertEquals(desired.getPriority(), actual.getPriority());
+        assertEquals(desired.getKey(), actual.getKey());
         assertEquals(desired.getIcon() == null, actual.getIcon() == null);
         assertEquals(desired.getImageMode(), actual.getImageMode());
     }

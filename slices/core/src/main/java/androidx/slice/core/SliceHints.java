@@ -140,6 +140,7 @@ public class SliceHints {
 
     public static final String SUBTYPE_HOST_EXTRAS = "host_extras";
 
+    public static final String SUBTYPE_ACTION_KEY = "action_key";
 
     /**
      * Indicates that an image should be presented as an icon and it can be tinted.

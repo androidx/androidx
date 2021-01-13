@@ -116,6 +116,35 @@ package androidx.slice.widget {
     method @StyleRes public int getRowStyleRes(androidx.slice.SliceItem);
   }
 
+  @RequiresApi(19) public class RowView extends androidx.slice.widget.SliceChildView implements android.widget.AdapterView.OnItemSelectedListener android.view.View.OnClickListener {
+    ctor public RowView(android.content.Context);
+    method protected java.util.List<java.lang.String!> getEndItemKeys();
+    method protected String? getPrimaryActionKey();
+    method public void onClick(android.view.View);
+    method public void onItemSelected(android.widget.AdapterView<?>, android.view.View, int, long);
+    method public void onNothingSelected(android.widget.AdapterView<?>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void resetView();
+  }
+
+  @RequiresApi(19) public class SliceAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.slice.widget.SliceAdapter.SliceViewHolder> {
+    ctor public SliceAdapter(android.content.Context);
+    method public int getItemCount();
+    method protected androidx.slice.widget.RowView getRowView();
+    method public void onBindViewHolder(androidx.slice.widget.SliceAdapter.SliceViewHolder, int);
+    method public androidx.slice.widget.SliceAdapter.SliceViewHolder onCreateViewHolder(android.view.ViewGroup, int);
+  }
+
+  @RequiresApi(19) public abstract class SliceChildView extends android.widget.FrameLayout {
+    ctor public SliceChildView(android.content.Context);
+    ctor public SliceChildView(android.content.Context, android.util.AttributeSet?);
+    method public abstract void resetView();
+    method public void setSliceItem(androidx.slice.widget.SliceContent?, boolean, int, int, androidx.slice.widget.SliceView.OnSliceActionListener?);
+  }
+
+  @RequiresApi(19) public class SliceContent {
+    ctor public SliceContent(androidx.slice.Slice?);
+  }
+
   @RequiresApi(19) public final class SliceLiveData {
     method public static androidx.slice.widget.SliceLiveData.CachedSliceLiveData fromCachedSlice(android.content.Context, java.io.InputStream, androidx.slice.widget.SliceLiveData.OnErrorListener!);
     method public static androidx.lifecycle.LiveData<androidx.slice.Slice!> fromIntent(android.content.Context, android.content.Intent);
@@ -155,6 +184,7 @@ package androidx.slice.widget {
     method public void onChanged(androidx.slice.Slice?);
     method public void onClick(android.view.View!);
     method public void setAccentColor(@ColorInt int);
+    method public void setCurrentView(androidx.slice.widget.SliceChildView);
     method public void setMode(int);
     method public void setOnSliceActionListener(androidx.slice.widget.SliceView.OnSliceActionListener?);
     method public void setRowStyleFactory(androidx.slice.widget.RowStyleFactory?);
@@ -171,6 +201,12 @@ package androidx.slice.widget {
 
   public static interface SliceView.OnSliceActionListener {
     method public void onSliceAction(androidx.slice.widget.EventInfo, androidx.slice.SliceItem);
+  }
+
+  @RequiresApi(19) public class TemplateView extends androidx.slice.widget.SliceChildView {
+    ctor public TemplateView(android.content.Context);
+    method public void onAttachedToWindow();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void resetView();
   }
 
 }

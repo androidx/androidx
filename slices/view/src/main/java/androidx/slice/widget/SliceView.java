@@ -235,6 +235,17 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         super.setOnClickListener(this);
     }
 
+    /**
+     * Allows subclasses to set the current view to a custom view.
+     */
+    public void setCurrentView(@NonNull SliceChildView currentView) {
+        removeView(mCurrentView);
+        mCurrentView = currentView;
+        mCurrentView.setPolicy(mViewPolicy);
+        addView(mCurrentView, getChildLp(mCurrentView));
+        applyConfigurations();
+    }
+
     @VisibleForTesting
     void setSliceViewPolicy(SliceViewPolicy policy) {
         mViewPolicy = policy;
