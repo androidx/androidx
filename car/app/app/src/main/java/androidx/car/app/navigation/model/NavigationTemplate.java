@@ -247,7 +247,7 @@ public class NavigationTemplate implements Template {
         @NonNull
         public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_NAVIGATION.validateOrThrow(
-                    requireNonNull(actionStrip).getActions());
+                    requireNonNull(actionStrip).getActionList());
             this.mActionStrip = actionStrip;
             return this;
         }

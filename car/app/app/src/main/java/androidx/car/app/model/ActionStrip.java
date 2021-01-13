@@ -42,7 +42,7 @@ import java.util.Set;
  */
 public class ActionStrip {
     @Keep
-    private final List<Object> mActions;
+    private final List<Action> mActions;
 
     /** Constructs a new builder of {@link ActionStrip}. */
     // TODO(b/175827428): remove once host is changed to use new public ctor.
@@ -53,9 +53,22 @@ public class ActionStrip {
 
     /**
      * Returns the list of {@link Action}'s.
+     *
+     * @deprecated use {@link #getActionList()} instead.
+     */
+    // TODO(jayyoo): remove once {@link #getActionList()} is used in the host.
+    @Deprecated
+    @NonNull
+    @SuppressWarnings("unchecked")
+    public List<Object> getActions() {
+        return (List<Object>) (List<? extends Object>) mActions;
+    }
+
+    /**
+     * Returns the list of {@link Action}'s.
      */
     @NonNull
-    public List<Object> getActions() {
+    public List<Action> getActionList() {
         return mActions;
     }
 
@@ -65,12 +78,9 @@ public class ActionStrip {
      */
     @Nullable
     public Action getActionOfType(@ActionType int actionType) {
-        for (Object object : mActions) {
-            if (object instanceof Action) {
-                Action action = (Action) object;
-                if (action.getType() == actionType) {
-                    return action;
-                }
+        for (Action action : mActions) {
+            if (action.getType() == actionType) {
+                return action;
             }
         }
 
@@ -112,7 +122,7 @@ public class ActionStrip {
 
     /** A builder of {@link ActionStrip}. */
     public static final class Builder {
-        final List<Object> mActions = new ArrayList<>();
+        final List<Action> mActions = new ArrayList<>();
         final Set<Integer> mAddedActionTypes = new HashSet<>();
 
         /**

@@ -299,7 +299,7 @@ public final class ListTemplate implements Template {
         @NonNull
         public Builder setActionStrip(@Nullable ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(
-                    actionStrip == null ? Collections.emptyList() : actionStrip.getActions());
+                    actionStrip == null ? Collections.emptyList() : actionStrip.getActionList());
             this.mActionStrip = actionStrip;
             return this;
         }
