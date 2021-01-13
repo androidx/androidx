@@ -251,10 +251,19 @@ final class SidecarAdapter {
         }
 
         final int type;
-        if (feature.getType() == SidecarDisplayFeature.TYPE_HINGE) {
-            type = FoldingFeature.TYPE_HINGE;
-        } else {
-            type = FoldingFeature.TYPE_FOLD;
+        switch (feature.getType()) {
+            case SidecarDisplayFeature.TYPE_FOLD:
+                type = FoldingFeature.TYPE_FOLD;
+                break;
+            case SidecarDisplayFeature.TYPE_HINGE:
+                type = FoldingFeature.TYPE_HINGE;
+                break;
+            default:
+                if (DEBUG) {
+                    Log.d(TAG, "Unknown feature type: " + feature.getType()
+                            + ", skipping feature.");
+                }
+                return null;
         }
 
         final int state;
