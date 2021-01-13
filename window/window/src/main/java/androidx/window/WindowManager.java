@@ -68,8 +68,10 @@ public final class WindowManager {
      *                      around one, to use for initialization.
      * @param windowBackend Backing server class that will provide information for this instance.
      *                      Pass a custom {@link WindowBackend} implementation for testing.
+     * @deprecated WindowBackend will be a required argument in the next implementation.
      */
-    public WindowManager(@NonNull Context context, @NonNull WindowBackend windowBackend) {
+    @Deprecated
+    public WindowManager(@NonNull Context context, @Nullable WindowBackend windowBackend) {
         Activity activity = getActivityFromContext(context);
         if (activity == null) {
             throw new IllegalArgumentException("Used non-visual Context to obtain an instance of "
@@ -77,7 +79,8 @@ public final class WindowManager {
                     + "instead.");
         }
         mActivity = activity;
-        mWindowBackend = windowBackend;
+        mWindowBackend = windowBackend == null ? ExtensionWindowBackend.getInstance(context)
+                : windowBackend;
     }
 
     /**
@@ -96,6 +99,27 @@ public final class WindowManager {
      */
     public void unregisterLayoutChangeCallback(@NonNull Consumer<WindowLayoutInfo> callback) {
         mWindowBackend.unregisterLayoutChangeCallback(callback);
+    }
+
+    /**
+     * @deprecated will be removed in the next alpha
+     * @return the current {@link DeviceState} if Sidecar is present and an empty info otherwise
+     */
+    @Deprecated
+    @NonNull
+    public DeviceState getDeviceState() {
+        return mWindowBackend.getDeviceState();
+    }
+
+    /**
+     * @deprecated will be removed in the next alpha
+     * @return the current {@link WindowLayoutInfo} when Sidecar is present and an empty info
+     * otherwise
+     */
+    @Deprecated
+    @NonNull
+    public WindowLayoutInfo getWindowLayoutInfo() {
+        return mWindowBackend.getWindowLayoutInfo(mActivity);
     }
 
     /**
