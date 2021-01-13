@@ -44,6 +44,8 @@ class ListenableFuturePagingSourceTest {
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
             return loadInternal(params)
         }
+
+        override fun getRefreshKey(state: PagingState<Int, Int>): Int? = null
     }
 
     private val listenableFuturePagingSource = object : ListenableFuturePagingSource<Int, Int>() {
@@ -56,6 +58,8 @@ class ListenableFuturePagingSourceTest {
             }
             return future
         }
+
+        override fun getRefreshKey(state: PagingState<Int, Int>): Int? = null
     }
 
     @Test

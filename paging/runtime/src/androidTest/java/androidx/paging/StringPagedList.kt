@@ -42,6 +42,8 @@ private class FakeSource<Value : Any>(
             IllegalArgumentException("This test source only supports initial load")
         )
     }
+
+    override fun getRefreshKey(state: PagingState<Any, Value>): Any? = null
 }
 
 @Suppress("TestFunctionName", "DEPRECATION")

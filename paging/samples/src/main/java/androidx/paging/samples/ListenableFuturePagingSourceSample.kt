@@ -20,7 +20,7 @@ package androidx.paging.samples
 
 import androidx.annotation.Sampled
 import androidx.paging.ListenableFuturePagingSource
-import com.google.common.base.Function
+import androidx.paging.PagingState
 import com.google.common.util.concurrent.FluentFuture
 import com.google.common.util.concurrent.ListenableFuture
 import retrofit2.HttpException
@@ -51,12 +51,13 @@ fun listenableFuturePagingSourceSample() {
         override fun loadFuture(
             params: LoadParams<String>
         ): ListenableFuture<LoadResult<String, Item>> {
-            return myBackend.searchUsers(
-                searchTerm = searchTerm,
-                pageKey = params.key
-            )
+            return myBackend
+                .searchUsers(
+                    searchTerm = searchTerm,
+                    pageKey = params.key
+                )
                 .transform<LoadResult<String, Item>>(
-                    Function { response ->
+                    { response ->
                         LoadResult.Page(
                             data = response!!.items,
                             prevKey = response.prev,
@@ -71,18 +72,18 @@ fun listenableFuturePagingSourceSample() {
                 // exceptions to provide more context.
                 .catching(
                     IOException::class.java,
-                    Function { t: IOException? ->
-                        LoadResult.Error<String, Item>(t!!)
-                    },
+                    { t: IOException? -> LoadResult.Error(t!!) },
                     networkExecutor
                 )
                 .catching(
                     HttpException::class.java,
-                    Function { t: HttpException? ->
-                        LoadResult.Error<String, Item>(t!!)
-                    },
+                    { t: HttpException? -> LoadResult.Error(t!!) },
                     networkExecutor
                 )
+        }
+
+        override fun getRefreshKey(state: PagingState<String, Item>): String? {
+            return state.anchorPosition?.let { state.closestItemToPosition(it)?.id }
         }
     }
 }
