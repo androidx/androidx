@@ -90,6 +90,7 @@ public class GridItem implements Item {
     private final OnClickListenerWrapper mOnClickListener;
 
     /** Constructs a new builder of {@link GridItem}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -330,7 +331,8 @@ public class GridItem implements Item {
             return new GridItem(this);
         }
 
-        Builder() {
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

@@ -42,11 +42,11 @@ import java.util.concurrent.TimeUnit;
 @DoNotInstrument
 public class NavigationTemplateTest {
     private final ActionStrip mActionStrip =
-            ActionStrip.builder().addAction(TestUtils.createAction("test", null)).build();
+            new ActionStrip.Builder().addAction(TestUtils.createAction("test", null)).build();
     private final Maneuver mManeuver =
-            Maneuver.builder(Maneuver.TYPE_FERRY_BOAT).setIcon(CarIcon.APP_ICON).build();
+            new Maneuver.Builder(Maneuver.TYPE_FERRY_BOAT).setIcon(CarIcon.APP_ICON).build();
     private final Step mCurrentStep =
-            Step.builder("Go Straight").setManeuver(mManeuver).setRoad("405").build();
+            new Step.Builder("Go Straight").setManeuver(mManeuver).setRoad("405").build();
     private final Distance mCurrentDistance =
             Distance.create(/* displayDistance= */ 100, Distance.UNIT_METERS);
 
@@ -61,7 +61,7 @@ public class NavigationTemplateTest {
         NavigationTemplate template =
                 NavigationTemplate.builder()
                         .setNavigationInfo(
-                                RoutingInfo.builder().setCurrentStep(mCurrentStep,
+                                new RoutingInfo.Builder().setCurrentStep(mCurrentStep,
                                         mCurrentDistance).build())
                         .setActionStrip(mActionStrip)
                         .build();
@@ -77,8 +77,8 @@ public class NavigationTemplateTest {
     @Test
     public void createFullInstance() {
         Maneuver nextManeuver =
-                Maneuver.builder(Maneuver.TYPE_U_TURN_LEFT).setIcon(CarIcon.APP_ICON).build();
-        Step nextStep = Step.builder("Turn Around").setManeuver(nextManeuver).setRoad(
+                new Maneuver.Builder(Maneuver.TYPE_U_TURN_LEFT).setIcon(CarIcon.APP_ICON).build();
+        Step nextStep = new Step.Builder("Turn Around").setManeuver(nextManeuver).setRoad(
                 "520").build();
 
         TravelEstimate travelEstimate =
@@ -89,7 +89,7 @@ public class NavigationTemplateTest {
         NavigationTemplate template =
                 NavigationTemplate.builder()
                         .setNavigationInfo(
-                                RoutingInfo.builder()
+                                new RoutingInfo.Builder()
                                         .setCurrentStep(mCurrentStep, mCurrentDistance)
                                         .setNextStep(nextStep)
                                         .build())
@@ -115,9 +115,9 @@ public class NavigationTemplateTest {
                         createDateTimeWithZone("2020-05-14T19:57:00-07:00", "US/Pacific"));
 
         Step currentStep =
-                Step.builder("Hop on a ferry")
+                new Step.Builder("Hop on a ferry")
                         .addLane(
-                                Lane.builder()
+                                new Lane.Builder()
                                         .addDirection(LaneDirection.create(
                                                 LaneDirection.SHAPE_NORMAL_LEFT, false))
                                         .build())
@@ -131,7 +131,7 @@ public class NavigationTemplateTest {
                         .setActionStrip(mActionStrip)
                         .setDestinationTravelEstimate(travelEstimate)
                         .setNavigationInfo(
-                                RoutingInfo.builder()
+                                new RoutingInfo.Builder()
                                         .setCurrentStep(currentStep, currentDistance)
                                         .setJunctionImage(CarIcon.ALERT)
                                         .setNextStep(currentStep)
@@ -145,7 +145,7 @@ public class NavigationTemplateTest {
                                 .setActionStrip(mActionStrip)
                                 .setDestinationTravelEstimate(travelEstimate)
                                 .setNavigationInfo(
-                                        RoutingInfo.builder()
+                                        new RoutingInfo.Builder()
                                                 .setCurrentStep(currentStep, currentDistance)
                                                 .setJunctionImage(CarIcon.ALERT)
                                                 .setNextStep(currentStep)
@@ -163,7 +163,7 @@ public class NavigationTemplateTest {
                 .isNotEqualTo(
                         NavigationTemplate.builder()
                                 .setActionStrip(
-                                        ActionStrip.builder().addAction(
+                                        new ActionStrip.Builder().addAction(
                                                 TestUtils.createAction("title2", null)).build())
                                 .build());
     }
@@ -200,9 +200,9 @@ public class NavigationTemplateTest {
     @Test
     public void notEquals_differentCurrentStep() {
         Step currentStep =
-                Step.builder("Hop on a ferry")
+                new Step.Builder("Hop on a ferry")
                         .addLane(
-                                Lane.builder()
+                                new Lane.Builder()
                                         .addDirection(LaneDirection.create(
                                                 LaneDirection.SHAPE_NORMAL_LEFT, false))
                                         .build())
@@ -215,16 +215,16 @@ public class NavigationTemplateTest {
                 NavigationTemplate.builder()
                         .setActionStrip(mActionStrip)
                         .setNavigationInfo(
-                                RoutingInfo.builder().setCurrentStep(currentStep,
+                                new RoutingInfo.Builder().setCurrentStep(currentStep,
                                         currentDistance).build())
                         .build();
 
         assertThat(template)
                 .isNotEqualTo(NavigationTemplate.builder()
                         .setActionStrip(mActionStrip)
-                        .setNavigationInfo(RoutingInfo.builder()
-                                .setCurrentStep(Step.builder("do a back flip")
-                                                .addLane(Lane.builder()
+                        .setNavigationInfo(new RoutingInfo.Builder()
+                                .setCurrentStep(new Step.Builder("do a back flip")
+                                                .addLane(new Lane.Builder()
                                                         .addDirection(LaneDirection.create(
                                                                 LaneDirection.SHAPE_NORMAL_LEFT,
                                                                 false))
@@ -238,8 +238,8 @@ public class NavigationTemplateTest {
 
     @Test
     public void notEquals_differentCurrentDistance() {
-        Step currentStep = Step.builder("Hop on a ferry")
-                .addLane(Lane.builder()
+        Step currentStep = new Step.Builder("Hop on a ferry")
+                .addLane(new Lane.Builder()
                         .addDirection(LaneDirection.create(
                                 LaneDirection.SHAPE_NORMAL_LEFT, false))
                         .build())
@@ -252,7 +252,7 @@ public class NavigationTemplateTest {
                 NavigationTemplate.builder()
                         .setActionStrip(mActionStrip)
                         .setNavigationInfo(
-                                RoutingInfo.builder().setCurrentStep(currentStep,
+                                new RoutingInfo.Builder().setCurrentStep(currentStep,
                                         currentDistance).build())
                         .build();
 
@@ -261,7 +261,7 @@ public class NavigationTemplateTest {
                         NavigationTemplate.builder()
                                 .setActionStrip(mActionStrip)
                                 .setNavigationInfo(
-                                        RoutingInfo.builder()
+                                        new RoutingInfo.Builder()
                                                 .setCurrentStep(
                                                         currentStep,
                                                         Distance.create(/* displayDistance= */ 200,
@@ -272,8 +272,8 @@ public class NavigationTemplateTest {
 
     @Test
     public void notEquals_differentJunctionImage() {
-        Step currentStep = Step.builder("Hop on a ferry")
-                .addLane(Lane.builder()
+        Step currentStep = new Step.Builder("Hop on a ferry")
+                .addLane(new Lane.Builder()
                         .addDirection(LaneDirection.create(
                                 LaneDirection.SHAPE_NORMAL_LEFT, false))
                         .build())
@@ -286,7 +286,7 @@ public class NavigationTemplateTest {
                 NavigationTemplate.builder()
                         .setActionStrip(mActionStrip)
                         .setNavigationInfo(
-                                RoutingInfo.builder()
+                                new RoutingInfo.Builder()
                                         .setCurrentStep(currentStep, currentDistance)
                                         .setJunctionImage(CarIcon.ALERT)
                                         .setNextStep(currentStep)
@@ -298,7 +298,7 @@ public class NavigationTemplateTest {
                         NavigationTemplate.builder()
                                 .setActionStrip(mActionStrip)
                                 .setNavigationInfo(
-                                        RoutingInfo.builder()
+                                        new RoutingInfo.Builder()
                                                 .setCurrentStep(currentStep, currentDistance)
                                                 .setJunctionImage(CarIcon.ERROR)
                                                 .setNextStep(currentStep)
@@ -308,8 +308,8 @@ public class NavigationTemplateTest {
 
     @Test
     public void notEquals_differentNextStep() {
-        Step currentStep = Step.builder("Hop on a ferry")
-                .addLane(Lane.builder()
+        Step currentStep = new Step.Builder("Hop on a ferry")
+                .addLane(new Lane.Builder()
                         .addDirection(LaneDirection.create(
                                 LaneDirection.SHAPE_NORMAL_LEFT, false))
                         .build())
@@ -322,7 +322,7 @@ public class NavigationTemplateTest {
                 NavigationTemplate.builder()
                         .setActionStrip(mActionStrip)
                         .setNavigationInfo(
-                                RoutingInfo.builder()
+                                new RoutingInfo.Builder()
                                         .setCurrentStep(currentStep, currentDistance)
                                         .setNextStep(currentStep)
                                         .build())
@@ -331,10 +331,10 @@ public class NavigationTemplateTest {
         assertThat(template)
                 .isNotEqualTo(NavigationTemplate.builder()
                         .setActionStrip(mActionStrip)
-                        .setNavigationInfo(RoutingInfo.builder()
+                        .setNavigationInfo(new RoutingInfo.Builder()
                                 .setCurrentStep(currentStep, currentDistance)
-                                .setNextStep(Step.builder("Do a backflip")
-                                        .addLane(Lane.builder()
+                                .setNextStep(new Step.Builder("Do a backflip")
+                                        .addLane(new Lane.Builder()
                                                 .addDirection(LaneDirection.create(
                                                         LaneDirection.SHAPE_NORMAL_LEFT,
                                                         false))

@@ -54,10 +54,10 @@ public class ScreenManager {
     /**
      * Returns the {@link Screen} that is at the top of the stack.
      *
-     * @throws NullPointerException if the method is called before a {@link Screen} has been
-     *                              pushed to the stack via {@link #push}, or
-     *                              {@link #pushForResult}, or returning a {@link Screen} from
-     *                              {@link Session#onCreateScreen}.
+     * @throws NullPointerException  if the method is called before a {@link Screen} has been
+     *                               pushed to the stack via {@link #push}, or
+     *                               {@link #pushForResult}, or returning a {@link Screen} from
+     *                               {@link Session#onCreateScreen}.
      * @throws IllegalStateException if the current thread is not the main thread.
      */
     @NonNull
@@ -72,7 +72,7 @@ public class ScreenManager {
      * <p>If the {@code screen} pushed is already in the stack it will be moved to the top of the
      * stack.
      *
-     * @throws NullPointerException if {@code screen} is {@code null}.
+     * @throws NullPointerException  if {@code screen} is {@code null}.
      * @throws IllegalStateException if the current thread is not the main thread.
      */
     public void push(@NonNull Screen screen) {
@@ -87,12 +87,12 @@ public class ScreenManager {
      * callback to {@link OnScreenResultListener#onScreenResult} with the result that the pushed
      * {@code screen} set via {@link Screen#setResult}.
      *
-     * @param screen the {@link Screen} to push on top of the stack.
+     * @param screen                 the {@link Screen} to push on top of the stack.
      * @param onScreenResultListener the listener that will be executed with the result pushed by
      *                               the {@code screen} through {@link Screen#setResult}. This
      *                               callback will be executed on the main thread.
-     * @throws NullPointerException if either the {@code screen} or the {@code
-     *                              onScreenResultCallback} are {@code null}.
+     * @throws NullPointerException  if either the {@code screen} or the {@code
+     *                               onScreenResultCallback} are {@code null}.
      * @throws IllegalStateException if the current thread is not the main thread.
      */
     @SuppressLint("ExecutorRegistration")
@@ -123,9 +123,8 @@ public class ScreenManager {
      *
      * <p>The root {@link Screen} will not be popped.
      *
-     * @throws NullPointerException if {@code marker} is {@code null}.
+     * @throws NullPointerException  if {@code marker} is {@code null}.
      * @throws IllegalStateException if the current thread is not the main thread.
-     *
      * @see Screen#setMarker
      */
     public void popTo(@NonNull String marker) {
@@ -172,7 +171,7 @@ public class ScreenManager {
      *
      * <p>If the {@code screen} is the only {@link Screen} in the stack, it will not be removed.
      *
-     * @throws NullPointerException if {@code screen} is {@code null}.
+     * @throws NullPointerException  if {@code screen} is {@code null}.
      * @throws IllegalStateException if the current thread is not the main thread.
      */
     public void remove(@NonNull Screen screen) {

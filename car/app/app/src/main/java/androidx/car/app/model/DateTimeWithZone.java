@@ -185,8 +185,8 @@ public class DateTimeWithZone {
      *
      * @param zonedDateTime The time with a time zone. The abbreviated name of this time zone,
      *                      formatted using the default locale, may be displayed to the user when
-     *                      needed, for example,
-     *                      if this time zone is different than the current system time zone.
+     *                      needed, for example, if this time zone is different than the current
+     *                      system time zone.
      * @throws NullPointerException if {@code zonedDateTime} is {@code null}.
      */
     // TODO(shiufai): revisit wrapping this method in a container class (e.g. Api26Impl).

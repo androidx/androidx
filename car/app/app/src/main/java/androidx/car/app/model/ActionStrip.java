@@ -45,6 +45,7 @@ public class ActionStrip {
     private final List<Object> mActions;
 
     /** Constructs a new builder of {@link ActionStrip}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -150,6 +151,10 @@ public class ActionStrip {
                 throw new IllegalStateException("Action strip must contain at least one action");
             }
             return new ActionStrip(this);
+        }
+
+        /** Creates an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

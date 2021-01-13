@@ -82,6 +82,7 @@ public final class PlaceListNavigationTemplate implements Template {
     private final ActionStrip mActionStrip;
 
     /** Constructs a new builder of {@link PlaceListNavigationTemplate}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -304,6 +305,10 @@ public final class PlaceListNavigationTemplate implements Template {
             }
 
             return new PlaceListNavigationTemplate(this);
+        }
+
+        /** Constructs an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

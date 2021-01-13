@@ -41,7 +41,7 @@ public class GridItemTest {
 
     @Test
     public void create_defaultValues() {
-        GridItem gridItem = GridItem.builder().setTitle("Title").setImage(BACK).build();
+        GridItem gridItem = new GridItem.Builder().setTitle("Title").setImage(BACK).build();
 
         assertThat(BACK).isEqualTo(gridItem.getImage());
         assertThat(gridItem.getImageType()).isEqualTo(GridItem.IMAGE_TYPE_LARGE);
@@ -51,14 +51,14 @@ public class GridItemTest {
 
     @Test
     public void create_isLoading() {
-        GridItem gridItem = GridItem.builder().setTitle("Title").setLoading(true).build();
+        GridItem gridItem = new GridItem.Builder().setTitle("Title").setLoading(true).build();
         assertThat(gridItem.isLoading()).isTrue();
     }
 
     @Test
     public void title_charSequence() {
         String title = "foo";
-        GridItem gridItem = GridItem.builder().setTitle(title).setImage(BACK).build();
+        GridItem gridItem = new GridItem.Builder().setTitle(title).setImage(BACK).build();
 
         assertThat(CarText.create(title)).isEqualTo(gridItem.getTitle());
     }
@@ -66,18 +66,19 @@ public class GridItemTest {
     @Test
     public void title_throwsIfNotSet() {
         // Not set
-        assertThrows(IllegalStateException.class, () -> GridItem.builder().setImage(BACK).build());
+        assertThrows(IllegalStateException.class,
+                () -> new GridItem.Builder().setImage(BACK).build());
 
         // Not set
         assertThrows(
-                IllegalArgumentException.class, () -> GridItem.builder().setTitle("").setImage(
+                IllegalArgumentException.class, () -> new GridItem.Builder().setTitle("").setImage(
                         BACK).build());
     }
 
     @Test
     public void text_charSequence() {
         String text = "foo";
-        GridItem gridItem = GridItem.builder().setTitle("title").setText(text).setImage(
+        GridItem gridItem = new GridItem.Builder().setTitle("title").setText(text).setImage(
                 BACK).build();
 
         assertThat(CarText.create(text)).isEqualTo(gridItem.getText());
@@ -87,37 +88,40 @@ public class GridItemTest {
     public void textWithoutTitle_throws() {
         assertThrows(
                 IllegalStateException.class,
-                () -> GridItem.builder().setText("text").setImage(BACK).build());
+                () -> new GridItem.Builder().setText("text").setImage(BACK).build());
     }
 
     @Test
     public void setIsLoading_contentsSet_throws() {
         assertThrows(
                 IllegalStateException.class,
-                () -> GridItem.builder().setLoading(true).setTitle("foo").setImage(BACK).build());
+                () -> new GridItem.Builder().setLoading(true).setTitle("foo").setImage(
+                        BACK).build());
     }
 
     @Test
     public void create_noImage_throws() {
-        assertThrows(IllegalStateException.class, () -> GridItem.builder().setTitle("foo").build());
+        assertThrows(IllegalStateException.class,
+                () -> new GridItem.Builder().setTitle("foo").build());
     }
 
     @Test
     public void equals() {
         String title = "title";
         String text = "text";
-        GridItem gridItem = GridItem.builder().setTitle(title).setText(text).setImage(BACK).build();
+        GridItem gridItem = new GridItem.Builder().setTitle(title).setText(text).setImage(
+                BACK).build();
 
-        assertThat(GridItem.builder().setTitle(title).setText(text).setImage(BACK).build())
+        assertThat(new GridItem.Builder().setTitle(title).setText(text).setImage(BACK).build())
                 .isEqualTo(gridItem);
     }
 
     @Test
     public void notEquals_differentTitle() {
         String title = "title";
-        GridItem gridItem = GridItem.builder().setTitle(title).setImage(BACK).build();
+        GridItem gridItem = new GridItem.Builder().setTitle(title).setImage(BACK).build();
 
-        assertThat(GridItem.builder().setTitle("foo").setImage(BACK).build()).isNotEqualTo(
+        assertThat(new GridItem.Builder().setTitle("foo").setImage(BACK).build()).isNotEqualTo(
                 gridItem);
     }
 
@@ -125,17 +129,18 @@ public class GridItemTest {
     public void notEquals_differentText() {
         String title = "title";
         String text = "text";
-        GridItem gridItem = GridItem.builder().setTitle(title).setText(text).setImage(BACK).build();
+        GridItem gridItem = new GridItem.Builder().setTitle(title).setText(text).setImage(
+                BACK).build();
 
-        assertThat(GridItem.builder().setTitle(title).setText("foo").setImage(BACK).build())
+        assertThat(new GridItem.Builder().setTitle(title).setText("foo").setImage(BACK).build())
                 .isNotEqualTo(gridItem);
     }
 
     @Test
     public void notEquals_differentImage() {
-        GridItem gridItem = GridItem.builder().setTitle("Title").setImage(BACK).build();
+        GridItem gridItem = new GridItem.Builder().setTitle("Title").setImage(BACK).build();
 
-        assertThat(GridItem.builder().setImage(ALERT).setTitle("Title").build()).isNotEqualTo(
+        assertThat(new GridItem.Builder().setImage(ALERT).setTitle("Title").build()).isNotEqualTo(
                 gridItem);
     }
 
@@ -143,7 +148,7 @@ public class GridItemTest {
     public void clickListener() throws RemoteException {
         OnClickListener onClickListener = mock(OnClickListener.class);
         GridItem gridItem =
-                GridItem.builder().setTitle("Title").setImage(BACK).setOnClickListener(
+                new GridItem.Builder().setTitle("Title").setImage(BACK).setOnClickListener(
                         onClickListener).build();
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
         gridItem.getOnClickListener().onClick(onDoneCallback);

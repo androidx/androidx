@@ -49,7 +49,7 @@ import java.util.List;
  *
  * <ol>
  *   <li>Create a {@link NotificationCompat.Builder}, setting any desired properties.
- *   <li>Create a {@link CarAppExtender.Builder} with {@link CarAppExtender#builder()}.
+ *   <li>Create a {@link CarAppExtender.Builder}.
  *   <li>Set car-specific properties using the {@code set} methods of {@link
  *       CarAppExtender.Builder}.
  *   <li>Create a {@link CarAppExtender} by calling {@link Builder#build()}.
@@ -62,7 +62,7 @@ import java.util.List;
  * <pre class="prettyprint">
  * Notification notification = new NotificationCompat.Builder(context)
  *         ...
- *         .extend(CarAppExtender.builder()
+ *         .extend(new CarAppExtender.Builder()
  *                 .set*(...)
  *                 .build())
  *         .build();
@@ -151,6 +151,7 @@ public class CarAppExtender implements NotificationCompat.Extender {
     private CarColor mColor;
 
     /** Creates a {@link CarAppExtender.Builder}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -575,6 +576,10 @@ public class CarAppExtender implements NotificationCompat.Extender {
         @NonNull
         public CarAppExtender build() {
             return new CarAppExtender(this);
+        }
+
+        /** Creates an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

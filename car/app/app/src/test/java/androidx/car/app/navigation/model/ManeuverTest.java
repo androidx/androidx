@@ -48,7 +48,7 @@ public class ManeuverTest {
     public void createInstance_non_roundabout() {
         int type = TYPE_STRAIGHT;
 
-        Maneuver maneuver = Maneuver.builder(type).setIcon(CarIcon.APP_ICON).build();
+        Maneuver maneuver = new Maneuver.Builder(type).setIcon(CarIcon.APP_ICON).build();
         assertThat(type).isEqualTo(maneuver.getType());
         assertThat(CarIcon.APP_ICON).isEqualTo(maneuver.getIcon());
     }
@@ -58,31 +58,31 @@ public class ManeuverTest {
         int typeHigh = 1000;
         assertThrows(
                 IllegalArgumentException.class,
-                () -> Maneuver.builder(typeHigh).setIcon(CarIcon.APP_ICON).build());
+                () -> new Maneuver.Builder(typeHigh).setIcon(CarIcon.APP_ICON).build());
 
         int typeLow = -1;
         assertThrows(
                 IllegalArgumentException.class,
-                () -> Maneuver.builder(typeLow).setIcon(CarIcon.APP_ICON).build());
+                () -> new Maneuver.Builder(typeLow).setIcon(CarIcon.APP_ICON).build());
     }
 
     @Test
     public void createInstance_non_roundabout_roundabout_type() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> Maneuver.builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW).setIcon(
+                () -> new Maneuver.Builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW).setIcon(
                         CarIcon.APP_ICON).build());
         assertThrows(
                 IllegalArgumentException.class,
-                () -> Maneuver.builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW).setIcon(
+                () -> new Maneuver.Builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW).setIcon(
                         CarIcon.APP_ICON).build());
         assertThrows(IllegalArgumentException.class,
-                () -> Maneuver.builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW_WITH_ANGLE)
+                () -> new Maneuver.Builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW_WITH_ANGLE)
                         .setIcon(CarIcon.APP_ICON)
                         .build());
         assertThrows(
                 IllegalArgumentException.class,
-                () -> Maneuver.builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW_WITH_ANGLE)
+                () -> new Maneuver.Builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW_WITH_ANGLE)
                         .setIcon(CarIcon.APP_ICON)
                         .build());
     }
@@ -93,7 +93,7 @@ public class ManeuverTest {
         int roundaboutExitNumber = 2;
 
         Maneuver maneuver =
-                Maneuver.builder(type)
+                new Maneuver.Builder(type)
                         .setRoundaboutExitNumber(roundaboutExitNumber)
                         .setIcon(CarIcon.APP_ICON)
                         .build();
@@ -108,7 +108,7 @@ public class ManeuverTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        Maneuver.builder(typeHigh)
+                        new Maneuver.Builder(typeHigh)
                                 .setRoundaboutExitNumber(1)
                                 .setIcon(CarIcon.APP_ICON)
                                 .build());
@@ -117,7 +117,7 @@ public class ManeuverTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        Maneuver.builder(typeLow).setRoundaboutExitNumber(1).setIcon(
+                        new Maneuver.Builder(typeLow).setRoundaboutExitNumber(1).setIcon(
                                 CarIcon.APP_ICON).build());
     }
 
@@ -126,7 +126,7 @@ public class ManeuverTest {
         int type = TYPE_STRAIGHT;
         assertThrows(
                 IllegalArgumentException.class,
-                () -> Maneuver.builder(type).setRoundaboutExitNumber(1).setIcon(
+                () -> new Maneuver.Builder(type).setRoundaboutExitNumber(1).setIcon(
                         CarIcon.APP_ICON).build());
     }
 
@@ -138,7 +138,7 @@ public class ManeuverTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        Maneuver.builder(type)
+                        new Maneuver.Builder(type)
                                 .setRoundaboutExitNumber(roundaboutExitNumber)
                                 .setIcon(CarIcon.APP_ICON)
                                 .build());
@@ -151,7 +151,7 @@ public class ManeuverTest {
         int roundaboutExitAngle = 270;
 
         Maneuver maneuver =
-                Maneuver.builder(type)
+                new Maneuver.Builder(type)
                         .setRoundaboutExitNumber(roundaboutExitNumber)
                         .setRoundaboutExitAngle(roundaboutExitAngle)
                         .setIcon(CarIcon.APP_ICON)
@@ -167,7 +167,7 @@ public class ManeuverTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        Maneuver.builder(TYPE_STRAIGHT)
+                        new Maneuver.Builder(TYPE_STRAIGHT)
                                 .setRoundaboutExitNumber(1)
                                 .setRoundaboutExitAngle(1)
                                 .setIcon(CarIcon.APP_ICON)
@@ -175,7 +175,7 @@ public class ManeuverTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        Maneuver.builder(TYPE_ROUNDABOUT_ENTER_CW)
+                        new Maneuver.Builder(TYPE_ROUNDABOUT_ENTER_CW)
                                 .setRoundaboutExitNumber(1)
                                 .setRoundaboutExitAngle(1)
                                 .setIcon(CarIcon.APP_ICON)
@@ -183,7 +183,7 @@ public class ManeuverTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        Maneuver.builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW)
+                        new Maneuver.Builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW)
                                 .setRoundaboutExitNumber(1)
                                 .setRoundaboutExitAngle(1)
                                 .setIcon(CarIcon.APP_ICON)
@@ -196,49 +196,49 @@ public class ManeuverTest {
         builder.scheme(ContentResolver.SCHEME_CONTENT);
         builder.appendPath("foo/bar");
         Uri iconUri = builder.build();
-        CarIcon carIcon = CarIcon.of(IconCompat.createWithContentUri(iconUri));
+        CarIcon carIcon = new CarIcon.Builder(IconCompat.createWithContentUri(iconUri)).build();
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> Maneuver.builder(TYPE_STRAIGHT).setIcon(carIcon).build());
+                () -> new Maneuver.Builder(TYPE_STRAIGHT).setIcon(carIcon).build());
     }
 
     @Test
     public void equals() {
-        Maneuver maneuver = Maneuver.builder(TYPE_STRAIGHT).setIcon(CarIcon.APP_ICON).build();
+        Maneuver maneuver = new Maneuver.Builder(TYPE_STRAIGHT).setIcon(CarIcon.APP_ICON).build();
 
-        assertThat(Maneuver.builder(TYPE_STRAIGHT).setIcon(CarIcon.APP_ICON).build())
+        assertThat(new Maneuver.Builder(TYPE_STRAIGHT).setIcon(CarIcon.APP_ICON).build())
                 .isEqualTo(maneuver);
     }
 
     @Test
     public void notEquals_differentType() {
-        Maneuver maneuver = Maneuver.builder(TYPE_DESTINATION_LEFT).setIcon(
+        Maneuver maneuver = new Maneuver.Builder(TYPE_DESTINATION_LEFT).setIcon(
                 CarIcon.APP_ICON).build();
 
-        assertThat(Maneuver.builder(TYPE_STRAIGHT).setIcon(CarIcon.APP_ICON).build())
+        assertThat(new Maneuver.Builder(TYPE_STRAIGHT).setIcon(CarIcon.APP_ICON).build())
                 .isNotEqualTo(maneuver);
     }
 
     @Test
     public void notEquals_differentImage() {
-        Maneuver maneuver = Maneuver.builder(TYPE_DESTINATION_LEFT).setIcon(
+        Maneuver maneuver = new Maneuver.Builder(TYPE_DESTINATION_LEFT).setIcon(
                 CarIcon.APP_ICON).build();
 
-        assertThat(Maneuver.builder(TYPE_DESTINATION_LEFT).setIcon(CarIcon.ALERT).build())
+        assertThat(new Maneuver.Builder(TYPE_DESTINATION_LEFT).setIcon(CarIcon.ALERT).build())
                 .isNotEqualTo(maneuver);
     }
 
     @Test
     public void notEquals_differentRoundaboutExit() {
         Maneuver maneuver =
-                Maneuver.builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW)
+                new Maneuver.Builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW)
                         .setRoundaboutExitNumber(1)
                         .setIcon(CarIcon.APP_ICON)
                         .build();
 
         assertThat(
-                Maneuver.builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW)
+                new Maneuver.Builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW)
                         .setRoundaboutExitNumber(2)
                         .setIcon(CarIcon.APP_ICON)
                         .build())

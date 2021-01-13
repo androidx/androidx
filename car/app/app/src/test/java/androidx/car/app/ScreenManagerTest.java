@@ -943,14 +943,14 @@ public final class ScreenManagerTest {
     @Test
     public void getTopTemplate_returnsTemplateFromTopOfStack() {
         Template template =
-                PlaceListMapTemplate.builder()
+                new PlaceListMapTemplate.Builder()
                         .setTitle("Title")
-                        .setItemList(ItemList.builder().build())
+                        .setItemList(new ItemList.Builder().build())
                         .build();
         Template template2 =
-                PlaceListMapTemplate.builder()
+                new PlaceListMapTemplate.Builder()
                         .setTitle("Title2")
-                        .setItemList(ItemList.builder().build())
+                        .setItemList(new ItemList.Builder().build())
                         .build();
         when(mMockScreen1.onGetTemplate()).thenReturn(template);
         when(mMockScreen2.onGetTemplate()).thenReturn(template2);
@@ -1114,14 +1114,14 @@ public final class ScreenManagerTest {
     @Test
     public void pop_screenReuseLastTemplateId() {
         Template template =
-                PlaceListMapTemplate.builder()
+                new PlaceListMapTemplate.Builder()
                         .setTitle("Title")
-                        .setItemList(ItemList.builder().build())
+                        .setItemList(new ItemList.Builder().build())
                         .build();
         Template template2 =
-                PlaceListMapTemplate.builder()
+                new PlaceListMapTemplate.Builder()
                         .setTitle("Title")
-                        .setItemList(ItemList.builder().build())
+                        .setItemList(new ItemList.Builder().build())
                         .build();
         when(mMockScreen1.onGetTemplate()).thenReturn(template);
         when(mMockScreen2.onGetTemplate()).thenReturn(template);

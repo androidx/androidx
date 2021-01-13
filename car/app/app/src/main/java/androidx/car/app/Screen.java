@@ -218,6 +218,7 @@ public abstract class Screen implements LifecycleOwner {
     }
 
     // TODO(rampara): Replace code tags with link on submission of notification module
+
     /**
      * Returns the {@link Template} to present in the car screen.
      *

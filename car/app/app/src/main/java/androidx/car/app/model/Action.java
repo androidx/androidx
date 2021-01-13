@@ -141,6 +141,7 @@ public final class Action {
     private final int mType;
 
     /** Constructs a new builder of {@link Action}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -409,7 +410,8 @@ public final class Action {
             return new Action(mTitle, mIcon, mBackgroundColor, mListener, mType);
         }
 
-        Builder() {
+        /** Creates an empty {@link Builder} instance. */
+        public Builder() {
         }
 
         Builder(Action action) {

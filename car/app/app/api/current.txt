@@ -183,6 +183,7 @@ package androidx.car.app.model {
   }
 
   public static final class Action.Builder {
+    ctor public Action.Builder();
     method public androidx.car.app.model.Action build();
     method public androidx.car.app.model.Action.Builder setBackgroundColor(androidx.car.app.model.CarColor);
     method public androidx.car.app.model.Action.Builder setIcon(androidx.car.app.model.CarIcon?);
@@ -235,7 +236,6 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarColor? getTint();
     method public int getType();
     method public androidx.car.app.model.CarIcon.Builder newBuilder();
-    method public static androidx.car.app.model.CarIcon of(androidx.core.graphics.drawable.IconCompat);
     field public static final androidx.car.app.model.CarIcon ALERT;
     field public static final androidx.car.app.model.CarIcon APP_ICON;
     field public static final androidx.car.app.model.CarIcon BACK;
@@ -249,6 +249,7 @@ package androidx.car.app.model {
   }
 
   public static final class CarIcon.Builder {
+    ctor public CarIcon.Builder(androidx.core.graphics.drawable.IconCompat);
     method public androidx.car.app.model.CarIcon build();
     method public androidx.car.app.model.CarIcon.Builder setIcon(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.CarIcon.Builder setTint(androidx.car.app.model.CarColor?);
@@ -335,6 +336,7 @@ package androidx.car.app.model {
   }
 
   public static final class GridItem.Builder {
+    ctor public GridItem.Builder();
     method public androidx.car.app.model.GridItem build();
     method public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon, int);
@@ -355,6 +357,7 @@ package androidx.car.app.model {
   }
 
   public static final class GridTemplate.Builder {
+    ctor public GridTemplate.Builder();
     method public androidx.car.app.model.GridTemplate build();
     method public androidx.car.app.model.GridTemplate.Builder clearAllLists();
     method public androidx.car.app.model.GridTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip?);
@@ -434,6 +437,7 @@ package androidx.car.app.model {
   }
 
   public static final class MessageTemplate.Builder {
+    ctor public MessageTemplate.Builder(CharSequence);
     method public androidx.car.app.model.MessageTemplate build();
     method public androidx.car.app.model.MessageTemplate.Builder setActions(java.util.List<androidx.car.app.model.Action!>);
     method public androidx.car.app.model.MessageTemplate.Builder setDebugCause(Throwable?);
@@ -453,6 +457,7 @@ package androidx.car.app.model {
   }
 
   public static final class Metadata.Builder {
+    ctor public Metadata.Builder();
     method public androidx.car.app.model.Metadata build();
     method public androidx.car.app.model.Metadata.Builder setPlace(androidx.car.app.model.Place?);
   }
@@ -502,6 +507,7 @@ package androidx.car.app.model {
   }
 
   public static final class PaneTemplate.Builder {
+    ctor public PaneTemplate.Builder(androidx.car.app.model.Pane);
     method public androidx.car.app.model.PaneTemplate build();
     method public androidx.car.app.model.PaneTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip?);
     method public androidx.car.app.model.PaneTemplate.Builder setHeaderAction(androidx.car.app.model.Action?);
@@ -522,6 +528,7 @@ package androidx.car.app.model {
   }
 
   public static final class Place.Builder {
+    ctor public Place.Builder(androidx.car.app.model.LatLng);
     method public androidx.car.app.model.Place build();
     method public androidx.car.app.model.Place.Builder setLatLng(androidx.car.app.model.LatLng);
     method public androidx.car.app.model.Place.Builder setMarker(androidx.car.app.model.PlaceMarker?);
@@ -563,6 +570,7 @@ package androidx.car.app.model {
   }
 
   public static final class PlaceMarker.Builder {
+    ctor public PlaceMarker.Builder();
     method public androidx.car.app.model.PlaceMarker build();
     method public androidx.car.app.model.PlaceMarker.Builder setColor(androidx.car.app.model.CarColor?);
     method public androidx.car.app.model.PlaceMarker.Builder setIcon(androidx.car.app.model.CarIcon?, int);
@@ -587,6 +595,7 @@ package androidx.car.app.model {
   }
 
   public static final class Row.Builder {
+    ctor public Row.Builder();
     method public androidx.car.app.model.Row.Builder addText(CharSequence);
     method public androidx.car.app.model.Row build();
     method public androidx.car.app.model.Row.Builder setBrowsable(boolean);
@@ -616,6 +625,7 @@ package androidx.car.app.model {
   }
 
   public static final class SearchTemplate.Builder {
+    ctor public SearchTemplate.Builder(androidx.car.app.model.SearchTemplate.SearchCallback);
     method public androidx.car.app.model.SearchTemplate build();
     method public androidx.car.app.model.SearchTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip?);
     method public androidx.car.app.model.SearchTemplate.Builder setHeaderAction(androidx.car.app.model.Action?);
@@ -669,6 +679,7 @@ package androidx.car.app.model {
   }
 
   public static final class Toggle.Builder {
+    ctor public Toggle.Builder(androidx.car.app.model.Toggle.OnCheckedChangeListener);
     method public androidx.car.app.model.Toggle build();
     method public androidx.car.app.model.Toggle.Builder setChecked(boolean);
     method public androidx.car.app.model.Toggle.Builder setOnCheckedChangeListener(androidx.car.app.model.Toggle.OnCheckedChangeListener);
@@ -709,6 +720,7 @@ package androidx.car.app.navigation.model {
   }
 
   public static final class Destination.Builder {
+    ctor public Destination.Builder();
     method public androidx.car.app.navigation.model.Destination build();
     method public androidx.car.app.navigation.model.Destination.Builder setAddress(CharSequence?);
     method public androidx.car.app.navigation.model.Destination.Builder setImage(androidx.car.app.model.CarIcon?);
@@ -803,6 +815,7 @@ package androidx.car.app.navigation.model {
   }
 
   public static final class Maneuver.Builder {
+    ctor public Maneuver.Builder(int);
     method public androidx.car.app.navigation.model.Maneuver build();
     method public androidx.car.app.navigation.model.Maneuver.Builder setIcon(androidx.car.app.model.CarIcon?);
     method public androidx.car.app.navigation.model.Maneuver.Builder setRoundaboutExitAngle(int);
@@ -817,6 +830,7 @@ package androidx.car.app.navigation.model {
   }
 
   public static final class MessageInfo.Builder {
+    ctor public MessageInfo.Builder(CharSequence);
     method public androidx.car.app.navigation.model.MessageInfo build();
     method public androidx.car.app.navigation.model.MessageInfo.Builder setImage(androidx.car.app.model.CarIcon?);
     method public androidx.car.app.navigation.model.MessageInfo.Builder setText(CharSequence?);
@@ -832,6 +846,7 @@ package androidx.car.app.navigation.model {
   }
 
   public static final class NavigationTemplate.Builder {
+    ctor public NavigationTemplate.Builder();
     method public androidx.car.app.navigation.model.NavigationTemplate build();
     method public androidx.car.app.navigation.model.NavigationTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
     method public androidx.car.app.navigation.model.NavigationTemplate.Builder setBackgroundColor(androidx.car.app.model.CarColor?);
@@ -892,6 +907,7 @@ package androidx.car.app.navigation.model {
   }
 
   public static final class RoutingInfo.Builder {
+    ctor public RoutingInfo.Builder();
     method public androidx.car.app.navigation.model.RoutingInfo build();
     method public androidx.car.app.navigation.model.RoutingInfo.Builder setCurrentStep(androidx.car.app.navigation.model.Step, androidx.car.app.model.Distance);
     method public androidx.car.app.navigation.model.RoutingInfo.Builder setJunctionImage(androidx.car.app.model.CarIcon?);
@@ -910,6 +926,7 @@ package androidx.car.app.navigation.model {
   }
 
   public static final class Step.Builder {
+    ctor public Step.Builder(CharSequence);
     method public androidx.car.app.navigation.model.Step.Builder addLane(androidx.car.app.navigation.model.Lane);
     method public androidx.car.app.navigation.model.Step build();
     method public androidx.car.app.navigation.model.Step.Builder clearLanes();
@@ -933,6 +950,8 @@ package androidx.car.app.navigation.model {
   }
 
   public static final class TravelEstimate.Builder {
+    ctor public TravelEstimate.Builder(androidx.car.app.model.Distance, androidx.car.app.model.DateTimeWithZone);
+    ctor @RequiresApi(26) public TravelEstimate.Builder(androidx.car.app.model.Distance, java.time.ZonedDateTime);
     method public androidx.car.app.navigation.model.TravelEstimate build();
     method public androidx.car.app.navigation.model.TravelEstimate.Builder setRemainingDistanceColor(androidx.car.app.model.CarColor);
     method @RequiresApi(26) public androidx.car.app.navigation.model.TravelEstimate.Builder setRemainingTime(java.time.Duration);

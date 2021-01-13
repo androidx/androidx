@@ -42,7 +42,7 @@ public class ActionsConstraints {
     /** Conservative constraints for most template types. */
     @NonNull
     private static final ActionsConstraints ACTIONS_CONSTRAINTS_CONSERVATIVE =
-            ActionsConstraints.builder().setMaxActions(2).build();
+            new ActionsConstraints.Builder().setMaxActions(2).build();
 
     /**
      * Constraints for template headers, where only the special-purpose back and app-icon standard
@@ -50,7 +50,7 @@ public class ActionsConstraints {
      */
     @NonNull
     public static final ActionsConstraints ACTIONS_CONSTRAINTS_HEADER =
-            ActionsConstraints.builder().setMaxActions(1).addDisallowedActionType(
+            new ActionsConstraints.Builder().setMaxActions(1).addDisallowedActionType(
                     Action.TYPE_CUSTOM).build();
 
     /**
@@ -77,6 +77,7 @@ public class ActionsConstraints {
     private final Set<Integer> mDisallowedActionTypes;
 
     /** Returns a builder of {@link ActionsConstraints}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @VisibleForTesting
     @NonNull
     public static Builder builder() {
@@ -241,7 +242,8 @@ public class ActionsConstraints {
             return new ActionsConstraints(this);
         }
 
-        Builder() {
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
 
         Builder(ActionsConstraints constraints) {

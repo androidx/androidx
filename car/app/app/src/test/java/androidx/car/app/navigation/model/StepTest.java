@@ -36,17 +36,17 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public class StepTest {
     @Test
     public void createInstance() {
-        Lane lane = Lane.builder().addDirection(
+        Lane lane = new Lane.Builder().addDirection(
                 LaneDirection.create(SHAPE_SHARP_LEFT, true)).build();
         Maneuver maneuver =
-                Maneuver.builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW)
+                new Maneuver.Builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW)
                         .setRoundaboutExitNumber(/*roundaboutExitNumber=*/ 2)
                         .setIcon(CarIcon.APP_ICON)
                         .build();
         String cue = "Left at State street.";
         String road = "State St.";
         Step step =
-                Step.builder(cue)
+                new Step.Builder(cue)
                         .addLane(lane)
                         .setLanesImage(CarIcon.APP_ICON)
                         .setManeuver(maneuver)
@@ -63,13 +63,13 @@ public class StepTest {
 
     @Test
     public void clearLanes() {
-        Lane lane1 = Lane.builder().addDirection(
+        Lane lane1 = new Lane.Builder().addDirection(
                 LaneDirection.create(SHAPE_SHARP_LEFT, true)).build();
-        Lane lane2 = Lane.builder()
+        Lane lane2 = new Lane.Builder()
                 .addDirection(LaneDirection.create(LaneDirection.SHAPE_SHARP_RIGHT, true))
                 .build();
         String cue = "Left at State street.";
-        Step step = Step.builder(cue).addLane(lane1).addLane(lane2).clearLanes().build();
+        Step step = new Step.Builder(cue).addLane(lane1).addLane(lane2).clearLanes().build();
 
         assertThat(step.getLanes()).hasSize(0);
     }
@@ -80,27 +80,27 @@ public class StepTest {
 
         assertThrows(
                 IllegalStateException.class,
-                () -> Step.builder(cue).setLanesImage(CarIcon.APP_ICON).build());
+                () -> new Step.Builder(cue).setLanesImage(CarIcon.APP_ICON).build());
     }
 
     @Test
     public void equals() {
-        Lane lane = Lane.builder().addDirection(
+        Lane lane = new Lane.Builder().addDirection(
                 LaneDirection.create(SHAPE_SHARP_LEFT, true)).build();
-        Maneuver maneuver = Maneuver.builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW)
+        Maneuver maneuver = new Maneuver.Builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW)
                 .setRoundaboutExitNumber(/*roundaboutExitNumber=*/ 2)
                 .setIcon(CarIcon.APP_ICON)
                 .build();
         String cue = "Left at State street.";
         String road = "State St.";
-        Step step = Step.builder(cue)
+        Step step = new Step.Builder(cue)
                 .addLane(lane)
                 .setLanesImage(CarIcon.APP_ICON)
                 .setManeuver(maneuver)
                 .setRoad(road)
                 .build();
 
-        assertThat(Step.builder(cue)
+        assertThat(new Step.Builder(cue)
                 .addLane(lane)
                 .setLanesImage(CarIcon.APP_ICON)
                 .setManeuver(maneuver)
@@ -112,21 +112,21 @@ public class StepTest {
     @Test
     public void notEquals_differentCue() {
         String cue = "Left at State street.";
-        Step step = Step.builder(cue).build();
+        Step step = new Step.Builder(cue).build();
 
-        assertThat(Step.builder("foo").build()).isNotEqualTo(step);
+        assertThat(new Step.Builder("foo").build()).isNotEqualTo(step);
     }
 
     @Test
     public void notEquals_differentLane() {
-        Lane lane = Lane.builder().addDirection(
+        Lane lane = new Lane.Builder().addDirection(
                 LaneDirection.create(SHAPE_SHARP_LEFT, true)).build();
         String cue = "Left at State street.";
 
-        Step step = Step.builder(cue).addLane(lane).build();
+        Step step = new Step.Builder(cue).addLane(lane).build();
 
-        assertThat(Step.builder(cue)
-                .addLane(Lane.builder()
+        assertThat(new Step.Builder(cue)
+                .addLane(new Lane.Builder()
                         .addDirection(LaneDirection.create(SHAPE_SHARP_LEFT, false))
                         .build())
                 .build())
@@ -136,28 +136,28 @@ public class StepTest {
     @Test
     public void notEquals_differentLanesImage() {
         String cue = "Left at State street.";
-        Lane lane = Lane.builder().addDirection(
+        Lane lane = new Lane.Builder().addDirection(
                 LaneDirection.create(SHAPE_SHARP_LEFT, true)).build();
 
-        Step step = Step.builder(cue).addLane(lane).setLanesImage(CarIcon.APP_ICON).build();
+        Step step = new Step.Builder(cue).addLane(lane).setLanesImage(CarIcon.APP_ICON).build();
 
-        assertThat(Step.builder(cue).addLane(lane).setLanesImage(CarIcon.ALERT).build())
+        assertThat(new Step.Builder(cue).addLane(lane).setLanesImage(CarIcon.ALERT).build())
                 .isNotEqualTo(step);
     }
 
     @Test
     public void notEquals_differentManeuver() {
         Maneuver maneuver =
-                Maneuver.builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW)
+                new Maneuver.Builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW)
                         .setRoundaboutExitNumber(/*roundaboutExitNumber=*/ 2)
                         .setIcon(CarIcon.APP_ICON)
                         .build();
         String cue = "Left at State street.";
 
-        Step step = Step.builder(cue).setManeuver(maneuver).build();
+        Step step = new Step.Builder(cue).setManeuver(maneuver).build();
 
-        assertThat(Step.builder(cue)
-                .setManeuver(Maneuver.builder(Maneuver.TYPE_DESTINATION).setIcon(
+        assertThat(new Step.Builder(cue)
+                .setManeuver(new Maneuver.Builder(Maneuver.TYPE_DESTINATION).setIcon(
                         CarIcon.APP_ICON).build())
                 .build())
                 .isNotEqualTo(step);
@@ -167,8 +167,8 @@ public class StepTest {
     public void notEquals_differentRoad() {
         String cue = "Left at State street.";
 
-        Step step = Step.builder(cue).setRoad("road").build();
+        Step step = new Step.Builder(cue).setRoad("road").build();
 
-        assertThat(Step.builder(cue).setRoad("foo").build()).isNotEqualTo(step);
+        assertThat(new Step.Builder(cue).setRoad("foo").build()).isNotEqualTo(step);
     }
 }

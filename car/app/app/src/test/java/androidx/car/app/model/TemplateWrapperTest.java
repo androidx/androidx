@@ -30,8 +30,8 @@ public class TemplateWrapperTest {
     @Test
     public void createInstance() {
         ListTemplate template =
-                ListTemplate.builder().setTitle("Title").setSingleList(
-                        ItemList.builder().build()).build();
+                new ListTemplate.Builder().setTitle("Title").setSingleList(
+                        new ItemList.Builder().build()).build();
         TemplateWrapper wrapper = TemplateWrapper.wrap(template);
         assertThat(wrapper.getTemplate()).isEqualTo(template);
 
@@ -43,11 +43,11 @@ public class TemplateWrapperTest {
     @Test
     public void createInstance_thenUpdate() {
         ListTemplate template =
-                ListTemplate.builder().setTitle("Title").setSingleList(
-                        ItemList.builder().build()).build();
+                new ListTemplate.Builder().setTitle("Title").setSingleList(
+                        new ItemList.Builder().build()).build();
         ListTemplate template2 =
-                ListTemplate.builder().setTitle("Title").setSingleList(
-                        ItemList.builder().build()).build();
+                new ListTemplate.Builder().setTitle("Title").setSingleList(
+                        new ItemList.Builder().build()).build();
 
         TemplateWrapper wrapper = TemplateWrapper.wrap(template);
         String id = wrapper.getId();
@@ -77,8 +77,8 @@ public class TemplateWrapperTest {
     @Test
     public void copyOf() {
         ListTemplate template =
-                ListTemplate.builder().setTitle("Title").setSingleList(
-                        ItemList.builder().build()).build();
+                new ListTemplate.Builder().setTitle("Title").setSingleList(
+                        new ItemList.Builder().build()).build();
         TemplateWrapper source = TemplateWrapper.wrap(template, "ID");
         source.setCurrentTaskStep(45);
         source.setRefresh(true);
