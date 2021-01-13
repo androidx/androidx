@@ -16,11 +16,14 @@
 
 package androidx.wear.watchface.editor
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.os.Handler
+import android.os.Looper
 import android.support.wearable.complications.ComplicationProviderInfo
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContract
@@ -35,8 +38,8 @@ import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
-import androidx.wear.complications.data.SmallImage
-import androidx.wear.complications.data.SmallImageType
+import androidx.wear.complications.data.MonochromaticImage
+import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.client.ComplicationState
@@ -45,6 +48,7 @@ import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.Executor
 
 /**
  * Interface for manipulating watch face state during an editing session for a watch face editing
@@ -72,16 +76,18 @@ public interface EditorSession {
 
     /**
      * Map of complication ids to [ComplicationState] for each complication slot. Note
-     * [ComplicationState] can change, typically in response to styling.
+     * [ComplicationState] can change, typically in response to styling.  If a complication is empty
+     * then it will not be in this map, disabled complications are included however.
      */
     public val complicationState: Map<Int, ComplicationState>
 
     /**
-     * Map of complication ids to preview [ComplicationData] suitable for use in rendering the
-     * watch face. Unlike live data this is static per provider, but it may change as a result of
-     * [launchComplicationProviderChooser].
+     * [ListenableFuture] for a map of complication ids to preview [ComplicationData] suitable for
+     * use in rendering the watch face. Note if a slot is configured to be empty then it will not
+     * appear in the map. Note also unlike live data this is static per provider, but it may change
+     * (on the UIThread) as a result of [launchComplicationProviderChooser].
      */
-    public val complicationPreviewData: Map<Int, ComplicationData>
+    public val complicationPreviewData: ListenableFuture<Map<Int, ComplicationData>>
 
     /** The ID of the background complication or `null` if there isn't one. */
     @get:SuppressWarnings("AutoBoxing")
@@ -165,7 +171,17 @@ public interface EditorSession {
 internal abstract class BaseEditorSession(
     protected val activity: ComponentActivity,
 ) : EditorSession {
-    override val complicationPreviewData = HashMap<Int, ComplicationData>()
+
+    // NB this map is only modified on the UI thread.
+    private val complicationPreviewDataInternal = HashMap<Int, ComplicationData>()
+
+    // This future is resolved when [fetchComplicationPreviewData] has called [getPreviewData] for
+    // each complication and each of those future has been resolved.
+    private val complicationPreviewDataFuture =
+        ResolvableFuture.create<Map<Int, ComplicationData>>()
+
+    override val complicationPreviewData: ResolvableFuture<Map<Int, ComplicationData>> =
+        complicationPreviewDataFuture
 
     // The future returned by [launchComplicationProviderChooser].
     private var pendingFuture: ResolvableFuture<Boolean>? = null
@@ -173,23 +189,40 @@ internal abstract class BaseEditorSession(
     // The id of the complication being configured due to [launchComplicationProviderChooser].
     private var pendingComplicationProviderId: Int = -1
 
+    private val mainThreadExecutor: Executor = object : Executor {
+        private val handler: Handler = Handler(Looper.getMainLooper())
+        override fun execute(command: Runnable) {
+            if (handler.looper !== Looper.myLooper()) {
+                handler.post(command)
+            } else {
+                command.run()
+            }
+        }
+    }
+
     private val chooseComplicationProvider =
         activity.registerForActivityResult(ComplicationProviderChooserContract()) {
             if (it != null) {
-                // Update [complicationPreviewData] based on the user's choice of provider.
-                val providerIcon = it.providerInfo?.providerIcon
-                val providerName = it.providerInfo?.providerName
-                if (providerIcon == null || providerName == null) {
-                    complicationPreviewData.remove(pendingComplicationProviderId)
-                } else {
-                    complicationPreviewData[pendingComplicationProviderId] =
-                        LongTextComplicationData.Builder(ComplicationText.plain(providerName))
-                            .setSmallImage(
-                                SmallImage.Builder(providerIcon, SmallImageType.PHOTO).build()
-                            )
-                            .build()
-                }
-                pendingFuture!!.set(true)
+                // Update preview data and then resolve [pendingFuture].
+                val providerInfoRetriever = ProviderInfoRetriever(activity)
+                val previewDataListener = getPreviewData(
+                    providerInfoRetriever,
+                    it.providerInfo
+                )
+                previewDataListener.addListener(
+                    {
+                        val previewData = previewDataListener.get()
+                        if (previewData == null) {
+                            complicationPreviewDataInternal.remove(pendingComplicationProviderId)
+                        } else {
+                            complicationPreviewDataInternal[pendingComplicationProviderId] =
+                                previewData
+                        }
+                        providerInfoRetriever.close()
+                        pendingFuture!!.set(true)
+                    },
+                    mainThreadExecutor
+                )
             } else {
                 pendingFuture!!.set(false)
             }
@@ -222,9 +255,56 @@ internal abstract class BaseEditorSession(
             }
         }?.key
 
+    /**
+     * Returns a future that resolves with the provider's preview [ComplicationData] if possible or
+     * fallback preview data based on provider icon and name if not. If the slot is configured to be
+     * empty then the future will resolve to `null`.
+     *
+     * Note providerInfoRetriever.requestPreviewComplicationData which requires R will never be
+     * called pre R because providerInfo.providerComponentName is only non null from R onwards.
+     */
+    @SuppressLint("NewApi")
+    internal fun getPreviewData(
+        providerInfoRetriever: ProviderInfoRetriever,
+        providerInfo: ComplicationProviderInfo?
+    ): ListenableFuture<ComplicationData?> {
+        if (providerInfo == null) {
+            return ResolvableFuture.create<ComplicationData>().apply {
+                set(null)
+            }
+        }
+
+        providerInfo.providerComponentName?.let {
+            return providerInfoRetriever.requestPreviewComplicationData(
+                it,
+                ComplicationType.fromWireType(providerInfo.complicationType)
+            )
+        }
+
+        // Generate fallback preview data.
+        return ResolvableFuture.create<ComplicationData>().apply {
+            val providerIcon = providerInfo.providerIcon
+            val providerName = providerInfo.providerName
+            set(
+                when {
+                    providerName == null -> null
+
+                    providerIcon == null ->
+                        LongTextComplicationData.Builder(ComplicationText.plain(providerName))
+                            .build()
+
+                    else ->
+                        ShortTextComplicationData.Builder(ComplicationText.plain(providerName))
+                            .setImage(
+                                MonochromaticImage.Builder(providerIcon).build()
+                            )
+                            .build()
+                }
+            )
+        }
+    }
+
     protected fun fetchComplicationPreviewData() {
-        // Fetch complicationPreviewData based on the provider's icons and name.
-        // TODO(alexclarke): Obtain preview data from complication providers instead.
         val providerInfoRetriever = ProviderInfoRetriever(activity)
         val providerInfoFuture = providerInfoRetriever.retrieveProviderInfo(
             watchFaceComponentName,
@@ -233,15 +313,30 @@ internal abstract class BaseEditorSession(
         providerInfoFuture.addListener(
             {
                 providerInfoFuture.get()?.let {
+                    // We can use a regular int here because we use [mainThreadExecutor].
+                    var countDown = it.size
                     for (providerInfo in it) {
-                        val providerIcon = providerInfo.info?.providerIcon ?: continue
-                        val providerName = providerInfo.info?.providerName ?: continue
-                        complicationPreviewData[providerInfo.watchFaceComplicationId] =
-                            LongTextComplicationData.Builder(ComplicationText.plain(providerName))
-                                .setSmallImage(
-                                    SmallImage.Builder(providerIcon, SmallImageType.PHOTO).build()
-                                )
-                                .build()
+                        val previewDataListener = getPreviewData(
+                            providerInfoRetriever,
+                            providerInfo.info
+                        )
+                        previewDataListener.addListener(
+                            {
+                                previewDataListener.get()?.let { previewData ->
+                                    complicationPreviewDataInternal[
+                                        providerInfo.watchFaceComplicationId
+                                    ] = previewData
+                                }
+                                // If we've generated preview data for all the complications we can
+                                // resolve the future.
+                                if (--countDown == 0) {
+                                    complicationPreviewDataFuture.set(
+                                        complicationPreviewDataInternal
+                                    )
+                                }
+                            },
+                            mainThreadExecutor
+                        )
                     }
                 }
                 providerInfoRetriever.close()
