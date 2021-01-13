@@ -20,7 +20,6 @@ import android.app.Instrumentation
 import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import java.io.File
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 
@@ -41,23 +40,6 @@ private val COMPILE_MODES = listOf(SPEED, SPEED_PROFILE, QUICKEN, VERIFY)
 
 // SELinux Permission Lock
 private val permissiveLock = ReentrantReadWriteLock()
-
-/**
- * Drops the kernel page cache
- *
- *@param instrumentation The [Instrumentation] context.
- */
-internal fun dropCaches(instrumentation: Instrumentation) {
-    val outputDirectory = instrumentation.context.cacheDir
-    val script = File.createTempFile("drop_cache_script", ".sh", outputDirectory)
-    script.setWritable(true)
-    script.setExecutable(/* executable */true, /* owner only */false)
-    val command = "echo 3 > /proc/sys/vm/drop_caches && echo Success || echo Failure"
-    script.writeText(command)
-    val device = instrumentation.device()
-    val result = device.executeShellCommand(script.toString())
-    Log.d(TAG, "drop caches output was $result")
-}
 
 /**
  * Compiles the application with the specified filter.
