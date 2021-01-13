@@ -25,7 +25,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 
 private class MulticastedPagingData<T : Any>(
@@ -85,18 +84,14 @@ internal fun <T : Any> Flow<PagingData<T>>.cachedIn(
     // used in tests
     tracker: ActiveFlowTracker? = null
 ): Flow<PagingData<T>> {
-    // This variable is a replacement for lack of non-experimental `scan` operator.
-    // It holds onto the previous MulticastedPagingData to be able to close it when a new
-    // MulticastedPagingData is received.
-    var prev: MulticastedPagingData<T>? = null
     val multicastedFlow = this.map {
         MulticastedPagingData(
             scope = scope,
             parent = it
         )
-    }.onEach {
-        prev?.close()
-        prev = it
+    }.simpleRunningReduce { prev, next ->
+        prev.close()
+        next
     }.map {
         it.asPagingData()
     }.onStart {
