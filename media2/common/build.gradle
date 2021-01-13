@@ -27,6 +27,9 @@ apply(from: "../constants.gradle")
 
 dependencies {
     api("androidx.media:media:1.2.0")
+    // TODO(b/177296655): Remove versionedparcelable dependency after the transitive dependency
+    //  through media which depends on core is updated.
+    api("androidx.versionedparcelable:versionedparcelable:1.1.1")
     api(GUAVA_LISTENABLE_FUTURE)
     implementation("androidx.collection:collection:" + COLLECTION_VERSION)
     implementation("androidx.concurrent:concurrent-futures:" + CONCURRENT_FUTURE_VERSION)
