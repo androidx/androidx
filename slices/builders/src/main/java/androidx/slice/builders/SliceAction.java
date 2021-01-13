@@ -359,6 +359,16 @@ public class SliceAction implements androidx.slice.core.SliceAction {
     }
 
     /**
+     * Sets the key of this action to provide extra information to the host renderer.
+     */
+    @NonNull
+    @Override
+    public SliceAction setKey(@NonNull String key) {
+        mSliceAction.setKey(key);
+        return this;
+    }
+
+    /**
      * @return the {@link PendingIntent} associated with this action.
      */
     @NonNull
@@ -406,6 +416,15 @@ public class SliceAction implements androidx.slice.core.SliceAction {
     @Override
     public int getPriority() {
         return mSliceAction.getPriority();
+    }
+
+    /**
+     * @return the key associated with this action.
+     */
+    @Nullable
+    @Override
+    public String getKey() {
+        return mSliceAction.getKey();
     }
 
     /**

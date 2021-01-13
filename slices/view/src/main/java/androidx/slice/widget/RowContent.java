@@ -334,14 +334,14 @@ public class RowContent extends SliceContent {
     /**
      * @return the list of {@link SliceItem} that can be shown as items at the end of the row.
      */
-    public ArrayList<SliceItem> getEndItems() {
+    public List<SliceItem> getEndItems() {
         return mEndItems;
     }
 
     /**
      * @return a list of toggles associated with this row.
      */
-    public ArrayList<SliceAction> getToggleItems() {
+    public List<SliceAction> getToggleItems() {
         return mToggleItems;
     }
 

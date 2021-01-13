@@ -30,8 +30,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.slice.SliceItem;
@@ -45,9 +45,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @hide
+ * RecyclerView.Adapter for the Slice components.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
 public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHolder>
         implements SliceActionView.SliceActionLoadingListener {
@@ -95,13 +94,14 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     SliceViewPolicy mPolicy;
 
-    public SliceAdapter(Context context) {
+    public SliceAdapter(@NonNull Context context) {
         mContext = context;
         setHasStableIds(true);
     }
 
     /**
      * Sets the SliceView parent and the template parent.
+     * @hide
      */
     public void setParents(SliceView parent, TemplateView templateView) {
         mParent = parent;
@@ -112,6 +112,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
      * Sets the insets (padding) for slice view. SliceAdapter will handle determining
      * if a child needs a particular padding, i.e. if it's the first row then the top inset
      * will be applied to it whereas subsequent rows would get a top inset of 0.
+     * @hide
      */
     public void setInsets(int l, int t, int r, int b) {
         mInsetStart = l;
@@ -122,6 +123,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Sets the observer to pass down to child views.
+     * @hide
      */
     public void setSliceObserver(SliceView.OnSliceActionListener observer) {
         mSliceObserver = observer;
@@ -129,6 +131,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Sets the actions to display for this slice, this adjusts what's displayed in the header item.
+     * @hide
      */
     public void setSliceActions(List<SliceAction> actions) {
         mSliceActions = actions;
@@ -137,6 +140,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Set the {@link SliceItem}'s to be displayed in the adapter and the accent color.
+     * @hide
      */
     public void setSliceItems(List<SliceContent> slices, int color, int mode) {
         if (slices == null) {
@@ -155,6 +159,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Sets the style information to use for views in this adapter.
+     * @hide
      */
     public void setStyle(SliceStyle style) {
         mSliceStyle = style;
@@ -163,6 +168,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Sets the policy information to use for views in this adapter.
+     * @hide
      */
     public void setPolicy(SliceViewPolicy p) {
         mPolicy = p;
@@ -170,6 +176,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Sets whether the last updated time should be shown on the slice.
+     * @hide
      */
     public void setShowLastUpdated(boolean showLastUpdated) {
         if (mShowLastUpdated != showLastUpdated) {
@@ -180,6 +187,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Sets when the slice was last updated.
+     * @hide
      */
     public void setLastUpdated(long lastUpdated) {
         if (mLastUpdated != lastUpdated) {
@@ -190,6 +198,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Indicates that no actions should be loading and updates the views.
+     * @hide
      */
     public void setLoadingActions(Set<SliceItem> actions) {
         if (actions == null) {
@@ -202,11 +211,15 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Returns the currently loading actions.
+     * @hide
      */
     public Set<SliceItem> getLoadingActions() {
         return mLoadingActions;
     }
 
+    /**
+     * @hide
+     */
     @Override
     public void onSliceActionLoading(SliceItem actionItem, int position) {
         mLoadingActions.add(actionItem);
@@ -219,6 +232,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Sets whether this slice can have 2 lines of subtitle text in the first row.
+     * @hide
      */
     public void setAllowTwoLines(boolean allowTwoLines) {
         mAllowTwoLines = allowTwoLines;
@@ -227,6 +241,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Notifies that content in the header of this adapter has changed.
+     * @hide
      */
     public void notifyHeaderChanged() {
         if (getItemCount() > 0) {
@@ -234,8 +249,12 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
         }
     }
 
+    /**
+     * @hide
+     */
     @Override
-    public SliceViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    @NonNull
+    public SliceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = inflateForType(viewType);
         v.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         return new SliceViewHolder(v);
@@ -256,8 +275,11 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
         return mSlices.size();
     }
 
+    /**
+     * @hide
+     */
     @Override
-    public void onBindViewHolder(SliceViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull SliceViewHolder holder, int position) {
         SliceWrapper slice = mSlices.get(position);
         holder.bind(slice.mItem, position);
     }
@@ -272,10 +294,21 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
                 return LayoutInflater.from(mContext).inflate(R.layout.abc_slice_message_local,
                         null);
             default:
-                return new RowView(mContext);
+                return getRowView();
         }
     }
 
+    /**
+     * Provides an opportunity for sub SliceAdapter to pass a custom RowView.
+     */
+    @NonNull
+    protected RowView getRowView() {
+        return new RowView(mContext);
+    }
+
+    /**
+     * @hide
+     */
     protected static class SliceWrapper {
         final SliceContent mItem;
         final int mType;
@@ -308,6 +341,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * A {@link RecyclerView.ViewHolder} for presenting slices in {@link SliceAdapter}.
+     * @hide
      */
     public class SliceViewHolder extends RecyclerView.ViewHolder implements View.OnTouchListener,
             View.OnClickListener {
