@@ -826,19 +826,15 @@ class XTypeElementTest {
                         contains("enumMethod")
                         containsNoneOf("VAL1", "VAL2")
                     }
-                if (qName != "app.JavaEnum" || !invocation.isKsp) {
-                    // KSP does not properly return enum constants for java sources yet
-                    // https://github.com/google/ksp/issues/234
-                    assertWithMessage("$qName can return enum constants")
-                        .that((typeElement as XEnumTypeElement).enumConstantNames)
-                        .containsExactly("VAL1", "VAL2")
-                    assertWithMessage("$qName  does not report enum constants in fields")
-                        .that(typeElement.getAllFieldNames())
-                        .run {
-                            contains("x")
-                            containsNoneOf("VAL1", "VAL2")
-                        }
-                }
+                assertWithMessage("$qName can return enum constants")
+                    .that((typeElement as XEnumTypeElement).enumConstantNames)
+                    .containsExactly("VAL1", "VAL2")
+                assertWithMessage("$qName  does not report enum constants in fields")
+                    .that(typeElement.getAllFieldNames())
+                    .run {
+                        contains("x")
+                        containsNoneOf("VAL1", "VAL2")
+                    }
             }
         }
     }
