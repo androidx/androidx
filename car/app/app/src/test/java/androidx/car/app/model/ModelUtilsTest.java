@@ -44,12 +44,13 @@ public class ModelUtilsTest {
         // 0-length span is not allowed.
         stringWithInvalidDistance.setSpan(span, /* start= */ 0, /* end= */ 0, /* flags= */ 0);
 
-        Row rowWithDistance = Row.builder().setTitle(stringWithDistance).build();
-        Row rowWithDistance2 = Row.builder().setTitle("Title").addText(stringWithDistance).build();
-        Row rowWithInvalidDistance = Row.builder().setTitle(stringWithInvalidDistance).build();
-        Row rowWithoutDistance = Row.builder().setTitle("Test").build();
+        Row rowWithDistance = new Row.Builder().setTitle(stringWithDistance).build();
+        Row rowWithDistance2 = new Row.Builder().setTitle("Title").addText(
+                stringWithDistance).build();
+        Row rowWithInvalidDistance = new Row.Builder().setTitle(stringWithInvalidDistance).build();
+        Row rowWithoutDistance = new Row.Builder().setTitle("Test").build();
         Row browsableRowWithoutPlace =
-                Row.builder().setTitle("Test").setBrowsable(true).setOnClickListener(() -> {
+                new Row.Builder().setTitle("Test").setBrowsable(true).setOnClickListener(() -> {
                 }).build();
 
         assertThrows(
@@ -90,11 +91,12 @@ public class ModelUtilsTest {
         stringWithInvalidDuration.setSpan(durationSpan, /* start= */ 0, /* end= */ 0, /* flags= */
                 0);
 
-        Row rowWithDistance = Row.builder().setTitle(stringWithDistance).build();
-        Row rowWithDuration = Row.builder().setTitle(stringWithDuration).build();
-        Row rowWithDuration2 = Row.builder().setTitle("Title").addText(stringWithDuration).build();
-        Row rowWithInvalidDuration = Row.builder().setTitle(stringWithInvalidDuration).build();
-        Row plainRow = Row.builder().setTitle("Test").build();
+        Row rowWithDistance = new Row.Builder().setTitle(stringWithDistance).build();
+        Row rowWithDuration = new Row.Builder().setTitle(stringWithDuration).build();
+        Row rowWithDuration2 = new Row.Builder().setTitle("Title").addText(
+                stringWithDuration).build();
+        Row rowWithInvalidDuration = new Row.Builder().setTitle(stringWithInvalidDuration).build();
+        Row plainRow = new Row.Builder().setTitle("Test").build();
 
         assertThrows(
                 IllegalArgumentException.class,
@@ -119,11 +121,13 @@ public class ModelUtilsTest {
     public void validateAllRowsHaveOnlySmallSizedImages() {
         CarIcon carIcon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
                 "ic_test_1");
-        Row rowWithNoImage = Row.builder().setTitle("title1").build();
+        Row rowWithNoImage = new Row.Builder().setTitle("title1").build();
         Row rowWithSmallImage =
-                Row.builder().setTitle("title2").setImage(carIcon, Row.IMAGE_TYPE_SMALL).build();
+                new Row.Builder().setTitle("title2").setImage(carIcon,
+                        Row.IMAGE_TYPE_SMALL).build();
         Row rowWithLargeImage =
-                Row.builder().setTitle("title3").setImage(carIcon, Row.IMAGE_TYPE_LARGE).build();
+                new Row.Builder().setTitle("title3").setImage(carIcon,
+                        Row.IMAGE_TYPE_LARGE).build();
 
         assertThrows(
                 IllegalArgumentException.class,

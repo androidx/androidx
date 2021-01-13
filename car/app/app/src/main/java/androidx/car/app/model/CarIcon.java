@@ -233,22 +233,11 @@ public class CarIcon {
      * @throws IllegalArgumentException if {@code icon}'s URI scheme is not supported.
      * @throws NullPointerException     if {@code icon} is {@code null}.
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder(@NonNull IconCompat icon) {
         return new Builder(
                 CarIconConstraints.UNCONSTRAINED.checkSupportedIcon(requireNonNull(icon)));
-    }
-
-    /**
-     * Returns a {@link CarIcon} instance wrapping the given {@link IconCompat}.
-     *
-     * @throws IllegalArgumentException if {@code icon}'s type is not supported.
-     * @throws NullPointerException     if {@code icon} is {@code null}.
-     * @see #builder(IconCompat)
-     */
-    @NonNull
-    public static CarIcon of(@NonNull IconCompat icon) {
-        return builder(requireNonNull(icon)).setTint(null).build();
     }
 
     @Override
@@ -413,9 +402,34 @@ public class CarIcon {
             return new CarIcon(mIcon, mTint, mType);
         }
 
-        Builder(@NonNull IconCompat icon) {
+        /**
+         * Creates a {@link Builder} instance using the given {@link IconCompat}.
+         *
+         * <p>The following types are supported:
+         *
+         * <ul>
+         *   <li>{@link IconCompat#TYPE_BITMAP}
+         *   <li>{@link IconCompat#TYPE_RESOURCE}
+         *   <li>{@link IconCompat#TYPE_URI}
+         * </ul>
+         *
+         * <p>{@link IconCompat#TYPE_URI} is only supported in templates that explicitly allow it
+         * . In
+         * those cases, the appropriate APIs will be documented to indicate this.
+         *
+         * <p>For {@link IconCompat#TYPE_URI}, the URI's scheme must be {@link
+         * ContentResolver#SCHEME_CONTENT}.
+         *
+         * <p>If the icon image is loaded from URI, it may be cached on the host side. Changing the
+         * contents of the URI will result in the host showing a stale image.
+         *
+         * @throws IllegalArgumentException if {@code icon}'s URI scheme is not supported.
+         * @throws NullPointerException     if {@code icon} is {@code null}.
+         */
+        public Builder(@NonNull IconCompat icon) {
+            CarIconConstraints.UNCONSTRAINED.checkSupportedIcon(requireNonNull(icon));
             mType = TYPE_CUSTOM;
-            this.mIcon = icon;
+            mIcon = icon;
             mTint = null;
         }
 

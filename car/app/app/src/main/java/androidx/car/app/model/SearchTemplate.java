@@ -95,6 +95,7 @@ public final class SearchTemplate implements Template {
      * @param callback the callback to be invoked for events such as when the user types new
      *                 text, or submits a search.
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     @SuppressLint("ExecutorRegistration")
     public static Builder builder(@NonNull SearchCallback callback) {
@@ -242,10 +243,6 @@ public final class SearchTemplate implements Template {
         @Nullable
         ActionStrip mActionStrip;
 
-        Builder(SearchCallback callback) {
-            mSearchCallback = SearchCallbackWrapperImpl.create(callback);
-        }
-
         /**
          * Sets the {@link Action} that will be displayed in the header of the template, or
          * {@code null}
@@ -387,6 +384,20 @@ public final class SearchTemplate implements Template {
             }
 
             return new SearchTemplate(this);
+        }
+
+        /**
+         * Returns a new instance of a {@link Builder} with the input {@link SearchCallback}.
+         *
+         * <p>Note that the callback relates to UI events and will be executed on the main thread
+         * using {@link Looper#getMainLooper()}.
+         *
+         * @param callback the callback to be invoked for events such as when the user types new
+         *                 text, or submits a search.
+         */
+        @SuppressLint("ExecutorRegistration")
+        public Builder(@NonNull SearchCallback callback) {
+            mSearchCallback = SearchCallbackWrapperImpl.create(callback);
         }
     }
 }

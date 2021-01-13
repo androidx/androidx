@@ -40,7 +40,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public class RowTest {
     @Test
     public void create_defaultValues() {
-        Row row = Row.builder().setTitle("Title").build();
+        Row row = new Row.Builder().setTitle("Title").build();
         assertThat(row.getTitle().getText()).isEqualTo("Title");
         assertThat(row.getTexts()).isEmpty();
         assertThat(row.getImage()).isNull();
@@ -53,7 +53,7 @@ public class RowTest {
     @Test
     public void title_charSequence() {
         String title = "foo";
-        Row row = Row.builder().setTitle(title).build();
+        Row row = new Row.Builder().setTitle(title).build();
         assertThat(CarText.create(title)).isEqualTo(row.getTitle());
     }
 
@@ -61,33 +61,33 @@ public class RowTest {
     public void text_charSequence() {
         String text1 = "foo";
         String text2 = "bar";
-        Row row = Row.builder().setTitle("Title").addText(text1).addText(text2).build();
+        Row row = new Row.Builder().setTitle("Title").addText(text1).addText(text2).build();
         assertThat(row.getTexts()).containsExactly(CarText.create(text1), CarText.create(text2));
     }
 
     @Test
     public void setImage() {
         CarIcon image1 = BACK;
-        Row row = Row.builder().setTitle("Title").setImage(image1).build();
+        Row row = new Row.Builder().setTitle("Title").setImage(image1).build();
         assertThat(image1).isEqualTo(row.getImage());
     }
 
     @Test
     public void setToggle() {
-        Toggle toggle1 = Toggle.builder(isChecked -> {
+        Toggle toggle1 = new Toggle.Builder(isChecked -> {
         }).build();
-        Row row = Row.builder().setTitle("Title").setToggle(toggle1).build();
+        Row row = new Row.Builder().setTitle("Title").setToggle(toggle1).build();
         assertThat(toggle1).isEqualTo(row.getToggle());
     }
 
     @Test
     public void setOnClickListenerAndToggle_throws() {
-        Toggle toggle1 = Toggle.builder(isChecked -> {
+        Toggle toggle1 = new Toggle.Builder(isChecked -> {
         }).build();
         assertThrows(
                 IllegalStateException.class,
                 () ->
-                        Row.builder()
+                        new Row.Builder()
                                 .setTitle("Title")
                                 .setOnClickListener(() -> {
                                 })
@@ -98,7 +98,7 @@ public class RowTest {
     @Test
     public void clickListener() {
         OnClickListener onClickListener = mock(OnClickListener.class);
-        Row row = Row.builder().setTitle("Title").setOnClickListener(onClickListener).build();
+        Row row = new Row.Builder().setTitle("Title").setOnClickListener(onClickListener).build();
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
         row.getOnClickListener().onClick(onDoneCallback);
         verify(onClickListener).onClick();
@@ -107,9 +107,9 @@ public class RowTest {
 
     @Test
     public void setMetadata() {
-        Metadata metadata = Metadata.ofPlace(Place.builder(LatLng.create(1, 1)).build());
+        Metadata metadata = Metadata.ofPlace(new Place.Builder(LatLng.create(1, 1)).build());
 
-        Row row = Row.builder().setTitle("Title").setMetadata(metadata).build();
+        Row row = new Row.Builder().setTitle("Title").setMetadata(metadata).build();
         assertThat(row.getMetadata()).isEqualTo(metadata);
     }
 
@@ -117,10 +117,10 @@ public class RowTest {
     public void setIsBrowsable_noListener_throws() {
         assertThrows(
                 IllegalStateException.class,
-                () -> Row.builder().setTitle("Title").setBrowsable(true).build());
+                () -> new Row.Builder().setTitle("Title").setBrowsable(true).build());
 
         // Positive case.
-        Row.builder().setTitle("Title").setBrowsable(false).build();
+        new Row.Builder().setTitle("Title").setBrowsable(false).build();
     }
 
     @Test
@@ -128,15 +128,15 @@ public class RowTest {
         assertThrows(
                 IllegalStateException.class,
                 () ->
-                        Row.builder()
+                        new Row.Builder()
                                 .setTitle("Title")
                                 .setBrowsable(true)
-                                .setToggle(Toggle.builder(state -> {
+                                .setToggle(new Toggle.Builder(state -> {
                                 }).build())
                                 .build());
 
         // Positive case.
-        Row.builder()
+        new Row.Builder()
                 .setBrowsable(true)
                 .setOnClickListener(() -> {
                 })
@@ -152,7 +152,7 @@ public class RowTest {
         String title = "title";
 
         Row row =
-                Row.builder()
+                new Row.Builder()
                         .setTitle(title)
                         .setImage(BACK)
                         .setOnClickListener(() -> {
@@ -163,7 +163,7 @@ public class RowTest {
                         .build();
 
         assertThat(
-                Row.builder()
+                new Row.Builder()
                         .setTitle(title)
                         .setImage(BACK)
                         .setOnClickListener(() -> {
@@ -179,34 +179,34 @@ public class RowTest {
     public void notEquals_differentTitle() {
         String title = "title";
 
-        Row row = Row.builder().setTitle(title).build();
+        Row row = new Row.Builder().setTitle(title).build();
 
-        assertThat(Row.builder().setTitle("foo").build()).isNotEqualTo(row);
+        assertThat(new Row.Builder().setTitle("foo").build()).isNotEqualTo(row);
     }
 
     @Test
     public void notEquals_differentImage() {
-        Row row = Row.builder().setTitle("Title").setImage(BACK).build();
+        Row row = new Row.Builder().setTitle("Title").setImage(BACK).build();
 
-        assertThat(Row.builder().setTitle("Title").setImage(ALERT).build()).isNotEqualTo(row);
+        assertThat(new Row.Builder().setTitle("Title").setImage(ALERT).build()).isNotEqualTo(row);
     }
 
     @Test
     public void notEquals_oneHasNoCallback() {
-        Row row = Row.builder().setTitle("Title").setOnClickListener(() -> {
+        Row row = new Row.Builder().setTitle("Title").setOnClickListener(() -> {
         }).build();
 
-        assertThat(Row.builder().setTitle("Title").build()).isNotEqualTo(row);
+        assertThat(new Row.Builder().setTitle("Title").build()).isNotEqualTo(row);
     }
 
     @Test
     public void notEquals_differentBrowsable() {
         Row row =
-                Row.builder().setTitle("Title").setBrowsable(false).setOnClickListener(() -> {
+                new Row.Builder().setTitle("Title").setBrowsable(false).setOnClickListener(() -> {
                 }).build();
 
         assertThat(
-                Row.builder()
+                new Row.Builder()
                         .setTitle("Title")
                         .setBrowsable(true)
                         .setOnClickListener(() -> {
@@ -217,15 +217,15 @@ public class RowTest {
 
     @Test
     public void notEquals_differentMetadata() {
-        Row row = Row.builder().setTitle("Title").setMetadata(Metadata.EMPTY_METADATA).build();
+        Row row = new Row.Builder().setTitle("Title").setMetadata(Metadata.EMPTY_METADATA).build();
 
         assertThat(
-                Row.builder()
+                new Row.Builder()
                         .setTitle("Title")
                         .setMetadata(
-                                Metadata.builder()
+                                new Metadata.Builder()
                                         .setPlace(
-                                                Place.builder(LatLng.create(/* latitude= */
+                                                new Place.Builder(LatLng.create(/* latitude= */
                                                         1f, /* longitude= */ 1f))
                                                         .build())
                                         .build())
@@ -235,8 +235,8 @@ public class RowTest {
 
     @Test
     public void notEquals_differenText() {
-        Row row = Row.builder().setTitle("Title").addText("foo").build();
+        Row row = new Row.Builder().setTitle("Title").addText("foo").build();
 
-        assertThat(Row.builder().setTitle("Title").addText("bar").build()).isNotEqualTo(row);
+        assertThat(new Row.Builder().setTitle("Title").addText("bar").build()).isNotEqualTo(row);
     }
 }

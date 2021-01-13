@@ -24,8 +24,8 @@ public final class TestData {
     public static final LatLng GOOGLE_KIR = LatLng.create(47.6696482, -122.19950278);
     public static final LatLng GOOGLE_BVE = LatLng.create(47.6204588, -122.1918818);
 
-    public static final Place PLACE_KIR = Place.builder(GOOGLE_KIR).build();
-    public static final Place PLACE_BVE = Place.builder(GOOGLE_BVE).build();
+    public static final Place PLACE_KIR = new Place.Builder(GOOGLE_KIR).build();
+    public static final Place PLACE_BVE = new Place.Builder(GOOGLE_BVE).build();
 
     private TestData() {
     }

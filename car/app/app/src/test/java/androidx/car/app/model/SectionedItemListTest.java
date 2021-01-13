@@ -30,7 +30,7 @@ public class SectionedItemListTest {
 
     @Test
     public void createInstance() {
-        ItemList list = ItemList.builder().build();
+        ItemList list = new ItemList.Builder().build();
         CarText header = CarText.create("header");
         SectionedItemList sectionList = SectionedItemList.create(list, header);
 
@@ -40,11 +40,11 @@ public class SectionedItemListTest {
 
     @Test
     public void equals() {
-        ItemList list = ItemList.builder().build();
+        ItemList list = new ItemList.Builder().build();
         CarText header = CarText.create("header");
         SectionedItemList sectionList = SectionedItemList.create(list, header);
 
-        ItemList list2 = ItemList.builder().build();
+        ItemList list2 = new ItemList.Builder().build();
         CarText header2 = CarText.create("header");
         SectionedItemList sectionList2 = SectionedItemList.create(list2, header2);
 
@@ -53,11 +53,12 @@ public class SectionedItemListTest {
 
     @Test
     public void notEquals_differentItemList() {
-        ItemList list = ItemList.builder().addItem(Row.builder().setTitle("Title").build()).build();
+        ItemList list = new ItemList.Builder().addItem(
+                new Row.Builder().setTitle("Title").build()).build();
         CarText header = CarText.create("header");
         SectionedItemList sectionList = SectionedItemList.create(list, header);
 
-        ItemList list2 = ItemList.builder().build();
+        ItemList list2 = new ItemList.Builder().build();
         CarText header2 = CarText.create("header");
         SectionedItemList sectionList2 = SectionedItemList.create(list2, header2);
 
@@ -66,11 +67,11 @@ public class SectionedItemListTest {
 
     @Test
     public void notEquals_differentHeader() {
-        ItemList list = ItemList.builder().build();
+        ItemList list = new ItemList.Builder().build();
         CarText header = CarText.create("header1");
         SectionedItemList sectionList = SectionedItemList.create(list, header);
 
-        ItemList list2 = ItemList.builder().build();
+        ItemList list2 = new ItemList.Builder().build();
         CarText header2 = CarText.create("header2");
         SectionedItemList sectionList2 = SectionedItemList.create(list2, header2);
 

@@ -62,6 +62,7 @@ public final class MessageTemplate implements Template {
     private final ActionList mActionList;
 
     /** Constructs a new builder of {@link MessageTemplate}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder(@NonNull CharSequence message) {
         return new Builder(requireNonNull(message));
@@ -315,8 +316,14 @@ public final class MessageTemplate implements Template {
             return new MessageTemplate(this);
         }
 
-        Builder(CharSequence message) {
-            this.mMessage = CarText.create(message);
+        /**
+         * Returns a {@link Builder} instance.
+         *
+         * @param message the text message to display in the template.
+         * @throws NullPointerException if the {@code message} is {@code null}.
+         */
+        public Builder(@NonNull CharSequence message) {
+            this.mMessage = CarText.create(requireNonNull(message));
         }
     }
 }

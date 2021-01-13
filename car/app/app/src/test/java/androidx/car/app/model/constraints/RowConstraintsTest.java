@@ -35,70 +35,73 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public class RowConstraintsTest {
     @Test
     public void validate_clickListener() {
-        RowConstraints constraints = RowConstraints.builder().setOnClickListenerAllowed(
+        RowConstraints constraints = new RowConstraints.Builder().setOnClickListenerAllowed(
                 false).build();
         RowConstraints allowConstraints =
-                RowConstraints.builder().setOnClickListenerAllowed(true).build();
+                new RowConstraints.Builder().setOnClickListenerAllowed(true).build();
 
         assertThrows(
                 IllegalArgumentException.class,
                 () -> constraints.validateOrThrow(
-                        Row.builder().setTitle("Title)").setOnClickListener(() -> {
+                        new Row.Builder().setTitle("Title)").setOnClickListener(() -> {
                         }).build()));
 
         // Positive cases
-        constraints.validateOrThrow(Row.builder().setTitle("Title").build());
+        constraints.validateOrThrow(new Row.Builder().setTitle("Title").build());
         allowConstraints.validateOrThrow(
-                Row.builder().setTitle("Title").setOnClickListener(() -> {
+                new Row.Builder().setTitle("Title").setOnClickListener(() -> {
                 }).build());
     }
 
     @Test
     public void validate_toggle() {
-        RowConstraints constraints = RowConstraints.builder().setToggleAllowed(false).build();
-        RowConstraints allowConstraints = RowConstraints.builder().setToggleAllowed(true).build();
+        RowConstraints constraints = new RowConstraints.Builder().setToggleAllowed(false).build();
+        RowConstraints allowConstraints = new RowConstraints.Builder().setToggleAllowed(
+                true).build();
 
         assertThrows(
                 IllegalArgumentException.class,
                 () -> constraints.validateOrThrow(
-                        Row.builder()
+                        new Row.Builder()
                                 .setTitle("Title)")
-                                .setToggle(Toggle.builder(isChecked -> {
+                                .setToggle(new Toggle.Builder(isChecked -> {
                                 }).build())
                                 .build()));
 
         // Positive cases
-        constraints.validateOrThrow(Row.builder().setTitle("Title").build());
+        constraints.validateOrThrow(new Row.Builder().setTitle("Title").build());
         allowConstraints.validateOrThrow(
-                Row.builder().setTitle("Title").setToggle(Toggle.builder(isChecked -> {
+                new Row.Builder().setTitle("Title").setToggle(new Toggle.Builder(isChecked -> {
                 }).build()).build());
     }
 
     @Test
     public void validate_images() {
-        RowConstraints constraints = RowConstraints.builder().setImageAllowed(false).build();
-        RowConstraints allowConstraints = RowConstraints.builder().setImageAllowed(true).build();
+        RowConstraints constraints = new RowConstraints.Builder().setImageAllowed(false).build();
+        RowConstraints allowConstraints = new RowConstraints.Builder().setImageAllowed(
+                true).build();
         CarIcon carIcon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
                 "ic_test_1");
 
         assertThrows(
                 IllegalArgumentException.class,
                 () -> constraints.validateOrThrow(
-                        Row.builder().setTitle("Title)").setImage(carIcon).build()));
+                        new Row.Builder().setTitle("Title)").setImage(carIcon).build()));
 
         // Positive cases
-        constraints.validateOrThrow(Row.builder().setTitle("Title").build());
-        allowConstraints.validateOrThrow(Row.builder().setTitle("Title").setImage(carIcon).build());
+        constraints.validateOrThrow(new Row.Builder().setTitle("Title").build());
+        allowConstraints.validateOrThrow(new Row.Builder().setTitle("Title").setImage(
+                carIcon).build());
     }
 
     @Test
     public void validate_texts() {
-        RowConstraints constraints = RowConstraints.builder().setMaxTextLinesPerRow(2).build();
+        RowConstraints constraints = new RowConstraints.Builder().setMaxTextLinesPerRow(2).build();
 
         assertThrows(
                 IllegalArgumentException.class,
                 () -> constraints.validateOrThrow(
-                        Row.builder()
+                        new Row.Builder()
                                 .setTitle("Title)")
                                 .addText("text1")
                                 .addText("text2")
@@ -107,6 +110,6 @@ public class RowConstraintsTest {
 
         // Positive cases
         constraints.validateOrThrow(
-                Row.builder().setTitle("Title").addText("text1").addText("text2").build());
+                new Row.Builder().setTitle("Title").addText("text1").addText("text2").build());
     }
 }

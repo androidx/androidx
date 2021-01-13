@@ -64,9 +64,9 @@ public final class CarAppServiceTest {
 
     private TestCarContext mCarContext;
     private final Template mTemplate =
-            PlaceListMapTemplate.builder()
+            new PlaceListMapTemplate.Builder()
                     .setTitle("Title")
-                    .setItemList(ItemList.builder().build())
+                    .setItemList(new ItemList.Builder().build())
                     .build();
 
     private CarAppService mCarAppService;

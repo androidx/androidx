@@ -162,16 +162,16 @@ public class BundlerTest {
         OnClickListener clickListener = mock(OnClickListener.class);
 
         ItemList itemList =
-                ItemList.builder()
+                new ItemList.Builder()
                         .addItem(
-                                Row.builder()
+                                new Row.Builder()
                                         .setOnClickListener(clickListener)
                                         .setTitle("foo")
                                         .setBrowsable(true)
                                         .build())
                         .build();
         PlaceListMapTemplate mapTemplate =
-                PlaceListMapTemplate.builder().setTitle("Title").setItemList(itemList).build();
+                new PlaceListMapTemplate.Builder().setTitle("Title").setItemList(itemList).build();
 
         Bundle bundle = Bundler.toBundle(mapTemplate);
         PlaceListMapTemplate readIn = (PlaceListMapTemplate) Bundler.fromBundle(bundle);
@@ -279,8 +279,8 @@ public class BundlerTest {
         IconCompat image = IconCompat.createWithContentUri("content://foo/bar");
         Bundle bundle = Bundler.toBundle(image);
 
-        assertThat(CarIcon.of((IconCompat) Bundler.fromBundle(bundle))).isEqualTo(
-                CarIcon.of(image));
+        assertThat(new CarIcon.Builder((IconCompat) Bundler.fromBundle(bundle)).build()).isEqualTo(
+                new CarIcon.Builder(image).build());
     }
 
     @Test
@@ -290,8 +290,8 @@ public class BundlerTest {
                 TestUtils.getTestDrawableResId(mContext, "ic_test_1"));
         Bundle bundle = Bundler.toBundle(image);
 
-        assertThat(CarIcon.of((IconCompat) Bundler.fromBundle(bundle))).isEqualTo(
-                CarIcon.of(image));
+        assertThat(new CarIcon.Builder((IconCompat) Bundler.fromBundle(bundle)).build()).isEqualTo(
+                new CarIcon.Builder(image).build());
     }
 
     @Test
@@ -300,8 +300,8 @@ public class BundlerTest {
         IconCompat image = IconCompat.createWithContentUri("car://icons/1");
         Bundle bundle = Bundler.toBundle(image);
 
-        assertThat(CarIcon.of((IconCompat) Bundler.fromBundle(bundle))).isEqualTo(
-                CarIcon.of(image));
+        assertThat(new CarIcon.Builder((IconCompat) Bundler.fromBundle(bundle)).build()).isEqualTo(
+                new CarIcon.Builder(image).build());
     }
 
     @Test
@@ -312,8 +312,9 @@ public class BundlerTest {
             Bundle bundle = Bundler.toBundle(image);
             IconCompat readImage = (IconCompat) Bundler.fromBundle(bundle);
 
-            assertThat(CarIcon.of((IconCompat) Bundler.fromBundle(bundle))).isEqualTo(
-                    CarIcon.of(image));
+            assertThat(
+                    new CarIcon.Builder((IconCompat) Bundler.fromBundle(bundle)).build()).isEqualTo(
+                    new CarIcon.Builder(image).build());
             Drawable drawable = readImage.toIcon(mContext).loadDrawable(mContext);
             assertThat(drawable).isNotNull();
         } finally {
@@ -330,12 +331,13 @@ public class BundlerTest {
 
         LatLng latLng2 = LatLng.create(4522.234, 34.234);
         CarIcon carIcon = TestUtils.getTestCarIcon(mContext, "ic_test_1");
-        PlaceMarker marker2 = PlaceMarker.builder().setIcon(carIcon, PlaceMarker.TYPE_ICON).build();
+        PlaceMarker marker2 = new PlaceMarker.Builder().setIcon(carIcon,
+                PlaceMarker.TYPE_ICON).build();
         String row2Title = "row2";
         String row2Subtitle = "row2subtitle";
 
         Row row1 =
-                Row.builder()
+                new Row.Builder()
                         .setImage(carIcon)
                         .setTitle(row1Title)
                         .addText(row1Subtitle)
@@ -344,19 +346,19 @@ public class BundlerTest {
                         })
                         .build();
         Row row2 =
-                Row.builder()
+                new Row.Builder()
                         .setTitle(row2Title)
                         .addText(row2Subtitle)
                         .setBrowsable(true)
                         .setOnClickListener(() -> {
                         })
-                        .setMetadata(Metadata.ofPlace(Place.builder(latLng2).setMarker(
+                        .setMetadata(Metadata.ofPlace(new Place.Builder(latLng2).setMarker(
                                 marker2).build()))
                         .build();
-        ItemList itemList = ItemList.builder().addItem(row1).addItem(row2).build();
-        ActionStrip actionStrip = ActionStrip.builder().addAction(Action.APP_ICON).build();
+        ItemList itemList = new ItemList.Builder().addItem(row1).addItem(row2).build();
+        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.APP_ICON).build();
         PlaceListMapTemplate mapTemplate =
-                PlaceListMapTemplate.builder()
+                new PlaceListMapTemplate.Builder()
                         .setItemList(itemList)
                         .setTitle(title)
                         .setActionStrip(actionStrip)

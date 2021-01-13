@@ -29,33 +29,33 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public class MetadataTest {
     @Test
     public void setAndGetPlace() {
-        Place place = Place.builder(
+        Place place = new Place.Builder(
                 LatLng.create(/* latitude= */ 123, /* longitude= */ 456)).build();
         Metadata metadata = Metadata.ofPlace(place);
         assertThat(metadata.getPlace()).isEqualTo(place);
 
-        metadata = Metadata.builder().build();
+        metadata = new Metadata.Builder().build();
         assertThat(metadata.getPlace()).isNull();
     }
 
     @Test
     public void equals() {
-        Place place = Place.builder(
+        Place place = new Place.Builder(
                 LatLng.create(/* latitude= */ 123, /* longitude= */ 456)).build();
-        Metadata metadata = Metadata.builder().setPlace(place).build();
+        Metadata metadata = new Metadata.Builder().setPlace(place).build();
 
-        assertThat(Metadata.builder().setPlace(place).build()).isEqualTo(metadata);
+        assertThat(new Metadata.Builder().setPlace(place).build()).isEqualTo(metadata);
     }
 
     @Test
     public void notEquals_differentPlace() {
-        Place place = Place.builder(
+        Place place = new Place.Builder(
                 LatLng.create(/* latitude= */ 123, /* longitude= */ 456)).build();
-        Metadata metadata = Metadata.builder().setPlace(place).build();
+        Metadata metadata = new Metadata.Builder().setPlace(place).build();
 
-        Place place2 = Place.builder(
+        Place place2 = new Place.Builder(
                 LatLng.create(/* latitude= */ 456, /* longitude= */ 789)).build();
 
-        assertThat(Metadata.builder().setPlace(place2).build()).isNotEqualTo(metadata);
+        assertThat(new Metadata.Builder().setPlace(place2).build()).isNotEqualTo(metadata);
     }
 }

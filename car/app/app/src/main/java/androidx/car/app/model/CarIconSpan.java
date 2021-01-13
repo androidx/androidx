@@ -47,7 +47,7 @@ import java.util.Objects;
  * <pre>{@code
  * SpannableString string = new SpannableString("Turn right on 520 East");
  * string.setSpan(
- *     CarIconSpan.create(CarIcon.of(
+ *     CarIconSpan.create(new CarIcon.Builder(
  *         IconCompat.createWithResource(getCarContext(), R.drawable.ic_520_highway))),
  *         14, 17, SPAN_INCLUSIVE_EXCLUSIVE);
  * }</pre>

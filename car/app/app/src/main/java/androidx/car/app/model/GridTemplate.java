@@ -64,6 +64,7 @@ public final class GridTemplate implements Template {
     private final CarIcon mBackgroundImage;
 
     /** Constructs a new builder of {@link GridTemplate}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -302,7 +303,8 @@ public final class GridTemplate implements Template {
             return new GridTemplate(this);
         }
 
-        Builder() {
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

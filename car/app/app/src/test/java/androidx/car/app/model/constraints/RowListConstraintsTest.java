@@ -32,11 +32,11 @@ public class RowListConstraintsTest {
     @Test
     public void validate_itemList_noSelectable() {
         RowListConstraints disallowConstraints =
-                RowListConstraints.builder()
+                new RowListConstraints.Builder()
                         .setAllowSelectableLists(false)
                         .build();
         RowListConstraints allowConstraints =
-                RowListConstraints.builder()
+                new RowListConstraints.Builder()
                         .setAllowSelectableLists(true)
                         .build();
 
@@ -52,11 +52,11 @@ public class RowListConstraintsTest {
     @Test
     public void validate_sectionItemList_noSelectable() {
         RowListConstraints disallowConstraints =
-                RowListConstraints.builder()
+                new RowListConstraints.Builder()
                         .setAllowSelectableLists(false)
                         .build();
         RowListConstraints allowConstraints =
-                RowListConstraints.builder()
+                new RowListConstraints.Builder()
                         .setAllowSelectableLists(true)
                         .build();
 
@@ -72,7 +72,7 @@ public class RowListConstraintsTest {
     @Test
     public void validate_pane_maxActions() {
         RowListConstraints constraints =
-                RowListConstraints.builder()
+                new RowListConstraints.Builder()
                         .setMaxActions(2)
                         .build();
 

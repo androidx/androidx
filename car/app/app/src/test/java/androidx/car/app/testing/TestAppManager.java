@@ -46,8 +46,10 @@ public class TestAppManager extends AppManager {
     private final List<CharSequence> mToastsShown = new ArrayList<>();
     private final List<Pair<Screen, Template>> mTemplatesReturned = new ArrayList<>();
 
-    /** Resets the values tracked by this {@link TestAppManager} and all {@link ScreenController}
-     * s. */
+    /**
+     * Resets the values tracked by this {@link TestAppManager} and all {@link ScreenController}
+     * s.
+     */
     public void reset() {
         mSurfaceCallbacks.clear();
         mToastsShown.clear();

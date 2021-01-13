@@ -41,6 +41,7 @@ public final class Pane {
     private final boolean mIsLoading;
 
     /** Constructs a new builder of {@link Pane}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -179,6 +180,10 @@ public final class Pane {
 
         private int size() {
             return mRows.size();
+        }
+
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }
