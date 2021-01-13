@@ -31,8 +31,8 @@ import dagger.hilt.GeneratesRootInput;
  * configuration via
  * {@link androidx.work.Configuration.Builder#setWorkerFactory(androidx.work.WorkerFactory)}.
  * The {@code HiltWorker} containing a constructor annotated with
- * {@link dagger.assisted.AssistedInject} will have its dependencies defined in the constructor
- * parameters injected by Dagger's Hilt.
+ * <a href="https://dagger.dev/api/latest/dagger/assisted/AssistedInject">AssistedInject</a> will
+ * have its dependencies defined in the constructor parameters injected by Dagger's Hilt.
  * <p>
  * Example:
  * <pre>
@@ -60,13 +60,17 @@ import dagger.hilt.GeneratesRootInput;
  * </pre>
  * <p>
  * Only one constructor in the {@code Worker} must be annotated with
- * {@link dagger.assisted.AssistedInject}. The constructor must define parameters for a
- * {@link dagger.assisted.Assisted}-annotated {@code Context} and a
- * {@link dagger.assisted.Assisted}-annotated {@code WorkerParameters} along with any other
- * dependencies. Both the {@code Context} and {@code WorkerParameters} must not be a type param
- * of {@link javax.inject.Provider} nor {@link dagger.Lazy} and must not be qualified.
+ * <a href="https://dagger.dev/api/latest/dagger/assisted/AssistedInject">AssistedInject</a>.
+ * The constructor must define parameters for a
+ * <a href="https://dagger.dev/api/latest/dagger/assisted/Assisted">Assisted</a>-annotated
+ * {@code Context} and a
+ * <a href="https://dagger.dev/api/latest/dagger/assisted/Assisted">Assisted</a>-annotated
+ * {@code WorkerParameters} along with any other dependencies. Both the {@code Context} and
+ * {@code WorkerParameters} must not be a type param of {@link javax.inject.Provider} nor
+ * <a href="https://dagger.dev/api/latest/dagger/Lazy">Lazy</a> and must not be qualified.
  * <p>
- * Only dependencies available in the {@link dagger.hilt.components.SingletonComponent}
+ * Only dependencies available in the
+ * <a href="https://dagger.dev/api/latest/dagger/hilt/components/SingletonComponent">SingletonComponent</a>
  * can be injected into the {@code Worker}.
  */
 @Target(ElementType.TYPE)

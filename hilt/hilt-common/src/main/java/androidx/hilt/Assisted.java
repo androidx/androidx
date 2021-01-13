@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 /**
  * Marks a parameter in a {@link androidx.hilt.lifecycle.ViewModelInject}-annotated constructor.
  *
- * @deprecated Use {@link dagger.assisted.Assisted}
+ * @deprecated Use <a href="https://dagger.dev/api/latest/dagger/assisted/Assisted">Assisted</a>
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
