@@ -168,6 +168,7 @@ package androidx.wear.complications {
   public class ProviderInfoRetriever implements java.lang.AutoCloseable {
     ctor public ProviderInfoRetriever(android.content.Context);
     method public void close();
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) public com.google.common.util.concurrent.ListenableFuture<androidx.wear.complications.data.ComplicationData!> requestPreviewComplicationData(android.content.ComponentName, androidx.wear.complications.data.ComplicationType);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.complications.ProviderInfoRetriever.ProviderInfo![]!> retrieveProviderInfo(android.content.ComponentName, int[]);
   }
 
