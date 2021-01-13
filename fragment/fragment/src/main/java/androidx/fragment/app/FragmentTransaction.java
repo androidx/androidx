@@ -504,7 +504,8 @@ public abstract class FragmentTransaction {
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @IntDef({TRANSIT_NONE, TRANSIT_FRAGMENT_OPEN, TRANSIT_FRAGMENT_CLOSE, TRANSIT_FRAGMENT_FADE})
+    @IntDef({TRANSIT_NONE, TRANSIT_FRAGMENT_OPEN, TRANSIT_FRAGMENT_CLOSE, TRANSIT_FRAGMENT_FADE,
+            TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN, TRANSIT_FRAGMENT_MATCH_ACTIVITY_CLOSE})
     @Retention(RetentionPolicy.SOURCE)
     private @interface Transit {}
 
@@ -519,6 +520,22 @@ public abstract class FragmentTransaction {
     /** Fragment should simply fade in or out; that is, no strong navigation associated
      * with it except that it is appearing or disappearing for some reason. */
     public static final int TRANSIT_FRAGMENT_FADE = 3 | TRANSIT_ENTER_MASK;
+
+    /**
+     * Fragment is being added onto the stack with Activity open transition.
+     *
+     * @see android.R.attr#activityOpenEnterAnimation
+     * @see android.R.attr#activityOpenExitAnimation
+     */
+    public static final int TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN = 4 | TRANSIT_ENTER_MASK;
+
+    /**
+     * Fragment is being removed from the stack with Activity close transition.
+     *
+     * @see android.R.attr#activityCloseEnterAnimation
+     * @see android.R.attr#activityCloseExitAnimation
+     */
+    public static final int TRANSIT_FRAGMENT_MATCH_ACTIVITY_CLOSE = 5 | TRANSIT_EXIT_MASK;
 
     /**
      * Set specific animation resources to run for the fragments that are

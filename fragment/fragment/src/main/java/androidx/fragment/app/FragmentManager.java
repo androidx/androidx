@@ -3548,6 +3548,12 @@ public abstract class FragmentManager implements FragmentResultOwner {
             case FragmentTransaction.TRANSIT_FRAGMENT_FADE:
                 rev = FragmentTransaction.TRANSIT_FRAGMENT_FADE;
                 break;
+            case FragmentTransaction.TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN:
+                rev = FragmentTransaction.TRANSIT_FRAGMENT_MATCH_ACTIVITY_CLOSE;
+                break;
+            case FragmentTransaction.TRANSIT_FRAGMENT_MATCH_ACTIVITY_CLOSE:
+                rev = FragmentTransaction.TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN;
+                break;
         }
         return rev;
 

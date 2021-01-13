@@ -427,6 +427,8 @@ package androidx.fragment.app {
     field public static final int TRANSIT_EXIT_MASK = 8192; // 0x2000
     field public static final int TRANSIT_FRAGMENT_CLOSE = 8194; // 0x2002
     field public static final int TRANSIT_FRAGMENT_FADE = 4099; // 0x1003
+    field public static final int TRANSIT_FRAGMENT_MATCH_ACTIVITY_CLOSE = 8197; // 0x2005
+    field public static final int TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN = 4100; // 0x1004
     field public static final int TRANSIT_FRAGMENT_OPEN = 4097; // 0x1001
     field public static final int TRANSIT_NONE = 0; // 0x0
     field public static final int TRANSIT_UNSET = -1; // 0xffffffff
