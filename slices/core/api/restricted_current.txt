@@ -190,6 +190,7 @@ package androidx.slice.core {
     method public CharSequence? getContentDescription();
     method public androidx.core.graphics.drawable.IconCompat? getIcon();
     method @androidx.slice.core.SliceHints.ImageMode public int getImageMode();
+    method public String? getKey();
     method public int getPriority();
     method public CharSequence getTitle();
     method public boolean isActivity();
@@ -198,6 +199,7 @@ package androidx.slice.core {
     method public boolean isToggle();
     method public androidx.slice.core.SliceAction! setChecked(boolean);
     method public androidx.slice.core.SliceAction? setContentDescription(CharSequence);
+    method public androidx.slice.core.SliceAction setKey(String);
     method public androidx.slice.core.SliceAction! setPriority(@IntRange(from=0) int);
   }
 
@@ -214,6 +216,7 @@ package androidx.slice.core {
     method public CharSequence? getContentDescription();
     method public androidx.core.graphics.drawable.IconCompat? getIcon();
     method @androidx.slice.core.SliceHints.ImageMode public int getImageMode();
+    method public String? getKey();
     method public int getPriority();
     method public androidx.slice.SliceItem? getSliceItem();
     method public String? getSubtype();
@@ -226,6 +229,7 @@ package androidx.slice.core {
     method public void setActivity(boolean);
     method public androidx.slice.core.SliceActionImpl! setChecked(boolean);
     method public androidx.slice.core.SliceActionImpl? setContentDescription(CharSequence);
+    method public androidx.slice.core.SliceActionImpl setKey(String);
     method public androidx.slice.core.SliceActionImpl! setPriority(@IntRange(from=0) int);
   }
 
@@ -248,6 +252,7 @@ package androidx.slice.core {
     field public static final String SLICE_METADATA_KEY = "android.metadata.SLICE_URI";
     field public static final int SMALL_IMAGE = 1; // 0x1
     field public static final int STAR_RATING = 2; // 0x2
+    field public static final String SUBTYPE_ACTION_KEY = "action_key";
     field public static final String SUBTYPE_DATE_PICKER = "date_picker";
     field public static final String SUBTYPE_HOST_EXTRAS = "host_extras";
     field public static final String SUBTYPE_MILLIS = "millis";

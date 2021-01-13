@@ -35,9 +35,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @hide
+ * Slice template containing all view components.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
 public class TemplateView extends SliceChildView implements
         SliceViewPolicy.PolicyChangeListener {
@@ -52,7 +51,7 @@ public class TemplateView extends SliceChildView implements
     private int[] mLoc = new int[2];
     private int mHiddenItemCount;
 
-    public TemplateView(Context context) {
+    public TemplateView(@NonNull Context context) {
         super(context);
         mRecyclerView = new RecyclerView(getContext());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -88,6 +87,10 @@ public class TemplateView extends SliceChildView implements
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setInsets(int l, int t, int r, int b) {
         super.setInsets(l, t, r, b);
@@ -97,7 +100,9 @@ public class TemplateView extends SliceChildView implements
     /**
      * Called when the foreground view handling touch feedback should be activated.
      * @param event the event to handle.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void onForegroundActivated(MotionEvent event) {
         if (mParent != null && !mParent.isSliceViewClickable()) {
             // Only show highlight if clickable
@@ -120,6 +125,10 @@ public class TemplateView extends SliceChildView implements
         }
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setPolicy(SliceViewPolicy policy) {
         super.setPolicy(policy);
@@ -127,27 +136,47 @@ public class TemplateView extends SliceChildView implements
         policy.setListener(this);
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setActionLoading(SliceItem item) {
         mAdapter.onSliceActionLoading(item, 0 /* header position */);
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setLoadingActions(Set<SliceItem> loadingActions) {
         mAdapter.setLoadingActions(loadingActions);
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public Set<SliceItem> getLoadingActions() {
         return mAdapter.getLoadingActions();
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setTint(int tint) {
         super.setTint(tint);
         updateDisplayedItems(getMeasuredHeight());
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setSliceActionListener(SliceView.OnSliceActionListener observer) {
         mObserver = observer;
@@ -156,11 +185,19 @@ public class TemplateView extends SliceChildView implements
         }
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setSliceActions(List<SliceAction> actions) {
         mAdapter.setSliceActions(actions);
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setSliceContent(ListContent sliceContent) {
         mListContent = sliceContent;
@@ -168,6 +205,10 @@ public class TemplateView extends SliceChildView implements
         updateDisplayedItems(sliceHeight);
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setStyle(SliceStyle style, @NonNull RowStyle rowStyle) {
         super.setStyle(style, rowStyle);
@@ -181,18 +222,30 @@ public class TemplateView extends SliceChildView implements
         }
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setShowLastUpdated(boolean showLastUpdated) {
         super.setShowLastUpdated(showLastUpdated);
         mAdapter.setShowLastUpdated(showLastUpdated);
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setLastUpdated(long lastUpdated) {
         super.setLastUpdated(lastUpdated);
         mAdapter.setLastUpdated(lastUpdated);
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setAllowTwoLines(boolean allowTwoLines) {
         mAdapter.setAllowTwoLines(allowTwoLines);
@@ -220,6 +273,10 @@ public class TemplateView extends SliceChildView implements
                 : View.OVER_SCROLL_NEVER);
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void resetView() {
         mDisplayedItemsHeight = 0;
@@ -228,6 +285,10 @@ public class TemplateView extends SliceChildView implements
         mListContent = null;
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void onScrollingChanged(boolean newScrolling) {
         // Disable nested scrolling if the slice isn't scrollable. This allows inertial
@@ -239,6 +300,10 @@ public class TemplateView extends SliceChildView implements
         }
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void onMaxHeightChanged(int newNewHeight) {
         if (mListContent != null) {
@@ -246,6 +311,10 @@ public class TemplateView extends SliceChildView implements
         }
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void onMaxSmallChanged(int newMaxSmallHeight) {
         if (mAdapter != null) {
@@ -253,6 +322,10 @@ public class TemplateView extends SliceChildView implements
         }
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void onModeChanged(int newMode) {
         if (mListContent != null) {
@@ -260,6 +333,10 @@ public class TemplateView extends SliceChildView implements
         }
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public int getHiddenItemCount() {
         return mHiddenItemCount;

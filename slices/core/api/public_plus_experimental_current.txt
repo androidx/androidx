@@ -70,6 +70,7 @@ package androidx.slice.core {
     method public CharSequence? getContentDescription();
     method public androidx.core.graphics.drawable.IconCompat? getIcon();
     method public int getImageMode();
+    method public String? getKey();
     method public int getPriority();
     method public CharSequence getTitle();
     method public boolean isActivity();
@@ -78,6 +79,7 @@ package androidx.slice.core {
     method public boolean isToggle();
     method public androidx.slice.core.SliceAction! setChecked(boolean);
     method public androidx.slice.core.SliceAction? setContentDescription(CharSequence);
+    method public androidx.slice.core.SliceAction setKey(String);
     method public androidx.slice.core.SliceAction! setPriority(@IntRange(from=0) int);
   }
 

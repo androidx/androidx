@@ -95,6 +95,7 @@ import android.widget.TimePicker;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -118,10 +119,7 @@ import java.util.Set;
 /**
  * Row item is in small template format and can be used to construct list items for use
  * with {@link TemplateView}.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
 public class RowView extends SliceChildView implements View.OnClickListener,
         AdapterView.OnItemSelectedListener {
@@ -160,6 +158,10 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     private View mRangeBar;
     private boolean mIsStarRating;
     private final ProgressBar mActionSpinner;
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected Set<SliceItem> mLoadingActions = new HashSet<>();
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     boolean mShowActionSpinner;
@@ -208,7 +210,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     // How big mRangeBar wants to be.
     private int mMeasuredRangeHeight;
 
-    public RowView(Context context) {
+    public RowView(@NonNull Context context) {
         super(context);
         mIconSize = getContext().getResources().getDimensionPixelSize(R.dimen.abc_slice_icon_size);
         mImageSize = getContext().getResources().getDimensionPixelSize(
@@ -233,6 +235,10 @@ public class RowView extends SliceChildView implements View.OnClickListener,
                 mContent, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setStyle(SliceStyle styles, RowStyle rowStyle) {
         super.setStyle(styles, rowStyle);
@@ -307,10 +313,54 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         }
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setInsets(int l, int t, int r, int b) {
         super.setInsets(l, t, r, b);
         setPadding(l, t, r, b);
+    }
+
+    /**
+     * Allows subclasses to access the key associated with the primary action of the row.
+     */
+    @Nullable
+    protected String getPrimaryActionKey() {
+        if (mRowContent != null) {
+            SliceItem primaryAction = mRowContent.getPrimaryAction();
+            if (primaryAction != null && primaryAction != mStartItem) {
+                mRowAction = new SliceActionImpl(primaryAction);
+                return mRowAction.getKey();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * A list of keys from the SliceAction end items that can be used by subclasses for custom
+     * rendering.
+     */
+    @NonNull
+    protected List<String> getEndItemKeys() {
+        List<String> endItemKeys = new ArrayList<>();
+        if (mRowContent != null) {
+            // If we're here we can can show end items; check for top level actions first
+            List<SliceItem> endItems = mRowContent.getEndItems();
+
+            // If we're here we might be able to show end items
+            int endItemCount = 0;
+            for (int i = 0; i < endItems.size(); i++) {
+                if (endItemCount < MAX_END_ITEMS) {
+                    SliceActionImpl endItemAction = new SliceActionImpl(endItems.get(i));
+                    if (endItemAction.getKey() != null) {
+                        endItemKeys.add(endItemAction.getKey());
+                    }
+                }
+            }
+        }
+        return endItemKeys;
     }
 
     /**
@@ -327,6 +377,10 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         return rowHeight;
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setTint(@ColorInt int tintColor) {
         super.setTint(tintColor);
@@ -340,7 +394,9 @@ public class RowView extends SliceChildView implements View.OnClickListener,
      * @param actions if the actions are null then there are no header actions for this row.
      * If the actions are an empty list, then something has explicitly set that no header
      * actions should appear.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setSliceActions(List<SliceAction> actions) {
         mHeaderActions = actions;
@@ -349,6 +405,10 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         }
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setShowLastUpdated(boolean showLastUpdated) {
         super.setShowLastUpdated(showLastUpdated);
@@ -357,6 +417,10 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         }
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setAllowTwoLines(boolean allowTwoLines) {
         mAllowTwoLines = allowTwoLines;
@@ -437,8 +501,8 @@ public class RowView extends SliceChildView implements View.OnClickListener,
      * This is called when RowView is being used as a component in a large template.
      */
     @Override
-    public void setSliceItem(SliceContent content, boolean isHeader, int index,
-            int rowCount, SliceView.OnSliceActionListener observer) {
+    public void setSliceItem(@Nullable SliceContent content, boolean isHeader, int index,
+            int rowCount, @Nullable SliceView.OnSliceActionListener observer) {
         setSliceActionListener(observer);
 
         boolean isUpdate = false;
@@ -633,6 +697,10 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         );
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setLastUpdated(long lastUpdated) {
         super.setLastUpdated(lastUpdated);
@@ -1071,6 +1139,10 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         mActionSpinner.setVisibility(mShowActionSpinner ? VISIBLE : GONE);
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setLoadingActions(Set<SliceItem> actions) {
         if (actions == null) {
@@ -1084,7 +1156,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     @Override
-    public void onClick(View view) {
+    public void onClick(@NonNull View view) {
         if (mRowAction == null || mRowAction.getActionItem() == null) {
             return;
         }
@@ -1238,7 +1310,8 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+    public void onItemSelected(@NonNull AdapterView<?> parent, @NonNull View view, int position,
+            long id) {
         if (mSelectionItem == null
                 || parent != mSelectionSpinner
                 || position < 0
@@ -1285,6 +1358,10 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         layout.setClickable(isClickable);
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void resetView() {
         mRowContent = null;
