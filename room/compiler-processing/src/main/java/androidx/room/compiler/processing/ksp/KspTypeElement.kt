@@ -249,14 +249,12 @@ internal sealed class KspTypeElement(
 
     private val _declaredMethods by lazy {
         val instanceMethods = declaration.getDeclaredFunctions().asSequence()
-            .filterNot(env::isFakeOverride)
         val companionMethods = declaration.findCompanionObject()
             ?.getDeclaredFunctions()
             ?.asSequence()
             ?.filter {
                 it.isStatic()
-            }?.filterNot(env::isFakeOverride)
-            ?: emptySequence()
+            } ?: emptySequence()
         val declaredMethods = (instanceMethods + companionMethods)
             .filterNot {
                 // filter out constructors

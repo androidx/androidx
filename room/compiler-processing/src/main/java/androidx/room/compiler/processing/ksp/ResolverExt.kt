@@ -23,7 +23,6 @@ import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSPropertyAccessor
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.Nullability
@@ -82,8 +81,8 @@ internal fun Resolver.overrides(
 private fun KSFunctionDeclaration.overrides(other: KSFunctionDeclaration): Boolean {
     val overridee = try {
         findOverridee()
-    } catch (ignored: ClassCastException) {
-        // workaround for https://github.com/google/ksp/issues/164
+    } catch (ignored: IllegalStateException) {
+        // workaround for https://github.com/google/ksp/issues/248
         null
     }
     // before accepting this override, check if we have a primitive parameter that was a type
@@ -143,22 +142,7 @@ internal fun Resolver.safeGetJvmName(
         // workaround for https://github.com/google/ksp/issues/164
         return declaration.simpleName.asString()
     } catch (cannotFindDeclaration: IllegalStateException) {
-        // workaround for https://github.com/google/ksp/issues/200
-        // happens for setters getters as well as `values` method of Enum descriptor
+        // workaround for https://github.com/google/ksp/issues/240
         return declaration.simpleName.asString()
-    }
-}
-
-@OptIn(KspExperimental::class)
-internal fun Resolver.safeGetJvmName(
-    accessor: KSPropertyAccessor,
-    fallback: () -> String
-): String {
-    return try {
-        getJvmName(accessor)
-    } catch (ignored: ClassCastException) {
-        // TODO remove this catch once that issue is fixed.
-        // workaround for https://github.com/google/ksp/issues/164
-        return fallback()
     }
 }

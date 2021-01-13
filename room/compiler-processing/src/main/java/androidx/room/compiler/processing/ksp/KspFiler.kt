@@ -19,12 +19,15 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.XFiler
 import com.squareup.javapoet.JavaFile
 import com.google.devtools.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.Dependencies
 
 internal class KspFiler(
     private val delegate: CodeGenerator
 ) : XFiler {
     override fun write(javaFile: JavaFile) {
         delegate.createNewFile(
+            // TODO: track originating files: b/176453350
+            dependencies = Dependencies.ALL_FILES,
             packageName = javaFile.packageName,
             fileName = javaFile.typeSpec.name,
             extensionName = "java"
