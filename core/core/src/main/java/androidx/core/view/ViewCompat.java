@@ -4745,7 +4745,6 @@ public class ViewCompat {
 
             v.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
                 WindowInsetsCompat mLastInsets = null;
-                WindowInsets mReturnedInsets = null;
 
                 @Override
                 public WindowInsets onApplyWindowInsets(final View view,
@@ -4757,10 +4756,11 @@ public class ViewCompat {
 
                         if (compatInsets.equals(mLastInsets)) {
                             // We got the same insets we just return the previously computed insets.
-                            return mReturnedInsets;
+                            listener.onApplyWindowInsets(view, compatInsets);
+                            return insets;
                         }
-                        mLastInsets = compatInsets;
                     }
+                    mLastInsets = compatInsets;
                     compatInsets = listener.onApplyWindowInsets(view, compatInsets);
 
                     if (Build.VERSION.SDK_INT >= 30) {
@@ -4774,8 +4774,8 @@ public class ViewCompat {
                     requestApplyInsets(view);
                     // Keep a copy in case the insets haven't changed on the next call so we don't
                     // need to call the listener again.
-                    mReturnedInsets = compatInsets.toWindowInsets();
-                    return mReturnedInsets;
+
+                    return compatInsets.toWindowInsets();
                 }
             });
         }

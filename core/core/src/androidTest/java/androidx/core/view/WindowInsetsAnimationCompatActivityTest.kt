@@ -258,12 +258,122 @@ public class WindowInsetsAnimationCompatActivityTest {
         )
     }
 
-    private fun createCallback(
-        onPrepare: ((WindowInsetsAnimationCompat) -> Unit)? = null
+    @Test
+    public fun add_animation_listener_first() {
+        assumeNotCuttlefish()
 
+        val container = scenario.withActivity { findViewById(R.id.container) }
+        var applyInsetsCalled = false
+        var insetsAnimationCallbackCalled = false
+        var latch = CountDownLatch(2)
+        val animationCallback = createCallback(
+            onPrepare = {
+                insetsAnimationCallbackCalled = true
+                latch.countDown()
+            }
+        )
+        val insetListener: (v: View, insets: WindowInsetsCompat) -> WindowInsetsCompat =
+            { _, insetsCompat ->
+                applyInsetsCalled = true
+                latch.countDown()
+                insetsCompat
+            }
+
+        ViewCompat.setWindowInsetsAnimationCallback(container, animationCallback)
+        ViewCompat.setOnApplyWindowInsetsListener(container, insetListener)
+        triggerInsetAnimation(container)
+        latch.await(4, TimeUnit.SECONDS)
+        assertTrue(
+            "The WindowInsetsAnimationCallback has not been called",
+            insetsAnimationCallbackCalled
+        )
+        assertTrue(
+            "onApplyWindowInsetsListener has not been called",
+            applyInsetsCalled
+        )
+    }
+
+    @Test
+    public fun child_callback_called_when_consumed() {
+        assumeNotCuttlefish()
+
+        val container = scenario.withActivity { findViewById(R.id.container) }
+        val child = scenario.withActivity { findViewById(R.id.view) }
+        var parentListenerCalled = false
+        var insetsAnimationCallbackCalled = false
+        var childListenerCalled = false
+        var savedInsets: WindowInsetsCompat? = null
+        var savedView: View? = null
+        val latch = CountDownLatch(3) // Insets will be dispatched 3 times
+        val childLatch = CountDownLatch(1)
+        val animationCallback = createCallback(
+            onPrepare = {
+                insetsAnimationCallbackCalled = true
+                latch.countDown()
+            },
+
+            onEnd = {
+                ViewCompat.dispatchApplyWindowInsets(savedView!!, savedInsets!!)
+            }
+        )
+
+        val childCallback = createCallback(
+            onEnd = {
+                childListenerCalled = true
+                childLatch.countDown()
+            }
+        )
+
+        val insetListener: (v: View, insets: WindowInsetsCompat) -> WindowInsetsCompat =
+            { v, insetsCompat ->
+                parentListenerCalled = true
+                savedInsets = insetsCompat
+                savedView = v
+                latch.countDown()
+                WindowInsetsCompat.CONSUMED
+            }
+
+        ViewCompat.setWindowInsetsAnimationCallback(container, animationCallback)
+        ViewCompat.setWindowInsetsAnimationCallback(child, childCallback)
+        ViewCompat.setOnApplyWindowInsetsListener(container, insetListener)
+        triggerInsetAnimation(container)
+        latch.await(4, TimeUnit.SECONDS)
+        assertTrue(
+            "The WindowInsetsAnimationCallback has not been called",
+            insetsAnimationCallbackCalled
+        )
+        assertTrue(
+            "parent listener has not been called",
+            parentListenerCalled
+        )
+        // Parent consumed the insets, child listener won't be called
+        assertFalse(
+            "child listener should not have been called",
+            childListenerCalled
+        )
+
+        // We dispatch with the same insets as before
+        childLatch.await(4, TimeUnit.SECONDS)
+        assertTrue(
+            "The WindowInsetsAnimationCallback has not been called",
+            insetsAnimationCallbackCalled
+        )
+        assertTrue(
+            "parent listener has not been called",
+            parentListenerCalled
+        )
+        assertTrue(
+            "child listener has not been called",
+            childListenerCalled
+        )
+    }
+
+    private fun createCallback(
+        onPrepare: ((WindowInsetsAnimationCompat) -> Unit)? = null,
+        onEnd: ((WindowInsetsAnimationCompat) -> Unit)? = null
     ): WindowInsetsAnimationCompat.Callback {
         return object :
-            WindowInsetsAnimationCompat.Callback(DISPATCH_MODE_STOP) {
+            WindowInsetsAnimationCompat.Callback(DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
 
             override fun onPrepare(animation: WindowInsetsAnimationCompat) {
                 onPrepare?.invoke(animation)
@@ -273,6 +383,10 @@ public class WindowInsetsAnimationCompatActivityTest {
                 insets: WindowInsetsCompat,
                 runningAnimations: MutableList<WindowInsetsAnimationCompat>
             ): WindowInsetsCompat = insets
+
+            override fun onEnd(animation: WindowInsetsAnimationCompat) {
+                onEnd?.invoke(animation)
+            }
         }
     }
 
