@@ -116,6 +116,9 @@ def includeProject(name, filePath, List<BuildType> filter = []) {
 /////////////////////////////
 
 includeProject(":activity:activity", "activity/activity", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":activity:activity-compose", "activity/activity-compose", [BuildType.COMPOSE])
+includeProject(":activity:activity-compose:activity-compose-samples", "activity/activity-compose/samples", [BuildType.COMPOSE])
+includeProject(":activity:activity-compose:integration-tests:activity-demos", "activity/activity-compose/integration-tests/activity-demos", [BuildType.COMPOSE])
 includeProject(":activity:activity-ktx", "activity/activity-ktx", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":activity:activity-lint", "activity/activity-lint", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":activity:integration-tests:testapp", "activity/integration-tests/testapp", [BuildType.MAIN])
