@@ -59,6 +59,8 @@ class LegacyPageFetcherTest {
                 itemsAfter = data.size - end
             )
         }
+
+        override fun getRefreshKey(state: PagingState<Int, String>): Int? = null
     }
 
     private fun rangeResult(start: Int, end: Int) = Page(

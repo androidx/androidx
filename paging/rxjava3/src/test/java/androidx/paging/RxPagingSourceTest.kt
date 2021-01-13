@@ -41,6 +41,8 @@ class RxPagingSourceTest {
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
             return loadInternal(params)
         }
+
+        override fun getRefreshKey(state: PagingState<Int, Int>): Int? = null
     }
 
     private val rxPagingSource = object : RxPagingSource<Int, Int>() {
@@ -49,6 +51,8 @@ class RxPagingSourceTest {
                 emitter.onSuccess(loadInternal(params))
             }
         }
+
+        override fun getRefreshKey(state: PagingState<Int, Int>): Int? = null
     }
 
     @Test

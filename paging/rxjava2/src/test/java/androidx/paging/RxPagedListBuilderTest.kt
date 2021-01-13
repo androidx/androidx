@@ -67,6 +67,8 @@ class RxPagedListBuilderTest {
                 else -> loadRange()
             }
 
+            override fun getRefreshKey(state: PagingState<Int, String>): Int? = null
+
             private fun loadInitial(params: LoadParams<Int>): LoadResult<Int, String> {
                 if (params is LoadParams.Refresh) {
                     assertEquals(6, params.loadSize)

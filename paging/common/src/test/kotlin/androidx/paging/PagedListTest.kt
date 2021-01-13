@@ -49,6 +49,8 @@ class PagedListTest {
                     )
                     else -> throw NotImplementedError("Test should fail if we get here")
                 }
+
+            override fun getRefreshKey(state: PagingState<Int, String>): Int? = null
         }
     }
 
@@ -80,6 +82,8 @@ class PagedListTest {
                 override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
                     throw IllegalStateException()
                 }
+
+                override fun getRefreshKey(state: PagingState<Int, String>): Int? = null
             }
             assertFailsWith<IllegalStateException> {
                 @Suppress("DEPRECATION")
@@ -105,6 +109,8 @@ class PagedListTest {
                 override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
                     return LoadResult.Error(exception)
                 }
+
+                override fun getRefreshKey(state: PagingState<Int, String>): Int? = null
             }
 
             // create doesn't differentiate between throw vs error runnable, which is why
