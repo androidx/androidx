@@ -43,6 +43,27 @@ open class OngoingActivityTest {
     }
 
     @Test
+    fun testMinimalOngoingActivity() {
+        val builder = NotificationCompat.Builder(context, ChannelId)
+        val oa = OngoingActivity.Builder(context, 1, builder)
+            .setStaticIcon(StaticIconResourceId)
+            .setTouchIntent(PendingIntentValue)
+            .build()
+        oa.apply(context)
+
+        val notification = builder.build()
+
+        // check that the Notification contains the information needed.
+        val received = OngoingActivityData.create(notification)!!
+        assertEquals(StaticIconResourceId, received.staticIcon.resId)
+        assertEquals(PendingIntentValue, received.touchIntent)
+        // Also ensure that unset fields are null
+        assertNull(received.animatedIcon)
+        assertNull(received.locusId)
+        assertNull(received.status)
+    }
+
+    @Test
     fun testOngoingActivityApply() {
         val builder = NotificationCompat.Builder(context, ChannelId)
         val oa = OngoingActivity.Builder(context, 1, builder)
