@@ -23,7 +23,6 @@ import androidx.build.RunApiTasks
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.google.protobuf")
 }
 
 dependencies {
@@ -37,30 +36,9 @@ android {
     defaultConfig {
         minSdkVersion 24
     }
-    buildFeatures {
-        aidl = true
-    }
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
-}
-
-protobuf {
-    protoc {
-        artifact = PROTOBUF_COMPILER
-    }
-    // Generates the java proto-lite code for the protos in this project. See
-    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
-    // for more information.
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins {
-                java {
-                    option 'lite'
-                }
-            }
-        }
-    }
 }
 
 androidx {
@@ -70,4 +48,5 @@ androidx {
     mavenVersion = LibraryVersions.WEAR_TILES
     inceptionYear = "2020"
     description = "Android Wear Tiles"
+    runApiTasks = new RunApiTasks.No("API tracking disabled while the package is empty")
 }
