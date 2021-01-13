@@ -173,7 +173,7 @@ public class OngoingActivityData implements VersionedParcelable {
      */
     @Nullable
     public LocusIdCompat getLocusId() {
-        return new LocusIdCompat(mLocusId);
+        return mLocusId == null ? null : new LocusIdCompat(mLocusId);
     }
 
     /**
