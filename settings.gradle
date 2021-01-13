@@ -372,11 +372,11 @@ includeProject(":loader:loader", "loader/loader", [BuildType.MAIN])
 includeProject(":loader:loader-ktx", "loader/loader-ktx", [BuildType.MAIN])
 includeProject(":localbroadcastmanager:localbroadcastmanager", "localbroadcastmanager/localbroadcastmanager", [BuildType.MAIN])
 includeProject(":media2:integration-tests:testapp", "media2/integration-tests/testapp", [BuildType.MAIN])
-includeProject(":media2:media2-common", "media2/common", [BuildType.MAIN])
-includeProject(":media2:media2-exoplayer", "media2/exoplayer", [BuildType.MAIN])
-includeProject(":media2:media2-player", "media2/player", [BuildType.MAIN])
-includeProject(":media2:media2-session", "media2/session", [BuildType.MAIN])
-includeProject(":media2:media2-widget", "media2/widget", [BuildType.MAIN])
+includeProject(":media2:media2-common", "media2/media2-common", [BuildType.MAIN])
+includeProject(":media2:media2-exoplayer", "media2/media2-exoplayer", [BuildType.MAIN])
+includeProject(":media2:media2-player", "media2/media2-player", [BuildType.MAIN])
+includeProject(":media2:media2-session", "media2/media2-session", [BuildType.MAIN])
+includeProject(":media2:media2-widget", "media2/media2-widget", [BuildType.MAIN])
 includeProject(":media:media", "media/media", [BuildType.MAIN])
 includeProject(":mediarouter:mediarouter", "mediarouter/mediarouter", [BuildType.MAIN])
 includeProject(":navigation:navigation-benchmark", "navigation/benchmark", [BuildType.MAIN, BuildType.FLAN])
@@ -600,15 +600,15 @@ includeProject(":media:version-compat-tests:lib", "media/version-compat-tests/li
         [BuildType.MAIN])
 
 includeProject(":media2:media2-session:version-compat-tests:client",
-        "media2/session/version-compat-tests/current/client", [BuildType.MAIN])
+        "media2/media2-session/version-compat-tests/current/client", [BuildType.MAIN])
 includeProject(":media2:media2-session:version-compat-tests:client-previous",
-        "media2/session/version-compat-tests/previous/client", [BuildType.MAIN])
+        "media2/media2-session/version-compat-tests/previous/client", [BuildType.MAIN])
 includeProject(":media2:media2-session:version-compat-tests:service",
-        "media2/session/version-compat-tests/current/service", [BuildType.MAIN])
+        "media2/media2-session/version-compat-tests/current/service", [BuildType.MAIN])
 includeProject(":media2:media2-session:version-compat-tests:service-previous",
-        "media2/session/version-compat-tests/previous/service", [BuildType.MAIN])
+        "media2/media2-session/version-compat-tests/previous/service", [BuildType.MAIN])
 includeProject(":media2:media2-session:version-compat-tests:common",
-        "media2/session/version-compat-tests/common", [BuildType.MAIN])
+        "media2/media2-session/version-compat-tests/common", [BuildType.MAIN])
 
 /////////////////////////////
 //
