@@ -21,12 +21,14 @@ import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Point
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
+import android.os.BatteryManager
 import android.support.wearable.watchface.WatchFaceStyle
 import android.view.ViewConfiguration
 import androidx.annotation.ColorInt
@@ -347,6 +349,11 @@ internal class WatchFaceImpl(
 
         // Complications are highlighted when tapped and after this delay the highlight is removed.
         internal const val CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS = 300L
+
+        // The threshold used to judge whether the battery is low.  Ideally we would use the
+        // threshold for Intent.ACTION_BATTERY_LOW but it's not documented and the value below is an
+        // assumption.
+        internal const val LOW_BATTERY_THRESHOLD = 15.0f
     }
 
     private val systemTimeProvider = watchface.systemTimeProvider
@@ -490,6 +497,12 @@ internal class WatchFaceImpl(
         }
 
         renderer.watchFaceHostApi = watchFaceHostApi
+
+        setIsBatteryLowAndNotChargingFromBatteryStatus(
+            IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { iFilter ->
+                watchFaceHostApi.getContext().registerReceiver(null, iFilter)
+            }
+        )
     }
 
     private var inOnSetStyle = false
@@ -606,6 +619,20 @@ internal class WatchFaceImpl(
         watchState.isVisible.addObserver(visibilityObserver)
 
         initFinished = true
+    }
+
+    internal fun setIsBatteryLowAndNotChargingFromBatteryStatus(batteryStatus: Intent?) {
+        val status = batteryStatus?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+        val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+            status == BatteryManager.BATTERY_STATUS_FULL
+        val batteryPercent: Float = batteryStatus?.let { intent ->
+            val level: Int = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+            val scale: Int = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+            level * 100 / scale.toFloat()
+        } ?: 100.0f
+        val isBatteryLowAndNotCharging =
+            watchState.isBatteryLowAndNotCharging as MutableObservableWatchData
+        isBatteryLowAndNotCharging.value = (batteryPercent < LOW_BATTERY_THRESHOLD) && !isCharging
     }
 
     /**
