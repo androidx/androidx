@@ -16,17 +16,6 @@
 
 package androidx.car.app.model;
 
-import android.content.Context;
-
-import androidx.annotation.NonNull;
-
 /** An interface used to denote a model that can act as a root for a tree of other models. */
 public interface Template {
-    /**
-     * Checks that the application has the required permissions for this template.
-     *
-     * @throws SecurityException if the application is missing any required permission.
-     */
-    default void checkPermissions(@NonNull Context context) {
-    }
 }

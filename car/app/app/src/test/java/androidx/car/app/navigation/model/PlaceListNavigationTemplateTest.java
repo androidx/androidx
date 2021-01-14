@@ -23,7 +23,6 @@ import static org.junit.Assert.assertThrows;
 import android.content.Context;
 import android.text.SpannableString;
 
-import androidx.car.app.CarAppPermission;
 import androidx.car.app.TestUtils;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -377,31 +376,5 @@ public class PlaceListNavigationTemplateTest {
                                         mDistanceSpan))
                                 .setTitle("other")
                                 .build());
-    }
-
-    @Test
-    public void checkPermissions_hasPermissions() {
-        PlaceListNavigationTemplate template =
-                new PlaceListNavigationTemplate.Builder()
-                        .setItemList(
-                                TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
-                        .setTitle("title")
-                        .build();
-
-        // Expect that it does not throw
-        template.checkPermissions(
-                TestUtils.getMockContextWithPermission(CarAppPermission.NAVIGATION_TEMPLATES));
-    }
-
-    @Test
-    public void checkPermissions_doesNotHavePermissions() {
-        PlaceListNavigationTemplate template =
-                new PlaceListNavigationTemplate.Builder()
-                        .setItemList(
-                                TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
-                        .setTitle("title")
-                        .build();
-
-        assertThrows(SecurityException.class, () -> template.checkPermissions(mContext));
     }
 }

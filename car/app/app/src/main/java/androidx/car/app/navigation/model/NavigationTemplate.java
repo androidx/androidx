@@ -21,12 +21,9 @@ import static androidx.car.app.model.constraints.CarColorConstraints.UNCONSTRAIN
 
 import static java.util.Objects.requireNonNull;
 
-import android.content.Context;
-
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.CarAppPermission;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.model.Action;
@@ -160,11 +157,6 @@ public class NavigationTemplate implements Template {
                 && Objects.equals(mDestinationTravelEstimate,
                 otherTemplate.mDestinationTravelEstimate)
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
-    }
-
-    @Override
-    public void checkPermissions(@NonNull Context context) {
-        CarAppPermission.checkHasLibraryPermission(context, CarAppPermission.NAVIGATION_TEMPLATES);
     }
 
     NavigationTemplate(Builder builder) {

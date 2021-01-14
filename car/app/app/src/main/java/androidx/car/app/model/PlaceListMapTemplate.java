@@ -20,13 +20,9 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_SIMPLE;
 
-import android.Manifest.permission;
-import android.content.Context;
-
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.CarAppPermission;
 
 import java.util.Collections;
 import java.util.List;
@@ -110,13 +106,6 @@ public final class PlaceListMapTemplate implements Template {
     @Nullable
     public Place getAnchor() {
         return mAnchor;
-    }
-
-    @Override
-    public void checkPermissions(@NonNull Context context) {
-        if (isCurrentLocationEnabled()) {
-            CarAppPermission.checkHasPermission(context, permission.ACCESS_FINE_LOCATION);
-        }
     }
 
     @NonNull
