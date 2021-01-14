@@ -90,7 +90,7 @@ public class CarText {
     }
 
     private CarText(CharSequence text) {
-        this.mText = text.toString().trim();
+        this.mText = text.toString();
 
         mSpans = new ArrayList<>();
 
