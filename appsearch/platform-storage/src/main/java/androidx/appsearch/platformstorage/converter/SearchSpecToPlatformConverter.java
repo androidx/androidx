@@ -50,6 +50,7 @@ public final class SearchSpecToPlatformConverter {
                 .setSnippetCount(jetpackSearchSpec.getSnippetCount())
                 .setSnippetCountPerProperty(jetpackSearchSpec.getSnippetCountPerProperty())
                 .setMaxSnippetSize(jetpackSearchSpec.getMaxSnippetSize());
+                // TODO(b/175039682): Support projection paths
         return platformBuilder.build();
     }
 }
