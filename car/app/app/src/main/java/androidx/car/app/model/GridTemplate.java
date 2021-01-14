@@ -219,13 +219,6 @@ public final class GridTemplate implements Template {
             return this;
         }
 
-        /** Resets the list that was added via {@link #setSingleList}. */
-        @NonNull
-        public Builder clearAllLists() {
-            mSingleList = null;
-            return this;
-        }
-
         /**
          * Sets the {@link ActionStrip} for this template, or {@code null} to not display an {@link
          * ActionStrip}.

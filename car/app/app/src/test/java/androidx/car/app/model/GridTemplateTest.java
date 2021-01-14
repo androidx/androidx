@@ -125,16 +125,6 @@ public class GridTemplateTest {
     }
 
     @Test
-    public void resetList_clearsSingleList() {
-        GridTemplate.Builder builder =
-                new GridTemplate.Builder()
-                        .setSingleList(TestUtils.getGridItemList(2))
-                        .setHeaderAction(Action.BACK);
-
-        assertThrows(IllegalStateException.class, () -> builder.clearAllLists().build());
-    }
-
-    @Test
     public void equals() {
         ItemList itemList = new ItemList.Builder().build();
         String title = "title";
