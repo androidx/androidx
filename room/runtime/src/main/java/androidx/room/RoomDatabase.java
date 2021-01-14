@@ -26,6 +26,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -1226,7 +1227,7 @@ public abstract class RoomDatabase {
          * {@link RoomDatabase.Builder#build()}.
          *
          * @param autoCloseTimeout  the amount of time after the last usage before closing the
-         *                          database
+         *                          database. Must greater or equal to zero.
          * @param autoCloseTimeUnit the timeunit for autoCloseTimeout.
          * @return This {@link Builder} instance
          */
@@ -1234,8 +1235,8 @@ public abstract class RoomDatabase {
         @SuppressWarnings("MissingGetterMatchingBuilder")
         @ExperimentalRoomApi // When experimental is removed, add these parameters to
         // DatabaseConfiguration
-        public Builder<T> setAutoCloseTimeout(long autoCloseTimeout,
-                @NonNull TimeUnit autoCloseTimeUnit) {
+        public Builder<T> setAutoCloseTimeout(
+                @IntRange(from = 0) long autoCloseTimeout, @NonNull TimeUnit autoCloseTimeUnit) {
             if (autoCloseTimeout < 0) {
                 throw new IllegalArgumentException("autoCloseTimeout must be >= 0");
             }
