@@ -27,14 +27,16 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.os.Handler;
-import android.os.Looper;
+import android.os.HandlerThread;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.testutils.RepeatRule;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.Data;
@@ -67,7 +69,9 @@ import androidx.work.worker.TestWorker;
 
 import org.hamcrest.CoreMatchers;
 import org.jetbrains.annotations.NotNull;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -85,6 +89,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
     private static final String TEST_ARGUMENT_NAME = "test";
 
     private Context mContext;
+    private HandlerThread mHandlerThread;
     private Handler mHandler;
     private WorkerFactory mWorkerFactory;
 
@@ -104,10 +109,15 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
     private NetworkStateTracker mNetworkStateTracker;
     private StorageNotLowTracker mStorageNotLowTracker;
 
+    @Rule
+    public final RepeatRule mRepeatRule = new RepeatRule();
+
     @Before
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext().getApplicationContext();
-        mHandler = new Handler(Looper.getMainLooper());
+        mHandlerThread = new HandlerThread("ConstraintTrackingHandler");
+        mHandlerThread.start();
+        mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
         mWorkerFactory = new SpyingWorkerFactory();
         mConfiguration = new Configuration.Builder()
                 .setExecutor(new SynchronousExecutor())
@@ -138,6 +148,11 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
         // Override Trackers being used by WorkConstraintsProxy
         Trackers.setInstance(mTracker);
+    }
+
+    @After
+    public void tearDown() {
+        mHandlerThread.quitSafely();
     }
 
     @Test
@@ -192,9 +207,9 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         }, DELAY_IN_MS);
 
         Thread.sleep(TEST_TIMEOUT_IN_MS);
-        executorService.shutdown();
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
         assertThat(workSpec.state, is(WorkInfo.State.ENQUEUED));
+        executorService.shutdown();
     }
 
     @Test
