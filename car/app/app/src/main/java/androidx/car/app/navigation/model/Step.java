@@ -70,15 +70,6 @@ public final class Step {
         return new Builder(requireNonNull(cue));
     }
 
-    /**
-     * Returns a new {@link Builder} instance configured with the same data as this {@link Step}
-     * instance.
-     */
-    @NonNull
-    public Builder newBuilder() {
-        return new Builder(this);
-    }
-
     @Nullable
     public Maneuver getManeuver() {
         return mManeuver;
@@ -193,19 +184,9 @@ public final class Step {
             this.mCue = CarText.create(requireNonNull(cue));
         }
 
-        Builder(Step step) {
-            this.mManeuver = step.getManeuver();
-            this.mLanes.clear();
-            this.mLanes.addAll(step.getLanes());
-            this.mLanesImage = step.getLanesImage();
-            this.mCue = requireNonNull(step.getCue());
-            this.mRoad = step.getRoad();
-        }
-
         /**
          * Sets the maneuver to be performed on this step or {@code null} if this step doesn't
-         * involve a
-         * maneuver.
+         * involve a maneuver.
          */
         @NonNull
         public Builder setManeuver(@Nullable Maneuver maneuver) {

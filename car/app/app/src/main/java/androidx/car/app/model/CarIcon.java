@@ -212,7 +212,10 @@ public class CarIcon {
     /**
      * Returns a {@link Builder} instance configured with the same data as this {@link CarIcon}
      * instance.
+     * @deprecated use constructor.
      */
+    // TODO(b/177484889): remove once host is changed to use new public ctor.
+    @Deprecated
     @NonNull
     public Builder newBuilder() {
         return new Builder(this);
@@ -427,7 +430,14 @@ public class CarIcon {
             mTint = null;
         }
 
-        Builder(@NonNull CarIcon carIcon) {
+        /**
+         * Returns a {@link Builder} instance configured with the same data as the given
+         * {@link CarIcon} instance.
+         *
+         * @throws NullPointerException if {@code icon} is {@code null}.
+         */
+        public Builder(@NonNull CarIcon carIcon) {
+            requireNonNull(carIcon);
             mType = carIcon.getType();
             mIcon = carIcon.getIcon();
             mTint = carIcon.getTint();

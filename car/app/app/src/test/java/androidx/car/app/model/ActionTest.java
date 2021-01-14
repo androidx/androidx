@@ -135,34 +135,6 @@ public class ActionTest {
     }
 
     @Test
-    public void create_invalidSetOnBackThrows() {
-        assertThrows(
-                IllegalStateException.class,
-                () -> Action.BACK.newBuilder().setOnClickListener(() -> {
-                }).build());
-        assertThrows(
-                IllegalStateException.class,
-                () -> Action.BACK.newBuilder().setTitle("BACK").build());
-        assertThrows(
-                IllegalStateException.class,
-                () -> Action.BACK.newBuilder().setIcon(CarIcon.ALERT).build());
-    }
-
-    @Test
-    public void create_invalidSetOnAppIconThrows() {
-        assertThrows(
-                IllegalStateException.class,
-                () -> Action.APP_ICON.newBuilder().setOnClickListener(() -> {
-                }).build());
-        assertThrows(
-                IllegalStateException.class,
-                () -> Action.APP_ICON.newBuilder().setTitle("APP").build());
-        assertThrows(
-                IllegalStateException.class,
-                () -> Action.APP_ICON.newBuilder().setIcon(CarIcon.ALERT).build());
-    }
-
-    @Test
     public void equals() {
         String title = "foo";
         CarIcon icon = CarIcon.ALERT;

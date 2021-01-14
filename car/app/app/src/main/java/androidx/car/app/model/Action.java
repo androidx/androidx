@@ -144,8 +144,12 @@ public final class Action {
     /**
      * Returns a {@link Builder} instance configured with the same data as this {@link Action}
      * instance.
+     *
+     * @deprecated use constructor.
      */
+    // TODO(b/177484889): remove once host is changed to use new public ctor.
     @NonNull
+    @Deprecated
     public Builder newBuilder() {
         return new Builder(this);
     }
@@ -405,7 +409,13 @@ public final class Action {
         public Builder() {
         }
 
-        Builder(Action action) {
+        /**
+         * Returns a {@link Builder} instance configured with the same data as the given
+         * {@link Action} instance.
+         *
+         * @throws NullPointerException if {@code icon} is {@code null}.
+         */
+        Builder(@NonNull Action action) {
             mTitle = action.getTitle();
             mIcon = action.getIcon();
             mBackgroundColor = action.getBackgroundColor();

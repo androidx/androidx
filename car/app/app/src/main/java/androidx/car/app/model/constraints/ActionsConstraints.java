@@ -19,6 +19,8 @@ package androidx.car.app.model.constraints;
 
 import static androidx.annotation.RestrictTo.Scope;
 
+import static java.util.Objects.requireNonNull;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
@@ -59,13 +61,13 @@ public class ActionsConstraints {
      */
     @NonNull
     public static final ActionsConstraints ACTIONS_CONSTRAINTS_SIMPLE =
-            ACTIONS_CONSTRAINTS_CONSERVATIVE.newBuilder().setMaxCustomTitles(1).build();
+            new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_CONSERVATIVE).setMaxCustomTitles(
+                    1).build();
 
     /** Constraints for navigation templates. */
     @NonNull
     public static final ActionsConstraints ACTIONS_CONSTRAINTS_NAVIGATION =
-            ACTIONS_CONSTRAINTS_CONSERVATIVE
-                    .newBuilder()
+            new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_CONSERVATIVE)
                     .setMaxActions(4)
                     .setMaxCustomTitles(1)
                     .addRequiredActionType(Action.TYPE_CUSTOM)
@@ -82,16 +84,6 @@ public class ActionsConstraints {
     @NonNull
     public static Builder builder() {
         return new Builder();
-    }
-
-    /**
-     * Returns a new builder that contains the same data as this {@link ActionsConstraints}
-     * instance.
-     */
-    @VisibleForTesting
-    @NonNull
-    public Builder newBuilder() {
-        return new Builder(this);
     }
 
     /** Returns the max number of actions allowed. */
@@ -239,7 +231,14 @@ public class ActionsConstraints {
         public Builder() {
         }
 
-        Builder(ActionsConstraints constraints) {
+        /**
+         * Returns a new builder that contains the same data as the given {@link ActionsConstraints}
+         * instance.
+         *
+         * @throws NullPointerException if {@code latLng} is {@code null}.
+         */
+        public Builder(@NonNull ActionsConstraints constraints) {
+            requireNonNull(constraints);
             this.mMaxActions = constraints.getMaxActions();
             this.mMaxCustomTitles = constraints.getMaxCustomTitles();
             this.mRequiredActionTypes.addAll(constraints.getRequiredActionTypes());
