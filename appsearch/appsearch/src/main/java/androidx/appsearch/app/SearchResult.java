@@ -133,9 +133,7 @@ public final class SearchResult {
      * Contains the database name that stored the {@link GenericDocument}.
      *
      * @return Database name that stored the document
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public String getDatabaseName() {
         return Preconditions.checkNotNull(mBundle.getString(DATABASE_NAME_FIELD));
