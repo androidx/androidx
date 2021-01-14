@@ -67,8 +67,8 @@ public class NavigationManagerTest {
     private NavigationManager mNavigationManager;
 
     private final Destination mDestination =
-            new Destination.Builder().setName("Home").setAddress("123 State Street").build();
-    private final Step mStep = new Step.Builder("Straight Ahead").build();
+            Destination.builder().setName("Home").setAddress("123 State Street").build();
+    private final Step mStep = Step.builder("Straight Ahead").build();
     private final TravelEstimate mStepTravelEstimate =
             TravelEstimate.create(
                     Distance.create(/* displayDistance= */ 10, Distance.UNIT_KILOMETERS),
@@ -81,11 +81,9 @@ public class NavigationManagerTest {
                     createDateTimeWithZone("2020-04-14T16:57:00", "US/Pacific"));
     private static final String CURRENT_ROAD = "State St.";
     private final Trip mTrip =
-            new Trip.Builder()
-                    .addDestination(mDestination)
-                    .addStep(mStep)
-                    .addDestinationTravelEstimate(mDestinationTravelEstimate)
-                    .addStepTravelEstimate(mStepTravelEstimate)
+            Trip.builder()
+                    .addDestination(mDestination, mDestinationTravelEstimate)
+                    .addStep(mStep, mStepTravelEstimate)
                     .setCurrentRoad(CURRENT_ROAD)
                     .build();
 

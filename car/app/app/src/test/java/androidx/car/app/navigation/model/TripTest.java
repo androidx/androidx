@@ -40,16 +40,16 @@ import java.util.concurrent.TimeUnit;
 public class TripTest {
 
     private final Step mStep =
-            new Step.Builder("Take the second exit of the roundabout.")
-                    .addLane(new Lane.Builder().addDirection(
+            Step.builder("Take the second exit of the roundabout.")
+                    .addLane(Lane.builder().addDirection(
                             LaneDirection.create(SHAPE_SHARP_LEFT, true)).build())
-                    .setManeuver(new Maneuver.Builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW)
+                    .setManeuver(Maneuver.builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW)
                             .setRoundaboutExitNumber(/*roundaboutExitNumber=*/ 2)
                             .setIcon(CarIcon.APP_ICON)
                             .build())
                     .build();
     private final Destination mDestination =
-            new Destination.Builder().setName("Google BVE").setAddress("1120 112th Ave NE").build();
+            Destination.builder().setName("Google BVE").setAddress("1120 112th Ave NE").build();
     private final TravelEstimate mStepTravelEstimate =
             TravelEstimate.create(
                     Distance.create(/* displayDistance= */ 10, Distance.UNIT_KILOMETERS),
@@ -65,11 +65,9 @@ public class TripTest {
     @Test
     public void createInstance() {
         Trip trip =
-                new Trip.Builder()
-                        .addDestination(mDestination)
-                        .addStep(mStep)
-                        .addDestinationTravelEstimate(mDestinationTravelEstimate)
-                        .addStepTravelEstimate(mStepTravelEstimate)
+                Trip.builder()
+                        .addDestination(mDestination, mDestinationTravelEstimate)
+                        .addStep(mStep, mStepTravelEstimate)
                         .setCurrentRoad(ROAD)
                         .setLoading(false)
                         .build();
@@ -87,31 +85,10 @@ public class TripTest {
     }
 
     @Test
-    public void getDestinationWithEstimates_mismatch_count() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new Trip.Builder().addDestination(mDestination).build());
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new Trip.Builder().addDestinationTravelEstimate(
-                        mDestinationTravelEstimate).build());
-    }
-
-    @Test
-    public void getStepWithEstimates_mismatch_count() {
-        assertThrows(IllegalArgumentException.class,
-                () -> new Trip.Builder().addStep(mStep).build());
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new Trip.Builder().addStepTravelEstimate(mStepTravelEstimate).build());
-    }
-
-    @Test
     public void createInstance_loading_no_steps() {
         Trip trip =
-                new Trip.Builder()
-                        .addDestination(mDestination)
-                        .addDestinationTravelEstimate(mDestinationTravelEstimate)
+                Trip.builder()
+                        .addDestination(mDestination, mDestinationTravelEstimate)
                         .setCurrentRoad(ROAD)
                         .setLoading(true)
                         .build();
@@ -128,18 +105,11 @@ public class TripTest {
 
     @Test
     public void createInstance_loading_with_steps() {
+
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new Trip.Builder().addStep(mStep).setLoading(true).build());
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new Trip.Builder().addStepTravelEstimate(mStepTravelEstimate).setLoading(
-                        true).build());
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new Trip.Builder()
-                        .addStep(mStep)
-                        .addStepTravelEstimate(mStepTravelEstimate)
+                () -> Trip.builder()
+                        .addStep(mStep, mStepTravelEstimate)
                         .setLoading(true)
                         .build());
     }
