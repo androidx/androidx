@@ -22,6 +22,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -33,6 +34,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineDispatcher
@@ -280,29 +282,65 @@ class SingleProcessDataStoreTest {
     }
 
     @Test
-    fun testCancellingScopePropagatesToWrites() = runBlockingTest {
+    fun testCancellingDataStoreScopePropagatesToWrites() = runBlocking<Unit> {
+        val scope = CoroutineScope(Job())
+
+        val dataStore = newDataStore(scope = scope)
+
         val latch = CompletableDeferred<Unit>()
 
         val slowUpdate = async {
-            store.updateData {
+            dataStore.updateData {
                 latch.await()
                 it.inc()
             }
         }
 
         val notStartedUpdate = async {
-            store.updateData {
+            dataStore.updateData {
                 it.inc()
             }
         }
 
-        dataStoreScope.cancel()
+        scope.cancel()
 
         assertThrows<CancellationException> { slowUpdate.await() }
 
         assertThrows<CancellationException> { notStartedUpdate.await() }
 
-        assertThrows<CancellationException> { store.updateData { 123 } }
+        assertThrows<CancellationException> { dataStore.updateData { 123 } }
+    }
+
+    @Test
+    fun testCancellingCallerScopePropagatesToWrites() = runBlocking<Unit> {
+        val dsScope = CoroutineScope(Job())
+        val callerScope = CoroutineScope(Job())
+
+        val dataStore = newDataStore(scope = dsScope)
+
+        val latch = CompletableDeferred<Unit>()
+
+        // The ordering of the following are not guaranteed but I think they won't be flaky with
+        // Dispatchers.Unconfined
+        val awaitingCancellation = callerScope.async(Dispatchers.Unconfined) {
+            dataStore.updateData { awaitCancellation() }
+        }
+
+        dsScope.launch(Dispatchers.Unconfined) {
+            dataStore.updateData {
+                latch.await()
+                it.inc()
+            }
+        }
+
+        val notStarted = callerScope.async(Dispatchers.Unconfined) {
+            dataStore.updateData { it.inc() }
+        }
+
+        callerScope.coroutineContext.job.cancelAndJoin()
+
+        assertThat(awaitingCancellation.isCancelled).isTrue()
+        assertThat(notStarted.isCancelled).isTrue()
     }
 
     @Test
@@ -745,6 +783,38 @@ class SingleProcessDataStoreTest {
         myScope.coroutineContext[Job]!!.cancelAndJoin()
 
         store.updateData { 123 }
+    }
+
+    @Test
+    fun testWrite_fromOtherScope_doesntGetCancelledFromDifferentScope() = runBlocking<Unit> {
+
+        val otherScope = CoroutineScope(Job())
+
+        val callerScope = CoroutineScope(Job())
+
+        val firstUpdateStarted = CompletableDeferred<Unit>()
+        val finishFirstUpdate = CompletableDeferred<Byte>()
+
+        val firstUpdate = otherScope.async(Dispatchers.Unconfined) {
+            store.updateData {
+                firstUpdateStarted.complete(Unit)
+                finishFirstUpdate.await()
+            }
+        }
+
+        callerScope.launch(Dispatchers.Unconfined) {
+            store.updateData {
+                awaitCancellation()
+            }
+        }
+
+        firstUpdateStarted.await()
+        callerScope.coroutineContext.job.cancelAndJoin()
+        finishFirstUpdate.complete(1)
+        firstUpdate.await()
+
+        // It's still usable:
+        assertThat(store.updateData { it.inc() }).isEqualTo(2)
     }
 
     // Mutable wrapper around a byte

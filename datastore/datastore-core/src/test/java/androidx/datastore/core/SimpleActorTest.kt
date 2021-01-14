@@ -16,18 +16,23 @@
 
 package androidx.datastore.core
 
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
+import java.util.concurrent.CancellationException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -44,7 +49,8 @@ class SimpleActorTest {
 
         val actor = SimpleActor<Int>(
             this,
-            onComplete = {}
+            onComplete = {},
+            onUndeliveredElement = { _, _ -> }
         ) {
             msgs.add(it)
         }
@@ -66,14 +72,15 @@ class SimpleActorTest {
             scope,
             onComplete = {
                 assertThat(called.compareAndSet(false, true)).isTrue()
-            }
+            },
+            onUndeliveredElement = { _, _ -> }
         ) {
             // do nothing
         }
 
         actor.offer(123)
 
-        scope.coroutineContext[Job]!!.cancelAndJoin()
+        scope.coroutineContext.job.cancelAndJoin()
 
         assertThat(called.get()).isTrue()
     }
@@ -85,7 +92,11 @@ class SimpleActorTest {
         val volatileIntHolder = VolatileIntHolder()
 
         val latch = CountDownLatch(numCalls)
-        val actor = SimpleActor<Int>(scope, onComplete = {}) {
+        val actor = SimpleActor<Int>(
+            scope,
+            onComplete = {},
+            onUndeliveredElement = { _, _ -> }
+        ) {
             val newValue = volatileIntHolder.int + 1
             // This should be safe because there shouldn't be any concurrent calls
             volatileIntHolder.int = newValue
@@ -110,7 +121,11 @@ class SimpleActorTest {
         val volatileIntHolder = VolatileIntHolder()
 
         val latch = CountDownLatch(numCalls)
-        val actor = SimpleActor<Int>(scope, onComplete = {}) {
+        val actor = SimpleActor<Int>(
+            scope,
+            onComplete = {},
+            onUndeliveredElement = { _, _ -> }
+        ) {
             val newValue = volatileIntHolder.int + 1
             delay(1)
             // This should be safe because there shouldn't be any concurrent calls
@@ -124,7 +139,7 @@ class SimpleActorTest {
             }
         }
 
-        latch.await(5, TimeUnit.SECONDS)
+        assertThat(latch.await(5, TimeUnit.SECONDS)).isTrue()
 
         assertThat(volatileIntHolder.int).isEqualTo(numCalls)
     }
@@ -134,7 +149,11 @@ class SimpleActorTest {
         val scope = CoroutineScope(TestElement("test123"))
         val latch = CompletableDeferred<Unit>()
 
-        val actor = SimpleActor<Int>(scope, onComplete = {}) {
+        val actor = SimpleActor<Int>(
+            scope,
+            onComplete = {},
+            onUndeliveredElement = { _, _ -> }
+        ) {
             assertThat(getTestElement().name).isEqualTo("test123")
             latch.complete(Unit)
         }
@@ -142,6 +161,72 @@ class SimpleActorTest {
         actor.offer(123)
 
         latch.await()
+    }
+
+    @Test
+    fun testOnUndeliveredElementsCallback() = runBlocking<Unit> {
+        val scope = CoroutineScope(Job())
+
+        val actor = SimpleActor<CompletableDeferred<Unit>>(
+            scope,
+            onComplete = {},
+            onUndeliveredElement = { msg, ex ->
+                msg.completeExceptionally(ex!!)
+            }
+        ) {
+            awaitCancellation()
+        }
+
+        actor.offer(CompletableDeferred()) // first one won't be completed...
+
+        val deferreds = mutableListOf<CompletableDeferred<Unit>>()
+
+        repeat(100) {
+            CompletableDeferred<Unit>().also {
+                deferreds.add(it)
+                actor.offer(it)
+            }
+        }
+
+        scope.coroutineContext.job.cancelAndJoin()
+
+        deferreds.forEach {
+            assertThrows<CancellationException> { it.await() }
+        }
+    }
+
+    @Test
+    fun testAllMessagesAreConsumedIfOfferSucceeds() = runBlocking<Unit> {
+        val actorScope = CoroutineScope(Job())
+
+        val actor = SimpleActor<CompletableDeferred<Unit>>(
+            actorScope,
+            onComplete = {},
+            onUndeliveredElement = { msg, _ -> msg.complete(Unit) }
+        ) {
+            awaitCancellation()
+        }
+
+        val senderScope =
+            CoroutineScope(Job() + Executors.newFixedThreadPool(4).asCoroutineDispatcher())
+
+        val sender = senderScope.async {
+            repeat(500) {
+                launch {
+                    try {
+                        val msg = CompletableDeferred<Unit>()
+                        // If `offer` doesn't throw CancellationException, the msg must be processed.
+                        actor.offer(msg)
+                        msg.await() // This must complete even though we've completed.
+                    } catch (canceled: CancellationException) {
+                        // This is OK.
+                    }
+                }
+            }
+        }
+
+        actorScope.coroutineContext.job.cancelAndJoin()
+        sender.await()
     }
 
     class TestElement(val name: String) : AbstractCoroutineContextElement(Key) {
