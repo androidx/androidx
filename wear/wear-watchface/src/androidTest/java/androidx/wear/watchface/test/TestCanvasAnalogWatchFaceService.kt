@@ -34,9 +34,7 @@ internal class TestCanvasAnalogWatchFaceService(
     var preRInitFlow: Boolean
 ) : WatchFaceService() {
 
-    private val mutableWatchState = MutableWatchState().apply {
-        isAmbient.value = false
-    }
+    private val mutableWatchState = MutableWatchState()
 
     init {
         attachBaseContext(testContext)

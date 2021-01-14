@@ -33,9 +33,7 @@ internal class TestGlesWatchFaceService(
     var surfacHolderOverride: SurfaceHolder?
 ) : WatchFaceService() {
 
-    private val mutableWatchState = MutableWatchState().apply {
-        isAmbient.value = false
-    }
+    private val mutableWatchState = MutableWatchState()
 
     init {
         attachBaseContext(testContext)
