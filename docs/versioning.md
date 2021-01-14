@@ -295,8 +295,9 @@ the TPM will increment the version to `1.1.0-alpha05` for the next release.
 
 1.  Update the version listed in
     `frameworks/support/buildSrc/src/main/kotlin/androidx/build/LibraryVersions.kt`
-1.  Run `./gradlew <your-lib>:updateApi`. This will create an API txt file for
-    the new version of your library.
+1.  If your library is a `beta` or `rc01` version, run `./gradlew
+    <your-lib>:updateApi`. This will create an API txt file for the new version
+    of your library. For other versions, this step is not reqired
 1.  Verify changes with `./gradlew checkApi verifyDependencyVersions`.
 1.  Commit these change as one commit.
 1.  Upload these changes to Gerrit for review.

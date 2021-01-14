@@ -27,17 +27,16 @@ Library groups should organize their modules into directories and module names
     samples/ [<feature-name>:samples]
 ```
 
-For example, the `room` library group's directory structure is:
+For example, the `navigation` library group's directory structure is:
 
 ```
-room/
-  common/ [room:room-common]
+navigation/
+  navigation-benchmark/ [navigation:navigation-benchmark]
   ...
-  rxjava2/ [room:room-rxjava2]
-  testing/ [room:room-testing]
+  navigation-ui/ [navigation:navigation-ui]
+  navigation-ui-ktx/ [navigation:navigation-ui-ktx]
   integration-tests/
-    testapp/ [room:testapp]
-    testapp-kotlin/ [room:testapp-kotlin]
+    testapp/ [navigation:integration-tests:testapp]
 ```
 
 ## Terminology {#terminology}
