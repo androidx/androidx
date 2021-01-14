@@ -32,6 +32,7 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.CamcorderProfile;
 import android.os.Build;
 import android.util.Size;
 import android.view.WindowManager;
@@ -62,6 +63,7 @@ import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.apache.maven.artifact.ant.shaded.ReflectionUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -101,6 +103,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     private final Size mMaximumVideoSize = new Size(1920, 1080);
     private final CamcorderProfileHelper mMockCamcorderProfileHelper =
             Mockito.mock(CamcorderProfileHelper.class);
+    private final CamcorderProfile mMockCamcorderProfile = Mockito.mock(CamcorderProfile.class);
     /**
      * Except for ImageFormat.JPEG or ImageFormat.YUV, other image formats will be mapped to
      * ImageFormat.PRIVATE (0x22) including SurfaceTexture or MediaCodec classes. Before Android
@@ -133,13 +136,15 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     @Before
     @SuppressWarnings("deprecation")  /* defaultDisplay */
-    public void setUp() {
+    public void setUp() throws IllegalAccessException {
         WindowManager windowManager =
                 (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         Shadows.shadowOf(windowManager.getDefaultDisplay()).setRealWidth(mDisplaySize.getWidth());
         Shadows.shadowOf(windowManager.getDefaultDisplay()).setRealHeight(mDisplaySize.getHeight());
 
-        when(mMockCamcorderProfileHelper.hasProfile(anyInt(), anyInt())).thenReturn(true);
+        ReflectionUtils.setVariableValueInObject(mMockCamcorderProfile, "videoFrameWidth", 3840);
+        ReflectionUtils.setVariableValueInObject(mMockCamcorderProfile, "videoFrameHeight", 2160);
+        when(mMockCamcorderProfileHelper.get(anyInt(), anyInt())).thenReturn(mMockCamcorderProfile);
 
         setupCamera();
     }
@@ -595,7 +600,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
                 (context, cameraManager, availableCameraIds) -> {
                     try {
-                        return new Camera2DeviceSurfaceManager(mContext,
+                        return new Camera2DeviceSurfaceManager(context,
                                 mMockCamcorderProfileHelper,
                                 (CameraManagerCompat) cameraManager, availableCameraIds);
                     } catch (CameraUnavailableException e) {

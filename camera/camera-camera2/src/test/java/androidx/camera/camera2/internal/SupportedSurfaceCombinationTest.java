@@ -31,6 +31,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.util.Pair;
@@ -48,9 +49,11 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.InitializationException;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
+import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.SurfaceCombination;
 import androidx.camera.core.impl.SurfaceConfig;
@@ -69,6 +72,7 @@ import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.apache.maven.artifact.ant.shaded.ReflectionUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -115,6 +119,7 @@ public final class SupportedSurfaceCombinationTest {
     private final Size mMod16Size = new Size(960, 544);
     private final CamcorderProfileHelper mMockCamcorderProfileHelper =
             Mockito.mock(CamcorderProfileHelper.class);
+    private final CamcorderProfile mMockCamcorderProfile = Mockito.mock(CamcorderProfile.class);
     private CameraManagerCompat mCameraManagerCompat;
 
     /**
@@ -162,13 +167,15 @@ public final class SupportedSurfaceCombinationTest {
 
     @Before
     @SuppressWarnings("deprecation") /* defaultDisplay */
-    public void setUp() {
+    public void setUp() throws IllegalAccessException {
         WindowManager windowManager =
                 (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         Shadows.shadowOf(windowManager.getDefaultDisplay()).setRealWidth(mDisplaySize.getWidth());
         Shadows.shadowOf(windowManager.getDefaultDisplay()).setRealHeight(mDisplaySize.getHeight());
 
-        when(mMockCamcorderProfileHelper.hasProfile(anyInt(), anyInt())).thenReturn(true);
+        ReflectionUtils.setVariableValueInObject(mMockCamcorderProfile, "videoFrameWidth", 3840);
+        ReflectionUtils.setVariableValueInObject(mMockCamcorderProfile, "videoFrameHeight", 2160);
+        when(mMockCamcorderProfileHelper.get(anyInt(), anyInt())).thenReturn(mMockCamcorderProfile);
     }
 
     @After
@@ -2221,8 +2228,20 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     private void initCameraX() {
+        CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
+                (context, cameraManager, availableCameraIds) -> {
+                    try {
+                        return new Camera2DeviceSurfaceManager(context,
+                                mMockCamcorderProfileHelper,
+                                (CameraManagerCompat) cameraManager, availableCameraIds);
+                    } catch (CameraUnavailableException e) {
+                        throw new InitializationException(e);
+                    }
+                };
+
         CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
                 Camera2Config.defaultConfig())
+                .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                 .setCameraFactoryProvider((ignored0, ignored1, ignored2) -> mCameraFactory)
                 .build();
         CameraX.initialize(mContext, cameraXConfig);
