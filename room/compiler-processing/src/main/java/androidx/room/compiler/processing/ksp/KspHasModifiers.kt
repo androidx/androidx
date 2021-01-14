@@ -66,7 +66,7 @@ sealed class KspHasModifiers(
     }
 
     override fun isTransient(): Boolean {
-        return declaration.modifiers.contains(Modifier.JAVA_TRANSIENT)
+        return declaration.isTransient()
     }
 
     override fun isFinal(): Boolean {

@@ -35,6 +35,29 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class XElementTest {
     @Test
+    fun kotlinAnnotationModifierrs() {
+        val src = Source.kotlin(
+            "Subject.kt",
+            """
+            object Subject {
+                @Transient val transientProp:Int = 0
+                @JvmStatic val staticProp:Int = 0
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(sources = listOf(src)) { invocation ->
+            invocation.processingEnv.requireTypeElement("Subject").let {
+                assertThat(
+                    it.getField("transientProp").isTransient()
+                ).isTrue()
+                assertThat(
+                    it.getField("staticProp").isStatic()
+                ).isTrue()
+            }
+        }
+    }
+
+    @Test
     fun modifiers() {
         runProcessorTest(
             listOf(
