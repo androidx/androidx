@@ -121,7 +121,7 @@ class ViewModelInjectStep(
                 valid = false
             }
             firstOrNull()?.let {
-                if (!it.hasAnnotation(ClassNames.ASSISTED.canonicalName())) {
+                if (!it.hasAnnotation(ClassNames.ANDROIDX_ASSISTED.canonicalName())) {
                     error("Missing @Assisted annotation in param '${it.simpleName}'.", it)
                     valid = false
                 }

@@ -17,7 +17,7 @@
 package androidx.hilt
 
 import androidx.hilt.lifecycle.ViewModelInjectStep
-import androidx.hilt.work.WorkerInjectStep
+import androidx.hilt.work.WorkerStep
 import com.google.auto.service.AutoService
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.ISOLATING
@@ -37,7 +37,7 @@ class AndroidXHiltProcessor : AbstractProcessor() {
 
     override fun getSupportedAnnotationTypes() = setOf(
         ClassNames.VIEW_MODEL_INJECT.canonicalName(),
-        ClassNames.WORKER_INJECT.canonicalName()
+        ClassNames.HILT_WORKER.canonicalName()
     )
 
     override fun getSupportedSourceVersion() = SourceVersion.latest()
@@ -56,7 +56,7 @@ class AndroidXHiltProcessor : AbstractProcessor() {
 
     private fun getSteps() = listOf(
         ViewModelInjectStep(processingEnv),
-        WorkerInjectStep(processingEnv)
+        WorkerStep(processingEnv)
     )
 
     interface Step {

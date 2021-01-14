@@ -39,7 +39,11 @@ import javax.inject.Provider;
  * {@link dagger.hilt.android.components.FragmentComponent}. An instance of this factory will also
  * be the default factory by activities and fragments annotated with
  * {@link dagger.hilt.android.AndroidEntryPoint}.
+ *
+ * @deprecated References to this type and bindings to it should be removed. An equivalent factory
+ * to this is now provided out of the box by Hilt.
  */
+@Deprecated
 public final class HiltViewModelFactory extends AbstractSavedStateViewModelFactory {
 
     private static final String KEY_PREFIX = "androidx.hilt.lifecycle.HiltViewModelFactory";

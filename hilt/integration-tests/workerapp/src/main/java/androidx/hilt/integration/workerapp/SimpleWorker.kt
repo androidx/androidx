@@ -18,14 +18,16 @@ package androidx.hilt.integration.workerapp
 
 import android.content.Context
 import android.util.Log
-import androidx.hilt.Assisted
-import androidx.hilt.work.WorkerInject
+import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import javax.inject.Inject
 
-class SimpleWorker @WorkerInject constructor(
+@HiltWorker
+class SimpleWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted params: WorkerParameters,
     private val logger: MyLogger
@@ -36,7 +38,8 @@ class SimpleWorker @WorkerInject constructor(
     }
 }
 
-class SimpleCoroutineWorker @WorkerInject constructor(
+@HiltWorker
+class SimpleCoroutineWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted params: WorkerParameters,
     private val logger: MyLogger
@@ -48,7 +51,8 @@ class SimpleCoroutineWorker @WorkerInject constructor(
 }
 
 object TopClass {
-    class NestedWorker @WorkerInject constructor(
+    @HiltWorker
+    class NestedWorker @AssistedInject constructor(
         @Assisted context: Context,
         @Assisted params: WorkerParameters,
         private val logger: MyLogger
