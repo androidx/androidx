@@ -1049,10 +1049,34 @@ public final class AppSearchImpl {
         int delimiterIndex = prefix.indexOf(PACKAGE_DELIMITER);
         if (delimiterIndex == -1) {
             // This should never happen if we construct our prefixes properly
-            Log.wtf(TAG, "Malformed prefix doesn't contain package name: " + prefix);
+            Log.wtf(TAG, "Malformed prefix doesn't contain package delimiter: " + prefix);
             return "";
         }
         return prefix.substring(0, delimiterIndex);
+    }
+
+    /**
+     * Returns the database name that's contained within the {@code prefix}.
+     *
+     * @param prefix Prefix string that contains the database name inside of it. The database name
+     *               must be between the {@link #PACKAGE_DELIMITER} and {@link #DATABASE_DELIMITER}
+     * @return Valid database name.
+     */
+    @NonNull
+    private static String getDatabaseName(@NonNull String prefix) {
+        int packageDelimiterIndex = prefix.indexOf(PACKAGE_DELIMITER);
+        int databaseDelimiterIndex = prefix.indexOf(DATABASE_DELIMITER);
+        if (packageDelimiterIndex == -1) {
+            // This should never happen if we construct our prefixes properly
+            Log.wtf(TAG, "Malformed prefix doesn't contain package delimiter: " + prefix);
+            return "";
+        }
+        if (databaseDelimiterIndex == -1) {
+            // This should never happen if we construct our prefixes properly
+            Log.wtf(TAG, "Malformed prefix doesn't contain database delimiter: " + prefix);
+            return "";
+        }
+        return prefix.substring(packageDelimiterIndex + 1, databaseDelimiterIndex);
     }
 
     @NonNull
@@ -1165,6 +1189,9 @@ public final class AppSearchImpl {
         // Parallel array of package names for each document search result.
         List<String> packageNames = new ArrayList<>(searchResultProto.getResultsCount());
 
+        // Parallel array of database names for each document search result.
+        List<String> databaseNames = new ArrayList<>(searchResultProto.getResultsCount());
+
         SearchResultProto.Builder resultsBuilder = searchResultProto.toBuilder();
         for (int i = 0; i < searchResultProto.getResultsCount(); i++) {
             SearchResultProto.ResultProto.Builder resultBuilder =
@@ -1172,10 +1199,12 @@ public final class AppSearchImpl {
             DocumentProto.Builder documentBuilder = resultBuilder.getDocument().toBuilder();
             String prefix = removePrefixesFromDocument(documentBuilder);
             packageNames.add(getPackageName(prefix));
+            databaseNames.add(getDatabaseName(prefix));
             resultBuilder.setDocument(documentBuilder);
             resultsBuilder.setResults(i, resultBuilder);
         }
-        return SearchResultToProtoConverter.toSearchResultPage(resultsBuilder, packageNames);
+        return SearchResultToProtoConverter.toSearchResultPage(resultsBuilder, packageNames,
+                databaseNames);
     }
 
     @GuardedBy("mReadWriteLock")

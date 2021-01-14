@@ -55,6 +55,10 @@ public final class SearchResult {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String PACKAGE_NAME_FIELD = "packageName";
 
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String DATABASE_NAME_FIELD = "databaseName";
+
     @NonNull
     private final Bundle mBundle;
 
@@ -123,6 +127,18 @@ public final class SearchResult {
     @NonNull
     public String getPackageName() {
         return Preconditions.checkNotNull(mBundle.getString(PACKAGE_NAME_FIELD));
+    }
+
+    /**
+     * Contains the database name that stored the {@link GenericDocument}.
+     *
+     * @return Database name that stored the document
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public String getDatabaseName() {
+        return Preconditions.checkNotNull(mBundle.getString(DATABASE_NAME_FIELD));
     }
 
     /**
