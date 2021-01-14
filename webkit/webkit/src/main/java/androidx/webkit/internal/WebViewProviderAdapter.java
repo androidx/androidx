@@ -142,6 +142,7 @@ public class WebViewProviderAdapter {
     /**
      * Adapter method for {@link WebViewCompat#getWebViewRendererClient()}.
      */
+    @RequiresApi(19)
     @Nullable
     public WebViewRenderProcessClient getWebViewRenderProcessClient() {
         InvocationHandler handler = mImpl.getWebViewRendererClient();
