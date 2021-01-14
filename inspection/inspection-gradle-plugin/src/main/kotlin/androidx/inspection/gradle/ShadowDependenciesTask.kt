@@ -40,14 +40,17 @@ fun Project.registerShadowDependenciesTask(
     zipTask: TaskProvider<Copy>
 ): TaskProvider<ShadowJar> {
     val uberJar = registerUberJarTask(variant)
+    val versionTask = project.registerGenerateInspectionPlatformVersionTask(variant)
     return tasks.register(
         variant.taskName("shadowDependencies"),
         ShadowJar::class.java
     ) {
         it.dependsOn(uberJar)
+        it.dependsOn(versionTask)
         val fileTree = project.fileTree(zipTask.get().destinationDir)
         fileTree.include("**/*.jar", "**/*.so")
         it.from(fileTree)
+        it.from(versionTask.get().outputDir)
         it.includeEmptyDirs = false
         it.filesMatching("**/*.so") {
             if (it.path.startsWith("jni")) {
@@ -55,6 +58,7 @@ fun Project.registerShadowDependenciesTask(
             }
         }
         it.transform(RenameServicesTransformer::class.java)
+        it.from(versionTask.get().outputDir)
         it.destinationDirectory.set(taskWorkingDir(variant, "shadowedJar"))
         it.archiveBaseName.set("${project.name}-shadowed")
         it.dependsOn(zipTask)
