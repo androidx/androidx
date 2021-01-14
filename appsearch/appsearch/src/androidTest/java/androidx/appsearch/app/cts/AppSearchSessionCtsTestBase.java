@@ -725,6 +725,66 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testQuery_getDatabaseName() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()).get();
+
+        // Index a document
+        AppSearchEmail inEmail =
+                new AppSearchEmail.Builder("uri1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
+
+        // Query for the document
+        SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+
+        List<SearchResult> results;
+        List<GenericDocument> documents = new ArrayList<>();
+        // keep loading next page until it's empty.
+        do {
+            results = searchResults.getNextPage().get();
+            for (SearchResult result : results) {
+                assertThat(result.getDocument()).isEqualTo(inEmail);
+                assertThat(result.getDatabaseName()).isEqualTo(DB_NAME_1);
+                documents.add(result.getDocument());
+            }
+        } while (results.size() > 0);
+        assertThat(documents).hasSize(1);
+
+        // Schema registration for another database
+        mDb2.setSchema(
+                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()).get();
+
+        checkIsBatchResultSuccess(mDb2.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
+
+        // Query for the document
+        searchResults = mDb2.query("body", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+
+        documents = new ArrayList<>();
+        // keep loading next page until it's empty.
+        do {
+            results = searchResults.getNextPage().get();
+            for (SearchResult result : results) {
+                assertThat(result.getDocument()).isEqualTo(inEmail);
+                assertThat(result.getDatabaseName()).isEqualTo(DB_NAME_2);
+                documents.add(result.getDocument());
+            }
+        } while (results.size() > 0);
+        assertThat(documents).hasSize(1);
+    }
+
+    @Test
     public void testQuery_projection() throws Exception {
         // Schema registration
         mDb1.setSchema(
