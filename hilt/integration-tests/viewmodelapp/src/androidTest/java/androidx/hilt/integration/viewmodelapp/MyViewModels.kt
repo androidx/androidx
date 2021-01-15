@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.hilt.integration.viewmodelapp
 
 import android.app.Application
