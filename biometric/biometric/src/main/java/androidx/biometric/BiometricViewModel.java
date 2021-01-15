@@ -154,7 +154,7 @@ public class BiometricViewModel extends ViewModel {
     /**
      * Reference to latest {@link androidx.fragment.app.FragmentActivity} hosting BiometricPrompt
      */
-    @NonNull private WeakReference<FragmentActivity> mClientActivity;
+    @Nullable private WeakReference<FragmentActivity> mClientActivity;
 
     /**
      * Info about the appearance and behavior of the prompt provided by the client application.
@@ -299,7 +299,7 @@ public class BiometricViewModel extends ViewModel {
      */
     @Nullable
     public FragmentActivity getClientActivity() {
-        return mClientActivity.get();
+        return mClientActivity != null ? mClientActivity.get() : null;
     }
 
     /**
