@@ -13,7 +13,7 @@ for subset in $subsets; do
   ANDROIDX_PROJECTS=$subset impl/build.sh tasks >/dev/null
 done
 impl/build.sh buildOnServer -Pandroidx.validateNoUnrecognizedMessages checkExternalLicenses \
-    --profile --offline "$@"
+    --profile "$@"
 
 # Parse performance profile reports (generated with the --profile option above) and re-export the metrics in an easily machine-readable format for tracking
 impl/parse_profile_htmls.sh

@@ -9,6 +9,6 @@ SNAPSHOT=true impl/build.sh \
     createArchive \
     -Pandroidx.enableAffectedModuleDetection=false \
     -Pandroidx.validateNoUnrecognizedMessages \
-    --offline "$@"
+    "$@"
 
 echo "Completing $0 at $(date)"
