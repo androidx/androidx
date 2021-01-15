@@ -161,11 +161,15 @@ package androidx.appsearch.app {
 
   public final class GetByUriRequest {
     method public String getNamespace();
+    method public java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!> getProjections();
     method public java.util.Set<java.lang.String!> getUris();
+    field public static final String PROJECTION_SCHEMA_TYPE_WILDCARD = "*";
   }
 
   public static final class GetByUriRequest.Builder {
     ctor public GetByUriRequest.Builder();
+    method public androidx.appsearch.app.GetByUriRequest.Builder addProjection(String, java.lang.String!...);
+    method public androidx.appsearch.app.GetByUriRequest.Builder addProjection(String, java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.GetByUriRequest.Builder addUri(java.lang.String!...);
     method public androidx.appsearch.app.GetByUriRequest.Builder addUri(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.GetByUriRequest build();

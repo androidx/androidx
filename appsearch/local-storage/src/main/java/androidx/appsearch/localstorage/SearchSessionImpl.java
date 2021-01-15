@@ -147,11 +147,12 @@ class SearchSessionImpl implements AppSearchSession {
             AppSearchBatchResult.Builder<String, GenericDocument> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
 
+            Map<String, List<String>> typePropertyPaths = request.getProjections();
             for (String uri : request.getUris()) {
                 try {
                     GenericDocument document =
                             mAppSearchImpl.getDocument(mPackageName, mDatabaseName,
-                                    request.getNamespace(), uri);
+                                    request.getNamespace(), uri, typePropertyPaths);
                     resultBuilder.setSuccess(uri, document);
                 } catch (Throwable t) {
                     resultBuilder.setResult(uri, throwableToFailedResult(t));

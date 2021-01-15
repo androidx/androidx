@@ -222,7 +222,8 @@ class VisibilityStore {
             try {
                 // Note: We use the other clients' prefixed names as uris
                 GenericDocument document = mAppSearchImpl.getDocument(
-                        PACKAGE_NAME, DATABASE_NAME, NAMESPACE, /*uri=*/ addUriPrefix(prefix));
+                        PACKAGE_NAME, DATABASE_NAME, NAMESPACE, /*uri=*/ addUriPrefix(prefix),
+                        /*typePropertyPaths=*/ Collections.emptyMap());
 
                 // Update platform visibility settings
                 String[] schemas = document.getPropertyStringArray(

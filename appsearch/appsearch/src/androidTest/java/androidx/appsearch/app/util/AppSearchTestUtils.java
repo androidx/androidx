@@ -28,6 +28,7 @@ import androidx.appsearch.app.SearchResults;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 public class AppSearchTestUtils {
@@ -49,6 +50,20 @@ public class AppSearchTestUtils {
         assertThat(result.getSuccesses()).hasSize(uris.length);
         assertThat(result.getFailures()).isEmpty();
         List<GenericDocument> list = new ArrayList<>(uris.length);
+        for (String uri : uris) {
+            list.add(result.getSuccesses().get(uri));
+        }
+        return list;
+    }
+
+    public static List<GenericDocument> doGet(
+            AppSearchSession session, GetByUriRequest request) throws Exception {
+        AppSearchBatchResult<String, GenericDocument> result = checkIsBatchResultSuccess(
+                session.getByUri(request));
+        Set<String> uris = request.getUris();
+        assertThat(result.getSuccesses()).hasSize(uris.size());
+        assertThat(result.getFailures()).isEmpty();
+        List<GenericDocument> list = new ArrayList<>(uris.size());
         for (String uri : uris) {
             list.add(result.getSuccesses().get(uri));
         }
