@@ -21,14 +21,22 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationProviderInfo;
+import android.support.wearable.complications.IPreviewComplicationDataCallback;
 import android.support.wearable.complications.IProviderInfoService;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.wear.complications.data.ComplicationType;
+import androidx.wear.complications.data.DataKt;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -119,6 +127,16 @@ public class ProviderInfoRetriever implements AutoCloseable {
     }
 
     /**
+     * @hide
+     */
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public ProviderInfoRetriever(@NonNull IProviderInfoService service) {
+        mContext = null;
+        mServiceFuture.set(service);
+    }
+
+    /**
      * Requests {@link ComplicationProviderInfo} for the specified complication ids on the specified
      * watch face. When the info is received, the listener will receive a callback for each id.
      * These callbacks will occur on the main thread.
@@ -156,6 +174,65 @@ public class ProviderInfoRetriever implements AutoCloseable {
                             }
                             mResultFuture.set(providerInfo);
                         } else {
+                            mResultFuture.set(null);
+                        }
+                    } catch (RemoteException e) {
+                        mResultFuture.setException(e);
+                    } catch (InterruptedException e) {
+                        mResultFuture.setException(e);
+                    } catch (ExecutionException e) {
+                        mResultFuture.setException(e);
+                    }
+                },
+                runnable -> runnable.run()
+        );
+        return mResultFuture;
+    }
+
+    /**
+     * Requests preview {@link ComplicationData} for a provider {@link ComponentName} and
+     * {@link ComplicationType}.
+     *
+     * @param providerComponent The {@link ComponentName} of the complication provider from which
+     *                         preview data is requested.
+     * @param complicationType The requested {@link ComplicationType} for the preview data.
+     * @return A {@link ListenableFuture} for the preview {@link ComplicationData}. This may resolve
+     * to `null` if the provider component doesn't exist, or if it doesn't support complicationType,
+     * or if the remote service doesn't support this API.
+     */
+    @NonNull
+    @RequiresApi(Build.VERSION_CODES.R)
+    public ListenableFuture<androidx.wear.complications.data.ComplicationData>
+            requestPreviewComplicationData(
+                @NonNull ComponentName providerComponent,
+                @NonNull ComplicationType complicationType) {
+        final ResolvableFuture<androidx.wear.complications.data.ComplicationData> mResultFuture =
+                ResolvableFuture.create();
+        mServiceFuture.addListener(
+                () -> {
+                    try {
+                        if (mServiceFuture.isCancelled()) {
+                            mResultFuture.set(null);
+                            return;
+                        }
+                        IProviderInfoService service = mServiceFuture.get();
+                        if (service.getApiVersion() < 1) {
+                            mResultFuture.set(null);
+                            return;
+                        }
+                        if (!service.requestPreviewComplicationData(
+                                providerComponent,
+                                complicationType.asWireComplicationType(),
+                                new IPreviewComplicationDataCallback.Stub() {
+                                    @Override
+                                    public void updateComplicationData(ComplicationData data) {
+                                        if (data == null) {
+                                            mResultFuture.set(null);
+                                        } else {
+                                            mResultFuture.set(DataKt.asApiComplicationData(data));
+                                        }
+                                    }
+                                })) {
                             mResultFuture.set(null);
                         }
                     } catch (RemoteException e) {

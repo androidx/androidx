@@ -17,6 +17,7 @@
 package android.support.wearable.complications;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -48,6 +49,7 @@ public final class ComplicationProviderInfo implements Parcelable {
             };
 
     private static final String KEY_APP_NAME = "app_name";
+    private static final String KEY_PROVIDER_COMPONENT_NAME = "provider_component";
     private static final String KEY_PROVIDER_NAME = "provider_name";
     private static final String KEY_PROVIDER_ICON = "provider_icon";
     private static final String KEY_PROVIDER_TYPE = "complication_type";
@@ -56,6 +58,7 @@ public final class ComplicationProviderInfo implements Parcelable {
     @Nullable private String mProviderName;
     @Nullable private Icon mProviderIcon;
     @ComplicationData.ComplicationType private int mComplicationType;
+    @Nullable private ComponentName mProviderComponentName;
 
     /**
      * Constructs a {@link ComplicationProviderInfo} with the details of a complication provider.
@@ -64,14 +67,17 @@ public final class ComplicationProviderInfo implements Parcelable {
      * @param providerName The name of the complication provider within the app
      * @param providerIcon The icon for the complication provider
      * @param complicationType The type of complication provided
+     * @param providerComponentName The preview complication data
      */
     public ComplicationProviderInfo(
             @NonNull String appName, @NonNull String providerName, @NonNull Icon providerIcon,
-            @ComplicationData.ComplicationType int complicationType) {
+            @ComplicationData.ComplicationType int complicationType,
+            @NonNull ComponentName providerComponentName) {
         this.mAppName = appName;
         this.mProviderName = providerName;
         this.mProviderIcon = providerIcon;
         this.mComplicationType = complicationType;
+        this.mProviderComponentName = providerComponentName;
     }
 
     /**
@@ -84,6 +90,7 @@ public final class ComplicationProviderInfo implements Parcelable {
         mProviderName = bundle.getString(KEY_PROVIDER_NAME);
         mProviderIcon = bundle.getParcelable(KEY_PROVIDER_ICON);
         mComplicationType = bundle.getInt(KEY_PROVIDER_TYPE);
+        mProviderComponentName = bundle.getParcelable(KEY_PROVIDER_COMPONENT_NAME);
     }
 
     /**
@@ -99,6 +106,7 @@ public final class ComplicationProviderInfo implements Parcelable {
         bundle.putString(KEY_PROVIDER_NAME, mProviderName);
         bundle.putParcelable(KEY_PROVIDER_ICON, mProviderIcon);
         bundle.putInt(KEY_PROVIDER_TYPE, mComplicationType);
+        bundle.putParcelable(KEY_PROVIDER_COMPONENT_NAME, mProviderComponentName);
         dest.writeBundle(bundle);
     }
 
@@ -109,7 +117,7 @@ public final class ComplicationProviderInfo implements Parcelable {
     }
 
     /** Sets the name of the application containing the complication provider. */
-    public void setAppName(@Nullable String appName) {
+    public void setAppName(@NonNull String appName) {
         mAppName = appName;
     }
 
@@ -120,7 +128,7 @@ public final class ComplicationProviderInfo implements Parcelable {
     }
 
     /** Sets the  name of the complication provider */
-    public void setProviderName(@Nullable String providerName) {
+    public void setProviderName(@NonNull String providerName) {
         mProviderName = providerName;
     }
 
@@ -131,7 +139,7 @@ public final class ComplicationProviderInfo implements Parcelable {
     }
 
     /** Sets the icon for the complication provider. */
-    public void setProviderIcon(@Nullable Icon providerIcon) {
+    public void setProviderIcon(@NonNull Icon providerIcon) {
         mProviderIcon = providerIcon;
     }
 
@@ -143,6 +151,16 @@ public final class ComplicationProviderInfo implements Parcelable {
     /** Sets the type of the complication provided by the provider. */
     public void setComplicationType(@ComplicationData.ComplicationType int complicationType) {
         mComplicationType = complicationType;
+    }
+
+    /** Returns the provider's {@link ComponentName}. */
+    public @Nullable ComponentName getProviderComponentName() {
+        return mProviderComponentName;
+    }
+
+    /** Sets the provider's {@link ComponentName}. */
+    public void setProviderComponentName(@NonNull ComponentName providerComponentName) {
+        mProviderComponentName = providerComponentName;
     }
 
     @Override
@@ -164,6 +182,8 @@ public final class ComplicationProviderInfo implements Parcelable {
                 + mProviderIcon
                 + ", complicationType="
                 + mComplicationType
+                + ", providerComponentName="
+                + mProviderComponentName
                 + '}';
     }
 }
