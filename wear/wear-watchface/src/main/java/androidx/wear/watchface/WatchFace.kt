@@ -350,10 +350,11 @@ internal class WatchFaceImpl(
         // Complications are highlighted when tapped and after this delay the highlight is removed.
         internal const val CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS = 300L
 
-        // The threshold used to judge whether the battery is low.  Ideally we would use the
-        // threshold for Intent.ACTION_BATTERY_LOW but it's not documented and the value below is an
-        // assumption.
-        internal const val LOW_BATTERY_THRESHOLD = 15.0f
+        // The threshold used to judge whether the battery is low during initialization.  Ideally
+        // we would use the threshold for Intent.ACTION_BATTERY_LOW but it's not documented or
+        // available programmatically. The value below is the default but it could be overridden
+        // by OEMs.
+        internal const val INITIAL_LOW_BATTERY_THRESHOLD = 15.0f
     }
 
     private val systemTimeProvider = watchface.systemTimeProvider
@@ -632,7 +633,8 @@ internal class WatchFaceImpl(
         } ?: 100.0f
         val isBatteryLowAndNotCharging =
             watchState.isBatteryLowAndNotCharging as MutableObservableWatchData
-        isBatteryLowAndNotCharging.value = (batteryPercent < LOW_BATTERY_THRESHOLD) && !isCharging
+        isBatteryLowAndNotCharging.value =
+            (batteryPercent < INITIAL_LOW_BATTERY_THRESHOLD) && !isCharging
     }
 
     /**
