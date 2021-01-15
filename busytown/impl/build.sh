@@ -52,8 +52,9 @@ run $PROJECTS_ARG OUT_DIR=$OUT_DIR DIST_DIR=$DIST_DIR ANDROID_HOME=../../prebuil
     -Pandroidx.summarizeStderr \
     -Pandroidx.allWarningsAsErrors \
     -Pandroidx.coverageEnabled=true \
-    -PverifyUpToDate
+    -PverifyUpToDate \
     --no-watch-fs \
+    --no-daemon \
     "$@"
 
 # check that no unexpected modifications were made to the source repository, such as new cache directories

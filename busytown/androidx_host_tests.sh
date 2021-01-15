@@ -5,7 +5,7 @@ echo "Starting $0 at $(date)"
 
 cd "$(dirname $0)"
 
-impl/build.sh --no-daemon test jacocoTestReport zipEcFiles --offline \
+impl/build.sh test jacocoTestReport zipEcFiles --offline \
     -Pandroidx.enableAffectedModuleDetection \
     -Pandroidx.ignoreTestFailures \
     -Pandroidx.displayTestOutput=false \

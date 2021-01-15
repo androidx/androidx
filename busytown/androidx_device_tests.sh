@@ -5,7 +5,7 @@ echo "Starting $0 at $(date)"
 
 cd "$(dirname $0)"
 
-impl/build.sh --no-daemon zipTestConfigsWithApks -Pandroidx.validateNoUnrecognizedMessages \
+impl/build.sh zipTestConfigsWithApks -Pandroidx.validateNoUnrecognizedMessages \
     -Pandroidx.enableAffectedModuleDetection \
     --offline "$@"
 
