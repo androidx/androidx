@@ -964,7 +964,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.TravelEstimate.Builder setRemainingDistanceColor(androidx.car.app.model.CarColor);
     method @RequiresApi(26) public androidx.car.app.navigation.model.TravelEstimate.Builder setRemainingTime(java.time.Duration);
     method public androidx.car.app.navigation.model.TravelEstimate.Builder setRemainingTimeColor(androidx.car.app.model.CarColor);
-    method public androidx.car.app.navigation.model.TravelEstimate.Builder setRemainingTimeSeconds(long);
+    method public androidx.car.app.navigation.model.TravelEstimate.Builder setRemainingTimeSeconds(@IntRange(from=0xffffffff) long);
   }
 
   public final class Trip {

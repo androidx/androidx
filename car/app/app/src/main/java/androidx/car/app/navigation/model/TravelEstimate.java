@@ -20,6 +20,7 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -293,7 +294,7 @@ public final class TravelEstimate {
          *                                  but not {@link #REMAINING_TIME_UNKNOWN}.
          */
         @NonNull
-        public Builder setRemainingTimeSeconds(long remainingTimeSeconds) {
+        public Builder setRemainingTimeSeconds(@IntRange(from = -1) long remainingTimeSeconds) {
             this.mRemainingTimeSeconds = validateRemainingTime(remainingTimeSeconds);
             return this;
         }
