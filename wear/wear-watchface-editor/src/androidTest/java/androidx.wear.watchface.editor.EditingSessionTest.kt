@@ -21,7 +21,13 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.graphics.RectF
+import android.graphics.drawable.Icon
 import android.os.Bundle
+import android.os.Parcel
+import android.support.wearable.complications.ComplicationData
+import android.support.wearable.complications.ComplicationProviderInfo
+import android.support.wearable.complications.IPreviewComplicationDataCallback
+import android.support.wearable.complications.IProviderInfoService
 import androidx.activity.ComponentActivity
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -29,8 +35,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
+import androidx.wear.complications.ProviderInfoRetriever
 import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.CanvasComplication
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
@@ -45,6 +54,8 @@ import androidx.wear.watchface.style.UserStyleSetting
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 
@@ -272,8 +283,116 @@ public class EditorSessionTest {
     }
 
     @Test
-    public fun complicationPreviewData() {
-        // TODO(alexclarke): Write a test when we hook up the new preview data fetching API.
+    public fun getPreviewData_null_providerInfo() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            emptyList(),
+            listOf(leftComplication, rightComplication, backgroundComplication)
+        )
+        scenario.onActivity {
+            val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
+            val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
+
+            assertThat(
+                editorSession.getPreviewData(
+                    ProviderInfoRetriever(mockProviderInfoService),
+                    null
+                ).get()
+            ).isNull()
+        }
+    }
+
+    @Test
+    public fun getPreviewData() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            emptyList(),
+            listOf(leftComplication, rightComplication, backgroundComplication)
+        )
+        scenario.onActivity {
+            val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
+            val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
+            val providerComponentName = ComponentName("test.package", "test.class")
+            val complicationType = ComplicationData.TYPE_SHORT_TEXT
+            val providerIcon =
+                Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
+            val callbackCapture =
+                ArgumentCaptor.forClass(IPreviewComplicationDataCallback::class.java)
+
+            `when`(mockProviderInfoService.apiVersion).thenReturn(1)
+            `when`(
+                mockProviderInfoService.requestPreviewComplicationData(
+                    eq(providerComponentName),
+                    eq(complicationType),
+                    callbackCapture.capture()
+                )
+            ).thenReturn(true)
+
+            val future = editorSession.getPreviewData(
+                ProviderInfoRetriever(mockProviderInfoService),
+                ComplicationProviderInfo(
+                    "provider.app",
+                    "provider",
+                    providerIcon,
+                    complicationType,
+                    providerComponentName
+                )
+            )
+
+            val complicationText = "TestText"
+            val previewComplicationData =
+                ShortTextComplicationData.Builder(ComplicationText.plain(complicationText)).build()
+            callbackCapture.value.updateComplicationData(
+                previewComplicationData.asWireComplicationData()
+            )
+
+            val result = future.get()
+            assertThat(result).isInstanceOf(ShortTextComplicationData::class.java)
+            assertThat(
+                (result as ShortTextComplicationData).text.getTextAt(
+                    ApplicationProvider.getApplicationContext<Context>().resources,
+                    0
+                )
+            ).isEqualTo(complicationText)
+        }
+    }
+
+    @Test
+    public fun getPreviewData_preRFallback() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            emptyList(),
+            listOf(leftComplication, rightComplication, backgroundComplication)
+        )
+        scenario.onActivity {
+            val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
+            val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
+            val complicationType = ComplicationData.TYPE_SHORT_TEXT
+            val providerIcon =
+                Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
+
+            val previewComplication = editorSession.getPreviewData(
+                ProviderInfoRetriever(mockProviderInfoService),
+                // Construct a ComplicationProviderInfo with null providerComponentName.
+                ComplicationProviderInfo(
+                    Parcel.obtain().apply {
+                        writeBundle(
+                            Bundle().apply {
+                                putString("app_name", "provider.app")
+                                putString("provider_name", "provider")
+                                putParcelable("provider_icon", providerIcon)
+                                putInt("complication_type", complicationType)
+                            }
+                        )
+                        setDataPosition(0)
+                    }
+                )
+            ).get() as ShortTextComplicationData
+
+            assertThat(
+                previewComplication.text.getTextAt(
+                    ApplicationProvider.getApplicationContext<Context>().resources,
+                    0
+                )
+            ).isEqualTo("provider")
+        }
     }
 
     @Test

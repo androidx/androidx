@@ -199,7 +199,7 @@ internal class ConfigView(
                 Color.RED
             ),
             editingSession.previewReferenceTimeMillis,
-            editingSession.complicationPreviewData
+            editingSession.complicationPreviewData.get()
         )
         canvas.drawBitmap(bitmap, drawRect, drawRect, null)
     }
