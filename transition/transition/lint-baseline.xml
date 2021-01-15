@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="PrivateApi"
-        message="Accessing internal APIs via reflection is not supported and may not work on all devices or in the future"
-        errorLine1="                sGhostViewClass = Class.forName(&quot;android.view.GhostView&quot;);"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/GhostViewPlatform.java"
-            line="90"
-            column="35"/>
-    </issue>
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="BanUncheckedReflection"
@@ -406,28 +395,6 @@
             file="src/main/java/androidx/transition/ViewUtilsApi23.java"
             line="45"
             column="26"/>
-    </issue>
-
-    <issue
-        id="ShiftFlags"
-        message="Consider declaring this constant using 1 &lt;&lt; 1 instead"
-        errorLine1="    public static final int MODE_OUT = 0x2;"
-        errorLine2="                                       ~~~">
-        <location
-            file="src/main/java/androidx/transition/Visibility.java"
-            line="71"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="ViewConstructor"
-        message="Custom view `OverlayViewGroup` is missing constructor used by tools: `(Context)` or `(Context,AttributeSet)` or `(Context,AttributeSet,int)`"
-        errorLine1="    static class OverlayViewGroup extends ViewGroup {"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/ViewOverlayApi14.java"
-            line="110"
-            column="18"/>
     </issue>
 
     <issue

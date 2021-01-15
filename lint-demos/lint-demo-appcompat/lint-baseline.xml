@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="UnsafeNewApiCall"
@@ -87,39 +87,6 @@
             file="src/main/java/com/example/android/appcompat/CoreActivityExt.java"
             line="34"
             column="26"/>
-    </issue>
-
-    <issue
-        id="UseSwitchCompatOrMaterialCode"
-        message="Use `SwitchCompat` from AppCompat or `SwitchMaterial` from Material library"
-        errorLine1="        Switch mySwitch = new Switch(this);"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"
-            line="68"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseSwitchCompatOrMaterialCode"
-        message="Use `SwitchCompat` from AppCompat or `SwitchMaterial` from Material library"
-        errorLine1="public class CustomSwitch extends Switch {"
-        errorLine2="                                  ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/CustomSwitch.java"
-            line="27"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UseSwitchCompatOrMaterialXml"
-        message="Use `SwitchCompat` from AppCompat or `SwitchMaterial` from Material library"
-        errorLine1="    &lt;Switch"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/layout/core_switch.xml"
-            line="23"
-            column="5"/>
     </issue>
 
     <issue
@@ -152,116 +119,6 @@
         <location
             file="src/main/res/layout/image_view_using_android_tint.xml"
             line="51"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseCompatLoadingForColorStateLists"
-        message="Use `AppCompatResources.getColorStateList()`"
-        errorLine1="                getResources().getColorStateList(R.color.color_state_list_missing_android_alpha);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"
-            line="49"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UseCompatLoadingForDrawables"
-        message="Use `ResourcesCompat.getDrawable()`"
-        errorLine1="        Drawable dr = getResources().getDrawable(R.drawable.app_sample_code);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"
-            line="58"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UseCompatTextViewDrawableApis"
-        message="Use `TextViewCompat.setCompoundDrawableTintList()`"
-        errorLine1="            noop.setCompoundDrawableTintList(csl);"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"
-            line="63"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UseCompatTextViewDrawableApis"
-        message="Use `TextViewCompat.setCompoundDrawableTintMode()`"
-        errorLine1="            noop.setCompoundDrawableTintMode(PorterDuff.Mode.DST);"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"
-            line="64"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UseCompatTextViewDrawableXml"
-        message="Use `app:drawableStartCompat` instead of `android:drawableStart`"
-        errorLine1="        android:drawableStart=&quot;@drawable/app_sample_code&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout-v23/text_view_using_android_compound_drawables.xml"
-            line="36"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseCompatTextViewDrawableXml"
-        message="Use `app:drawableTint` instead of `android:drawableTint`"
-        errorLine1="        android:drawableTint=&quot;@color/custom&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout-v23/text_view_using_android_compound_drawables.xml"
-            line="37"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseCompatTextViewDrawableXml"
-        message="Use `app:drawableTintMode` instead of `android:drawableTintMode`"
-        errorLine1="        android:drawableTintMode=&quot;src_in&quot; />"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout-v23/text_view_using_android_compound_drawables.xml"
-            line="38"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseSupportActionBar"
-        message="Use `AppCompatActivity.setSupportActionBar`"
-        errorLine1="            setActionBar(new Toolbar(this));"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"
-            line="73"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UseSupportActionBar"
-        message="Use `AppCompatActivity.setSupportActionBar`"
-        errorLine1="            setActionBar(new Toolbar(this));"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemoExt.java"
-            line="33"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UsingOnClickInXml"
-        message="Use databinding or explicit wiring of click listener in code"
-        errorLine1="        android:onClick=&quot;myButtonClick&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/view_with_click.xml"
-            line="26"
             column="9"/>
     </issue>
 

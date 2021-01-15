@@ -1,49 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="ScopedStorage"
-        message="WRITE_EXTERNAL_STORAGE no longer provides write access when targeting Android 10+"
-        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot; />"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="23"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="            .mapKeys { it.key.toLowerCase() }[name.toLowerCase()]"
-        errorLine2="                              ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/Profiler.kt"
-            line="85"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="            .mapKeys { it.key.toLowerCase() }[name.toLowerCase()]"
-        errorLine2="                                                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/Profiler.kt"
-            line="85"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="SdCardPath"
-        message="Do not hardcode &quot;`/data/`&quot;; use `Context.getFilesDir().getPath()` instead"
-        errorLine1="        mAppDataDir = &quot;/data/data/&quot; + packageName;"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/simpleperf/ProfileSession.java"
-            line="116"
-            column="23"/>
-    </issue>
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="BanSynchronizedMethods"
@@ -164,28 +120,6 @@
             file="src/main/java/androidx/benchmark/Profiler.kt"
             line="99"
             column="15"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/isolation_activity.xml"
-            line="25"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;AndroidBenchmarkRunner&quot;, should use `@string` resource"
-        errorLine1="        android:text=&quot;AndroidBenchmarkRunner&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/isolation_activity.xml"
-            line="31"
-            column="9"/>
     </issue>
 
 </issues>

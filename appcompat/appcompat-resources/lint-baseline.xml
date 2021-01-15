@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="BanSynchronizedMethods"
@@ -406,17 +406,6 @@
             file="src/main/java/androidx/appcompat/graphics/drawable/StateListDrawable.java"
             line="218"
             column="35"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="Resource references will not work correctly in images generated for this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="        android:fillColor=&quot;@android:color/white&quot;"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_vector_test.xml"
-            line="23"
-            column="28"/>
     </issue>
 
     <issue

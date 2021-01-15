@@ -1,42 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="InconsistentLayout"
-        message="The id &quot;drawer_layout&quot; in layout &quot;navigation_activity&quot; is missing from the following layout configurations: layout-h470dp, layout-w960dp (present in layout)"
-        errorLine1="    android:id=&quot;@+id/drawer_layout&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/navigation_activity.xml"
-            line="18"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="InconsistentLayout"
-        message="The id &quot;bottom_nav_view&quot; in layout &quot;navigation_activity&quot; is missing from the following layout configurations: layout, layout-w960dp (present in layout-h470dp)"
-        errorLine1="        android:id=&quot;@+id/bottom_nav_view&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout-h470dp/navigation_activity.xml"
-            line="42"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="InconsistentLayout"
-        message="The id &quot;nav_view&quot; in layout &quot;navigation_activity&quot; is missing from the following layout configurations: layout-h470dp (present in layout, layout-w960dp)"
-        errorLine1="        android:id=&quot;@+id/nav_view&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/navigation_activity.xml"
-            line="43"
-            column="9"/>
-        <location
-            file="src/main/res/layout-w960dp/navigation_activity.xml"
-            line="24"
-            column="9"/>
-    </issue>
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="UnsafeNewApiCall"
@@ -157,61 +120,6 @@
             file="src/main/res/values/strings.xml"
             line="19"
             column="13"/>
-    </issue>
-
-    <issue
-        id="TextFields"
-        message="This text field does not specify an `inputType`"
-        errorLine1="    &lt;EditText"
-        errorLine2="     ~~~~~~~~">
-        <location
-            file="src/main/res/layout/android_fragment.xml"
-            line="25"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="Autofill"
-        message="Missing `autofillHints` attribute"
-        errorLine1="    &lt;EditText"
-        errorLine2="     ~~~~~~~~">
-        <location
-            file="src/main/res/layout/android_fragment.xml"
-            line="25"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Type your deep link args&quot;, should use `@string` resource"
-        errorLine1="        android:hint=&quot;Type your deep link args&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/android_fragment.xml"
-            line="29"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Send deep link notification&quot;, should use `@string` resource"
-        errorLine1="        android:text=&quot;Send deep link notification&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/android_fragment.xml"
-            line="34"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Navigate next&quot;, should use `@string` resource"
-        errorLine1="        android:text=&quot;Navigate next&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/main_fragment.xml"
-            line="29"
-            column="9"/>
     </issue>
 
 </issues>

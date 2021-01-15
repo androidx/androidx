@@ -1,38 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 23 (current min is 21): `android.graphics.ImageFormat#PRIVATE`"
-        errorLine1="            Size[] outputSizes = map.getOutputSizes(ImageFormat.PRIVATE);"
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
-            line="97"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 23 (current min is 21): `android.graphics.ImageFormat#PRIVATE`"
-        errorLine1="                formatResolutionsPairList.add(Pair.create(ImageFormat.PRIVATE, outputSizes));"
-        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/BeautyPreviewExtenderImpl.java"
-            line="100"
-            column="59"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 26 (current min is 21): `android.opengl.EGLExt#EGL_RECORDABLE_ANDROID`"
-        errorLine1="                EGL_RECORDABLE_ANDROID,"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/extensions/impl/GLImage2SurfaceRenderer.java"
-            line="127"
-            column="17"/>
-    </issue>
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="UnsafeNewApiCall"
