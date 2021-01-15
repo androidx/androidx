@@ -32,7 +32,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
-import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -52,7 +51,6 @@ private const val ROTATE_TIMEOUT_MS = 2000L
 class ExistingActivityLifecycleTest {
     private val mDevice =
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-    private val mLauncherPackageName = mDevice.launcherPackageName
 
     @get:Rule
     val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
@@ -68,7 +66,6 @@ class ExistingActivityLifecycleTest {
     fun setup() {
         Assume.assumeTrue(CameraUtil.deviceHasCamera())
         CoreAppTestUtil.assumeCompatibleDevice()
-        assertThat(mLauncherPackageName).isNotNull()
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
