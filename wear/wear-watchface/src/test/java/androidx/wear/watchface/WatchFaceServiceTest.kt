@@ -1968,4 +1968,34 @@ class WatchFaceServiceTest {
         watchFaceImpl.setIsBatteryLowAndNotChargingFromBatteryStatus(null)
         assertFalse(watchState.isBatteryLowAndNotCharging.value)
     }
+
+    @Test
+    fun isAmbientInitalisedEvenWithoutPropertiesSent() {
+        userStyleRepository = UserStyleRepository(UserStyleSchema(emptyList()))
+        complicationsManager = ComplicationsManager(emptyList(), userStyleRepository)
+        renderer = TestRenderer(
+            surfaceHolder,
+            userStyleRepository,
+            watchState.asWatchState(),
+            INTERACTIVE_UPDATE_RATE_MS
+        )
+        testWatchFaceService = TestWatchFaceService(
+            WatchFaceType.ANALOG,
+            complicationsManager,
+            renderer,
+            userStyleRepository,
+            watchState,
+            handler,
+            tapListener
+        )
+        engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onCreate(surfaceHolder)
+
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+        sendBinder(engineWrapper, 1)
+
+        // At this stage we haven't sent properties such as isAmbient, we expect it to be
+        // initialized to false (as opposed to null).
+        assertThat(watchState.isAmbient.value).isFalse()
+    }
 }

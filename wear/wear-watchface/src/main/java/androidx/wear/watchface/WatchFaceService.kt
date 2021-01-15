@@ -260,6 +260,11 @@ public abstract class WatchFaceService : WallpaperService() {
 
         internal val mutableWatchState = getMutableWatchState().apply {
             isVisible.value = this@EngineWrapper.isVisible
+            // Watch faces with the old [onSetBinder] init flow don't know whether the system
+            // is ambient until they have received a background action wallpaper command.
+            // That's supposed to get sent very quickly, but in case it doesn't we initially
+            // assume we're not in ambient mode which should be correct most of the time.
+            isAmbient.value = false
         }
 
         /**
@@ -801,6 +806,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
             }
 
+            allowWatchfaceToAnimate = false
             mutableWatchState.isHeadless = true
             val watchState = mutableWatchState.asWatchState()
             watchFaceImpl = WatchFaceImpl(
@@ -809,7 +815,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 watchState
             )
 
-            allowWatchfaceToAnimate = false
             mutableWatchState.isVisible.value = true
             mutableWatchState.isAmbient.value = false
 
