@@ -25,7 +25,6 @@ import static org.mockito.Mockito.verify;
 import android.content.Context;
 import android.text.SpannableString;
 
-import androidx.car.app.CarAppPermission;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.TestUtils;
 import androidx.car.app.model.Action;
@@ -47,10 +46,10 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class RoutePreviewNavigationTemplateTest {
-    private final Context mContext = ApplicationProvider.getApplicationContext();
     private static final DistanceSpan DISTANCE =
             DistanceSpan.create(
                     Distance.create(/* displayDistance= */ 1, Distance.UNIT_KILOMETERS_P1));
+    private final Context mContext = ApplicationProvider.getApplicationContext();
 
     @Test
     public void createInstance_emptyList_notLoading_Throws() {
@@ -451,35 +450,5 @@ public class RoutePreviewNavigationTemplateTest {
                                                 () -> {
                                                 }).build())
                                 .build());
-    }
-
-    @Test
-    public void checkPermissions_hasPermissions() {
-        RoutePreviewNavigationTemplate template =
-                new RoutePreviewNavigationTemplate.Builder()
-                        .setTitle("Title")
-                        .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
-                        .setNavigateAction(
-                                new Action.Builder().setTitle("drive").setOnClickListener(() -> {
-                                }).build())
-                        .build();
-
-        // Expect that it does not throw
-        template.checkPermissions(
-                TestUtils.getMockContextWithPermission(CarAppPermission.NAVIGATION_TEMPLATES));
-    }
-
-    @Test
-    public void checkPermissions_doesNotHavePermissions() {
-        RoutePreviewNavigationTemplate template =
-                new RoutePreviewNavigationTemplate.Builder()
-                        .setTitle("Title")
-                        .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
-                        .setNavigateAction(
-                                new Action.Builder().setTitle("drive").setOnClickListener(() -> {
-                                }).build())
-                        .build();
-
-        assertThrows(SecurityException.class, () -> template.checkPermissions(mContext));
     }
 }
