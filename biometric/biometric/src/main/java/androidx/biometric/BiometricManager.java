@@ -266,7 +266,7 @@ public class BiometricManager {
     @Nullable private final android.hardware.biometrics.BiometricManager mBiometricManager;
 
     /**
-     * The framework fingerprint manager. Should be non-null on Android 9.0 (API 28) and below.
+     * The framework fingerprint manager. Should be non-null on Android 10 (API 29) and below.
      */
     @Nullable private final androidx.core.hardware.fingerprint.FingerprintManagerCompat
             mFingerprintManager;
@@ -290,13 +290,12 @@ public class BiometricManager {
     @VisibleForTesting
     BiometricManager(@NonNull Injector injector) {
         mInjector = injector;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            mBiometricManager = injector.getBiometricManager();
-            mFingerprintManager = null;
-        } else {
-            mBiometricManager = null;
-            mFingerprintManager = injector.getFingerprintManager();
-        }
+        mBiometricManager = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                ? injector.getBiometricManager()
+                : null;
+        mFingerprintManager = Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q
+                ? injector.getFingerprintManager()
+                : null;
     }
 
     /**
