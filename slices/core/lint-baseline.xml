@@ -1020,7 +1020,7 @@
         errorLine2="                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="184"
+            line="188"
             column="28"/>
     </issue>
 
@@ -1031,7 +1031,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="257"
+            line="266"
             column="12"/>
     </issue>
 
@@ -1042,7 +1042,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="266"
+            line="275"
             column="12"/>
     </issue>
 
@@ -1053,7 +1053,7 @@
         errorLine2="           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="284"
+            line="303"
             column="12"/>
     </issue>
 
