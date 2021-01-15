@@ -121,7 +121,7 @@ import java.util.List;
 public class CarAppExtender implements NotificationCompat.Extender {
     private static final String TAG = "CarAppExtender";
 
-    private static final String EXTRA_CAR_EXTENDER = "android.car.EXTENSIONS";
+    private static final String EXTRA_CAR_EXTENDER = "android.car.app.EXTENSIONS";
     private static final String EXTRA_IS_EXTENDED = "android.car.app.EXTENDED";
     private static final String EXTRA_CONTENT_TITLE = "content_title";
     private static final String EXTRA_CONTENT_TEXT = "content_text";

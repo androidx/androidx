@@ -142,11 +142,15 @@ public class FingerprintDialogFragment extends DialogFragment {
     @Nullable
     TextView mHelpMessageView;
 
+    // Prevent direct instantiation.
+    private FingerprintDialogFragment() {}
+
     /**
      * Creates a new instance of {@link FingerprintDialogFragment}.
      *
      * @return A {@link FingerprintDialogFragment}.
      */
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
     @NonNull
     static FingerprintDialogFragment newInstance() {
         return new FingerprintDialogFragment();

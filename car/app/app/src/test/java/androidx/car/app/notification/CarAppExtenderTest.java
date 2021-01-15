@@ -66,7 +66,7 @@ public final class CarAppExtenderTest {
                                             @NonNull NotificationCompat.Builder builder) {
                                         Bundle carExtensions = new Bundle();
 
-                                        builder.getExtras().putBundle("android.car.EXTENSIONS",
+                                        builder.getExtras().putBundle("android.car.app.EXTENSIONS",
                                                 carExtensions);
                                         return builder;
                                     }

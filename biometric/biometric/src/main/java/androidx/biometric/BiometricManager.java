@@ -422,7 +422,9 @@ public class BiometricManager {
             if (crypto != null) {
                 try {
                     final Object result =
-                            canAuthenticateWithCrypto.invoke(mBiometricManager, crypto);
+                            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q
+                                    ? canAuthenticateWithCrypto.invoke(mBiometricManager, crypto)
+                                    : null;
                     if (result instanceof Integer) {
                         return (int) result;
                     }

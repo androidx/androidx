@@ -45,4 +45,7 @@
     <!-- Error message for when the app requests PIN, pattern, or password authentication on a
     device without Keyguard. Generally not shown to the user. [CHAR LIMIT=NONE] -->
     <string name="generic_error_no_keyguard">This device does not support PIN, pattern, or password.</string>
+    <!-- Content description for the icon shown on the fingerprint dialog during authentication.
+    This is not shown but may be read aloud to the user for accessibility. [CHAR LIMIT=NONE] -->
+    <string name="fingerprint_dialog_icon_description">Fingerprint icon</string>
 </resources>
