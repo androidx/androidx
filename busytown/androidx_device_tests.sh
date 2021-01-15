@@ -7,7 +7,6 @@ cd "$(dirname $0)"
 
 impl/build.sh --no-daemon zipTestConfigsWithApks -Pandroidx.validateNoUnrecognizedMessages \
     -PverifyUpToDate \
-    -Pandroidx.coverageEnabled=true \
     -Pandroidx.enableAffectedModuleDetection \
     --offline "$@"
 

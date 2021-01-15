@@ -10,7 +10,6 @@ impl/build.sh --no-daemon listTaskOutputs -Pandroidx.validateNoUnrecognizedMessa
 impl/build.sh allProperties "$@" >/dev/null
 impl/build.sh --no-daemon buildOnServer -Pandroidx.validateNoUnrecognizedMessages checkExternalLicenses \
     -PverifyUpToDate \
-    -Pandroidx.coverageEnabled=true \
     -Pandroidx.enableAffectedModuleDetection \
     -Pandroidx.compose.multiplatformEnabled=true \
     --profile "$@"

@@ -9,7 +9,6 @@ impl/build.sh --no-daemon test jacocoTestReport zipEcFiles --offline \
     -Pandroidx.enableAffectedModuleDetection \
     -Pandroidx.ignoreTestFailures \
     -Pandroidx.displayTestOutput=false \
-    -Pandroidx.coverageEnabled=true \
     -Pandroidx.validateNoUnrecognizedMessages "$@"
 
 echo "Completing $0 at $(date)"

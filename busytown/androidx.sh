@@ -14,7 +14,6 @@ for subset in $subsets; do
 done
 impl/build.sh --no-daemon buildOnServer -Pandroidx.validateNoUnrecognizedMessages checkExternalLicenses \
     -PverifyUpToDate \
-    -Pandroidx.coverageEnabled=true \
     -Pandroidx.enableAffectedModuleDetection \
     --profile --offline "$@"
 
