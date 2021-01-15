@@ -16,10 +16,12 @@
 
 package androidx.wear.watchface
 
+import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
+import android.util.TypedValue
 import androidx.annotation.ColorInt
 
 /**
@@ -29,10 +31,14 @@ import androidx.annotation.ColorInt
 public class ComplicationOutlineRenderer {
     public companion object {
         internal const val EXPANSION_PX = 6
-        internal const val STROKE_WIDTH = 3.0f
+        internal const val STROKE_WIDTH_DP = 3.0f
         internal val outlinePaint = Paint().apply {
             style = Paint.Style.STROKE
-            strokeWidth = STROKE_WIDTH
+            strokeWidth = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                STROKE_WIDTH_DP,
+                Resources.getSystem().displayMetrics
+            )
             isAntiAlias = true
         }
 
