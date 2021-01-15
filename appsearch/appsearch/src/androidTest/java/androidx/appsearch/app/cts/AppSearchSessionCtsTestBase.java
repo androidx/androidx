@@ -2392,4 +2392,27 @@ public abstract class AppSearchSessionCtsTestBase {
                         .build()));
         assertThat(documents).containsExactly(email2, email1).inOrder();
     }
+
+    @Test
+    public void testFlush() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()).get();
+
+        // Index a document
+        AppSearchEmail email = new AppSearchEmail.Builder("uri1")
+                .setFrom("from@example.com")
+                .setTo("to1@example.com", "to2@example.com")
+                .setSubject("testPut example")
+                .setBody("This is the body of the testPut email")
+                .build();
+
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(email).build()));
+        assertThat(result.getSuccesses()).containsExactly("uri1", null);
+        assertThat(result.getFailures()).isEmpty();
+
+        // The future returned from maybeFlush will be set as a void or an Exception on error.
+        mDb1.maybeFlush().get();
+    }
 }

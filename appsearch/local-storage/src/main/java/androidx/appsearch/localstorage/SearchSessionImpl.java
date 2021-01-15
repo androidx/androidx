@@ -233,6 +233,15 @@ class SearchSessionImpl implements AppSearchSession {
         });
     }
 
+    @NonNull
+    @Override
+    public ListenableFuture<Void> maybeFlush() {
+        return execute(() -> {
+            mAppSearchImpl.persistToDisk();
+            return null;
+        });
+    }
+
     @Override
     @SuppressWarnings("FutureReturnValueIgnored")
     public void close() {

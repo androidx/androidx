@@ -184,6 +184,16 @@ class SearchSessionImpl implements AppSearchSession {
         return future;
     }
 
+    @NonNull
+    @Override
+    public ListenableFuture<Void> maybeFlush() {
+        ResolvableFuture<Void> future = ResolvableFuture.create();
+        // The data in platform will be flushed by scheduled task. This api won't do anything extra
+        // flush.
+        future.set(null);
+        return future;
+    }
+
     @Override
     public void close() {
         // TODO(b/175637134); Support close() once the method is exposed in the platform sdk

@@ -774,6 +774,8 @@ public final class AppSearchImpl {
      * <p>If the app crashes before a call to PersistToDisk(), Icing would trigger a costly
      * recovery process in next initialization. After that, Icing would still be able to recover
      * all written data.
+     *
+     * @throws AppSearchException on any error that AppSearch persist data to disk.
      */
     public void persistToDisk() throws AppSearchException {
         PersistToDiskResultProto persistToDiskResultProto =
