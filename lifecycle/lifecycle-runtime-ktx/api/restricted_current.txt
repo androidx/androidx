@@ -29,6 +29,11 @@ package androidx.lifecycle {
     method public static suspend <T> Object? whenStateAtLeast(androidx.lifecycle.Lifecycle, androidx.lifecycle.Lifecycle.State minState, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T> p);
   }
 
+  public final class RepeatOnLifecycleKt {
+    method public static kotlinx.coroutines.Job repeatOnLifecycle(androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.State state, optional kotlin.coroutines.CoroutineContext coroutineContext, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method public static kotlinx.coroutines.Job repeatOnLifecycle(androidx.lifecycle.Lifecycle, androidx.lifecycle.Lifecycle.State state, optional kotlin.coroutines.CoroutineContext coroutineContext, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+  }
+
   public final class ViewKt {
     method public static androidx.lifecycle.LifecycleOwner? findViewTreeLifecycleOwner(android.view.View);
   }
