@@ -46,6 +46,7 @@ import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.GetAllNamespacesResultProto;
 import com.google.android.icing.proto.GetOptimizeInfoResultProto;
 import com.google.android.icing.proto.GetResultProto;
+import com.google.android.icing.proto.GetResultSpecProto;
 import com.google.android.icing.proto.GetSchemaResultProto;
 import com.google.android.icing.proto.IcingSearchEngineOptions;
 import com.google.android.icing.proto.InitializeResultProto;
@@ -63,6 +64,7 @@ import com.google.android.icing.proto.SearchResultProto;
 import com.google.android.icing.proto.SearchSpecProto;
 import com.google.android.icing.proto.SetSchemaResultProto;
 import com.google.android.icing.proto.StatusProto;
+import com.google.android.icing.proto.TypePropertyMask;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -431,7 +433,8 @@ public final class AppSearchImpl {
         mReadWriteLock.readLock().lock();
         try {
             getResultProto = mIcingSearchEngineLocked.get(
-                    createPrefix(packageName, databaseName) + namespace, uri);
+                    createPrefix(packageName, databaseName) + namespace, uri,
+                    GetResultSpecProto.getDefaultInstance());
         } finally {
             mReadWriteLock.readLock().unlock();
         }
@@ -683,8 +686,6 @@ public final class AppSearchImpl {
      * <p>If the app crashes before a call to PersistToDisk(), Icing would trigger a costly
      * recovery process in next initialization. After that, Icing would still be able to recover
      * all written data.
-     *
-     * @throws AppSearchException
      */
     public void persistToDisk() throws AppSearchException {
         PersistToDiskResultProto persistToDiskResultProto =
@@ -975,12 +976,12 @@ public final class AppSearchImpl {
             return false;
         }
 
-        List<ResultSpecProto.TypePropertyMask> prefixedTypePropertyMasks = new ArrayList<>();
+        List<TypePropertyMask> prefixedTypePropertyMasks = new ArrayList<>();
         // Rewrite filters to include a database prefix.
         for (String prefix : existingPrefixes) {
             Set<String> existingSchemaTypes = mSchemaMapLocked.get(prefix);
             // Qualify the given schema types
-            for (ResultSpecProto.TypePropertyMask typePropertyMask :
+            for (TypePropertyMask typePropertyMask :
                     resultSpecBuilder.getTypePropertyMasksList()) {
                 String qualifiedType = prefix + typePropertyMask.getSchemaType();
                 if (existingSchemaTypes.contains(qualifiedType)) {
