@@ -102,11 +102,12 @@ public final class Insets {
     }
 
     /**
-     * Retrieves the maximum of two Insets.
+     * Returns the component-wise maximum of two Insets.
      *
      * @param a The first Insets.
      * @param b The second Insets.
-     * @return max(a, b), i. e. the larger of every inset on every side is taken for the result.
+     * @return an {@code Insets} instance where the inset on each side is the larger of
+     *         the insets on that side from {@code a} and {@code b}.
      */
     @NonNull
     public static Insets max(@NonNull Insets a, @NonNull Insets b) {
@@ -115,11 +116,12 @@ public final class Insets {
     }
 
     /**
-     * Retrieves the minimum of two Insets.
+     * Returns the component-wise minimum of two Insets.
      *
      * @param a The first Insets.
      * @param b The second Insets.
-     * @return min(a, b), i. e. the smaller of every inset on every side is taken for the result.
+     * @return an {@code Insets} instance where the inset on each side is the smaller of
+     *         the insets on that side from {@code a} and {@code b}.
      */
     @NonNull
     public static Insets min(@NonNull Insets a, @NonNull Insets b) {
