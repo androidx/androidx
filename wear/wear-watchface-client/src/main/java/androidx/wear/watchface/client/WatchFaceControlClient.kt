@@ -65,6 +65,9 @@ public interface WatchFaceControlClient : AutoCloseable {
      */
     public class ServiceNotBoundException : Exception()
 
+    /** Exception thrown by [WatchFaceControlClient] methods if the service dies during start up. */
+    public class ServiceStartFailureException : Exception()
+
     /**
      * Returns the [InteractiveWatchFaceSysUiClient] for the given instance id, or null if no such
      * instance exists.
@@ -117,7 +120,9 @@ public interface WatchFaceControlClient : AutoCloseable {
      * @param userStyle The initial style map (see [UserStyle]), or null if the default should be
      *     used.
      * @param idToComplicationData The initial complication data, or null if unavailable.
-     * @return a [ListenableFuture] for a [InteractiveWatchFaceWcsClient]
+     * @return a [ListenableFuture] for a [InteractiveWatchFaceWcsClient], or
+     *    [ServiceNotBoundException] if the WatchFaceControlService is not bound, or a
+     *    or a [ServiceStartFailureException] if the service dies during startup.
      */
     public fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(
         id: String,
@@ -224,6 +229,12 @@ internal class WatchFaceControlClientImpl internal constructor(
                 if (service == null) {
                     resultFuture.setException(WatchFaceControlClient.ServiceNotBoundException())
                 } else {
+                    val deathObserver = IBinder.DeathRecipient {
+                        resultFuture.setException(
+                            WatchFaceControlClient.ServiceStartFailureException()
+                        )
+                    }
+                    service.asBinder().linkToDeath(deathObserver, 0)
                     val existingInstance = service.getOrCreateInteractiveWatchFaceWCS(
                         WallpaperInteractiveWatchFaceInstanceParams(
                             id,
@@ -252,6 +263,7 @@ internal class WatchFaceControlClientImpl internal constructor(
                             override fun onInteractiveWatchFaceWcsCreated(
                                 iInteractiveWatchFaceWcs: IInteractiveWatchFaceWCS
                             ) {
+                                service.asBinder().unlinkToDeath(deathObserver, 0)
                                 resultFuture.set(
                                     InteractiveWatchFaceWcsClientImpl(iInteractiveWatchFaceWcs)
                                 )
@@ -259,6 +271,7 @@ internal class WatchFaceControlClientImpl internal constructor(
                         }
                     )
                     existingInstance?.let {
+                        service.asBinder().unlinkToDeath(deathObserver, 0)
                         resultFuture.set(InteractiveWatchFaceWcsClientImpl(it))
                     }
                 }
