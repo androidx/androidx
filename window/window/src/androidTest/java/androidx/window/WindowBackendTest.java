@@ -20,6 +20,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 
@@ -85,6 +86,56 @@ public final class WindowBackendTest extends WindowTestBase {
                 @NonNull DeviceState deviceState) {
             mWindowLayoutInfo = windowLayoutInfo;
             mDeviceState = deviceState;
+        }
+
+
+        /**
+         * @deprecated will be removed in next alpha
+         * @return nothing, throws an exception.
+         */
+        @Override
+        @NonNull
+        @Deprecated // TODO(b/173739071) Remove in next alpha.
+        public DeviceState getDeviceState() {
+            throw new RuntimeException("Deprecated method");
+        }
+
+        /**
+         * @deprecated will be removed in next alpha
+         * @param activity any {@link Activity}
+         * @return nothing, throws an exception since this is depredcated
+         */
+        @Override
+        @NonNull
+        @Deprecated // TODO(b/173739071) Remove in next alpha.
+        public WindowLayoutInfo getWindowLayoutInfo(@NonNull Activity activity) {
+            throw new RuntimeException("Deprecated method");
+        }
+
+        /**
+         * @deprecated will be removed in next alpha
+         * @param context any {@link Context}
+         * @return nothing, throws an exception since this is deprecated.
+         */
+        @NonNull
+        @Override
+        @Deprecated // TODO(b/173739071) Remove in next alpha.
+        public WindowLayoutInfo getWindowLayoutInfo(@NonNull Context context) {
+            throw new RuntimeException("Deprecated method");
+        }
+
+        /**
+         * Throws an exception if used.
+         * @deprecated will be removed in next alpha
+         * @param context any {@link Activity}
+         * @param executor any {@link Executor}
+         * @param callback any {@link Consumer}
+         */
+        @Override
+        @Deprecated // TODO(b/173739071) Remove in next alpha.
+        public void registerLayoutChangeCallback(@NonNull Context context,
+                @NonNull Executor executor, @NonNull Consumer<WindowLayoutInfo> callback) {
+            throw new RuntimeException("Deprecated method");
         }
 
         @Override

@@ -43,7 +43,10 @@ class DisplayFeaturesActivity : BaseSampleActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_display_features)
 
-        windowManager = getTestBackend()?.let { backend -> WindowManager(this, backend) }
+        windowManager = getTestBackend()?.let { backend ->
+            @Suppress("DEPRECATION") // TODO(b/173739071) remove when updating WindowManager
+            WindowManager(this, backend)
+        }
             ?: WindowManager(this)
 
         stateLog.clear()
