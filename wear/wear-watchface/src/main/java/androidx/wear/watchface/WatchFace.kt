@@ -29,7 +29,9 @@ import android.graphics.Rect
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import android.os.BatteryManager
+import android.os.Build
 import android.support.wearable.watchface.WatchFaceStyle
+import android.view.Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
 import android.view.ViewConfiguration
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
@@ -54,6 +56,9 @@ import kotlin.math.max
 
 // Human reaction time is limited to ~100ms.
 private const val MIN_PERCEPTABLE_DELAY_MILLIS = 100
+
+// The default display refresh rate for use if the native display refresh rate is not available.
+private const val DEFAULT_DISPLAY_REFRESH_RATE = 60.0f
 
 /**
  * The type of watch face, whether it's digital or analog. This influences the time displayed for
@@ -534,6 +539,22 @@ internal class WatchFaceImpl(
         scheduleDraw()
     }
 
+    // Only installed if Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+    @SuppressLint("NewApi")
+    private val batteryLowAndNotChargingObserver = Observer<Boolean> {
+        // To save power we request a lower hardware display frame rate when the battery is low
+        // and not charging.
+        renderer.surfaceHolder.surface.setFrameRate(
+            if (it) {
+                1000f / MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS.toFloat()
+            } else {
+                // Use the native display refresh rate if available or the default if not.
+                watchFaceHostApi.getContext().display?.refreshRate ?: DEFAULT_DISPLAY_REFRESH_RATE
+            },
+            FRAME_RATE_COMPATIBILITY_DEFAULT
+        )
+    }
+
     init {
         // We need to inhibit an immediate callback during initialization because members are not
         // fully constructed and it will fail. It's also superfluous because we're going to render
@@ -616,6 +637,9 @@ internal class WatchFaceImpl(
         }
 
         watchState.isAmbient.addObserver(ambientObserver)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            watchState.isBatteryLowAndNotCharging.addObserver(batteryLowAndNotChargingObserver)
+        }
         watchState.interruptionFilter.addObserver(interruptionFilterObserver)
         watchState.isVisible.addObserver(visibilityObserver)
 
@@ -653,6 +677,9 @@ internal class WatchFaceImpl(
         pendingPostDoubleTap.cancel()
         renderer.onDestroy()
         watchState.isAmbient.removeObserver(ambientObserver)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            watchState.isBatteryLowAndNotCharging.removeObserver(batteryLowAndNotChargingObserver)
+        }
         watchState.interruptionFilter.removeObserver(interruptionFilterObserver)
         watchState.isVisible.removeObserver(visibilityObserver)
         if (!watchState.isHeadless) {
