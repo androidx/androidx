@@ -1,1 +1,18 @@
 // Signature format: 4.0
+package androidx.wear.phone.interactions {
+
+  public final class PhoneTypeHelper {
+    method public static int getPhoneDeviceType(android.content.Context context);
+    field public static final androidx.wear.phone.interactions.PhoneTypeHelper.Companion Companion;
+    field public static final int DEVICE_TYPE_ANDROID = 1; // 0x1
+    field public static final int DEVICE_TYPE_ERROR = 0; // 0x0
+    field public static final int DEVICE_TYPE_IOS = 2; // 0x2
+    field public static final int DEVICE_TYPE_UNKNOWN = 3; // 0x3
+  }
+
+  public static final class PhoneTypeHelper.Companion {
+    method public int getPhoneDeviceType(android.content.Context context);
+  }
+
+}
+
