@@ -74,14 +74,14 @@ public class ActionStripTest {
     }
 
     @Test
-    public void getActionOfType() {
+    public void getFirstActionOfType() {
         Action action1 = Action.BACK;
         Action action2 = new Action.Builder().setTitle("Test").setOnClickListener(() -> {
         }).build();
         ActionStrip list = new ActionStrip.Builder().addAction(action1).addAction(action2).build();
 
-        assertThat(list.getActionOfType(Action.TYPE_BACK)).isEqualTo(action1);
-        assertThat(list.getActionOfType(Action.TYPE_CUSTOM)).isEqualTo(action2);
+        assertThat(list.getFirstActionOfType(Action.TYPE_BACK)).isEqualTo(action1);
+        assertThat(list.getFirstActionOfType(Action.TYPE_CUSTOM)).isEqualTo(action2);
     }
 
     @Test
