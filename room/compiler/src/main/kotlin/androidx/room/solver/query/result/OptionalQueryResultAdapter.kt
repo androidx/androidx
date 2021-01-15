@@ -16,6 +16,7 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.T
@@ -28,9 +29,10 @@ import com.squareup.javapoet.ParameterizedTypeName
  *
  * <p>n.b. this will only be useful if the project uses Java 8.
  */
-class OptionalQueryResultAdapter(private val resultAdapter: SingleEntityQueryResultAdapter) :
-    QueryResultAdapter(resultAdapter.rowAdapter) {
-    val type = resultAdapter.rowAdapter?.out
+class OptionalQueryResultAdapter(
+    private val typeArg: XType,
+    private val resultAdapter: SingleEntityQueryResultAdapter
+) : QueryResultAdapter(resultAdapter.rowAdapter) {
     override fun convert(
         outVarName: String,
         cursorVarName: String,
@@ -41,7 +43,7 @@ class OptionalQueryResultAdapter(private val resultAdapter: SingleEntityQueryRes
             resultAdapter.convert(valueVarName, cursorVarName, scope)
             addStatement(
                 "final $T $L = $T.ofNullable($L)",
-                ParameterizedTypeName.get(CommonTypeNames.OPTIONAL, type?.typeName),
+                ParameterizedTypeName.get(CommonTypeNames.OPTIONAL, typeArg.typeName),
                 outVarName,
                 CommonTypeNames.OPTIONAL,
                 valueVarName
