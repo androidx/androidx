@@ -1199,6 +1199,8 @@ class androidx\.vectordrawable\.graphics\.drawable\.AnimatedVectorDrawableCompat
 androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon\#setStateclass androidx\.vectordrawable\.graphics\.drawable\.AnimatedVectorDrawableCompat with androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon
 # > Task :docs-public:dokkaKotlinDocs
 No documentation for .*
+# See b/180023439 for hiltNavGraphViewModel warning.
+Found an unresolved type in androidx\.hilt\.navigation\.compose\$hiltNavGraphViewModel\(androidx\.navigation\.NavController, kotlin\.String\) \(NavHostController\.kt:[0-9]+\)
 Unresolved link to .*
 Unresolved function .*
 at java.base.*
