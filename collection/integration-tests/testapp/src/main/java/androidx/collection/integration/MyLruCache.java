@@ -16,17 +16,22 @@
 
 package androidx.collection.integration;
 
-import androidx.collection.SimpleArrayMap;
+import androidx.annotation.NonNull;
+import androidx.collection.LruCache;
 
-/** Integration (actually build) test that SimpleArrayMap can be subclassed. */
-class MySimpleArrayMap<K, V> extends SimpleArrayMap<K, V> {
-    @Override
-    public boolean isEmpty() {
-        return super.isEmpty();
+/**
+ * Integration (actually build) test that LruCache can be subclassed.
+ *
+ * @param <K> key type
+ * @param <V> value type
+ */
+public class MyLruCache<K, V> extends LruCache<K, V> {
+    public MyLruCache(int maxSize) {
+        super(maxSize);
     }
 
     @Override
-    public int size() {
-        return super.size();
+    protected int sizeOf(@NonNull K key, @NonNull V value) {
+        return super.sizeOf(key, value);
     }
 }

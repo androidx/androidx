@@ -22,18 +22,23 @@ import androidx.collection.ArrayMap;
 import java.util.Collection;
 import java.util.Set;
 
+/** Integration (actually build) test that ArrayMap can be subclassed. */
 class MyArrayMap<K, V> extends ArrayMap<K, V> {
-    @Override
-    public int size() {
-        return super.size();
-    }
-
     @NonNull
     @Override
     public Set<Entry<K, V>> entrySet() {
         return super.entrySet();
     }
 
+    @Override
+    public boolean isEmpty() {
+        return super.isEmpty();
+    }
+
+    @Override
+    public int size() {
+        return super.size();
+    }
     @NonNull
     @Override
     public Set<K> keySet() {

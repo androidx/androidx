@@ -16,10 +16,14 @@
 
 package androidx.collection.integration;
 
-import androidx.collection.SimpleArrayMap;
+import androidx.collection.LongSparseArray;
 
-/** Integration (actually build) test that SimpleArrayMap can be subclassed. */
-class MySimpleArrayMap<K, V> extends SimpleArrayMap<K, V> {
+/**
+ * Integration (actually build) test that LongSparseArray can be subclassed.
+ *
+ * @param <E> element type
+ */
+class MyLongSparseArray<E> extends LongSparseArray<E> {
     @Override
     public boolean isEmpty() {
         return super.isEmpty();
