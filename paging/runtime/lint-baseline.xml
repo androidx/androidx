@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="RestrictedApi"
@@ -19,7 +19,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/paging/LivePagedList.kt"
-            line="155"
+            line="157"
             column="31"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/paging/LivePagedList.kt"
-            line="197"
+            line="199"
             column="31"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/paging/LivePagedList.kt"
-            line="250"
+            line="252"
             column="44"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/paging/LivePagedList.kt"
-            line="259"
+            line="261"
             column="9"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/paging/LivePagedList.kt"
-            line="302"
+            line="304"
             column="44"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/paging/LivePagedList.kt"
-            line="311"
+            line="313"
             column="9"/>
     </issue>
 

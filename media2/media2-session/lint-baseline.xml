@@ -1,49 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 23 (current min is 16): `android.media.AudioManager#ADJUST_MUTE`"
-        errorLine1="            AudioManager.ADJUST_MUTE, AudioManager.ADJUST_UNMUTE, AudioManager.ADJUST_TOGGLE_MUTE})"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaController.java"
-            line="153"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 23 (current min is 16): `android.media.AudioManager#ADJUST_TOGGLE_MUTE`"
-        errorLine1="            AudioManager.ADJUST_MUTE, AudioManager.ADJUST_UNMUTE, AudioManager.ADJUST_TOGGLE_MUTE})"
-        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaController.java"
-            line="153"
-            column="67"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 23 (current min is 16): `android.media.AudioManager#ADJUST_UNMUTE`"
-        errorLine1="            AudioManager.ADJUST_MUTE, AudioManager.ADJUST_UNMUTE, AudioManager.ADJUST_TOGGLE_MUTE})"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaController.java"
-            line="153"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 29 (current min is 16): `android.content.Context#BIND_INCLUDE_CAPABILITIES`"
-        errorLine1="                    Context.BIND_AUTO_CREATE | Context.BIND_INCLUDE_CAPABILITIES);"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaControllerImplBase.java"
-            line="837"
-            column="48"/>
-    </issue>
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="UnsafeNewApiCall"
@@ -63,7 +19,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
-            line="207"
+            line="235"
             column="34"/>
     </issue>
 
@@ -74,7 +30,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
-            line="217"
+            line="245"
             column="41"/>
     </issue>
 
@@ -85,7 +41,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
-            line="221"
+            line="249"
             column="39"/>
     </issue>
 
@@ -96,7 +52,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
-            line="223"
+            line="251"
             column="30"/>
     </issue>
 
@@ -125,12 +81,12 @@
     <issue
         id="UnsafeNewApiCall"
         message="This call is to a method from API 18, the call containing class androidx.media2.session.MediaSessionImplBase is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
-        errorLine1="                    mHandlerThread.quitSafely();"
-        errorLine2="                                   ~~~~~~~~~~">
+        errorLine1="                mHandlerThread.quitSafely();"
+        errorLine2="                               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaSessionImplBase.java"
-            line="382"
-            column="36"/>
+            line="386"
+            column="32"/>
     </issue>
 
     <issue
@@ -142,39 +98,6 @@
             file="src/main/java/androidx/media2/session/SessionToken.java"
             line="349"
             column="20"/>
-    </issue>
-
-    <issue
-        id="SwitchIntDef"
-        message="Switch statement on an `int` with known associated constant missing case `RatingCompat.RATING_NONE`"
-        errorLine1="        switch (ratingCompat.getRatingStyle()) {"
-        errorLine2="        ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="609"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="SwitchIntDef"
-        message="Switch statement on an `int` with known associated constant missing case `RatingCompat.RATING_NONE`"
-        errorLine1="        switch (ratingCompatStyle) {"
-        errorLine2="        ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="650"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="Do not place Android context classes in static fields (static reference to `MediaSessionManager` which has field `mContext` pointing to `Context`); this is a memory leak"
-        errorLine1="    private static MediaSessionManager sInstance;"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaSessionManager.java"
-            line="56"
-            column="13"/>
     </issue>
 
     <issue

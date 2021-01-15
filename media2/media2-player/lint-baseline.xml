@@ -1,126 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 26 (current min is 16): `android.media.AudioManager#AUDIOFOCUS_NONE`"
-        errorLine1="                mCurrentFocusGainType = AudioManager.AUDIOFOCUS_NONE;"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/AudioFocusHandler.java"
-            line="213"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 26 (current min is 16): `android.media.AudioManager#AUDIOFOCUS_NONE`"
-        errorLine1="            return mCurrentFocusGainType != AudioManager.AUDIOFOCUS_NONE;"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/AudioFocusHandler.java"
-            line="220"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 26 (current min is 16): `android.media.AudioManager#AUDIOFOCUS_NONE`"
-        errorLine1="            mCurrentFocusGainType = AudioManager.AUDIOFOCUS_NONE;"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/AudioFocusHandler.java"
-            line="235"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 26 (current min is 16): `android.media.AudioManager#AUDIOFOCUS_NONE`"
-        errorLine1="                return AudioManager.AUDIOFOCUS_NONE;"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/AudioFocusHandler.java"
-            line="274"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 26 (current min is 16): `android.media.AudioManager#AUDIOFOCUS_NONE`"
-        errorLine1="                    return AudioManager.AUDIOFOCUS_NONE;"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/AudioFocusHandler.java"
-            line="283"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 19 (current min is 16): `android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE`"
-        errorLine1="                    return AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE;"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/AudioFocusHandler.java"
-            line="320"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 26 (current min is 16): `android.media.AudioManager#AUDIOFOCUS_NONE`"
-        errorLine1="            return AudioManager.AUDIOFOCUS_NONE;"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/AudioFocusHandler.java"
-            line="332"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 19 (current min is 16): `android.media.MediaFormat#KEY_LANGUAGE`"
-        errorLine1="            mediaFormat.setString(MediaFormat.KEY_LANGUAGE, language);"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/TrackSelector.java"
-            line="431"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 19 (current min is 16): `android.media.MediaFormat#KEY_IS_FORCED_SUBTITLE`"
-        errorLine1="            mediaFormat.setInteger(MediaFormat.KEY_IS_FORCED_SUBTITLE,"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/TrackSelector.java"
-            line="432"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 19 (current min is 16): `android.media.MediaFormat#KEY_IS_AUTOSELECT`"
-        errorLine1="            mediaFormat.setInteger(MediaFormat.KEY_IS_AUTOSELECT,"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/TrackSelector.java"
-            line="434"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 19 (current min is 16): `android.media.MediaFormat#KEY_IS_DEFAULT`"
-        errorLine1="            mediaFormat.setInteger(MediaFormat.KEY_IS_DEFAULT,"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/TrackSelector.java"
-            line="436"
-            column="36"/>
-    </issue>
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="BanSynchronizedMethods"
@@ -420,17 +299,6 @@
     </issue>
 
     <issue
-        id="SwitchIntDef"
-        message="Switch statement on an `int` with known associated constant missing case `MediaPlayer2.MEDIA_INFO_AUDIO_NOT_PLAYING`, `MediaPlayer2.MEDIA_INFO_AUDIO_RENDERING_START`, `MediaPlayer2.MEDIA_INFO_BAD_INTERLEAVING`, `MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END`, `MediaPlayer2.MEDIA_INFO_DATA_SOURCE_REPEAT`, `MediaPlayer2.MEDIA_INFO_EXTERNAL_METADATA_UPDATE`, `MediaPlayer2.MEDIA_INFO_METADATA_UPDATE`, `MediaPlayer2.MEDIA_INFO_NETWORK_BANDWIDTH`, `MediaPlayer2.MEDIA_INFO_NOT_SEEKABLE`, `MediaPlayer2.MEDIA_INFO_SUBTITLE_TIMED_OUT`, `MediaPlayer2.MEDIA_INFO_UNKNOWN`, `MediaPlayer2.MEDIA_INFO_UNSUPPORTED_SUBTITLE`, `MediaPlayer2.MEDIA_INFO_VIDEO_NOT_PLAYING`, `MediaPlayer2.MEDIA_INFO_VIDEO_RENDERING_START`, `MediaPlayer2.MEDIA_INFO_VIDEO_TRACK_LAGGING`"
-        errorLine1="            switch (mp2What) {"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer.java"
-            line="3350"
-            column="13"/>
-    </issue>
-
-    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        void onPrepared(MediaItem mediaItem);"
@@ -613,7 +481,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer.java"
-            line="2174"
+            line="2167"
             column="12"/>
     </issue>
 
@@ -879,17 +747,6 @@
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
             line="1721"
             column="25"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public NoDrmSchemeException(String detailMessage) {"
-        errorLine2="                                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1729"
-            column="37"/>
     </issue>
 
     <issue

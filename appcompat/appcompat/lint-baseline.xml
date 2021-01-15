@@ -1,390 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="SuspiciousImport"
-        message="Don&apos;t include `android.R` here; use a fully qualified name for each usage instead"
-        errorLine1="import android.R;"
-        errorLine2="~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggleHoneycomb.java"
-            line="20"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="CustomViewStyleable"
-        message="By convention, the custom view (`AbsActionBarView`) and the declare-styleable (`ActionBar`) should have the same name (various editor features rely on this convention)"
-        errorLine1="        TypedArray a = getContext().obtainStyledAttributes(null, R.styleable.ActionBar,"
-        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AbsActionBarView.java"
-            line="79"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="CustomViewStyleable"
-        message="By convention, the declare-styleable (`ActionBarLayout`) for a layout parameter class (`LayoutParams`) is expected to be the surrounding class (`ActionBar`) plus &quot;`_Layout`&quot;, e.g. `ActionBar_Layout`. (Various editor features rely on this convention.)"
-        errorLine1="            TypedArray a = c.obtainStyledAttributes(attrs, R.styleable.ActionBarLayout);"
-        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/ActionBar.java"
-            line="1379"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="CustomViewStyleable"
-        message="By convention, the custom view (`ActionBarContainer`) and the declare-styleable (`ActionBar`) should have the same name (various editor features rely on this convention)"
-        errorLine1="                R.styleable.ActionBar);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="66"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="CustomViewStyleable"
-        message="By convention, the custom view (`DialogTitle`) and the declare-styleable (`TextAppearance`) should have the same name (various editor features rely on this convention)"
-        errorLine1="                            R.styleable.TextAppearance,"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/DialogTitle.java"
-            line="67"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="DiscouragedPrivateApi"
-        message="Reflective access to setClipToScreenEnabled, which is not part of the public SDK and therefore likely to change in future Android releases"
-        errorLine1="                sSetClipToWindowEnabledMethod = PopupWindow.class.getDeclaredMethod("
-        errorLine2="                                                ^">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ListPopupWindow.java"
-            line="86"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="DiscouragedPrivateApi"
-        message="Reflective access to computeFitSystemWindows, which is not part of the public SDK and therefore likely to change in future Android releases"
-        errorLine1="                sComputeFitSystemWindowsMethod = View.class.getDeclaredMethod("
-        errorLine2="                                                 ^">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ViewUtils.java"
-            line="44"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="InconsistentLayout"
-        message="The id &quot;spacer&quot; in layout &quot;abc_alert_dialog_button_bar_material&quot; is missing from the following layout configurations: layout-watch (present in layout)"
-        errorLine1="            android:id=&quot;@+id/spacer&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_alert_dialog_button_bar_material.xml"
-            line="44"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 16 (current min is 14): `android.view.View#SYSTEM_UI_FLAG_FULLSCREEN`"
-        errorLine1="        final boolean barVisible = (visible &amp; SYSTEM_UI_FLAG_FULLSCREEN) == 0;"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="259"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 16 (current min is 14): `android.view.View#SYSTEM_UI_FLAG_LAYOUT_STABLE`"
-        errorLine1="        final boolean stable = (visible &amp; SYSTEM_UI_FLAG_LAYOUT_STABLE) != 0;"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="260"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 16 (current min is 14): `android.view.View#SYSTEM_UI_FLAG_LAYOUT_STABLE`"
-        errorLine1="        final boolean stable = (vis &amp; SYSTEM_UI_FLAG_LAYOUT_STABLE) != 0;"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="428"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 17 (current min is 14): `android.R.attr#checkedTextViewStyle`"
-        errorLine1="        this(context, attrs, android.R.attr.checkedTextViewStyle);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatCheckedTextView.java"
-            line="53"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 23 (current min is 14): `android.view.View#SYSTEM_UI_FLAG_LIGHT_STATUS_BAR`"
-        errorLine1="                &amp; SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"
-            line="2301"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 17 (current min is 14): `android.content.res.Configuration#SCREENLAYOUT_LAYOUTDIR_MASK`"
-        errorLine1="            delta.screenLayout |= change.screenLayout &amp; Configuration.SCREENLAYOUT_LAYOUTDIR_MASK;"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"
-            line="3424"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 23 (current min is 14): `android.content.res.Configuration#SCREENLAYOUT_ROUND_MASK`"
-        errorLine1="            delta.screenLayout |= change.screenLayout &amp; Configuration.SCREENLAYOUT_ROUND_MASK;"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"
-            line="3434"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="PrivateApi"
-        message="Accessing internal APIs via reflection is not supported and may not work on all devices or in the future"
-        errorLine1="                sThemedResourceCacheClazz = Class.forName(&quot;android.content.res.ThemedResourceCache&quot;);"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/ResourcesFlusher.java"
-            line="168"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `layoutDirection` is only used in API level 17 and higher (current min is 14)"
-        errorLine1="                                           android:layoutDirection=&quot;locale&quot;"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout-watch/abc_alert_dialog_button_bar_material.xml"
-            line="23"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `scrollIndicators` is only used in API level 23 and higher (current min is 14)"
-        errorLine1="            android:scrollIndicators=&quot;top|bottom&quot;>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_alert_dialog_button_bar_material.xml"
-            line="24"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `layoutDirection` is only used in API level 17 and higher (current min is 14)"
-        errorLine1="        android:layoutDirection=&quot;locale&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_alert_dialog_button_bar_material.xml"
-            line="30"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `autoMirrored` is only used in API level 19 and higher (current min is 14)"
-        errorLine1="        android:autoMirrored=&quot;true&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_ab_back_material.xml"
-            line="22"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `autoMirrored` is only used in API level 19 and higher (current min is 14)"
-        errorLine1="        android:autoMirrored=&quot;true&quot;>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_arrow_drop_right_black_24dp.xml"
-            line="23"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `autoMirrored` is only used in API level 19 and higher (current min is 14)"
-        errorLine1="&lt;vector android:autoMirrored=&quot;true&quot; android:height=&quot;24dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_menu_copy_mtrl_am_alpha.xml"
-            line="17"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `autoMirrored` is only used in API level 19 and higher (current min is 14)"
-        errorLine1="&lt;vector android:autoMirrored=&quot;true&quot; android:height=&quot;24dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_menu_cut_mtrl_alpha.xml"
-            line="17"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `touchscreenBlocksFocus` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="            android:touchscreenBlocksFocus=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_screen_toolbar.xml"
-            line="33"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `layoutDirection` is only used in API level 17 and higher (current min is 14)"
-        errorLine1="            android:layoutDirection=&quot;locale&quot;>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_search_view.xml"
-            line="55"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `pathData` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="        android:pathData=&quot;M 0.0,0.0 l 1.0,0.0 l 0.0,1.0&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_0.xml"
-            line="20"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `pathData` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="        android:pathData=&quot;M 0.0,0.0 c 0.33333333,0.0 0.0,1.0 1.0,1.0&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_1.xml"
-            line="20"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `pathData` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="        android:pathData=&quot;M 0.0,0.0 l 1.0,0.0 l 0.0,1.0&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_0.xml"
-            line="20"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `pathData` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="        android:pathData=&quot;M 0.0,0.0 c 0.33333333,0.0 0.0,1.0 1.0,1.0&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_1.xml"
-            line="20"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `pathData` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="        android:pathData=&quot;M 0.0,0.0 c 0.4,0.0 0.4,1.0 1.0,1.0&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/interpolator/btn_radio_to_off_mtrl_animation_interpolator_0.xml"
-            line="20"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `pathData` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="        android:pathData=&quot;M 0.0,0.0 c 0.4,0.0 0.4,1.0 1.0,1.0&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/interpolator/btn_radio_to_on_mtrl_animation_interpolator_0.xml"
-            line="20"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `controlX1` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="        android:controlX1=&quot;0.4&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/interpolator/fast_out_slow_in.xml"
-            line="20"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `controlY1` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="        android:controlY1=&quot;0&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/interpolator/fast_out_slow_in.xml"
-            line="21"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `controlX2` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="        android:controlX2=&quot;0.2&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/interpolator/fast_out_slow_in.xml"
-            line="22"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `controlY2` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="        android:controlY2=&quot;1&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/interpolator/fast_out_slow_in.xml"
-            line="23"
-            column="9"/>
-    </issue>
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="BanSynchronizedMethods"
@@ -637,72 +252,6 @@
             file="src/main/java/androidx/appcompat/widget/ViewUtils.java"
             line="68"
             column="17"/>
-    </issue>
-
-    <issue
-        id="InflateParams"
-        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
-        errorLine1="                        R.layout.abc_dialog_title_material, null);"
-        errorLine2="                                                            ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"
-            line="874"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="InflateParams"
-        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
-        errorLine1="                        .inflate(R.layout.abc_screen_toolbar, null);"
-        errorLine2="                                                              ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"
-            line="896"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="InflateParams"
-        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
-        errorLine1="                        R.layout.abc_screen_simple_overlay_action_mode, null);"
-        errorLine2="                                                                        ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"
-            line="918"
-            column="73"/>
-    </issue>
-
-    <issue
-        id="InflateParams"
-        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
-        errorLine1="                subDecor = (ViewGroup) inflater.inflate(R.layout.abc_screen_simple, null);"
-        errorLine2="                                                                                    ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"
-            line="920"
-            column="85"/>
-    </issue>
-
-    <issue
-        id="InflateParams"
-        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
-        errorLine1="        mContentView = LayoutInflater.from(mContext).inflate(R.layout.abc_tooltip, null);"
-        errorLine2="                                                                                   ~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/TooltipPopup.java"
-            line="62"
-            column="84"/>
-    </issue>
-
-    <issue
-        id="QueryPermissionsNeeded"
-        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this \&#xA;method; see https://g.co/dev/packagevisibility for details"
-        errorLine1="                    .queryIntentActivities(mIntent, 0);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActivityChooserModel.java"
-            line="691"
-            column="22"/>
     </issue>
 
     <issue
@@ -1482,7 +1031,7 @@
         errorLine2="                              ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1059"
+            line="1063"
             column="31"/>
     </issue>
 
@@ -1561,798 +1110,6 @@
             file="src/main/java/androidx/appcompat/view/WindowCallbackWrapper.java"
             line="184"
             column="18"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="This attribute is not supported in images generated from this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="        android:autoMirrored=&quot;true&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_ab_back_material.xml"
-            line="22"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="Resource references will not work correctly in images generated for this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="        android:tint=&quot;?attr/colorControlNormal&quot;>"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_ab_back_material.xml"
-            line="23"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="Resource references will not work correctly in images generated for this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="            android:fillColor=&quot;@android:color/white&quot;/>"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_ab_back_material.xml"
-            line="26"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="Resource references will not work correctly in images generated for this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="        android:tint=&quot;?attr/colorControlNormal&quot;"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_arrow_drop_right_black_24dp.xml"
-            line="22"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="This attribute is not supported in images generated from this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="        android:autoMirrored=&quot;true&quot;>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_arrow_drop_right_black_24dp.xml"
-            line="23"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="Resource references will not work correctly in images generated for this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="        &lt;path android:fillColor=&quot;@android:color/black&quot; android:pathData=&quot;M7,14 L12,9 L17,14 L7,14 Z&quot; />"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_arrow_drop_right_black_24dp.xml"
-            line="30"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="Resource references will not work correctly in images generated for this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="        android:tint=&quot;?attr/colorControlNormal&quot;>"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_clear_material.xml"
-            line="22"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="Resource references will not work correctly in images generated for this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="            android:fillColor=&quot;@android:color/white&quot;/>"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_clear_material.xml"
-            line="25"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="Resource references will not work correctly in images generated for this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="        android:tint=&quot;?attr/colorControlNormal&quot;>"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_go_search_api_material.xml"
-            line="21"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="Resource references will not work correctly in images generated for this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="        android:fillColor=&quot;@android:color/white&quot;/>"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_go_search_api_material.xml"
-            line="24"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="This attribute is not supported in images generated from this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="&lt;vector android:autoMirrored=&quot;true&quot; android:height=&quot;24dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_menu_copy_mtrl_am_alpha.xml"
-            line="17"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="This attribute is not supported in images generated from this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="&lt;vector android:autoMirrored=&quot;true&quot; android:height=&quot;24dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_menu_cut_mtrl_alpha.xml"
-            line="17"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="Resource references will not work correctly in images generated for this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="        android:tint=&quot;?attr/colorControlNormal&quot;>"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_menu_overflow_material.xml"
-            line="22"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="Resource references will not work correctly in images generated for this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="            android:fillColor=&quot;@android:color/white&quot;/>"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_menu_overflow_material.xml"
-            line="25"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="Resource references will not work correctly in images generated for this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="        android:tint=&quot;?attr/colorControlNormal&quot;>"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_search_api_material.xml"
-            line="22"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="Resource references will not work correctly in images generated for this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="        android:fillColor=&quot;@android:color/white&quot;/>"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_search_api_material.xml"
-            line="25"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="Resource references will not work correctly in images generated for this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="        android:tint=&quot;?attr/colorControlNormal&quot;>"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_voice_search_api_material.xml"
-            line="22"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="Resource references will not work correctly in images generated for this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="        android:fillColor=&quot;@android:color/white&quot;/>"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_ic_voice_search_api_material.xml"
-            line="25"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="Resource references will not work correctly in images generated for this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="      android:fillColor=&quot;@android:color/black&quot;/>"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_star_black_48dp.xml"
-            line="24"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="VectorRaster"
-        message="Resource references will not work correctly in images generated for this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
-        errorLine1="      android:fillColor=&quot;@android:color/black&quot;/>"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/abc_star_half_black_48dp.xml"
-            line="24"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ParcelClassLoader"
-        message="Passing null here (to use the default class loader) will not work if you are restoring your own classes. Consider using for example `getClass().getClassLoader()` instead."
-        errorLine1="            isIconified = (Boolean) source.readValue(null);"
-        errorLine2="                                           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="1309"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="ShiftFlags"
-        message="Consider declaring this constant using 1 &lt;&lt; 1 instead"
-        errorLine1="    public static final int SHOW_DIVIDER_MIDDLE = 2;"
-        errorLine2="                                                  ~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="92"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="ShiftFlags"
-        message="Consider declaring this constant using 1 &lt;&lt; 2 instead"
-        errorLine1="    public static final int SHOW_DIVIDER_END = 4;"
-        errorLine2="                                               ~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="96"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="SwitchIntDef"
-        message="Switch statement on an `int` with known associated constant missing case `MODE_NIGHT_UNSPECIFIED`"
-        errorLine1="        switch (mode) {"
-        errorLine2="        ~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
-            line="577"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="SwitchIntDef"
-        message="Switch statement on an `int` with known associated constant missing case `MeasureSpec.EXACTLY`"
-        errorLine1="        switch (heightMode) {"
-        errorLine2="        ~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="816"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="SwitchIntDef"
-        message="Switch statement on an `int` with known associated constant missing case `ActionBar.NAVIGATION_MODE_LIST`, `ActionBar.NAVIGATION_MODE_STANDARD`"
-        errorLine1="        switch (mode) {"
-        errorLine2="        ~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1343"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DrawAllocation"
-        message="Avoid object allocations during draw/layout operations (preallocate and reuse instead)"
-        errorLine1="                mInnerInsets = new WindowInsetsCompat.Builder(mInnerInsets)"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
-            line="475"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="Recycle"
-        message="This `TypedArray` should be recycled after use with `#recycle()`"
-        errorLine1="            final TypedArray ta = context.obtainStyledAttributes("
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AlertController.java"
-            line="846"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="Recycle"
-        message="This `TypedArray` should be recycled after use with `#recycle()`"
-        errorLine1="            TypedArray a = mContext.obtainStyledAttributes(R.styleable.AppCompatTheme);"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"
-            line="1521"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This `AsyncTask` class should be static or leaks might occur (androidx.appcompat.widget.ActivityChooserModel.PersistHistoryAsyncTask)"
-        errorLine1="    private final class PersistHistoryAsyncTask extends android.os.AsyncTask&lt;Object, Void, Void> {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActivityChooserModel.java"
-            line="1038"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="Do not place Android context classes in static fields (static reference to `TooltipCompatHandler` which has field `mAnchor` pointing to `View`); this is a memory leak"
-        errorLine1="    private static TooltipCompatHandler sPendingHandler;"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/TooltipCompatHandler.java"
-            line="75"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="Do not place Android context classes in static fields (static reference to `TooltipCompatHandler` which has field `mAnchor` pointing to `View`); this is a memory leak"
-        errorLine1="    private static TooltipCompatHandler sActiveHandler;"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/TooltipCompatHandler.java"
-            line="78"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="Do not place Android context classes in static fields (static reference to `TwilightManager` which has field `mContext` pointing to `Context`); this is a memory leak"
-        errorLine1="    private static TwilightManager sInstance;"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/TwilightManager.java"
-            line="47"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UseCompoundDrawables"
-        message="This tag and its children can be replaced by one `&lt;TextView/>` and a compound drawable"
-        errorLine1="    &lt;LinearLayout"
-        errorLine2="     ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_activity_chooser_view_list_item.xml"
-            line="27"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="InefficientWeight"
-        message="Use a `layout_width` of `0dp` instead of `wrap_content` for better performance"
-        errorLine1="            android:layout_width=&quot;wrap_content&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_search_view.xml"
-            line="49"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="InefficientWeight"
-        message="Use a `layout_width` of `0dp` instead of `wrap_content` for better performance"
-        errorLine1="                android:layout_width=&quot;wrap_content&quot;"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_search_view.xml"
-            line="69"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NestedWeights"
-        message="Nested weights are bad for performance"
-        errorLine1="                android:layout_weight=&quot;1&quot;"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_search_view.xml"
-            line="71"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NestedWeights"
-        message="Nested weights are bad for performance"
-        errorLine1="                  android:layout_weight=&quot;1&quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_search_view.xml"
-            line="79"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?attr/actionBarItemBackground` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
-        errorLine1="              android:background=&quot;?attr/actionBarItemBackground&quot;"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_action_bar_up_container.xml"
-            line="20"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UselessParent"
-        message="This `LinearLayout` layout or its `LinearLayout` parent is useless; transfer the `background` attribute to the other view"
-        errorLine1="    &lt;LinearLayout"
-        errorLine2="     ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_activity_chooser_view_list_item.xml"
-            line="27"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;abc_search_hint&quot; msgid=&quot;7208076849092622260&quot;>&quot;Axtarış...&quot;&lt;/string>"
-        errorLine2="                                                               ^">
-        <location
-            file="src/main/res/values-az/strings.xml"
-            line="25"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;abc_search_hint&quot; msgid=&quot;7208076849092622260&quot;>&quot;Pretražite...&quot;&lt;/string>"
-        errorLine2="                                                               ^">
-        <location
-            file="src/main/res/values-bs/strings.xml"
-            line="25"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;abc_search_hint&quot; msgid=&quot;7208076849092622260&quot;>&quot;Telusuri...&quot;&lt;/string>"
-        errorLine2="                                                               ^">
-        <location
-            file="src/main/res/values-in/strings.xml"
-            line="25"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;abc_search_hint&quot; msgid=&quot;7208076849092622260&quot;>&quot;검색...&quot;&lt;/string>"
-        errorLine2="                                                               ^">
-        <location
-            file="src/main/res/values-ko/strings.xml"
-            line="25"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;abc_search_hint&quot; msgid=&quot;7208076849092622260&quot;>&quot;සොයන්න...&quot;&lt;/string>"
-        errorLine2="                                                               ^">
-        <location
-            file="src/main/res/values-si/strings.xml"
-            line="25"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="IconDuplicatesConfig"
-        message="The `abc_list_divider_mtrl_alpha.9.png` icon has identical contents in the following configuration folders: drawable-hdpi, drawable-mdpi, drawable-xhdpi">
-        <location
-            file="src/main/res/drawable-xhdpi/abc_list_divider_mtrl_alpha.9.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/abc_list_divider_mtrl_alpha.9.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/abc_list_divider_mtrl_alpha.9.png"/>
-    </issue>
-
-    <issue
-        id="ViewConstructor"
-        message="Custom view `DropDownListView` is missing constructor used by tools: `(Context)` or `(Context,AttributeSet)` or `(Context,AttributeSet,int)`"
-        errorLine1="class DropDownListView extends ListView {"
-        errorLine2="      ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/DropDownListView.java"
-            line="46"
-            column="7"/>
-    </issue>
-
-    <issue
-        id="ViewConstructor"
-        message="Custom view `CollapsibleActionViewWrapper` is missing constructor used by tools: `(Context)` or `(Context,AttributeSet)` or `(Context,AttributeSet,int)`"
-        errorLine1="    static class CollapsibleActionViewWrapper extends FrameLayout"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/view/menu/MenuItemWrapperICS.java"
-            line="506"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ViewConstructor"
-        message="Custom view `MenuDropDownListView` is missing constructor used by tools: `(Context)` or `(Context,AttributeSet)` or `(Context,AttributeSet,int)`"
-        errorLine1="    public static class MenuDropDownListView extends DropDownListView {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/MenuPopupWindow.java"
-            line="139"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClickableViewAccessibility"
-        message="Custom view `ActionBarContainer` overrides `onTouchEvent` but not `performClick`"
-        errorLine1="    public boolean onTouchEvent(MotionEvent ev) {"
-        errorLine2="                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="213"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="ClickableViewAccessibility"
-        message="Custom view `ActionMenuItemView` overrides `onTouchEvent` but not `performClick`"
-        errorLine1="    public boolean onTouchEvent(MotionEvent e) {"
-        errorLine2="                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/view/menu/ActionMenuItemView.java"
-            line="140"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="ClickableViewAccessibility"
-        message="Custom view ``FrameLayout`` has `setOnTouchListener` called on it but does not override `performClick`"
-        errorLine1="        expandButton.setOnTouchListener(new ForwardingListener(expandButton) {"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActivityChooserView.java"
-            line="260"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ClickableViewAccessibility"
-        message="`AppCompatSpinner#onTouchEvent` should call `AppCompatSpinner#performClick` when a click is detected"
-        errorLine1="    public boolean onTouchEvent(MotionEvent event) {"
-        errorLine2="                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="427"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="ClickableViewAccessibility"
-        message="Custom view `DropDownListView` overrides `onTouchEvent` but not `performClick`"
-        errorLine1="    public boolean onTouchEvent(MotionEvent ev) {"
-        errorLine2="                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/DropDownListView.java"
-            line="207"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="ClickableViewAccessibility"
-        message="`PopupTouchInterceptor#onTouch` should call `View#performClick` when a click is detected"
-        errorLine1="        public boolean onTouch(View v, MotionEvent event) {"
-        errorLine2="                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ListPopupWindow.java"
-            line="1390"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="ClickableViewAccessibility"
-        message="Custom view `SwitchCompat` overrides `onTouchEvent` but not `performClick`"
-        errorLine1="    public boolean onTouchEvent(MotionEvent ev) {"
-        errorLine2="                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="936"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="ClickableViewAccessibility"
-        message="Custom view `Toolbar` overrides `onTouchEvent` but not `performClick`"
-        errorLine1="    public boolean onTouchEvent(MotionEvent ev) {"
-        errorLine2="                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1578"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageView android:id=&quot;@+id/image&quot;"
-        errorLine2="         ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_activity_chooser_view.xml"
-            line="40"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageView android:id=&quot;@id/image&quot;"
-        errorLine2="         ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_activity_chooser_view.xml"
-            line="62"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageView"
-        errorLine2="         ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_activity_chooser_view_list_item.xml"
-            line="32"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageView"
-        errorLine2="         ~~~~~~~~~">
-        <location
-            file="src/main/res/layout-watch/abc_alert_dialog_title_material.xml"
-            line="35"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageView"
-        errorLine2="         ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_alert_dialog_title_material.xml"
-            line="36"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_cascading_menu_item_layout.xml"
-            line="27"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageView"
-        errorLine2="         ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_cascading_menu_item_layout.xml"
-            line="69"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="&lt;ImageView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_list_menu_item_icon.xml"
-            line="17"
-            column="2"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_popup_menu_item_layout.xml"
-            line="24"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageView"
-        errorLine2="         ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_popup_menu_item_layout.xml"
-            line="75"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_search_dropdown_item_icons_2line.xml"
-            line="27"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_search_dropdown_item_icons_2line.xml"
-            line="37"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_search_dropdown_item_icons_2line.xml"
-            line="48"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageView"
-        errorLine2="         ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/abc_search_view.xml"
-            line="57"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="IgnoreWithoutReason"
-        message="Test is ignored without giving any explanation"
-        errorLine1="    @Ignore"
-        errorLine2="    ~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appcompat/widget/PopupMenuTest.java"
-            line="536"
-            column="5"/>
     </issue>
 
     <issue
@@ -7332,19 +6089,8 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="199"
+            line="218"
             column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {"
-        errorLine2="           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="213"
-            column="12"/>
     </issue>
 
     <issue
@@ -7354,7 +6100,7 @@
         errorLine2="                                                   ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="213"
+            line="233"
             column="52"/>
     </issue>
 
@@ -7365,8 +6111,19 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="231"
+            line="286"
             column="54"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onDragEvent(@SuppressWarnings(&quot;MissingNullability&quot;) DragEvent event) {"
+        errorLine2="                                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
+            line="322"
+            column="72"/>
     </issue>
 
     <issue
@@ -13371,7 +12128,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="788"
+            line="790"
             column="12"/>
     </issue>
 
@@ -13382,7 +12139,7 @@
         errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="797"
+            line="799"
             column="28"/>
     </issue>
 
@@ -13393,7 +12150,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="895"
+            line="899"
             column="46"/>
     </issue>
 
@@ -13404,7 +12161,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="936"
+            line="940"
             column="33"/>
     </issue>
 
@@ -13415,7 +12172,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1169"
+            line="1173"
             column="22"/>
     </issue>
 
@@ -13426,7 +12183,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1234"
+            line="1238"
             column="27"/>
     </issue>
 
@@ -13437,7 +12194,7 @@
         errorLine2="              ~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1358"
+            line="1362"
             column="15"/>
     </issue>
 
@@ -13448,7 +12205,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1404"
+            line="1408"
             column="38"/>
     </issue>
 
@@ -13459,7 +12216,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1427"
+            line="1431"
             column="48"/>
     </issue>
 
@@ -13470,7 +12227,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1433"
+            line="1437"
             column="51"/>
     </issue>
 
@@ -13481,7 +12238,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1443"
+            line="1460"
             column="54"/>
     </issue>
 

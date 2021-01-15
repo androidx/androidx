@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="IllegalExperimentalApiUsage"
-        message="Experimental/OptIn APIs should only be used from within the same library or libraries within the same requireSameVersion group"
+        message="`Experimental`/`OptIn` APIs should only be used from within the same library or libraries within the same requireSameVersion group"
         errorLine1="public val NavController.currentBackStackEntryFlow: Flow&lt;NavBackStackEntry> get() = callbackFlow {"
         errorLine2="                                                                                    ~~~~~~~~~~~~">
         <location
@@ -14,7 +14,7 @@
 
     <issue
         id="IllegalExperimentalApiUsage"
-        message="Experimental/OptIn APIs should only be used from within the same library or libraries within the same requireSameVersion group"
+        message="`Experimental`/`OptIn` APIs should only be used from within the same library or libraries within the same requireSameVersion group"
         errorLine1="    awaitClose {"
         errorLine2="    ~~~~~~~~~~">
         <location

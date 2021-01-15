@@ -255,7 +255,7 @@ class UnsafeNewApiCallsDetector : Detector(), SourceCodeScanner {
                     val methods = target.findMethodsBySignature(method, true)
                     if (methods.size > 1) {
                         for (m in methods) {
-                            if (method != m) {
+                            if (!method.isEquivalentTo(m)) {
                                 val provider = m.containingClass
                                 if (provider != null) {
                                     val methodOwner = evaluator.getQualifiedName(provider)
