@@ -19,8 +19,6 @@ package androidx.car.app.model;
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
-import android.text.TextPaint;
-import android.text.style.CharacterStyle;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
@@ -54,7 +52,7 @@ import java.time.Duration;
  * string.setSpan(ForegroundCarColorSpan.create(CarColor.BLUE), 0, 1, SPAN_EXCLUSIVE_EXCLUSIVE);
  * }</pre>
  */
-public class DurationSpan extends CharacterStyle {
+public class DurationSpan extends CarSpan {
     @Keep
     private final long mDurationSeconds;
 
@@ -84,11 +82,6 @@ public class DurationSpan extends CharacterStyle {
     @SuppressLint("MethodNameUnits")
     public long getDurationSeconds() {
         return mDurationSeconds;
-    }
-
-    @Override
-    public void updateDrawState(@Nullable TextPaint paint) {
-        // Not relevant.
     }
 
     @Override

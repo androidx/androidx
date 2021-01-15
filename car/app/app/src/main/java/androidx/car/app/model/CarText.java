@@ -46,9 +46,10 @@ public class CarText {
     }
 
     /**
-     * Returns a {@link CarText} instance for the given {@link CharSequence}, by sanitizing the car
-     * sequence (dropping unsupported {@link Spanned} objects, and wrapping the remaining supported
-     * {@link Spanned} objects into data that can be sent across to the host in a bundle.
+     * Returns a {@link CarText} instance for the given {@link CharSequence}.
+     *
+     * <p>Only {@link CarSpan} type spans are allowed in a {@link CarText}, other spans will be
+     * removed from the provided {@link CharSequence}.
      */
     @NonNull
     public static CarText create(@NonNull CharSequence text) {
@@ -98,11 +99,8 @@ public class CarText {
             Spanned spanned = (Spanned) text;
 
             for (Object span : spanned.getSpans(0, text.length(), Object.class)) {
-                if (span instanceof ForegroundCarColorSpan
-                        || span instanceof CarIconSpan
-                        || span instanceof DurationSpan
-                        || span instanceof DistanceSpan) {
-                    mSpans.add(SpanWrapper.wrap(spanned, span));
+                if (span instanceof CarSpan) {
+                    mSpans.add(new SpanWrapper(spanned, (CarSpan) span));
                 }
             }
         }
@@ -129,32 +127,72 @@ public class CarText {
      * Wraps a span to send it to the host.
      */
     public static class SpanWrapper {
-        @Keep
+        /**
+         * @deprecated Removing in a follow up commit.
+         */
+        @Keep @Deprecated
         public final int start;
-        @Keep
+        /**
+         * @deprecated Removing in a follow up commit.
+         */
+        @Keep @Deprecated
         public final int end;
-        @Keep
+        /**
+         * @deprecated Removing in a follow up commit.
+         */
+        @Keep @Deprecated
         public final int flags;
-        @Keep
-        @Nullable
+        /**
+         * @deprecated Removing in a follow up commit.
+         */
+        @Keep @Deprecated
         public final Object span;
+        @Keep
+        private final int mStart;
+        @Keep
+        private final int mEnd;
+        @Keep
+        private final int mFlags;
+        @Keep @NonNull
+        private final CarSpan mCarSpan;
 
-        static SpanWrapper wrap(Spanned spanned, Object span) {
-            return new SpanWrapper(spanned, span);
-        }
-
-        SpanWrapper(Spanned spanned, Object span) {
-            this.start = spanned.getSpanStart(span);
-            this.end = spanned.getSpanEnd(span);
-            this.flags = spanned.getSpanFlags(span);
-            this.span = span;
+        SpanWrapper(@NonNull Spanned spanned, @NonNull CarSpan carSpan) {
+            mStart = spanned.getSpanStart(carSpan);
+            mEnd = spanned.getSpanEnd(carSpan);
+            mFlags = spanned.getSpanFlags(carSpan);
+            mCarSpan = carSpan;
+            this.start = mStart;
+            this.end = mEnd;
+            this.flags = mFlags;
+            this.span = mCarSpan;
         }
 
         SpanWrapper() {
-            start = 0;
-            end = 0;
-            flags = 0;
-            span = null;
+            mStart = 0;
+            mEnd = 0;
+            mFlags = 0;
+            mCarSpan = new CarSpan();
+            this.start = mStart;
+            this.end = mEnd;
+            this.flags = mFlags;
+            this.span = mCarSpan;
+        }
+
+        public int getStart() {
+            return mStart;
+        }
+
+        public int getEnd() {
+            return mEnd;
+        }
+
+        public int getFlags() {
+            return mFlags;
+        }
+
+        @NonNull
+        public CarSpan getCarSpan() {
+            return mCarSpan;
         }
 
         @Override
@@ -177,6 +215,7 @@ public class CarText {
             return Objects.hash(start, end, flags, span);
         }
 
+        @NonNull
         @Override
         public String toString() {
             return "[" + span + ": " + start + ", " + end + ", flags: " + flags + "]";

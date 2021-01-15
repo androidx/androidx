@@ -152,11 +152,10 @@ public final class ModelUtils {
         List<SpanWrapper> spans = carText.getSpans();
         for (int i = 0; i < spans.size(); i++) {
             SpanWrapper wrapper = spans.get(i);
-            Object spanObj = wrapper.span;
-            if (spanType.isInstance(spanObj)
-                    && wrapper.start >= 0
-                    && wrapper.start != wrapper.end
-                    && wrapper.start < text.length()) {
+            if (spanType.isInstance(wrapper.getCarSpan())
+                    && wrapper.getStart() >= 0
+                    && wrapper.getStart() != wrapper.getEnd()
+                    && wrapper.getStart() < text.length()) {
                 return true;
             }
         }

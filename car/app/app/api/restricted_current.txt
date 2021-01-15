@@ -255,15 +255,19 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarIcon.Builder setTint(androidx.car.app.model.CarColor?);
   }
 
-  public class CarIconSpan extends android.text.style.CharacterStyle {
+  public class CarIconSpan extends androidx.car.app.model.CarSpan {
     method public static androidx.car.app.model.CarIconSpan create(androidx.car.app.model.CarIcon);
     method public static androidx.car.app.model.CarIconSpan create(androidx.car.app.model.CarIcon, int);
     method public int getAlignment();
     method public androidx.car.app.model.CarIcon getIcon();
-    method public void updateDrawState(android.text.TextPaint?);
     field public static final int ALIGN_BASELINE = 1; // 0x1
     field public static final int ALIGN_BOTTOM = 0; // 0x0
     field public static final int ALIGN_CENTER = 2; // 0x2
+  }
+
+  @Keep public class CarSpan extends android.text.style.CharacterStyle {
+    ctor public CarSpan();
+    method public void updateDrawState(android.text.TextPaint);
   }
 
   public class CarText {
@@ -276,10 +280,14 @@ package androidx.car.app.model {
   }
 
   public static class CarText.SpanWrapper {
-    field @Keep public final int end;
-    field @Keep public final int flags;
-    field @Keep public final Object? span;
-    field @Keep public final int start;
+    method public androidx.car.app.model.CarSpan getCarSpan();
+    method public int getEnd();
+    method public int getFlags();
+    method public int getStart();
+    field @Deprecated @Keep public final int end;
+    field @Deprecated @Keep public final int flags;
+    field @Deprecated @Keep public final Object! span;
+    field @Deprecated @Keep public final int start;
   }
 
   public class DateTimeWithZone {
@@ -304,23 +312,20 @@ package androidx.car.app.model {
     field public static final int UNIT_YARDS = 7; // 0x7
   }
 
-  public class DistanceSpan extends android.text.style.CharacterStyle {
+  public class DistanceSpan extends androidx.car.app.model.CarSpan {
     method public static androidx.car.app.model.DistanceSpan create(androidx.car.app.model.Distance);
     method public androidx.car.app.model.Distance getDistance();
-    method public void updateDrawState(android.text.TextPaint?);
   }
 
-  public class DurationSpan extends android.text.style.CharacterStyle {
+  public class DurationSpan extends androidx.car.app.model.CarSpan {
     method public static androidx.car.app.model.DurationSpan create(long);
     method @RequiresApi(26) public static androidx.car.app.model.DurationSpan create(java.time.Duration);
     method public long getDurationSeconds();
-    method public void updateDrawState(android.text.TextPaint?);
   }
 
-  public class ForegroundCarColorSpan extends android.text.style.CharacterStyle {
+  public class ForegroundCarColorSpan extends androidx.car.app.model.CarSpan {
     method public static androidx.car.app.model.ForegroundCarColorSpan create(androidx.car.app.model.CarColor);
     method public androidx.car.app.model.CarColor getColor();
-    method public void updateDrawState(android.text.TextPaint);
   }
 
   public class GridItem implements androidx.car.app.model.Item {
