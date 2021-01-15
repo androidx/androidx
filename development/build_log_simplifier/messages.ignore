@@ -620,7 +620,7 @@ Type information in locals\-table is inconsistent\. Cannot constrain type: BOTTO
 Some warnings are typically a sign of using an outdated Java toolchain\. To fix, recompile the source with an updated toolchain\.
 Type information in locals\-table is inconsistent\. Cannot constrain type: BOTTOM \(empty\) for value: v[0-9]+ by constraint FLOAT\.
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.DragGestureDetectorKt\.awaitHorizontalTouchSlopOrCancellation\-qFc19kk\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, long, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.coroutines\.Continuation\)
-java\.lang\.Object androidx\.compose\.foundation\.gestures\.MultitouchGestureDetectorKt\$detectMultitouchGestures\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+java\.lang\.Object androidx\.compose\.foundation\.gestures\.TransformGestureDetectorKt\$detectTransformGestures\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
 Attempt to define local of type int as it\$iv:java\.lang\.Object
 Type information in locals\-table is inconsistent\. Cannot constrain type: INT for value: v379\(index\$iv\$iv\) by constraint FLOAT\.
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.TapGestureDetectorKt\.waitForUpOrCancellation\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, kotlin\.coroutines\.Continuation\)
