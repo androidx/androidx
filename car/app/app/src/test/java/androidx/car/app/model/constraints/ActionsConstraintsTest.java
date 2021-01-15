@@ -101,7 +101,7 @@ public class ActionsConstraintsTest {
                         .addAction(actionWithIcon)
                         .addAction(actionWithTitle)
                         .build()
-                        .getActions());
+                        .getActionList());
         // Positive case: empty list is okay when there are no required types
         new ActionsConstraints.Builder().setMaxActions(2).build().validateOrThrow(
                 Collections.emptyList());
@@ -111,13 +111,13 @@ public class ActionsConstraintsTest {
                 IllegalArgumentException.class,
                 () -> constraints.validateOrThrow(
                         new ActionStrip.Builder().addAction(
-                                Action.APP_ICON).build().getActions()));
+                                Action.APP_ICON).build().getActionList()));
 
         // Disallowed type
         assertThrows(
                 IllegalArgumentException.class,
                 () -> constraints.validateOrThrow(
-                        new ActionStrip.Builder().addAction(Action.BACK).build().getActions()));
+                        new ActionStrip.Builder().addAction(Action.BACK).build().getActionList()));
 
         // Over max allowed actions
         assertThrows(
@@ -128,7 +128,7 @@ public class ActionsConstraintsTest {
                                 .addAction(actionWithIcon)
                                 .addAction(actionWithTitle)
                                 .build()
-                                .getActions()));
+                                .getActionList()));
 
         // Over max allowed actions with title
         assertThrows(
@@ -138,6 +138,6 @@ public class ActionsConstraintsTest {
                                 .addAction(actionWithTitle)
                                 .addAction(actionWithTitle)
                                 .build()
-                                .getActions()));
+                                .getActionList()));
     }
 }

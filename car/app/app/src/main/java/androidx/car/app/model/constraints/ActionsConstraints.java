@@ -125,7 +125,7 @@ public class ActionsConstraints {
      * @throws IllegalArgumentException if the actions does not contain all required types.
      * @throws IllegalArgumentException if the actions contain any disallowed types.
      */
-    public void validateOrThrow(@NonNull List<Object> actions) {
+    public void validateOrThrow(@NonNull List<Action> actions) {
         int maxAllowedActions = mMaxActions;
         int maxAllowedCustomTitles = mMaxCustomTitles;
 
@@ -134,34 +134,27 @@ public class ActionsConstraints {
                         ? Collections.emptySet()
                         : new HashSet<>(this.mRequiredActionTypes);
 
-        for (Object object : actions) {
-            if (object instanceof Action) {
-                Action action = (Action) object;
+        for (Action action : actions) {
+            if (mDisallowedActionTypes.contains(action.getType())) {
+                throw new IllegalArgumentException(
+                        Action.typeToString(action.getType()) + " is disallowed");
+            }
 
-                if (mDisallowedActionTypes.contains(action.getType())) {
+            requiredTypes.remove(action.getType());
+
+            CarText title = action.getTitle();
+            if (title != null && !title.isEmpty()) {
+                if (--maxAllowedCustomTitles < 0) {
                     throw new IllegalArgumentException(
-                            Action.typeToString(action.getType()) + " is disallowed");
+                            "Action strip exceeded max number of "
+                                    + mMaxCustomTitles
+                                    + " actions with custom titles");
                 }
+            }
 
-                requiredTypes.remove(action.getType());
-
-                CarText title = action.getTitle();
-                if (title != null && !title.isEmpty()) {
-                    if (--maxAllowedCustomTitles < 0) {
-                        throw new IllegalArgumentException(
-                                "Action strip exceeded max number of "
-                                        + mMaxCustomTitles
-                                        + " actions with custom titles");
-                    }
-                }
-
-                if (--maxAllowedActions < 0) {
-                    throw new IllegalArgumentException(
-                            "Action strip exceeded max number of " + mMaxActions + " actions");
-                }
-
-            } else {
-                throw new IllegalArgumentException("Unsupported action: " + object);
+            if (--maxAllowedActions < 0) {
+                throw new IllegalArgumentException(
+                        "Action strip exceeded max number of " + mMaxActions + " actions");
             }
         }
 
