@@ -24,10 +24,14 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByUriRequest;
+import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByUriRequest;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.core.util.Preconditions;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Translates between Platform and Jetpack versions of requests.
@@ -50,6 +54,22 @@ public final class RequestToPlatformConverter {
                 new android.app.appsearch.SetSchemaRequest.Builder();
         for (AppSearchSchema jetpackSchema : jetpackRequest.getSchemas()) {
             platformBuilder.addSchema(SchemaToPlatformConverter.toPlatformSchema(jetpackSchema));
+        }
+        for (String schemaNotVisibleToSystemUi : jetpackRequest.getSchemasNotVisibleToSystemUi()) {
+            platformBuilder.setSchemaTypeVisibilityForSystemUi(
+                    schemaNotVisibleToSystemUi, /*visible=*/ false);
+        }
+        for (Map.Entry<String, Set<PackageIdentifier>> jetpackSchemaVisibleToPackage :
+                jetpackRequest.getSchemasVisibleToPackagesInternal().entrySet()) {
+            for (PackageIdentifier jetpackPackageIdentifier :
+                    jetpackSchemaVisibleToPackage.getValue()) {
+                platformBuilder.setSchemaTypeVisibilityForPackage(
+                        jetpackSchemaVisibleToPackage.getKey(),
+                        /*visible=*/ true,
+                        new android.app.appsearch.PackageIdentifier(
+                                jetpackPackageIdentifier.getPackageName(),
+                                jetpackPackageIdentifier.getSha256Certificate()));
+            }
         }
         platformBuilder.setForceOverride(jetpackRequest.isForceOverride());
         return platformBuilder.build();

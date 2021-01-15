@@ -47,6 +47,8 @@ public class SearchResultToPlatformConverter {
         GenericDocument document = GenericDocumentToPlatformConverter.toJetpackGenericDocument(
                 platformResult.getDocument());
         bundle.putBundle(SearchResult.DOCUMENT_FIELD, document.getBundle());
+        // TODO(b/169883602): Populate PACKAGE_NAME_FIELD once exposed in the sdk
+        // TODO(b/177278213): Populate DATABASE_NAME_FIELD once exposed in the sdk
 
         List<android.app.appsearch.SearchResult.MatchInfo> platformMatches =
                 platformResult.getMatches();
