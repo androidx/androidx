@@ -9,7 +9,6 @@ cd "$(dirname $0)"
 impl/build.sh --no-daemon listTaskOutputs -Pandroidx.validateNoUnrecognizedMessages "$@"
 impl/build.sh allProperties "$@" >/dev/null
 impl/build.sh --no-daemon buildOnServer -Pandroidx.validateNoUnrecognizedMessages checkExternalLicenses \
-    -PverifyUpToDate \
     -Pandroidx.enableAffectedModuleDetection \
     -Pandroidx.compose.multiplatformEnabled=true \
     --profile "$@"

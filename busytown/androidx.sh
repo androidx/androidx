@@ -13,7 +13,6 @@ for subset in $subsets; do
   ANDROIDX_PROJECTS=$subset impl/build.sh tasks >/dev/null
 done
 impl/build.sh --no-daemon buildOnServer -Pandroidx.validateNoUnrecognizedMessages checkExternalLicenses \
-    -PverifyUpToDate \
     -Pandroidx.enableAffectedModuleDetection \
     --profile --offline "$@"
 

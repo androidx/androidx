@@ -52,6 +52,7 @@ run $PROJECTS_ARG OUT_DIR=$OUT_DIR DIST_DIR=$DIST_DIR ANDROID_HOME=../../prebuil
     -Pandroidx.summarizeStderr \
     -Pandroidx.allWarningsAsErrors \
     -Pandroidx.coverageEnabled=true \
+    -PverifyUpToDate
     --no-watch-fs \
     "$@"
 
