@@ -54,3 +54,7 @@ internal fun KSDeclaration.findEnclosingAncestorClassDeclaration(): KSClassDecla
 internal fun KSDeclaration.isStatic(): Boolean {
     return modifiers.contains(Modifier.JAVA_STATIC) || hasJvmStaticAnnotation()
 }
+
+internal fun KSDeclaration.isTransient(): Boolean {
+    return modifiers.contains(Modifier.JAVA_TRANSIENT) || hasJvmTransientAnnotation()
+}
