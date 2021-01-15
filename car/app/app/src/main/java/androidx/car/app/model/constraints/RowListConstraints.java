@@ -23,7 +23,7 @@ import static androidx.car.app.model.constraints.RowConstraints.ROW_CONSTRAINTS_
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.model.ActionList;
+import androidx.car.app.model.Action;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Pane;
 import androidx.car.app.model.SectionedItemList;
@@ -157,8 +157,8 @@ public class RowListConstraints {
      * @throws IllegalArgumentException if the constraints are not met.
      */
     public void validateOrThrow(@NonNull Pane pane) {
-        ActionList actions = pane.getActions();
-        if (actions != null && actions.getList().size() > mMaxActions) {
+        List<Action> actions = pane.getActionList();
+        if (actions != null && actions.size() > mMaxActions) {
             throw new IllegalArgumentException(
                     "The number of actions on the pane exceeded the supported max of "
                             + mMaxActions);

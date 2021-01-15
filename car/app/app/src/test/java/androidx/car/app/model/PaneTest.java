@@ -70,14 +70,15 @@ public class PaneTest {
     }
 
     @Test
-    public void setActions() {
+    public void setActionList() {
         Action action1 = createAction(1);
         Action action2 = createAction(2);
         List<Action> actions = Arrays.asList(action1, action2);
         Pane pane =
-                new Pane.Builder().addRow(new Row.Builder().setTitle("Title").build()).setActions(
+                new Pane.Builder().addRow(
+                        new Row.Builder().setTitle("Title").build()).setActionList(
                         actions).build();
-        assertActions(pane.getActions(), actions);
+        assertThat(pane.getActionList()).containsExactlyElementsIn(actions);
     }
 
     @Test
@@ -85,7 +86,7 @@ public class PaneTest {
         Action action1 = createAction(1);
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new Pane.Builder().setActions(Arrays.asList(action1, null)).build());
+                () -> new Pane.Builder().setActionList(Arrays.asList(action1, null)).build());
     }
 
     @Test
@@ -93,7 +94,7 @@ public class PaneTest {
         Pane pane =
                 new Pane.Builder()
                         .setLoading(false)
-                        .setActions(ImmutableList.of(Action.APP_ICON, Action.BACK))
+                        .setActionList(ImmutableList.of(Action.APP_ICON, Action.BACK))
                         .addRow(new Row.Builder().setTitle("Title").build())
                         .build();
 
@@ -101,7 +102,7 @@ public class PaneTest {
                 .isEqualTo(
                         new Pane.Builder()
                                 .setLoading(false)
-                                .setActions(ImmutableList.of(Action.APP_ICON, Action.BACK))
+                                .setActionList(ImmutableList.of(Action.APP_ICON, Action.BACK))
                                 .addRow(new Row.Builder().setTitle("Title").build())
                                 .build());
     }
@@ -121,12 +122,12 @@ public class PaneTest {
         Pane pane =
                 new Pane.Builder()
                         .addRow(row)
-                        .setActions(ImmutableList.of(Action.APP_ICON, Action.BACK))
+                        .setActionList(ImmutableList.of(Action.APP_ICON, Action.BACK))
                         .build();
 
         assertThat(pane)
                 .isNotEqualTo(
-                        new Pane.Builder().addRow(row).setActions(
+                        new Pane.Builder().addRow(row).setActionList(
                                 ImmutableList.of(Action.APP_ICON)).build());
     }
 
@@ -151,10 +152,5 @@ public class PaneTest {
     private static Action createAction(int suffix) {
         return new Action.Builder().setTitle("Action " + suffix).setOnClickListener(() -> {
         }).build();
-    }
-
-    private static void assertActions(Object obj, List<Action> expectedActions) {
-        ActionList actionList = (ActionList) obj;
-        assertThat(actionList.getList()).containsExactlyElementsIn(expectedActions);
     }
 }

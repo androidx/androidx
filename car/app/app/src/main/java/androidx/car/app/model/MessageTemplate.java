@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.model.constraints.CarIconConstraints;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -58,8 +59,7 @@ public final class MessageTemplate implements Template {
     @Nullable
     private final Action mHeaderAction;
     @Keep
-    @Nullable
-    private final ActionList mActionList;
+    private final List<Action> mActionList;
 
     /** Constructs a new builder of {@link MessageTemplate}. */
     // TODO(b/175827428): remove once host is changed to use new public ctor.
@@ -93,8 +93,18 @@ public final class MessageTemplate implements Template {
         return mIcon;
     }
 
+    /**
+     * @deprecated use {@link #getActionList()} instead.
+     */
+    // TODO(jayyoo): remove once {@link #getActionList()} is used in the host.
+    @Deprecated
     @Nullable
     public ActionList getActions() {
+        return mActionList.isEmpty() ? null : ActionList.create(mActionList);
+    }
+
+    @NonNull
+    public List<Action> getActionList() {
         return mActionList;
     }
 
@@ -133,7 +143,7 @@ public final class MessageTemplate implements Template {
         mDebugMessage = builder.mDebugMessage;
         mIcon = builder.mIcon;
         mHeaderAction = builder.mHeaderAction;
-        mActionList = builder.mActionList;
+        mActionList = new ArrayList<>(builder.mActionList);
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -143,7 +153,7 @@ public final class MessageTemplate implements Template {
         mDebugMessage = null;
         mIcon = null;
         mHeaderAction = null;
-        mActionList = null;
+        mActionList = Collections.emptyList();
     }
 
     /** A builder of {@link MessageTemplate}. */
@@ -157,8 +167,7 @@ public final class MessageTemplate implements Template {
         CarIcon mIcon;
         @Nullable
         Action mHeaderAction;
-        @Nullable
-        ActionList mActionList;
+        List<Action> mActionList = new ArrayList<>();
         @Nullable
         Throwable mDebugCause;
         @Nullable
@@ -272,10 +281,32 @@ public final class MessageTemplate implements Template {
          * <p>Any actions above the maximum limit of 2 will be ignored.
          *
          * @throws NullPointerException if {@code actions} is {@code null}.
+         * @deprecated use {@link #setActionList(List)} instead.
          */
+        // TODO(jayyoo): remove once {@link #setActionList(List)} is used in the host.
+        @Deprecated
         @NonNull
         public Builder setActions(@NonNull List<Action> actions) {
-            mActionList = ActionList.create(requireNonNull(actions));
+            return setActionList(actions);
+        }
+
+        /**
+         * Sets a list of {@link Action}s to display along with the message.
+         *
+         * <p>Any actions above the maximum limit of 2 will be ignored.
+         *
+         * @throws NullPointerException if {@code actions} is {@code null}.
+         */
+        @NonNull
+        public Builder setActionList(@NonNull List<Action> actions) {
+            requireNonNull(actions);
+            for (Action action : actions) {
+                if (action == null) {
+                    throw new IllegalArgumentException(
+                            "Disallowed null action found in action list");
+                }
+                mActionList.add(action);
+            }
             return this;
         }
 
