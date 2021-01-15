@@ -7,8 +7,8 @@ cd "$(dirname $0)"
 
 # Run Gradle
 impl/build.sh listTaskOutputs -Pandroidx.validateNoUnrecognizedMessages "$@"
-impl/build.sh allProperties "$@" >/dev/null
-impl/build.sh buildOnServer -Pandroidx.validateNoUnrecognizedMessages checkExternalLicenses \
+impl/build.sh allProperties -Pandroidx.validateNoUnrecognizedMessages=false "$@" >/dev/null
+impl/build.sh buildOnServer checkExternalLicenses \
     -Pandroidx.compose.multiplatformEnabled=true \
     --profile "$@"
 

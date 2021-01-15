@@ -42,6 +42,9 @@ validateArgument="-Pandroidx.validateNoUnrecognizedMessages"
 if [[ " ${@} " =~ " $validateArgument " ]]; then
   validateNoUnrecognizedMessagesOnSuccess=true
 fi
+if [[ " ${@} " =~ " ${validateArgument}=false " ]]; then
+  validateNoUnrecognizedMessagesOnSuccess=false
+fi
 
 # run Gradle and save stdout and stderr into $logFile
 SCRIPT_PATH="$(cd $(dirname $0) && pwd)"
