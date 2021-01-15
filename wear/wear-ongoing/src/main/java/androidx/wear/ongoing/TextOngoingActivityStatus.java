@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.ongoingactivity;
+package androidx.wear.ongoing;
 
 import android.content.Context;
 
