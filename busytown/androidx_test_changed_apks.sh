@@ -6,7 +6,6 @@ echo "Starting $0 at $(date)"
 cd "$(dirname $0)"
 
 impl/build.sh buildTestApks \
-    -Pandroidx.enableAffectedModuleDetection \
     -Pandroidx.changedProjects \
     -Pandroidx.validateNoUnrecognizedMessages \
     --offline "$@"
