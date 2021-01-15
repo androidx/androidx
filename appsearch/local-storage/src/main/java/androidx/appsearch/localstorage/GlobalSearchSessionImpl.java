@@ -35,6 +35,7 @@ import java.util.concurrent.ExecutorService;
 class GlobalSearchSessionImpl implements GlobalSearchSession {
     private final AppSearchImpl mAppSearchImpl;
     private final ExecutorService mExecutorService;
+    private boolean mIsClosed = false;
 
     GlobalSearchSessionImpl(
             @NonNull AppSearchImpl appSearchImpl,
@@ -49,6 +50,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
             @NonNull String queryExpression, @NonNull SearchSpec searchSpec) {
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
+        Preconditions.checkState(!mIsClosed, "GlobalSearchSession has already been closed");
         return new SearchResultsImpl(
                 mAppSearchImpl,
                 mExecutorService,
@@ -56,5 +58,10 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
                 /*databaseName=*/ null,
                 queryExpression,
                 searchSpec);
+    }
+
+    @Override
+    public void close() {
+        mIsClosed = true;
     }
 }

@@ -18,12 +18,14 @@ package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
 
+import java.io.Closeable;
+
 /**
  * This class provides global access to the centralized AppSearch index maintained by the system.
  *
  * <p>Apps can retrieve indexed documents through the query API.
  */
-public interface GlobalSearchSession {
+public interface GlobalSearchSession extends Closeable {
     /**
      * Searches across all documents in the storage based on a given query string.
      *
@@ -68,4 +70,8 @@ public interface GlobalSearchSession {
      */
     @NonNull
     SearchResults query(@NonNull String queryExpression, @NonNull SearchSpec searchSpec);
+
+    /** Closes the {@link GlobalSearchSession}. */
+    @Override
+    void close();
 }
