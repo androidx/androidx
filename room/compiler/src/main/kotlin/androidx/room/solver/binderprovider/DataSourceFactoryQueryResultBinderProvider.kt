@@ -39,7 +39,7 @@ class DataSourceFactoryQueryResultBinderProvider(val context: Context) : QueryRe
         }
         val typeArg = declared.typeArguments[1]
         val adapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
-            ListQueryResultAdapter(it)
+            ListQueryResultAdapter(typeArg, it)
         }
 
         val tableNames = (
