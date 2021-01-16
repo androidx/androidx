@@ -24,6 +24,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.os.CancellationSignal;
+import androidx.core.view.ViewCompat;
 import androidx.fragment.R;
 
 import java.util.ArrayList;
@@ -257,6 +258,13 @@ abstract class SpecialEffectsController {
             // No operations should execute while the container is postponed
             return;
         }
+        // If the container is not attached to the window, ignore the special effect
+        // since none of the special effect systems will run them anyway.
+        if (!ViewCompat.isAttachedToWindow(mContainer)) {
+            forceCompleteAllOperations();
+            mOperationDirectionIsPop = false;
+            return;
+        }
         synchronized (mPendingOperations) {
             if (!mPendingOperations.isEmpty()) {
                 ArrayList<Operation> currentlyRunningOperations =
@@ -290,6 +298,7 @@ abstract class SpecialEffectsController {
     }
 
     void forceCompleteAllOperations() {
+        boolean attachedToWindow = ViewCompat.isAttachedToWindow(mContainer);
         synchronized (mPendingOperations) {
             updateFinalState();
             for (Operation operation : mPendingOperations) {
@@ -301,8 +310,9 @@ abstract class SpecialEffectsController {
             for (Operation operation : runningOperations) {
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(FragmentManager.TAG,
-                            "SpecialEffectsController: Cancelling running operation "
-                                    + operation);
+                            "SpecialEffectsController: " + (attachedToWindow ? "" :
+                                    "Container " + mContainer + " is not attached to window. ")
+                                    + "Cancelling running operation " + operation);
                 }
                 operation.cancel();
             }
@@ -312,8 +322,9 @@ abstract class SpecialEffectsController {
             for (Operation operation : pendingOperations) {
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(FragmentManager.TAG,
-                            "SpecialEffectsController: Cancelling pending operation "
-                                    + operation);
+                            "SpecialEffectsController: " + (attachedToWindow ? "" :
+                                    "Container " + mContainer + " is not attached to window. ")
+                                    + "Cancelling pending operation " + operation);
                 }
                 operation.cancel();
             }
