@@ -124,10 +124,12 @@ fun packageInspector(libraryProject: Project, inspectorProject: Project) {
     inspectorProject.project.plugins.withType(InspectionPlugin::class.java) { inspectionPlugin ->
         val libExtension = libraryProject.extensions.getByType(LibraryExtension::class.java)
         libExtension.libraryVariants.all { variant ->
-            variant.packageLibraryProvider.configure { zip ->
-                val outputFile = inspectionPlugin.dexTask.get().outputFile
-                zip.from(outputFile)
-                zip.rename(outputFile.asFile.get().name, "inspector.jar")
+            inspectorProject.afterEvaluate {
+                variant.packageLibraryProvider.configure { zip ->
+                    val outputFile = inspectionPlugin.dexTask.get().outputFile
+                    zip.from(outputFile)
+                    zip.rename(outputFile.asFile.get().name, "inspector.jar")
+                }
             }
         }
     }
