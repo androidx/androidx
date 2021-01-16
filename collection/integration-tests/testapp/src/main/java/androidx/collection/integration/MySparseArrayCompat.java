@@ -16,10 +16,14 @@
 
 package androidx.collection.integration;
 
-import androidx.collection.SimpleArrayMap;
+import androidx.collection.SparseArrayCompat;
 
-/** Integration (actually build) test that SimpleArrayMap can be subclassed. */
-class MySimpleArrayMap<K, V> extends SimpleArrayMap<K, V> {
+/**
+ * Integration (actually build) test that SparseArrayCompat can be subclassed.
+ *
+ * @param <E> element type
+ */
+public class MySparseArrayCompat<E> extends SparseArrayCompat<E> {
     @Override
     public boolean isEmpty() {
         return super.isEmpty();
