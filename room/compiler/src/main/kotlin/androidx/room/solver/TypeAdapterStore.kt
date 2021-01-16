@@ -427,21 +427,37 @@ class TypeAdapterStore private constructor(
                 // Handle Guava Optional by unpacking its generic type argument and adapting that.
                 // The Optional adapter will reappend the Optional type.
                 val typeArg = typeMirror.typeArguments.first()
-                val rowAdapter = findRowAdapter(typeArg, query) ?: return null
-                return GuavaOptionalQueryResultAdapter(SingleEntityQueryResultAdapter(rowAdapter))
+                // use nullable when finding row adapter as non-null adapters might return
+                // default values
+                val rowAdapter = findRowAdapter(typeArg.makeNullable(), query) ?: return null
+                return GuavaOptionalQueryResultAdapter(
+                    typeArg = typeArg,
+                    resultAdapter = SingleEntityQueryResultAdapter(rowAdapter)
+                )
             } else if (typeMirror.rawType.typeName == CommonTypeNames.OPTIONAL) {
                 // Handle java.util.Optional similarly.
                 val typeArg = typeMirror.typeArguments.first()
-                val rowAdapter = findRowAdapter(typeArg, query) ?: return null
-                return OptionalQueryResultAdapter(SingleEntityQueryResultAdapter(rowAdapter))
+                // use nullable when finding row adapter as non-null adapters might return
+                // default values
+                val rowAdapter = findRowAdapter(typeArg.makeNullable(), query) ?: return null
+                return OptionalQueryResultAdapter(
+                    typeArg = typeArg,
+                    resultAdapter = SingleEntityQueryResultAdapter(rowAdapter)
+                )
             } else if (typeMirror.isTypeOf(ImmutableList::class)) {
                 val typeArg = typeMirror.typeArguments.first().extendsBoundOrSelf()
                 val rowAdapter = findRowAdapter(typeArg, query) ?: return null
-                return ImmutableListQueryResultAdapter(rowAdapter)
+                return ImmutableListQueryResultAdapter(
+                    typeArg = typeArg,
+                    rowAdapter = rowAdapter
+                )
             } else if (typeMirror.isTypeOf(java.util.List::class)) {
                 val typeArg = typeMirror.typeArguments.first().extendsBoundOrSelf()
                 val rowAdapter = findRowAdapter(typeArg, query) ?: return null
-                return ListQueryResultAdapter(rowAdapter)
+                return ListQueryResultAdapter(
+                    typeArg = typeArg,
+                    rowAdapter = rowAdapter
+                )
             }
             return null
         }

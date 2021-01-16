@@ -40,7 +40,7 @@ class PagingSourceQueryResultBinderProvider(val context: Context) : QueryResultB
         }
         val typeArg = declared.typeArguments.last()
         val listAdapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
-            ListQueryResultAdapter(it)
+            ListQueryResultAdapter(typeArg, it)
         }
         val tableNames = (
             (listAdapter?.accessedTableNames() ?: emptyList()) +
