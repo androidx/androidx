@@ -30,6 +30,7 @@ import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.app.test.TestViewModel
 import androidx.fragment.test.R
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.test.annotation.UiThreadTest
@@ -1364,6 +1365,51 @@ class FragmentLifecycleTest {
 
         assertThat(createdViewModel.cleared)
             .isTrue()
+    }
+
+    @Test
+    @UiThreadTest
+    fun testReplaceChildFragmentInViewCreated() {
+        val viewModelStore = ViewModelStore()
+        val fc = FragmentController.createController(
+            ControllerHostCallbacks(activityRule.activity, viewModelStore)
+        )
+        fc.attachHost(null)
+        fc.dispatchCreate()
+
+        val fm = fc.supportFragmentManager
+
+        val fragment = AddChildInOnCreateParentFragment()
+        fm.beginTransaction()
+            .add(android.R.id.content, fragment)
+            .commitNow()
+
+        fc.dispatchActivityCreated()
+        fc.shutdown(viewModelStore, true)
+    }
+
+    class AddChildInOnCreateParentFragment : StrictViewFragment(R.layout.simple_container) {
+        lateinit var replaceInViewCreateFragment: ReplaceInViewCreatedParentFragment
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            replaceInViewCreateFragment = ReplaceInViewCreatedParentFragment()
+            childFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, replaceInViewCreateFragment)
+                .commit()
+        }
+    }
+
+    class ReplaceInViewCreatedParentFragment : StrictViewFragment(R.layout.fragment_a) {
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+            viewLifecycleOwner.lifecycle.addObserver(
+                LifecycleEventObserver { _, _ -> }
+            )
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, StrictViewFragment())
+                .commit()
+        }
     }
 
     private fun executePendingTransactions(fm: FragmentManager) {
