@@ -557,6 +557,60 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testQuery_relevanceScoring() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder()
+                        .addSchema(AppSearchEmail.SCHEMA)
+                        .build()).get();
+
+        // Index two documents
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("Mary had a little lamb")
+                        .setBody("A little lamb, little lamb")
+                        .build();
+        AppSearchEmail email2 =
+                new AppSearchEmail.Builder("uri2")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("I'm a little teapot")
+                        .setBody("short and stout. Here is my handle, here is my spout.")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocument(email1, email2).build()));
+
+        // Query for "little". It should match both emails.
+        SearchResults searchResults = mDb1.query("little", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+
+        // The email1 should be ranked higher because 'little' appears three times in email1 and
+        // only once in email2.
+        assertThat(documents).containsExactly(email1, email2).inOrder();
+
+        // Query for "little OR stout". It should match both emails.
+        searchResults = mDb1.query("little OR stout", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
+                .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+
+        // The email2 should be ranked higher because 'little' appears once and "stout", which is a
+        // rarer term, appears once. email1 only has the three 'little' appearances.
+        assertThat(documents).containsExactly(email2, email1).inOrder();
+    }
+
+    @Test
     public void testQuery_typeFilter() throws Exception {
         // Schema registration
         AppSearchSchema genericSchema = new AppSearchSchema.Builder("Generic")
