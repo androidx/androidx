@@ -48,6 +48,9 @@ public interface AppSearchMigrationHelper {
         /**
          * Translates a {@link GenericDocument} from a version to a different version.
          *
+         * <p>If the uri, schema type or namespace is changed via the transform, it will apply to
+         * the new {@link GenericDocument}.
+         *
          * @param currentVersion The current version of the document's schema.
          * @param finalVersion   The final version that documents need to be migrated to.
          * @param document       The {@link GenericDocument} need to be translated to new version.

@@ -32,6 +32,7 @@ import androidx.appsearch.app.ReportUsageRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
+import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.platformstorage.converter.AppSearchResultToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.GenericDocumentToPlatformConverter;
@@ -67,15 +68,17 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<Void> setSchema(@NonNull SetSchemaRequest request) {
+    // TODO(b/13362554) change to call platformSession.setSchema when it's ready.
+    public ListenableFuture<SetSchemaResponse> setSchema(@NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
         ResolvableFuture<Void> future = ResolvableFuture.create();
+        ResolvableFuture<SetSchemaResponse> fakeFuture = ResolvableFuture.create();
         mPlatformSession.setSchema(
                 RequestToPlatformConverter.toPlatformSetSchemaRequest(request),
                 mExecutorService,
                 result -> AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
                         result, future));
-        return future;
+        return fakeFuture;
     }
 
     @Override

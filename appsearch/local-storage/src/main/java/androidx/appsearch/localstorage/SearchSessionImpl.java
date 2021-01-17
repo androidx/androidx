@@ -36,6 +36,7 @@ import androidx.appsearch.app.ReportUsageRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
+import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.SetSchemaResult;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.util.FutureUtil;
@@ -86,7 +87,8 @@ class SearchSessionImpl implements AppSearchSession {
     @Override
     @NonNull
     // TODO(b/151178558) return the batch result for migration documents.
-    public ListenableFuture<Void> setSchema(@NonNull SetSchemaRequest request) {
+    public ListenableFuture<SetSchemaResponse> setSchema(
+            @NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
         return execute(() -> {
@@ -100,12 +102,11 @@ class SearchSessionImpl implements AppSearchSession {
                         new ArrayList<>(entry.getValue()));
             }
 
-            Map<String, AppSearchSchema.Migrator> migratorMap = request.getMigrator();
+            Map<String, AppSearchSchema.Migrator> migratorMap = request.getMigrators();
 
             // No need to trigger migration if user never set migrator
             if (migratorMap.size() == 0) {
-                setSchemaNoMigrations(request, copySchemasPackageAccessible);
-                return null;
+                return setSchemaNoMigrations(request, copySchemasPackageAccessible);
             }
 
             // Migration process
@@ -151,16 +152,20 @@ class SearchSessionImpl implements AppSearchSession {
                     new AppSearchMigrationHelperImpl(mAppSearchImpl, currentVersionMap,
                      finalVersionMap, mPackageName, mDatabaseName);
 
+            SetSchemaResponse.Builder responseBuilder = new SetSchemaResponse.Builder();
+
             // 4. Trigger migration for all migrators.
             for (Map.Entry<String, AppSearchSchema.Migrator> entry : migratorMap.entrySet()) {
-                triggerMigration(entry.getKey(), entry.getValue(), currentVersionMap,
-                        finalVersionMap, migrationHelper);
+                if (triggerMigration(/*schemaType=*/entry.getKey(), /*Migrator=*/entry.getValue(),
+                        currentVersionMap, finalVersionMap, migrationHelper)) {
+                    responseBuilder.addMigratedType(/*schemaType=*/entry.getKey());
+                }
             }
 
             // 5. SetSchema a second time with forceOverride=true if the first attempted failed.
             if (setSchemaResult.getResultCode() != RESULT_OK) {
                 // only trigger second setSchema() call if the first one is fail.
-                mAppSearchImpl.setSchema(
+                setSchemaResult = mAppSearchImpl.setSchema(
                         mPackageName,
                         mDatabaseName,
                         new ArrayList<>(request.getSchemas()),
@@ -168,11 +173,12 @@ class SearchSessionImpl implements AppSearchSession {
                         copySchemasPackageAccessible,
                         /*forceOverride=*/ true);
             }
+            responseBuilder.addDeletedType(setSchemaResult.getDeletedSchemaTypes());
+            responseBuilder.addIncompatibleType(setSchemaResult.getIncompatibleSchemaTypes());
             mIsMutated = true;
 
             // 6. Put all the migrated documents into the index, now that the new schema is set.
-            migrationHelper.readAndPutDocuments();
-            return null;
+            return migrationHelper.readAndPutDocuments(responseBuilder);
         });
     }
 
@@ -341,7 +347,7 @@ class SearchSessionImpl implements AppSearchSession {
      * <p>We only need one time {@link #setSchema} call for no-migration scenario by using the
      * forceoverride in the request.
      */
-    private void setSchemaNoMigrations(SetSchemaRequest request,
+    private SetSchemaResponse setSchemaNoMigrations(SetSchemaRequest request,
             Map<String, List<PackageIdentifier>> copySchemasPackageAccessible)
             throws AppSearchException {
         SetSchemaResult setSchemaResult = mAppSearchImpl.setSchema(
@@ -357,6 +363,7 @@ class SearchSessionImpl implements AppSearchSession {
                     setSchemaResult.getIncompatibleSchemaTypes());
         }
         mIsMutated = true;
+        return new SetSchemaResponse.Builder().build();
     }
 
     /**
@@ -384,8 +391,12 @@ class SearchSessionImpl implements AppSearchSession {
         return Collections.unmodifiableList(unmigratedSchemaTypes);
     }
 
-    /** Triggers upgrade or downgrade migration for given schema type.     */
-    private void triggerMigration(String schemaType, AppSearchSchema.Migrator migrator,
+    /**
+     * Triggers upgrade or downgrade migration for the given schema type if its version stored in
+     * AppSearch is different with the version in the request.
+     * @return ture if the migration has been triggered.
+     */
+    private boolean triggerMigration(String schemaType, AppSearchSchema.Migrator migrator,
             Map<String, Integer> currentVersionMap, Map<String, Integer> finalVersionMap,
             AppSearchMigrationHelperImpl migrationHelper)
             throws Exception {
@@ -394,7 +405,7 @@ class SearchSessionImpl implements AppSearchSession {
             Integer finalVersion = finalVersionMap.get(schemaType);
             if (currentVersion == null) {
                 Log.d(TAG, "The SchemaType: " + schemaType + " not present in AppSearch.");
-                return;
+                return false;
             }
             if (finalVersion == null) {
                 throw new AppSearchException(AppSearchResult.RESULT_INVALID_ARGUMENT,
@@ -405,7 +416,10 @@ class SearchSessionImpl implements AppSearchSession {
                 migrator.onUpgrade(currentVersion, finalVersion, migrationHelper);
             } else if (currentVersion > finalVersion) {
                 migrator.onDowngrade(currentVersion, finalVersion, migrationHelper);
+            } else {
+                return false;
             }
+            return true;
         } catch (Exception e) {
             migrationHelper.deleteTempFile();
             throw e;

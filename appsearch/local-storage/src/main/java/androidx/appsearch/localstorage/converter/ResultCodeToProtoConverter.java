@@ -19,13 +19,16 @@ package androidx.appsearch.localstorage.converter;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchResult;
 
 import com.google.android.icing.proto.StatusProto;
 
 /**
  * Translates an {@link StatusProto.Code} into a {@link AppSearchResult.ResultCode}
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ResultCodeToProtoConverter {
 
     private static final String TAG = "AppSearchResultCodeToPr";

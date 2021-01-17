@@ -16,14 +16,18 @@
 
 package androidx.appsearch.localstorage;
 
+import static androidx.appsearch.app.AppSearchResult.throwableToFailedResult;
+
 import android.os.Bundle;
 import android.os.Parcel;
 
 import androidx.annotation.NonNull;
+import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchMigrationHelper;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.core.util.Preconditions;
 
@@ -42,7 +46,6 @@ import java.util.Map;
  * post-migrated documents to locally in the app's storage space.
  */
 class AppSearchMigrationHelperImpl implements AppSearchMigrationHelper {
-
     private final AppSearchImpl mAppSearchImpl;
     private final String mPackageName;
     private final String mDatabaseName;
@@ -60,13 +63,14 @@ class AppSearchMigrationHelperImpl implements AppSearchMigrationHelper {
         mFinalVersionMap = Preconditions.checkNotNull(finalVersionMap);
         mPackageName = Preconditions.checkNotNull(packageName);
         mDatabaseName = Preconditions.checkNotNull(databaseName);
-        mFile = File.createTempFile("appsearch", null);
+        mFile = File.createTempFile(/*prefix=*/"appsearch", /*suffix=*/null);
     }
 
     @Override
     public void queryAndTransform(@NonNull String schemaType,
             @NonNull AppSearchMigrationHelper.Transformer migrator)
             throws Exception {
+        Preconditions.checkState(mFile.exists(), "Internal temp file does not exist.");
         int currentVersion = mCurrentVersionMap.get(schemaType);
         int finalVersion = mFinalVersionMap.get(schemaType);
         try (FileOutputStream outputStream = new FileOutputStream(mFile)) {
@@ -92,20 +96,35 @@ class AppSearchMigrationHelperImpl implements AppSearchMigrationHelper {
                 }
                 codedOutputStream.flush();
                 searchResultPage = mAppSearchImpl.getNextPage(searchResultPage.getNextPageToken());
+                outputStream.flush();
             }
         }
     }
 
-    /**  Reads {@link GenericDocument} from the temperate file and saves them to AppSearch.  */
-    // TODO(b/151178558) return the put result back to client
-    void readAndPutDocuments() throws IOException, AppSearchException {
+    /**
+     * Reads {@link GenericDocument} from the temperate file and saves them to AppSearch.
+     *
+     * <p> This method should be only called once.
+     *
+     * @return  the {@link AppSearchBatchResult} for migration documents.
+     */
+    @NonNull
+    public SetSchemaResponse readAndPutDocuments(SetSchemaResponse.Builder responseBuilder)
+            throws IOException, AppSearchException {
+        Preconditions.checkState(mFile.exists(), "Internal temp file does not exist.");
         try (InputStream inputStream = new FileInputStream(mFile)) {
             CodedInputStream codedInputStream = CodedInputStream.newInstance(inputStream);
             while (!codedInputStream.isAtEnd()) {
                 GenericDocument document = readDocumentFromInputStream(codedInputStream);
-                mAppSearchImpl.putDocument(mPackageName, mDatabaseName, document);
+                try {
+                    mAppSearchImpl.putDocument(mPackageName, mDatabaseName, document);
+                } catch (Throwable t) {
+                    responseBuilder.setFailure(document.getSchemaType(), document.getNamespace(),
+                            document.getUri(), throwableToFailedResult(t));
+                }
             }
             mAppSearchImpl.persistToDisk();
+            return responseBuilder.build();
         } finally {
             mFile.delete();
         }

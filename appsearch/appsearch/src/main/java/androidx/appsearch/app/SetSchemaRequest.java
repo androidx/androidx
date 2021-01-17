@@ -93,7 +93,7 @@ public final class SetSchemaRequest {
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public Map<String, AppSearchSchema.Migrator> getMigrator() {
+    public Map<String, AppSearchSchema.Migrator> getMigrators() {
         return Collections.unmodifiableMap(mMigrators);
     }
 
