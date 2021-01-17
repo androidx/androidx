@@ -18,6 +18,8 @@ package androidx.appsearch.localstorage;
 
 import static androidx.appsearch.app.AppSearchResult.throwableToFailedResult;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchSchema;
@@ -54,6 +56,7 @@ import java.util.concurrent.ExecutorService;
 class SearchSessionImpl implements AppSearchSession {
     private final AppSearchImpl mAppSearchImpl;
     private final ExecutorService mExecutorService;
+    private final Context mContext;
     private final String mPackageName;
     private final String mDatabaseName;
     private boolean mIsMutated = false;
@@ -62,10 +65,12 @@ class SearchSessionImpl implements AppSearchSession {
     SearchSessionImpl(
             @NonNull AppSearchImpl appSearchImpl,
             @NonNull ExecutorService executorService,
+            @NonNull Context context,
             @NonNull String packageName,
             @NonNull String databaseName) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
         mExecutorService = Preconditions.checkNotNull(executorService);
+        mContext = Preconditions.checkNotNull(context);
         mPackageName = packageName;
         mDatabaseName = Preconditions.checkNotNull(databaseName);
     }
@@ -166,6 +171,7 @@ class SearchSessionImpl implements AppSearchSession {
         return new SearchResultsImpl(
                 mAppSearchImpl,
                 mExecutorService,
+                mContext,
                 mPackageName,
                 mDatabaseName,
                 queryExpression,

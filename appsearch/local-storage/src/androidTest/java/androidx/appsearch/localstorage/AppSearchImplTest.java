@@ -20,6 +20,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.pm.PackageManager;
+
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.PackageIdentifier;
@@ -28,6 +32,7 @@ import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.converter.GenericDocumentToProtoConverter;
+import androidx.test.core.app.ApplicationProvider;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.GetOptimizeInfoResultProto;
@@ -55,11 +60,26 @@ import java.util.List;
 public class AppSearchImplTest {
     @Rule
     public TemporaryFolder mTemporaryFolder = new TemporaryFolder();
+    private MockPackageManager mMockPackageManager = new MockPackageManager();
+    private Context mContext;
     private AppSearchImpl mAppSearchImpl;
+    private int mGlobalQuerierUid;
 
     @Before
     public void setUp() throws Exception {
-        mAppSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder());
+        Context context = ApplicationProvider.getApplicationContext();
+        mContext = new ContextWrapper(context) {
+            @Override
+            public PackageManager getPackageManager() {
+                return mMockPackageManager.getMockPackageManager();
+            }
+        };
+
+        // Give ourselves global query permissions
+        mAppSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder(),
+                mContext, /*globalQuerierPackage=*/ mContext.getPackageName());
+        mGlobalQuerierUid = mContext.getPackageManager().getPackageUid(
+                mContext.getPackageName(), /*flags=*/ 0);
     }
 
     //TODO(b/175430168) add test to verify reset is working properly.
@@ -373,7 +393,8 @@ public class AppSearchImplTest {
 
         // Rewrite SearchSpec
         mAppSearchImpl.rewriteSearchSpecForPrefixesLocked(searchSpecProto,
-                Collections.singleton(AppSearchImpl.createPrefix("package", "database")));
+                Collections.singleton(AppSearchImpl.createPrefix("package", "database")),
+                ImmutableSet.of("package$database/type"));
         assertThat(searchSpecProto.getSchemaTypeFiltersList()).containsExactly(
                 "package$database/type");
         assertThat(searchSpecProto.getNamespaceFiltersList()).containsExactly(
@@ -408,12 +429,38 @@ public class AppSearchImplTest {
         // Rewrite SearchSpec
         mAppSearchImpl.rewriteSearchSpecForPrefixesLocked(searchSpecProto,
                 ImmutableSet.of(AppSearchImpl.createPrefix("package", "database1"),
-                        AppSearchImpl.createPrefix("package", "database2")));
+                        AppSearchImpl.createPrefix("package", "database2")), ImmutableSet.of(
+                        "package$database1/typeA", "package$database1/typeB",
+                        "package$database2/typeA", "package$database2/typeB"));
         assertThat(searchSpecProto.getSchemaTypeFiltersList()).containsExactly(
                 "package$database1/typeA", "package$database1/typeB", "package$database2/typeA",
                 "package$database2/typeB");
         assertThat(searchSpecProto.getNamespaceFiltersList()).containsExactly(
                 "package$database1/namespace", "package$database2/namespace");
+    }
+
+    @Test
+    public void testRewriteSearchSpec_ignoresSearchSpecSchemaFilters() throws Exception {
+        SearchSpecProto.Builder searchSpecProto =
+                SearchSpecProto.newBuilder().setQuery("").addSchemaTypeFilters("type");
+
+        // Insert schema
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
+        mAppSearchImpl.setSchema("package", "database", schemas, /*schemasNotPlatformSurfaceable=*/
+                Collections.emptyList(), /*schemasPackageAccessible=*/
+                Collections.emptyMap(), /*forceOverride=*/ false);
+
+        // Insert document
+        GenericDocument document = new GenericDocument.Builder<>("uri", "type").setNamespace(
+                "namespace").build();
+        mAppSearchImpl.putDocument("package", "database", document);
+
+        // If 'allowedPrefixedSchemas' is empty, this returns false since there's nothing to
+        // search over. Despite the searchSpecProto having schema type filters.
+        assertThat(mAppSearchImpl.rewriteSearchSpecForPrefixesLocked(searchSpecProto,
+                Collections.singleton(AppSearchImpl.createPrefix("package", "database")),
+                /*allowedPrefixedSchemas=*/ Collections.emptySet())).isFalse();
     }
 
     @Test
@@ -500,9 +547,9 @@ public class AppSearchImplTest {
         // "package1" filter specified, but package2 shouldn't be able to query for package1's
         // documents.
         SearchSpec searchSpec = new SearchSpec.Builder()
-                        .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
-                        .addFilterPackageNames("package1")
-                        .build();
+                .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
+                .addFilterPackageNames("package1")
+                .build();
         SearchResultPage searchResultPage = mAppSearchImpl.query("package2", "database2", "",
                 searchSpec);
         assertThat(searchResultPage.getResults()).isEmpty();
@@ -526,7 +573,8 @@ public class AppSearchImplTest {
     public void testGlobalQueryEmptyDatabase() throws Exception {
         SearchSpec searchSpec =
                 new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
-        SearchResultPage searchResultPage = mAppSearchImpl.globalQuery("", searchSpec);
+        SearchResultPage searchResultPage = mAppSearchImpl.globalQuery("", searchSpec,
+                mContext.getPackageName(), /*callerUid=*/ 0);
         assertThat(searchResultPage.getResults()).isEmpty();
     }
 
@@ -565,7 +613,8 @@ public class AppSearchImplTest {
         // No query filters specified, global query can retrieve all documents.
         SearchSpec searchSpec =
                 new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
-        SearchResultPage searchResultPage = mAppSearchImpl.globalQuery("", searchSpec);
+        SearchResultPage searchResultPage = mAppSearchImpl.globalQuery("", searchSpec,
+                mContext.getPackageName(), mGlobalQuerierUid);
         assertThat(searchResultPage.getResults()).hasSize(2);
 
         // Document2 will be first since it got indexed later and has a "better", aka more recent
@@ -608,10 +657,11 @@ public class AppSearchImplTest {
 
         // "package1" filter specified
         SearchSpec searchSpec = new SearchSpec.Builder()
-                        .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
-                        .addFilterPackageNames("package1")
-                        .build();
-        SearchResultPage searchResultPage = mAppSearchImpl.globalQuery("", searchSpec);
+                .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
+                .addFilterPackageNames("package1")
+                .build();
+        SearchResultPage searchResultPage = mAppSearchImpl.globalQuery("", searchSpec,
+                mContext.getPackageName(), mGlobalQuerierUid);
         assertThat(searchResultPage.getResults()).hasSize(1);
         assertThat(searchResultPage.getResults().get(0).getDocument()).isEqualTo(document1);
 
@@ -620,7 +670,8 @@ public class AppSearchImplTest {
                 .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
                 .addFilterPackageNames("package2")
                 .build();
-        searchResultPage = mAppSearchImpl.globalQuery("", searchSpec);
+        searchResultPage = mAppSearchImpl.globalQuery("", searchSpec, mContext.getPackageName(),
+                mGlobalQuerierUid);
         assertThat(searchResultPage.getResults()).hasSize(1);
         assertThat(searchResultPage.getResults().get(0).getDocument()).isEqualTo(document2);
     }
@@ -670,22 +721,29 @@ public class AppSearchImplTest {
 
     @Test
     public void testSetSchema_existingSchemaRetainsVisibilitySetting() throws Exception {
-        PackageIdentifier package1 = new PackageIdentifier(
-                "package1", /*sha256Certificate=*/ new byte[]{100});
+        // Values for a "foo" client
+        String packageNameFoo = "packageFoo";
+        byte[] sha256CertFoo = new byte[]{10};
+        int uidFoo = 1;
 
+        // Make sure foo package will pass package manager checks.
+        mMockPackageManager.mockGetPackageUid(packageNameFoo, uidFoo);
+        mMockPackageManager.mockAddSigningCertificate(packageNameFoo, sha256CertFoo);
+
+        // Set schema1
         String prefix = AppSearchImpl.createPrefix("package", "database");
         mAppSearchImpl.setSchema("package", "database",
                 Collections.singletonList(new AppSearchSchema.Builder("schema1").build()),
                 /*schemasNotPlatformSurfaceable=*/ Collections.singletonList("schema1"),
                 /*schemasPackageAccessible=*/ ImmutableMap.of("schema1",
-                        ImmutableList.of(package1)),
+                        ImmutableList.of(new PackageIdentifier(packageNameFoo, sha256CertFoo))),
                 /*forceOverride=*/ false);
 
         // "schema1" is platform hidden now and package visible to package1
-        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaPlatformSurfaceable(
-                prefix, prefix + "schema1")).isFalse();
-        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaPackageAccessible(
-                prefix, prefix + "schema1", package1)).isTrue();
+        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaSearchableByCaller(
+                prefix, prefix + "schema1", mGlobalQuerierUid)).isFalse();
+        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaSearchableByCaller(
+                prefix, prefix + "schema1", uidFoo)).isTrue();
 
         // Add a new schema, and include the already-existing "schema1"
         mAppSearchImpl.setSchema(
@@ -695,20 +753,21 @@ public class AppSearchImplTest {
                         new AppSearchSchema.Builder("schema2").build()),
                 /*schemasNotPlatformSurfaceable=*/ Collections.singletonList("schema1"),
                 /*schemasPackageAccessible=*/ ImmutableMap.of(
-                        "schema1", ImmutableList.of(package1)),
+                        "schema1",
+                        ImmutableList.of(new PackageIdentifier(packageNameFoo, sha256CertFoo))),
                 /*forceOverride=*/ false);
 
         // Check that "schema1" still has the same visibility settings
-        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaPlatformSurfaceable(
-                prefix, prefix + "schema1")).isFalse();
-        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaPackageAccessible(
-                prefix, prefix + "schema1", package1)).isTrue();
+        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaSearchableByCaller(
+                prefix, prefix + "schema1", mGlobalQuerierUid)).isFalse();
+        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaSearchableByCaller(
+                prefix, prefix + "schema1", uidFoo)).isTrue();
 
         // "schema2" has default visibility settings
-        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaPlatformSurfaceable(
-                prefix, prefix + "schema2")).isTrue();
-        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaPackageAccessible(
-                prefix, prefix + "schema2", package1)).isFalse();
+        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaSearchableByCaller(
+                prefix, prefix + "schema2", mGlobalQuerierUid)).isTrue();
+        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaSearchableByCaller(
+                prefix, prefix + "schema2", uidFoo)).isFalse();
     }
 
     @Test
@@ -833,22 +892,28 @@ public class AppSearchImplTest {
 
     @Test
     public void testRemoveSchema_removedFromVisibilityStore() throws Exception {
-        PackageIdentifier package1 = new PackageIdentifier(
-                "package1", /*sha256Certificate=*/ new byte[]{100});
+        // Values for a "foo" client
+        String packageNameFoo = "packageFoo";
+        byte[] sha256CertFoo = new byte[]{10};
+        int uidFoo = 1;
+
+        // Make sure foo package will pass package manager checks.
+        mMockPackageManager.mockGetPackageUid(packageNameFoo, uidFoo);
+        mMockPackageManager.mockAddSigningCertificate(packageNameFoo, sha256CertFoo);
 
         String prefix = AppSearchImpl.createPrefix("package", "database");
         mAppSearchImpl.setSchema("package", "database",
                 Collections.singletonList(new AppSearchSchema.Builder("schema1").build()),
                 /*schemasNotPlatformSurfaceable=*/ Collections.singletonList("schema1"),
                 /*schemasPackageAccessible=*/ ImmutableMap.of("schema1",
-                        ImmutableList.of(package1)),
+                        ImmutableList.of(new PackageIdentifier(packageNameFoo, sha256CertFoo))),
                 /*forceOverride=*/ false);
 
         // "schema1" is platform hidden now and package accessible
-        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaPlatformSurfaceable(
-                prefix, prefix + "schema1")).isFalse();
-        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaPackageAccessible(
-                prefix, prefix + "schema1", package1)).isTrue();
+        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaSearchableByCaller(
+                prefix, prefix + "schema1", mGlobalQuerierUid)).isFalse();
+        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaSearchableByCaller(
+                prefix, prefix + "schema1", uidFoo)).isTrue();
 
         // Remove "schema1" by force overriding
         mAppSearchImpl.setSchema("package", "database", /*schemas=*/ Collections.emptyList(),
@@ -856,10 +921,11 @@ public class AppSearchImplTest {
                 /*schemasPackageAccessible=*/ Collections.emptyMap(), /*forceOverride=*/ true);
 
         // Check that "schema1" is no longer considered platform hidden or package accessible
-        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaPlatformSurfaceable(
-                prefix, prefix + "schema1")).isTrue();
-        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaPackageAccessible(
-                prefix, prefix + "schema1", package1)).isFalse();
+        assertThat(
+                mAppSearchImpl.getVisibilityStoreLocked().isSchemaSearchableByCaller(
+                        prefix, prefix + "schema1", mGlobalQuerierUid)).isTrue();
+        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaSearchableByCaller(
+                prefix, prefix + "schema1", uidFoo)).isFalse();
 
         // Add "schema1" back, it gets default visibility settings which means it's not platform
         // hidden and not package accessible
@@ -867,10 +933,11 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder("schema1").build()),
                 /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
                 /*schemasPackageAccessible=*/ Collections.emptyMap(), /*forceOverride=*/ false);
-        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaPlatformSurfaceable(
-                prefix, prefix + "schema1")).isTrue();
-        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaPackageAccessible(
-                prefix, prefix + "schema1", package1)).isFalse();
+        assertThat(
+                mAppSearchImpl.getVisibilityStoreLocked().isSchemaSearchableByCaller(
+                        prefix, prefix + "schema1", mGlobalQuerierUid)).isTrue();
+        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaSearchableByCaller(
+                prefix, prefix + "schema1", uidFoo)).isFalse();
     }
 
     @Test
@@ -881,8 +948,8 @@ public class AppSearchImplTest {
                 /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
                 /*schemasPackageAccessible=*/ Collections.emptyMap(), /*forceOverride=*/ false);
         assertThat(
-                mAppSearchImpl.getVisibilityStoreLocked().isSchemaPlatformSurfaceable(
-                        prefix, prefix + "Schema")).isTrue();
+                mAppSearchImpl.getVisibilityStoreLocked().isSchemaSearchableByCaller(
+                        prefix, prefix + "Schema", mGlobalQuerierUid)).isTrue();
     }
 
     @Test
@@ -892,39 +959,43 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder("Schema").build()),
                 /*schemasNotPlatformSurfaceable=*/ Collections.singletonList("Schema"),
                 /*schemasPackageAccessible=*/ Collections.emptyMap(), /*forceOverride=*/ false);
-        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaPlatformSurfaceable(
-                prefix, prefix + "Schema")).isFalse();
+        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaSearchableByCaller(
+                prefix, prefix + "Schema", mGlobalQuerierUid)).isFalse();
     }
 
     @Test
     public void testSetSchema_defaultNotPackageAccessible() throws Exception {
-        PackageIdentifier package1 = new PackageIdentifier(
-                "package1", /*sha256Certificate=*/ new byte[]{100});
-
         String prefix = AppSearchImpl.createPrefix("package", "database");
         mAppSearchImpl.setSchema("package", "database",
                 Collections.singletonList(new AppSearchSchema.Builder("Schema").build()),
                 /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
                 /*schemasPackageAccessible=*/ Collections.emptyMap(), /*forceOverride=*/ false);
         assertThat(
-                mAppSearchImpl.getVisibilityStoreLocked().isSchemaPackageAccessible(
-                        prefix, prefix + "Schema", package1)).isFalse();
+                mAppSearchImpl.getVisibilityStoreLocked().isSchemaSearchableByCaller(
+                        prefix, prefix + "Schema", /*callerUid=*/ 42)).isFalse();
     }
 
     @Test
     public void testSetSchema_packageAccessible() throws Exception {
-        PackageIdentifier package1 = new PackageIdentifier(
-                "package1", /*sha256Certificate=*/ new byte[]{100});
+        // Values for a "foo" client
+        String packageNameFoo = "packageFoo";
+        byte[] sha256CertFoo = new byte[]{10};
+        int uidFoo = 1;
+
+        // Make sure foo package will pass package manager checks.
+        mMockPackageManager.mockGetPackageUid(packageNameFoo, uidFoo);
+        mMockPackageManager.mockAddSigningCertificate(packageNameFoo, sha256CertFoo);
 
         String prefix = AppSearchImpl.createPrefix("package", "database");
         mAppSearchImpl.setSchema("package", "database",
                 Collections.singletonList(new AppSearchSchema.Builder("Schema").build()),
                 /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
                 /*schemasPackageAccessible=*/ ImmutableMap.of(
-                        "Schema", ImmutableList.of(package1)),
+                        "Schema",
+                        ImmutableList.of(new PackageIdentifier(packageNameFoo, sha256CertFoo))),
                 /*forceOverride=*/ false);
-        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaPackageAccessible(
-                prefix, prefix + "Schema", package1)).isTrue();
+        assertThat(mAppSearchImpl.getVisibilityStoreLocked().isSchemaSearchableByCaller(
+                prefix, prefix + "Schema", uidFoo)).isTrue();
     }
 
     @Test

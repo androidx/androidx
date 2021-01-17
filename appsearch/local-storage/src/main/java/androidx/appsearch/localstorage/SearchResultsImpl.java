@@ -16,6 +16,9 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.localstorage;
 
+import android.content.Context;
+import android.os.Process;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appsearch.app.AppSearchResult;
@@ -58,6 +61,7 @@ class SearchResultsImpl implements SearchResults {
     SearchResultsImpl(
             @NonNull AppSearchImpl appSearchImpl,
             @NonNull ExecutorService executorService,
+            @NonNull Context context,
             @Nullable String packageName,
             @Nullable String databaseName,
             @NonNull String queryExpression,
@@ -78,17 +82,14 @@ class SearchResultsImpl implements SearchResults {
             SearchResultPage searchResultPage;
             if (mIsFirstLoad) {
                 mIsFirstLoad = false;
-                if (mDatabaseName == null && mPackageName == null) {
-                    // Global query, there's no one package-database combination to check.
-                    searchResultPage = mAppSearchImpl.globalQuery(mQueryExpression, mSearchSpec);
-                } else if (mPackageName == null) {
+                if (mPackageName == null) {
                     throw new AppSearchException(
                             AppSearchResult.RESULT_INVALID_ARGUMENT,
                             "Invalid null package name for query");
                 } else if (mDatabaseName == null) {
-                    throw new AppSearchException(
-                            AppSearchResult.RESULT_INVALID_ARGUMENT,
-                            "Invalid null database name for query");
+                    // Global queries aren't restricted to a single database
+                    searchResultPage = mAppSearchImpl.globalQuery(mQueryExpression, mSearchSpec,
+                            mPackageName, Process.myUid());
                 } else {
                     // Normal local query, pass in specified database.
                     searchResultPage = mAppSearchImpl.query(
