@@ -273,7 +273,7 @@ public abstract class WatchFaceService : WallpaperService() {
          */
         internal var allowWatchfaceToAnimate = allowWatchFaceToAnimate()
 
-        private var destroyed = false
+        internal var destroyed = false
 
         internal lateinit var ambientUpdateWakelock: PowerManager.WakeLock
 
