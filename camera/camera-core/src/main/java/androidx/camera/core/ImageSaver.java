@@ -37,7 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileLock;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
@@ -99,7 +99,13 @@ final class ImageSaver implements Runnable {
     private File saveImageToTempFile() {
         File tempFile;
         try {
-            tempFile = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
+            if (isSaveToFile()) {
+                // For saving to file, write to the target folder and rename for better performance.
+                tempFile = new File(mOutputFileOptions.getFile().getParent(),
+                        TEMP_FILE_PREFIX + UUID.randomUUID().toString() + TEMP_FILE_SUFFIX);
+            } else {
+                tempFile = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
+            }
         } catch (IOException e) {
             postError(SaveError.FILE_IO_FAILED, "Failed to create temp file", e);
             return null;
@@ -210,13 +216,16 @@ final class ImageSaver implements Runnable {
             } else if (isSaveToOutputStream()) {
                 copyTempFileToOutputStream(tempFile, mOutputFileOptions.getOutputStream());
             } else if (isSaveToFile()) {
-                try (FileOutputStream fileOutputStream = new FileOutputStream(
-                        mOutputFileOptions.getFile())) {
-                    // Lock the file as a precaution. If concurrent access happens, it will
-                    // provide a meaningful error.
-                    FileLock fileLock = fileOutputStream.getChannel().lock();
-                    copyTempFileToOutputStream(tempFile, fileOutputStream);
-                    fileLock.release();
+                File targetFile = mOutputFileOptions.getFile();
+                // Normally File#renameTo will overwrite the targetFile even if it already exists.
+                // Just in case of unexpected behavior on certain platforms or devices, delete the
+                // target file before renaming.
+                if (targetFile.exists()) {
+                    targetFile.delete();
+                }
+                if (!tempFile.renameTo(targetFile)) {
+                    saveError = SaveError.FILE_IO_FAILED;
+                    errorMessage = "Failed to rename file.";
                 }
             }
         } catch (IOException | IllegalArgumentException e) {
