@@ -1,0 +1,62 @@
+// Signature format: 4.0
+package androidx.wear.ongoing {
+
+  @RequiresApi(24) public final class OngoingActivity {
+    method public void apply(android.content.Context);
+    method public static androidx.wear.ongoing.OngoingActivity? fromExistingOngoingActivity(android.content.Context, java.util.function.Predicate<androidx.wear.ongoing.OngoingActivityData!>);
+    method public static androidx.wear.ongoing.OngoingActivity? fromExistingOngoingActivity(android.content.Context);
+    method public static androidx.wear.ongoing.OngoingActivity? fromExistingOngoingActivity(android.content.Context, int);
+    method public void update(android.content.Context, androidx.wear.ongoing.OngoingActivityStatus);
+  }
+
+  public static final class OngoingActivity.Builder {
+    ctor public OngoingActivity.Builder(android.content.Context, int, androidx.core.app.NotificationCompat.Builder);
+    method public androidx.wear.ongoing.OngoingActivity build();
+    method public androidx.wear.ongoing.OngoingActivity.Builder setAnimatedIcon(android.graphics.drawable.Icon);
+    method public androidx.wear.ongoing.OngoingActivity.Builder setAnimatedIcon(@DrawableRes int);
+    method public androidx.wear.ongoing.OngoingActivity.Builder setCategory(String);
+    method public androidx.wear.ongoing.OngoingActivity.Builder setLocusId(androidx.core.content.LocusIdCompat);
+    method public androidx.wear.ongoing.OngoingActivity.Builder setOngoingActivityId(int);
+    method public androidx.wear.ongoing.OngoingActivity.Builder setStaticIcon(android.graphics.drawable.Icon);
+    method public androidx.wear.ongoing.OngoingActivity.Builder setStaticIcon(@DrawableRes int);
+    method public androidx.wear.ongoing.OngoingActivity.Builder setStatus(androidx.wear.ongoing.OngoingActivityStatus);
+    method public androidx.wear.ongoing.OngoingActivity.Builder setTouchIntent(android.app.PendingIntent);
+  }
+
+  @androidx.versionedparcelable.VersionedParcelize public class OngoingActivityData implements androidx.versionedparcelable.VersionedParcelable {
+    method public static androidx.wear.ongoing.OngoingActivityData? create(android.app.Notification);
+    method public android.graphics.drawable.Icon? getAnimatedIcon();
+    method public String? getCategory();
+    method public androidx.core.content.LocusIdCompat? getLocusId();
+    method public int getOngoingActivityId();
+    method public android.graphics.drawable.Icon getStaticIcon();
+    method public androidx.wear.ongoing.OngoingActivityStatus? getStatus();
+    method public long getTimestamp();
+    method public android.app.PendingIntent getTouchIntent();
+    method public static boolean hasOngoingActivity(android.app.Notification);
+  }
+
+  @androidx.versionedparcelable.VersionedParcelize public class OngoingActivityStatus implements androidx.versionedparcelable.VersionedParcelable {
+    method public long getNextChangeTimeMillis(long);
+    method public CharSequence getText(android.content.Context, long);
+  }
+
+  @androidx.versionedparcelable.VersionedParcelize public class TextOngoingActivityStatus extends androidx.wear.ongoing.OngoingActivityStatus {
+    ctor public TextOngoingActivityStatus(String);
+  }
+
+  @androidx.versionedparcelable.VersionedParcelize public class TimerOngoingActivityStatus extends androidx.wear.ongoing.OngoingActivityStatus {
+    ctor public TimerOngoingActivityStatus(long, boolean, long, long);
+    ctor public TimerOngoingActivityStatus(long, boolean, long);
+    ctor public TimerOngoingActivityStatus(long, boolean);
+    ctor public TimerOngoingActivityStatus(long);
+    method public long getPausedAtMillis();
+    method public long getTimeZeroMillis();
+    method public long getTotalDurationMillis();
+    method public boolean hasTotalDuration();
+    method public boolean isCountDown();
+    method public boolean isPaused();
+  }
+
+}
+
