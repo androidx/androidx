@@ -116,6 +116,9 @@ import androidx.wear.complications.data.ComplicationType;
  * android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER"} to ensure
  * that only the system can bind to it.</il>
  * </ul>
+ *
+ * <p> Multiple providers in the same APK are supported but in android R there's a soft limit of
+ * 100 providers per APK. Above that the companion watchface editor won't support this provider app.
  */
 public abstract class ComplicationProviderService extends Service {
 
