@@ -1,4 +1,4 @@
-package androidx.wear.ongoingactivity
+package androidx.wear.ongoing
 
 import android.app.NotificationManager
 import android.app.PendingIntent
