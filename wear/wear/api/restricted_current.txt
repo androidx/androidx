@@ -139,6 +139,28 @@ package androidx.wear.ongoingactivity {
 
 }
 
+package androidx.wear.provider {
+
+  public class WearableCalendarContract {
+    method public static void addCalendarAuthorityUri(android.content.UriMatcher, String, int);
+    method public static void addCalendarDataAuthority(android.content.IntentFilter, String?);
+    field public static final android.net.Uri CONTENT_URI;
+  }
+
+  public static final class WearableCalendarContract.Attendees {
+    field public static final android.net.Uri CONTENT_URI;
+  }
+
+  public static final class WearableCalendarContract.Instances {
+    field public static final android.net.Uri CONTENT_URI;
+  }
+
+  public static final class WearableCalendarContract.Reminders {
+    field public static final android.net.Uri CONTENT_URI;
+  }
+
+}
+
 package androidx.wear.utils {
 
   public class MetadataConstants {
