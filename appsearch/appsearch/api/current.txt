@@ -207,6 +207,7 @@ package androidx.appsearch.app {
   }
 
   public final class SearchResult {
+    method public String getDatabaseName();
     method public androidx.appsearch.app.GenericDocument getDocument();
     method public java.util.List<androidx.appsearch.app.SearchResult.MatchInfo!> getMatches();
     method public String getPackageName();
