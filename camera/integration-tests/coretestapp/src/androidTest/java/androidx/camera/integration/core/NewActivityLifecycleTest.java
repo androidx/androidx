@@ -21,8 +21,6 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
@@ -56,7 +54,6 @@ public final class NewActivityLifecycleTest {
 
     private final UiDevice mDevice =
             UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-    private final String mLauncherPackageName = mDevice.getLauncherPackageName();
     private final Context mContext = ApplicationProvider.getApplicationContext();
     private final Intent mIntent = mContext.getPackageManager()
             .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE);
@@ -83,7 +80,6 @@ public final class NewActivityLifecycleTest {
     public void setup() throws CoreAppTestUtil.ForegroundOccupiedError {
         assumeTrue(CameraUtil.deviceHasCamera());
         CoreAppTestUtil.assumeCompatibleDevice();
-        assertThat(mLauncherPackageName, notNullValue());
 
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
