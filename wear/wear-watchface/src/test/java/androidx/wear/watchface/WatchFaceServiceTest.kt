@@ -455,6 +455,10 @@ class WatchFaceServiceTest {
             interactiveWatchFaceInstanceWCS.release()
         }
 
+        if (this::engineWrapper.isInitialized && !engineWrapper.destroyed) {
+            engineWrapper.onDestroy()
+        }
+
         validateMockitoUsage()
     }
 
@@ -1009,6 +1013,7 @@ class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
         assertThat(complicationsManager.getBackgroundComplication()).isNull()
+        engineWrapper.onDestroy()
 
         initEngine(
             WatchFaceType.ANALOG,
@@ -1016,6 +1021,7 @@ class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
         assertThat(complicationsManager.getBackgroundComplication()).isNull()
+        engineWrapper.onDestroy()
 
         initEngine(
             WatchFaceType.ANALOG,
@@ -1045,6 +1051,7 @@ class WatchFaceServiceTest {
                 watchHandStyleSetting to gothicStyleOption
             )
         )
+        engineWrapper.onDestroy()
 
         val userStyleRepository2 = UserStyleRepository(
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting))
