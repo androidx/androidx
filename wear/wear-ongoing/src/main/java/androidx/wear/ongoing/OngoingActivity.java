@@ -241,7 +241,7 @@ public final class OngoingActivity {
             if (status == null) {
                 String text = notification.extras.getString(Notification.EXTRA_TEXT);
                 if (text != null) {
-                    status = new TextOngoingActivityStatus(text);
+                    status = OngoingActivityStatus.forPart(new TextStatusPart(text));
                 }
             }
 

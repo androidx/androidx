@@ -25,24 +25,26 @@ import androidx.versionedparcelable.VersionedParcelize;
 import java.util.Objects;
 
 /**
- * {@link OngoingActivityStatus} representing a plain, static text.
+ * An Ongoing activity status (or part of it) representing a plain, static text.
+ *
+ * Available since wear-ongoing:1.0.0
  */
 @VersionedParcelize
-public class TextOngoingActivityStatus extends OngoingActivityStatus {
+public class TextStatusPart extends StatusPart {
     @NonNull
     @ParcelField(value = 1, defaultValue = "")
     String mStr = "";
 
     // Required by VersionedParcelable
-    TextOngoingActivityStatus() {
+    TextStatusPart() {
     }
 
-    public TextOngoingActivityStatus(@NonNull String str) {
+    public TextStatusPart(@NonNull String str) {
         this.mStr = str;
     }
 
     /**
-     * See {@link OngoingActivityStatus#getText(Context, long)}
+     * See {@link TimeDependentText#getText(Context, long)}
      */
     @NonNull
     @Override
@@ -51,7 +53,7 @@ public class TextOngoingActivityStatus extends OngoingActivityStatus {
     }
 
     /**
-     * See {@link OngoingActivityStatus#getNextChangeTimeMillis(long)}
+     * See {@link TimeDependentText#getNextChangeTimeMillis(long)}
      */
     @Override
     public long getNextChangeTimeMillis(long fromTimeMillis) {
@@ -60,9 +62,8 @@ public class TextOngoingActivityStatus extends OngoingActivityStatus {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        return o instanceof TextOngoingActivityStatus
-                && mStr.equals(((TextOngoingActivityStatus) o).mStr);
+        return o instanceof TextStatusPart
+                && mStr.equals(((TextStatusPart) o).mStr);
     }
 
     @Override
