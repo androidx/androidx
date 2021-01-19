@@ -97,16 +97,6 @@ public final class Lane {
             return this;
         }
 
-        /**
-         * Clears any directions that may have been added with
-         * {@link #addDirection(LaneDirection)} up to this point.
-         */
-        @NonNull
-        public Builder clearDirections() {
-            mDirections.clear();
-            return this;
-        }
-
         /** Constructs the {@link Lane} defined by this builder. */
         @NonNull
         public Lane build() {

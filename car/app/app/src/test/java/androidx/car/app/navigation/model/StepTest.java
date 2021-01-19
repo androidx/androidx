@@ -62,19 +62,6 @@ public class StepTest {
     }
 
     @Test
-    public void clearLanes() {
-        Lane lane1 = new Lane.Builder().addDirection(
-                LaneDirection.create(SHAPE_SHARP_LEFT, true)).build();
-        Lane lane2 = new Lane.Builder()
-                .addDirection(LaneDirection.create(LaneDirection.SHAPE_SHARP_RIGHT, true))
-                .build();
-        String cue = "Left at State street.";
-        Step step = new Step.Builder(cue).addLane(lane1).addLane(lane2).clearLanes().build();
-
-        assertThat(step.getLanes()).hasSize(0);
-    }
-
-    @Test
     public void createInstance_lanesImage_no_lanes_throws() {
         String cue = "Left at State street.";
 
