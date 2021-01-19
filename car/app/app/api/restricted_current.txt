@@ -179,7 +179,6 @@ package androidx.car.app.model {
     field public static final int TYPE_APP_ICON = 65538; // 0x10002
     field public static final int TYPE_BACK = 65539; // 0x10003
     field public static final int TYPE_CUSTOM = 1; // 0x1
-    field public static final int TYPE_UNKNOWN = 0; // 0x0
   }
 
   public static final class Action.Builder {
@@ -243,17 +242,16 @@ package androidx.car.app.model {
     field public static final androidx.car.app.model.CarIcon BACK;
     field public static final androidx.car.app.model.CarIcon ERROR;
     field public static final int TYPE_ALERT = 4; // 0x4
-    field public static final int TYPE_APP = 5; // 0x5
+    field @Deprecated public static final int TYPE_APP = 5; // 0x5
+    field public static final int TYPE_APP_ICON = 5; // 0x5
     field public static final int TYPE_BACK = 3; // 0x3
     field public static final int TYPE_CUSTOM = 1; // 0x1
     field public static final int TYPE_ERROR = 6; // 0x6
-    field public static final int TYPE_UNKNOWN = 0; // 0x0
   }
 
   public static final class CarIcon.Builder {
     ctor public CarIcon.Builder(androidx.core.graphics.drawable.IconCompat);
     method public androidx.car.app.model.CarIcon build();
-    method public androidx.car.app.model.CarIcon.Builder setIcon(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.CarIcon.Builder setTint(androidx.car.app.model.CarColor?);
   }
 

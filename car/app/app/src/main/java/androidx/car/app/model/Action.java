@@ -69,7 +69,6 @@ public final class Action {
     @RestrictTo(LIBRARY)
     @IntDef(
             value = {
-                    TYPE_UNKNOWN,
                     TYPE_CUSTOM,
                     TYPE_APP_ICON,
                     TYPE_BACK,
@@ -79,11 +78,6 @@ public final class Action {
     }
 
     static final int FLAG_STANDARD = 1 << 16;
-
-    /**
-     * An unknown action type.
-     */
-    public static final int TYPE_UNKNOWN = 0;
 
     /**
      * An app-defined custom action type.
@@ -260,7 +254,7 @@ public final class Action {
         mIcon = null;
         mBackgroundColor = DEFAULT;
         mListener = null;
-        mType = TYPE_UNKNOWN;
+        mType = TYPE_CUSTOM;
     }
 
     @Override
@@ -384,9 +378,6 @@ public final class Action {
          */
         @NonNull
         public Action build() {
-            if (mType == TYPE_UNKNOWN) {
-                throw new IllegalStateException("Missing action type");
-            }
             boolean isStandard = isStandardActionType(mType);
             if (!isStandard && mIcon == null && (mTitle == null || TextUtils.isEmpty(
                     mTitle.getText()))) {
