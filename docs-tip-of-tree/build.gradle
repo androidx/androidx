@@ -35,6 +35,7 @@ dependencies {
     docs(project(":camera:camera-lifecycle"))
     docs(project(":camera:camera-view"))
     docs(project(":car:app:app"))
+    docs(project(":car:app:app-aaos"))
     docs(project(":cardview:cardview"))
     docs(project(":collection:collection"))
     docs(project(":collection:collection-ktx"))
