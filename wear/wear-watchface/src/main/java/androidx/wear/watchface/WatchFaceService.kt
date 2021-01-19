@@ -60,7 +60,6 @@ import androidx.wear.watchface.control.data.ComplicationScreenshotParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
-import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.ComplicationStateWireFormat
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
@@ -299,7 +298,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         private val invalidateRunnable = Runnable(this::invalidate)
 
-        // TODO(alexclarke): Figure out if we can remove this.
+        // State to support the old WSL style initialzation flow.
         private var pendingBackgroundAction: Bundle? = null
         private var pendingProperties: Bundle? = null
         private var pendingSetWatchFaceStyle = false
@@ -1074,19 +1073,6 @@ public abstract class WatchFaceService : WallpaperService() {
             } catch (e: RemoteException) {
                 Log.e(TAG, "Failed to set accessibility labels: ", e)
             }
-        }
-
-        override fun setCurrentUserStyle(userStyle: UserStyleWireFormat) {
-            // TODO(alexclarke): Report programmatic style changes to WCS.
-        }
-
-        override fun setComplicationDetails(
-            complicationId: Int,
-            bounds: Rect,
-            @ComplicationBoundsType boundsType: Int,
-            types: IntArray
-        ) {
-            // TODO(alexclarke): Report programmatic complication details changes to WCS.
         }
     }
 }

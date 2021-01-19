@@ -295,9 +295,7 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.style.data.UserStyleWireFormat? getInitialUserStyle();
     method @UiThread public void invalidate();
     method public void setActiveComplications(int[] watchFaceComplicationIds);
-    method public void setComplicationDetails(int complicationId, android.graphics.Rect bounds, @androidx.wear.watchface.data.ComplicationBoundsType int boundsType, int[] types);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setContentDescriptionLabels(android.support.wearable.watchface.accessibility.ContentDescriptionLabel![] labels);
-    method public void setCurrentUserStyle(androidx.wear.watchface.style.data.UserStyleWireFormat userStyle);
     method public void setDefaultComplicationProviderWithFallbacks(int watchFaceComplicationId, java.util.List<android.content.ComponentName>? providers, @androidx.wear.complications.SystemProviders.ProviderId int fallbackSystemProvider, int type);
   }
 
