@@ -111,7 +111,7 @@ public class MessageTemplateTest {
                 new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setHeaderAction(Action.BACK)
-                        .setDebugCause(exception)
+                        .setDebugMessage(exception)
                         .setIcon(icon)
                         .setActionList(ImmutableList.of(action))
                         .build();
@@ -131,7 +131,7 @@ public class MessageTemplateTest {
                 new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
-                        .setDebugCause(mCause)
+                        .setDebugMessage(mCause)
                         .setHeaderAction(Action.BACK)
                         .setActionList(ImmutableList.of(mAction))
                         .setIcon(mIcon)
@@ -140,7 +140,7 @@ public class MessageTemplateTest {
                 new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
-                        .setDebugCause(mCause)
+                        .setDebugMessage(mCause)
                         .setHeaderAction(Action.BACK)
                         .setActionList(ImmutableList.of(mAction))
                         .setIcon(mIcon)
@@ -155,7 +155,7 @@ public class MessageTemplateTest {
                 new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
-                        .setDebugCause(mCause)
+                        .setDebugMessage(mCause)
                         .setActionList(ImmutableList.of(mAction))
                         .setIcon(mIcon)
                         .build();
@@ -163,7 +163,7 @@ public class MessageTemplateTest {
                 new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage("yo")
-                        .setDebugCause(mCause)
+                        .setDebugMessage(mCause)
                         .setActionList(ImmutableList.of(mAction))
                         .setIcon(mIcon)
                         .build();
@@ -177,7 +177,7 @@ public class MessageTemplateTest {
                 new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
-                        .setDebugCause(mCause)
+                        .setDebugMessage(mCause)
                         .setActionList(ImmutableList.of(mAction))
                         .setIcon(mIcon)
                         .build();
@@ -185,7 +185,7 @@ public class MessageTemplateTest {
                 new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
-                        .setDebugCause(new IllegalStateException("something else bad"))
+                        .setDebugMessage(new IllegalStateException("something else bad"))
                         .setActionList(ImmutableList.of(mAction))
                         .setIcon(mIcon)
                         .build();
@@ -199,8 +199,7 @@ public class MessageTemplateTest {
                 new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
-                        .setDebugCause(mCause)
-                        .setMessage(mMessage)
+                        .setDebugMessage(mCause)
                         .setActionList(ImmutableList.of(mAction))
                         .setIcon(mIcon)
                         .build();
@@ -208,7 +207,7 @@ public class MessageTemplateTest {
                 new MessageTemplate.Builder("bar")
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
-                        .setDebugCause(mCause)
+                        .setDebugMessage(mCause)
                         .setActionList(ImmutableList.of(mAction))
                         .setIcon(mIcon)
                         .build();
@@ -222,7 +221,7 @@ public class MessageTemplateTest {
                 new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
-                        .setDebugCause(mCause)
+                        .setDebugMessage(mCause)
                         .setHeaderAction(Action.BACK)
                         .setActionList(ImmutableList.of(mAction))
                         .setIcon(mIcon)
@@ -231,7 +230,7 @@ public class MessageTemplateTest {
                 new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
-                        .setDebugCause(mCause)
+                        .setDebugMessage(mCause)
                         .setHeaderAction(Action.APP_ICON)
                         .setActionList(ImmutableList.of(mAction))
                         .setIcon(mIcon)
@@ -246,7 +245,7 @@ public class MessageTemplateTest {
                 new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
-                        .setDebugCause(mCause)
+                        .setDebugMessage(mCause)
                         .setActionList(ImmutableList.of(mAction))
                         .setIcon(mIcon)
                         .build();
@@ -254,7 +253,7 @@ public class MessageTemplateTest {
                 new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
-                        .setDebugCause(mCause)
+                        .setDebugMessage(mCause)
                         .setActionList(ImmutableList.of(mAction, mAction))
                         .setIcon(mIcon)
                         .build();
@@ -268,7 +267,7 @@ public class MessageTemplateTest {
                 new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
-                        .setDebugCause(mCause)
+                        .setDebugMessage(mCause)
                         .setActionList(ImmutableList.of(mAction))
                         .setIcon(mIcon)
                         .build();
@@ -276,7 +275,7 @@ public class MessageTemplateTest {
                 new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
-                        .setDebugCause(mCause)
+                        .setDebugMessage(mCause)
                         .setActionList(ImmutableList.of(mAction))
                         .setIcon(CarIcon.ERROR)
                         .build();
@@ -290,7 +289,7 @@ public class MessageTemplateTest {
                 new MessageTemplate.Builder(mMessage)
                         .setTitle(mTitle)
                         .setDebugMessage(mDebugMessage)
-                        .setDebugCause(mCause)
+                        .setDebugMessage(mCause)
                         .setActionList(ImmutableList.of(mAction))
                         .setIcon(mIcon)
                         .build();
@@ -298,7 +297,7 @@ public class MessageTemplateTest {
                 new MessageTemplate.Builder(mMessage)
                         .setTitle("Header2")
                         .setDebugMessage(mDebugMessage)
-                        .setDebugCause(mCause)
+                        .setDebugMessage(mCause)
                         .setActionList(ImmutableList.of(mAction))
                         .setIcon(mIcon)
                         .build();

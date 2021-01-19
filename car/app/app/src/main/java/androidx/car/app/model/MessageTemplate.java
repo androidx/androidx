@@ -175,23 +175,11 @@ public final class MessageTemplate implements Template {
 
         /**
          * Sets the {@link CharSequence} to show as the template's title, or {@code null} to not
-         * show a
-         * title.
+         * show a title.
          */
         @NonNull
         public Builder setTitle(@Nullable CharSequence title) {
             this.mTitle = title == null ? null : CarText.create(title);
-            return this;
-        }
-
-        /**
-         * Sets the {@link CharSequence} to display as the message in the template.
-         *
-         * @throws NullPointerException if {@code message} is null.
-         */
-        @NonNull
-        public Builder setMessage(@NonNull CharSequence message) {
-            this.mMessage = CarText.create(requireNonNull(message));
             return this;
         }
 
@@ -202,13 +190,32 @@ public final class MessageTemplate implements Template {
          *
          * <p>The host may choose to not display this debugging information if it doesn't deem it
          * appropriate, for example, when running on a production environment rather than in a
-         * simulator
-         * such as the Desktop Head Unit.
+         * simulator such as the Desktop Head Unit.
+         *
+         * @deprecated use {@link #setDebugMessage(String) instead.}
          */
         @NonNull
         // Suppress as the cause is transformed into a message before transport.
         @SuppressLint("MissingGetterMatchingBuilder")
+        @Deprecated
+        // TODO(b/177591352): remove once host does not reference this method.
         public Builder setDebugCause(@Nullable Throwable cause) {
+            this.mDebugCause = cause;
+            return this;
+        }
+
+        /**
+         * Sets a {@link Throwable} for debugging purposes, or {@code null} to not show it.
+         *
+         * <p>The cause will be displayed along with the message set in
+         * {@link #setDebugMessage(String)}.
+         *
+         * <p>The host may choose to not display this debugging information if it doesn't deem it
+         * appropriate, for example, when running on a production environment rather than in a
+         * simulator such as the Desktop Head Unit.
+         */
+        @NonNull
+        public Builder setDebugMessage(@Nullable Throwable cause) {
             this.mDebugCause = cause;
             return this;
         }
@@ -217,12 +224,11 @@ public final class MessageTemplate implements Template {
          * Sets a debug message for debugging purposes, or {@code null} to not show a debug message.
          *
          * <p>The debug message will be displayed along with the cause set in
-         * {@link #setDebugCause}.
+         * {@link #setDebugMessage}.
          *
          * <p>The host may choose to not display this debugging information if it doesn't deem it
          * appropriate, for example, when running on a production environment rather than in a
-         * simulator
-         * such as the Desktop Head Unit.
+         * simulator such as the Desktop Head Unit.
          */
         @NonNull
         public Builder setDebugMessage(@Nullable String debugMessage) {
@@ -237,14 +243,11 @@ public final class MessageTemplate implements Template {
          * <h4>Icon Sizing Guidance</h4>
          *
          * The provided icon should have a maximum size of 64 x 64 dp. If the icon exceeds this
-         * maximum
-         * size in either one of the dimensions, it will be scaled down and centered inside the
-         * bounding
-         * box while preserving the aspect ratio.
+         * maximum size in either one of the dimensions, it will be scaled down and centered
+         * inside the bounding box while preserving the aspect ratio.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
-         * that
-         * work with different car screen pixel densities.
+         * that work with different car screen pixel densities.
          */
         @NonNull
         public Builder setIcon(@Nullable CarIcon icon) {
@@ -255,8 +258,7 @@ public final class MessageTemplate implements Template {
 
         /**
          * Sets the {@link Action} that will be displayed in the header of the template, or
-         * {@code null}
-         * to not display an action.
+         * {@code null} to not display an action.
          *
          * <h4>Requirements</h4>
          *
@@ -315,15 +317,13 @@ public final class MessageTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * A non-empty message must be set on the template with {@link
-         * Builder#setMessage(CharSequence)}.
+         * A non-empty message must be set on the template.
          *
          * <p>Either a header {@link Action} or title must be set on the template.
          *
          * @throws IllegalStateException if the message is empty.
          * @throws IllegalStateException if the template does not have either a title or header
-         *                               {@link
-         *                               Action} set.
+         *                               {@link Action} set.
          */
         @NonNull
         public MessageTemplate build() {
