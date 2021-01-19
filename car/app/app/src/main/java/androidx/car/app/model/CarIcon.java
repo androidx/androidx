@@ -21,6 +21,7 @@ import static androidx.car.app.model.CarColor.DEFAULT;
 
 import static java.util.Objects.requireNonNull;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.graphics.PorterDuff.Mode;
 import android.os.Build.VERSION;
@@ -105,6 +106,7 @@ public class CarIcon {
      */
     // TODO(shiufai): investigate how to expose IntDefs if needed.
     @RestrictTo(LIBRARY)
+    @SuppressLint("UniqueConstants") // TYPE_APP will be removed in a follow-up change.
     @IntDef(
             value = {
                     TYPE_CUSTOM,
