@@ -17,6 +17,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.Publish
+import androidx.build.SupportConfigKt
 
 plugins {
     id("AndroidXPlugin")
@@ -29,6 +30,12 @@ android {
         // 18 needed for UI automator. Though this library isn't useful before API 28, we set a
         // lower minSdkVersion to enable optional usage, based on API level.
         minSdkVersion 18
+    }
+    sourceSets {
+        main.assets.srcDirs += new File(
+                SupportConfigKt.getPrebuiltsRoot(project),
+                "androidx/traceprocessor/trace_processor_shell"
+        )
     }
 }
 
@@ -45,6 +52,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
 }
+
 androidx {
     name = "Android Benchmark - Perfetto"
     publish = Publish.NONE

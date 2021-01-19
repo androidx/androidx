@@ -16,6 +16,9 @@
 
 package androidx.benchmark.macro
 
+import android.util.Log
+import androidx.benchmark.perfetto.PerfettoResultsParser.parseResult
+import androidx.benchmark.perfetto.PerfettoTraceParser
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.android.helpers.CpuUsageHelper
@@ -31,14 +34,13 @@ sealed class Metric {
     abstract fun start()
 
     abstract fun stop()
-
     /**
      * After stopping, collect metrics
      *
      * TODO: takes package for package level filtering, but probably want a
      *  general config object coming into [start].
      */
-    abstract fun getMetrics(packageName: String): Map<String, Long>
+    abstract fun getMetrics(packageName: String, tracePath: String): Map<String, Long>
 }
 
 class StartupTimingMetric : Metric() {
@@ -56,7 +58,7 @@ class StartupTimingMetric : Metric() {
         helper.stopCollecting()
     }
 
-    override fun getMetrics(packageName: String): Map<String, Long> {
+    override fun getMetrics(packageName: String, tracePath: String): Map<String, Long> {
         return helper.getMetrics(packageName)
     }
 }
@@ -81,7 +83,7 @@ internal class CpuUsageMetric : Metric() {
         helper.stopCollecting()
     }
 
-    override fun getMetrics(packageName: String): Map<String, Long> {
+    override fun getMetrics(packageName: String, tracePath: String): Map<String, Long> {
         return helper.metrics
     }
 }
@@ -146,7 +148,7 @@ class JankMetric : Metric() {
         "slow_bmp_upload" to "slowBitmapUploadFrameCount",
         "slow_issue_draw_cmds" to "slowIssueDrawCommandsFrameCount",
         "total_frames" to "totalFrameCount",
-        "janky_frames_percent" to "jankyFramePercent",
+        "janky_frames_percent" to "jankyFramePercent"
     )
 
     /**
@@ -157,10 +159,10 @@ class JankMetric : Metric() {
         "frameTime90thPercentileMs",
         "frameTime95thPercentileMs",
         "frameTime99thPercentileMs",
-        "totalFrameCount",
+        "totalFrameCount"
     )
 
-    override fun getMetrics(packageName: String): Map<String, Long> {
+    override fun getMetrics(packageName: String, tracePath: String): Map<String, Long> {
         return helper.metrics
             .map {
                 val prefix = "gfxinfo_${packageName}_"
@@ -177,6 +179,48 @@ class JankMetric : Metric() {
             }
             .toMap()
             .filterKeys { keyAllowList.contains(it) }
+    }
+}
+
+/**
+ * Only does startup metrics now. Will need to expand scope.
+ */
+internal class PerfettoMetric : Metric() {
+    private lateinit var packageName: String
+    private lateinit var device: UiDevice
+    private lateinit var parser: PerfettoTraceParser
+
+    override fun configure(config: MacrobenchmarkConfig) {
+        packageName = config.packageName
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        device = instrumentation.device()
+        parser = PerfettoTraceParser()
+    }
+
+    override fun start() {
+        parser.copyTraceProcessorShell()
+    }
+
+    override fun stop() {
+    }
+
+    override fun getMetrics(packageName: String, tracePath: String): Map<String, Long> {
+        val path = parser.shellFile?.absolutePath
+        return if (path != null) {
+            // TODO: Construct `METRICS` based on the config.
+            val command = "$path --run-metric $METRICS $tracePath --metrics-output=json"
+            Log.d(TAG, "Executing command $command")
+            val json = device.executeShellCommand(command)
+            Log.d(TAG, "Trace Processor result \n\n $json")
+            parseResult(json, packageName)
+        } else {
+            emptyMap()
+        }
+    }
+
+    companion object {
+        private const val TAG = "PerfettoMetric"
+        private const val METRICS = "android_startup"
     }
 }
 
@@ -198,7 +242,7 @@ internal class TotalPssMetric : Metric() {
         helper.stopCollecting()
     }
 
-    override fun getMetrics(packageName: String): Map<String, Long> {
+    override fun getMetrics(packageName: String, tracePath: String): Map<String, Long> {
         return helper.metrics
     }
 }
