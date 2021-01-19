@@ -29,6 +29,7 @@ import androidx.appsearch.app.GetByUriRequest;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByUriRequest;
+import androidx.appsearch.app.ReportUsageRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
@@ -59,8 +60,8 @@ class SearchSessionImpl implements AppSearchSession {
     private final Context mContext;
     private final String mPackageName;
     private final String mDatabaseName;
-    private boolean mIsMutated = false;
-    private boolean mIsClosed = false;
+    private volatile boolean mIsMutated = false;
+    private volatile boolean mIsClosed = false;
 
     SearchSessionImpl(
             @NonNull AppSearchImpl appSearchImpl,
@@ -176,6 +177,23 @@ class SearchSessionImpl implements AppSearchSession {
                 mDatabaseName,
                 queryExpression,
                 searchSpec);
+    }
+
+    @Override
+    @NonNull
+    public ListenableFuture<Void> reportUsage(@NonNull ReportUsageRequest request) {
+        Preconditions.checkNotNull(request);
+        Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
+        return execute(() -> {
+            mAppSearchImpl.reportUsage(
+                    mPackageName,
+                    mDatabaseName,
+                    request.getNamespace(),
+                    request.getUri(),
+                    request.getUsageTimeMillis());
+            mIsMutated = true;
+            return null;
+        });
     }
 
     @Override

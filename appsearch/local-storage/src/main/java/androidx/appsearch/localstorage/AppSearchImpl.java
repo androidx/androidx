@@ -56,6 +56,7 @@ import com.google.android.icing.proto.PersistToDiskResultProto;
 import com.google.android.icing.proto.PropertyConfigProto;
 import com.google.android.icing.proto.PropertyProto;
 import com.google.android.icing.proto.PutResultProto;
+import com.google.android.icing.proto.ReportUsageResultProto;
 import com.google.android.icing.proto.ResetResultProto;
 import com.google.android.icing.proto.ResultSpecProto;
 import com.google.android.icing.proto.SchemaProto;
@@ -66,6 +67,7 @@ import com.google.android.icing.proto.SearchSpecProto;
 import com.google.android.icing.proto.SetSchemaResultProto;
 import com.google.android.icing.proto.StatusProto;
 import com.google.android.icing.proto.TypePropertyMask;
+import com.google.android.icing.proto.UsageReport;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -637,6 +639,29 @@ public final class AppSearchImpl {
             mIcingSearchEngineLocked.invalidateNextPageToken(nextPageToken);
         } finally {
             mReadWriteLock.readLock().unlock();
+        }
+    }
+
+    /** Reports a usage of the given document at the given timestamp. */
+    public void reportUsage(
+            @NonNull String packageName,
+            @NonNull String databaseName,
+            @NonNull String namespace,
+            @NonNull String uri,
+            long usageTimestampMillis) throws AppSearchException {
+        String prefixedNamespace = createPrefix(packageName, databaseName) + namespace;
+        UsageReport report = UsageReport.newBuilder()
+                .setDocumentNamespace(prefixedNamespace)
+                .setDocumentUri(uri)
+                .setUsageTimestampMs(usageTimestampMillis)
+                .setUsageType(UsageReport.UsageType.USAGE_TYPE1)
+                .build();
+        mReadWriteLock.writeLock().lock();
+        try {
+            ReportUsageResultProto result = mIcingSearchEngineLocked.reportUsage(report);
+            checkSuccess(result.getStatus());
+        } finally {
+            mReadWriteLock.writeLock().unlock();
         }
     }
 
