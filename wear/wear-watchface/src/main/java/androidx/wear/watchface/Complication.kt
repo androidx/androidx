@@ -22,6 +22,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
+import android.os.Bundle
 import android.support.wearable.complications.ComplicationData
 import androidx.annotation.ColorInt
 import androidx.annotation.UiThread
@@ -34,6 +35,7 @@ import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
 
 /** Interface for rendering complications onto a [Canvas]. */
 public interface CanvasComplication {
@@ -247,7 +249,10 @@ public class Complication internal constructor(
      * The initial state of the complication. Note complications can be enabled / disabled by
      * [UserStyleSetting.ComplicationsUserStyleSetting].
      */
-    initiallyEnabled: Boolean
+    initiallyEnabled: Boolean,
+
+    /** Extras to be merged into the Intent sent when invoking the provider chooser activity. */
+    public val complicationConfigExtras: Bundle?
 ) {
     public companion object {
         internal val unitSquare = RectF(0f, 0f, 1f, 1f)
@@ -350,6 +355,7 @@ public class Complication internal constructor(
     ) {
         private var defaultProviderType = ComplicationType.NOT_CONFIGURED
         private var initiallyEnabled = true
+        private var complicationConfigExtras: Bundle? = null
 
         /**
          * Sets the initial [ComplicationType] to use with the initial complication provider.
@@ -363,8 +369,21 @@ public class Complication internal constructor(
             return this
         }
 
+        /**
+         * Whether the complication is initially enabled or not (by default its enabled). This can
+         * be overridden by [ComplicationsUserStyleSetting].
+         */
         public fun setEnabled(enabled: Boolean): Builder {
             this.initiallyEnabled = enabled
+            return this
+        }
+
+        /**
+         * Sets optional extras to be merged into the Intent sent when invoking the provider chooser
+         * activity.
+         */
+        public fun setComplicationConfigExtras(extras: Bundle?): Builder {
+            this.complicationConfigExtras = extras
             return this
         }
 
@@ -377,7 +396,8 @@ public class Complication internal constructor(
             supportedTypes,
             defaultProviderPolicy,
             defaultProviderType,
-            initiallyEnabled
+            initiallyEnabled,
+            complicationConfigExtras
         )
     }
 
