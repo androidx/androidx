@@ -371,12 +371,12 @@ internal class OnWatchFaceEditorSessionImpl(
             )
         }
 
-    override var userStyle: UserStyle
-        // We return a deep copy of the style because assigning to it can otherwise have unexpected
-        // side effects.
-        get() = UserStyle(editorDelegate.userStyleRepository.userStyle)
+    // We make a deep copy of the style because assigning to it can otherwise have unexpected
+    // side effects (it would apply to the active watch face).
+    override var userStyle = UserStyle(editorDelegate.userStyleRepository.userStyle)
         set(value) {
-            editorDelegate.userStyleRepository.userStyle = value
+            field = value
+            editorDelegate.userStyleRepository.userStyle = UserStyle(value)
         }
 
     override fun takeWatchFaceScreenshot(
