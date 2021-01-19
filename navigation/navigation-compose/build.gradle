@@ -33,7 +33,7 @@ dependencies {
 
     implementation(KOTLIN_STDLIB)
     api projectOrArtifact(":compose:runtime:runtime")
-    api projectOrArtifact(":compose:runtime:runtime-saved-instance-state")
+    api projectOrArtifact(":compose:runtime:runtime-saveable")
     api projectOrArtifact(":compose:ui:ui")
     api "androidx.navigation:navigation-runtime-ktx:2.3.1"
 

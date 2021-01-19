@@ -288,8 +288,8 @@ Users are strongly recommended to migrate to the new APIs\.
 # > Task :compose:integration-tests:benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/compose/integration\-tests/benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:navigation:navigation:processDebugAndroidTestManifest
-# > Task :compose:runtime:runtime-saved-instance-state:processDebugAndroidTestManifest
-\$OUT_DIR/androidx/compose/runtime/runtime\-saved\-instance\-state/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# > Task :compose:runtime:runtime-saveable:processDebugAndroidTestManifest
+\$OUT_DIR/androidx/compose/runtime/runtime\-saveable/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:ui:ui-graphics:compileKotlinMetadata
 w: \$SUPPORT/compose/ui/ui\-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/Color\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
 w: \$SUPPORT/compose/ui/ui\-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/Float[0-9]+\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
@@ -968,7 +968,7 @@ WARN: Could not read file: \$OUT_DIR/androidx/paging/paging\-common/build/libs/p
 # > Task :compose:runtime:runtime-rxjava2:lintDebug
 # > Task :compose:ui:ui-util:lintDebug
 # > Task :compose:ui:ui-geometry:lintDebug
-# > Task :compose:runtime:runtime-saved-instance-state:lintDebug
+# > Task :compose:runtime:runtime-saveable:lintDebug
 # > Task :compose:ui:ui-unit:lintDebug
 # > Task :compose:ui:ui-graphics:lintDebug
 # > Task :compose:ui:ui:lintDebug
@@ -991,7 +991,7 @@ WARN: Could not read file: \$OUT_DIR/androidx/paging/paging\-common/build/libs/p
 # > Task :paging:paging-compose:paging-compose-samples:lintDebug
 # > Task :navigation:navigation-compose:navigation-compose-samples:lintDebug
 # > Task :compose:runtime:runtime-rxjava2:runtime-rxjava2-samples:lintDebug
-# > Task :compose:runtime:runtime-saved-instance-state:runtime-saved-instance-state-samples:lintDebug
+# > Task :compose:runtime:runtime-saveable:runtime-saveable-samples:lintDebug
 # > Task :compose:animation:animation:animation-samples:lintDebug
 # > Task :compose:material:material-icons-core:material-icons-core-samples:lintDebug
 # > Task :compose:animation:animation-core:animation-core-samples:lintDebug
