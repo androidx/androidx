@@ -93,6 +93,7 @@ public class WebViewFeature {
             FORCE_DARK_STRATEGY,
             WEB_MESSAGE_LISTENER,
             DOCUMENT_START_SCRIPT,
+            PROXY_OVERRIDE_REVERSE_BYPASS,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -452,6 +453,16 @@ public class WebViewFeature {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String DOCUMENT_START_SCRIPT = "DOCUMENT_START_SCRIPT";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers {@link androidx.webkit.ProxyConfig.Builder.setReverseBypass(boolean)}
+     *
+     * TODO(laisminchillo): unhide when ready.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String PROXY_OVERRIDE_REVERSE_BYPASS = "PROXY_OVERRIDE_REVERSE_BYPASS";
 
     /**
      * Return whether a feature is supported at run-time. On devices running Android version {@link
