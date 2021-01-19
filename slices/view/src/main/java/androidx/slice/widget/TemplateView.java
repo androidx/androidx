@@ -43,7 +43,7 @@ public class TemplateView extends SliceChildView implements
 
     private SliceView mParent;
     private final View mForeground;
-    private final SliceAdapter mAdapter;
+    private SliceAdapter mAdapter;
     private final RecyclerView mRecyclerView;
     private ListContent mListContent;
     private List<SliceContent> mDisplayedItems = new ArrayList<>();
@@ -55,6 +55,7 @@ public class TemplateView extends SliceChildView implements
         super(context);
         mRecyclerView = new RecyclerView(getContext());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        setAdapter(new SliceAdapter(context));
         mAdapter = new SliceAdapter(context);
         mRecyclerView.setAdapter(mAdapter);
         addView(mRecyclerView);
@@ -68,6 +69,14 @@ public class TemplateView extends SliceChildView implements
         lp.width = LayoutParams.MATCH_PARENT;
         lp.height = LayoutParams.MATCH_PARENT;
         mForeground.setLayoutParams(lp);
+    }
+
+    /**
+     * Allows subclasses to set a custom adapter.
+     */
+    public void setAdapter(@NonNull SliceAdapter adapter) {
+        mAdapter = adapter;
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
