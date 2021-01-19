@@ -230,9 +230,9 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             Animation anim = Preconditions.checkNotNull(
                     Preconditions.checkNotNull(animationInfo.getAnimation(context)).animation);
             Operation.State finalState = operation.getFinalState();
-            if (finalState == Operation.State.VISIBLE) {
-                // If we've moving to VISIBLE, we can't use a AnimationSet
-                // due that causing the introduction of visual artifacts (b/163084315).
+            if (finalState != Operation.State.REMOVED) {
+                // If the operation does not remove the view, we can't use a
+                // AnimationSet due that causing the introduction of visual artifacts (b/163084315).
                 viewToAnimate.startAnimation(anim);
                 // This means we can't use setAnimationListener() without overriding
                 // any listener that the Fragment has set themselves, so we
