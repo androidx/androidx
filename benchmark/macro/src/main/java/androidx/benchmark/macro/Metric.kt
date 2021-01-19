@@ -88,7 +88,7 @@ internal class CpuUsageMetric : Metric() {
     }
 }
 
-class JankMetric : Metric() {
+class FrameTimingMetric : Metric() {
     private lateinit var packageName: String
     private val helper = JankCollectionHelper()
 
