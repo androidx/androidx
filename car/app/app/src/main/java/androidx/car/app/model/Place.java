@@ -28,7 +28,7 @@ import java.util.Objects;
 public class Place {
     @Keep
     @Nullable
-    private final LatLng mLatLng;
+    private final CarLocation mLocation;
     @Keep
     @Nullable
     private final PlaceMarker mMarker;
@@ -38,8 +38,10 @@ public class Place {
      *
      * @param latLng the geographical location associated with the place.
      * @throws NullPointerException if {@code latLng} is {@code null}.
+     * @deprecated use {@link Place.Builder#Builder(CarLocation)} instead.
      */
     // TODO(b/175827428): remove once host is changed to use new public ctor.
+    @Deprecated
     @NonNull
     public static Builder builder(@NonNull LatLng latLng) {
         return new Builder(requireNonNull(latLng));
@@ -61,20 +63,34 @@ public class Place {
         return mMarker;
     }
 
+    /**
+     * @deprecated use {@link #getLocation()} instead.
+     */
+    // TODO(b/177591131): remove after all host references have been removed.
+    @Deprecated
     @NonNull
     public LatLng getLatLng() {
-        return requireNonNull(mLatLng);
+        requireNonNull(mLocation);
+        return LatLng.create(mLocation.getLatitude(), mLocation.getLongitude());
+    }
+
+    /**
+     * @return the {@link CarLocation} set for this Place instance.
+     */
+    @NonNull
+    public CarLocation getLocation() {
+        return requireNonNull(mLocation);
     }
 
     @Override
     @NonNull
     public String toString() {
-        return "[ latlng: " + mLatLng + ", marker: " + mMarker + "]";
+        return "[ location: " + mLocation + ", marker: " + mMarker + "]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mLatLng, mMarker);
+        return Objects.hash(mLocation, mMarker);
     }
 
     @Override
@@ -87,24 +103,24 @@ public class Place {
         }
         Place otherPlace = (Place) other;
 
-        return Objects.equals(mLatLng, otherPlace.mLatLng) && Objects.equals(mMarker,
+        return Objects.equals(mLocation, otherPlace.mLocation) && Objects.equals(mMarker,
                 otherPlace.mMarker);
     }
 
     Place(Builder builder) {
-        mLatLng = builder.mLatLng;
+        mLocation = builder.mLocation;
         mMarker = builder.mMarker;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Place() {
-        mLatLng = null;
+        mLocation = null;
         mMarker = null;
     }
 
     /** A builder of {@link Place}. */
     public static final class Builder {
-        LatLng mLatLng;
+        CarLocation mLocation;
         @Nullable
         PlaceMarker mMarker;
 
@@ -113,9 +129,22 @@ public class Place {
          *
          * @param latLng the geographical location associated with the place.
          * @throws NullPointerException if {@code latLng} is {@code null}.
+         * @deprecated use {@link #Builder(CarLocation)} instead.
          */
+        // TODO(b/177591131): remove after all host references have been removed.
+        @Deprecated
         public Builder(@NonNull LatLng latLng) {
-            mLatLng = latLng;
+            this(CarLocation.create(latLng.getLatitude(), latLng.getLongitude()));
+        }
+
+        /**
+         * Returns a builder instance for a {@link CarLocation}.
+         *
+         * @param location the geographical location associated with the place.
+         * @throws NullPointerException if {@code location} is {@code null}.
+         */
+        public Builder(@NonNull CarLocation location) {
+            mLocation = Objects.requireNonNull(location);
         }
 
         /**
@@ -124,25 +153,13 @@ public class Place {
          */
         public Builder(@NonNull Place place) {
             requireNonNull(place);
-            mLatLng = place.getLatLng();
+            mLocation = place.getLocation();
             mMarker = place.getMarker();
         }
 
         /**
-         * Sets the geographical location associated with this place.
-         *
-         * @throws NullPointerException if {@code latLng} is {@code null}.
-         */
-        @NonNull
-        public Builder setLatLng(@NonNull LatLng latLng) {
-            this.mLatLng = requireNonNull(latLng);
-            return this;
-        }
-
-        /**
          * Sets the {@link PlaceMarker} that specifies how this place is to be displayed on a
-         * map, or
-         * {@code null} to not display a marker for this place.
+         * map, or {@code null} to not display a marker for this place.
          *
          * <p>By default and unless otherwise set in this method, a marker will not be displayed.
          */

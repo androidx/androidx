@@ -25,33 +25,27 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-/**
- * Represents a geographical location with a latitude and a longitude.
- *
- * @deprecated use {@link CarLocation} instead.
- */
-// TODO(b/177591131): remove after all host references have been removed.
-@Deprecated
-public final class LatLng {
+/** Represents a geographical location with a latitude and a longitude. */
+public final class CarLocation {
     @Keep
     private final double mLat;
     @Keep
     private final double mLng;
 
-    /** Returns a new instance of a {@link LatLng}. */
+    /** Returns a new instance of a {@link CarLocation}. */
     @NonNull
-    public static LatLng create(double latitude, double longitude) {
-        return new LatLng(latitude, longitude);
+    public static CarLocation create(double latitude, double longitude) {
+        return new CarLocation(latitude, longitude);
     }
 
     /**
-     * Returns a new instance of a {@link LatLng} with the same latitude and longitude contained in
-     * the given {@link Location}.
+     * Returns a new instance of a {@link CarLocation} with the same latitude and longitude
+     * contained in the given {@link Location}.
      *
      * @throws NullPointerException if {@code location} is {@code null}.
      */
     @NonNull
-    public static LatLng create(@NonNull Location location) {
+    public static CarLocation create(@NonNull Location location) {
         requireNonNull(location);
         return create(location.getLatitude(), location.getLongitude());
     }
@@ -81,22 +75,22 @@ public final class LatLng {
         if (this == other) {
             return true;
         }
-        if (!(other instanceof LatLng)) {
+        if (!(other instanceof CarLocation)) {
             return false;
         }
-        LatLng otherLatLng = (LatLng) other;
+        CarLocation otherLatLng = (CarLocation) other;
 
         return Double.doubleToLongBits(mLat) == Double.doubleToLongBits(otherLatLng.mLat)
                 && Double.doubleToLongBits(mLng) == Double.doubleToLongBits(otherLatLng.mLng);
     }
 
-    private LatLng(double lat, double lng) {
+    private CarLocation(double lat, double lng) {
         this.mLat = lat;
         this.mLng = lng;
     }
 
     /** Constructs an empty instance, used by serialization code. */
-    private LatLng() {
+    private CarLocation() {
         this(0, 0);
     }
 }

@@ -107,7 +107,7 @@ public class RowTest {
 
     @Test
     public void setMetadata() {
-        Metadata metadata = Metadata.ofPlace(new Place.Builder(LatLng.create(1, 1)).build());
+        Metadata metadata = Metadata.ofPlace(new Place.Builder(CarLocation.create(1, 1)).build());
 
         Row row = new Row.Builder().setTitle("Title").setMetadata(metadata).build();
         assertThat(row.getMetadata()).isEqualTo(metadata);
@@ -225,7 +225,7 @@ public class RowTest {
                         .setMetadata(
                                 new Metadata.Builder()
                                         .setPlace(
-                                                new Place.Builder(LatLng.create(/* latitude= */
+                                                new Place.Builder(CarLocation.create(/* latitude= */
                                                         1f, /* longitude= */ 1f))
                                                         .build())
                                         .build())
