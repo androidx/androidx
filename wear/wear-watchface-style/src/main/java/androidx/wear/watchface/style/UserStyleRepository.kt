@@ -82,6 +82,23 @@ public class UserStyleSchema(
      */
     public val userStyleSettings: List<UserStyleSetting>
 ) {
+    init {
+        var customValueUserStyleSettingCount = 0
+        for (setting in userStyleSettings) {
+            if (setting is UserStyleSetting.CustomValueUserStyleSetting) {
+                customValueUserStyleSettingCount++
+            }
+        }
+
+        // There's a hard limit to how big Schema + UserStyle can be and since this data is sent
+        // over bluetooth to the companion there will be performance issues well before we hit
+        // that the limit. As a result we want the total size of custom data to be kept small and
+        // we are initially restricting there to be at most one CustomValueUserStyleSetting.
+        require(
+            customValueUserStyleSettingCount <= 1
+        ) { "At most only one CustomValueUserStyleSetting is allowed" }
+    }
+
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public constructor(wireFormat: UserStyleSchemaWireFormat) : this(
