@@ -159,6 +159,7 @@ includeProject(":benchmark:integration-tests:macrobenchmark-target", "benchmark/
 includeProject(":benchmark:integration-tests:startup-benchmark", "benchmark/integration-tests/startup-benchmark", [BuildType.MAIN])
 includeProject(":biometric:biometric", "biometric/biometric", [BuildType.MAIN])
 includeProject(":biometric:biometric-ktx", "biometric/biometric-ktx", [BuildType.MAIN])
+includeProject(":biometric:biometric-ktx-samples", "biometric/biometric-ktx/samples", [BuildType.MAIN])
 includeProject(":biometric:integration-tests:testapp", "biometric/integration-tests/testapp", [BuildType.MAIN])
 includeProject(":browser:browser", "browser/browser", [BuildType.MAIN])
 includeProject(":buildSrc-tests", "buildSrc-tests", [BuildType.MAIN])

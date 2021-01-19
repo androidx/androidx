@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-// see ../playground-common/README.md for details on how this works
-rootProject.name = "biometric-playground"
-apply from: "../playground-common/playground-include-settings.gradle"
-setupPlayground(this, "..")
-selectProjectsFromAndroidX({ name ->
-    if (name.startsWith(":biometric")) return true
-    if (name == ":annotation:annotation-sampled") return true
-    return false
-})
+package androidx.biometric.auth
 
+/**
+ * Thrown when an authentication attempt by the user has been rejected, e.g., the user's
+ * biometrics were not recognized.
+ */
+public class AuthPromptFailureException : Exception()
