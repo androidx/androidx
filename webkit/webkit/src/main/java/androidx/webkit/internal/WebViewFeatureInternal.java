@@ -402,6 +402,12 @@ public enum WebViewFeatureInternal implements ConditionallySupportedFeature {
      */
     DOCUMENT_START_SCRIPT(WebViewFeature.DOCUMENT_START_SCRIPT, Features.DOCUMENT_START_SCRIPT),
 
+    /**
+     * This feature covers {@link androidx.webkit.ProxyConfig.Builder.setReverseBypass(boolean)}
+     */
+    PROXY_OVERRIDE_REVERSE_BYPASS(WebViewFeature.PROXY_OVERRIDE_REVERSE_BYPASS,
+            Features.PROXY_OVERRIDE_REVERSE_BYPASS),
+
     ;  // This semicolon ends the enum. Add new features with a trailing comma above this line.
 
     private static final int NOT_SUPPORTED_BY_FRAMEWORK = -1;
