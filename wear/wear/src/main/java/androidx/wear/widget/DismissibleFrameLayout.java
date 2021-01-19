@@ -142,7 +142,7 @@ public class DismissibleFrameLayout extends FrameLayout {
         mContext = context;
 
         setSwipeDismissible(WearableNavigationHelper.isSwipeToDismissEnabled(context));
-        setBackButtonDismissible(true);
+        setBackButtonDismissible(false);
     }
 
     /** Registers a callback for dismissal. */
