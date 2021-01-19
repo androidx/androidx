@@ -256,7 +256,8 @@ public class SliceContent {
         }
         if (actionItem == null) {
             Intent intent = new Intent();
-            PendingIntent pi = PendingIntent.getActivity(context, 0, intent, 0);
+            PendingIntent pi = PendingIntent.getActivity(context, 0, intent, 
+                PendingIntent.FLAG_IMMUTABLE);
             actionItem = new SliceItem(pi, null, FORMAT_ACTION, null, null);
         }
         if (shortcutAction != null && shortcutIcon != null && actionItem != null) {
