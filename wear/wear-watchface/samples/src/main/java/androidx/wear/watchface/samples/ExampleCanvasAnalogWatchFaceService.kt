@@ -262,8 +262,8 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
     return WatchFace(
         WatchFaceType.ANALOG,
         userStyleRepository,
-        complicationsManager,
-        renderer
+        renderer,
+        complicationsManager
     )
 }
 

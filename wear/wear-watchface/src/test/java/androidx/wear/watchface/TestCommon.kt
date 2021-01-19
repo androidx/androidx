@@ -95,8 +95,8 @@ internal class TestWatchFaceService(
     ) = WatchFace(
         watchFaceType,
         userStyleRepository,
-        complicationsManager,
-        renderer
+        renderer,
+        complicationsManager
     ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
         override fun getSystemTimeMillis(): Long {
             return mockSystemTimeMillis

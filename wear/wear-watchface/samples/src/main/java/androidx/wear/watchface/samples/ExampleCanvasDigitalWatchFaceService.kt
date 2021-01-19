@@ -623,8 +623,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         return WatchFace(
             WatchFaceType.ANALOG,
             userStyleRepository,
-            complicationsManager,
-            renderer
+            renderer,
+            complicationsManager
         )
     }
 }
