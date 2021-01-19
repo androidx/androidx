@@ -45,8 +45,13 @@ public class Place {
         return new Builder(requireNonNull(latLng));
     }
 
-    /** Returns a {@link Builder} instance with the same data as this {@link Place} instance. */
+    /**
+     * Returns a {@link Builder} instance with the same data as this {@link Place} instance.
+     * @deprecated use constructor.
+     */
+    // TODO(b/177484889): remove once host is changed to use new public ctor.
     @NonNull
+    @Deprecated
     public Builder newBuilder() {
         return new Builder(this);
     }
@@ -113,7 +118,12 @@ public class Place {
             mLatLng = latLng;
         }
 
-        Builder(Place place) {
+        /**
+         * Returns a {@link Builder} instance with the same data as the given {@link Place}
+         * instance.
+         */
+        public Builder(@NonNull Place place) {
+            requireNonNull(place);
             mLatLng = place.getLatLng();
             mMarker = place.getMarker();
         }

@@ -77,7 +77,7 @@ public class CarIconTest {
 
     @Test
     public void newBuilder_fromStandard() {
-        CarIcon carIcon = BACK.newBuilder().setTint(GREEN).build();
+        CarIcon carIcon = new CarIcon.Builder(BACK).setTint(GREEN).build();
 
         assertThat(carIcon.getType()).isEqualTo(TYPE_BACK);
         assertThat(carIcon.getTint()).isEqualTo(GREEN);
@@ -144,6 +144,6 @@ public class CarIconTest {
 
     @Test
     public void notEquals() {
-        assertThat(BACK.newBuilder().setTint(GREEN).build()).isNotEqualTo(BACK);
+        assertThat(new CarIcon.Builder(BACK).setTint(GREEN).build()).isNotEqualTo(BACK);
     }
 }
