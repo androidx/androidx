@@ -116,6 +116,7 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
 // @exportToFramework:startStrip()
+
     @Test
     public void testSetSchema_dataClass() throws Exception {
         mDb1.setSchema(
@@ -124,6 +125,7 @@ public abstract class AppSearchSessionCtsTestBase {
 // @exportToFramework:endStrip()
 
 // @exportToFramework:startStrip()
+
     @Test
     public void testGetSchema() throws Exception {
         AppSearchSchema emailSchema1 = new AppSearchSchema.Builder("Email1")
@@ -192,6 +194,7 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
 // @exportToFramework:startStrip()
+
     @Test
     public void testPutDocuments_dataClass() throws Exception {
         // Schema registration
@@ -452,6 +455,7 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
 // @exportToFramework:startStrip()
+
     @Test
     public void testGetDocuments_dataClass() throws Exception {
         // Schema registration
@@ -746,10 +750,23 @@ public abstract class AppSearchSessionCtsTestBase {
         mDb1.setSchema(
                 new SetSchemaRequest.Builder()
                         .addSchema(AppSearchEmail.SCHEMA)
-                        .build()).get();
+                        .addSchema(new AppSearchSchema.Builder("Note")
+                                .addProperty(new PropertyConfig.Builder("title")
+                                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                                        .setIndexingType(PropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                                        .setTokenizerType(
+                                                PropertyConfig.TOKENIZER_TYPE_PLAIN).build())
+                                .addProperty(new PropertyConfig.Builder("body")
+                                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                                        .setIndexingType(PropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                                        .setTokenizerType(
+                                                PropertyConfig.TOKENIZER_TYPE_PLAIN).build())
+                                .build()).build()).get();
 
         // Index two documents
-        AppSearchEmail email1 =
+        AppSearchEmail email =
                 new AppSearchEmail.Builder("uri1")
                         .setNamespace("namespace")
                         .setCreationTimestampMillis(1000)
@@ -758,56 +775,64 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        AppSearchEmail email2 =
-                new AppSearchEmail.Builder("uri2")
+        GenericDocument note =
+                new GenericDocument.Builder<>("uri2", "Note")
                         .setNamespace("namespace")
                         .setCreationTimestampMillis(1000)
-                        .setFrom("from@example.com")
-                        .setTo("to1@example.com", "to2@example.com")
-                        .setSubject("testPut example")
-                        .setBody("This is the body of the testPut email")
-                        .build();
+                        .setPropertyString("title", "Note title")
+                        .setPropertyString("body", "Note body").build();
         checkIsBatchResultSuccess(mDb1.putDocuments(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email1, email2).build()));
+                        .addGenericDocument(email, note).build()));
 
-        // Query with type property paths {"Email", ["subject", "to"]}
+        // Query with type property paths {"Email", ["body", "to"]}
         SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                .addProjection(AppSearchEmail.SCHEMA_TYPE, "subject", "to")
+                .addProjection(AppSearchEmail.SCHEMA_TYPE, "body", "to")
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
 
-        // The two email documents should have been returned with only the "subject" and "to"
-        // properties.
-        AppSearchEmail expected1 =
-                new AppSearchEmail.Builder("uri2")
-                        .setNamespace("namespace")
-                        .setCreationTimestampMillis(1000)
-                        .setTo("to1@example.com", "to2@example.com")
-                        .setSubject("testPut example")
-                        .build();
-        AppSearchEmail expected2 =
+        // The email document should have been returned with only the "body" and "to"
+        // properties. The note document should have been returned with all of its properties.
+        AppSearchEmail expectedEmail =
                 new AppSearchEmail.Builder("uri1")
                         .setNamespace("namespace")
                         .setCreationTimestampMillis(1000)
                         .setTo("to1@example.com", "to2@example.com")
-                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
                         .build();
-        assertThat(documents).containsExactly(expected1, expected2);
+        GenericDocument expectedNote =
+                new GenericDocument.Builder<>("uri2", "Note")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyString("title", "Note title")
+                        .setPropertyString("body", "Note body").build();
+        assertThat(documents).containsExactly(expectedNote, expectedEmail);
     }
 
-    // TODO(b/175039682) Add test cases for wildcard projection once go/oag/1534646 is submitted.
     @Test
     public void testQuery_projectionEmpty() throws Exception {
         // Schema registration
         mDb1.setSchema(
                 new SetSchemaRequest.Builder()
                         .addSchema(AppSearchEmail.SCHEMA)
-                        .build()).get();
+                        .addSchema(new AppSearchSchema.Builder("Note")
+                                .addProperty(new PropertyConfig.Builder("title")
+                                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                                        .setIndexingType(PropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                                        .setTokenizerType(
+                                                PropertyConfig.TOKENIZER_TYPE_PLAIN).build())
+                                .addProperty(new PropertyConfig.Builder("body")
+                                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                                        .setIndexingType(PropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                                        .setTokenizerType(
+                                                PropertyConfig.TOKENIZER_TYPE_PLAIN).build())
+                                .build()).build()).get();
 
         // Index two documents
-        AppSearchEmail email1 =
+        AppSearchEmail email =
                 new AppSearchEmail.Builder("uri1")
                         .setNamespace("namespace")
                         .setCreationTimestampMillis(1000)
@@ -816,18 +841,15 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        AppSearchEmail email2 =
-                new AppSearchEmail.Builder("uri2")
+        GenericDocument note =
+                new GenericDocument.Builder<>("uri2", "Note")
                         .setNamespace("namespace")
                         .setCreationTimestampMillis(1000)
-                        .setFrom("from@example.com")
-                        .setTo("to1@example.com", "to2@example.com")
-                        .setSubject("testPut example")
-                        .setBody("This is the body of the testPut email")
-                        .build();
+                        .setPropertyString("title", "Note title")
+                        .setPropertyString("body", "Note body").build();
         checkIsBatchResultSuccess(mDb1.putDocuments(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email1, email2).build()));
+                        .addGenericDocument(email, note).build()));
 
         // Query with type property paths {"Email", []}
         SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
@@ -836,18 +858,20 @@ public abstract class AppSearchSessionCtsTestBase {
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
 
-        // The two email documents should have been returned without any properties.
-        AppSearchEmail expected1 =
-                new AppSearchEmail.Builder("uri2")
-                        .setNamespace("namespace")
-                        .setCreationTimestampMillis(1000)
-                        .build();
-        AppSearchEmail expected2 =
+        // The email document should have been returned without any properties. The note document
+        // should have been returned with all of its properties.
+        AppSearchEmail expectedEmail =
                 new AppSearchEmail.Builder("uri1")
                         .setNamespace("namespace")
                         .setCreationTimestampMillis(1000)
                         .build();
-        assertThat(documents).containsExactly(expected1, expected2);
+        GenericDocument expectedNote =
+                new GenericDocument.Builder<>("uri2", "Note")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyString("title", "Note title")
+                        .setPropertyString("body", "Note body").build();
+        assertThat(documents).containsExactly(expectedNote, expectedEmail);
     }
 
     @Test
@@ -856,10 +880,23 @@ public abstract class AppSearchSessionCtsTestBase {
         mDb1.setSchema(
                 new SetSchemaRequest.Builder()
                         .addSchema(AppSearchEmail.SCHEMA)
-                        .build()).get();
+                        .addSchema(new AppSearchSchema.Builder("Note")
+                                .addProperty(new PropertyConfig.Builder("title")
+                                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                                        .setIndexingType(PropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                                        .setTokenizerType(
+                                                PropertyConfig.TOKENIZER_TYPE_PLAIN).build())
+                                .addProperty(new PropertyConfig.Builder("body")
+                                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                                        .setIndexingType(PropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                                        .setTokenizerType(
+                                                PropertyConfig.TOKENIZER_TYPE_PLAIN).build())
+                                .build()).build()).get();
 
         // Index two documents
-        AppSearchEmail email1 =
+        AppSearchEmail email =
                 new AppSearchEmail.Builder("uri1")
                         .setNamespace("namespace")
                         .setCreationTimestampMillis(1000)
@@ -868,44 +905,232 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        AppSearchEmail email2 =
-                new AppSearchEmail.Builder("uri2")
+        GenericDocument note =
+                new GenericDocument.Builder<>("uri2", "Note")
                         .setNamespace("namespace")
                         .setCreationTimestampMillis(1000)
-                        .setFrom("from@example.com")
-                        .setTo("to1@example.com", "to2@example.com")
-                        .setSubject("testPut example")
-                        .setBody("This is the body of the testPut email")
-                        .build();
+                        .setPropertyString("title", "Note title")
+                        .setPropertyString("body", "Note body").build();
         checkIsBatchResultSuccess(mDb1.putDocuments(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email1, email2).build()));
+                        .addGenericDocument(email, note).build()));
 
-        // Query with type property paths {"NonExistentType", []}, {"Email", ["subject", "to"]}
+        // Query with type property paths {"NonExistentType", []}, {"Email", ["body", "to"]}
         SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .addProjection("NonExistentType", Collections.emptyList())
-                .addProjection(AppSearchEmail.SCHEMA_TYPE, "subject", "to")
+                .addProjection(AppSearchEmail.SCHEMA_TYPE, "body", "to")
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
 
-        // The two email documents should have been returned with only the "subject" and "to"
-        // properties.
-        AppSearchEmail expected1 =
-                new AppSearchEmail.Builder("uri2")
-                        .setNamespace("namespace")
-                        .setCreationTimestampMillis(1000)
-                        .setTo("to1@example.com", "to2@example.com")
-                        .setSubject("testPut example")
-                        .build();
-        AppSearchEmail expected2 =
+        // The email document should have been returned with only the "body" and "to" properties.
+        // The note document should have been returned with all of its properties.
+        AppSearchEmail expectedEmail =
                 new AppSearchEmail.Builder("uri1")
                         .setNamespace("namespace")
                         .setCreationTimestampMillis(1000)
                         .setTo("to1@example.com", "to2@example.com")
-                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
                         .build();
-        assertThat(documents).containsExactly(expected1, expected2);
+        GenericDocument expectedNote =
+                new GenericDocument.Builder<>("uri2", "Note")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyString("title", "Note title")
+                        .setPropertyString("body", "Note body").build();
+        assertThat(documents).containsExactly(expectedNote, expectedEmail);
+    }
+
+    @Test
+    public void testQuery_wildcardProjection() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder()
+                        .addSchema(AppSearchEmail.SCHEMA)
+                        .addSchema(new AppSearchSchema.Builder("Note")
+                                .addProperty(new PropertyConfig.Builder("title")
+                                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                                        .setIndexingType(PropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                                        .setTokenizerType(
+                                                PropertyConfig.TOKENIZER_TYPE_PLAIN).build())
+                                .addProperty(new PropertyConfig.Builder("body")
+                                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                                        .setIndexingType(PropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                                        .setTokenizerType(
+                                                PropertyConfig.TOKENIZER_TYPE_PLAIN).build())
+                                .build()).build()).get();
+
+        // Index two documents
+        AppSearchEmail email =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        GenericDocument note =
+                new GenericDocument.Builder<>("uri2", "Note")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyString("title", "Note title")
+                        .setPropertyString("body", "Note body").build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocument(email, note).build()));
+
+        // Query with type property paths {"*", ["body", "to"]}
+        SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .addProjection(SearchSpec.PROJECTION_SCHEMA_TYPE_WILDCARD, "body", "to")
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+
+        // The email document should have been returned with only the "body" and "to"
+        // properties. The note document should have been returned with only the "body" property.
+        AppSearchEmail expectedEmail =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        GenericDocument expectedNote =
+                new GenericDocument.Builder<>("uri2", "Note")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyString("body", "Note body").build();
+        assertThat(documents).containsExactly(expectedNote, expectedEmail);
+    }
+
+    @Test
+    public void testQuery_wildcardProjectionEmpty() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder()
+                        .addSchema(AppSearchEmail.SCHEMA)
+                        .addSchema(new AppSearchSchema.Builder("Note")
+                                .addProperty(new PropertyConfig.Builder("title")
+                                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                                        .setIndexingType(PropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                                        .setTokenizerType(
+                                                PropertyConfig.TOKENIZER_TYPE_PLAIN).build())
+                                .addProperty(new PropertyConfig.Builder("body")
+                                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                                        .setIndexingType(PropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                                        .setTokenizerType(
+                                                PropertyConfig.TOKENIZER_TYPE_PLAIN).build())
+                                .build()).build()).get();
+
+        // Index two documents
+        AppSearchEmail email =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        GenericDocument note =
+                new GenericDocument.Builder<>("uri2", "Note")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyString("title", "Note title")
+                        .setPropertyString("body", "Note body").build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocument(email, note).build()));
+
+        // Query with type property paths {"*", []}
+        SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .addProjection(SearchSpec.PROJECTION_SCHEMA_TYPE_WILDCARD, Collections.emptyList())
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+
+        // The email and note documents should have been returned without any properties.
+        AppSearchEmail expectedEmail =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .build();
+        GenericDocument expectedNote =
+                new GenericDocument.Builder<>("uri2", "Note")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000).build();
+        assertThat(documents).containsExactly(expectedNote, expectedEmail);
+    }
+
+    @Test
+    public void testQuery_wildcardProjectionNonExistentType() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder()
+                        .addSchema(AppSearchEmail.SCHEMA)
+                        .addSchema(new AppSearchSchema.Builder("Note")
+                                .addProperty(new PropertyConfig.Builder("title")
+                                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                                        .setIndexingType(PropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                                        .setTokenizerType(
+                                                PropertyConfig.TOKENIZER_TYPE_PLAIN).build())
+                                .addProperty(new PropertyConfig.Builder("body")
+                                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                                        .setIndexingType(PropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                                        .setTokenizerType(
+                                                PropertyConfig.TOKENIZER_TYPE_PLAIN).build())
+                                .build()).build()).get();
+
+        // Index two documents
+        AppSearchEmail email =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        GenericDocument note =
+                new GenericDocument.Builder<>("uri2", "Note")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyString("title", "Note title")
+                        .setPropertyString("body", "Note body").build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocument(email, note).build()));
+
+        // Query with type property paths {"NonExistentType", []}, {"*", ["body", "to"]}
+        SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .addProjection("NonExistentType", Collections.emptyList())
+                .addProjection(SearchSpec.PROJECTION_SCHEMA_TYPE_WILDCARD, "body", "to")
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+
+        // The email document should have been returned with only the "body" and "to"
+        // properties. The note document should have been returned with only the "body" property.
+        AppSearchEmail expectedEmail =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        GenericDocument expectedNote =
+                new GenericDocument.Builder<>("uri2", "Note")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyString("body", "Note body").build();
+        assertThat(documents).containsExactly(expectedNote, expectedEmail);
     }
 
     @Test
