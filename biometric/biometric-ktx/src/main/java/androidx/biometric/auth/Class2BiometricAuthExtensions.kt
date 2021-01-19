@@ -15,9 +15,42 @@
  */
 package androidx.biometric.auth
 
+import androidx.biometric.BiometricPrompt.AuthenticationResult
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.Executor
+
+/**
+ * Shows an authentication prompt to the user.
+ *
+ * @param host A wrapper for the component that will host the prompt.
+ *
+ * @return [AuthenticationResult] for a successful authentication.
+ *
+ * @throws AuthPromptErrorException  when an unrecoverable error has been encountered and
+ * authentication has stopped.
+ * @throws AuthPromptFailureException when an authentication attempt by the user has been rejected.
+ *
+ * @see Class2BiometricAuthPrompt.authenticate(AuthPromptHost, AuthPromptCallback)
+ *
+ * @sample androidx.biometric.samples.auth.class2BiometricAuth
+ */
+public suspend fun Class2BiometricAuthPrompt.authenticate(
+    host: AuthPromptHost,
+): AuthenticationResult {
+    return suspendCancellableCoroutine { continuation ->
+        val authPrompt = startAuthentication(
+            host,
+            Runnable::run,
+            CoroutineAuthPromptCallback(continuation)
+        )
+
+        continuation.invokeOnCancellation {
+            authPrompt.cancelAuthentication()
+        }
+    }
+}
 
 /**
  * Prompts the user to authenticate with a **Class 2** biometric (e.g. fingerprint, face, or iris).
@@ -68,6 +101,44 @@ public fun FragmentActivity.startClass2BiometricAuthentication(
  * @param subtitle An optional subtitle to be displayed on the prompt.
  * @param description An optional description to be displayed on the prompt.
  * @param confirmationRequired Whether user confirmation should be required for passive biometrics.
+ *
+ * @return [AuthenticationResult] for a successful authentication.
+ *
+ * @throws AuthPromptErrorException  when an unrecoverable error has been encountered and
+ * authentication has stopped.
+ * @throws AuthPromptFailureException when an authentication attempt by the user has been rejected.
+ *
+ * @see Class2BiometricAuthPrompt
+ */
+public suspend fun FragmentActivity.authenticateWithClass2Biometrics(
+    title: CharSequence,
+    negativeButtonText: CharSequence,
+    subtitle: CharSequence? = null,
+    description: CharSequence? = null,
+    confirmationRequired: Boolean = true,
+): AuthenticationResult {
+    val authPrompt = buildClass2BiometricAuthPrompt(
+        title,
+        negativeButtonText,
+        subtitle,
+        description,
+        confirmationRequired,
+    )
+
+    return authPrompt.authenticate(AuthPromptHost(this))
+}
+
+/**
+ * Prompts the user to authenticate with a **Class 2** biometric (e.g. fingerprint, face, or iris).
+ *
+ * Note that **Class 3** biometrics are guaranteed to meet the requirements for **Class 2** and thus
+ * will also be accepted.
+ *
+ * @param title The title to be displayed on the prompt.
+ * @param negativeButtonText The label for the negative button on the prompt.
+ * @param subtitle An optional subtitle to be displayed on the prompt.
+ * @param description An optional description to be displayed on the prompt.
+ * @param confirmationRequired Whether user confirmation should be required for passive biometrics.
  * @param executor An executor for [callback] methods. If `null`, these will run on the main thread.
  * @param callback The object that will receive and process authentication events.
  * @return An [AuthPrompt] handle to the shown prompt.
@@ -96,6 +167,61 @@ public fun Fragment.startClass2BiometricAuthentication(
 }
 
 /**
+ * Prompts the user to authenticate with a **Class 2** biometric (e.g. fingerprint, face, or iris).
+ *
+ * Note that **Class 3** biometrics are guaranteed to meet the requirements for **Class 2** and thus
+ * will also be accepted.
+ *
+ * @param title The title to be displayed on the prompt.
+ * @param negativeButtonText The label for the negative button on the prompt.
+ * @param subtitle An optional subtitle to be displayed on the prompt.
+ * @param description An optional description to be displayed on the prompt.
+ * @param confirmationRequired Whether user confirmation should be required for passive biometrics.
+ *
+ * @return [AuthenticationResult] for a successful authentication.
+ *
+ * @throws AuthPromptErrorException  when an unrecoverable error has been encountered and
+ * authentication has stopped.
+ * @throws AuthPromptFailureException when an authentication attempt by the user has been rejected.
+ *
+ * @see Class2BiometricAuthPrompt
+ */
+public suspend fun Fragment.authenticateWithClass2Biometrics(
+    title: CharSequence,
+    negativeButtonText: CharSequence,
+    subtitle: CharSequence? = null,
+    description: CharSequence? = null,
+    confirmationRequired: Boolean = true,
+): AuthenticationResult {
+    val authPrompt = buildClass2BiometricAuthPrompt(
+        title,
+        negativeButtonText,
+        subtitle,
+        description,
+        confirmationRequired,
+    )
+
+    return authPrompt.authenticate(AuthPromptHost(this))
+}
+
+/**
+ * Creates a [Class2BiometricAuthPrompt] with the given parameters.
+ */
+private fun buildClass2BiometricAuthPrompt(
+    title: CharSequence,
+    negativeButtonText: CharSequence,
+    subtitle: CharSequence? = null,
+    description: CharSequence? = null,
+    confirmationRequired: Boolean = true,
+): Class2BiometricAuthPrompt = Class2BiometricAuthPrompt.Builder(title, negativeButtonText)
+    .apply {
+        subtitle?.let { setSubtitle(it) }
+        description?.let { setDescription(it) }
+        setConfirmationRequired(confirmationRequired)
+    }
+    .build()
+
+/**
  * Creates a [Class2BiometricAuthPrompt] with the given parameters and starts authentication.
  */
 private fun startClass2BiometricAuthenticationInternal(
@@ -108,11 +234,13 @@ private fun startClass2BiometricAuthenticationInternal(
     executor: Executor? = null,
     callback: AuthPromptCallback
 ): AuthPrompt {
-    val prompt = Class2BiometricAuthPrompt.Builder(title, negativeButtonText).apply {
-        subtitle?.let { setSubtitle(it) }
-        description?.let { setDescription(it) }
-        setConfirmationRequired(confirmationRequired)
-    }.build()
+    val prompt = buildClass2BiometricAuthPrompt(
+        title,
+        negativeButtonText,
+        subtitle,
+        description,
+        confirmationRequired
+    )
 
     return if (executor == null) {
         prompt.startAuthentication(host, callback)

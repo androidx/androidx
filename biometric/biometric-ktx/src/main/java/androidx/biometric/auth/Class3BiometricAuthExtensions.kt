@@ -15,12 +15,48 @@
  */
 package androidx.biometric.auth
 
-import androidx.biometric.BiometricPrompt
+import androidx.biometric.BiometricPrompt.AuthenticationResult
+import androidx.biometric.BiometricPrompt.CryptoObject
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.Executor
 
 /**
+ * Shows an authentication prompt to the user.
+ *
+ * @param host A wrapper for the component that will host the prompt.
+ * @param crypto A cryptographic object to be associated with this authentication.
+ *
+ * @return [AuthenticationResult] for a successful authentication.
+ *
+ * @throws AuthPromptErrorException  when an unrecoverable error has been encountered and
+ * authentication has stopped.
+ * @throws AuthPromptFailureException when an authentication attempt by the user has been rejected.
+ *
+ * @see Class3BiometricAuthPrompt.authenticate(AuthPromptHost, AuthPromptCallback)
+ *
+ * @sample androidx.biometric.samples.auth.class3BiometricAuth
+ */
+public suspend fun Class3BiometricAuthPrompt.authenticate(
+    host: AuthPromptHost,
+    crypto: CryptoObject?,
+): AuthenticationResult {
+    return suspendCancellableCoroutine { continuation ->
+        val authPrompt = startAuthentication(
+            host,
+            crypto,
+            Runnable::run,
+            CoroutineAuthPromptCallback(continuation)
+        )
+
+        continuation.invokeOnCancellation {
+            authPrompt.cancelAuthentication()
+        }
+    }
+}
+
+/**
  * Prompts the user to authenticate with a **Class 3** biometric (e.g. fingerprint, face, or iris).
  *
  * @param crypto A cryptographic object to be associated with this authentication.
@@ -35,8 +71,8 @@ import java.util.concurrent.Executor
  *
  * @see Class3BiometricAuthPrompt
  */
-public fun FragmentActivity.startClass3BiometricAuthentication(
-    crypto: BiometricPrompt.CryptoObject?,
+public fun FragmentActivity.authenticateWithClass3Biometrics(
+    crypto: CryptoObject?,
     title: CharSequence,
     negativeButtonText: CharSequence,
     subtitle: CharSequence? = null,
@@ -67,14 +103,51 @@ public fun FragmentActivity.startClass3BiometricAuthentication(
  * @param subtitle An optional subtitle to be displayed on the prompt.
  * @param description An optional description to be displayed on the prompt.
  * @param confirmationRequired Whether user confirmation should be required for passive biometrics.
+ *
+ * @return [AuthenticationResult] for a successful authentication.
+ *
+ * @throws AuthPromptErrorException  when an unrecoverable error has been encountered and
+ * authentication has stopped.
+ * @throws AuthPromptFailureException when an authentication attempt by the user has been rejected.
+ *
+ * @see Class3BiometricAuthPrompt
+ */
+public suspend fun FragmentActivity.authenticateWithClass3Biometrics(
+    crypto: CryptoObject?,
+    title: CharSequence,
+    negativeButtonText: CharSequence,
+    subtitle: CharSequence? = null,
+    description: CharSequence? = null,
+    confirmationRequired: Boolean = true,
+): AuthenticationResult {
+    val authPrompt = buildClass3BiometricAuthPrompt(
+        title,
+        negativeButtonText,
+        subtitle,
+        description,
+        confirmationRequired
+    )
+
+    return authPrompt.authenticate(AuthPromptHost(this), crypto)
+}
+
+/**
+ * Prompts the user to authenticate with a **Class 3** biometric (e.g. fingerprint, face, or iris).
+ *
+ * @param crypto A cryptographic object to be associated with this authentication.
+ * @param title The title to be displayed on the prompt.
+ * @param negativeButtonText The label for the negative button on the prompt.
+ * @param subtitle An optional subtitle to be displayed on the prompt.
+ * @param description An optional description to be displayed on the prompt.
+ * @param confirmationRequired Whether user confirmation should be required for passive biometrics.
  * @param executor An executor for [callback] methods. If `null`, these will run on the main thread.
  * @param callback The object that will receive and process authentication events.
  * @return An [AuthPrompt] handle to the shown prompt.
  *
  * @see Class3BiometricAuthPrompt
  */
-public fun Fragment.startClass3BiometricAuthentication(
-    crypto: BiometricPrompt.CryptoObject?,
+public fun Fragment.authenticateWithClass3Biometrics(
+    crypto: CryptoObject?,
     title: CharSequence,
     negativeButtonText: CharSequence,
     subtitle: CharSequence? = null,
@@ -95,13 +168,67 @@ public fun Fragment.startClass3BiometricAuthentication(
         callback
     )
 }
+
+/**
+ * Prompts the user to authenticate with a **Class 3** biometric (e.g. fingerprint, face, or iris).
+ *
+ * @param crypto A cryptographic object to be associated with this authentication.
+ * @param title The title to be displayed on the prompt.
+ * @param negativeButtonText The label for the negative button on the prompt.
+ * @param subtitle An optional subtitle to be displayed on the prompt.
+ * @param description An optional description to be displayed on the prompt.
+ * @param confirmationRequired Whether user confirmation should be required for passive biometrics.
+ *
+ * @return [AuthenticationResult] for a successful authentication.
+ *
+ * @throws AuthPromptErrorException  when an unrecoverable error has been encountered and
+ * authentication has stopped.
+ * @throws AuthPromptFailureException when an authentication attempt by the user has been rejected.
+ *
+ * @see Class3BiometricAuthPrompt
+ */
+public suspend fun Fragment.authenticateWithClass3Biometrics(
+    crypto: CryptoObject?,
+    title: CharSequence,
+    negativeButtonText: CharSequence,
+    subtitle: CharSequence? = null,
+    description: CharSequence? = null,
+    confirmationRequired: Boolean = true,
+): AuthenticationResult {
+    val authPrompt = buildClass3BiometricAuthPrompt(
+        title,
+        negativeButtonText,
+        subtitle,
+        description,
+        confirmationRequired
+    )
+
+    return authPrompt.authenticate(AuthPromptHost(this), crypto)
+}
+
+/**
+ * Creates a [Class3BiometricAuthPrompt] with the given parameters.
+ */
+private fun buildClass3BiometricAuthPrompt(
+    title: CharSequence,
+    negativeButtonText: CharSequence,
+    subtitle: CharSequence? = null,
+    description: CharSequence? = null,
+    confirmationRequired: Boolean = true,
+): Class3BiometricAuthPrompt = Class3BiometricAuthPrompt.Builder(title, negativeButtonText)
+    .apply {
+        subtitle?.let { setSubtitle(it) }
+        description?.let { setDescription(it) }
+        setConfirmationRequired(confirmationRequired)
+    }
+    .build()
 
 /**
  * Creates a [Class3BiometricAuthPrompt] with the given parameters and starts authentication.
  */
 private fun startClass3BiometricAuthenticationInternal(
     host: AuthPromptHost,
-    crypto: BiometricPrompt.CryptoObject?,
+    crypto: CryptoObject?,
     title: CharSequence,
     negativeButtonText: CharSequence,
     subtitle: CharSequence? = null,
@@ -110,11 +237,13 @@ private fun startClass3BiometricAuthenticationInternal(
     executor: Executor? = null,
     callback: AuthPromptCallback
 ): AuthPrompt {
-    val prompt = Class3BiometricAuthPrompt.Builder(title, negativeButtonText).apply {
-        subtitle?.let { setSubtitle(it) }
-        description?.let { setDescription(it) }
-        setConfirmationRequired(confirmationRequired)
-    }.build()
+    val prompt = buildClass3BiometricAuthPrompt(
+        title,
+        negativeButtonText,
+        subtitle,
+        description,
+        confirmationRequired
+    )
 
     return if (executor == null) {
         prompt.startAuthentication(host, crypto, callback)
