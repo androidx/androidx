@@ -21,6 +21,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.icu.util.Calendar
+import android.os.Bundle
 import android.support.wearable.watchface.accessibility.AccessibilityUtils
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import androidx.annotation.UiThread
@@ -394,7 +395,11 @@ public class ComplicationsManager(
                 getComponentName(watchFaceHostApi.getContext()),
                 complicationId,
                 complication.supportedTypes
-            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).apply {
+                complication.complicationConfigExtras?.let {
+                    replaceExtras(Bundle(it).apply { putAll(extras!!) })
+                }
+            }
         )
         for (complicationListener in complicationListeners) {
             complicationListener.onComplicationDoubleTapped(complicationId)

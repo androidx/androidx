@@ -37,6 +37,7 @@ package androidx.wear.watchface {
     method public static androidx.wear.watchface.Complication.Builder createRoundRectComplicationBuilder(int id, androidx.wear.watchface.CanvasComplication renderer, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.ComplicationBounds complicationBounds);
     method public int getBoundsType();
     method @UiThread public androidx.wear.complications.ComplicationBounds getComplicationBounds();
+    method public android.os.Bundle? getComplicationConfigExtras();
     method public androidx.wear.watchface.ObservableWatchData<androidx.wear.complications.data.ComplicationData> getComplicationData();
     method @UiThread public androidx.wear.complications.DefaultComplicationProviderPolicy getDefaultProviderPolicy();
     method @UiThread public androidx.wear.complications.data.ComplicationType getDefaultProviderType();
@@ -50,6 +51,7 @@ package androidx.wear.watchface {
     method @UiThread public void setRenderer(androidx.wear.watchface.CanvasComplication value);
     property public final int boundsType;
     property @UiThread public final androidx.wear.complications.ComplicationBounds complicationBounds;
+    property public final android.os.Bundle? complicationConfigExtras;
     property public final androidx.wear.watchface.ObservableWatchData<androidx.wear.complications.data.ComplicationData> complicationData;
     property @UiThread public final androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy;
     property @UiThread public final androidx.wear.complications.data.ComplicationType defaultProviderType;
@@ -61,6 +63,7 @@ package androidx.wear.watchface {
 
   public static final class Complication.Builder {
     method public androidx.wear.watchface.Complication build();
+    method public androidx.wear.watchface.Complication.Builder setComplicationConfigExtras(android.os.Bundle? extras);
     method public androidx.wear.watchface.Complication.Builder setDefaultProviderType(androidx.wear.complications.data.ComplicationType defaultProviderType);
     method public androidx.wear.watchface.Complication.Builder setEnabled(boolean enabled);
   }
