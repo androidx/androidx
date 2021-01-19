@@ -19,8 +19,7 @@ package androidx.car.app;
 import androidx.annotation.NonNull;
 
 /** Exceptions that happen on calls to the host. */
-// Developers can catch this exception so keeping it.
-public class HostException extends RuntimeException {
+public final class HostException extends RuntimeException {
     /**
      * Creates an instance of {@link HostException} with the given {@code message}.
      *

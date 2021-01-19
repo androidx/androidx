@@ -52,7 +52,7 @@ import java.time.Duration;
  * string.setSpan(ForegroundCarColorSpan.create(CarColor.BLUE), 0, 1, SPAN_EXCLUSIVE_EXCLUSIVE);
  * }</pre>
  */
-public class DurationSpan extends CarSpan {
+public final class DurationSpan extends CarSpan {
     @Keep
     private final long mDurationSeconds;
 

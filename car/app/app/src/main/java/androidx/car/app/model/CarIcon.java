@@ -92,7 +92,7 @@ import java.util.Objects;
  * </resources>
  * }</pre>
  */
-public class CarIcon {
+public final class CarIcon {
     /** Matches with {@link android.graphics.drawable.Icon#TYPE_RESOURCE} */
     private static final int TYPE_RESOURCE = 2;
 

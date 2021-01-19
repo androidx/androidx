@@ -33,7 +33,7 @@ import java.util.Objects;
 /**
  * A model used to send text with attached spans to the host.
  */
-public class CarText {
+public final class CarText {
     @Keep
     private final String mText;
     @Keep

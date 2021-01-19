@@ -25,7 +25,7 @@ import androidx.annotation.Nullable;
 import java.util.Objects;
 
 /** A metadata class used for attaching additional properties to models. */
-public class Metadata {
+public final class Metadata {
     /** An empty {@link Metadata} instance. */
     public static final Metadata EMPTY_METADATA = new Builder().build();
 

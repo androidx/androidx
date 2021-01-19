@@ -30,7 +30,7 @@ import androidx.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(LIBRARY)
-public class ThreadUtils {
+public final class ThreadUtils {
     private static final Handler HANDLER = new Handler(Looper.getMainLooper());
 
     /** Executes the {@code action} on the main thread. */

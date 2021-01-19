@@ -118,7 +118,7 @@ import java.util.List;
  * NotificationCompat.Builder#setOnlyAlertOnce(true)} unless there is a significant navigation turn
  * event.
  */
-public class CarAppExtender implements NotificationCompat.Extender {
+public final class CarAppExtender implements NotificationCompat.Extender {
     private static final String TAG = "CarAppExtender";
 
     private static final String EXTRA_CAR_EXTENDER = "android.car.app.EXTENSIONS";

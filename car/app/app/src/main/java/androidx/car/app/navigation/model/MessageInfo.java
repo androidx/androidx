@@ -29,7 +29,7 @@ import androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo;
 import java.util.Objects;
 
 /** Represents a message that can be shown in the {@link NavigationTemplate}. */
-public class MessageInfo implements NavigationInfo {
+public final class MessageInfo implements NavigationInfo {
     @Keep
     @Nullable
     private final CarText mTitle;

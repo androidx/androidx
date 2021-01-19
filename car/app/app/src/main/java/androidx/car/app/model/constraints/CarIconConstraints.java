@@ -30,7 +30,7 @@ import androidx.core.graphics.drawable.IconCompat;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class CarIconConstraints {
+public final class CarIconConstraints {
     /** Allow all custom icon types. */
     @NonNull
     public static final CarIconConstraints UNCONSTRAINED =

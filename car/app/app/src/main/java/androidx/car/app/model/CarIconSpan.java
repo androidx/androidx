@@ -58,7 +58,7 @@ import java.util.Objects;
  *
  * @see CarIcon
  */
-public class CarIconSpan extends CarSpan {
+public final class CarIconSpan extends CarSpan {
     /**
      * Indicates how to align a car icon span with its surrounding text.
      *

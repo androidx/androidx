@@ -27,7 +27,7 @@ import androidx.car.app.CarContext;
  *
  * @see CarContext#getCarAppApiLevel()
  */
-public class CarAppApiLevels {
+public final class CarAppApiLevels {
 
     /**
      * Initial API level.

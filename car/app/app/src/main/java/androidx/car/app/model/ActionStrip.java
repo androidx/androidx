@@ -41,7 +41,7 @@ import java.util.Set;
  * <p>See the documentation of individual {@link Template}s on restrictions around what actions are
  * supported.
  */
-public class ActionStrip {
+public final class ActionStrip {
     @Keep
     private final List<Action> mActions;
 
