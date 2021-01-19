@@ -70,26 +70,43 @@ public final class Step {
         return new Builder(requireNonNull(cue));
     }
 
+    /**
+     * Returns the maneuver to be performed on this step or {@code null} if this step doesn't
+     * involve a maneuver.
+     */
     @Nullable
     public Maneuver getManeuver() {
         return mManeuver;
     }
 
+    /**
+     * Returns a list of {@link Lane} that contains information of the road lanes at the point
+     * where the driver should execute this step.
+     */
     @NonNull
     public List<Lane> getLanes() {
         return CollectionUtils.emptyIfNull(mLanes);
     }
 
+    /**
+     * Returns the image representing all the lanes or {@code null} if no lanes image is available.
+     */
     @Nullable
     public CarIcon getLanesImage() {
         return mLanesImage;
     }
 
+    /**
+     * Returns the text description of this maneuver.
+     */
     @Nullable
     public CarText getCue() {
         return mCue;
     }
 
+    /**
+     * Returns the text description of the road for the step or {@code null} if unknown.
+     */
     @Nullable
     public CarText getRoad() {
         return mRoad;
@@ -170,12 +187,10 @@ public final class Step {
          * Constructs a new builder of {@link Step} with a cue.
          *
          * <p>A cue must always be set when the step is created and is used as a fallback when
-         * {@link
-         * Maneuver} is not set or is unavailable.
+         * {@link Maneuver} is not set or is unavailable.
          *
          * <p>Some cluster displays do not support UTF-8 encoded characters, in which case
-         * unsupported
-         * characters will not be displayed properly.
+         * unsupported characters will not be displayed properly.
          *
          * @throws NullPointerException if {@code cue} is {@code null}.
          * @see Builder#setCue(CharSequence)
@@ -293,8 +308,7 @@ public final class Step {
          * Sets a text description of the road for the step or {@code null} if unknown.
          *
          * <p>This value is primarily used for vehicle cluster and heads-up displays and may not
-         * appear
-         * in the navigation template.
+         * appear in the navigation template.
          *
          * <p>For example, a {@link Step} for a left turn might provide "State Street" for the road.
          *
