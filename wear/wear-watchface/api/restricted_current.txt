@@ -233,7 +233,8 @@ package androidx.wear.watchface {
   }
 
   public final class WatchFace {
-    ctor public WatchFace(int watchFaceType, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.ComplicationsManager complicationsManager, androidx.wear.watchface.Renderer renderer);
+    ctor public WatchFace(int watchFaceType, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.Renderer renderer, androidx.wear.watchface.ComplicationsManager complicationsManager);
+    ctor public WatchFace(int watchFaceType, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.Renderer renderer);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.watchface.WatchFace.EditorDelegate? getEditorDelegate(android.content.ComponentName componentName);
     method public androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle getLegacyWatchFaceStyle();
     method public Long? getOverridePreviewReferenceTimeMillis();

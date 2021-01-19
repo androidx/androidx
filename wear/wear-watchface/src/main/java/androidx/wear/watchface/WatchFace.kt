@@ -113,7 +113,7 @@ private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
  * The return value of [WatchFaceService.createWatchFace] which brings together rendering, styling,
  * complications and state observers.
  */
-public class WatchFace(
+public class WatchFace @JvmOverloads constructor(
     /**
      * The type of watch face, whether it's digital or analog. Used to determine the
      * default time for editor preview screenshots.
@@ -123,11 +123,12 @@ public class WatchFace(
     /** The [UserStyleRepository] for this WatchFace. */
     public val userStyleRepository: UserStyleRepository,
 
-    /** The [ComplicationsManager] for this WatchFace. */
-    internal var complicationsManager: ComplicationsManager,
-
     /** The [Renderer] for this WatchFace. */
-    internal val renderer: Renderer
+    internal val renderer: Renderer,
+
+    /** The [ComplicationsManager] for this WatchFace. */
+    internal var complicationsManager: ComplicationsManager =
+        ComplicationsManager(emptyList(), userStyleRepository)
 ) {
     internal var tapListener: TapListener? = null
 
