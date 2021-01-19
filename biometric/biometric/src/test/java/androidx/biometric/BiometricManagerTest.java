@@ -240,39 +240,78 @@ public class BiometricManagerTest {
 
     @Test
     @Config(minSdk = Build.VERSION_CODES.Q, maxSdk = Build.VERSION_CODES.Q)
-    public void testCanAuthenticate_ReturnsError_WhenDeviceNotSecured_OnApi29() {
+    public void testCanAuthenticate_ReturnsError_WhenUnsecured_BiometricOnly_OnApi29() {
         final android.hardware.biometrics.BiometricManager frameworkBiometricManager =
                 mock(android.hardware.biometrics.BiometricManager.class);
-        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_SUCCESS);
-        when(mFingerprintManager.isHardwareDetected()).thenReturn(true);
-        when(mFingerprintManager.hasEnrolledFingerprints()).thenReturn(true);
+        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_ERROR_NO_HARDWARE);
+        when(mFingerprintManager.isHardwareDetected()).thenReturn(false);
+        when(mFingerprintManager.hasEnrolledFingerprints()).thenReturn(false);
 
         final BiometricManager.Injector injector = new TestInjector.Builder()
                 .setBiometricManager(frameworkBiometricManager)
                 .setDeviceSecurable(true)
-                .setFingerprintHardwarePresent(true)
+                .setFingerprintHardwarePresent(false)
                 .build();
 
         final BiometricManager biometricManager = new BiometricManager(injector);
         final int authenticators = Authenticators.BIOMETRIC_WEAK;
+        assertThat(biometricManager.canAuthenticate(authenticators))
+                .isEqualTo(BIOMETRIC_ERROR_NO_HARDWARE);
+    }
+
+    @Test
+    @Config(maxSdk = Build.VERSION_CODES.P)
+    public void testCanAuthenticate_ReturnsError_WhenUnsecured_BiometricOnly_OnApi28AndBelow() {
+        when(mFingerprintManager.isHardwareDetected()).thenReturn(false);
+        when(mFingerprintManager.hasEnrolledFingerprints()).thenReturn(false);
+
+        final BiometricManager.Injector injector = new TestInjector.Builder()
+                .setFingerprintManager(mFingerprintManager)
+                .setDeviceSecurable(true)
+                .setFingerprintHardwarePresent(false)
+                .build();
+
+        final BiometricManager biometricManager = new BiometricManager(injector);
+        final int authenticators = Authenticators.BIOMETRIC_WEAK;
+        assertThat(biometricManager.canAuthenticate(authenticators))
+                .isEqualTo(BIOMETRIC_ERROR_NO_HARDWARE);
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.Q, maxSdk = Build.VERSION_CODES.Q)
+    public void testCanAuthenticate_ReturnsError_WhenUnsecured_CredentialAllowed_OnApi29() {
+        final android.hardware.biometrics.BiometricManager frameworkBiometricManager =
+                mock(android.hardware.biometrics.BiometricManager.class);
+        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_ERROR_NO_HARDWARE);
+        when(mFingerprintManager.isHardwareDetected()).thenReturn(false);
+        when(mFingerprintManager.hasEnrolledFingerprints()).thenReturn(false);
+
+        final BiometricManager.Injector injector = new TestInjector.Builder()
+                .setBiometricManager(frameworkBiometricManager)
+                .setDeviceSecurable(true)
+                .setFingerprintHardwarePresent(false)
+                .build();
+
+        final BiometricManager biometricManager = new BiometricManager(injector);
+        final int authenticators = Authenticators.BIOMETRIC_WEAK | Authenticators.DEVICE_CREDENTIAL;
         assertThat(biometricManager.canAuthenticate(authenticators))
                 .isEqualTo(BIOMETRIC_ERROR_NONE_ENROLLED);
     }
 
     @Test
     @Config(maxSdk = Build.VERSION_CODES.P)
-    public void testCanAuthenticate_ReturnsError_WhenDeviceNotSecured_OnApi28AndBelow() {
-        when(mFingerprintManager.isHardwareDetected()).thenReturn(true);
-        when(mFingerprintManager.hasEnrolledFingerprints()).thenReturn(true);
+    public void testCanAuthenticate_ReturnsError_WhenUnsecured_CredentialAllowed_OnApi28AndBelow() {
+        when(mFingerprintManager.isHardwareDetected()).thenReturn(false);
+        when(mFingerprintManager.hasEnrolledFingerprints()).thenReturn(false);
 
         final BiometricManager.Injector injector = new TestInjector.Builder()
                 .setFingerprintManager(mFingerprintManager)
                 .setDeviceSecurable(true)
-                .setFingerprintHardwarePresent(true)
+                .setFingerprintHardwarePresent(false)
                 .build();
 
         final BiometricManager biometricManager = new BiometricManager(injector);
-        final int authenticators = Authenticators.BIOMETRIC_WEAK;
+        final int authenticators = Authenticators.BIOMETRIC_WEAK | Authenticators.DEVICE_CREDENTIAL;
         assertThat(biometricManager.canAuthenticate(authenticators))
                 .isEqualTo(BIOMETRIC_ERROR_NONE_ENROLLED);
     }
