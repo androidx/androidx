@@ -37,6 +37,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByUriRequest;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByUriRequest;
+import androidx.appsearch.app.ReportUsageRequest;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
@@ -1704,5 +1705,45 @@ public abstract class AppSearchSessionCtsTestBase {
                     "sameThreadDb", MoreExecutors.newDirectExecutorService()).get();
             reopen.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()).get();
         }
+    }
+
+    @Test
+    public void testReportUsage() throws Exception {
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()).get();
+
+        // Index two documents.
+        AppSearchEmail email1 = new AppSearchEmail.Builder("uri1").build();
+        AppSearchEmail email2 = new AppSearchEmail.Builder("uri2").build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(email1, email2).build()));
+
+        // Email 1 has more usages, but email 2 has more recent usages.
+        mDb1.reportUsage(new ReportUsageRequest.Builder()
+                .setUri("uri1").setUsageTimeMillis(10).build()).get();
+        mDb1.reportUsage(new ReportUsageRequest.Builder()
+                .setUri("uri1").setUsageTimeMillis(20).build()).get();
+        mDb1.reportUsage(new ReportUsageRequest.Builder()
+                .setUri("uri1").setUsageTimeMillis(30).build()).get();
+        mDb1.reportUsage(new ReportUsageRequest.Builder()
+                .setUri("uri2").setUsageTimeMillis(100).build()).get();
+        mDb1.reportUsage(new ReportUsageRequest.Builder()
+                .setUri("uri2").setUsageTimeMillis(200).build()).get();
+
+        // Query by number of usages
+        List<GenericDocument> documents = convertSearchResultsToDocuments(
+                mDb1.query("", new SearchSpec.Builder()
+                        .setRankingStrategy(SearchSpec.RANKING_STRATEGY_USAGE_COUNT)
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build()));
+        assertThat(documents).containsExactly(email1, email2).inOrder();
+
+        // Query by most recent usage
+        documents = convertSearchResultsToDocuments(
+                mDb1.query("", new SearchSpec.Builder()
+                        .setRankingStrategy(SearchSpec.RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP)
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build()));
+        assertThat(documents).containsExactly(email2, email1).inOrder();
     }
 }

@@ -28,6 +28,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByUriRequest;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByUriRequest;
+import androidx.appsearch.app.ReportUsageRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
@@ -143,6 +144,15 @@ class SearchSessionImpl implements AppSearchSession {
                         SearchSpecToPlatformConverter.toPlatformSearchSpec(searchSpec),
                         mExecutorService);
         return new SearchResultsImpl(platformSearchResults);
+    }
+
+    @Override
+    @NonNull
+    public ListenableFuture<Void> reportUsage(@NonNull ReportUsageRequest request) {
+        // TODO(b/177278213): Implement this once it is exposed in the platform API
+        ResolvableFuture<Void> result = ResolvableFuture.create();
+        result.set(null);
+        return result;
     }
 
     @Override

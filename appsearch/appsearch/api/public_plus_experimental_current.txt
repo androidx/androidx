@@ -104,6 +104,7 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchResults query(String, androidx.appsearch.app.SearchSpec);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> removeByQuery(String, androidx.appsearch.app.SearchSpec);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> removeByUri(androidx.appsearch.app.RemoveByUriRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportUsage(androidx.appsearch.app.ReportUsageRequest);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setSchema(androidx.appsearch.app.SetSchemaRequest);
   }
 
@@ -206,6 +207,20 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.RemoveByUriRequest.Builder setNamespace(String);
   }
 
+  public final class ReportUsageRequest {
+    method public String getNamespace();
+    method public String getUri();
+    method public long getUsageTimeMillis();
+  }
+
+  public static final class ReportUsageRequest.Builder {
+    ctor public ReportUsageRequest.Builder();
+    method public androidx.appsearch.app.ReportUsageRequest build();
+    method public androidx.appsearch.app.ReportUsageRequest.Builder setNamespace(String);
+    method public androidx.appsearch.app.ReportUsageRequest.Builder setUri(String);
+    method public androidx.appsearch.app.ReportUsageRequest.Builder setUsageTimeMillis(long);
+  }
+
   public final class SearchResult {
     method public String getDatabaseName();
     method public androidx.appsearch.app.GenericDocument getDocument();
@@ -251,6 +266,8 @@ package androidx.appsearch.app {
     field public static final int RANKING_STRATEGY_DOCUMENT_SCORE = 1; // 0x1
     field public static final int RANKING_STRATEGY_NONE = 0; // 0x0
     field public static final int RANKING_STRATEGY_RELEVANCE_SCORE = 3; // 0x3
+    field public static final int RANKING_STRATEGY_USAGE_COUNT = 4; // 0x4
+    field public static final int RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP = 5; // 0x5
     field public static final int TERM_MATCH_EXACT_ONLY = 1; // 0x1
     field public static final int TERM_MATCH_PREFIX = 2; // 0x2
   }
