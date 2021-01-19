@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.navigation;
+package androidx.navigation
 
 /**
  * An interface marking generated Args classes.
  */
-public interface NavArgs {
-}
+public interface NavArgs
