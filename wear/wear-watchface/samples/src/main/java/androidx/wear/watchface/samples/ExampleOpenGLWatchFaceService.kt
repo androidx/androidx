@@ -139,8 +139,8 @@ fun createExampleOpenGLWatchFaceBuilder(
     return WatchFace(
         WatchFaceType.ANALOG,
         userStyleRepository,
-        complicationsManager,
-        renderer
+        renderer,
+        complicationsManager
     ).setLegacyWatchFaceStyle(
         WatchFace.LegacyWatchFaceOverlayStyle(
             0,
