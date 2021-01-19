@@ -1884,6 +1884,39 @@ class WatchFaceServiceTest {
     }
 
     @Test
+    fun updateInvalidCOmpliationIdDoesNotCrash() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "interactiveInstanceId",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                SystemState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null
+            )
+        )
+
+        // Send a complication with an invalid id - this should get ignored.
+        interactiveWatchFaceInstanceWCS.updateComplicationData(
+            listOf(
+                IdAndComplicationDataWireFormat(
+                    RIGHT_COMPLICATION_ID,
+                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(ComplicationText.plainText("TYPE_SHORT_TEXT"))
+                        .build()
+                )
+            )
+        )
+    }
+
+    @Test
     fun invalidateRendererBeforeFullInit() {
         renderer = TestRenderer(
             surfaceHolder,
