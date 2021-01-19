@@ -26,8 +26,10 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.model.Action;
+import androidx.car.app.model.Item;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Pane;
+import androidx.car.app.model.Row;
 import androidx.car.app.model.SectionedItemList;
 
 import java.util.ArrayList;
@@ -112,24 +114,25 @@ public class RowListConstraints {
      * Validates that the {@link ItemList} satisfies this {@link RowListConstraints} instance.
      *
      * @throws IllegalArgumentException if the constraints are not met.
+     * @throws IllegalArgumentException if the list contains non-Row instances.
      */
     public void validateOrThrow(@NonNull ItemList itemList) {
         if (itemList.getOnSelectedListener() != null && !mAllowSelectableLists) {
             throw new IllegalArgumentException("Selectable lists are not allowed");
         }
 
-        validateRows(itemList.getItems());
+        validateRows(itemList.getItemList());
     }
 
     /**
      * Validates that the list of {@link SectionedItemList}s satisfies this
-     * {@link RowListConstraints}
-     * instance.
+     * {@link RowListConstraints} instance.
      *
      * @throws IllegalArgumentException if the constraints are not met.
+     * @throws IllegalArgumentException if the lists contain any non-Row instances.
      */
     public void validateOrThrow(@NonNull List<SectionedItemList> sections) {
-        List<Object> combinedLists = new ArrayList<>();
+        List<Item> combinedLists = new ArrayList<>();
 
         for (SectionedItemList section : sections) {
             ItemList sectionList = section.getItemList();
@@ -137,7 +140,7 @@ public class RowListConstraints {
                 throw new IllegalArgumentException("Selectable lists are not allowed");
             }
 
-            combinedLists.addAll(sectionList.getItems());
+            combinedLists.addAll(sectionList.getItemList());
         }
 
         validateRows(combinedLists);
@@ -156,12 +159,15 @@ public class RowListConstraints {
                             + mMaxActions);
         }
 
-        validateRows(pane.getRows());
+        validateRows(pane.getRowList());
     }
 
-    private void validateRows(List<Object> rows) {
-        for (Object rowObj : rows) {
-            mRowConstraints.validateOrThrow(rowObj);
+    private void validateRows(List<? extends Item> rows) {
+        for (Item rowObj : rows) {
+            if (!(rowObj instanceof Row)) {
+                throw new IllegalArgumentException("Only Row instances are supported in the list");
+            }
+            mRowConstraints.validateOrThrow((Row) rowObj);
         }
     }
 

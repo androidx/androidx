@@ -284,10 +284,10 @@ public final class RoutePreviewNavigationTemplate implements Template {
         public Builder setItemList(@Nullable ItemList itemList) {
             if (itemList != null) {
                 ROW_LIST_CONSTRAINTS_ROUTE_PREVIEW.validateOrThrow(itemList);
-                ModelUtils.validateAllRowsHaveDistanceOrDuration(itemList.getItems());
-                ModelUtils.validateAllRowsHaveOnlySmallImages(itemList.getItems());
+                ModelUtils.validateAllRowsHaveDistanceOrDuration(itemList.getItemList());
+                ModelUtils.validateAllRowsHaveOnlySmallImages(itemList.getItemList());
 
-                if (!itemList.getItems().isEmpty() && itemList.getOnSelectedListener() == null) {
+                if (!itemList.getItemList().isEmpty() && itemList.getOnSelectedListener() == null) {
                     throw new IllegalArgumentException(
                             "The OnSelectedListener must be set for the route list");
                 }

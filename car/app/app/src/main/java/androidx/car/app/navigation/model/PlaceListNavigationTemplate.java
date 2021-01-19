@@ -29,6 +29,7 @@ import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.DistanceSpan;
+import androidx.car.app.model.Item;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ModelUtils;
 import androidx.car.app.model.Place;
@@ -240,7 +241,7 @@ public final class PlaceListNavigationTemplate implements Template {
         @NonNull
         public Builder setItemList(@Nullable ItemList itemList) {
             if (itemList != null) {
-                List<Object> items = itemList.getItems();
+                List<Item> items = itemList.getItemList();
                 ROW_LIST_CONSTRAINTS_SIMPLE.validateOrThrow(itemList);
                 ModelUtils.validateAllNonBrowsableRowsHaveDistance(items);
                 ModelUtils.validateAllRowsHaveOnlySmallImages(items);

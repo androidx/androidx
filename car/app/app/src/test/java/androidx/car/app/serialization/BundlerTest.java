@@ -176,7 +176,7 @@ public class BundlerTest {
         Bundle bundle = Bundler.toBundle(mapTemplate);
         PlaceListMapTemplate readIn = (PlaceListMapTemplate) Bundler.fromBundle(bundle);
 
-        Row row = (Row) readIn.getItemList().getItems().get(0);
+        Row row = (Row) readIn.getItemList().getItemList().get(0);
         assertThat(row.getTitle().toString()).isEqualTo("foo");
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
         row.getOnClickListener().onClick(onDoneCallback);
@@ -370,9 +370,9 @@ public class BundlerTest {
         assertThat(readIn.getTitle().toString()).isEqualTo(mapTemplate.getTitle().toString());
 
         ItemList readInItemList = readIn.getItemList();
-        assertThat(readInItemList.getItems()).hasSize(2);
-        assertThat(row1).isEqualTo(readInItemList.getItems().get(0));
-        assertThat(row2).isEqualTo(readInItemList.getItems().get(1));
+        assertThat(readInItemList.getItemList()).hasSize(2);
+        assertThat(row1).isEqualTo(readInItemList.getItemList().get(0));
+        assertThat(row2).isEqualTo(readInItemList.getItemList().get(1));
         assertThat(actionStrip).isEqualTo(readIn.getActionStrip());
     }
 

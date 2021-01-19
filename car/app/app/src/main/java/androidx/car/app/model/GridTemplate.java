@@ -168,10 +168,10 @@ public final class GridTemplate implements Template {
          * Sets whether the template is in a loading state.
          *
          * <p>If set to {@code true}, the UI shows a loading indicator where the grid content
-         * would be
-         * otherwise. The caller is expected to call {@link androidx.car.app.Screen#invalidate()}
-         * and send the new template content to the host once the data is ready. If set to {@code
-         * false}, the UI shows the {@link ItemList} contents added via {@link #setSingleList}.
+         * would be otherwise. The caller is expected to call
+         * {@link androidx.car.app.Screen#invalidate()} and send the new template content to the
+         * host once the data is ready. If set to {@code false}, the UI shows the
+         * {@link ItemList} contents added via {@link #setSingleList}.
          */
         @NonNull
         public Builder setLoading(boolean isLoading) {
@@ -181,8 +181,7 @@ public final class GridTemplate implements Template {
 
         /**
          * Sets the {@link Action} that will be displayed in the header of the template, or
-         * {@code null}
-         * to not display an action.
+         * {@code null} to not display an action.
          *
          * <h4>Requirements</h4>
          *
@@ -227,8 +226,7 @@ public final class GridTemplate implements Template {
          *
          * This template allows up to 2 {@link Action}s in its {@link ActionStrip}. Of the 2 allowed
          * {@link Action}s, one of them can contain a title as set via
-         * {@link Action.Builder#setTitle}.
-         * Otherwise, only {@link Action}s with icons are allowed.
+         * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
          *
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements.
          */
@@ -263,14 +261,11 @@ public final class GridTemplate implements Template {
          * <p>Either a header {@link Action} or title must be set on the template.
          *
          * @throws IllegalStateException    if the template is in a loading state but there are
-         *                                  lists
-         *                                  added, or vice versa.
+         *                                  lists added, or vice versa.
          * @throws IllegalArgumentException if the added {@link ItemList} does not meet the
-         *                                  template's
-         *                                  requirements.
+         *                                  template's requirements.
          * @throws IllegalStateException    if the template does not have either a title or header
-         *                                  {@link
-         *                                  Action} set.
+         *                                  {@link Action} set.
          */
         @NonNull
         public GridTemplate build() {
@@ -281,7 +276,7 @@ public final class GridTemplate implements Template {
             }
 
             if (mSingleList != null) {
-                for (Object gridItemObject : mSingleList.getItems()) {
+                for (Item gridItemObject : mSingleList.getItemList()) {
                     if (!(gridItemObject instanceof GridItem)) {
                         throw new IllegalArgumentException(
                                 "All the items in grid template's item list must be grid items");

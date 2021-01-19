@@ -56,19 +56,22 @@ public class ListTemplateTest {
         ItemList emptyList = new ItemList.Builder().build();
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new ListTemplate.Builder().setTitle("Title").addList(emptyList,
-                        "header").build());
+                () -> new ListTemplate.Builder().setTitle("Title").addSectionedList(
+                        SectionedItemList.create(emptyList,
+                                "header")).build());
     }
 
     @Test
-    public void addList_emptyHeader_throws() {
+    public void addSectionedList_emptyHeader_throws() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new ListTemplate.Builder().setTitle("Title").addList(getList(), "").build());
+                () -> new ListTemplate.Builder().setTitle("Title").addSectionedList(
+                        SectionedItemList.create(getList(),
+                                "")).build());
     }
 
     @Test
-    public void addList_withVisibilityListener_throws() {
+    public void addSectionedList_withVisibilityListener_throws() {
         ItemList list =
                 new ItemList.Builder()
                         .addItem(new Row.Builder().setTitle("Title").build())
@@ -77,11 +80,13 @@ public class ListTemplateTest {
                         .build();
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new ListTemplate.Builder().setTitle("Title").addList(list, "header").build());
+                () -> new ListTemplate.Builder().setTitle("Title").addSectionedList(
+                        SectionedItemList.create(list,
+                                "header")).build());
     }
 
     @Test
-    public void addList_moreThanMaxTexts_throws() {
+    public void addSectionedList_moreThanMaxTexts_throws() {
         Row rowExceedsMaxTexts =
                 new Row.Builder().setTitle("Title").addText("text1").addText("text2").addText(
                         "text3").build();
@@ -120,25 +125,25 @@ public class ListTemplateTest {
         ListTemplate template = new ListTemplate.Builder().setTitle("Title").setSingleList(
                 list).build();
         assertThat(template.getSingleList()).isEqualTo(list);
-        assertThat(template.getSectionLists()).isEmpty();
+        assertThat(template.getSectionedLists()).isEmpty();
     }
 
     @Test
-    public void createInstance_addList() {
+    public void createInstance_addSectionedList() {
         ItemList list1 = getList();
         ItemList list2 = getList();
         ListTemplate template =
                 new ListTemplate.Builder()
                         .setTitle("Title")
-                        .addList(list1, "header1")
-                        .addList(list2, "header2")
+                        .addSectionedList(SectionedItemList.create(list1, "header1"))
+                        .addSectionedList(SectionedItemList.create(list2, "header2"))
                         .build();
         assertThat(template.getSingleList()).isNull();
-        assertThat(template.getSectionLists()).hasSize(2);
-        assertThat(template.getSectionLists().get(0).getItemList()).isEqualTo(list1);
-        assertThat(template.getSectionLists().get(0).getHeader().getText()).isEqualTo("header1");
-        assertThat(template.getSectionLists().get(1).getItemList()).isEqualTo(list2);
-        assertThat(template.getSectionLists().get(1).getHeader().getText()).isEqualTo("header2");
+        assertThat(template.getSectionedLists()).hasSize(2);
+        assertThat(template.getSectionedLists().get(0).getItemList()).isEqualTo(list1);
+        assertThat(template.getSectionedLists().get(0).getHeader().getText()).isEqualTo("header1");
+        assertThat(template.getSectionedLists().get(1).getItemList()).isEqualTo(list2);
+        assertThat(template.getSectionedLists().get(1).getHeader().getText()).isEqualTo("header2");
     }
 
     @Test
@@ -149,16 +154,16 @@ public class ListTemplateTest {
         ListTemplate template =
                 new ListTemplate.Builder()
                         .setTitle("Title")
-                        .addList(list1, "header1")
-                        .addList(list2, "header2")
+                        .addSectionedList(SectionedItemList.create(list1, "header1"))
+                        .addSectionedList(SectionedItemList.create(list2, "header2"))
                         .setSingleList(list3)
                         .build();
         assertThat(template.getSingleList()).isEqualTo(list3);
-        assertThat(template.getSectionLists()).isEmpty();
+        assertThat(template.getSectionedLists()).isEmpty();
     }
 
     @Test
-    public void addList_clearSingleList() {
+    public void addSectionedList_clearSingleList() {
         ItemList list1 = getList();
         ItemList list2 = getList();
         ItemList list3 = getList();
@@ -166,11 +171,11 @@ public class ListTemplateTest {
                 new ListTemplate.Builder()
                         .setTitle("Title")
                         .setSingleList(list1)
-                        .addList(list2, "header1")
-                        .addList(list3, "header2")
+                        .addSectionedList(SectionedItemList.create(list2, "header1"))
+                        .addSectionedList(SectionedItemList.create(list3, "header2"))
                         .build();
         assertThat(template.getSingleList()).isNull();
-        assertThat(template.getSectionLists()).hasSize(2);
+        assertThat(template.getSectionedLists()).hasSize(2);
     }
 
     @Test
