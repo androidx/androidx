@@ -16,6 +16,8 @@
 
 package androidx.car.app.model.constraints;
 
+import static java.util.Objects.requireNonNull;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.model.CarIcon;
@@ -67,7 +69,7 @@ public class RowConstraints {
     /** The constraints for a full-width row in a list (simple + toggle support). */
     @NonNull
     public static final RowConstraints ROW_CONSTRAINTS_FULL_LIST =
-            ROW_CONSTRAINTS_SIMPLE.newBuilder().setToggleAllowed(true).build();
+            new RowConstraints.Builder(ROW_CONSTRAINTS_SIMPLE).setToggleAllowed(true).build();
 
     private final int mMaxTextLinesPerRow;
     private final int mMaxActionsExclusive;
@@ -83,14 +85,6 @@ public class RowConstraints {
     @NonNull
     public static Builder builder() {
         return new Builder();
-    }
-
-    /**
-     * Returns a new builder that contains the same data as this {@link RowConstraints} instance.
-     */
-    @NonNull
-    public Builder newBuilder() {
-        return new Builder(this);
     }
 
     /** Returns whether the row can have a click listener associated with it. */
@@ -225,10 +219,17 @@ public class RowConstraints {
         }
 
         /** Returns an empty {@link Builder} instance. */
-        Builder() {
+        public Builder() {
         }
 
-        Builder(RowConstraints constraints) {
+        /**
+         * Returns a new builder that contains the same data as the given {@link RowConstraints}
+         * instance.
+         *
+         * @throws NullPointerException if {@code latLng} is {@code null}.
+         */
+        public Builder(@NonNull RowConstraints constraints) {
+            requireNonNull(constraints);
             mIsOnClickListenerAllowed = constraints.isOnClickListenerAllowed();
             mMaxTextLines = constraints.getMaxTextLinesPerRow();
             mMaxActionsExclusive = constraints.getMaxActionsExclusive();

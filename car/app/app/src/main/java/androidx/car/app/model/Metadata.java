@@ -51,7 +51,12 @@ public class Metadata {
         return new Builder().setPlace(requireNonNull(place)).build();
     }
 
-    /** Returns a new {@link Builder} with the data from this {@link Metadata} instance. */
+    /**
+     * Returns a new {@link Builder} with the data from this {@link Metadata} instance.
+     * @deprecated use constructor.
+     */
+    // TODO(b/177484889): remove once host is changed to use new public ctor.
+    @Deprecated
     @NonNull
     public Builder newBuilder() {
         return new Builder(this);
@@ -117,8 +122,13 @@ public class Metadata {
         public Builder() {
         }
 
-        Builder(Metadata metadata) {
-            this.mPlace = metadata.getPlace();
+        /**
+         * Returns a new {@link Builder} with the data from the given {@link Metadata} instance.
+         *
+         * @throws NullPointerException if {@code icon} is {@code null}.
+         */
+        public Builder(@NonNull Metadata metadata) {
+            this.mPlace = requireNonNull(metadata).getPlace();
         }
     }
 }

@@ -172,7 +172,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarText? getTitle();
     method public int getType();
     method public boolean isStandard();
-    method public androidx.car.app.model.Action.Builder newBuilder();
+    method @Deprecated public androidx.car.app.model.Action.Builder newBuilder();
     method public static String typeToString(int);
     field public static final androidx.car.app.model.Action APP_ICON;
     field public static final androidx.car.app.model.Action BACK;
@@ -236,7 +236,7 @@ package androidx.car.app.model {
     method public androidx.core.graphics.drawable.IconCompat? getIcon();
     method public androidx.car.app.model.CarColor? getTint();
     method public int getType();
-    method public androidx.car.app.model.CarIcon.Builder newBuilder();
+    method @Deprecated public androidx.car.app.model.CarIcon.Builder newBuilder();
     field public static final androidx.car.app.model.CarIcon ALERT;
     field public static final androidx.car.app.model.CarIcon APP_ICON;
     field public static final androidx.car.app.model.CarIcon BACK;
@@ -251,6 +251,7 @@ package androidx.car.app.model {
 
   public static final class CarIcon.Builder {
     ctor public CarIcon.Builder(androidx.core.graphics.drawable.IconCompat);
+    ctor public CarIcon.Builder(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.CarIcon build();
     method public androidx.car.app.model.CarIcon.Builder setTint(androidx.car.app.model.CarColor?);
   }
@@ -457,13 +458,14 @@ package androidx.car.app.model {
   public class Metadata {
     method public static androidx.car.app.model.Metadata.Builder builder();
     method public androidx.car.app.model.Place? getPlace();
-    method public androidx.car.app.model.Metadata.Builder newBuilder();
+    method @Deprecated public androidx.car.app.model.Metadata.Builder newBuilder();
     method public static androidx.car.app.model.Metadata ofPlace(androidx.car.app.model.Place);
     field public static final androidx.car.app.model.Metadata EMPTY_METADATA;
   }
 
   public static final class Metadata.Builder {
     ctor public Metadata.Builder();
+    ctor public Metadata.Builder(androidx.car.app.model.Metadata);
     method public androidx.car.app.model.Metadata build();
     method public androidx.car.app.model.Metadata.Builder setPlace(androidx.car.app.model.Place?);
   }
@@ -532,11 +534,12 @@ package androidx.car.app.model {
     method public static androidx.car.app.model.Place.Builder builder(androidx.car.app.model.LatLng);
     method public androidx.car.app.model.LatLng getLatLng();
     method public androidx.car.app.model.PlaceMarker? getMarker();
-    method public androidx.car.app.model.Place.Builder newBuilder();
+    method @Deprecated public androidx.car.app.model.Place.Builder newBuilder();
   }
 
   public static final class Place.Builder {
     ctor public Place.Builder(androidx.car.app.model.LatLng);
+    ctor public Place.Builder(androidx.car.app.model.Place);
     method public androidx.car.app.model.Place build();
     method public androidx.car.app.model.Place.Builder setLatLng(androidx.car.app.model.LatLng);
     method public androidx.car.app.model.Place.Builder setMarker(androidx.car.app.model.PlaceMarker?);
@@ -929,7 +932,6 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.model.CarIcon? getLanesImage();
     method public androidx.car.app.navigation.model.Maneuver? getManeuver();
     method public androidx.car.app.model.CarText? getRoad();
-    method public androidx.car.app.navigation.model.Step.Builder newBuilder();
   }
 
   public static final class Step.Builder {
