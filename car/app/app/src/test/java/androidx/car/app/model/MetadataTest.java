@@ -31,7 +31,7 @@ public class MetadataTest {
     public void setAndGetPlace() {
         Place place = new Place.Builder(
                 CarLocation.create(/* latitude= */ 123, /* longitude= */ 456)).build();
-        Metadata metadata = Metadata.ofPlace(place);
+        Metadata metadata = new Metadata.Builder().setPlace(place).build();
         assertThat(metadata.getPlace()).isEqualTo(place);
 
         metadata = new Metadata.Builder().build();

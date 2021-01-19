@@ -167,7 +167,8 @@ public class CarText {
         private final int mEnd;
         @Keep
         private final int mFlags;
-        @Keep @NonNull
+        @Keep
+        @NonNull
         private final CarSpan mCarSpan;
 
         SpanWrapper(@NonNull Spanned spanned, @NonNull CarSpan carSpan) {

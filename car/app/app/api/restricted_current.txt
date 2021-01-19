@@ -466,7 +466,6 @@ package androidx.car.app.model {
     method public static androidx.car.app.model.Metadata.Builder builder();
     method public androidx.car.app.model.Place? getPlace();
     method @Deprecated public androidx.car.app.model.Metadata.Builder newBuilder();
-    method public static androidx.car.app.model.Metadata ofPlace(androidx.car.app.model.Place);
     field public static final androidx.car.app.model.Metadata EMPTY_METADATA;
   }
 
