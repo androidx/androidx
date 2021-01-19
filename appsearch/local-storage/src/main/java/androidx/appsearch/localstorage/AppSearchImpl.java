@@ -1076,8 +1076,11 @@ public final class AppSearchImpl {
             // Qualify the given schema types
             for (TypePropertyMask typePropertyMask :
                     resultSpecBuilder.getTypePropertyMasksList()) {
-                String prefixedType = prefix + typePropertyMask.getSchemaType();
-                if (allowedPrefixedSchemas.contains(prefixedType)) {
+                String unprefixedType = typePropertyMask.getSchemaType();
+                boolean isWildcard =
+                        unprefixedType.equals(SearchSpec.PROJECTION_SCHEMA_TYPE_WILDCARD);
+                String prefixedType = isWildcard ? unprefixedType : prefix + unprefixedType;
+                if (isWildcard || allowedPrefixedSchemas.contains(prefixedType)) {
                     prefixedTypePropertyMasks.add(
                             typePropertyMask.toBuilder().setSchemaType(prefixedType).build());
                 }
