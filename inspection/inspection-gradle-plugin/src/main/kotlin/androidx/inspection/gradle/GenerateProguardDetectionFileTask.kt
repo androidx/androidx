@@ -114,5 +114,7 @@ internal fun generatePackageName(mavenGroup: String, mavenArtifact: String): Str
     val strippedArtifact = mavenArtifact.removePrefix(mavenGroup.split('.').last())
         .removePrefix("-").replace('-', '.')
     val group = mavenGroup.removePrefix("androidx.")
-    return "androidx.inspection.$group.$strippedArtifact"
+    // It's possible for strippedArtifact to be empty, e.g. "compose.ui/ui" has no hyphen
+    return "androidx.inspection.$group" +
+        if (strippedArtifact.isNotEmpty()) ".$strippedArtifact" else ""
 }
