@@ -95,6 +95,10 @@ public class DialogFragment extends Fragment
     private static final String SAVED_CANCELABLE = "android:cancelable";
     private static final String SAVED_SHOWS_DIALOG = "android:showsDialog";
     private static final String SAVED_BACK_STACK_ID = "android:backStackId";
+    /**
+     * Copied from {@link Dialog}.
+     */
+    private static final String SAVED_INTERNAL_DIALOG_SHOWING = "android:dialogShowing";
 
     private Handler mHandler;
     private Runnable mDismissRunnable = new Runnable() {
@@ -691,6 +695,7 @@ public class DialogFragment extends Fragment
         super.onSaveInstanceState(outState);
         if (mDialog != null) {
             Bundle dialogState = mDialog.onSaveInstanceState();
+            dialogState.putBoolean(SAVED_INTERNAL_DIALOG_SHOWING, false);
             outState.putBundle(SAVED_DIALOG_STATE_TAG, dialogState);
         }
         if (mStyle != STYLE_NORMAL) {
