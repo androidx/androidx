@@ -16,7 +16,6 @@
 
 package androidx.benchmark.perfetto
 
-import android.content.Context
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
@@ -51,16 +50,13 @@ class PerfettoCapture {
      * TODO: provide configuration options
      */
     fun start() {
-        val context: Context = InstrumentationRegistry.getInstrumentation().context
-
+        val context = InstrumentationRegistry.getInstrumentation().context
         // Write textproto asset to external files dir, so it can be read by shell
         // TODO: use binary proto (which will also give us rooted 28 support)
         val configBytes = context.resources.openRawResource(R.raw.trace_config).readBytes()
         val textProtoFile = File(context.getExternalFilesDir(null), "trace_config.textproto")
-
         try {
             textProtoFile.writeBytes(configBytes)
-
             // Start tracing
             if (!helper.startCollecting(textProtoFile.absolutePath, true)) {
                 // TODO: move internal failures to be exceptions

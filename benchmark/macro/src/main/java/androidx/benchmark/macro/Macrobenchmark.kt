@@ -100,10 +100,20 @@ public class MacrobenchmarkScope(
 
 data class MacrobenchmarkConfig(
     val packageName: String,
-    val metrics: List<Metric>,
+    var metrics: List<Metric>,
     val compilationMode: CompilationMode = CompilationMode.SpeedProfile(),
     val iterations: Int
-)
+) {
+    init {
+        val metricSet = metrics.toSet()
+        val hasStartupMetric = metricSet.any { it is StartupTimingMetric }
+        if (hasStartupMetric) {
+            val metrics = metrics.toMutableList()
+            metrics += PerfettoMetric()
+            this.metrics = metrics.toList()
+        }
+    }
+}
 
 /**
  * macrobenchmark test entrypoint, which doesn't depend on JUnit.
@@ -141,24 +151,23 @@ fun macrobenchmark(
         val metricResults = List(config.iterations) { iteration ->
             setupBlock(scope, isFirstRun)
             isFirstRun = false
-            try {
-                perfettoCollector.start()
-                config.metrics.forEach {
-                    it.start()
+            perfettoCollector.captureTrace(uniqueName, iteration) { tracePath ->
+                try {
+                    config.metrics.forEach {
+                        it.start()
+                    }
+                    measureBlock(scope)
+                } finally {
+                    config.metrics.forEach {
+                        it.stop()
+                    }
                 }
-                measureBlock(scope)
-            } finally {
-                config.metrics.forEach {
-                    it.stop()
-                }
-                perfettoCollector.stop(uniqueName, iteration)
+                config.metrics
+                    // capture list of Map<String,Long> per metric
+                    .map { it.getMetrics(config.packageName, tracePath) }
+                    // merge into one map
+                    .reduce { sum, element -> sum + element }
             }
-
-            config.metrics
-                // capture list of Map<String,Long> per metric
-                .map { it.getMetrics(config.packageName) }
-                // merge into one map
-                .reduce { sum, element -> sum + element }
         }.mergeToMetricResults()
 
         InstrumentationResults.instrumentationReport {
