@@ -17,5 +17,6 @@ limitations under the License.
     package="androidx.camera.video.test">
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
 </manifest>
