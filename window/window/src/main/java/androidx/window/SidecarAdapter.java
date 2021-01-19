@@ -288,4 +288,81 @@ final class SidecarAdapter {
 
         return new FoldingFeature(feature.getRect(), type, state);
     }
+
+    boolean isEqualSidecarDeviceState(@Nullable SidecarDeviceState first,
+            @Nullable SidecarDeviceState second) {
+        if (first == second) {
+            return true;
+        }
+        if (first == null) {
+            return false;
+        }
+        if (second == null) {
+            return false;
+        }
+        int firstPosture = getSidecarDevicePosture(first);
+        int secondPosture = getSidecarDevicePosture(second);
+
+        return firstPosture == secondPosture;
+    }
+
+    boolean isEqualSidecarWindowLayoutInfo(@Nullable SidecarWindowLayoutInfo first,
+            @Nullable SidecarWindowLayoutInfo second) {
+        if (first == second) {
+            return true;
+        }
+        if (first == null) {
+            return false;
+        }
+        if (second == null) {
+            return false;
+        }
+        List<SidecarDisplayFeature> firstDisplayFeatures = getSidecarDisplayFeatures(first);
+        List<SidecarDisplayFeature> secondDisplayFeatures = getSidecarDisplayFeatures(second);
+        return isEqualSidecarDisplayFeatures(firstDisplayFeatures, secondDisplayFeatures);
+    }
+
+    private boolean isEqualSidecarDisplayFeatures(@Nullable List<SidecarDisplayFeature> first,
+            @Nullable List<SidecarDisplayFeature> second) {
+        if (first == second) {
+            return true;
+        }
+        if (first == null) {
+            return false;
+        }
+        if (second == null) {
+            return false;
+        }
+        if (first.size() != second.size()) {
+            return false;
+        }
+        for (int i = 0; i < first.size(); i++) {
+            SidecarDisplayFeature firstFeature = first.get(i);
+            SidecarDisplayFeature secondFeature = second.get(i);
+            if (!isEqualSidecarDisplayFeature(firstFeature, secondFeature)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isEqualSidecarDisplayFeature(@Nullable SidecarDisplayFeature first,
+            @Nullable SidecarDisplayFeature second) {
+        if (first == second) {
+            return true;
+        }
+        if (first == null) {
+            return false;
+        }
+        if (second == null) {
+            return false;
+        }
+        if (first.getType() != second.getType()) {
+            return false;
+        }
+        if (!first.getRect().equals(second.getRect())) {
+            return false;
+        }
+        return true;
+    }
 }
