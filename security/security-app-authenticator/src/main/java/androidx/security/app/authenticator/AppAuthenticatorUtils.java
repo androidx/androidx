@@ -16,6 +16,10 @@
 
 package androidx.security.app.authenticator;
 
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.os.Binder;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -27,10 +31,49 @@ import java.security.NoSuchAlgorithmException;
  * Provides utility methods that facilitate app signing identity verification.
  */
 class AppAuthenticatorUtils {
-    private AppAuthenticatorUtils() {
+    private static final char[] HEX_CHARACTERS = "0123456789abcdef".toCharArray();
+
+    private Context mContext;
+
+    /**
+     * Package private constructor accepting the {@code context} to be used for package queries.
+     */
+    AppAuthenticatorUtils(Context context) {
+        mContext = context;
     }
 
-    private static final char[] HEX_CHARACTERS = "0123456789abcdef".toCharArray();
+    /**
+     * Returns the ID of the process that sent the current transaction being processed, or the ID
+     * of the current process if not currently processing a transaction.
+     *
+     * @see Binder#getCallingPid()
+     */
+    int getCallingPid() {
+        return Binder.getCallingPid();
+    }
+
+    /**
+     * Returns the uid assigned to the process that sent the current transaction being processed,
+     * or the uid assigned to the current process if not currently processing a transaction.
+     *
+     * @see Binder#getCallingUid()
+     */
+    int getCallingUid() {
+        return Binder.getCallingUid();
+    }
+
+    /**
+     * Returns the uid assigned to specified {@code packageName}.
+     *
+     * @throws PackageManager.NameNotFoundException if the specified package cannot be found on
+     * the device
+     *
+     * @see ApplicationInfo#uid
+     */
+    int getUidForPackage(String packageName) throws PackageManager.NameNotFoundException {
+        ApplicationInfo appInfo = mContext.getPackageManager().getApplicationInfo(packageName, 0);
+        return appInfo.uid;
+    }
 
     /**
      * Returns the API level as reported by {@code Build.VERSION.SDK_INT}.

@@ -18,11 +18,16 @@ package androidx.security.app.authenticator;
 
 import static org.junit.Assert.assertEquals;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.os.Binder;
 import android.os.Build;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -34,18 +39,55 @@ import java.security.MessageDigest;
 public class AppAuthenticatorUtilsTest {
     private static final byte[] TEST_DATA = new byte[]{0x01, 0x23, 0x7f, (byte) 0xab};
 
+    private Context mContext;
+    private AppAuthenticatorUtils mAppAuthenticatorUtils;
+
+    @Before
+    public void setUp() {
+        mContext = ApplicationProvider.getApplicationContext();
+        mAppAuthenticatorUtils = new AppAuthenticatorUtils(mContext);
+    }
+
     @Test
     public void getApiLevel_returnsPlatformLevel() throws Exception {
         // The default behavior of getApiLevel should return the value of Build.VERSION.SDK_INT on
         // the device.
-        assertEquals(AppAuthenticatorUtils.getApiLevel(), Build.VERSION.SDK_INT);
+        assertEquals(Build.VERSION.SDK_INT, AppAuthenticatorUtils.getApiLevel());
     }
 
     @Test
     public void toHexString_returnsExpectedString() throws Exception {
         // toHexString accepts a byte array and should return a String hex representation of the
         // array.
-        assertEquals(AppAuthenticatorUtils.toHexString(TEST_DATA), "01237fab");
+        assertEquals("01237fab", AppAuthenticatorUtils.toHexString(TEST_DATA));
+    }
+
+    @Test
+    public void getCallingUid_returnsExpectedUid() throws Exception {
+        // The AppAuthenticatorUtils provides an instance method to obtain the UID of the calling
+        // process to facilitate tests; this test verifies a base AppAuthenticatorUtils instance
+        // returns the expected UID.
+        assertEquals(Binder.getCallingUid(), mAppAuthenticatorUtils.getCallingUid());
+    }
+
+    @Test
+    public void getCallingPid_returnsExpectedPid() throws Exception {
+        // The AppAuthenticatorUtils provides an instance method to obtain the PID of the calling
+        // process to facilitate tests; this test verifies a base AppAuthenticatorUtils instance
+        // returns the expected PID.
+        assertEquals(Binder.getCallingPid(), mAppAuthenticatorUtils.getCallingPid());
+    }
+
+    @Test
+    public void getUidForPackage_returnsExpectedUid() throws Exception {
+        // The AppAuthenticatorUtils provides an instance method to obtain the UID of the
+        // specified package to facilitate tests; this test verifies a base AppAuthenticatorUtils
+        // instance returns the expected UID for the package.
+        PackageInfo packageInfo =
+                mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0);
+
+        assertEquals(packageInfo.applicationInfo.uid,
+                mAppAuthenticatorUtils.getUidForPackage(mContext.getPackageName()));
     }
 
     @RunWith(Parameterized.class)
@@ -68,8 +110,8 @@ public class AppAuthenticatorUtilsTest {
 
         @Test
         public void computeDigest_returnsExpectedDigest() throws Exception {
-            assertEquals(AppAuthenticatorUtils.computeDigest(mDigestAlgorithm, TEST_DATA),
-                    getExpectedDigest(mDigestAlgorithm, TEST_DATA));
+            assertEquals(getExpectedDigest(mDigestAlgorithm, TEST_DATA),
+                    AppAuthenticatorUtils.computeDigest(mDigestAlgorithm, TEST_DATA));
         }
 
         private String getExpectedDigest(String digestAlgorithm, byte[] data) throws Exception {

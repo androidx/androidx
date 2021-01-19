@@ -16,7 +16,9 @@
 
 package androidx.security.app.authenticator;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -29,6 +31,9 @@ import androidx.test.filters.MediumTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Map;
+import java.util.Set;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -274,5 +279,46 @@ public final class AppAuthenticatorTest {
                 R.xml.all_supported_elements_and_attributes);
         AppAuthenticator.createFromInputStream(mContext,
                 mResources.openRawResource(R.raw.all_supported_elements_and_attributes));
+    }
+
+    @Test
+    public void createConfigFromParser_allSupportedElements_returnsExpectedValues()
+            throws Exception {
+        // The AppAuthenticator contains a static method that can be used to obtain the
+        // configuration parsed from the provided XML. This test verifies that the returned
+        // config contains all of the expected configuration from an XML that uses all of the
+        // supported elements and attributes.
+        AppAuthenticator.AppAuthenticatorConfig config =
+                AppAuthenticator.createConfigFromParser(
+                        mResources.getXml(R.xml.all_supported_elements_and_attributes));
+        Map<String, Set<String>> expectedIdentities = config.getExpectedIdentities();
+        Map<String, Map<String, Set<String>>> permissionAllowMap = config.getPermissionAllowMap();
+        Map<String, Set<String>> allowedPackageCerts = permissionAllowMap.get("androidx.security"
+                + ".app.authenticator.TEST_PERMISSION");
+
+        assertEquals(1, expectedIdentities.get("com.bank.app").size());
+        assertTrue(expectedIdentities.get("com.bank.app").contains(
+                "fb5dbd3c669af9fc236c6991e6387b7f11ff0590997f22d0f5c74ff40e04fca8"));
+        assertEquals(2, expectedIdentities.get("com.social.app").size());
+        assertTrue(expectedIdentities.get("com.social.app").contains(
+                "6a8b96e278e58f62cfe3584022cec1d0527fcb85a9e5d2e1694eb0405be5b599"));
+        assertTrue(expectedIdentities.get("com.social.app").contains(
+                "d78405f761ff6236cc9b570347a570aba0c62a129a3ac30c831c64d09ad95469"));
+        assertEquals(1, permissionAllowMap.size());
+        assertEquals(3, allowedPackageCerts.size());
+        assertEquals(2, allowedPackageCerts.get(AppAuthenticator.ALL_PACKAGES_TAG).size());
+        assertTrue(allowedPackageCerts.get(AppAuthenticator.ALL_PACKAGES_TAG).contains(
+                "fb5dbd3c669af9fc236c6991e6387b7f11ff0590997f22d0f5c74ff40e04fca8"));
+        assertTrue(allowedPackageCerts.get(AppAuthenticator.ALL_PACKAGES_TAG).contains(
+                "681b0e56a796350c08647352a4db800cc44b2adc8f4c72fa350bd05d4d50264d"));
+        assertEquals(1, allowedPackageCerts.get("com.android.app1").size());
+        assertTrue(allowedPackageCerts.get("com.android.app1").contains(
+                "fb5dbd3c669af9fc236c6991e6387b7f11ff0590997f22d0f5c74ff40e04fca8"));
+        assertEquals(2, allowedPackageCerts.get("com.android.app2").size());
+        assertTrue(allowedPackageCerts.get("com.android.app2").contains(
+                "6a8b96e278e58f62cfe3584022cec1d0527fcb85a9e5d2e1694eb0405be5b599"));
+        assertTrue(allowedPackageCerts.get("com.android.app2").contains(
+                "d78405f761ff6236cc9b570347a570aba0c62a129a3ac30c831c64d09ad95469"));
+        assertEquals("SHA-512", config.getDigestAlgorithm());
     }
 }

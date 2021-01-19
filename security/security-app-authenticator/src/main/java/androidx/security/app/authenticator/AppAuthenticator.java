@@ -19,12 +19,18 @@ package androidx.security.app.authenticator;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.os.Binder;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.annotation.XmlRes;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
+
+import com.google.auto.value.AutoValue;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -43,6 +49,58 @@ import java.util.Set;
 // TODO(b/175503230): Add usage details to class level documentation once implementation is
 //  complete.
 public class AppAuthenticator {
+    private static final String TAG = "AppAuthenticator";
+
+    /**
+     * This is returned by {@link #checkCallingAppIdentity(String, String)} and
+     * {@link #checkCallingAppIdentity(String, String, int, int)} when the specified package name
+     * has the expected signing identity for the provided permission.
+     */
+    public static final int PERMISSION_GRANTED = 0;
+
+    /**
+     * This is returned by {@link #checkCallingAppIdentity(String, String)} and
+     * {@link #checkCallingAppIdentity(String, String, int, int)} when the specified package name
+     * does not have any of the expected signing identities for the provided permission.
+     *
+     * @see PackageManager#SIGNATURE_NO_MATCH
+     */
+    public static final int PERMISSION_DENIED_NO_MATCH = -3;
+
+    /**
+     * This is returned by {@link #checkCallingAppIdentity(String, String)} and
+     * {@link #checkCallingAppIdentity(String, String, int, int)} when the specified package name
+     * does not belong to an app installed on the device.
+     *
+     * @see PackageManager#SIGNATURE_UNKNOWN_PACKAGE
+     */
+    public static final int PERMISSION_DENIED_UNKNOWN_PACKAGE = -4;
+
+    /**
+     * This is returned by {@link #checkCallingAppIdentity(String, String)} and
+     * {@link #checkCallingAppIdentity(String, String, int, int)} when the specified package name
+     * does not belong to the provided calling UID, or if the UID is not provided and the
+     * specified package name does not belong to the UID of the calling process as returned by
+     * {@link Binder#getCallingUid()}.
+     */
+    public static final int PERMISSION_DENIED_PACKAGE_UID_MISMATCH = -5;
+
+    /**
+     * This is returned by {@link #checkAppIdentity(String)} when the specified package name has
+     * the expected signing identity.
+     *
+     * @see PackageManager#SIGNATURE_MATCH
+     */
+    public static final int SIGNATURE_MATCH = 0;
+
+    /**
+     * This is returned by {@link #checkAppIdentity(String)} when the specified package name does
+     * not have the expected signing identity.
+     *
+     * @see PackageManager#SIGNATURE_NO_MATCH
+     */
+    public static final int SIGNATURE_NO_MATCH = -1;
+
     /**
      * The root tag for an AppAuthenticator XMl config file.
      */
@@ -96,46 +154,207 @@ public class AppAuthenticator {
         SUPPORTED_DIGEST_ALGORITHMS.add("SHA-512");
     }
 
-    /**
-     * A mapping from permission to allowed packages / signing identities.
-     */
-    // TODO(b/171453012): This initial commit is focused on instantiating the AppAuthenticator
-    //  through the static factory methods using the provided configuration; these
-    //  SuppressWarning annotations will be removed in a subsequent commit when signature
-    //  verification is added.
-    @SuppressWarnings("unused")
-    private final Map<String, Map<String, Set<String>>> mPermissionAllowMap;
-    /**
-     * A mapping from package name to expected signing identities.
-     */
-    @SuppressWarnings("unused")
-    private final Map<String, Set<String>> mExpectedIdentities;
-
-    @SuppressWarnings("unused")
-    private final String mDigestAlgorithm;
-    @SuppressWarnings("unused")
-    private final Context mContext;
-    @SuppressWarnings("unused")
-    private final PackageManager mPackageManager;
+    private AppSignatureVerifier mAppSignatureVerifier;
+    private AppAuthenticatorUtils mAppAuthenticatorUtils;
 
     /**
      * Private constructor; instances should be created through the static factory methods.
      *
-     * @param context            the context within which to create the {@code AppAuthenticator}
-     * @param permissionAllowMap a mapping from permission to allowed packages / signing identities
-     * @param expectedIdentities a mapping from package name to expected signing identities
-     * @param digestAlgorithm    the digest algorithm used for all signing certificate digests
+     * @param appSignatureVerifier the verifier to be used to verify app signing identities
+     * @param appAuthenticatorUtils the utils to be used
      */
-    private AppAuthenticator(Context context,
-            Map<String, Map<String, Set<String>>> permissionAllowMap,
-            Map<String, Set<String>> expectedIdentities, String digestAlgorithm) {
-        mContext = context;
-        mPackageManager = context.getPackageManager();
-        mPermissionAllowMap = permissionAllowMap;
-        mExpectedIdentities = expectedIdentities;
-        mDigestAlgorithm = digestAlgorithm;
+    private AppAuthenticator(AppSignatureVerifier appSignatureVerifier,
+            AppAuthenticatorUtils appAuthenticatorUtils) {
+        mAppSignatureVerifier = appSignatureVerifier;
+        mAppAuthenticatorUtils = appAuthenticatorUtils;
     }
 
+    /**
+     * Allows injection of the {@code appSignatureVerifier} to be used during tests.
+     */
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    void setAppSignatureVerifier(AppSignatureVerifier appSignatureVerifier) {
+        mAppSignatureVerifier = appSignatureVerifier;
+    }
+
+    /**
+     * Allows injection of the {@code appAuthenticatorUtils} to be used during tests.
+     * @param appAuthenticatorUtils
+     */
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    void setAppAuthenticatorUtils(AppAuthenticatorUtils appAuthenticatorUtils) {
+        mAppAuthenticatorUtils = appAuthenticatorUtils;
+    }
+
+    /**
+     * Enforces the specified {@code packageName} has the expected signing identity for the
+     * provided {@code permission}.
+     *
+     * <p>This method should be used when verifying the identity of a calling process of an IPC.
+     * This is the same as calling {@link #enforceCallingAppIdentity(String, String, int, int)} with
+     * the pid and uid returned by {@link Binder#getCallingPid()} and
+     * {@link Binder#getCallingUid()}.
+     *
+     * @param packageName the name of the package to be verified
+     * @param permission the name of the permission as specified in the XML from which to verify the
+     *                   package / signing identity
+     * @throws SecurityException if the signing identity of the package does not match that defined
+     * for the permission
+     */
+    public void enforceCallingAppIdentity(@NonNull String packageName, @NonNull String permission) {
+        enforceCallingAppIdentity(packageName, permission,
+                mAppAuthenticatorUtils.getCallingPid(), mAppAuthenticatorUtils.getCallingUid());
+    }
+
+    /**
+     * Enforces the specified {@code packageName} belongs to the provided {@code pid} / {@code uid}
+     * and has the expected signing identity for the {@code permission}.
+     *
+     * <p>This method should be used when verifying the identity of a calling process of an IPC.
+     *
+     * @param packageName the name of the package to be verified
+     * @param permission the name of the permission as specified in the XML from which to verify the
+     *                   package / signing identity
+     * @param pid the expected pid of the process
+     * @param uid the expected uid of the package
+     * @throws SecurityException if the uid does not belong to the specified package, or if the
+     * signing identity of the package does not match that defined for the permission
+     */
+    public void enforceCallingAppIdentity(@NonNull String packageName, @NonNull String permission,
+            int pid, int uid) {
+        AppAuthenticatorResult result = checkCallingAppIdentityInternal(packageName, permission,
+                pid, uid);
+        if (result.getResultCode() != PERMISSION_GRANTED) {
+            throw new SecurityException(result.getResultMessage());
+        }
+    }
+
+    /**
+     * Checks the specified {@code packageName} has the expected signing identity for the
+     * provided {@code permission}.
+     *
+     * <p>This method should be used when verifying the identity of a calling process of an IPC.
+     * This is the same as calling {@link #checkCallingAppIdentity(String, String, int, int)} with
+     * the pid and uid returned by {@link Binder#getCallingPid()} and
+     * {@link Binder#getCallingUid()}.
+     *
+     * @param packageName the name of the package to be verified
+     * @param permission the name of the permission as specified in the XML from which to verify the
+     *                   package / signing identity
+     * @return {@link #PERMISSION_GRANTED} if the specified {@code packageName} has the expected
+     * signing identity for the provided {@code permission},<br>
+     *     {@link #PERMISSION_DENIED_NO_MATCH} if the specified {@code packageName} does not have
+     *     the expected signing identity for the provided {@code permission},<br>
+     *     {@link #PERMISSION_DENIED_UNKNOWN_PACKAGE} if the specified {@code packageName} does not
+     *     exist on the device,<br>
+     *     {@link #PERMISSION_DENIED_PACKAGE_UID_MISMATCH} if the uid as returned from
+     *     {@link Binder#getCallingUid()} does not match the uid assigned to the package
+     */
+    public int checkCallingAppIdentity(@NonNull String packageName, @NonNull String permission) {
+        return checkCallingAppIdentity(packageName, permission,
+                mAppAuthenticatorUtils.getCallingPid(), mAppAuthenticatorUtils.getCallingUid());
+    }
+
+    /**
+     * Checks the specified {@code packageName} has the expected signing identity for the
+     * provided {@code permission}.
+     *
+     * <p>This method should be used when verifying the identity of a calling process of an IPC.
+     *
+     * @param packageName the name of the package to be verified
+     * @param permission the name of the permission as specified in the XML from which to verify the
+     *                   package / signing identity
+     * @param pid the expected pid of the process
+     * @param uid the expected uid of the package
+     * @return {@link #PERMISSION_GRANTED} if the specified {@code packageName} has the expected
+     * signing identity for the provided {@code permission},<br>
+     *     {@link #PERMISSION_DENIED_NO_MATCH} if the specified {@code packageName} does not have
+     *     the expected signing identity for the provided {@code permission},<br>
+     *     {@link #PERMISSION_DENIED_UNKNOWN_PACKAGE} if the specified {@code packageName} does not
+     *     exist on the device,<br>
+     *     {@link #PERMISSION_DENIED_PACKAGE_UID_MISMATCH} if the specified {@code uid} does not
+     *     match the uid assigned to the package
+     */
+    public int checkCallingAppIdentity(@NonNull String packageName, @NonNull String permission,
+            int pid, int uid) {
+        AppAuthenticatorResult result = checkCallingAppIdentityInternal(packageName, permission,
+                pid, uid);
+        if (result.getResultCode() != PERMISSION_GRANTED) {
+            Log.e(TAG, result.getResultMessage());
+        }
+        return result.getResultCode();
+    }
+
+    /**
+     * Checks the specified {@code packageName} has the expected signing identity for the
+     * provided {@code permission} under the calling {@code pid} and {@code uid}.
+     */
+    // The pid variable may be used in a future release for platform verification; it is
+    // currently added to the public API and this method to seamlessly make use of any platform
+    // features in the future.
+    @SuppressWarnings("UnusedVariable")
+    private AppAuthenticatorResult checkCallingAppIdentityInternal(String packageName,
+            String permission,
+            int pid,
+            int uid) {
+        // First verify that the UID of the calling package matches the specified value.
+        int packageUid;
+        try {
+            packageUid = mAppAuthenticatorUtils.getUidForPackage(packageName);
+        } catch (PackageManager.NameNotFoundException e) {
+            return AppAuthenticatorResult.create(PERMISSION_DENIED_UNKNOWN_PACKAGE,
+                    "The app " + packageName + " was not found on the device");
+        }
+        if (packageUid != uid) {
+            return AppAuthenticatorResult.create(PERMISSION_DENIED_PACKAGE_UID_MISMATCH,
+                    "The expected UID, " + uid + ", of the app " + packageName
+                            + " does not match the actual UID, " + packageUid);
+        }
+        if (mAppSignatureVerifier.verifySigningIdentity(packageName, permission)) {
+            return AppAuthenticatorResult.create(PERMISSION_GRANTED, null);
+        }
+        return AppAuthenticatorResult.create(PERMISSION_DENIED_NO_MATCH, "The signing"
+                + " identity of app " + packageName + " does not match the expected identity");
+    }
+
+
+    /**
+     * Enforces the specified {@code packageName} has the expected signing identity as declared in
+     * the {@code <expected-identity>} tag.
+     *
+     * <p>This method should be used when an app's signing identity must be verified; for instance
+     * before a client connects to an exported service this method can be used to verify that the
+     * app comes from the expected developer.
+     *
+     * @param packageName the name of the package to be verified
+     * @throws SecurityException if the signing identity of the package does not match that defined
+     * in the {@code <expected-identity>} tag
+     */
+    public void enforceAppIdentity(@NonNull String packageName) {
+        if (checkAppIdentity(packageName) != SIGNATURE_MATCH) {
+            throw new SecurityException("The app " + packageName + " does not match the expected "
+                    + "signing identity");
+        }
+    }
+
+    /**
+     * Checks the specified {@code packageName} has the expected signing identity as specified in
+     * the {@code <expected-identity>} tag.
+     *
+     * <p>This method should be used when an app's signing identity must be verified; for instance
+     * before a client connects to an exported service this method can be used to verify that the
+     * app comes from the expected developer.
+     *
+     * @param packageName the name of the package to be verified
+     * @return {@link #SIGNATURE_MATCH} if the specified package has the expected
+     * signing identity
+     */
+    public int checkAppIdentity(@NonNull String packageName) {
+        if (mAppSignatureVerifier.verifyExpectedIdentity(packageName)) {
+            return SIGNATURE_MATCH;
+        }
+        return SIGNATURE_NO_MATCH;
+    }
 
     /**
      * Creates a new {@code AppAuthenticator} that can be used to guard resources based on
@@ -211,6 +430,31 @@ public class AppAuthenticator {
      */
     private static AppAuthenticator createFromParser(Context context, XmlPullParser parser)
             throws AppAuthenticatorXmlException, IOException {
+        AppAuthenticatorConfig config = createConfigFromParser(parser);
+        AppSignatureVerifier verifier = AppSignatureVerifier.builder(context)
+                .setPermissionAllowMap(config.getPermissionAllowMap())
+                .setExpectedIdentities(config.getExpectedIdentities())
+                .setDigestAlgorithm(config.getDigestAlgorithm())
+                .build();
+        return new AppAuthenticator(verifier, new AppAuthenticatorUtils(context));
+    }
+
+    /**
+     * Creates a new {@code AppAuthentictorConfig} that can be used to instantiate a new {@code
+     * AppAuthenticator} with the specified config.
+     *
+     * @param parser an {@link XmlPullParser} containing the definition for the permissions and
+     *               expected identities based on package / expected signing certificate digests
+     * @return a new {@code AppAuthenticatorConfig} based on the config declared in the {@code
+     * parser} that can be used to instantiate a new {@code AppAuthenticator}.
+     * @throws AppAuthenticatorXmlException if the provided XML parsed by the {@code XmlPullParser}
+     *                                      is not in the proper format to create a new
+     *                                      {@code AppAuthenticator}
+     * @throws IOException                  if an IO error is encountered when attempting to read
+     *                                      from the {@code XmlPullParser}
+     */
+    static AppAuthenticatorConfig createConfigFromParser(XmlPullParser parser)
+            throws AppAuthenticatorXmlException, IOException {
         Map<String, Map<String, Set<String>>> permissionAllowMap = new ArrayMap<>();
         Map<String, Set<String>> expectedIdentities = new ArrayMap<>();
         try {
@@ -264,7 +508,7 @@ public class AppAuthenticator {
                 }
                 eventType = parser.nextTag();
             }
-            return new AppAuthenticator(context, permissionAllowMap, expectedIdentities,
+            return AppAuthenticatorConfig.create(permissionAllowMap, expectedIdentities,
                     digestAlgorithm);
         } catch (XmlPullParserException e) {
             throw new AppAuthenticatorXmlException("Caught an exception parsing the provided "
@@ -355,7 +599,7 @@ public class AppAuthenticator {
                 throw new AppAuthenticatorXmlException(
                         "Expected " + CERT_DIGEST_TAG + " on line " + parser.getLineNumber());
             }
-            String digest = parser.nextText();
+            String digest = parser.nextText().trim();
             if (TextUtils.isEmpty(digest)) {
                 throw new AppAuthenticatorXmlException("The " + CERT_DIGEST_TAG + " element "
                         + "on line " + parser.getLineNumber() + " must have non-empty text "
@@ -427,6 +671,75 @@ public class AppAuthenticator {
             throw new AppAuthenticatorXmlException(
                     prefixMessage + "; found the following unsupported attributes on line "
                             + parser.getLineNumber() + ": " + unsupportedAttributes);
+        }
+    }
+
+    /**
+     * Value class containing the configuration for an {@code AppAuthenticator}.
+     */
+    // Suppressing the AutoValue immutable field warning as this class is only used internally
+    // and is not worth bringing in the dependency for the immutable classes.
+    @SuppressWarnings("AutoValueImmutableFields")
+    @AutoValue
+    abstract static class AppAuthenticatorConfig {
+        /**
+         * Returns a mapping from permission to allowed packages / signing identities.
+         */
+        abstract Map<String, Map<String, Set<String>>> getPermissionAllowMap();
+
+        /**
+         * Returns a mapping from package name to expected signing identities.
+         */
+        abstract Map<String, Set<String>> getExpectedIdentities();
+
+        /**
+         * Returns the digest algorithm to be used.
+         */
+        abstract String getDigestAlgorithm();
+
+        /**
+         * Creates a new instance with the provided {@code permissionAllowMap}, {@code
+         * expectedIdentities}, and {@code digestAlgorithm}.
+         *
+         * @param permissionAllowMap the mapping from permission to allowed packages / signing
+         *                           identities
+         * @param expectedIdentities the mapping from package name to expected signing identities
+         * @param digestAlgorithm the digest algorithm to be used when computing signing
+         *                        certificate digests
+         * @return a new {@code AppAuthenticatorConfig} that can be used to configure the
+         * AppAuthenticator instance.
+         */
+        static AppAuthenticatorConfig create(
+                Map<String, Map<String, Set<String>>> permissionAllowMap,
+                Map<String, Set<String>> expectedIdentities, String digestAlgorithm) {
+            return new AutoValue_AppAuthenticator_AppAuthenticatorConfig(permissionAllowMap,
+                    expectedIdentities, digestAlgorithm);
+
+        }
+    }
+
+    /**
+     * Value class for the result of an {@code AppAuthenticator} query.
+     */
+    @AutoValue
+    abstract static class AppAuthenticatorResult {
+        /**
+         * Returns the result code for the query.
+         */
+        abstract int getResultCode();
+
+        /**
+         * Returns the result message for the query; if the query successfully verified an app's
+         * signature matches the expected signing identity this value will be {@code null}.
+         */
+        @Nullable
+        abstract String getResultMessage();
+
+        /**
+         * Creates a new instance with the provided {@code resultCode} and {@code resultMessage}.
+         */
+        static AppAuthenticatorResult create(int resultCode, String resultMessage) {
+            return new AutoValue_AppAuthenticator_AppAuthenticatorResult(resultCode, resultMessage);
         }
     }
 }
