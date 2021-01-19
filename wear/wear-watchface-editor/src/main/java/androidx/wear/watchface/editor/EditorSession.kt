@@ -76,16 +76,16 @@ public interface EditorSession {
 
     /**
      * Map of complication ids to [ComplicationState] for each complication slot. Note
-     * [ComplicationState] can change, typically in response to styling.  If a complication is empty
-     * then it will not be in this map, disabled complications are included however.
+     * [ComplicationState] can change, typically in response to styling.
      */
     public val complicationState: Map<Int, ComplicationState>
 
     /**
      * [ListenableFuture] for a map of complication ids to preview [ComplicationData] suitable for
      * use in rendering the watch face. Note if a slot is configured to be empty then it will not
-     * appear in the map. Note also unlike live data this is static per provider, but it may change
-     * (on the UIThread) as a result of [launchComplicationProviderChooser].
+     * appear in the map, however disabled complications are included. Note also unlike live data
+     * this is static per provider, but it may change (on the UIThread) as a result of
+     * [launchComplicationProviderChooser].
      */
     public val complicationPreviewData: ListenableFuture<Map<Int, ComplicationData>>
 
