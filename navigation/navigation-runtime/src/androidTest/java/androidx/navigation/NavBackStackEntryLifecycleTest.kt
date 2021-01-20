@@ -861,6 +861,45 @@ class NavBackStackEntryLifecycleTest {
             .isEqualTo(Lifecycle.State.RESUMED)
     }
 
+    @UiThreadTest
+    @Test
+    fun testLifecycleToDestroyedWhenInitialized() {
+        val navController = createNavController(TestLifecycleOwner(Lifecycle.State.INITIALIZED))
+        val navGraph = navController.navigatorProvider.navigation(
+            id = 1,
+            startDestination = R.id.start_test
+        ) {
+            test(R.id.start_test)
+            test(R.id.second_test)
+        }
+        navController.graph = navGraph
+
+        val startBackStackEntry = navController.getBackStackEntry(R.id.start_test)
+        assertWithMessage("The start destination should be initialized")
+            .that(startBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.INITIALIZED)
+
+        navController.navigate(R.id.second_test)
+
+        val secondBackStackEntry = navController.getBackStackEntry(R.id.second_test)
+        assertWithMessage("The new destination should be initialized")
+            .that(secondBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.INITIALIZED)
+
+        navController.popBackStack()
+
+        assertWithMessage("The popped destination should be initialized")
+            .that(secondBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.INITIALIZED)
+
+        // Pop the last destination off the stack
+        navController.popBackStack()
+
+        assertWithMessage("The start destination should be initialized after pop")
+            .that(startBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.INITIALIZED)
+    }
+
     private fun createNavController(
         lifecycleOwner: LifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
     ): NavController {
