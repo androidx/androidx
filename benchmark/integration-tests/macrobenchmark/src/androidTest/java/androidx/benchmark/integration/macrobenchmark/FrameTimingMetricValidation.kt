@@ -19,7 +19,6 @@ package androidx.benchmark.integration.macrobenchmark
 import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.FrameTimingMetric
-import androidx.benchmark.macro.MacrobenchmarkConfig
 import androidx.benchmark.macro.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -52,15 +51,11 @@ class FrameTimingMetricValidation(
 
     @Test
     fun start() {
-        val config = MacrobenchmarkConfig(
+        benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics = listOf(FrameTimingMetric()),
             compilationMode = compilationMode,
-            iterations = 10
-        )
-
-        benchmarkRule.measureRepeated(
-            config,
+            iterations = 10,
             setupBlock = {
                 val intent = Intent()
                 intent.action = ACTION
