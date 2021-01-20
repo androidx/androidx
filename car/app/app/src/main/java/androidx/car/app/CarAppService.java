@@ -16,6 +16,7 @@
 
 package androidx.car.app;
 
+import static androidx.car.app.utils.CommonUtils.TAG;
 import static androidx.car.app.utils.ThreadUtils.runOnMain;
 
 import android.app.Service;
@@ -33,6 +34,7 @@ import androidx.car.app.CarContext.CarServiceType;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
+import androidx.car.app.utils.HostValidator;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.car.app.utils.ThreadUtils;
 import androidx.car.app.versioning.CarAppApiLevels;
@@ -110,6 +112,9 @@ public abstract class CarAppService extends Service {
     private Session mCurrentSession;
 
     @Nullable
+    private HostValidator mHostValidator;
+
+    @Nullable
     private HostInfo mHostInfo;
 
     @Nullable
@@ -163,6 +168,38 @@ public abstract class CarAppService extends Service {
         Log.d(TAG, "onUnbind completed");
         return true;
     }
+
+    /**
+     * Configures this service's {@link HostValidator}, used to accept or reject host connections.
+     *
+     * <p>By default, the provided {@link HostValidator.Builder} would produce a validator that
+     * only accepts connections from hosts holding
+     * {@link HostValidator#TEMPLATE_RENDERER_PERMISSION} permission.
+     *
+     * <p>Application developers are expected to allow connections from known hosts (e.g.:
+     * Android Auto and Android Automotive OS hosts) which currently don't hold the above mentioned
+     * permission by allow listing these hosts signatures. It is also advised to allow unknown host
+     * connections in debug builds to facilitate debugging and testing.
+     *
+     * <p>Below is an example of this method implementation:
+     * <pre>
+     * &#64;Override
+     * public void onConfigureHostValidation(&#64;NonNull HostValidator hostValidator) {
+     *     boolean isDebugMode =
+     *         (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+     *     hostValidator.setAllowUnknownHosts(isDebugMode);
+     *     hostValidator.addAllowListedHosts(R.array.hosts_allowlist_sample);
+     * }
+     * </pre>
+     *
+     * <p>Please, refer to <a href="https://developer.android.com/training/cars/navigation">Build
+     * navigation, parking, and charging apps for Android Auto</a> and
+     * <a href="https://github.com/android/car-samples/tree/main/Auto/car_app_library">Android for
+     * Cars App Library Samples</a> to obtain a list of package names and signatures that should
+     * be allow-listed by default.
+     */
+    public abstract void configureHostValidator(@NonNull HostValidator.Builder
+            hostValidatorBuilder);
 
     /**
      * Creates a new {@link Session} for the application.
@@ -237,6 +274,16 @@ public abstract class CarAppService extends Service {
             mAppInfo = AppInfo.create(this);
         }
         return mAppInfo;
+    }
+
+    @NonNull
+    HostValidator getHostValidator() {
+        if (mHostValidator == null) {
+            HostValidator.Builder builder = new HostValidator.Builder(this);
+            configureHostValidator(builder);
+            mHostValidator = builder.build();
+        }
+        return mHostValidator;
     }
 
     // Strictly to avoid synthetic accessor.
@@ -409,7 +456,14 @@ public abstract class CarAppService extends Service {
                                 (HandshakeInfo) handshakeInfo.get();
                         String packageName = deserializedHandshakeInfo.getHostPackageName();
                         int uid = Binder.getCallingUid();
-                        setHostInfo(new HostInfo(packageName, uid));
+                        HostInfo hostInfo = new HostInfo(packageName, uid);
+                        if (!getHostValidator().isValidHost(hostInfo)) {
+                            RemoteUtils.sendFailureResponse(callback, "onHandshakeCompleted",
+                                    new IllegalArgumentException("Unknown host '"
+                                            + packageName + "', uid:" + uid));
+                            return;
+                        }
+                        setHostInfo(hostInfo);
                         setHandshakeInfo(deserializedHandshakeInfo);
                         RemoteUtils.sendSuccessResponse(callback, "onHandshakeCompleted", null);
                     } catch (BundlerException | IllegalArgumentException e) {
