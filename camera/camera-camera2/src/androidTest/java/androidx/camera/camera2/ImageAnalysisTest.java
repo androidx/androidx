@@ -129,6 +129,24 @@ public final class ImageAnalysisTest {
     }
 
     @Test
+    public void exceedMaxImagesWithoutClosing_doNotCrash() throws InterruptedException {
+        // Arrange.
+        int queueDepth = 3;
+        Semaphore semaphore = new Semaphore(0);
+        ImageAnalysis useCase = new ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
+                .setImageQueueDepth(queueDepth)
+                .build();
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler),
+                image -> semaphore.release());
+        // Act.
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_FRONT_CAMERA, useCase);
+        // Assert: waiting for images does not crash.
+        assertThat(semaphore.tryAcquire(queueDepth + 1, /*timeout=*/1, TimeUnit.SECONDS)).isFalse();
+    }
+
+    @Test
     public void canSupportGuaranteedSizeFront()
             throws InterruptedException, CameraInfoUnavailableException {
         // CameraSelector.LENS_FACING_FRONT/LENS_FACING_BACK are defined as constant int 0 and 1.
