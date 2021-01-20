@@ -198,7 +198,6 @@ package androidx.car.app.model {
   public class ActionStrip {
     method public static androidx.car.app.model.ActionStrip.Builder builder();
     method public java.util.List<androidx.car.app.model.Action!> getActionList();
-    method @Deprecated public androidx.car.app.model.Action? getActionOfType(int);
     method @Deprecated public java.util.List<java.lang.Object!> getActions();
     method public androidx.car.app.model.Action? getFirstActionOfType(int);
   }
