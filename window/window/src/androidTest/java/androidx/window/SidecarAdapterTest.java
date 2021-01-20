@@ -142,8 +142,8 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
         assertTrue(actual.getDisplayFeatures().isEmpty());
     }
 
-
-    @Test
+    // TODO(b/175507310): Reinstate after fix.
+    // @Test
     @Override
     public void testTranslateWindowLayoutInfo_filterRemovesHingeFeatureNotSpanningFullDimension() {
         List<SidecarDisplayFeature> sidecarDisplayFeatures = new ArrayList<>();
@@ -167,7 +167,8 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
         assertTrue(actual.getDisplayFeatures().isEmpty());
     }
 
-    @Test
+    // TODO(b/175507310): Reinstate after fix.
+    // @Test
     @Override
     public void testTranslateWindowLayoutInfo_filterRemovesFoldFeatureNotSpanningFullDimension() {
         List<SidecarDisplayFeature> extensionDisplayFeatures = new ArrayList<>();

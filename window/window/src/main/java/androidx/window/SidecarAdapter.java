@@ -215,6 +215,7 @@ final class SidecarAdapter {
      * with the value passed from extension.
      */
     @Nullable
+    @SuppressWarnings("UnusedVariable") // TODO(b/175507310): Remove after fix.
     private static DisplayFeature translate(SidecarDisplayFeature feature,
             SidecarDeviceState deviceState, Rect windowBounds) {
         Rect bounds = feature.getRect();
@@ -238,8 +239,9 @@ final class SidecarAdapter {
         }
         if (feature.getType() == SidecarDisplayFeature.TYPE_HINGE
                 || feature.getType() == SidecarDisplayFeature.TYPE_FOLD) {
-            if (!((bounds.left == 0 && bounds.right == windowBounds.width())
-                    || (bounds.top == 0 && bounds.bottom == windowBounds.height()))) {
+            // TODO(b/175507310): Reinstate after fix on the OEM side.
+            if (!((bounds.left == 0/* && bounds.right == windowBounds.width()*/)
+                    || (bounds.top == 0/* && bounds.bottom == windowBounds.height()*/))) {
                 // Bounds for fold and hinge types are expected to span the entire window space.
                 // See DisplayFeature#getBounds().
                 if (DEBUG) {
