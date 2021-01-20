@@ -82,7 +82,7 @@ public class PlaceMarkerTest {
         assertThat(marker1.getIcon()).isEqualTo(icon);
         assertThat(marker1.getIconType()).isEqualTo(PlaceMarker.TYPE_ICON);
         assertThat(marker1.getColor()).isEqualTo(CarColor.SECONDARY);
-        assertThat(marker1.getLabel().getText()).isEqualTo("foo");
+        assertThat(marker1.getLabel().toString()).isEqualTo("foo");
     }
 
     @Test

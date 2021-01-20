@@ -52,7 +52,7 @@ public class MessageInfoTest {
     @Test
     public void createMinimalInstance() {
         MessageInfo messageInfo = new MessageInfo.Builder("Message").build();
-        assertThat(messageInfo.getTitle().getText()).isEqualTo("Message");
+        assertThat(messageInfo.getTitle().toString()).isEqualTo("Message");
         assertThat(messageInfo.getText()).isNull();
         assertThat(messageInfo.getImage()).isNull();
     }
@@ -63,8 +63,8 @@ public class MessageInfoTest {
         MessageInfo messageInfo =
                 new MessageInfo.Builder("Message").setImage(CarIcon.APP_ICON).setText(
                         "Secondary").build();
-        assertThat(messageInfo.getTitle().getText()).isEqualTo("Message");
-        assertThat(messageInfo.getText().getText()).isEqualTo("Secondary");
+        assertThat(messageInfo.getTitle().toString()).isEqualTo("Message");
+        assertThat(messageInfo.getText().toString()).isEqualTo("Secondary");
         assertThat(messageInfo.getImage()).isEqualTo(CarIcon.APP_ICON);
     }
 

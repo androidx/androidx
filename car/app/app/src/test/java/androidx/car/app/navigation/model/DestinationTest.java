@@ -44,8 +44,8 @@ public class DestinationTest {
         Destination destination = new Destination.Builder().setName(title).setAddress(
                 address).build();
 
-        assertThat(destination.getName().getText()).isEqualTo(title);
-        assertThat(destination.getAddress().getText()).isEqualTo(address);
+        assertThat(destination.getName().toString()).isEqualTo(title);
+        assertThat(destination.getAddress().toString()).isEqualTo(address);
         assertThat(destination.getImage()).isNull();
     }
 
@@ -59,11 +59,11 @@ public class DestinationTest {
     @Test
     public void emptyNameOrAddress_allowed() {
         Destination destination = new Destination.Builder().setName("name").setAddress("").build();
-        assertThat(destination.getName().getText()).isEqualTo("name");
-        assertThat(destination.getAddress().getText()).isEmpty();
+        assertThat(destination.getName().toString()).isEqualTo("name");
+        assertThat(destination.getAddress().toString()).isEmpty();
 
         destination = new Destination.Builder().setName(null).setAddress("address").build();
-        assertThat(destination.getAddress().getText()).isEqualTo("address");
+        assertThat(destination.getAddress().toString()).isEqualTo("address");
         assertThat(destination.getName()).isNull();
     }
 

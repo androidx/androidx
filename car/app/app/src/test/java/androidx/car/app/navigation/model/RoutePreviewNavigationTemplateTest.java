@@ -146,7 +146,7 @@ public class RoutePreviewNavigationTemplateTest {
                                 }).build())
                         .build();
         assertThat(template.getItemList()).isEqualTo(itemList);
-        assertThat(template.getTitle().getText()).isEqualTo(title);
+        assertThat(template.getTitle().toString()).isEqualTo(title);
     }
 
     @Test

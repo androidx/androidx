@@ -18,13 +18,11 @@ package androidx.car.app.model;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import static java.util.Objects.requireNonNull;
-
+import android.text.Spanned;
 import android.text.style.CharacterStyle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.model.CarText.SpanWrapper;
 
 import java.util.List;
 
@@ -163,15 +161,14 @@ public final class ModelUtils {
         if (carText.isEmpty()) {
             return false;
         }
-        String text = requireNonNull(carText.getText());
-
-        List<SpanWrapper> spans = carText.getSpans();
-        for (int i = 0; i < spans.size(); i++) {
-            SpanWrapper wrapper = spans.get(i);
-            if (spanType.isInstance(wrapper.getCarSpan())
-                    && wrapper.getStart() >= 0
-                    && wrapper.getStart() != wrapper.getEnd()
-                    && wrapper.getStart() < text.length()) {
+        Spanned spanned = (Spanned) carText.toCharSequence();
+        for (Object span : spanned.getSpans(0, spanned.length(), Object.class)) {
+            int start = spanned.getSpanStart(span);
+            int end = spanned.getSpanEnd(span);
+            if (spanType.isInstance(span)
+                    && start >= 0
+                    && start != end
+                    && start < spanned.length()) {
                 return true;
             }
         }

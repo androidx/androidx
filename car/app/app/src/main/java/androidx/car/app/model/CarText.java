@@ -16,6 +16,7 @@
 
 package androidx.car.app.model;
 
+import android.text.SpannableString;
 import android.text.Spanned;
 
 import androidx.annotation.Keep;
@@ -57,7 +58,12 @@ public class CarText {
         return new CarText(text);
     }
 
+    /**
+     * @deprecated use {@link #toString()}
+     */
     @NonNull
+    @Deprecated
+    // TODO(b/177961439): remove once host is updated to use toString.
     public String getText() {
         return mText;
     }
@@ -66,8 +72,13 @@ public class CarText {
         return mText.isEmpty();
     }
 
-    /** Returns the optional list of spans attached to the text. */
+    /**
+     * Returns the optional list of spans attached to the text.
+     * @deprecated use {@link #toCharSequence}
+     */
+    // TODO(b/177961277): remove once host is updated to use toCharSequence.
     @NonNull
+    @Deprecated
     public List<SpanWrapper> getSpans() {
         return mSpans;
     }
@@ -75,7 +86,28 @@ public class CarText {
     @NonNull
     @Override
     public String toString() {
-        return getText();
+        return mText;
+    }
+
+    /**
+     * Returns the {@link CharSequence} corresponding to this text.
+     *
+     * <p>Spans that are not of type {@link CarSpan} that were passed when creating the
+     * {@link CarText} instance will not be present in the returned {@link CharSequence}.
+     *
+     * @see CarText#create(CharSequence)
+     */
+    @NonNull
+    public CharSequence toCharSequence() {
+        SpannableString spannableString = new SpannableString(mText);
+        for (SpanWrapper spanWrapper : mSpans) {
+            spannableString.setSpan(
+                    spanWrapper.getCarSpan(),
+                    spanWrapper.getStart(),
+                    spanWrapper.getEnd(),
+                    spanWrapper.getFlags());
+        }
+        return spannableString;
     }
 
     /**
@@ -127,6 +159,7 @@ public class CarText {
     /**
      * Wraps a span to send it to the host.
      */
+    // TODO(b/178026067): Make SpanWrapper private.
     public static class SpanWrapper {
         @Keep
         private final int mStart;
