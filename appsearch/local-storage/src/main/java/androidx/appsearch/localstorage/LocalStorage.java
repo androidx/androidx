@@ -251,7 +251,8 @@ public class LocalStorage {
         File icingDir = new File(context.getFilesDir(), ICING_LIB_ROOT_DIR);
 
         // There is no global querier for a local storage instance.
-        mAppSearchImpl = AppSearchImpl.create(icingDir, context, /*globalQuerierPackage=*/ "");
+        mAppSearchImpl = AppSearchImpl.create(icingDir, context, VisibilityStore.NO_OP_USER_ID,
+                /*globalQuerierPackage=*/ "");
     }
 
     @NonNull
