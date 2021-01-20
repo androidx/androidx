@@ -205,7 +205,8 @@ public class CarAppServiceController {
 
     private CarAppServiceController(
             CarAppService carAppService,
-            @NonNull Session session, @NonNull TestCarContext testCarContext) {
+            @NonNull Session session,
+            @NonNull TestCarContext testCarContext) {
         this.mCarAppService = carAppService;
         this.mTestCarContext = testCarContext;
 

@@ -56,4 +56,10 @@ public class HostInfo {
     public int getUid() {
         return mUid;
     }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return mPackageName + ", uid: " + mUid;
+    }
 }
