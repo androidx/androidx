@@ -97,7 +97,7 @@ public final class GetByUriRequest {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    public Map<String, List<String>> getProjectionsVisibleToPackagesInternal() {
+    public Map<String, List<String>> getProjectionsInternal() {
         return mTypePropertyPathsMap;
     }
 
