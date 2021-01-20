@@ -38,24 +38,24 @@ public class CarLocationTest {
 
     @Test
     public void equals() {
-        CarLocation CarLocation = create(123.45, 987.65);
+        CarLocation carLocation = create(123.45, 987.65);
 
-        assertThat(create(123.45, 987.65)).isEqualTo(CarLocation);
+        assertThat(create(123.45, 987.65)).isEqualTo(carLocation);
     }
 
     @Test
     public void notEquals_differentLat() {
-        CarLocation CarLocation = create(123.45, 987.65);
+        CarLocation carLocation = create(123.45, 987.65);
 
-        assertThat(create(123.449999999, 987.65)).isNotEqualTo(CarLocation);
-        assertThat(create(123.450000001, 987.65)).isNotEqualTo(CarLocation);
+        assertThat(create(123.449999999, 987.65)).isNotEqualTo(carLocation);
+        assertThat(create(123.450000001, 987.65)).isNotEqualTo(carLocation);
     }
 
     @Test
     public void notEquals_differentLng() {
-        CarLocation CarLocation = create(123.45, 987.65);
+        CarLocation carLocation = create(123.45, 987.65);
 
-        assertThat(create(123.45, 987.64999999999)).isNotEqualTo(CarLocation);
-        assertThat(create(123.45, 987.65000000001)).isNotEqualTo(CarLocation);
+        assertThat(create(123.45, 987.64999999999)).isNotEqualTo(carLocation);
+        assertThat(create(123.45, 987.65000000001)).isNotEqualTo(carLocation);
     }
 }
