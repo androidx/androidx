@@ -301,7 +301,10 @@ class SingleProcessDataStoreTest {
         dataStoreScope.cancel()
 
         assertThrows<CancellationException> { slowUpdate.await() }
+
         assertThrows<CancellationException> { notStartedUpdate.await() }
+
+        assertThrows<CancellationException> { store.updateData { 123 } }
     }
 
     @Test
