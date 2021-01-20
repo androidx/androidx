@@ -179,7 +179,7 @@ public class BundlerTest {
         Row row = (Row) readIn.getItemList().getItemList().get(0);
         assertThat(row.getTitle().toString()).isEqualTo("foo");
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
-        row.getOnClickListener().onClick(onDoneCallback);
+        row.getOnClickDelegate().sendClick(onDoneCallback);
         verify(clickListener).onClick();
         verify(onDoneCallback).onSuccess(null);
     }

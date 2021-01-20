@@ -95,9 +95,13 @@ public class Row implements Item {
     @Keep
     @Nullable
     private final Toggle mToggle;
+    @SuppressWarnings("deprecation")
     @Keep
     @Nullable
     private final OnClickListenerWrapper mOnClickListener;
+    @Keep
+    @Nullable
+    private final OnClickDelegate mOnClickDelegate;
     @Keep
     private final Metadata mMetadata;
     @Keep
@@ -159,10 +163,24 @@ public class Row implements Item {
     /**
      * Returns the {@link OnClickListener} to be called back when the row is clicked, or {@code
      * null} if the row is non-clickable.
+     *
+     * @deprecated use {@link #getOnClickDelegate} instead.
      */
+    // TODO(b/177591476): remove after host references have been cleaned up.
+    @SuppressWarnings("deprecation")
+    @Deprecated
     @Nullable
     public OnClickListenerWrapper getOnClickListener() {
         return mOnClickListener;
+    }
+
+    /**
+     * Returns the {@link OnClickListener} to be called back when the row is clicked, or {@code
+     * null} if the row is non-clickable.
+     */
+    @Nullable
+    public OnClickDelegate getOnClickDelegate() {
+        return mOnClickDelegate;
     }
 
     /**
@@ -212,7 +230,7 @@ public class Row implements Item {
                 mTexts,
                 mImage,
                 mToggle,
-                mOnClickListener == null,
+                mOnClickDelegate == null,
                 mMetadata,
                 mIsBrowsable,
                 mRowImageType);
@@ -233,7 +251,7 @@ public class Row implements Item {
                 && Objects.equals(mTexts, otherRow.mTexts)
                 && Objects.equals(mImage, otherRow.mImage)
                 && Objects.equals(mToggle, otherRow.mToggle)
-                && Objects.equals(mOnClickListener == null, otherRow.mOnClickListener == null)
+                && Objects.equals(mOnClickDelegate == null, otherRow.mOnClickDelegate == null)
                 && Objects.equals(mMetadata, otherRow.mMetadata)
                 && mIsBrowsable == otherRow.mIsBrowsable
                 && mRowImageType == otherRow.mRowImageType;
@@ -245,6 +263,7 @@ public class Row implements Item {
         mImage = builder.mImage;
         mToggle = builder.mToggle;
         mOnClickListener = builder.mOnClickListener;
+        mOnClickDelegate = builder.mOnClickDelegate;
         mMetadata = builder.mMetadata;
         mIsBrowsable = builder.mIsBrowsable;
         mRowImageType = builder.mRowImageType;
@@ -257,6 +276,7 @@ public class Row implements Item {
         mImage = null;
         mToggle = null;
         mOnClickListener = null;
+        mOnClickDelegate = null;
         mMetadata = EMPTY_METADATA;
         mIsBrowsable = false;
         mRowImageType = IMAGE_TYPE_SMALL;
@@ -271,8 +291,11 @@ public class Row implements Item {
         CarIcon mImage;
         @Nullable
         Toggle mToggle;
+        @SuppressWarnings("deprecation")
         @Nullable
         OnClickListenerWrapper mOnClickListener;
+        @Nullable
+        OnClickDelegate mOnClickDelegate;
         Metadata mMetadata = EMPTY_METADATA;
         boolean mIsBrowsable;
         @RowImageType
@@ -439,11 +462,10 @@ public class Row implements Item {
         @NonNull
         @SuppressLint("ExecutorRegistration")
         public Builder setOnClickListener(@Nullable OnClickListener onClickListener) {
-            if (onClickListener == null) {
-                this.mOnClickListener = null;
-            } else {
-                this.mOnClickListener = OnClickListenerWrapperImpl.create(onClickListener);
-            }
+            mOnClickListener = onClickListener == null ? null :
+                    OnClickListenerWrapperImpl.create(onClickListener);
+            mOnClickDelegate = onClickListener == null ? null : OnClickDelegateImpl.create(
+                    onClickListener);
             return this;
         }
 
@@ -479,13 +501,13 @@ public class Row implements Item {
                 if (mToggle != null) {
                     throw new IllegalStateException("A browsable row must not have a toggle set");
                 }
-                if (mOnClickListener == null) {
+                if (mOnClickDelegate == null) {
                     throw new IllegalStateException(
                             "A browsable row must have its onClickListener set");
                 }
             }
 
-            if (mToggle != null && mOnClickListener != null) {
+            if (mToggle != null && mOnClickDelegate != null) {
                 throw new IllegalStateException(
                         "If a row contains a toggle, it must not have a onClickListener set");
             }

@@ -56,7 +56,7 @@ public class ToggleTest {
         Toggle toggle = new Toggle.Builder(mMockOnCheckedChangeListener).setChecked(true).build();
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
 
-        toggle.getOnCheckedChangeListener().onCheckedChange(false, onDoneCallback);
+        toggle.getOnCheckedChangeDelegate().sendCheckedChange(false, onDoneCallback);
         verify(mMockOnCheckedChangeListener).onCheckedChange(false);
         verify(onDoneCallback).onSuccess(null);
     }
@@ -71,7 +71,7 @@ public class ToggleTest {
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
 
         try {
-            toggle.getOnCheckedChangeListener().onCheckedChange(false, onDoneCallback);
+            toggle.getOnCheckedChangeDelegate().sendCheckedChange(false, onDoneCallback);
         } catch (RuntimeException e) {
             assertThat(e.getMessage()).contains(testExceptionMessage);
         }

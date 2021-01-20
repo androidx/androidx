@@ -75,12 +75,20 @@ public final class ItemList {
     private final int mSelectedIndex;
     @Keep
     private final List<Item> mItems;
+    @SuppressWarnings("deprecation")
     @Keep
     @Nullable
     private final OnSelectedListenerWrapper mOnSelectedListener;
     @Keep
     @Nullable
+    private final OnSelectedDelegate mOnSelectedDelegate;
+    @SuppressWarnings("deprecation")
+    @Keep
+    @Nullable
     private final OnItemVisibilityChangedListenerWrapper mOnItemVisibilityChangedListener;
+    @Keep
+    @Nullable
+    private final OnItemVisibilityChangedDelegate mOnItemVisibilityChangedDelegate;
     @Keep
     @Nullable
     private final CarText mNoItemsMessage;
@@ -100,10 +108,24 @@ public final class ItemList {
     /**
      * Returns the {@link OnSelectedListenerWrapper} to be called when when an item is selected
      * by the user, or {@code null} is the list is non-selectable.
+     *
+     * @deprecated use {@link #getOnSelectedDelegate()} instead.
      */
+    // TODO(b/177591476): remove after host references have been cleaned up.
+    @Deprecated
+    @SuppressWarnings("deprecation")
     @Nullable
     public OnSelectedListenerWrapper getOnSelectedListener() {
         return mOnSelectedListener;
+    }
+
+    /**
+     * Returns the {@link OnSelectedListenerWrapper} to be called when when an item is selected
+     * by the user, or {@code null} is the list is non-selectable.
+     */
+    @Nullable
+    public OnSelectedDelegate getOnSelectedDelegate() {
+        return mOnSelectedDelegate;
     }
 
     /** Returns the text to be displayed if the list is empty. */
@@ -115,10 +137,24 @@ public final class ItemList {
     /**
      * Returns the {@link OnItemVisibilityChangedListenerWrapper} to be called when the visible
      * items in the list changes.
+     *
+     * @deprecated use {@link #getOnItemVisibilityChangedDelegate()} instead.
      */
+    // TODO(b/177591476): remove after host references have been cleaned up.
+    @Deprecated
+    @SuppressWarnings("deprecation")
     @Nullable
     public OnItemVisibilityChangedListenerWrapper getOnItemsVisibilityChangedListener() {
         return mOnItemVisibilityChangedListener;
+    }
+
+    /**
+     * Returns the {@link OnItemVisibilityChangedDelegate} to be called when the visible
+     * items in the list changes.
+     */
+    @Nullable
+    public OnItemVisibilityChangedDelegate getOnItemVisibilityChangedDelegate() {
+        return mOnItemVisibilityChangedDelegate;
     }
 
     /**
@@ -134,7 +170,7 @@ public final class ItemList {
         return (List<Object>) (List<? extends Object>) mItems;
     }
 
-    /** Returns the list of items. */
+    /** Returns the list of items in this {@link ItemList}. */
     // TODO(b/177591128): rename back to getItems after removal of the deprecated API.
     @NonNull
     public List<Item> getItemList() {
@@ -156,8 +192,8 @@ public final class ItemList {
         return Objects.hash(
                 mSelectedIndex,
                 mItems,
-                mOnSelectedListener == null,
-                mOnItemVisibilityChangedListener == null,
+                mOnSelectedDelegate == null,
+                mOnItemVisibilityChangedDelegate == null,
                 mNoItemsMessage);
     }
 
@@ -174,11 +210,11 @@ public final class ItemList {
         // For listeners only check if they are either both null, or both set.
         return mSelectedIndex == otherList.mSelectedIndex
                 && Objects.equals(mItems, otherList.mItems)
-                && Objects.equals(mOnSelectedListener == null,
-                otherList.mOnSelectedListener == null)
+                && Objects.equals(mOnSelectedDelegate == null,
+                otherList.mOnSelectedDelegate == null)
                 && Objects.equals(
-                mOnItemVisibilityChangedListener == null,
-                otherList.mOnItemVisibilityChangedListener == null)
+                mOnItemVisibilityChangedDelegate == null,
+                otherList.mOnItemVisibilityChangedDelegate == null)
                 && Objects.equals(mNoItemsMessage, otherList.mNoItemsMessage);
     }
 
@@ -187,7 +223,9 @@ public final class ItemList {
         mItems = CollectionUtils.unmodifiableCopy(builder.mItems);
         mNoItemsMessage = builder.mNoItemsMessage;
         mOnSelectedListener = builder.mOnSelectedListener;
+        mOnSelectedDelegate = builder.mOnSelectedDelegate;
         mOnItemVisibilityChangedListener = builder.mOnItemVisibilityChangedListener;
+        mOnItemVisibilityChangedDelegate = builder.mOnItemVisibilityChangedDelegate;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -196,16 +234,18 @@ public final class ItemList {
         mItems = Collections.emptyList();
         mNoItemsMessage = null;
         mOnSelectedListener = null;
+        mOnSelectedDelegate = null;
         mOnItemVisibilityChangedListener = null;
+        mOnItemVisibilityChangedDelegate = null;
     }
 
 
     @Nullable
-    static OnClickListenerWrapper getOnClickListener(Item item) {
+    static OnClickDelegate getOnClickListener(Item item) {
         if (item instanceof Row) {
-            return ((Row) item).getOnClickListener();
+            return ((Row) item).getOnClickDelegate();
         } else if (item instanceof GridItem) {
-            return ((GridItem) item).getOnClickListener();
+            return ((GridItem) item).getOnClickDelegate();
         }
 
         return null;
@@ -224,10 +264,16 @@ public final class ItemList {
     public static final class Builder {
         final List<Item> mItems = new ArrayList<>();
         int mSelectedIndex;
+        @SuppressWarnings("deprecation")
         @Nullable
         OnSelectedListenerWrapper mOnSelectedListener;
         @Nullable
+        OnSelectedDelegate mOnSelectedDelegate;
+        @SuppressWarnings("deprecation")
+        @Nullable
         OnItemVisibilityChangedListenerWrapper mOnItemVisibilityChangedListener;
+        @Nullable
+        OnItemVisibilityChangedDelegate mOnItemVisibilityChangedDelegate;
         @Nullable
         CarText mNoItemsMessage;
 
@@ -242,10 +288,15 @@ public final class ItemList {
         @SuppressLint("ExecutorRegistration")
         public Builder setOnItemsVisibilityChangedListener(
                 @Nullable OnItemVisibilityChangedListener itemVisibilityChangedListener) {
-            this.mOnItemVisibilityChangedListener =
+            mOnItemVisibilityChangedListener =
                     itemVisibilityChangedListener == null
                             ? null
                             : OnItemVisibilityChangedListenerWrapperImpl.create(
+                                    itemVisibilityChangedListener);
+            mOnItemVisibilityChangedDelegate =
+                    itemVisibilityChangedListener == null
+                            ? null
+                            : OnItemVisibilityChangedDelegateImpl.create(
                                     itemVisibilityChangedListener);
             return this;
         }
@@ -269,9 +320,12 @@ public final class ItemList {
         @NonNull
         @SuppressLint("ExecutorRegistration")
         public Builder setOnSelectedListener(@Nullable OnSelectedListener onSelectedListener) {
-            this.mOnSelectedListener =
+            mOnSelectedListener =
                     onSelectedListener == null ? null :
                             OnSelectedListenerWrapperImpl.create(onSelectedListener);
+            mOnSelectedDelegate =
+                    onSelectedListener == null ? null :
+                            OnSelectedDelegateImpl.create(onSelectedListener);
             return this;
         }
 

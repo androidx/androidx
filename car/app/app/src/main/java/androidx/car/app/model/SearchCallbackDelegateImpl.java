@@ -30,20 +30,18 @@ import androidx.car.app.OnDoneCallback;
 import androidx.car.app.utils.RemoteUtils;
 
 /**
- * Implementation class for {@link SearchCallbackWrapper}.
+ * Implementation class for {@link SearchCallbackDelegate}.
  *
  * @hide
  */
-// TODO(b/177591476): remove after host references have been cleaned up.
-@SuppressWarnings("deprecation")
 @RestrictTo(LIBRARY)
-public class SearchCallbackWrapperImpl implements SearchCallbackWrapper {
+public class SearchCallbackDelegateImpl implements SearchCallbackDelegate {
 
     @Keep
     private final ISearchCallback mStubCallback;
 
     @Override
-    public void onSearchTextChanged(@NonNull String searchText,
+    public void sendSearchTextChanged(@NonNull String searchText,
             @NonNull OnDoneCallback callback) {
         try {
             mStubCallback.onSearchTextChanged(searchText,
@@ -54,7 +52,7 @@ public class SearchCallbackWrapperImpl implements SearchCallbackWrapper {
     }
 
     @Override
-    public void onSearchSubmitted(@NonNull String searchText,
+    public void sendSearchSubmitted(@NonNull String searchText,
             @NonNull OnDoneCallback callback) {
         try {
             mStubCallback.onSearchSubmitted(searchText,
@@ -64,20 +62,20 @@ public class SearchCallbackWrapperImpl implements SearchCallbackWrapper {
         }
     }
 
-    private SearchCallbackWrapperImpl(@NonNull SearchCallback callback) {
+    private SearchCallbackDelegateImpl(@NonNull SearchCallback callback) {
         mStubCallback = new SearchCallbackStub(callback);
     }
 
     /** For serialization. */
-    private SearchCallbackWrapperImpl() {
+    private SearchCallbackDelegateImpl() {
         mStubCallback = null;
     }
 
     @NonNull
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    static SearchCallbackWrapper create(@NonNull SearchCallback callback) {
-        return new SearchCallbackWrapperImpl(callback);
+    static SearchCallbackDelegate create(@NonNull SearchCallback callback) {
+        return new SearchCallbackDelegateImpl(callback);
     }
 
     @Keep // We need to keep these stub for Bundler serialization logic.

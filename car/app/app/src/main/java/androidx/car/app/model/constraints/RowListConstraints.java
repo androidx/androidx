@@ -117,7 +117,7 @@ public class RowListConstraints {
      * @throws IllegalArgumentException if the list contains non-Row instances.
      */
     public void validateOrThrow(@NonNull ItemList itemList) {
-        if (itemList.getOnSelectedListener() != null && !mAllowSelectableLists) {
+        if (itemList.getOnSelectedDelegate() != null && !mAllowSelectableLists) {
             throw new IllegalArgumentException("Selectable lists are not allowed");
         }
 
@@ -136,7 +136,7 @@ public class RowListConstraints {
 
         for (SectionedItemList section : sections) {
             ItemList sectionList = section.getItemList();
-            if (sectionList.getOnSelectedListener() != null && !mAllowSelectableLists) {
+            if (sectionList.getOnSelectedDelegate() != null && !mAllowSelectableLists) {
                 throw new IllegalArgumentException("Selectable lists are not allowed");
             }
 

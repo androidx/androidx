@@ -151,7 +151,7 @@ public class GridItemTest {
                 new GridItem.Builder().setTitle("Title").setImage(BACK).setOnClickListener(
                         onClickListener).build();
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
-        gridItem.getOnClickListener().onClick(onDoneCallback);
+        gridItem.getOnClickDelegate().sendClick(onDoneCallback);
         verify(onClickListener).onClick();
         verify(onDoneCallback).onSuccess(null);
     }

@@ -26,60 +26,59 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
-import androidx.car.app.model.ItemList.OnSelectedListener;
+import androidx.car.app.model.Toggle.OnCheckedChangeListener;
 import androidx.car.app.utils.RemoteUtils;
 
 /**
- * Implementation class for {@link OnSelectedListenerWrapper}.
+ * Implementation class for {@link OnCheckedChangeDelegate}.
  *
  * @hide
  */
-// TODO(b/177591476): remove after host references have been cleaned up.
-@SuppressWarnings("deprecation")
 @RestrictTo(LIBRARY)
-public class OnSelectedListenerWrapperImpl implements OnSelectedListenerWrapper {
+public class OnCheckedChangeDelegateImpl implements OnCheckedChangeDelegate {
 
     @Keep
-    private final IOnSelectedListener mStub;
+    private final IOnCheckedChangeListener mStub;
 
     @Override
-    public void onSelected(int selectedIndex, @NonNull OnDoneCallback callback) {
+    public void sendCheckedChange(boolean isChecked, @NonNull OnDoneCallback callback) {
         try {
-            mStub.onSelected(selectedIndex,
+            mStub.onCheckedChange(isChecked,
                     RemoteUtils.createOnDoneCallbackStub(callback));
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private OnSelectedListenerWrapperImpl(@NonNull OnSelectedListener listener) {
-        mStub = new OnSelectedListenerStub(listener);
+    private OnCheckedChangeDelegateImpl(@NonNull OnCheckedChangeListener listener) {
+        mStub = new OnCheckedChangeListenerStub(listener);
     }
 
     /** For serialization. */
-    private OnSelectedListenerWrapperImpl() {
+    private OnCheckedChangeDelegateImpl() {
         mStub = null;
     }
 
     @NonNull
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    static OnSelectedListenerWrapper create(@NonNull OnSelectedListener listener) {
-        return new OnSelectedListenerWrapperImpl(listener);
+    static OnCheckedChangeDelegate create(@NonNull OnCheckedChangeListener listener) {
+        return new OnCheckedChangeDelegateImpl(listener);
     }
 
     @Keep // We need to keep these stub for Bundler serialization logic.
-    private static class OnSelectedListenerStub extends IOnSelectedListener.Stub {
-        private final OnSelectedListener mListener;
+    private static class OnCheckedChangeListenerStub extends IOnCheckedChangeListener.Stub {
+        private final OnCheckedChangeListener mListener;
 
-        OnSelectedListenerStub(OnSelectedListener listener) {
+        OnCheckedChangeListenerStub(OnCheckedChangeListener listener) {
             this.mListener = listener;
         }
 
         @Override
-        public void onSelected(int index, IOnDoneCallback callback) {
+        public void onCheckedChange(boolean isChecked, IOnDoneCallback callback) {
             RemoteUtils.dispatchHostCall(
-                    () -> mListener.onSelected(index), callback, "onSelectedListener");
+                    () -> mListener.onCheckedChange(isChecked), callback,
+                    "onCheckedChange");
         }
     }
 }

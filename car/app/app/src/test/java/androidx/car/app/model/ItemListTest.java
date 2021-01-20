@@ -123,7 +123,7 @@ public class ItemListTest {
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
 
 
-        itemList.getOnSelectedListener().onSelected(0, onDoneCallback);
+        itemList.getOnSelectedDelegate().sendSelected(0, onDoneCallback);
         verify(mockListener).onSelected(eq(0));
         verify(onDoneCallback).onSuccess(null);
     }
@@ -169,7 +169,7 @@ public class ItemListTest {
                         .build();
 
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
-        list.getOnItemsVisibilityChangedListener().onItemVisibilityChanged(0, 1,
+        list.getOnItemVisibilityChangedDelegate().sendItemVisibilityChanged(0, 1,
                 onDoneCallback);
         ArgumentCaptor<Integer> startIndexCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<Integer> endIndexCaptor = ArgumentCaptor.forClass(Integer.class);
@@ -195,7 +195,7 @@ public class ItemListTest {
 
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
         try {
-            list.getOnItemsVisibilityChangedListener().onItemVisibilityChanged(0, 1,
+            list.getOnItemVisibilityChangedDelegate().sendItemVisibilityChanged(0, 1,
                     onDoneCallback);
         } catch (RuntimeException e) {
             assertThat(e.getMessage()).contains(testExceptionMessage);

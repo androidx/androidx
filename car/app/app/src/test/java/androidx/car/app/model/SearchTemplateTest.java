@@ -145,7 +145,8 @@ public class SearchTemplateTest {
         assertThat(searchTemplate.getHeaderAction()).isEqualTo(Action.BACK);
 
         String searchText = "foo";
-        searchTemplate.getSearchCallback().onSearchSubmitted(searchText, onDoneCallback);
+        searchTemplate.getSearchCallbackDelegate().sendSearchSubmitted(searchText,
+                onDoneCallback);
         verify(mMockSearchCallback).onSearchSubmitted(searchText);
         verify(onDoneCallback).onSuccess(null);
     }
@@ -181,7 +182,8 @@ public class SearchTemplateTest {
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
 
         try {
-            searchTemplate.getSearchCallback().onSearchSubmitted(searchText, onDoneCallback);
+            searchTemplate.getSearchCallbackDelegate().sendSearchSubmitted(searchText,
+                    onDoneCallback);
         } catch (RuntimeException e) {
             assertThat(e.getMessage()).contains(testExceptionMessage);
         }

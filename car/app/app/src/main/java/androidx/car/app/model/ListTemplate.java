@@ -303,7 +303,7 @@ public final class ListTemplate implements Template {
             }
 
             ItemList itemList = list.getItemList();
-            boolean isSelectableList = itemList.getOnSelectedListener() != null;
+            boolean isSelectableList = itemList.getOnSelectedDelegate() != null;
             if (mHasSelectableList || (isSelectableList && !mSectionedLists.isEmpty())) {
                 throw new IllegalArgumentException(
                         "A selectable list cannot be added alongside any other lists");
@@ -314,7 +314,7 @@ public final class ListTemplate implements Template {
                 throw new IllegalArgumentException("List cannot be empty");
             }
 
-            if (itemList.getOnItemsVisibilityChangedListener() != null) {
+            if (itemList.getOnItemVisibilityChangedDelegate() != null) {
                 throw new IllegalArgumentException(
                         "OnItemVisibilityChangedListener in the list is disallowed");
             }
