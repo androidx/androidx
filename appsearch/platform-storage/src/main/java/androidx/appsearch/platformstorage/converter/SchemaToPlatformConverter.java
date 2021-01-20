@@ -80,15 +80,23 @@ public final class SchemaToPlatformConverter {
         Preconditions.checkNotNull(jetpackProperty);
         android.app.appsearch.AppSearchSchema.PropertyConfig.Builder builder =
                 new android.app.appsearch.AppSearchSchema.PropertyConfig.Builder(
-                        jetpackProperty.getName());
-        builder
+                        jetpackProperty.getName())
                 .setDataType(jetpackProperty.getDataType())
-                .setCardinality(jetpackProperty.getCardinality())
-                .setIndexingType(jetpackProperty.getIndexingType())
-                .setTokenizerType(jetpackProperty.getTokenizerType());
-        String schemaType = jetpackProperty.getSchemaType();
-        if (schemaType != null) {
-            builder.setSchemaType(schemaType);
+                .setCardinality(jetpackProperty.getCardinality());
+
+        if (jetpackProperty instanceof AppSearchSchema.StringPropertyConfig) {
+            AppSearchSchema.StringPropertyConfig stringProperty =
+                    (AppSearchSchema.StringPropertyConfig) jetpackProperty;
+            builder
+                    .setIndexingType(stringProperty.getIndexingType())
+                    .setTokenizerType(stringProperty.getTokenizerType());
+
+        } else if (jetpackProperty instanceof AppSearchSchema.DocumentPropertyConfig) {
+            AppSearchSchema.DocumentPropertyConfig documentProperty =
+                    (AppSearchSchema.DocumentPropertyConfig) jetpackProperty;
+            builder.setSchemaType(documentProperty.getSchemaType());
+                    // TODO(b/177572431): set indexNestedProperties once the getter is available in
+                    // the framework API
         }
         return builder.build();
     }
@@ -97,17 +105,40 @@ public final class SchemaToPlatformConverter {
     private static AppSearchSchema.PropertyConfig toJetpackProperty(
             @NonNull android.app.appsearch.AppSearchSchema.PropertyConfig platformProperty) {
         Preconditions.checkNotNull(platformProperty);
-        AppSearchSchema.PropertyConfig.Builder builder =
-                new AppSearchSchema.PropertyConfig.Builder(platformProperty.getName());
-        builder
-                .setDataType(platformProperty.getDataType())
-                .setCardinality(platformProperty.getCardinality())
-                .setIndexingType(platformProperty.getIndexingType())
-                .setTokenizerType(platformProperty.getTokenizerType());
-        String schemaType = platformProperty.getSchemaType();
-        if (schemaType != null) {
-            builder.setSchemaType(schemaType);
+        switch (platformProperty.getDataType()) {
+            case android.app.appsearch.AppSearchSchema.PropertyConfig.DATA_TYPE_STRING:
+                return new AppSearchSchema.StringPropertyConfig.Builder(platformProperty.getName())
+                        .setCardinality(platformProperty.getCardinality())
+                        .setIndexingType(platformProperty.getIndexingType())
+                        .setTokenizerType(platformProperty.getTokenizerType())
+                        .build();
+            case android.app.appsearch.AppSearchSchema.PropertyConfig.DATA_TYPE_INT64:
+                return new AppSearchSchema.Int64PropertyConfig.Builder(platformProperty.getName())
+                        .setCardinality(platformProperty.getCardinality())
+                        .build();
+            case android.app.appsearch.AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE:
+                return new AppSearchSchema.DoublePropertyConfig.Builder(platformProperty.getName())
+                        .setCardinality(platformProperty.getCardinality())
+                        .build();
+            case android.app.appsearch.AppSearchSchema.PropertyConfig.DATA_TYPE_BOOLEAN:
+                return new AppSearchSchema.BooleanPropertyConfig.Builder(platformProperty.getName())
+                        .setCardinality(platformProperty.getCardinality())
+                        .build();
+            case android.app.appsearch.AppSearchSchema.PropertyConfig.DATA_TYPE_BYTES:
+                return new AppSearchSchema.BytesPropertyConfig.Builder(platformProperty.getName())
+                        .setCardinality(platformProperty.getCardinality())
+                        .build();
+            case android.app.appsearch.AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT:
+                return new AppSearchSchema.DocumentPropertyConfig.Builder(
+                        platformProperty.getName())
+                        .setCardinality(platformProperty.getCardinality())
+                        .setSchemaType(platformProperty.getSchemaType())
+                        // TODO(b/177572431): read this from platform once the API is available
+                        .setIndexNestedProperties(true)
+                        .build();
+            default:
+                throw new IllegalArgumentException(
+                        "Invalid dataType: " + platformProperty.getDataType());
         }
-        return builder.build();
     }
 }

@@ -12,10 +12,10 @@ package androidx.appsearch.annotation {
   }
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD) public static @interface AppSearchDocument.Property {
-    method public abstract int indexingType() default androidx.appsearch.app.AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE;
+    method public abstract int indexingType() default androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE;
     method public abstract String name() default "";
     method public abstract boolean required() default false;
-    method public abstract int tokenizerType() default androidx.appsearch.app.AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN;
+    method public abstract int tokenizerType() default androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN;
   }
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD) public static @interface AppSearchDocument.Score {
@@ -58,6 +58,15 @@ package androidx.appsearch.app {
     method @IntRange(from=0) public int getVersion();
   }
 
+  public static final class AppSearchSchema.BooleanPropertyConfig extends androidx.appsearch.app.AppSearchSchema.PropertyConfig {
+  }
+
+  public static final class AppSearchSchema.BooleanPropertyConfig.Builder {
+    ctor public AppSearchSchema.BooleanPropertyConfig.Builder(String);
+    method public androidx.appsearch.app.AppSearchSchema.BooleanPropertyConfig build();
+    method public androidx.appsearch.app.AppSearchSchema.BooleanPropertyConfig.Builder setCardinality(int);
+  }
+
   public static final class AppSearchSchema.Builder {
     ctor public AppSearchSchema.Builder(String);
     method public androidx.appsearch.app.AppSearchSchema.Builder addProperty(androidx.appsearch.app.AppSearchSchema.PropertyConfig);
@@ -65,22 +74,58 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.AppSearchSchema.Builder setVersion(@IntRange(from=0) int);
   }
 
-  public static final class AppSearchSchema.PropertyConfig {
+  public static final class AppSearchSchema.BytesPropertyConfig extends androidx.appsearch.app.AppSearchSchema.PropertyConfig {
+  }
+
+  public static final class AppSearchSchema.BytesPropertyConfig.Builder {
+    ctor public AppSearchSchema.BytesPropertyConfig.Builder(String);
+    method public androidx.appsearch.app.AppSearchSchema.BytesPropertyConfig build();
+    method public androidx.appsearch.app.AppSearchSchema.BytesPropertyConfig.Builder setCardinality(int);
+  }
+
+  public static final class AppSearchSchema.DocumentPropertyConfig extends androidx.appsearch.app.AppSearchSchema.PropertyConfig {
+    method public String getSchemaType();
+    method public boolean isIndexNestedProperties();
+  }
+
+  public static final class AppSearchSchema.DocumentPropertyConfig.Builder {
+    ctor public AppSearchSchema.DocumentPropertyConfig.Builder(String);
+    method public androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig build();
+    method public androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig.Builder setCardinality(int);
+    method public androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig.Builder setIndexNestedProperties(boolean);
+    method public androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig.Builder setSchemaType(String);
+  }
+
+  public static final class AppSearchSchema.DoublePropertyConfig extends androidx.appsearch.app.AppSearchSchema.PropertyConfig {
+  }
+
+  public static final class AppSearchSchema.DoublePropertyConfig.Builder {
+    ctor public AppSearchSchema.DoublePropertyConfig.Builder(String);
+    method public androidx.appsearch.app.AppSearchSchema.DoublePropertyConfig build();
+    method public androidx.appsearch.app.AppSearchSchema.DoublePropertyConfig.Builder setCardinality(int);
+  }
+
+  public static final class AppSearchSchema.Int64PropertyConfig extends androidx.appsearch.app.AppSearchSchema.PropertyConfig {
+  }
+
+  public static final class AppSearchSchema.Int64PropertyConfig.Builder {
+    ctor public AppSearchSchema.Int64PropertyConfig.Builder(String);
+    method public androidx.appsearch.app.AppSearchSchema.Int64PropertyConfig build();
+    method public androidx.appsearch.app.AppSearchSchema.Int64PropertyConfig.Builder setCardinality(int);
+  }
+
+  public abstract static class AppSearchSchema.PropertyConfig {
     method public int getCardinality();
     method public int getDataType();
-    method public int getIndexingType();
     method public String getName();
-    method public String? getSchemaType();
-    method public int getTokenizerType();
     field public static final int CARDINALITY_OPTIONAL = 2; // 0x2
     field public static final int CARDINALITY_REPEATED = 1; // 0x1
     field public static final int CARDINALITY_REQUIRED = 3; // 0x3
-    field public static final int DATA_TYPE_BOOLEAN = 4; // 0x4
-    field public static final int DATA_TYPE_BYTES = 5; // 0x5
-    field public static final int DATA_TYPE_DOCUMENT = 6; // 0x6
-    field public static final int DATA_TYPE_DOUBLE = 3; // 0x3
-    field public static final int DATA_TYPE_INT64 = 2; // 0x2
-    field public static final int DATA_TYPE_STRING = 1; // 0x1
+  }
+
+  public static final class AppSearchSchema.StringPropertyConfig extends androidx.appsearch.app.AppSearchSchema.PropertyConfig {
+    method public int getIndexingType();
+    method public int getTokenizerType();
     field public static final int INDEXING_TYPE_EXACT_TERMS = 1; // 0x1
     field public static final int INDEXING_TYPE_NONE = 0; // 0x0
     field public static final int INDEXING_TYPE_PREFIXES = 2; // 0x2
@@ -88,14 +133,12 @@ package androidx.appsearch.app {
     field public static final int TOKENIZER_TYPE_PLAIN = 1; // 0x1
   }
 
-  public static final class AppSearchSchema.PropertyConfig.Builder {
-    ctor public AppSearchSchema.PropertyConfig.Builder(String);
-    method public androidx.appsearch.app.AppSearchSchema.PropertyConfig build();
-    method public androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder setCardinality(int);
-    method public androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder setDataType(int);
-    method public androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder setIndexingType(int);
-    method public androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder setSchemaType(String);
-    method public androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder setTokenizerType(int);
+  public static final class AppSearchSchema.StringPropertyConfig.Builder {
+    ctor public AppSearchSchema.StringPropertyConfig.Builder(String);
+    method public androidx.appsearch.app.AppSearchSchema.StringPropertyConfig build();
+    method public androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.Builder setCardinality(int);
+    method public androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.Builder setIndexingType(int);
+    method public androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.Builder setTokenizerType(int);
   }
 
   public interface AppSearchSession extends java.io.Closeable {

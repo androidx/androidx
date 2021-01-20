@@ -32,17 +32,19 @@ public class SchemaToProtoConverterTest {
     public void testGetProto_Email() {
         AppSearchSchema emailSchema = new AppSearchSchema.Builder("Email")
                 .setVersion(12345)
-                .addProperty(new AppSearchSchema.PropertyConfig.Builder("subject")
-                        .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-                        .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_PREFIXES)
-                        .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(
+                                AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build()
-                ).addProperty(new AppSearchSchema.PropertyConfig.Builder("body")
-                        .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
+                ).addProperty(new AppSearchSchema.StringPropertyConfig.Builder("body")
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-                        .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_PREFIXES)
-                        .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(
+                                AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build()
                 ).build();
 
@@ -80,17 +82,15 @@ public class SchemaToProtoConverterTest {
     @Test
     public void testGetProto_MusicRecording() {
         AppSearchSchema musicRecordingSchema = new AppSearchSchema.Builder("MusicRecording")
-                .addProperty(new AppSearchSchema.PropertyConfig.Builder("artist")
-                        .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("artist")
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-                        .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_PREFIXES)
-                        .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(
+                                AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build()
-                ).addProperty(new AppSearchSchema.PropertyConfig.Builder("pubDate")
-                        .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
+                ).addProperty(new AppSearchSchema.Int64PropertyConfig.Builder("pubDate")
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-                        .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-                        .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
                         .build()
                 ).build();
 
@@ -111,12 +111,6 @@ public class SchemaToProtoConverterTest {
                         .setPropertyName("pubDate")
                         .setDataType(PropertyConfigProto.DataType.Code.INT64)
                         .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
-                        .setStringIndexingConfig(
-                                StringIndexingConfig.newBuilder()
-                                        .setTokenizerType(
-                                                StringIndexingConfig.TokenizerType.Code.NONE)
-                                        .setTermMatchType(TermMatchType.Code.UNKNOWN)
-                        )
                 ).build();
 
         assertThat(SchemaToProtoConverter.toSchemaTypeConfigProto(musicRecordingSchema))

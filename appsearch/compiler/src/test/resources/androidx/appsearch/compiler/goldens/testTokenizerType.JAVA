@@ -18,17 +18,15 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
   @Override
   public AppSearchSchema getSchema() throws AppSearchException {
     return new AppSearchSchema.Builder(SCHEMA_TYPE)
-          .addProperty(new AppSearchSchema.PropertyConfig.Builder("tokNone")
-            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
+          .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("tokNone")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
-            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
+            .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
             .build())
-          .addProperty(new AppSearchSchema.PropertyConfig.Builder("tokPlain")
-            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
+          .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("tokPlain")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
-            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
+            .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .build();
   }
