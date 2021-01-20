@@ -25,6 +25,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -169,7 +170,7 @@ public final class ItemList {
 
     ItemList(Builder builder) {
         mSelectedIndex = builder.mSelectedIndex;
-        mItems = new ArrayList<>(builder.mItems);
+        mItems = CollectionUtils.unmodifiableCopy(builder.mItems);
         mNoItemsMessage = builder.mNoItemsMessage;
         mOnSelectedListener = builder.mOnSelectedListener;
         mOnItemVisibilityChangedListener = builder.mOnItemVisibilityChangedListener;

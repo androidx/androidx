@@ -22,6 +22,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.model.CarText;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -130,10 +131,11 @@ public final class Trip {
     }
 
     Trip(Builder builder) {
-        this.mDestinations = new ArrayList<>(builder.mDestinations);
-        this.mSteps = new ArrayList<>(builder.mSteps);
-        this.mDestinationTravelEstimates = new ArrayList<>(builder.mDestinationTravelEstimates);
-        this.mStepTravelEstimates = new ArrayList<>(builder.mStepTravelEstimates);
+        this.mDestinations = CollectionUtils.unmodifiableCopy(builder.mDestinations);
+        this.mSteps = CollectionUtils.unmodifiableCopy(builder.mSteps);
+        this.mDestinationTravelEstimates = CollectionUtils.unmodifiableCopy(
+                builder.mDestinationTravelEstimates);
+        this.mStepTravelEstimates = CollectionUtils.unmodifiableCopy(builder.mStepTravelEstimates);
         this.mCurrentRoad = builder.mCurrentRoad;
         this.mIsLoading = builder.mIsLoading;
     }
