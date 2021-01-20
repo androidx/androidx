@@ -3305,7 +3305,7 @@ public final class MediaRouter {
                             RouteInfo route = new RouteInfo(provider, groupId, uniqueId);
                             route.maybeUpdateDescriptor(groupRouteDescriptor);
 
-                            if (mSelectedRoute != route) {
+                            if (mSelectedRoute == route) {
                                 return;
                             }
 
