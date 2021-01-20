@@ -755,7 +755,6 @@ package androidx.car.app.navigation.model {
     ctor public Lane.Builder();
     method public androidx.car.app.navigation.model.Lane.Builder addDirection(androidx.car.app.navigation.model.LaneDirection);
     method public androidx.car.app.navigation.model.Lane build();
-    method public androidx.car.app.navigation.model.Lane.Builder clearDirections();
   }
 
   public final class LaneDirection {
@@ -948,7 +947,6 @@ package androidx.car.app.navigation.model {
     ctor public Step.Builder(CharSequence);
     method public androidx.car.app.navigation.model.Step.Builder addLane(androidx.car.app.navigation.model.Lane);
     method public androidx.car.app.navigation.model.Step build();
-    method public androidx.car.app.navigation.model.Step.Builder clearLanes();
     method public androidx.car.app.navigation.model.Step.Builder setCue(CharSequence);
     method public androidx.car.app.navigation.model.Step.Builder setLanesImage(androidx.car.app.model.CarIcon?);
     method public androidx.car.app.navigation.model.Step.Builder setManeuver(androidx.car.app.navigation.model.Maneuver?);
@@ -997,10 +995,6 @@ package androidx.car.app.navigation.model {
     method @Deprecated public androidx.car.app.navigation.model.Trip.Builder addStep(androidx.car.app.navigation.model.Step?);
     method @Deprecated public androidx.car.app.navigation.model.Trip.Builder addStepTravelEstimate(androidx.car.app.navigation.model.TravelEstimate);
     method public androidx.car.app.navigation.model.Trip build();
-    method public androidx.car.app.navigation.model.Trip.Builder clearDestinationTravelEstimates();
-    method public androidx.car.app.navigation.model.Trip.Builder clearDestinations();
-    method public androidx.car.app.navigation.model.Trip.Builder clearStepTravelEstimates();
-    method public androidx.car.app.navigation.model.Trip.Builder clearSteps();
     method public androidx.car.app.navigation.model.Trip.Builder setCurrentRoad(CharSequence?);
     method public androidx.car.app.navigation.model.Trip.Builder setLoading(boolean);
   }

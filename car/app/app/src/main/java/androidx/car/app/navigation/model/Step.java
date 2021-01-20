@@ -227,16 +227,6 @@ public final class Step {
         }
 
         /**
-         * Clears any lanes that may have been added with {@link #addLane(Lane)} up to this
-         * point.
-         */
-        @NonNull
-        public Builder clearLanes() {
-            mLanes.clear();
-            return this;
-        }
-
-        /**
          * Sets an image representing all the lanes or {@code null} if no lanes image is available.
          *
          * <p>This image takes priority over {@link Lane}s that may have been added with {@link

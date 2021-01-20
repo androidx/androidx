@@ -200,13 +200,6 @@ public final class Trip {
             return this;
         }
 
-        /** Clears the list of destinations in the builder. */
-        @NonNull
-        public Builder clearDestinations() {
-            mDestinations.clear();
-            return this;
-        }
-
         /**
          * Adds a step to the trip.
          *
@@ -246,12 +239,6 @@ public final class Trip {
             return this;
         }
 
-        /** Clears the list of steps in the builder. */
-        @NonNull
-        public Builder clearSteps() {
-            mSteps.clear();
-            return this;
-        }
 
         /**
          * Adds a destination travel estimate to the trip.
@@ -275,13 +262,6 @@ public final class Trip {
             return this;
         }
 
-        /** Clears the list of destination travel estimates in the builder. */
-        @NonNull
-        public Builder clearDestinationTravelEstimates() {
-            mDestinationTravelEstimates.clear();
-            return this;
-        }
-
         /**
          * Adds a step travel estimate to the trip.
          *
@@ -298,13 +278,6 @@ public final class Trip {
         @NonNull
         public Builder addStepTravelEstimate(@NonNull TravelEstimate stepTravelEstimate) {
             mStepTravelEstimates.add(requireNonNull(stepTravelEstimate));
-            return this;
-        }
-
-        /** Clears the list of destination travel estimates in the builder. */
-        @NonNull
-        public Builder clearStepTravelEstimates() {
-            mStepTravelEstimates.clear();
             return this;
         }
 
