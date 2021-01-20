@@ -149,7 +149,7 @@ public final class Step {
             @Nullable CarText cue,
             @Nullable CarText road) {
         this.mManeuver = maneuver;
-        this.mLanes = new ArrayList<>(lanes);
+        this.mLanes = CollectionUtils.unmodifiableCopy(lanes);
         this.mLanesImage = lanesImage;
         this.mCue = cue;
         this.mRoad = road;

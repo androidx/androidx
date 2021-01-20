@@ -22,6 +22,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.model.Action.ActionType;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -128,7 +129,7 @@ public class ActionStrip {
     }
 
     ActionStrip(Builder builder) {
-        mActions = builder.mActions;
+        mActions = CollectionUtils.unmodifiableCopy(builder.mActions);
     }
 
     /** Constructs an empty instance, used by serialization code. */

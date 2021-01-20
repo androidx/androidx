@@ -30,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.model.constraints.CarIconConstraints;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -240,7 +241,7 @@ public class Row implements Item {
 
     Row(Builder builder) {
         mTitle = builder.mTitle;
-        mTexts = new ArrayList<>(builder.mTexts);
+        mTexts = CollectionUtils.unmodifiableCopy(builder.mTexts);
         mImage = builder.mImage;
         mToggle = builder.mToggle;
         mOnClickListener = builder.mOnClickListener;

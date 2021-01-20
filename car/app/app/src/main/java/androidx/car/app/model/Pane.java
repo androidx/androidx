@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -112,8 +113,8 @@ public final class Pane {
     }
 
     Pane(Builder builder) {
-        mRows = new ArrayList<>(builder.mRows);
-        mActionList = new ArrayList<>(builder.mActionList);
+        mRows = CollectionUtils.unmodifiableCopy(builder.mRows);
+        mActionList = CollectionUtils.unmodifiableCopy(builder.mActionList);
         mIsLoading = builder.mIsLoading;
     }
 
