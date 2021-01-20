@@ -136,18 +136,6 @@ public final class LaneDirection {
         return mIsRecommended;
     }
 
-    /**
-     * Returns whether this is a direction the driver should take in order to stay on the navigation
-     * route.
-     *
-     * @deprecated Use {@link #isRecommended()}.
-     */
-    //TODO:(rampara): Remove deprecated method once host usage is updated.
-    @Deprecated
-    public boolean isHighlighted() {
-        return mIsRecommended;
-    }
-
     @Override
     @NonNull
     public String toString() {

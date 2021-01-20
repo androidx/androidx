@@ -760,7 +760,6 @@ package androidx.car.app.navigation.model {
   public final class LaneDirection {
     method public static androidx.car.app.navigation.model.LaneDirection create(int, boolean);
     method public int getShape();
-    method @Deprecated public boolean isHighlighted();
     method public boolean isRecommended();
     field public static final int SHAPE_NORMAL_LEFT = 5; // 0x5
     field public static final int SHAPE_NORMAL_RIGHT = 6; // 0x6
