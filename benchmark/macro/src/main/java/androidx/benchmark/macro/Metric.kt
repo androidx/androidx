@@ -21,8 +21,6 @@ import androidx.benchmark.perfetto.PerfettoResultsParser.parseResult
 import androidx.benchmark.perfetto.PerfettoTraceParser
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import com.android.helpers.CpuUsageHelper
-import com.android.helpers.TotalPssHelper
 
 /**
  * Metric interface.
@@ -59,31 +57,6 @@ class StartupTimingMetric : Metric() {
 
     override fun getMetrics(packageName: String, tracePath: String): Map<String, Long> {
         return helper.getMetrics(packageName)
-    }
-}
-
-/**
- * Not public, as this needs clarified metric names, and fix zeros (b/173056421)
- */
-internal class CpuUsageMetric : Metric() {
-    private val helper = CpuUsageHelper().also {
-        it.setEnableCpuUtilization()
-    }
-
-    override fun configure(config: MacrobenchmarkConfig) {
-        // does nothing
-    }
-
-    override fun start() {
-        helper.startCollecting()
-    }
-
-    override fun stop() {
-        helper.stopCollecting()
-    }
-
-    override fun getMetrics(packageName: String, tracePath: String): Map<String, Long> {
-        return helper.metrics
     }
 }
 
@@ -220,28 +193,5 @@ internal class PerfettoMetric : Metric() {
     companion object {
         private const val TAG = "PerfettoMetric"
         private const val METRICS = "android_startup"
-    }
-}
-
-/**
- * Not public, as this needs clarified metric names
- */
-internal class TotalPssMetric : Metric() {
-    private val helper = TotalPssHelper()
-
-    override fun configure(config: MacrobenchmarkConfig) {
-        helper.setUp(config.packageName)
-    }
-
-    override fun start() {
-        helper.startCollecting()
-    }
-
-    override fun stop() {
-        helper.stopCollecting()
-    }
-
-    override fun getMetrics(packageName: String, tracePath: String): Map<String, Long> {
-        return helper.metrics
     }
 }
