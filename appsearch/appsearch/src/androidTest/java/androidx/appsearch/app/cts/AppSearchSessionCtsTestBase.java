@@ -116,6 +116,51 @@ public abstract class AppSearchSessionCtsTestBase {
         mDb1.setSchema(new SetSchemaRequest.Builder().addSchema(emailSchema).build()).get();
     }
 
+    @Test
+    public void testSetSchema_updateVersion() throws Exception {
+        AppSearchSchema oldSchema = new AppSearchSchema.Builder("Email")
+                .setVersion(1)
+                .addProperty(new AppSearchSchema.PropertyConfig.Builder("subject")
+                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(PropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).addProperty(new AppSearchSchema.PropertyConfig.Builder("body")
+                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(PropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).build();
+
+        mDb1.setSchema(new SetSchemaRequest.Builder().addSchema(oldSchema).build()).get();
+
+        Set<AppSearchSchema> actualSchemaTypes = mDb1.getSchema().get();
+        assertThat(actualSchemaTypes).containsExactly(oldSchema);
+
+        AppSearchSchema newSchema = new AppSearchSchema.Builder("Email")
+                .setVersion(2)
+                .addProperty(new AppSearchSchema.PropertyConfig.Builder("subject")
+                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(PropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).addProperty(new AppSearchSchema.PropertyConfig.Builder("body")
+                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(PropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).build();
+
+        mDb1.setSchema(new SetSchemaRequest.Builder().addSchema(newSchema).build()).get();
+
+        actualSchemaTypes = mDb1.getSchema().get();
+        assertThat(actualSchemaTypes).containsExactly(newSchema);
+    }
+
 // @exportToFramework:startStrip()
 
     @Test

@@ -55,12 +55,14 @@ package androidx.appsearch.app {
   public final class AppSearchSchema {
     method public java.util.List<androidx.appsearch.app.AppSearchSchema.PropertyConfig!> getProperties();
     method public String getSchemaType();
+    method @IntRange(from=0) public int getVersion();
   }
 
   public static final class AppSearchSchema.Builder {
     ctor public AppSearchSchema.Builder(String);
     method public androidx.appsearch.app.AppSearchSchema.Builder addProperty(androidx.appsearch.app.AppSearchSchema.PropertyConfig);
     method public androidx.appsearch.app.AppSearchSchema build();
+    method public androidx.appsearch.app.AppSearchSchema.Builder setVersion(@IntRange(from=0) int);
   }
 
   public static final class AppSearchSchema.PropertyConfig {
