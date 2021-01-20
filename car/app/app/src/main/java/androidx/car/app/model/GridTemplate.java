@@ -24,7 +24,6 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.model.constraints.CarIconConstraints;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -59,9 +58,6 @@ public final class GridTemplate implements Template {
     @Keep
     @Nullable
     private final ActionStrip mActionStrip;
-    @Keep
-    @Nullable
-    private final CarIcon mBackgroundImage;
 
     /** Constructs a new builder of {@link GridTemplate}. */
     // TODO(b/175827428): remove once host is changed to use new public ctor.
@@ -94,11 +90,6 @@ public final class GridTemplate implements Template {
         return mActionStrip;
     }
 
-    @Nullable
-    public CarIcon getBackgroundImage() {
-        return mBackgroundImage;
-    }
-
     @NonNull
     @Override
     public String toString() {
@@ -107,8 +98,7 @@ public final class GridTemplate implements Template {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mIsLoading, mTitle, mHeaderAction, mSingleList, mActionStrip,
-                mBackgroundImage);
+        return Objects.hash(mIsLoading, mTitle, mHeaderAction, mSingleList, mActionStrip);
     }
 
     @Override
@@ -125,8 +115,7 @@ public final class GridTemplate implements Template {
                 && Objects.equals(mTitle, otherTemplate.mTitle)
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
                 && Objects.equals(mSingleList, otherTemplate.mSingleList)
-                && Objects.equals(mActionStrip, otherTemplate.mActionStrip)
-                && Objects.equals(mBackgroundImage, otherTemplate.mBackgroundImage);
+                && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
     }
 
     GridTemplate(Builder builder) {
@@ -135,7 +124,6 @@ public final class GridTemplate implements Template {
         mHeaderAction = builder.mHeaderAction;
         mSingleList = builder.mSingleList;
         mActionStrip = builder.mActionStrip;
-        mBackgroundImage = builder.mBackgroundImage;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -145,7 +133,6 @@ public final class GridTemplate implements Template {
         mHeaderAction = null;
         mSingleList = null;
         mActionStrip = null;
-        mBackgroundImage = null;
     }
 
     /** A builder of {@link GridTemplate}. */
@@ -159,10 +146,6 @@ public final class GridTemplate implements Template {
         Action mHeaderAction;
         @Nullable
         ActionStrip mActionStrip;
-
-        /** For internal, host-side use only. */
-        @Nullable
-        CarIcon mBackgroundImage;
 
         /**
          * Sets whether the template is in a loading state.
@@ -235,18 +218,6 @@ public final class GridTemplate implements Template {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(
                     actionStrip == null ? Collections.emptyList() : actionStrip.getActionList());
             this.mActionStrip = actionStrip;
-            return this;
-        }
-
-        /**
-         * Sets a {@link CarIcon} to be shown as background of the template.
-         *
-         * <p>For internal, host-side use only.
-         */
-        @NonNull
-        public Builder setBackgroundImage(@Nullable CarIcon backgroundImage) {
-            CarIconConstraints.UNCONSTRAINED.validateOrThrow(backgroundImage);
-            this.mBackgroundImage = backgroundImage;
             return this;
         }
 
