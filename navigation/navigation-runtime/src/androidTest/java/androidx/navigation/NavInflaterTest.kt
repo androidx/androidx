@@ -168,6 +168,14 @@ class NavInflaterTest {
     }
 
     @Test
+    fun testDefaultIntArgumentsFloat() {
+        val defaultArguments = inflateDefaultArgumentsFromGraph()
+
+        assertThat(defaultArguments["test_int_as_float"]?.run { type to defaultValue })
+            .isEqualTo(NavType.FloatType to 3f)
+    }
+
+    @Test
     fun testDefaultArgumentsBoolean() {
         val defaultArguments = inflateDefaultArgumentsFromGraph()
 
