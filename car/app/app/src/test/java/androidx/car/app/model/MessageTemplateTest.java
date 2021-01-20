@@ -80,7 +80,7 @@ public class MessageTemplateTest {
     public void createDefault_valuesAreNull() {
         MessageTemplate template = new MessageTemplate.Builder(mMessage).setTitle(mTitle).build();
         assertThat(template.getMessage().toString()).isEqualTo(mMessage);
-        assertThat(template.getTitle().getText()).isEqualTo("header");
+        assertThat(template.getTitle().toString()).isEqualTo("header");
         assertThat(template.getIcon()).isNull();
         assertThat(template.getHeaderAction()).isNull();
         assertThat(template.getActionList()).isEmpty();

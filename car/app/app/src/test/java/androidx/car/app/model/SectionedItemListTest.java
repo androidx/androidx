@@ -34,7 +34,7 @@ public class SectionedItemListTest {
         SectionedItemList sectionList = SectionedItemList.create(list, "header");
 
         assertThat(sectionList.getItemList()).isEqualTo(list);
-        assertThat(sectionList.getHeader().getText()).isEqualTo("header");
+        assertThat(sectionList.getHeader().toString()).isEqualTo("header");
     }
 
     @Test

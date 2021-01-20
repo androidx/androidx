@@ -264,7 +264,7 @@ public class PlaceListMapTemplateTest {
                         .setCurrentLocationEnabled(true)
                         .build();
 
-        assertThat(template.getTitle().getText()).isEqualTo(title);
+        assertThat(template.getTitle().toString()).isEqualTo(title);
     }
 
     @Test

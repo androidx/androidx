@@ -168,7 +168,7 @@ public class PlaceListNavigationTemplateTest {
                         .setItemList(new ItemList.Builder().build())
                         .build();
         assertThat(template.getItemList().getItemList()).isEmpty();
-        assertThat(template.getTitle().getText()).isEqualTo("Title");
+        assertThat(template.getTitle().toString()).isEqualTo("Title");
         assertThat(template.getActionStrip()).isNull();
     }
 
@@ -185,7 +185,7 @@ public class PlaceListNavigationTemplateTest {
                         .build();
         assertThat(template.getItemList()).isEqualTo(itemList);
         assertThat(template.getActionStrip()).isEqualTo(actionStrip);
-        assertThat(template.getTitle().getText()).isEqualTo(title);
+        assertThat(template.getTitle().toString()).isEqualTo(title);
     }
 
     @Test
