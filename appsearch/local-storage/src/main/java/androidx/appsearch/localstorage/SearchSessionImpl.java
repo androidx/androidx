@@ -156,9 +156,9 @@ class SearchSessionImpl implements AppSearchSession {
 
             // 4. Trigger migration for all migrators.
             for (Map.Entry<String, AppSearchSchema.Migrator> entry : migratorMap.entrySet()) {
-                if (triggerMigration(/*schemaType=*/entry.getKey(), /*Migrator=*/entry.getValue(),
+                if (triggerMigration(/*schemaType=*/entry.getKey(), /*migrator=*/entry.getValue(),
                         currentVersionMap, finalVersionMap, migrationHelper)) {
-                    responseBuilder.addMigratedType(/*schemaType=*/entry.getKey());
+                    responseBuilder.addMigratedType(/*migratedType=*/entry.getKey());
                 }
             }
 

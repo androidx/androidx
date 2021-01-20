@@ -89,10 +89,8 @@ public final class SetSchemaRequest {
 
     /**
      * Returns the map of {@link androidx.appsearch.app.AppSearchSchema.Migrator}.
-     * @hide
      */
     @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public Map<String, AppSearchSchema.Migrator> getMigrators() {
         return Collections.unmodifiableMap(mMigrators);
     }
@@ -260,15 +258,14 @@ public final class SetSchemaRequest {
         }
 
         /**
-         * set the {@link androidx.appsearch.app.AppSearchSchema.Migrator}.
+         * Sets the {@link androidx.appsearch.app.AppSearchSchema.Migrator}.
          *
          * @param schemaType The schema type to set migrator on.
          * @param migrator   The migrator translate a document from it's old version to a new
          *                   incompatible version.
-         * @hide
          */
         @NonNull
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @SuppressLint("MissingGetterMatchingBuilder")        // Getter return plural objects.
         public Builder setMigrator(@NonNull String schemaType,
                 @NonNull AppSearchSchema.Migrator migrator) {
             Preconditions.checkNotNull(schemaType);

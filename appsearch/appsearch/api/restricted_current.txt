@@ -37,6 +37,14 @@ package androidx.appsearch.app {
     method public boolean isSuccess();
   }
 
+  public interface AppSearchMigrationHelper {
+    method public void queryAndTransform(String, androidx.appsearch.app.AppSearchMigrationHelper.Transformer) throws java.lang.Exception;
+  }
+
+  public static interface AppSearchMigrationHelper.Transformer {
+    method public androidx.appsearch.app.GenericDocument transform(int, int, androidx.appsearch.app.GenericDocument) throws java.lang.Exception;
+  }
+
   public final class AppSearchResult<ValueType> {
     method public String? getErrorMessage();
     method public int getResultCode();
@@ -114,6 +122,11 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.AppSearchSchema.Int64PropertyConfig.Builder setCardinality(int);
   }
 
+  public static interface AppSearchSchema.Migrator {
+    method public default void onDowngrade(int, int, androidx.appsearch.app.AppSearchMigrationHelper) throws java.lang.Exception;
+    method public default void onUpgrade(int, int, androidx.appsearch.app.AppSearchMigrationHelper) throws java.lang.Exception;
+  }
+
   public abstract static class AppSearchSchema.PropertyConfig {
     method public int getCardinality();
     method public int getDataType();
@@ -150,7 +163,7 @@ package androidx.appsearch.app {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> removeByQuery(String, androidx.appsearch.app.SearchSpec);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> removeByUri(androidx.appsearch.app.RemoveByUriRequest);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportUsage(androidx.appsearch.app.ReportUsageRequest);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setSchema(androidx.appsearch.app.SetSchemaRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.SetSchemaResponse!> setSchema(androidx.appsearch.app.SetSchemaRequest);
   }
 
   public interface DataClassFactory<T> {
@@ -344,6 +357,7 @@ package androidx.appsearch.app {
   }
 
   public final class SetSchemaRequest {
+    method public java.util.Map<java.lang.String!,androidx.appsearch.app.AppSearchSchema.Migrator!> getMigrators();
     method public java.util.Set<androidx.appsearch.app.AppSearchSchema!> getSchemas();
     method public java.util.Set<java.lang.String!> getSchemasNotVisibleToSystemUi();
     method public java.util.Map<java.lang.String!,java.util.Set<androidx.appsearch.app.PackageIdentifier!>!> getSchemasVisibleToPackages();
@@ -360,8 +374,24 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SetSchemaRequest.Builder setDataClassVisibilityForPackage(Class<?>, boolean, androidx.appsearch.app.PackageIdentifier) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SetSchemaRequest.Builder setDataClassVisibilityForSystemUi(Class<?>, boolean) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SetSchemaRequest.Builder setForceOverride(boolean);
+    method public androidx.appsearch.app.SetSchemaRequest.Builder setMigrator(String, androidx.appsearch.app.AppSearchSchema.Migrator);
     method public androidx.appsearch.app.SetSchemaRequest.Builder setSchemaTypeVisibilityForPackage(String, boolean, androidx.appsearch.app.PackageIdentifier);
     method public androidx.appsearch.app.SetSchemaRequest.Builder setSchemaTypeVisibilityForSystemUi(String, boolean);
+  }
+
+  public class SetSchemaResponse {
+    method public java.util.Set<java.lang.String!> getDeletedTypes();
+    method public java.util.Set<java.lang.String!> getIncompatibleTypes();
+    method public java.util.Set<java.lang.String!> getMigratedTypes();
+    method public java.util.List<androidx.appsearch.app.SetSchemaResponse.MigrationFailure!> getMigrationFailures();
+    method public boolean isSuccess();
+  }
+
+  public static class SetSchemaResponse.MigrationFailure {
+    method public androidx.appsearch.app.AppSearchResult<java.lang.Void!> getAppSearchResult();
+    method public String getNamespace();
+    method public String getSchemaType();
+    method public String getUri();
   }
 
 }

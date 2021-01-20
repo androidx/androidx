@@ -16,27 +16,30 @@
 
 package androidx.appsearch.app;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 /**
  * The helper class for {@link AppSearchSchema} migration.
  *
  * <p>It will query and migrate {@link GenericDocument} in given type to a new version.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface AppSearchMigrationHelper {
 
     /**
-     * Queries all documents that need to be migrated to new version, and transform documents to
-     * new version by passing them to the provided Transformer.
+     * Queries all documents that need to be migrated to the different version, and transform
+     * documents to that version by passing them to the provided {@link Transformer}.
      *
      * @param schemaType   The schema that need be updated and migrated {@link GenericDocument}
      *                     under this type.
      * @param transformer  The {@link Transformer} that will upgrade or downgrade a
      *                     {@link GenericDocument} to new  version.
+     *
+     * @see Transformer#transform
      */
+    // Rethrow the Generic Exception thrown from the Transformer.
+    @SuppressLint("GenericException")
     void queryAndTransform(@NonNull String schemaType, @NonNull Transformer transformer)
             throws Exception;
 
@@ -57,6 +60,8 @@ public interface AppSearchMigrationHelper {
          * @return         A {@link GenericDocument} in new version.
          */
         @NonNull
+        // This method will be overridden by users, allow them to throw any customer Exceptions.
+        @SuppressLint("GenericException")
         GenericDocument transform(int currentVersion,
                 int finalVersion, @NonNull GenericDocument document) throws Exception;
     }

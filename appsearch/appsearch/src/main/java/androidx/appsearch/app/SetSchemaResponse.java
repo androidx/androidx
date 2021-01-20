@@ -31,11 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-/**
- * The response class of {@link AppSearchSession#setSchema}
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** The response class of {@link AppSearchSession#setSchema} */
 public class SetSchemaResponse {
     private final List<MigrationFailure> mMigrationFailures;
     private final Set<String> mDeletedTypes;
@@ -54,8 +50,14 @@ public class SetSchemaResponse {
     }
 
     /**
-     * Returns a {@link List} of all failed {@link MigrationFailure} represents the
-     * {@link GenericDocument} that failed to be migrated.
+     * Returns a {@link List} of all failed {@link MigrationFailure}.
+     *
+     * <p>A {@link MigrationFailure} will be generated if the system trying to save a post-migrated
+     * {@link GenericDocument} but fail.
+     *
+     * <p>{@link MigrationFailure} contains the uri, namespace and schemaType of the post-migrated
+     * {@link GenericDocument} and the error reason. Mostly it will be mismatch the schema it
+     * migrated to.
      */
     @NonNull
     public List<MigrationFailure> getMigrationFailures() {
@@ -188,7 +190,7 @@ public class SetSchemaResponse {
     }
 
     /**
-     * The class represents a {@link GenericDocument} that failed to be migrated in
+     * The class represents a post-migrated {@link GenericDocument} that failed to be saved by
      * {@link AppSearchSession#setSchema}.
      */
     public static class MigrationFailure {
@@ -224,8 +226,8 @@ public class SetSchemaResponse {
         }
 
         /**
-         * Returns the {@link AppSearchResult} that indicates why the {@link GenericDocument}
-         * fails to be migrated.
+         * Returns the {@link AppSearchResult} that indicates why the
+         * post-migrated {@link GenericDocument} fails to be saved.
          */
         @NonNull
         public AppSearchResult<Void> getAppSearchResult() {

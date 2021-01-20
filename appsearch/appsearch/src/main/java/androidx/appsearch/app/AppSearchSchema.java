@@ -858,9 +858,7 @@ public final class AppSearchSchema {
     /**
      * A migrator class to translate {@link GenericDocument} from different version of
      * {@link AppSearchSchema}
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface Migrator {
 
         /**
@@ -874,6 +872,8 @@ public final class AppSearchSchema {
          * @param helper         The helper class could help to query all documents need to be
          *                       migrated.
          */
+        // This method will be overridden by users, allow them to throw any customer Exceptions.
+        @SuppressLint("GenericException")
         default void onUpgrade(int currentVersion, int targetVersion,
                 @NonNull AppSearchMigrationHelper helper) throws Exception {
         }
@@ -889,6 +889,8 @@ public final class AppSearchSchema {
          * @param helper         The helper class could help to query all documents need to be
          *                       migrated.
          */
+        // This method will be overridden by users, allow them to throw any customer Exceptions.
+        @SuppressLint("GenericException")
         default void onDowngrade(int currentVersion, int targetVersion,
                 @NonNull AppSearchMigrationHelper helper) throws Exception {
         }
