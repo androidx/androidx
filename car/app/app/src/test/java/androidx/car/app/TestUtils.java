@@ -29,7 +29,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarIcon;
-import androidx.car.app.model.CarText;
 import androidx.car.app.model.DateTimeWithZone;
 import androidx.car.app.model.DistanceSpan;
 import androidx.car.app.model.GridItem;
@@ -155,7 +154,7 @@ public class TestUtils {
             sections.add(
                     SectionedItemList.create(
                             createItemList(rowCountPerSection, isSelectable),
-                            CarText.create("Section " + i)));
+                            "Section " + i));
         }
 
         return sections;

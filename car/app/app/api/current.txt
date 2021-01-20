@@ -381,7 +381,8 @@ package androidx.car.app.model {
 
   public final class ItemList {
     method public static androidx.car.app.model.ItemList.Builder builder();
-    method public java.util.List<java.lang.Object!> getItems();
+    method public java.util.List<androidx.car.app.model.Item!> getItemList();
+    method @Deprecated public java.util.List<java.lang.Object!> getItems();
     method public androidx.car.app.model.CarText? getNoItemsMessage();
     method public androidx.car.app.model.OnItemVisibilityChangedListenerWrapper? getOnItemsVisibilityChangedListener();
     method public androidx.car.app.model.OnSelectedListenerWrapper? getOnSelectedListener();
@@ -392,7 +393,6 @@ package androidx.car.app.model {
     ctor public ItemList.Builder();
     method public androidx.car.app.model.ItemList.Builder addItem(androidx.car.app.model.Item);
     method public androidx.car.app.model.ItemList build();
-    method public androidx.car.app.model.ItemList.Builder clearItems();
     method public androidx.car.app.model.ItemList.Builder setNoItemsMessage(CharSequence?);
     method public androidx.car.app.model.ItemList.Builder setOnItemsVisibilityChangedListener(androidx.car.app.model.ItemList.OnItemVisibilityChangedListener?);
     method public androidx.car.app.model.ItemList.Builder setOnSelectedListener(androidx.car.app.model.ItemList.OnSelectedListener?);
@@ -418,14 +418,16 @@ package androidx.car.app.model {
     method public static androidx.car.app.model.ListTemplate.Builder builder();
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public androidx.car.app.model.Action? getHeaderAction();
-    method public java.util.List<androidx.car.app.model.SectionedItemList!> getSectionLists();
+    method @Deprecated public java.util.List<androidx.car.app.model.SectionedItemList!> getSectionLists();
+    method public java.util.List<androidx.car.app.model.SectionedItemList!> getSectionedLists();
     method public androidx.car.app.model.ItemList? getSingleList();
     method public androidx.car.app.model.CarText? getTitle();
     method public boolean isLoading();
   }
 
   public static final class ListTemplate.Builder {
-    method public androidx.car.app.model.ListTemplate.Builder addList(androidx.car.app.model.ItemList, CharSequence);
+    method @Deprecated public androidx.car.app.model.ListTemplate.Builder addList(androidx.car.app.model.ItemList, CharSequence);
+    method public androidx.car.app.model.ListTemplate.Builder addSectionedList(androidx.car.app.model.SectionedItemList);
     method public androidx.car.app.model.ListTemplate build();
     method public androidx.car.app.model.ListTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip?);
     method public androidx.car.app.model.ListTemplate.Builder setHeaderAction(androidx.car.app.model.Action?);
@@ -498,7 +500,8 @@ package androidx.car.app.model {
     method public static androidx.car.app.model.Pane.Builder builder();
     method public java.util.List<androidx.car.app.model.Action!> getActionList();
     method @Deprecated public androidx.car.app.model.ActionList? getActions();
-    method public java.util.List<java.lang.Object!> getRows();
+    method public java.util.List<androidx.car.app.model.Row!> getRowList();
+    method @Deprecated public java.util.List<java.lang.Object!> getRows();
     method public boolean isLoading();
   }
 
@@ -657,7 +660,8 @@ package androidx.car.app.model {
   }
 
   public class SectionedItemList {
-    method public static androidx.car.app.model.SectionedItemList create(androidx.car.app.model.ItemList, androidx.car.app.model.CarText);
+    method @Deprecated public static androidx.car.app.model.SectionedItemList create(androidx.car.app.model.ItemList, androidx.car.app.model.CarText);
+    method public static androidx.car.app.model.SectionedItemList create(androidx.car.app.model.ItemList, CharSequence);
     method public androidx.car.app.model.CarText getHeader();
     method public androidx.car.app.model.ItemList getItemList();
   }

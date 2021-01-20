@@ -67,7 +67,7 @@ public final class ListTemplate implements Template {
     @Nullable
     private final ItemList mSingleList;
     @Keep
-    private final List<SectionedItemList> mSectionLists;
+    private final List<SectionedItemList> mSectionedLists;
     @Keep
     @Nullable
     private final ActionStrip mActionStrip;
@@ -98,9 +98,19 @@ public final class ListTemplate implements Template {
         return mSingleList;
     }
 
+    /**
+     * @deprecated use {@link #getSectionedLists()} instead.
+     */
+    // TODO(b/177591128): remove after host(s) no longer reference this.
+    @Deprecated
     @NonNull
     public List<SectionedItemList> getSectionLists() {
-        return mSectionLists;
+        return mSectionedLists;
+    }
+
+    @NonNull
+    public List<SectionedItemList> getSectionedLists() {
+        return mSectionedLists;
     }
 
     @Nullable
@@ -116,7 +126,7 @@ public final class ListTemplate implements Template {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mIsLoading, mTitle, mHeaderAction, mSingleList, mSectionLists,
+        return Objects.hash(mIsLoading, mTitle, mHeaderAction, mSingleList, mSectionedLists,
                 mActionStrip);
     }
 
@@ -134,7 +144,7 @@ public final class ListTemplate implements Template {
                 && Objects.equals(mTitle, otherTemplate.mTitle)
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
                 && Objects.equals(mSingleList, otherTemplate.mSingleList)
-                && Objects.equals(mSectionLists, otherTemplate.mSectionLists)
+                && Objects.equals(mSectionedLists, otherTemplate.mSectionedLists)
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
     }
 
@@ -143,7 +153,7 @@ public final class ListTemplate implements Template {
         mTitle = builder.mTitle;
         mHeaderAction = builder.mHeaderAction;
         mSingleList = builder.mSingleList;
-        mSectionLists = CollectionUtils.unmodifiableCopy(builder.mSectionLists);
+        mSectionedLists = CollectionUtils.unmodifiableCopy(builder.mSectionedLists);
         mActionStrip = builder.mActionStrip;
     }
 
@@ -153,7 +163,7 @@ public final class ListTemplate implements Template {
         mTitle = null;
         mHeaderAction = null;
         mSingleList = null;
-        mSectionLists = Collections.emptyList();
+        mSectionedLists = Collections.emptyList();
         mActionStrip = null;
     }
 
@@ -162,7 +172,7 @@ public final class ListTemplate implements Template {
         boolean mIsLoading;
         @Nullable
         ItemList mSingleList;
-        final List<SectionedItemList> mSectionLists = new ArrayList<>();
+        final List<SectionedItemList> mSectionedLists = new ArrayList<>();
         @Nullable
         CarText mTitle;
         @Nullable
@@ -231,7 +241,7 @@ public final class ListTemplate implements Template {
         @NonNull
         public Builder setSingleList(@NonNull ItemList list) {
             mSingleList = requireNonNull(list);
-            mSectionLists.clear();
+            mSectionedLists.clear();
             mHasSelectableList = false;
             return this;
         }
@@ -254,34 +264,63 @@ public final class ListTemplate implements Template {
          * @throws NullPointerException     if {@code header} is null.
          * @throws IllegalArgumentException if {@code header} is empty.
          * @throws IllegalArgumentException if a selectable list is added alongside other lists.
+         *
+         * @deprecated use {@link #addSectionedList}  instead.
          */
+        // TODO(b/177591128): remove after host(s) no longer reference this.
+        @Deprecated
         @NonNull
         // TODO(shiufai): consider rename to match getter's name.
         @SuppressLint("MissingGetterMatchingBuilder")
         public Builder addList(@NonNull ItemList list, @NonNull CharSequence header) {
-            if (requireNonNull(header).length() == 0) {
+            return addSectionedList(SectionedItemList.create(list, header));
+        }
+
+        /**
+         * Adds an {@link SectionedItemList} to display in the template.
+         *
+         * <p>Use this method to add multiple lists to the template. Each
+         * {@link SectionedItemList} will be grouped under its header. These lists cannot be
+         * mixed with an {@link ItemList} added via {@link #setSingleList}. If a single list was
+         * previously added, it will be cleared.
+         *
+         * <p>If the added {@link SectionedItemList} contains a
+         * {@link ItemList.OnSelectedListener}, then it cannot be added alongside other
+         * {@link SectionedItemList}(s).
+         *
+         * @throws NullPointerException     if {@code list} is null.
+         * @throws IllegalArgumentException if {@code list} is empty.
+         * @throws IllegalArgumentException if {@code list}'s {@link
+         *                                  ItemList.OnItemVisibilityChangedListener} is set.
+         * @throws NullPointerException     if {@code header} is null.
+         * @throws IllegalArgumentException if {@code header} is empty.
+         * @throws IllegalArgumentException if a selectable list is added alongside other lists.
+         */
+        @NonNull
+        public Builder addSectionedList(@NonNull SectionedItemList list) {
+            if (requireNonNull(list).getHeader().getText().length() == 0) {
                 throw new IllegalArgumentException("Header cannot be empty");
             }
-            CarText headerText = CarText.create(header);
 
-            boolean isSelectableList = list.getOnSelectedListener() != null;
-            if (mHasSelectableList || (isSelectableList && !mSectionLists.isEmpty())) {
+            ItemList itemList = list.getItemList();
+            boolean isSelectableList = itemList.getOnSelectedListener() != null;
+            if (mHasSelectableList || (isSelectableList && !mSectionedLists.isEmpty())) {
                 throw new IllegalArgumentException(
                         "A selectable list cannot be added alongside any other lists");
             }
             mHasSelectableList = isSelectableList;
 
-            if (list.getItems().isEmpty()) {
+            if (itemList.getItemList().isEmpty()) {
                 throw new IllegalArgumentException("List cannot be empty");
             }
 
-            if (list.getOnItemsVisibilityChangedListener() != null) {
+            if (itemList.getOnItemsVisibilityChangedListener() != null) {
                 throw new IllegalArgumentException(
                         "OnItemVisibilityChangedListener in the list is disallowed");
             }
 
             mSingleList = null;
-            mSectionLists.add(SectionedItemList.create(list, headerText));
+            mSectionedLists.add(list);
             return this;
         }
 
@@ -325,15 +364,15 @@ public final class ListTemplate implements Template {
          */
         @NonNull
         public ListTemplate build() {
-            boolean hasList = mSingleList != null || !mSectionLists.isEmpty();
+            boolean hasList = mSingleList != null || !mSectionedLists.isEmpty();
             if (mIsLoading == hasList) {
                 throw new IllegalStateException(
                         "Template is in a loading state but lists are added, or vice versa");
             }
 
             if (hasList) {
-                if (!mSectionLists.isEmpty()) {
-                    ROW_LIST_CONSTRAINTS_FULL_LIST.validateOrThrow(mSectionLists);
+                if (!mSectionedLists.isEmpty()) {
+                    ROW_LIST_CONSTRAINTS_FULL_LIST.validateOrThrow(mSectionedLists);
                 } else if (mSingleList != null) {
                     ROW_LIST_CONSTRAINTS_FULL_LIST.validateOrThrow(mSingleList);
                 }

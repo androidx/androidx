@@ -39,13 +39,17 @@ public final class ModelUtils {
      * Checks whether all non-browsable rows have attached at least one {@link DistanceSpan} in
      * either the title or secondary text.
      *
+     * @throws IllegalArgumentException if the input list contains any non-Row instances.
      * @throws IllegalArgumentException if any non-browsable row does not have a
      *                                  {@link DistanceSpan} instance.
      */
-    public static void validateAllNonBrowsableRowsHaveDistance(@NonNull List<Object> rows) {
+    public static void validateAllNonBrowsableRowsHaveDistance(@NonNull List<Item> rows) {
         int spanSetCount = 0;
         int nonBrowsableRowCount = 0;
-        for (Object rowObj : rows) {
+        for (Item rowObj : rows) {
+            if (!(rowObj instanceof Row)) {
+                throw new IllegalArgumentException("Item in the list is not a Row.");
+            }
             Row row = (Row) rowObj;
 
             if (!row.isBrowsable()) {
@@ -68,11 +72,15 @@ public final class ModelUtils {
      * Checks whether all rows have attached at least one {@link DurationSpan} or
      * {@link DistanceSpan }in either the title or secondary text.
      *
+     * @throws IllegalArgumentException if the input list contains any non-Row instances.
      * @throws IllegalArgumentException if any non-browsable row does not have either a {@link
      *                                  DurationSpan} or {@link DistanceSpan} instance.
      */
-    public static void validateAllRowsHaveDistanceOrDuration(@NonNull List<Object> rows) {
-        for (Object rowObj : rows) {
+    public static void validateAllRowsHaveDistanceOrDuration(@NonNull List<Item> rows) {
+        for (Item rowObj : rows) {
+            if (!(rowObj instanceof Row)) {
+                throw new IllegalArgumentException("Item in the list is not a Row.");
+            }
             Row row = (Row) rowObj;
             if (!(checkRowHasSpanType(row, DistanceSpan.class)
                     || checkRowHasSpanType(row, DurationSpan.class))) {
@@ -87,11 +95,15 @@ public final class ModelUtils {
     /**
      * Checks whether all rows have only small-sized images if they are set.
      *
+     * @throws IllegalArgumentException if the input list contains any non-Row instances.
      * @throws IllegalArgumentException if an image set in any rows is using {@link
      *                                  Row#IMAGE_TYPE_LARGE}.
      */
-    public static void validateAllRowsHaveOnlySmallImages(@NonNull List<Object> rows) {
-        for (Object rowObj : rows) {
+    public static void validateAllRowsHaveOnlySmallImages(@NonNull List<Item> rows) {
+        for (Item rowObj : rows) {
+            if (!(rowObj instanceof Row)) {
+                throw new IllegalArgumentException("Item in the list is not a Row.");
+            }
             Row row = (Row) rowObj;
             if (row.getImage() != null && row.getRowImageType() == Row.IMAGE_TYPE_LARGE) {
                 throw new IllegalArgumentException("Rows must only use small-sized images");
@@ -102,10 +114,14 @@ public final class ModelUtils {
     /**
      * Checks whether any rows have both a marker and an image.
      *
+     * @throws IllegalArgumentException if the input list contains any non-Row instances.
      * @throws IllegalArgumentException if both a marker and an image are set in a row.
      */
-    public static void validateNoRowsHaveBothMarkersAndImages(@NonNull List<Object> rows) {
-        for (Object rowObj : rows) {
+    public static void validateNoRowsHaveBothMarkersAndImages(@NonNull List<Item> rows) {
+        for (Item rowObj : rows) {
+            if (!(rowObj instanceof Row)) {
+                throw new IllegalArgumentException("Item in the list is not a Row.");
+            }
             Row row = (Row) rowObj;
 
             boolean hasImage = row.getImage() != null;

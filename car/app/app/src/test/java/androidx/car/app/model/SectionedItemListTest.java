@@ -23,7 +23,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-/** Tests for {@link ItemListTest}. */
+/** Tests for {@link SectionedItemList}. */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class SectionedItemListTest {
@@ -31,22 +31,19 @@ public class SectionedItemListTest {
     @Test
     public void createInstance() {
         ItemList list = new ItemList.Builder().build();
-        CarText header = CarText.create("header");
-        SectionedItemList sectionList = SectionedItemList.create(list, header);
+        SectionedItemList sectionList = SectionedItemList.create(list, "header");
 
         assertThat(sectionList.getItemList()).isEqualTo(list);
-        assertThat(sectionList.getHeader()).isEqualTo(header);
+        assertThat(sectionList.getHeader().getText()).isEqualTo("header");
     }
 
     @Test
     public void equals() {
         ItemList list = new ItemList.Builder().build();
-        CarText header = CarText.create("header");
-        SectionedItemList sectionList = SectionedItemList.create(list, header);
+        SectionedItemList sectionList = SectionedItemList.create(list, "header");
 
         ItemList list2 = new ItemList.Builder().build();
-        CarText header2 = CarText.create("header");
-        SectionedItemList sectionList2 = SectionedItemList.create(list2, header2);
+        SectionedItemList sectionList2 = SectionedItemList.create(list2, "header");
 
         assertThat(sectionList2).isEqualTo(sectionList);
     }
@@ -55,12 +52,10 @@ public class SectionedItemListTest {
     public void notEquals_differentItemList() {
         ItemList list = new ItemList.Builder().addItem(
                 new Row.Builder().setTitle("Title").build()).build();
-        CarText header = CarText.create("header");
-        SectionedItemList sectionList = SectionedItemList.create(list, header);
+        SectionedItemList sectionList = SectionedItemList.create(list, "header");
 
         ItemList list2 = new ItemList.Builder().build();
-        CarText header2 = CarText.create("header");
-        SectionedItemList sectionList2 = SectionedItemList.create(list2, header2);
+        SectionedItemList sectionList2 = SectionedItemList.create(list2, "header");
 
         assertThat(sectionList2).isNotEqualTo(sectionList);
     }
@@ -68,12 +63,10 @@ public class SectionedItemListTest {
     @Test
     public void notEquals_differentHeader() {
         ItemList list = new ItemList.Builder().build();
-        CarText header = CarText.create("header1");
-        SectionedItemList sectionList = SectionedItemList.create(list, header);
+        SectionedItemList sectionList = SectionedItemList.create(list, "header1");
 
         ItemList list2 = new ItemList.Builder().build();
-        CarText header2 = CarText.create("header2");
-        SectionedItemList sectionList2 = SectionedItemList.create(list2, header2);
+        SectionedItemList sectionList2 = SectionedItemList.create(list2, "header2");
 
         assertThat(sectionList2).isNotEqualTo(sectionList);
     }
