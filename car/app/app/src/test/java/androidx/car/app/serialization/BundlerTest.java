@@ -36,8 +36,8 @@ import androidx.car.app.TestUtils;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.CarLocation;
 import androidx.car.app.model.ItemList;
-import androidx.car.app.model.LatLng;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Metadata;
 import androidx.car.app.model.OnClickListener;
@@ -186,19 +186,19 @@ public class BundlerTest {
 
     @Test
     public void mapSerialization() throws BundlerException {
-        Map<String, LatLng> value = new HashMap<>();
-        value.put("bank", LatLng.create(23.32, 134.34));
-        value.put("banana", LatLng.create(2.4532, 3982.23));
+        Map<String, CarLocation> value = new HashMap<>();
+        value.put("bank", CarLocation.create(23.32, 134.34));
+        value.put("banana", CarLocation.create(2.4532, 3982.23));
 
         Bundle bundle = Bundler.toBundle(value);
         @SuppressWarnings("unchecked") // Casting of deserialized Object from Bundler.
-        Map<String, LatLng> readIn = (Map<String, LatLng>) Bundler.fromBundle(bundle);
+        Map<String, CarLocation> readIn = (Map<String, CarLocation>) Bundler.fromBundle(bundle);
 
         assertThat(readIn.keySet()).isEqualTo(value.keySet());
 
         assertThat(readIn.values()).hasSize(value.size());
-        for (LatLng latLng : value.values()) {
-            assertThat(readIn.containsValue(latLng)).isTrue();
+        for (CarLocation CarLocation : value.values()) {
+            assertThat(readIn.containsValue(CarLocation)).isTrue();
         }
     }
 
@@ -214,14 +214,14 @@ public class BundlerTest {
     }
 
     @Test
-    public void listOfLatLngSerialization() throws BundlerException {
-        List<LatLng> value = new ArrayList<>();
-        value.add(LatLng.create(1.0, 2.0));
-        value.add(LatLng.create(2.0, 1.0));
+    public void listOfCarLocationSerialization() throws BundlerException {
+        List<CarLocation> value = new ArrayList<>();
+        value.add(CarLocation.create(1.0, 2.0));
+        value.add(CarLocation.create(2.0, 1.0));
 
         Bundle bundle = Bundler.toBundle(value);
         @SuppressWarnings("unchecked") // Casting of deserialized Object from Bundler.
-        List<LatLng> readIn = (List<LatLng>) Bundler.fromBundle(bundle);
+        List<CarLocation> readIn = (List<CarLocation>) Bundler.fromBundle(bundle);
         assertThat(readIn).isEqualTo(value);
     }
 
@@ -329,7 +329,7 @@ public class BundlerTest {
         String row1Title = "row1";
         String row1Subtitle = "row1subtitle";
 
-        LatLng latLng2 = LatLng.create(4522.234, 34.234);
+        CarLocation CarLocation2 = CarLocation.create(4522.234, 34.234);
         CarIcon carIcon = TestUtils.getTestCarIcon(mContext, "ic_test_1");
         PlaceMarker marker2 = new PlaceMarker.Builder().setIcon(carIcon,
                 PlaceMarker.TYPE_ICON).build();
@@ -352,7 +352,7 @@ public class BundlerTest {
                         .setBrowsable(true)
                         .setOnClickListener(() -> {
                         })
-                        .setMetadata(Metadata.ofPlace(new Place.Builder(latLng2).setMarker(
+                        .setMetadata(Metadata.ofPlace(new Place.Builder(CarLocation2).setMarker(
                                 marker2).build()))
                         .build();
         ItemList itemList = new ItemList.Builder().addItem(row1).addItem(row2).build();
@@ -385,7 +385,7 @@ public class BundlerTest {
                         true,
                         94f,
                         123.98,
-                        LatLng.create(4.3, 9.6),
+                        CarLocation.create(4.3, 9.6),
                         Arrays.asList("a", "z", "foo", "hey yo, what's up?", "a"));
 
         Bundle bundle = Bundler.toBundle(value);
@@ -412,7 +412,7 @@ public class BundlerTest {
                         true,
                         8f,
                         3432.932,
-                        LatLng.create(23.32, 234.234),
+                        CarLocation.create(23.32, 234.234),
                         Arrays.asList("rafael", "lima"));
 
         Bundle bundle = Bundler.toBundle(value);
@@ -429,7 +429,7 @@ public class BundlerTest {
                         true,
                         94f,
                         123.98,
-                        LatLng.create(4.3, 9.6),
+                        CarLocation.create(4.3, 9.6),
                         Arrays.asList("a", "z", "foo", "hey yo, what's up?", "a"));
 
         Bundle bundle = Bundler.toBundle(value);
@@ -449,7 +449,7 @@ public class BundlerTest {
                         true,
                         94f,
                         123.98,
-                        LatLng.create(4.3, 9.6),
+                        CarLocation.create(4.3, 9.6),
                         Arrays.asList("a", "z", "foo", "hey yo, what's up?", "a"));
 
         Bundle bundle = Bundler.toBundle(value);
@@ -477,7 +477,7 @@ public class BundlerTest {
                                 true,
                                 94f,
                                 123.98,
-                                LatLng.create(4.3, 9.6),
+                                CarLocation.create(4.3, 9.6),
                                 Arrays.asList("a", "z", "foo", "hey yo, what's up?", "a")));
 
         bundle.putString(TAG_CLASS_NAME, "com.foo.class");
@@ -494,7 +494,7 @@ public class BundlerTest {
                                 true,
                                 94f,
                                 123.98,
-                                LatLng.create(4.3, 9.6),
+                                CarLocation.create(4.3, 9.6),
                                 Arrays.asList("a", "z", "foo", "hey yo, what's up?", "a")));
 
         bundle.remove(TAG_CLASS_NAME);
@@ -519,7 +519,7 @@ public class BundlerTest {
                                 true,
                                 94f,
                                 123.98,
-                                LatLng.create(4.3, 9.6),
+                                CarLocation.create(4.3, 9.6),
                                 Arrays.asList("a", "z", "foo", "hey yo, what's up?", "a")));
 
         bundle.remove(TAG_CLASS_TYPE);
@@ -593,27 +593,39 @@ public class BundlerTest {
         private final boolean mBoolean;
         private final float mFloat;
         private final double mDouble;
-        private final LatLng mLatLng;
+        private final CarLocation mLocation;
         private final List<String> mStrings;
 
         private TestClass(
-                int i, String s, boolean b, float f, double d, LatLng ll, List<String> strings) {
+                int i,
+                String s,
+                boolean b,
+                float f,
+                double d,
+                CarLocation ll,
+                List<String> strings) {
             this.mInt = i;
             this.mString = s;
             this.mBoolean = b;
             this.mFloat = f;
             this.mDouble = d;
-            this.mLatLng = ll;
+            this.mLocation = ll;
             this.mStrings = strings;
         }
 
         private TestClass() {
-            this(0, "", false, 0f, 0.0, LatLng.create(0.0, 0.0), Collections.emptyList());
+            this(0,
+                    "",
+                    false,
+                    0f,
+                    0.0,
+                    CarLocation.create(0.0, 0.0),
+                    Collections.emptyList());
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(mInt, mString, mBoolean, mFloat, mDouble, mLatLng, mStrings);
+            return Objects.hash(mInt, mString, mBoolean, mFloat, mDouble, mLocation, mStrings);
         }
 
         @Override
@@ -632,8 +644,8 @@ public class BundlerTest {
                     && Objects.equals(mBoolean, o.mBoolean)
                     && Float.compare(mFloat, o.mFloat) == 0
                     && Double.compare(mDouble, o.mDouble) == 0
-                    && Double.compare(mLatLng.getLatitude(), o.mLatLng.getLatitude()) == 0
-                    && Double.compare(mLatLng.getLongitude(), o.mLatLng.getLongitude()) == 0
+                    && Double.compare(mLocation.getLatitude(), o.mLocation.getLatitude()) == 0
+                    && Double.compare(mLocation.getLongitude(), o.mLocation.getLongitude()) == 0
                     && Objects.equals(mStrings, o.mStrings);
         }
     }
@@ -652,7 +664,7 @@ public class BundlerTest {
                 boolean b,
                 float f,
                 double d,
-                LatLng ll,
+                CarLocation ll,
                 List<String> strings) {
             super(i, s, b, f, d, ll, strings);
             this.mBoolean = childI;
@@ -670,7 +682,7 @@ public class BundlerTest {
                     false,
                     0f,
                     0.0,
-                    LatLng.create(0.0, 0.0),
+                    CarLocation.create(0.0, 0.0),
                     Collections.emptyList());
         }
 

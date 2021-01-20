@@ -219,7 +219,7 @@ public class PlaceListMapTemplateTest {
                         .setImage(CarIcon.ALERT)
                         .setMetadata(
                                 Metadata.ofPlace(
-                                        new Place.Builder(LatLng.create(10.f, 10.f))
+                                        new Place.Builder(CarLocation.create(10.f, 10.f))
                                                 .setMarker(PlaceMarker.getDefault())
                                                 .build()))
                         .build();
@@ -290,7 +290,7 @@ public class PlaceListMapTemplateTest {
         ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
         String title = "foo";
         Place place =
-                new Place.Builder(LatLng.create(123, 456))
+                new Place.Builder(CarLocation.create(123, 456))
                         .setMarker(new PlaceMarker.Builder().setLabel("A").build())
                         .build();
 
@@ -398,12 +398,12 @@ public class PlaceListMapTemplateTest {
     @Test
     public void notEquals_differentAnchor() {
         Place place1 =
-                new Place.Builder(LatLng.create(123, 456))
+                new Place.Builder(CarLocation.create(123, 456))
                         .setMarker(new PlaceMarker.Builder().setLabel("A").build())
                         .build();
 
         Place place2 =
-                new Place.Builder(LatLng.create(123, 456))
+                new Place.Builder(CarLocation.create(123, 456))
                         .setMarker(new PlaceMarker.Builder().setLabel("B").build())
                         .build();
 
