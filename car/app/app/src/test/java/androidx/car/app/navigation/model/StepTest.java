@@ -57,8 +57,8 @@ public class StepTest {
         assertThat(lane).isEqualTo(step.getLanes().get(0));
         assertThat(CarIcon.APP_ICON).isEqualTo(step.getLanesImage());
         assertThat(maneuver).isEqualTo(step.getManeuver());
-        assertThat(cue).isEqualTo(step.getCue().getText());
-        assertThat(road).isEqualTo(step.getRoad().getText());
+        assertThat(cue).isEqualTo(step.getCue().toString());
+        assertThat(road).isEqualTo(step.getRoad().toString());
     }
 
     @Test

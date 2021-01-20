@@ -384,7 +384,7 @@ public final class Action {
         public Action build() {
             boolean isStandard = isStandardActionType(mType);
             if (!isStandard && mIcon == null && (mTitle == null || TextUtils.isEmpty(
-                    mTitle.getText()))) {
+                    mTitle.toString()))) {
                 throw new IllegalStateException("An action must have either an icon or a title");
             }
 
@@ -395,7 +395,7 @@ public final class Action {
                                     + "action");
                 }
 
-                if (mIcon != null || (mTitle != null && !TextUtils.isEmpty(mTitle.getText()))) {
+                if (mIcon != null || (mTitle != null && !TextUtils.isEmpty(mTitle.toString()))) {
                     throw new IllegalStateException(
                             "An icon or title can't be set on the standard back or app-icon "
                                     + "action");

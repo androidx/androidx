@@ -141,9 +141,9 @@ public class ListTemplateTest {
         assertThat(template.getSingleList()).isNull();
         assertThat(template.getSectionedLists()).hasSize(2);
         assertThat(template.getSectionedLists().get(0).getItemList()).isEqualTo(list1);
-        assertThat(template.getSectionedLists().get(0).getHeader().getText()).isEqualTo("header1");
+        assertThat(template.getSectionedLists().get(0).getHeader().toString()).isEqualTo("header1");
         assertThat(template.getSectionedLists().get(1).getItemList()).isEqualTo(list2);
-        assertThat(template.getSectionedLists().get(1).getHeader().getText()).isEqualTo("header2");
+        assertThat(template.getSectionedLists().get(1).getHeader().toString()).isEqualTo("header2");
     }
 
     @Test

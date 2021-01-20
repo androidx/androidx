@@ -41,7 +41,7 @@ public class RowTest {
     @Test
     public void create_defaultValues() {
         Row row = new Row.Builder().setTitle("Title").build();
-        assertThat(row.getTitle().getText()).isEqualTo("Title");
+        assertThat(row.getTitle().toString()).isEqualTo("Title");
         assertThat(row.getTexts()).isEmpty();
         assertThat(row.getImage()).isNull();
         assertThat(row.getOnClickListener()).isNull();

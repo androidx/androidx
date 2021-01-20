@@ -298,7 +298,7 @@ public final class ListTemplate implements Template {
          */
         @NonNull
         public Builder addSectionedList(@NonNull SectionedItemList list) {
-            if (requireNonNull(list).getHeader().getText().length() == 0) {
+            if (requireNonNull(list).getHeader().toString().length() == 0) {
                 throw new IllegalArgumentException("Header cannot be empty");
             }
 
