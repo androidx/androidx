@@ -245,31 +245,33 @@ enum class StartupMode {
     HOT
 }
 
-fun startupMacrobenchmark(
+fun macrobenchmarkWithStartupMode(
     uniqueName: String,
     className: String,
     testName: String,
     config: MacrobenchmarkConfig,
-    startupMode: StartupMode,
-    performStartup: MacrobenchmarkScope.() -> Unit
+    startupMode: StartupMode?,
+    setupBlock: MacrobenchmarkScope.() -> Unit,
+    measureBlock: MacrobenchmarkScope.() -> Unit
 ) {
     macrobenchmark(
         uniqueName = uniqueName,
         className = className,
         testName = testName,
         config = config,
-        setupBlock = { firstIterAfterCompile ->
+        setupBlock = { firstIterationAfterCompile ->
             if (startupMode == StartupMode.COLD) {
                 killProcess()
                 // drop app pages from page cache to ensure it is loaded from disk, from scratch
                 dropKernelPageCache()
-            } else if (firstIterAfterCompile) {
-                // warmup process by launching the activity, unmeasured
-                performStartup()
+            } else if (startupMode != null && firstIterationAfterCompile) {
+                // warmup process by running the measure block once unmeasured
+                measureBlock()
             }
+            setupBlock(this)
         },
-        // only reuse existing activity if StartupMode == HOT
-        launchWithClearTask = startupMode != StartupMode.HOT,
-        measureBlock = performStartup
+        // Don't reuse activities by default in COLD / WARM
+        launchWithClearTask = startupMode == StartupMode.COLD || startupMode == StartupMode.WARM,
+        measureBlock = measureBlock
     )
 }
