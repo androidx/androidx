@@ -23,6 +23,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -139,7 +140,8 @@ public class DateTimeWithZone {
      */
     @NonNull
     public static DateTimeWithZone create(
-            long timeSinceEpochMillis, int zoneOffsetSeconds, @NonNull String zoneShortName) {
+            long timeSinceEpochMillis, @IntRange(from = -64800, to = 64800) int zoneOffsetSeconds,
+            @NonNull String zoneShortName) {
         if (timeSinceEpochMillis < 0) {
             throw new IllegalArgumentException(
                     "Time since epoch must be greater than or equal to zero");

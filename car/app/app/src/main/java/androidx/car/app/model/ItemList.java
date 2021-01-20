@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.Looper;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -268,7 +269,7 @@ public final class ItemList {
          * value is ignored.
          */
         @NonNull
-        public Builder setSelectedIndex(int selectedIndex) {
+        public Builder setSelectedIndex(@IntRange(from = 0) int selectedIndex) {
             if (selectedIndex < 0) {
                 throw new IllegalArgumentException(
                         "The item index must be larger than or equal to 0.");

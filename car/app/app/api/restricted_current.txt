@@ -292,7 +292,7 @@ package androidx.car.app.model {
   }
 
   public class DateTimeWithZone {
-    method public static androidx.car.app.model.DateTimeWithZone create(long, int, String);
+    method public static androidx.car.app.model.DateTimeWithZone create(long, @IntRange(from=0xffff02e0, to=64800) int, String);
     method public static androidx.car.app.model.DateTimeWithZone create(long, java.util.TimeZone);
     method @RequiresApi(26) public static androidx.car.app.model.DateTimeWithZone create(java.time.ZonedDateTime);
     method public long getTimeSinceEpochMillis();
@@ -393,7 +393,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.ItemList.Builder setNoItemsMessage(CharSequence?);
     method public androidx.car.app.model.ItemList.Builder setOnItemsVisibilityChangedListener(androidx.car.app.model.ItemList.OnItemVisibilityChangedListener?);
     method public androidx.car.app.model.ItemList.Builder setOnSelectedListener(androidx.car.app.model.ItemList.OnSelectedListener?);
-    method public androidx.car.app.model.ItemList.Builder setSelectedIndex(int);
+    method public androidx.car.app.model.ItemList.Builder setSelectedIndex(@IntRange(from=0) int);
   }
 
   public static interface ItemList.OnItemVisibilityChangedListener {
@@ -828,8 +828,8 @@ package androidx.car.app.navigation.model {
     ctor public Maneuver.Builder(int);
     method public androidx.car.app.navigation.model.Maneuver build();
     method public androidx.car.app.navigation.model.Maneuver.Builder setIcon(androidx.car.app.model.CarIcon?);
-    method public androidx.car.app.navigation.model.Maneuver.Builder setRoundaboutExitAngle(int);
-    method public androidx.car.app.navigation.model.Maneuver.Builder setRoundaboutExitNumber(int);
+    method public androidx.car.app.navigation.model.Maneuver.Builder setRoundaboutExitAngle(@IntRange(from=1, to=360) int);
+    method public androidx.car.app.navigation.model.Maneuver.Builder setRoundaboutExitNumber(@IntRange(from=1) int);
   }
 
   public class MessageInfo implements androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo {

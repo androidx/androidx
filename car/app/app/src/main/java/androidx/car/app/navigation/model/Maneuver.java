@@ -19,6 +19,7 @@ package androidx.car.app.navigation.model;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -679,7 +680,7 @@ public final class Maneuver {
          *                                  zero.
          */
         @NonNull
-        public Builder setRoundaboutExitNumber(int roundaboutExitNumber) {
+        public Builder setRoundaboutExitNumber(@IntRange(from = 1) int roundaboutExitNumber) {
             if (!isValidTypeWithExitNumber(mType)) {
                 throw new IllegalArgumentException(
                         "Maneuver does not include roundaboutExitNumber");
@@ -708,7 +709,8 @@ public final class Maneuver {
          *                                  zero and less than or equal to 360 degrees.
          */
         @NonNull
-        public Builder setRoundaboutExitAngle(int roundaboutExitAngle) {
+        public Builder setRoundaboutExitAngle(
+                @IntRange(from = 1, to = 360) int roundaboutExitAngle) {
             if (!isValidTypeWithExitAngle(mType)) {
                 throw new IllegalArgumentException("Maneuver does not include roundaboutExitAngle");
             }
