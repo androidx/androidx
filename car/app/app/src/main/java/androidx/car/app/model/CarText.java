@@ -21,6 +21,7 @@ import android.text.Spanned;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.utils.CollectionUtils;
 import androidx.car.app.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -93,17 +94,17 @@ public class CarText {
     private CarText(CharSequence text) {
         this.mText = text.toString();
 
-        mSpans = new ArrayList<>();
-
+        List<SpanWrapper> spans = new ArrayList<>();
         if (text instanceof Spanned) {
             Spanned spanned = (Spanned) text;
 
             for (Object span : spanned.getSpans(0, text.length(), Object.class)) {
                 if (span instanceof CarSpan) {
-                    mSpans.add(new SpanWrapper(spanned, (CarSpan) span));
+                    spans.add(new SpanWrapper(spanned, (CarSpan) span));
                 }
             }
         }
+        mSpans = CollectionUtils.unmodifiableCopy(spans);
     }
 
     @Override

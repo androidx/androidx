@@ -21,8 +21,8 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.utils.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -84,7 +84,7 @@ public class ActionList {
     }
 
     private ActionList(List<Action> list) {
-        this.mList = new ArrayList<>(list);
+        this.mList = CollectionUtils.unmodifiableCopy(list);
     }
 
     /** For serialization. */

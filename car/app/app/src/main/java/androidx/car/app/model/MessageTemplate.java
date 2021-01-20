@@ -27,6 +27,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.model.constraints.CarIconConstraints;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -143,7 +144,7 @@ public final class MessageTemplate implements Template {
         mDebugMessage = builder.mDebugMessage;
         mIcon = builder.mIcon;
         mHeaderAction = builder.mHeaderAction;
-        mActionList = new ArrayList<>(builder.mActionList);
+        mActionList = CollectionUtils.unmodifiableCopy(builder.mActionList);
     }
 
     /** Constructs an empty instance, used by serialization code. */

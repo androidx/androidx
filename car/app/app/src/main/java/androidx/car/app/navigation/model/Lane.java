@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,7 +75,7 @@ public final class Lane {
     }
 
     Lane(List<LaneDirection> directions) {
-        this.mDirections = new ArrayList<>(directions);
+        this.mDirections = CollectionUtils.unmodifiableCopy(directions);
     }
 
     /** Constructs an empty instance, used by serialization code. */
