@@ -16,7 +16,7 @@
 
 package androidx.appsearch.app;
 
-import static androidx.appsearch.app.AppSearchSchema.PropertyConfig.INDEXING_TYPE_PREFIXES;
+import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES;
 
 import static com.google.common.truth.Truth.assertThat;
 

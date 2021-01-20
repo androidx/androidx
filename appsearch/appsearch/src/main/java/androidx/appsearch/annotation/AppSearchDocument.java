@@ -179,22 +179,22 @@ public @interface AppSearchDocument {
          * Configures how tokens should be extracted from this property.
          *
          * <p>If not specified, defaults to {@link
-         * AppSearchSchema.PropertyConfig#TOKENIZER_TYPE_PLAIN} (the field will be tokenized
+         * AppSearchSchema.StringPropertyConfig#TOKENIZER_TYPE_PLAIN} (the field will be tokenized
          * along word boundaries as plain text).
          */
-        @AppSearchSchema.PropertyConfig.TokenizerType int tokenizerType()
-                default AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN;
+        @AppSearchSchema.StringPropertyConfig.TokenizerType int tokenizerType()
+                default AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN;
 
         /**
          * Configures how a property should be indexed so that it can be retrieved by queries.
          *
          * <p>If not specified, defaults to {@link
-         * AppSearchSchema.PropertyConfig#INDEXING_TYPE_NONE} (the field will not be indexed and
-         * cannot be queried).
+         * AppSearchSchema.StringPropertyConfig#INDEXING_TYPE_NONE} (the field will not be indexed
+         * and cannot be queried).
          * TODO(b/171857731) renamed to TermMatchType when using String-specific indexing config.
          */
-        @AppSearchSchema.PropertyConfig.IndexingType int indexingType()
-                default AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE;
+        @AppSearchSchema.StringPropertyConfig.IndexingType int indexingType()
+                default AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE;
 
         /**
          * Configures whether this property must be specified for the document to be valid.

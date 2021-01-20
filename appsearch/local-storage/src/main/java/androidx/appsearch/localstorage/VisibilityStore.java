@@ -83,14 +83,12 @@ class VisibilityStore {
     /** Schema for the VisibilityStore's documents. */
     private static final AppSearchSchema VISIBILITY_SCHEMA =
             new AppSearchSchema.Builder(VISIBILITY_TYPE)
-                    .addProperty(new AppSearchSchema.PropertyConfig.Builder(
+                    .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
                             NOT_PLATFORM_SURFACEABLE_PROPERTY)
-                            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
                             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
                             .build())
-                    .addProperty(new AppSearchSchema.PropertyConfig.Builder(
+                    .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
                             PACKAGE_ACCESSIBLE_PROPERTY)
-                            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT)
                             .setSchemaType(PACKAGE_ACCESSIBLE_TYPE)
                             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
                             .build())
@@ -102,18 +100,17 @@ class VisibilityStore {
      */
     private static final AppSearchSchema PACKAGE_ACCESSIBLE_SCHEMA =
             new AppSearchSchema.Builder(PACKAGE_ACCESSIBLE_TYPE)
-                    .addProperty(new AppSearchSchema.PropertyConfig.Builder(PACKAGE_NAME_PROPERTY)
+                    .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
+                            PACKAGE_NAME_PROPERTY)
                             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-                            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
                             .build())
-                    .addProperty(new AppSearchSchema.PropertyConfig.Builder(SHA_256_CERT_PROPERTY)
+                    .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder(
+                            SHA_256_CERT_PROPERTY)
                             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-                            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BYTES)
                             .build())
-                    .addProperty(new AppSearchSchema.PropertyConfig.Builder(
+                    .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
                             ACCESSIBLE_SCHEMA_PROPERTY)
                             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-                            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
                             .build())
                     .build();
 

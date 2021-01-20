@@ -17,16 +17,16 @@
 package androidx.appsearch.app.cts.customer;
 
 import androidx.appsearch.annotation.AppSearchDocument;
-import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
+import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 
 @AppSearchDocument
 public final class EmailDataClass {
     @AppSearchDocument.Uri
     public String uri;
 
-    @AppSearchDocument.Property(indexingType = PropertyConfig.INDEXING_TYPE_PREFIXES)
+    @AppSearchDocument.Property(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
     public String subject;
 
-    @AppSearchDocument.Property(indexingType = PropertyConfig.INDEXING_TYPE_PREFIXES)
+    @AppSearchDocument.Property(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
     public String body;
 }

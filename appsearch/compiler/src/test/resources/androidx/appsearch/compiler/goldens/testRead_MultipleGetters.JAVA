@@ -18,11 +18,8 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
   @Override
   public AppSearchSchema getSchema() throws AppSearchException {
     return new AppSearchSchema.Builder(SCHEMA_TYPE)
-          .addProperty(new AppSearchSchema.PropertyConfig.Builder("price")
-            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
+          .addProperty(new AppSearchSchema.Int64PropertyConfig.Builder("price")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
-            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .build();
   }
