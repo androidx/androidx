@@ -57,8 +57,9 @@ import kotlin.math.max
 // Human reaction time is limited to ~100ms.
 private const val MIN_PERCEPTABLE_DELAY_MILLIS = 100
 
-// The default display refresh rate for use if the native display refresh rate is not available.
-private const val DEFAULT_DISPLAY_REFRESH_RATE = 60.0f
+// Zero is a special value meaning we will accept the system's choice for the
+// display frame rate, which is the default behavior if this function isn't called.
+private const val SYSTEM_DECIDES_FRAME_RATE = 0f
 
 /**
  * The type of watch face, whether it's digital or analog. This influences the time displayed for
@@ -549,8 +550,7 @@ internal class WatchFaceImpl(
             if (it) {
                 1000f / MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS.toFloat()
             } else {
-                // Use the native display refresh rate if available or the default if not.
-                watchFaceHostApi.getContext().display?.refreshRate ?: DEFAULT_DISPLAY_REFRESH_RATE
+                SYSTEM_DECIDES_FRAME_RATE
             },
             FRAME_RATE_COMPATIBILITY_DEFAULT
         )
