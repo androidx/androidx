@@ -266,6 +266,13 @@ package androidx.car.app.model {
     field public static final int ALIGN_CENTER = 2; // 0x2
   }
 
+  public final class CarLocation {
+    method public static androidx.car.app.model.CarLocation create(double, double);
+    method public static androidx.car.app.model.CarLocation create(android.location.Location);
+    method public double getLatitude();
+    method public double getLongitude();
+  }
+
   @Keep public class CarSpan extends android.text.style.CharacterStyle {
     ctor public CarSpan();
     method public void updateDrawState(android.text.TextPaint);
@@ -404,11 +411,11 @@ package androidx.car.app.model {
     method public void onSelected(int);
   }
 
-  public final class LatLng {
-    method public static androidx.car.app.model.LatLng create(double, double);
-    method public static androidx.car.app.model.LatLng create(android.location.Location);
-    method public double getLatitude();
-    method public double getLongitude();
+  @Deprecated public final class LatLng {
+    method @Deprecated public static androidx.car.app.model.LatLng create(double, double);
+    method @Deprecated public static androidx.car.app.model.LatLng create(android.location.Location);
+    method @Deprecated public double getLatitude();
+    method @Deprecated public double getLongitude();
   }
 
   public final class ListTemplate implements androidx.car.app.model.Template {
@@ -531,17 +538,18 @@ package androidx.car.app.model {
   }
 
   public class Place {
-    method public static androidx.car.app.model.Place.Builder builder(androidx.car.app.model.LatLng);
-    method public androidx.car.app.model.LatLng getLatLng();
+    method @Deprecated public static androidx.car.app.model.Place.Builder builder(androidx.car.app.model.LatLng);
+    method @Deprecated public androidx.car.app.model.LatLng getLatLng();
+    method public androidx.car.app.model.CarLocation getLocation();
     method public androidx.car.app.model.PlaceMarker? getMarker();
     method @Deprecated public androidx.car.app.model.Place.Builder newBuilder();
   }
 
   public static final class Place.Builder {
-    ctor public Place.Builder(androidx.car.app.model.LatLng);
+    ctor @Deprecated public Place.Builder(androidx.car.app.model.LatLng);
+    ctor public Place.Builder(androidx.car.app.model.CarLocation);
     ctor public Place.Builder(androidx.car.app.model.Place);
     method public androidx.car.app.model.Place build();
-    method public androidx.car.app.model.Place.Builder setLatLng(androidx.car.app.model.LatLng);
     method public androidx.car.app.model.Place.Builder setMarker(androidx.car.app.model.PlaceMarker?);
   }
 

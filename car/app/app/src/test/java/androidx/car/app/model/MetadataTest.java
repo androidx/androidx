@@ -30,7 +30,7 @@ public class MetadataTest {
     @Test
     public void setAndGetPlace() {
         Place place = new Place.Builder(
-                LatLng.create(/* latitude= */ 123, /* longitude= */ 456)).build();
+                CarLocation.create(/* latitude= */ 123, /* longitude= */ 456)).build();
         Metadata metadata = Metadata.ofPlace(place);
         assertThat(metadata.getPlace()).isEqualTo(place);
 
@@ -41,7 +41,7 @@ public class MetadataTest {
     @Test
     public void equals() {
         Place place = new Place.Builder(
-                LatLng.create(/* latitude= */ 123, /* longitude= */ 456)).build();
+                CarLocation.create(/* latitude= */ 123, /* longitude= */ 456)).build();
         Metadata metadata = new Metadata.Builder().setPlace(place).build();
 
         assertThat(new Metadata.Builder().setPlace(place).build()).isEqualTo(metadata);
@@ -50,11 +50,11 @@ public class MetadataTest {
     @Test
     public void notEquals_differentPlace() {
         Place place = new Place.Builder(
-                LatLng.create(/* latitude= */ 123, /* longitude= */ 456)).build();
+                CarLocation.create(/* latitude= */ 123, /* longitude= */ 456)).build();
         Metadata metadata = new Metadata.Builder().setPlace(place).build();
 
         Place place2 = new Place.Builder(
-                LatLng.create(/* latitude= */ 456, /* longitude= */ 789)).build();
+                CarLocation.create(/* latitude= */ 456, /* longitude= */ 789)).build();
 
         assertThat(new Metadata.Builder().setPlace(place2).build()).isNotEqualTo(metadata);
     }

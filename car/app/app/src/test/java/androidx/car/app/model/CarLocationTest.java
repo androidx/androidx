@@ -16,6 +16,8 @@
 
 package androidx.car.app.model;
 
+import static androidx.car.app.model.CarLocation.create;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import org.junit.Test;
@@ -23,37 +25,37 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-/** Tests for {@link LatLng}. */
+/** Tests for {@link CarLocation}. */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-public class LatLngTest {
+public class CarLocationTest {
     @Test
     public void createInstance() {
-        LatLng location = LatLng.create(123.f, 456.f);
+        CarLocation location = create(123.f, 456.f);
         assertThat(location.getLatitude()).isWithin(0.001).of(123.f);
         assertThat(location.getLongitude()).isWithin(0.001).of(456.f);
     }
 
     @Test
     public void equals() {
-        LatLng latLng = LatLng.create(123.45, 987.65);
+        CarLocation CarLocation = create(123.45, 987.65);
 
-        assertThat(LatLng.create(123.45, 987.65)).isEqualTo(latLng);
+        assertThat(create(123.45, 987.65)).isEqualTo(CarLocation);
     }
 
     @Test
     public void notEquals_differentLat() {
-        LatLng latLng = LatLng.create(123.45, 987.65);
+        CarLocation CarLocation = create(123.45, 987.65);
 
-        assertThat(LatLng.create(123.449999999, 987.65)).isNotEqualTo(latLng);
-        assertThat(LatLng.create(123.450000001, 987.65)).isNotEqualTo(latLng);
+        assertThat(create(123.449999999, 987.65)).isNotEqualTo(CarLocation);
+        assertThat(create(123.450000001, 987.65)).isNotEqualTo(CarLocation);
     }
 
     @Test
     public void notEquals_differentLng() {
-        LatLng latLng = LatLng.create(123.45, 987.65);
+        CarLocation CarLocation = create(123.45, 987.65);
 
-        assertThat(LatLng.create(123.45, 987.64999999999)).isNotEqualTo(latLng);
-        assertThat(LatLng.create(123.45, 987.65000000001)).isNotEqualTo(latLng);
+        assertThat(create(123.45, 987.64999999999)).isNotEqualTo(CarLocation);
+        assertThat(create(123.45, 987.65000000001)).isNotEqualTo(CarLocation);
     }
 }

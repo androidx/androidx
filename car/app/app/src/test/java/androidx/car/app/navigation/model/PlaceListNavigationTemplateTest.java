@@ -27,10 +27,10 @@ import androidx.car.app.TestUtils;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.CarLocation;
 import androidx.car.app.model.Distance;
 import androidx.car.app.model.DistanceSpan;
 import androidx.car.app.model.ItemList;
-import androidx.car.app.model.LatLng;
 import androidx.car.app.model.Metadata;
 import androidx.car.app.model.Place;
 import androidx.car.app.model.PlaceMarker;
@@ -266,7 +266,7 @@ public class PlaceListNavigationTemplateTest {
                         .setImage(CarIcon.ALERT)
                         .setMetadata(
                                 Metadata.ofPlace(
-                                        new Place.Builder(LatLng.create(10.f, 10.f))
+                                        new Place.Builder(CarLocation.create(10.f, 10.f))
                                                 .setMarker(PlaceMarker.getDefault())
                                                 .build()))
                         .build();
