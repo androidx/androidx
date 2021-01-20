@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import androidx.core.app.NotificationCompat
 import androidx.core.content.LocusIdCompat
 import androidx.test.core.app.ApplicationProvider
@@ -173,6 +174,34 @@ open class OngoingActivityTest {
 
         // Clean up.
         notificationManager.cancelAll()
+    }
+
+    @Test
+    fun testBlackBoxCopy() {
+        val builder = NotificationCompat.Builder(context, ChannelId)
+        val oa = OngoingActivity.Builder(context, 1, builder)
+            .setAnimatedIcon(AnimatedIconResourceId)
+            .setStaticIcon(StaticIconResourceId)
+            .setLocusId(LocusIdValue)
+            .setOngoingActivityId(OaId)
+            .setStatus(Status)
+            .setTouchIntent(PendingIntentValue)
+            .build()
+        oa.apply(context)
+        val notification = builder.build()
+
+        // Copy the data.
+        val newBundle = Bundle()
+        OngoingActivityData.copy(notification.extras, newBundle)
+
+        // check that the information was copied.
+        val received = OngoingActivityData.create(newBundle)!!
+        assertEquals(AnimatedIconResourceId, received.animatedIcon!!.resId)
+        assertEquals(StaticIconResourceId, received.staticIcon.resId)
+        assertEquals(LocusIdValue, received.locusId)
+        assertEquals(OaId, received.ongoingActivityId)
+        assertEquals(Status, received.status)
+        assertEquals(PendingIntentValue, received.touchIntent)
     }
 
     @Test
