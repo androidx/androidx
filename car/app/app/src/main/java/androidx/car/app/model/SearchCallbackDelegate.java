@@ -16,17 +16,15 @@
 
 package androidx.car.app.model;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.car.app.OnDoneCallback;
 
 /**
  * A host-side interface for reporting to search updates to clients.
- *
- * @deprecated use {@link SearchCallbackDelegate} instead.
  */
-// TODO(b/177591476): remove after host references have been cleaned up.
-@Deprecated
-public interface SearchCallbackWrapper {
+public interface SearchCallbackDelegate {
     /**
      * Notifies that the search text has changed.
      *
@@ -34,7 +32,9 @@ public interface SearchCallbackWrapper {
      * @param callback   the {@link OnDoneCallback} to trigger when the client finishes handling
      *                   the event.
      */
-    void onSearchTextChanged(@NonNull String searchText, @NonNull OnDoneCallback callback);
+    // This mirrors the AIDL class and is not supported to support an executor as an input.
+    @SuppressLint("ExecutorRegistration")
+    void sendSearchTextChanged(@NonNull String searchText, @NonNull OnDoneCallback callback);
 
     /**
      * Notifies that the user has submitted the search.
@@ -43,6 +43,8 @@ public interface SearchCallbackWrapper {
      * @param callback   the {@link OnDoneCallback} to trigger when the client finishes handling
      *                   the event.
      */
-    void onSearchSubmitted(@NonNull String searchText, @NonNull OnDoneCallback callback);
+    // This mirrors the AIDL class and is not supported to support an executor as an input.
+    @SuppressLint("ExecutorRegistration")
+    void sendSearchSubmitted(@NonNull String searchText, @NonNull OnDoneCallback callback);
 }
 

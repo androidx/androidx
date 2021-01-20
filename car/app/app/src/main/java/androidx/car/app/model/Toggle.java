@@ -33,9 +33,13 @@ public class Toggle {
         void onCheckedChange(boolean isChecked);
     }
 
+    @SuppressWarnings("deprecation")
     @Keep
     @Nullable
     private final OnCheckedChangeListenerWrapper mOnCheckedChangeListener;
+    @Keep
+    @Nullable
+    private final OnCheckedChangeDelegate mOnCheckedChangeDelegate;
     @Keep
     private final boolean mIsChecked;
 
@@ -64,10 +68,24 @@ public class Toggle {
     /**
      * Returns the {@link OnCheckedChangeListenerWrapper} that is called when the checked state of
      * the {@link Toggle} is changed.
+     *
+     * @deprecated use {@link #getOnCheckedChangeDelegate} instead.
      */
+    // TODO(b/177591476): remove after host references have been cleaned up.
+    @SuppressWarnings("deprecation")
+    @Deprecated
     @NonNull
     public OnCheckedChangeListenerWrapper getOnCheckedChangeListener() {
         return requireNonNull(mOnCheckedChangeListener);
+    }
+
+    /**
+     * Returns the {@link OnCheckedChangeDelegate} that is called when the checked state of
+     * the {@link Toggle} is changed.
+     */
+    @NonNull
+    public OnCheckedChangeDelegate getOnCheckedChangeDelegate() {
+        return requireNonNull(mOnCheckedChangeDelegate);
     }
 
     @Override
@@ -98,17 +116,21 @@ public class Toggle {
     Toggle(Builder builder) {
         mIsChecked = builder.mIsChecked;
         mOnCheckedChangeListener = builder.mOnCheckedChangeListener;
+        mOnCheckedChangeDelegate = builder.mOnCheckedChangeDelegate;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Toggle() {
         mOnCheckedChangeListener = null;
+        mOnCheckedChangeDelegate = null;
         mIsChecked = false;
     }
 
     /** A builder of {@link Toggle}. */
     public static final class Builder {
+        @SuppressWarnings("deprecation")
         OnCheckedChangeListenerWrapper mOnCheckedChangeListener;
+        OnCheckedChangeDelegate mOnCheckedChangeDelegate;
         boolean mIsChecked;
 
         /**
@@ -119,24 +141,6 @@ public class Toggle {
         @NonNull
         public Builder setChecked(boolean checked) {
             this.mIsChecked = checked;
-            return this;
-        }
-
-        /**
-         * Sets the {@link OnCheckedChangeListener} to call when the checked state of the
-         * {@link Toggle} is changed.
-         *
-         * <p>Note that the listener relates to UI events and will be executed on the main thread
-         * using {@link Looper#getMainLooper()}.
-         *
-         * @throws NullPointerException if {@code onCheckedChangeListener} is {@code null}.
-         */
-        @NonNull
-        @SuppressLint({"ExecutorRegistration"})
-        public Builder setOnCheckedChangeListener(
-                @NonNull OnCheckedChangeListener onCheckedChangeListener) {
-            this.mOnCheckedChangeListener =
-                    OnCheckedChangeListenerWrapperImpl.create(onCheckedChangeListener);
             return this;
         }
 
@@ -159,6 +163,7 @@ public class Toggle {
         public Builder(@NonNull OnCheckedChangeListener onCheckedChangeListener) {
             mOnCheckedChangeListener =
                     OnCheckedChangeListenerWrapperImpl.create(onCheckedChangeListener);
+            mOnCheckedChangeDelegate = OnCheckedChangeDelegateImpl.create(onCheckedChangeListener);
         }
     }
 }

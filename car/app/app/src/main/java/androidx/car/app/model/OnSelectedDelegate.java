@@ -16,27 +16,26 @@
 
 package androidx.car.app.model;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.car.app.OnDoneCallback;
 
 /**
- * A host-side interface for reporting click to clients.
- *
- * @deprecated use {@link OnClickDelegate} instead.
+ * A host-side interface for reporting to clients that an item was selected.
  */
-// TODO(b/177591476): remove after host references have been cleaned up.
-@Deprecated
-public interface OnClickListenerWrapper {
+public interface OnSelectedDelegate {
     /**
-     * Indicates if the click listener is for parked-only scenarios.
-     */
-    boolean isParkedOnly();
-
-    /**
-     * Notifies that a click happened.
+     * Notifies that an item was selected.
      *
-     * @param callback the {@link OnDoneCallback} to trigger when the client finishes handling
-     *                 the event.
+     * <p>This event is called even if the selection did not change, for example, if the user
+     * selected an already selected item.
+     *
+     * @param selectedIndex the index of the selected item.
+     * @param callback      the {@link OnDoneCallback} to trigger when the client finishes handling
+     *                      the event.
      */
-    void onClick(@NonNull OnDoneCallback callback);
+    // This mirrors the AIDL class and is not supported to support an executor as an input.
+    @SuppressLint("ExecutorRegistration")
+    void sendSelected(int selectedIndex, @NonNull OnDoneCallback callback);
 }

@@ -30,20 +30,18 @@ import androidx.car.app.model.ItemList.OnSelectedListener;
 import androidx.car.app.utils.RemoteUtils;
 
 /**
- * Implementation class for {@link OnSelectedListenerWrapper}.
+ * Implementation class for {@link OnSelectedDelegate}.
  *
  * @hide
  */
-// TODO(b/177591476): remove after host references have been cleaned up.
-@SuppressWarnings("deprecation")
 @RestrictTo(LIBRARY)
-public class OnSelectedListenerWrapperImpl implements OnSelectedListenerWrapper {
+public class OnSelectedDelegateImpl implements OnSelectedDelegate {
 
     @Keep
     private final IOnSelectedListener mStub;
 
     @Override
-    public void onSelected(int selectedIndex, @NonNull OnDoneCallback callback) {
+    public void sendSelected(int selectedIndex, @NonNull OnDoneCallback callback) {
         try {
             mStub.onSelected(selectedIndex,
                     RemoteUtils.createOnDoneCallbackStub(callback));
@@ -52,20 +50,20 @@ public class OnSelectedListenerWrapperImpl implements OnSelectedListenerWrapper 
         }
     }
 
-    private OnSelectedListenerWrapperImpl(@NonNull OnSelectedListener listener) {
+    private OnSelectedDelegateImpl(@NonNull OnSelectedListener listener) {
         mStub = new OnSelectedListenerStub(listener);
     }
 
     /** For serialization. */
-    private OnSelectedListenerWrapperImpl() {
+    private OnSelectedDelegateImpl() {
         mStub = null;
     }
 
     @NonNull
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    static OnSelectedListenerWrapper create(@NonNull OnSelectedListener listener) {
-        return new OnSelectedListenerWrapperImpl(listener);
+    static OnSelectedDelegate create(@NonNull OnSelectedListener listener) {
+        return new OnSelectedDelegateImpl(listener);
     }
 
     @Keep // We need to keep these stub for Bundler serialization logic.

@@ -194,8 +194,8 @@ public class RoutePreviewNavigationTemplateTest {
 
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
         template.getNavigateAction()
-                .getOnClickListener()
-                .onClick(onDoneCallback);
+                .getOnClickDelegate()
+                .sendClick(onDoneCallback);
         verify(mockListener).onClick();
         verify(onDoneCallback).onSuccess(null);
     }

@@ -21,7 +21,11 @@ import androidx.car.app.OnDoneCallback;
 
 /**
  * A host-side interface for reporting to clients that the checked state has changed.
+ *
+ * @deprecated use {@link OnCheckedChangeDelegate} instead.
  */
+// TODO(b/177591476): remove after host references have been cleaned up.
+@Deprecated
 public interface OnCheckedChangeListenerWrapper {
     /**
      * Notifies that checked state has changed.

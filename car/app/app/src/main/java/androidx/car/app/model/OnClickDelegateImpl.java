@@ -29,14 +29,12 @@ import androidx.car.app.OnDoneCallback;
 import androidx.car.app.utils.RemoteUtils;
 
 /**
- * Implementation class for {@link OnClickListenerWrapper} to allow IPC for click-related events.
+ * Implementation class for {@link OnClickDelegate} to allow IPC for click-related events.
  *
  * @hide
  */
-// TODO(b/177591476): remove after host references have been cleaned up.
-@SuppressWarnings("deprecation")
 @RestrictTo(LIBRARY)
-public class OnClickListenerWrapperImpl implements OnClickListenerWrapper {
+public class OnClickDelegateImpl implements OnClickDelegate {
 
     @Keep
     private final boolean mIsParkedOnly;
@@ -52,7 +50,7 @@ public class OnClickListenerWrapperImpl implements OnClickListenerWrapper {
     }
 
     @Override
-    public void onClick(@NonNull OnDoneCallback callback) {
+    public void sendClick(@NonNull OnDoneCallback callback) {
         try {
             mListener.onClick(RemoteUtils.createOnDoneCallbackStub(callback));
         } catch (RemoteException e) {
@@ -63,20 +61,20 @@ public class OnClickListenerWrapperImpl implements OnClickListenerWrapper {
     @NonNull
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    static OnClickListenerWrapper create(@NonNull OnClickListener listener) {
-        return new OnClickListenerWrapperImpl(
+    static OnClickDelegate create(@NonNull OnClickListener listener) {
+        return new OnClickDelegateImpl(
                 listener,
                 listener instanceof ParkedOnlyOnClickListener);
     }
 
-    private OnClickListenerWrapperImpl(@NonNull OnClickListener listener,
+    private OnClickDelegateImpl(@NonNull OnClickListener listener,
             boolean isParkedOnly) {
         this.mListener = new OnClickListenerStub(listener);
         this.mIsParkedOnly = isParkedOnly;
     }
 
     /** For serialization. */
-    private OnClickListenerWrapperImpl() {
+    private OnClickDelegateImpl() {
         mListener = null;
         mIsParkedOnly = false;
     }
