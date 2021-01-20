@@ -74,7 +74,7 @@ public final class ItemList {
     @Keep
     private final int mSelectedIndex;
     @Keep
-    private final List<Object> mItems;
+    private final List<Item> mItems;
     @Keep
     @Nullable
     private final OnSelectedListenerWrapper mOnSelectedListener;
@@ -121,9 +121,23 @@ public final class ItemList {
         return mOnItemVisibilityChangedListener;
     }
 
-    /** Returns the list of items in this {@link ItemList}. */
+    /**
+     * Returns the list of items in this {@link ItemList}.
+     *
+     * @deprecated use {@link #getItemList()} instead.
+     */
+    // TODO(b/177591128): remove after host(s) no longer reference this.
+    @SuppressWarnings("unchecked")
+    @Deprecated
     @NonNull
     public List<Object> getItems() {
+        return (List<Object>) (List<? extends Object>) mItems;
+    }
+
+    /** Returns the list of items. */
+    // TODO(b/177591128): rename back to getItems after removal of the deprecated API.
+    @NonNull
+    public List<Item> getItemList() {
         return mItems;
     }
 
@@ -187,7 +201,7 @@ public final class ItemList {
 
 
     @Nullable
-    static OnClickListenerWrapper getOnClickListener(Object item) {
+    static OnClickListenerWrapper getOnClickListener(Item item) {
         if (item instanceof Row) {
             return ((Row) item).getOnClickListener();
         } else if (item instanceof GridItem) {
@@ -198,7 +212,7 @@ public final class ItemList {
     }
 
     @Nullable
-    static Toggle getToggle(Object item) {
+    static Toggle getToggle(Item item) {
         if (item instanceof Row) {
             return ((Row) item).getToggle();
         }
@@ -208,7 +222,7 @@ public final class ItemList {
 
     /** A builder of {@link ItemList}. */
     public static final class Builder {
-        final List<Object> mItems = new ArrayList<>();
+        final List<Item> mItems = new ArrayList<>();
         int mSelectedIndex;
         @Nullable
         OnSelectedListenerWrapper mOnSelectedListener;
@@ -302,13 +316,6 @@ public final class ItemList {
             return this;
         }
 
-        /** Clears any items that may have been added up to this point. */
-        @NonNull
-        public Builder clearItems() {
-            mItems.clear();
-            return this;
-        }
-
         /**
          * Constructs the item list defined by this builder.
          *
@@ -334,7 +341,7 @@ public final class ItemList {
                 }
 
                 // Check that no items have disallowed elements if the list is selectable.
-                for (Object item : mItems) {
+                for (Item item : mItems) {
                     if (getOnClickListener(item) != null) {
                         throw new IllegalStateException(
                                 "Items that belong to selectable lists can't have an "

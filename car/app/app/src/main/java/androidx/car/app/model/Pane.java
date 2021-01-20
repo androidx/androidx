@@ -36,7 +36,7 @@ public final class Pane {
     @Keep
     private final List<Action> mActionList;
     @Keep
-    private final List<Object> mRows;
+    private final List<Row> mRows;
     @Keep
     private final boolean mIsLoading;
 
@@ -69,9 +69,23 @@ public final class Pane {
 
     /**
      * Returns the list of {@link Row} objects that make up the {@link Pane}.
+     *
+     * @deprecated use {@link #getRowList()} ()} instead.
      */
+    // TODO(b/177591128): remove after host(s) no longer reference this.
+    @SuppressWarnings("unchecked")
+    @Deprecated
     @NonNull
     public List<Object> getRows() {
+        return (List<Object>) (List<?>) mRows;
+    }
+
+    /**
+     * Returns the list of {@link Row} objects that make up the {@link Pane}.
+     */
+    // TODO(b/177591128): rename back to getRows after removal of the deprecated API.
+    @NonNull
+    public List<Row> getRowList() {
         return mRows;
     }
 
@@ -127,7 +141,7 @@ public final class Pane {
 
     /** A builder of {@link Pane}. */
     public static final class Builder {
-        final List<Object> mRows = new ArrayList<>();
+        final List<Row> mRows = new ArrayList<>();
         List<Action> mActionList = new ArrayList<>();
         boolean mIsLoading;
 

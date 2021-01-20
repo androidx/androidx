@@ -57,7 +57,7 @@ public class PaneTest {
     public void addRow() {
         Row row = createRow(1);
         Pane pane = new Pane.Builder().addRow(row).build();
-        assertThat(pane.getRows()).containsExactly(row);
+        assertThat(pane.getRowList()).containsExactly(row);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class PaneTest {
         Row row2 = createRow(2);
         Row row3 = createRow(3);
         Pane pane = new Pane.Builder().addRow(row1).addRow(row2).addRow(row3).build();
-        assertThat(pane.getRows()).containsExactly(row1, row2, row3);
+        assertThat(pane.getRowList()).containsExactly(row1, row2, row3);
     }
 
     @Test
