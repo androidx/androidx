@@ -21,7 +21,11 @@ import androidx.car.app.OnDoneCallback;
 
 /**
  * A host-side interface for reporting to clients that an item was selected.
+ *
+ * @deprecated use {@link OnSelectedDelegate} instead.
  */
+// TODO(b/177591476): remove after host references have been cleaned up.
+@Deprecated
 public interface OnSelectedListenerWrapper {
     /**
      * Notifies that an item was selected.

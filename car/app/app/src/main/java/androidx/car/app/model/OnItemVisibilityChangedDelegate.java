@@ -16,17 +16,15 @@
 
 package androidx.car.app.model;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.car.app.OnDoneCallback;
 
 /**
  * A host-side interface for reporting to clients that the visibility state has changed.
- *
- * @deprecated use {@link OnItemVisibilityChangedDelegate} instead.
  */
-// TODO(b/177591476): remove after host references have been cleaned up.
-@Deprecated
-public interface OnItemVisibilityChangedListenerWrapper {
+public interface OnItemVisibilityChangedDelegate {
     /**
      * Notifies that the items in the list within the specified indices have become visible.
      *
@@ -41,5 +39,7 @@ public interface OnItemVisibilityChangedListenerWrapper {
      * @param callback   the {@link OnDoneCallback} to trigger when the client finishes handling
      *                   the event.
      */
-    void onItemVisibilityChanged(int startIndex, int endIndex, @NonNull OnDoneCallback callback);
+    // This mirrors the AIDL class and is not supported to support an executor as an input.
+    @SuppressLint("ExecutorRegistration")
+    void sendItemVisibilityChanged(int startIndex, int endIndex, @NonNull OnDoneCallback callback);
 }

@@ -85,9 +85,13 @@ public class GridItem implements Item {
     @Keep
     @GridItemImageType
     private final int mImageType;
+    @SuppressWarnings("deprecation")
     @Keep
     @Nullable
     private final OnClickListenerWrapper mOnClickListener;
+    @Keep
+    @Nullable
+    private final OnClickDelegate mOnClickDelegate;
 
     /** Constructs a new builder of {@link GridItem}. */
     // TODO(b/175827428): remove once host is changed to use new public ctor.
@@ -128,10 +132,24 @@ public class GridItem implements Item {
     /**
      * Returns the {@link OnClickListener} to be called back when the grid item is clicked, or
      * {@code null} if the grid item is non-clickable.
+     *
+     * @deprecated use {@link #getOnClickDelegate} instead.
      */
+    // TODO(b/177591476): remove after host references have been cleaned up.
+    @SuppressWarnings("deprecation")
+    @Deprecated
     @Nullable
     public OnClickListenerWrapper getOnClickListener() {
         return mOnClickListener;
+    }
+
+    /**
+     * Returns the {@link OnClickDelegate} to be called back when the grid item is clicked, or
+     * {@code null} if the grid item is non-clickable.
+     */
+    @Nullable
+    public OnClickDelegate getOnClickDelegate() {
+        return mOnClickDelegate;
     }
 
     @Override
@@ -150,7 +168,7 @@ public class GridItem implements Item {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mIsLoading, mTitle, mImage, mImageType, mOnClickListener == null);
+        return Objects.hash(mIsLoading, mTitle, mImage, mImageType, mOnClickDelegate == null);
     }
 
     @Override
@@ -167,7 +185,7 @@ public class GridItem implements Item {
                 && Objects.equals(mTitle, otherGridItem.mTitle)
                 && Objects.equals(mText, otherGridItem.mText)
                 && Objects.equals(mImage, otherGridItem.mImage)
-                && Objects.equals(mOnClickListener == null, otherGridItem.mOnClickListener == null)
+                && Objects.equals(mOnClickDelegate == null, otherGridItem.mOnClickDelegate == null)
                 && mImageType == otherGridItem.mImageType;
     }
 
@@ -178,6 +196,7 @@ public class GridItem implements Item {
         mImage = builder.mImage;
         mImageType = builder.mImageType;
         mOnClickListener = builder.mOnClickListener;
+        mOnClickDelegate = builder.mOnClickDelegate;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -188,6 +207,7 @@ public class GridItem implements Item {
         mImage = null;
         mImageType = IMAGE_TYPE_LARGE;
         mOnClickListener = null;
+        mOnClickDelegate = null;
     }
 
     /** A builder of {@link GridItem}. */
@@ -200,8 +220,11 @@ public class GridItem implements Item {
         CarIcon mImage;
         @GridItemImageType
         int mImageType = IMAGE_TYPE_LARGE;
+        @SuppressWarnings("deprecation")
         @Nullable
         OnClickListenerWrapper mOnClickListener;
+        @Nullable
+        OnClickDelegate mOnClickDelegate;
         boolean mIsLoading;
 
         /**
@@ -296,11 +319,10 @@ public class GridItem implements Item {
         @NonNull
         @SuppressLint("ExecutorRegistration")
         public Builder setOnClickListener(@Nullable OnClickListener onClickListener) {
-            if (onClickListener == null) {
-                this.mOnClickListener = null;
-            } else {
-                this.mOnClickListener = OnClickListenerWrapperImpl.create(onClickListener);
-            }
+            mOnClickListener = onClickListener == null ? null :
+                    OnClickListenerWrapperImpl.create(onClickListener);
+            mOnClickDelegate = onClickListener == null ? null : OnClickDelegateImpl.create(
+                    onClickListener);
             return this;
         }
 
@@ -323,7 +345,7 @@ public class GridItem implements Item {
                         "When a grid item is loading, the image must not be set and vice versa");
             }
 
-            if (mIsLoading && mOnClickListener != null) {
+            if (mIsLoading && mOnClickDelegate != null) {
                 throw new IllegalStateException(
                         "The click listener must not be set on the grid item when it is loading");
             }

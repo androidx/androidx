@@ -26,60 +26,69 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
-import androidx.car.app.model.ItemList.OnSelectedListener;
+import androidx.car.app.model.ItemList.OnItemVisibilityChangedListener;
 import androidx.car.app.utils.RemoteUtils;
 
 /**
- * Implementation class for {@link OnSelectedListenerWrapper}.
+ * Implementation class for {@link OnItemVisibilityChangedDelegate}.
  *
  * @hide
  */
-// TODO(b/177591476): remove after host references have been cleaned up.
-@SuppressWarnings("deprecation")
 @RestrictTo(LIBRARY)
-public class OnSelectedListenerWrapperImpl implements OnSelectedListenerWrapper {
+public class OnItemVisibilityChangedDelegateImpl implements
+        OnItemVisibilityChangedDelegate {
 
     @Keep
-    private final IOnSelectedListener mStub;
+    private final IOnItemVisibilityChangedListener mStub;
 
     @Override
-    public void onSelected(int selectedIndex, @NonNull OnDoneCallback callback) {
+    public void sendItemVisibilityChanged(int startIndex, int rightIndex,
+            @NonNull OnDoneCallback callback) {
         try {
-            mStub.onSelected(selectedIndex,
+            mStub.onItemVisibilityChanged(startIndex, rightIndex,
                     RemoteUtils.createOnDoneCallbackStub(callback));
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private OnSelectedListenerWrapperImpl(@NonNull OnSelectedListener listener) {
-        mStub = new OnSelectedListenerStub(listener);
+    private OnItemVisibilityChangedDelegateImpl(
+            @NonNull OnItemVisibilityChangedListener listener) {
+        mStub = new OnItemVisibilityChangedListenerStub(listener);
     }
 
     /** For serialization. */
-    private OnSelectedListenerWrapperImpl() {
+    private OnItemVisibilityChangedDelegateImpl() {
         mStub = null;
     }
 
     @NonNull
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    static OnSelectedListenerWrapper create(@NonNull OnSelectedListener listener) {
-        return new OnSelectedListenerWrapperImpl(listener);
+    static OnItemVisibilityChangedDelegate create(
+            @NonNull OnItemVisibilityChangedListener listener) {
+        return new OnItemVisibilityChangedDelegateImpl(listener);
     }
 
+    /** Stub class for the {@link IOnItemVisibilityChangedListener} interface. */
     @Keep // We need to keep these stub for Bundler serialization logic.
-    private static class OnSelectedListenerStub extends IOnSelectedListener.Stub {
-        private final OnSelectedListener mListener;
+    private static class OnItemVisibilityChangedListenerStub
+            extends IOnItemVisibilityChangedListener.Stub {
+        private final OnItemVisibilityChangedListener mListener;
 
-        OnSelectedListenerStub(OnSelectedListener listener) {
+        OnItemVisibilityChangedListenerStub(
+                OnItemVisibilityChangedListener listener) {
             this.mListener = listener;
         }
 
         @Override
-        public void onSelected(int index, IOnDoneCallback callback) {
+        public void onItemVisibilityChanged(
+                int startIndexInclusive, int endIndexExclusive, IOnDoneCallback callback) {
             RemoteUtils.dispatchHostCall(
-                    () -> mListener.onSelected(index), callback, "onSelectedListener");
+                    () -> mListener.onItemVisibilityChanged(
+                            startIndexInclusive, endIndexExclusive),
+                    callback,
+                    "onItemVisibilityChanged");
         }
     }
 }

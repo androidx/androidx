@@ -124,7 +124,7 @@ public class RowConstraints {
      * @throws IllegalArgumentException if the constraints are not met.
      */
     public void validateOrThrow(@NonNull Row row) {
-        if (!mIsOnClickListenerAllowed && row.getOnClickListener() != null) {
+        if (!mIsOnClickListenerAllowed && row.getOnClickDelegate() != null) {
             throw new IllegalArgumentException("A click listener is not allowed on the row");
         }
 

@@ -16,7 +16,7 @@
 
 package androidx.car.app.model;
 
-/** Tests for {@link OnClickListenerWrapper}. */
+/** Tests for {@link androidx.car.app.model.OnClickDelegateImpl}. */
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -36,7 +36,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-public class OnClickListenerWrapperTest {
+public class OnClickDelegateTest {
     @Rule
     public final MockitoRule mockito = MockitoJUnit.rule();
 
@@ -45,11 +45,11 @@ public class OnClickListenerWrapperTest {
 
     @Test
     public void create() {
-        OnClickListenerWrapper wrapper = OnClickListenerWrapperImpl.create(mMockOnClickListener);
-        assertThat(wrapper.isParkedOnly()).isFalse();
+        OnClickDelegate delegate = OnClickDelegateImpl.create(mMockOnClickListener);
+        assertThat(delegate.isParkedOnly()).isFalse();
 
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
-        wrapper.onClick(onDoneCallback);
+        delegate.sendClick(onDoneCallback);
         verify(mMockOnClickListener).onClick();
         verify(onDoneCallback).onSuccess(null);
     }

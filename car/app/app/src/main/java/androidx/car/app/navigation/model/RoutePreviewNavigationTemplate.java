@@ -287,7 +287,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
                 ModelUtils.validateAllRowsHaveDistanceOrDuration(itemList.getItemList());
                 ModelUtils.validateAllRowsHaveOnlySmallImages(itemList.getItemList());
 
-                if (!itemList.getItemList().isEmpty() && itemList.getOnSelectedListener() == null) {
+                if (!itemList.getItemList().isEmpty() && itemList.getOnSelectedDelegate() == null) {
                     throw new IllegalArgumentException(
                             "The OnSelectedListener must be set for the route list");
                 }

@@ -34,6 +34,8 @@ import androidx.car.app.utils.RemoteUtils;
  *
  * @hide
  */
+// TODO(b/177591476): remove after host references have been cleaned up.
+@SuppressWarnings("deprecation")
 @RestrictTo(LIBRARY)
 public class OnItemVisibilityChangedListenerWrapperImpl implements
         OnItemVisibilityChangedListenerWrapper {

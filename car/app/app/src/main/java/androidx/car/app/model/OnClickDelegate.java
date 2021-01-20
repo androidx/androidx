@@ -16,17 +16,15 @@
 
 package androidx.car.app.model;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.car.app.OnDoneCallback;
 
 /**
  * A host-side interface for reporting click to clients.
- *
- * @deprecated use {@link OnClickDelegate} instead.
  */
-// TODO(b/177591476): remove after host references have been cleaned up.
-@Deprecated
-public interface OnClickListenerWrapper {
+public interface OnClickDelegate {
     /**
      * Indicates if the click listener is for parked-only scenarios.
      */
@@ -38,5 +36,7 @@ public interface OnClickListenerWrapper {
      * @param callback the {@link OnDoneCallback} to trigger when the client finishes handling
      *                 the event.
      */
-    void onClick(@NonNull OnDoneCallback callback);
+    // This mirrors the AIDL class and is not supported to support an executor as an input.
+    @SuppressLint("ExecutorRegistration")
+    void sendClick(@NonNull OnDoneCallback callback);
 }

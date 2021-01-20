@@ -169,7 +169,8 @@ package androidx.car.app.model {
     method public static androidx.car.app.model.Action.Builder builder();
     method public androidx.car.app.model.CarColor getBackgroundColor();
     method public androidx.car.app.model.CarIcon? getIcon();
-    method public androidx.car.app.model.OnClickListenerWrapper? getOnClickListener();
+    method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
+    method @Deprecated public androidx.car.app.model.OnClickListenerWrapper? getOnClickListener();
     method public androidx.car.app.model.CarText? getTitle();
     method public int getType();
     method public boolean isStandard();
@@ -338,7 +339,8 @@ package androidx.car.app.model {
     method public static androidx.car.app.model.GridItem.Builder builder();
     method public androidx.car.app.model.CarIcon? getImage();
     method public int getImageType();
-    method public androidx.car.app.model.OnClickListenerWrapper? getOnClickListener();
+    method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
+    method @Deprecated public androidx.car.app.model.OnClickListenerWrapper? getOnClickListener();
     method public androidx.car.app.model.CarText? getText();
     method public androidx.car.app.model.CarText getTitle();
     method public boolean isLoading();
@@ -386,8 +388,10 @@ package androidx.car.app.model {
     method public java.util.List<androidx.car.app.model.Item!> getItemList();
     method @Deprecated public java.util.List<java.lang.Object!> getItems();
     method public androidx.car.app.model.CarText? getNoItemsMessage();
-    method public androidx.car.app.model.OnItemVisibilityChangedListenerWrapper? getOnItemsVisibilityChangedListener();
-    method public androidx.car.app.model.OnSelectedListenerWrapper? getOnSelectedListener();
+    method public androidx.car.app.model.OnItemVisibilityChangedDelegate? getOnItemVisibilityChangedDelegate();
+    method @Deprecated public androidx.car.app.model.OnItemVisibilityChangedListenerWrapper? getOnItemsVisibilityChangedListener();
+    method public androidx.car.app.model.OnSelectedDelegate? getOnSelectedDelegate();
+    method @Deprecated public androidx.car.app.model.OnSelectedListenerWrapper? getOnSelectedListener();
     method public int getSelectedIndex();
   }
 
@@ -477,25 +481,42 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Metadata.Builder setPlace(androidx.car.app.model.Place?);
   }
 
-  public interface OnCheckedChangeListenerWrapper {
-    method public void onCheckedChange(boolean, androidx.car.app.OnDoneCallback);
+  public interface OnCheckedChangeDelegate {
+    method public void sendCheckedChange(boolean, androidx.car.app.OnDoneCallback);
+  }
+
+  @Deprecated public interface OnCheckedChangeListenerWrapper {
+    method @Deprecated public void onCheckedChange(boolean, androidx.car.app.OnDoneCallback);
+  }
+
+  public interface OnClickDelegate {
+    method public boolean isParkedOnly();
+    method public void sendClick(androidx.car.app.OnDoneCallback);
   }
 
   public interface OnClickListener {
     method public void onClick();
   }
 
-  public interface OnClickListenerWrapper {
-    method public boolean isParkedOnly();
-    method public void onClick(androidx.car.app.OnDoneCallback);
+  @Deprecated public interface OnClickListenerWrapper {
+    method @Deprecated public boolean isParkedOnly();
+    method @Deprecated public void onClick(androidx.car.app.OnDoneCallback);
   }
 
-  public interface OnItemVisibilityChangedListenerWrapper {
-    method public void onItemVisibilityChanged(int, int, androidx.car.app.OnDoneCallback);
+  public interface OnItemVisibilityChangedDelegate {
+    method public void sendItemVisibilityChanged(int, int, androidx.car.app.OnDoneCallback);
   }
 
-  public interface OnSelectedListenerWrapper {
-    method public void onSelected(int, androidx.car.app.OnDoneCallback);
+  @Deprecated public interface OnItemVisibilityChangedListenerWrapper {
+    method @Deprecated public void onItemVisibilityChanged(int, int, androidx.car.app.OnDoneCallback);
+  }
+
+  public interface OnSelectedDelegate {
+    method public void sendSelected(int, androidx.car.app.OnDoneCallback);
+  }
+
+  @Deprecated public interface OnSelectedListenerWrapper {
+    method @Deprecated public void onSelected(int, androidx.car.app.OnDoneCallback);
   }
 
   public final class Pane {
@@ -601,7 +622,8 @@ package androidx.car.app.model {
     method public static androidx.car.app.model.Row.Builder builder();
     method public androidx.car.app.model.CarIcon? getImage();
     method public androidx.car.app.model.Metadata getMetadata();
-    method public androidx.car.app.model.OnClickListenerWrapper? getOnClickListener();
+    method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
+    method @Deprecated public androidx.car.app.model.OnClickListenerWrapper? getOnClickListener();
     method public int getRowImageType();
     method public java.util.List<androidx.car.app.model.CarText!> getTexts();
     method public androidx.car.app.model.CarText getTitle();
@@ -627,9 +649,14 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Row.Builder setToggle(androidx.car.app.model.Toggle?);
   }
 
-  public interface SearchCallbackWrapper {
-    method public void onSearchSubmitted(String, androidx.car.app.OnDoneCallback);
-    method public void onSearchTextChanged(String, androidx.car.app.OnDoneCallback);
+  public interface SearchCallbackDelegate {
+    method public void sendSearchSubmitted(String, androidx.car.app.OnDoneCallback);
+    method public void sendSearchTextChanged(String, androidx.car.app.OnDoneCallback);
+  }
+
+  @Deprecated public interface SearchCallbackWrapper {
+    method @Deprecated public void onSearchSubmitted(String, androidx.car.app.OnDoneCallback);
+    method @Deprecated public void onSearchTextChanged(String, androidx.car.app.OnDoneCallback);
   }
 
   public final class SearchTemplate implements androidx.car.app.model.Template {
@@ -638,7 +665,8 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Action? getHeaderAction();
     method public String? getInitialSearchText();
     method public androidx.car.app.model.ItemList? getItemList();
-    method public androidx.car.app.model.SearchCallbackWrapper getSearchCallback();
+    method @Deprecated public androidx.car.app.model.SearchCallbackWrapper getSearchCallback();
+    method public androidx.car.app.model.SearchCallbackDelegate getSearchCallbackDelegate();
     method public String? getSearchHint();
     method public boolean isLoading();
     method public boolean isShowKeyboardByDefault();
@@ -694,7 +722,8 @@ package androidx.car.app.model {
 
   public class Toggle {
     method public static androidx.car.app.model.Toggle.Builder builder(androidx.car.app.model.Toggle.OnCheckedChangeListener);
-    method public androidx.car.app.model.OnCheckedChangeListenerWrapper getOnCheckedChangeListener();
+    method public androidx.car.app.model.OnCheckedChangeDelegate getOnCheckedChangeDelegate();
+    method @Deprecated public androidx.car.app.model.OnCheckedChangeListenerWrapper getOnCheckedChangeListener();
     method public boolean isChecked();
   }
 
@@ -702,7 +731,6 @@ package androidx.car.app.model {
     ctor public Toggle.Builder(androidx.car.app.model.Toggle.OnCheckedChangeListener);
     method public androidx.car.app.model.Toggle build();
     method public androidx.car.app.model.Toggle.Builder setChecked(boolean);
-    method public androidx.car.app.model.Toggle.Builder setOnCheckedChangeListener(androidx.car.app.model.Toggle.OnCheckedChangeListener);
   }
 
   public static interface Toggle.OnCheckedChangeListener {

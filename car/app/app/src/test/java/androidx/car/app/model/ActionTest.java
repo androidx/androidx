@@ -129,7 +129,7 @@ public class ActionTest {
         assertThat(CarText.create(title)).isEqualTo(action.getTitle());
         assertThat(CarColor.BLUE).isEqualTo(action.getBackgroundColor());
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
-        action.getOnClickListener().onClick(onDoneCallback);
+        action.getOnClickDelegate().sendClick(onDoneCallback);
         verify(onClickListener).onClick();
         verify(onDoneCallback).onSuccess(null);
     }

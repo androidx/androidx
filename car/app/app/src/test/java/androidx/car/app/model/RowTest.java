@@ -44,7 +44,7 @@ public class RowTest {
         assertThat(row.getTitle().toString()).isEqualTo("Title");
         assertThat(row.getTexts()).isEmpty();
         assertThat(row.getImage()).isNull();
-        assertThat(row.getOnClickListener()).isNull();
+        assertThat(row.getOnClickDelegate()).isNull();
         assertThat(row.isBrowsable()).isFalse();
         assertThat(row.getMetadata()).isEqualTo(Metadata.EMPTY_METADATA);
         assertThat(row.getRowImageType()).isEqualTo(Row.IMAGE_TYPE_SMALL);
@@ -100,7 +100,7 @@ public class RowTest {
         OnClickListener onClickListener = mock(OnClickListener.class);
         Row row = new Row.Builder().setTitle("Title").setOnClickListener(onClickListener).build();
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
-        row.getOnClickListener().onClick(onDoneCallback);
+        row.getOnClickDelegate().sendClick(onDoneCallback);
         verify(onClickListener).onClick();
         verify(onDoneCallback).onSuccess(null);
     }
