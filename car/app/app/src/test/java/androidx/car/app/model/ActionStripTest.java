@@ -68,9 +68,9 @@ public class ActionStripTest {
         }).build();
         ActionStrip list = new ActionStrip.Builder().addAction(action1).addAction(action2).build();
 
-        assertThat(list.getActionList()).hasSize(2);
-        assertThat(action1).isEqualTo(list.getActionList().get(0));
-        assertThat(action2).isEqualTo(list.getActionList().get(1));
+        assertThat(list.getActions()).hasSize(2);
+        assertThat(action1).isEqualTo(list.getActions().get(0));
+        assertThat(action2).isEqualTo(list.getActions().get(1));
     }
 
     @Test

@@ -198,8 +198,8 @@ package androidx.car.app.model {
 
   public final class ActionStrip {
     method public static androidx.car.app.model.ActionStrip.Builder builder();
-    method public java.util.List<androidx.car.app.model.Action!> getActionList();
-    method @Deprecated public java.util.List<java.lang.Object!> getActions();
+    method @Deprecated public java.util.List<androidx.car.app.model.Action!> getActionList();
+    method public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.Action? getFirstActionOfType(int);
   }
 
@@ -442,8 +442,8 @@ package androidx.car.app.model {
 
   public final class MessageTemplate implements androidx.car.app.model.Template {
     method public static androidx.car.app.model.MessageTemplate.Builder builder(CharSequence);
-    method public java.util.List<androidx.car.app.model.Action!> getActionList();
-    method @Deprecated public androidx.car.app.model.ActionList? getActions();
+    method @Deprecated public java.util.List<androidx.car.app.model.Action!> getActionList();
+    method public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.CarText? getDebugMessage();
     method public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.CarIcon? getIcon();
@@ -454,8 +454,8 @@ package androidx.car.app.model {
   public static final class MessageTemplate.Builder {
     ctor public MessageTemplate.Builder(CharSequence);
     method public androidx.car.app.model.MessageTemplate build();
-    method public androidx.car.app.model.MessageTemplate.Builder setActionList(java.util.List<androidx.car.app.model.Action!>);
-    method @Deprecated public androidx.car.app.model.MessageTemplate.Builder setActions(java.util.List<androidx.car.app.model.Action!>);
+    method @Deprecated public androidx.car.app.model.MessageTemplate.Builder setActionList(java.util.List<androidx.car.app.model.Action!>);
+    method public androidx.car.app.model.MessageTemplate.Builder setActions(java.util.List<androidx.car.app.model.Action!>);
     method @Deprecated public androidx.car.app.model.MessageTemplate.Builder setDebugCause(Throwable?);
     method public androidx.car.app.model.MessageTemplate.Builder setDebugMessage(Throwable?);
     method public androidx.car.app.model.MessageTemplate.Builder setDebugMessage(String?);
@@ -517,8 +517,8 @@ package androidx.car.app.model {
 
   public final class Pane {
     method public static androidx.car.app.model.Pane.Builder builder();
-    method public java.util.List<androidx.car.app.model.Action!> getActionList();
-    method @Deprecated public androidx.car.app.model.ActionList? getActions();
+    method @Deprecated public java.util.List<androidx.car.app.model.Action!> getActionList();
+    method public java.util.List<androidx.car.app.model.Action!> getActions();
     method public java.util.List<androidx.car.app.model.Row!> getRowList();
     method @Deprecated public java.util.List<java.lang.Object!> getRows();
     method public boolean isLoading();
@@ -528,8 +528,8 @@ package androidx.car.app.model {
     ctor public Pane.Builder();
     method public androidx.car.app.model.Pane.Builder addRow(androidx.car.app.model.Row);
     method public androidx.car.app.model.Pane build();
-    method public androidx.car.app.model.Pane.Builder setActionList(java.util.List<androidx.car.app.model.Action!>);
-    method @Deprecated public androidx.car.app.model.Pane.Builder setActions(java.util.List<androidx.car.app.model.Action!>);
+    method @Deprecated public androidx.car.app.model.Pane.Builder setActionList(java.util.List<androidx.car.app.model.Action!>);
+    method public androidx.car.app.model.Pane.Builder setActions(java.util.List<androidx.car.app.model.Action!>);
     method public androidx.car.app.model.Pane.Builder setLoading(boolean);
   }
 
