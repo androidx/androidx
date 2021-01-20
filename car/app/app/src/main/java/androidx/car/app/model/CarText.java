@@ -128,26 +128,6 @@ public class CarText {
      * Wraps a span to send it to the host.
      */
     public static class SpanWrapper {
-        /**
-         * @deprecated Removing in a follow up commit.
-         */
-        @Keep @Deprecated
-        public final int start;
-        /**
-         * @deprecated Removing in a follow up commit.
-         */
-        @Keep @Deprecated
-        public final int end;
-        /**
-         * @deprecated Removing in a follow up commit.
-         */
-        @Keep @Deprecated
-        public final int flags;
-        /**
-         * @deprecated Removing in a follow up commit.
-         */
-        @Keep @Deprecated
-        public final Object span;
         @Keep
         private final int mStart;
         @Keep
@@ -162,10 +142,6 @@ public class CarText {
             mEnd = spanned.getSpanEnd(carSpan);
             mFlags = spanned.getSpanFlags(carSpan);
             mCarSpan = carSpan;
-            this.start = mStart;
-            this.end = mEnd;
-            this.flags = mFlags;
-            this.span = mCarSpan;
         }
 
         SpanWrapper() {
@@ -173,10 +149,6 @@ public class CarText {
             mEnd = 0;
             mFlags = 0;
             mCarSpan = new CarSpan();
-            this.start = mStart;
-            this.end = mEnd;
-            this.flags = mFlags;
-            this.span = mCarSpan;
         }
 
         public int getStart() {
@@ -205,21 +177,21 @@ public class CarText {
                 return false;
             }
             SpanWrapper wrapper = (SpanWrapper) other;
-            return start == wrapper.start
-                    && end == wrapper.end
-                    && flags == wrapper.flags
-                    && Objects.equals(span, wrapper.span);
+            return mStart == wrapper.mStart
+                    && mEnd == wrapper.mEnd
+                    && mFlags == wrapper.mFlags
+                    && Objects.equals(mCarSpan, wrapper.mCarSpan);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(start, end, flags, span);
+            return Objects.hash(mStart, mEnd, mFlags, mCarSpan);
         }
 
         @NonNull
         @Override
         public String toString() {
-            return "[" + span + ": " + start + ", " + end + ", flags: " + flags + "]";
+            return "[" + mCarSpan + ": " + mStart + ", " + mEnd + ", flags: " + mFlags + "]";
         }
     }
 }

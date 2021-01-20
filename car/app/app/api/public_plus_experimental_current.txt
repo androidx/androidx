@@ -292,10 +292,6 @@ package androidx.car.app.model {
     method public int getEnd();
     method public int getFlags();
     method public int getStart();
-    field @Deprecated @Keep public final int end;
-    field @Deprecated @Keep public final int flags;
-    field @Deprecated @Keep public final Object! span;
-    field @Deprecated @Keep public final int start;
   }
 
   public class DateTimeWithZone {
