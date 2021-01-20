@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.util
 import com.google.testing.compile.JavaFileObjects
 import com.tschuchort.compiletesting.SourceFile
 import org.intellij.lang.annotations.Language
+import java.io.File
 import javax.tools.JavaFileObject
 
 /**
@@ -26,11 +27,7 @@ import javax.tools.JavaFileObject
  */
 sealed class Source {
     abstract fun toJFO(): JavaFileObject
-    abstract fun toKotlinSourceFile(): SourceFile
-
-    // we need this for kotlin compile testing as it doesn't create directories
-    abstract fun relativePath(): String
-
+    abstract fun toKotlinSourceFile(srcRoot: File): SourceFile
     class JavaSource(
         val qName: String,
         val contents: String
@@ -42,14 +39,16 @@ sealed class Source {
             )
         }
 
-        override fun toKotlinSourceFile(): SourceFile {
-            return SourceFile.java(
-                relativePath(),
-                contents
-            )
+        override fun toKotlinSourceFile(srcRoot: File): SourceFile {
+            val outFile = srcRoot.resolve(relativePath())
+                .also {
+                    it.parentFile.mkdirs()
+                    it.writeText(contents)
+                }
+            return SourceFile.fromPath(outFile)
         }
 
-        override fun relativePath(): String {
+        private fun relativePath(): String {
             return qName.replace(".", "/") + ".java"
         }
     }
@@ -62,14 +61,15 @@ sealed class Source {
             throw IllegalStateException("cannot include kotlin code in javac compilation")
         }
 
-        override fun toKotlinSourceFile(): SourceFile {
-            return SourceFile.kotlin(
-                filePath,
-                contents
+        override fun toKotlinSourceFile(srcRoot: File): SourceFile {
+            val outFile = srcRoot.resolve(filePath).also {
+                it.parentFile.mkdirs()
+                it.writeText(contents)
+            }
+            return SourceFile.fromPath(
+                outFile
             )
         }
-
-        override fun relativePath(): String = filePath
     }
 
     companion object {
