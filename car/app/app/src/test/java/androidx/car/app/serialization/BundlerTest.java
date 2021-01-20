@@ -197,8 +197,8 @@ public class BundlerTest {
         assertThat(readIn.keySet()).isEqualTo(value.keySet());
 
         assertThat(readIn.values()).hasSize(value.size());
-        for (CarLocation CarLocation : value.values()) {
-            assertThat(readIn.containsValue(CarLocation)).isTrue();
+        for (CarLocation carLocation : value.values()) {
+            assertThat(readIn.containsValue(carLocation)).isTrue();
         }
     }
 
@@ -329,7 +329,7 @@ public class BundlerTest {
         String row1Title = "row1";
         String row1Subtitle = "row1subtitle";
 
-        CarLocation CarLocation2 = CarLocation.create(4522.234, 34.234);
+        CarLocation carLocation2 = CarLocation.create(4522.234, 34.234);
         CarIcon carIcon = TestUtils.getTestCarIcon(mContext, "ic_test_1");
         PlaceMarker marker2 = new PlaceMarker.Builder().setIcon(carIcon,
                 PlaceMarker.TYPE_ICON).build();
@@ -352,7 +352,7 @@ public class BundlerTest {
                         .setBrowsable(true)
                         .setOnClickListener(() -> {
                         })
-                        .setMetadata(Metadata.ofPlace(new Place.Builder(CarLocation2).setMarker(
+                        .setMetadata(Metadata.ofPlace(new Place.Builder(carLocation2).setMarker(
                                 marker2).build()))
                         .build();
         ItemList itemList = new ItemList.Builder().addItem(row1).addItem(row2).build();
