@@ -22,7 +22,6 @@ import androidx.benchmark.perfetto.PerfettoTraceParser
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.android.helpers.CpuUsageHelper
-import com.android.helpers.JankCollectionHelper
 import com.android.helpers.TotalPssHelper
 
 /**
