@@ -509,6 +509,338 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 // @exportToFramework:endStrip()
 
+
+    @Test
+    public void testGetDocuments_projection() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder()
+                        .addSchema(AppSearchEmail.SCHEMA)
+                        .build()).get();
+
+        // Index two documents
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        AppSearchEmail email2 =
+                new AppSearchEmail.Builder("uri2")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocument(email1, email2).build()));
+
+        // Get with type property paths {"Email", ["subject", "to"]}
+        GetByUriRequest request = new GetByUriRequest.Builder().setNamespace("namespace").addUri(
+                "uri1",
+                "uri2").addProjection(AppSearchEmail.SCHEMA_TYPE, "subject", "to").build();
+        List<GenericDocument> outDocuments = doGet(mDb1, request);
+
+        // The two email documents should have been returned with only the "subject" and "to"
+        // properties.
+        AppSearchEmail expected1 =
+                new AppSearchEmail.Builder("uri2")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .build();
+        AppSearchEmail expected2 =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .build();
+        assertThat(outDocuments).containsExactly(expected1, expected2);
+    }
+
+    @Test
+    public void testGetDocuments_projectionEmpty() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder()
+                        .addSchema(AppSearchEmail.SCHEMA)
+                        .build()).get();
+
+        // Index two documents
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        AppSearchEmail email2 =
+                new AppSearchEmail.Builder("uri2")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocument(email1, email2).build()));
+
+        // Get with type property paths {"Email", ["subject", "to"]}
+        GetByUriRequest request = new GetByUriRequest.Builder().setNamespace("namespace").addUri(
+                "uri1",
+                "uri2").addProjection(AppSearchEmail.SCHEMA_TYPE, Collections.emptyList()).build();
+        List<GenericDocument> outDocuments = doGet(mDb1, request);
+
+        // The two email documents should have been returned without any properties.
+        AppSearchEmail expected1 =
+                new AppSearchEmail.Builder("uri2")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .build();
+        AppSearchEmail expected2 =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .build();
+        assertThat(outDocuments).containsExactly(expected1, expected2);
+    }
+
+    @Test
+    public void testGetDocuments_projectionNonExistentType() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder()
+                        .addSchema(AppSearchEmail.SCHEMA)
+                        .build()).get();
+
+        // Index two documents
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        AppSearchEmail email2 =
+                new AppSearchEmail.Builder("uri2")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocument(email1, email2).build()));
+
+        // Get with type property paths {"Email", ["subject", "to"]}
+        GetByUriRequest request = new GetByUriRequest.Builder().setNamespace("namespace").addUri(
+                "uri1",
+                "uri2").addProjection("NonExistentType", Collections.emptyList())
+                .addProjection(AppSearchEmail.SCHEMA_TYPE, "subject", "to").build();
+        List<GenericDocument> outDocuments = doGet(mDb1, request);
+
+        // The two email documents should have been returned with only the "subject" and "to"
+        // properties.
+        AppSearchEmail expected1 =
+                new AppSearchEmail.Builder("uri2")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .build();
+        AppSearchEmail expected2 =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .build();
+        assertThat(outDocuments).containsExactly(expected1, expected2);
+    }
+
+    @Test
+    public void testGetDocuments_wildcardProjection() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder()
+                        .addSchema(AppSearchEmail.SCHEMA)
+                        .build()).get();
+
+        // Index two documents
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        AppSearchEmail email2 =
+                new AppSearchEmail.Builder("uri2")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocument(email1, email2).build()));
+
+        // Get with type property paths {"Email", ["subject", "to"]}
+        GetByUriRequest request = new GetByUriRequest.Builder().setNamespace("namespace").addUri(
+                "uri1",
+                "uri2").addProjection(GetByUriRequest.PROJECTION_SCHEMA_TYPE_WILDCARD, "subject",
+                "to").build();
+        List<GenericDocument> outDocuments = doGet(mDb1, request);
+
+        // The two email documents should have been returned with only the "subject" and "to"
+        // properties.
+        AppSearchEmail expected1 =
+                new AppSearchEmail.Builder("uri2")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .build();
+        AppSearchEmail expected2 =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .build();
+        assertThat(outDocuments).containsExactly(expected1, expected2);
+    }
+
+    @Test
+    public void testGetDocuments_wildcardProjectionEmpty() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder()
+                        .addSchema(AppSearchEmail.SCHEMA)
+                        .build()).get();
+
+        // Index two documents
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        AppSearchEmail email2 =
+                new AppSearchEmail.Builder("uri2")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocument(email1, email2).build()));
+
+        // Get with type property paths {"Email", ["subject", "to"]}
+        GetByUriRequest request = new GetByUriRequest.Builder().setNamespace("namespace").addUri(
+                "uri1",
+                "uri2").addProjection(GetByUriRequest.PROJECTION_SCHEMA_TYPE_WILDCARD,
+                Collections.emptyList()).build();
+        List<GenericDocument> outDocuments = doGet(mDb1, request);
+
+        // The two email documents should have been returned without any properties.
+        AppSearchEmail expected1 =
+                new AppSearchEmail.Builder("uri2")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .build();
+        AppSearchEmail expected2 =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .build();
+        assertThat(outDocuments).containsExactly(expected1, expected2);
+    }
+
+    @Test
+    public void testGetDocuments_wildcardProjectionNonExistentType() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder()
+                        .addSchema(AppSearchEmail.SCHEMA)
+                        .build()).get();
+
+        // Index two documents
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        AppSearchEmail email2 =
+                new AppSearchEmail.Builder("uri2")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocument(email1, email2).build()));
+
+        // Get with type property paths {"Email", ["subject", "to"]}
+        GetByUriRequest request = new GetByUriRequest.Builder().setNamespace("namespace").addUri(
+                "uri1",
+                "uri2").addProjection("NonExistentType", Collections.emptyList())
+                .addProjection(GetByUriRequest.PROJECTION_SCHEMA_TYPE_WILDCARD, "subject",
+                        "to").build();
+        List<GenericDocument> outDocuments = doGet(mDb1, request);
+
+        // The two email documents should have been returned with only the "subject" and "to"
+        // properties.
+        AppSearchEmail expected1 =
+                new AppSearchEmail.Builder("uri2")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .build();
+        AppSearchEmail expected2 =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setCreationTimestampMillis(1000)
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .build();
+        assertThat(outDocuments).containsExactly(expected1, expected2);
+    }
+
     @Test
     public void testQuery() throws Exception {
         // Schema registration

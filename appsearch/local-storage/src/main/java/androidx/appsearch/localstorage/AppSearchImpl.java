@@ -28,6 +28,7 @@ import androidx.annotation.WorkerThread;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.GetByUriRequest;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
@@ -36,6 +37,7 @@ import androidx.appsearch.localstorage.converter.GenericDocumentToProtoConverter
 import androidx.appsearch.localstorage.converter.SchemaToProtoConverter;
 import androidx.appsearch.localstorage.converter.SearchResultToProtoConverter;
 import androidx.appsearch.localstorage.converter.SearchSpecToProtoConverter;
+import androidx.appsearch.localstorage.converter.TypePropertyPathToProtoConverter;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
@@ -425,23 +427,43 @@ public final class AppSearchImpl {
      *
      * <p>This method belongs to query group.
      *
-     * @param packageName  The package that owns this document.
-     * @param databaseName The databaseName this document resides in.
-     * @param namespace    The namespace this document resides in.
-     * @param uri          The URI of the document to get.
+     * @param packageName       The package that owns this document.
+     * @param databaseName      The databaseName this document resides in.
+     * @param namespace         The namespace this document resides in.
+     * @param uri               The URI of the document to get.
+     * @param typePropertyPaths A map of schema type to a list of property paths to return in the
+     *                          result.
      * @return The Document contents
      * @throws AppSearchException on IcingSearchEngine error.
      */
     @NonNull
     public GenericDocument getDocument(@NonNull String packageName, @NonNull String databaseName,
             @NonNull String namespace,
-            @NonNull String uri) throws AppSearchException {
+            @NonNull String uri,
+            @NonNull Map<String, List<String>> typePropertyPaths) throws AppSearchException {
         GetResultProto getResultProto;
+        List<TypePropertyMask> nonPrefixedPropertyMasks =
+                TypePropertyPathToProtoConverter.toTypePropertyMaskList(typePropertyPaths);
+        List<TypePropertyMask> prefixedPropertyMasks =
+                new ArrayList<>(nonPrefixedPropertyMasks.size());
+        for (int i = 0; i < nonPrefixedPropertyMasks.size(); ++i) {
+            TypePropertyMask typePropertyMask = nonPrefixedPropertyMasks.get(i);
+            String nonPrefixedType = typePropertyMask.getSchemaType();
+            String prefixedType =
+                    nonPrefixedType.equals(GetByUriRequest.PROJECTION_SCHEMA_TYPE_WILDCARD)
+                            ? nonPrefixedType :
+                            createPrefix(packageName, databaseName) + nonPrefixedType;
+            prefixedPropertyMasks.add(
+                    typePropertyMask.toBuilder().setSchemaType(prefixedType).build());
+        }
+        GetResultSpecProto getResultSpec =
+                GetResultSpecProto.newBuilder().addAllTypePropertyMasks(prefixedPropertyMasks
+                ).build();
         mReadWriteLock.readLock().lock();
         try {
             getResultProto = mIcingSearchEngineLocked.get(
                     createPrefix(packageName, databaseName) + namespace, uri,
-                    GetResultSpecProto.getDefaultInstance());
+                    getResultSpec);
         } finally {
             mReadWriteLock.readLock().unlock();
         }
