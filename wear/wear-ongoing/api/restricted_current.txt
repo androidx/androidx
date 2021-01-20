@@ -24,7 +24,9 @@ package androidx.wear.ongoing {
   }
 
   @androidx.versionedparcelable.VersionedParcelize public class OngoingActivityData implements androidx.versionedparcelable.VersionedParcelable {
+    method public static void copy(android.os.Bundle, android.os.Bundle);
     method public static androidx.wear.ongoing.OngoingActivityData? create(android.app.Notification);
+    method public static androidx.wear.ongoing.OngoingActivityData? create(android.os.Bundle);
     method public android.graphics.drawable.Icon? getAnimatedIcon();
     method public String? getCategory();
     method public androidx.core.content.LocusIdCompat? getLocusId();

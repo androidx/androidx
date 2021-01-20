@@ -18,6 +18,7 @@ package androidx.wear.ongoing;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
+import android.os.Bundle;
 import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
@@ -115,16 +116,38 @@ public class OngoingActivityData implements VersionedParcelable {
     /**
      * Deserializes the {@link OngoingActivityData} from a notification.
      *
-     * Applies defaults from the notification for information not provided as part of the
-     * {@link OngoingActivity}.
-     *
      * @param notification the notification that may contain information about a Ongoing
      *                     Activity.
      * @return the data, or null of the notification doesn't contain Ongoing Activity data.
      */
     @Nullable
     public static OngoingActivityData create(@NonNull Notification notification) {
-        return ParcelUtils.getVersionedParcelable(notification.extras, EXTRA_ONGOING_ACTIVITY);
+        return create(notification.extras);
+    }
+
+    /**
+     * Deserializes the {@link OngoingActivityData} from a Bundle.
+     *
+     * @param bundle the bundle that may contain information about a Ongoing Activity.
+     * @return the data, or null of the Bundle doesn't contain Ongoing Activity data.
+     */
+    @Nullable
+    public static OngoingActivityData create(@NonNull Bundle bundle) {
+        return ParcelUtils.getVersionedParcelable(bundle, EXTRA_ONGOING_ACTIVITY);
+    }
+
+
+    /**
+     * Copies an Ongoing Activity information from a bundle to another, without deserializing
+     * and serializing (Note that Bundle instance is shared, not copied and deserializing the
+     * Ongoing activity information somewhere else negates the advantages of using this)
+     *
+     * @param sourceBundle The bundle to get the Ongoing Activity data from
+     * @param destinationBundle The bundle to put the Ongoing Activity data into.
+     */
+    public static void copy(@NonNull Bundle sourceBundle, @NonNull Bundle destinationBundle) {
+        destinationBundle.putBundle(EXTRA_ONGOING_ACTIVITY,
+                sourceBundle.getBundle(EXTRA_ONGOING_ACTIVITY));
     }
 
     /**
