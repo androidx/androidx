@@ -4756,8 +4756,8 @@ public class ViewCompat {
 
                         if (compatInsets.equals(mLastInsets)) {
                             // We got the same insets we just return the previously computed insets.
-                            listener.onApplyWindowInsets(view, compatInsets);
-                            return insets;
+                            return listener.onApplyWindowInsets(view, compatInsets)
+                                    .toWindowInsets();
                         }
                     }
                     mLastInsets = compatInsets;
