@@ -16,6 +16,8 @@
 
 package androidx.camera.extensions;
 
+import static androidx.camera.extensions.util.ExtensionsTestUtil.effectModeToExtensionMode;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
@@ -77,6 +79,8 @@ public final class ExtensionsErrorListenerTest {
     }
 
     private EffectMode mEffectMode;
+    @Extensions.ExtensionMode
+    private int mExtensionMode;
     @CameraSelector.LensFacing
     private int mLensFacing;
     private CountDownLatch mLatch;
@@ -93,6 +97,7 @@ public final class ExtensionsErrorListenerTest {
     public ExtensionsErrorListenerTest(EffectMode effectMode,
             @CameraSelector.LensFacing int lensFacing) {
         mEffectMode = effectMode;
+        mExtensionMode = effectModeToExtensionMode(effectMode);
         mLensFacing = lensFacing;
     }
 
@@ -127,8 +132,8 @@ public final class ExtensionsErrorListenerTest {
 
         List<UseCase> useCaseList = Arrays.asList(imageCapture, noEffectPreview);
         mErrorCode.set(null);
-        ImageCaptureExtender.checkPreviewEnabled(mEffectMode, useCaseList);
-        PreviewExtender.checkImageCaptureEnabled(mEffectMode, useCaseList);
+        ImageCaptureExtender.checkPreviewEnabled(mExtensionMode, useCaseList);
+        PreviewExtender.checkImageCaptureEnabled(mExtensionMode, useCaseList);
 
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
@@ -145,8 +150,8 @@ public final class ExtensionsErrorListenerTest {
 
         List<UseCase> useCaseList = Arrays.asList(noEffectImageCapture, preview);
         mErrorCode.set(null);
-        ImageCaptureExtender.checkPreviewEnabled(mEffectMode, useCaseList);
-        PreviewExtender.checkImageCaptureEnabled(mEffectMode, useCaseList);
+        ImageCaptureExtender.checkPreviewEnabled(mExtensionMode, useCaseList);
+        PreviewExtender.checkImageCaptureEnabled(mExtensionMode, useCaseList);
 
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
@@ -166,8 +171,8 @@ public final class ExtensionsErrorListenerTest {
         Preview preview = ExtensionsTestUtil.createPreviewWithEffect(mEffectMode, mLensFacing);
 
         List<UseCase> useCaseList = Arrays.asList(imageCapture, preview);
-        ImageCaptureExtender.checkPreviewEnabled(mEffectMode, useCaseList);
-        PreviewExtender.checkImageCaptureEnabled(mEffectMode, useCaseList);
+        ImageCaptureExtender.checkPreviewEnabled(mExtensionMode, useCaseList);
+        PreviewExtender.checkImageCaptureEnabled(mExtensionMode, useCaseList);
 
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
@@ -203,14 +208,15 @@ public final class ExtensionsErrorListenerTest {
 
         mErrorCode.set(null);
         // ImageCaptureExtender will find mismatched PreviewExtender is enabled.
-        ImageCaptureExtender.checkPreviewEnabled(mEffectMode, useCaseList);
+        ImageCaptureExtender.checkPreviewEnabled(mExtensionMode, useCaseList);
         mLatch.await(1, TimeUnit.SECONDS);
         assertThat(mErrorCode.get()).isEqualTo(ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
 
         mLatch = new CountDownLatch(1);
         mErrorCode.set(null);
         // PreviewExtender will find mismatched ImageCaptureExtender is enabled.
-        PreviewExtender.checkImageCaptureEnabled(mismatchedEffectMode, useCaseList);
+        PreviewExtender.checkImageCaptureEnabled(effectModeToExtensionMode(mismatchedEffectMode),
+                useCaseList);
         mLatch.await(1, TimeUnit.SECONDS);
         assertThat(mErrorCode.get()).isEqualTo(ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
     }

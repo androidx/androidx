@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
-import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.HdrImageCaptureExtenderImpl;
 /**
  * Load the OEM extension implementation for HDR effect type.
@@ -68,7 +67,7 @@ public class HdrImageCaptureExtender extends ImageCaptureExtender {
 
         VendorHdrImageCaptureExtender(ImageCapture.Builder builder) {
             mImpl = new HdrImageCaptureExtenderImpl();
-            init(builder, mImpl, EffectMode.HDR);
+            init(builder, mImpl, Extensions.EXTENSION_MODE_HDR);
         }
     }
 
