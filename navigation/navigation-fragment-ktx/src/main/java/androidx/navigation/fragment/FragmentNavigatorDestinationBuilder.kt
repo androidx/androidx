@@ -57,6 +57,6 @@ public class FragmentNavigatorDestinationBuilder(
 
     override fun build(): FragmentNavigator.Destination =
         super.build().also { destination ->
-            destination.className = fragmentClass.java.name
+            destination.setClassName(fragmentClass.java.name)
         }
 }

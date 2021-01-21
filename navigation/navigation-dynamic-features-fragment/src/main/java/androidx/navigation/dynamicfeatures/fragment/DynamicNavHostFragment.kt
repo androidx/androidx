@@ -54,7 +54,7 @@ public open class DynamicNavHostFragment : NavHostFragment() {
         )
         graphNavigator.installDefaultProgressDestination {
             fragmentNavigator.createDestination().apply {
-                className = DefaultProgressFragment::class.java.name
+                setClassName(DefaultProgressFragment::class.java.name)
                 id = R.id.dfn_progress_fragment
             }
         }
