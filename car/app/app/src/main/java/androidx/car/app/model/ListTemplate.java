@@ -386,7 +386,7 @@ public final class ListTemplate implements Template {
         }
 
         /** Returns an empty {@link Builder} instance. */
-        Builder() {
+        public Builder() {
         }
     }
 }
