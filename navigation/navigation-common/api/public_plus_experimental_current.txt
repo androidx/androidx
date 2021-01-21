@@ -285,8 +285,8 @@ package androidx.navigation {
   public abstract class Navigator<D extends androidx.navigation.NavDestination> {
     ctor public Navigator();
     method public abstract D createDestination();
-    method public abstract androidx.navigation.NavDestination? navigate(D, android.os.Bundle?, androidx.navigation.NavOptions?, androidx.navigation.Navigator.Extras?);
-    method public void onRestoreState(android.os.Bundle);
+    method public abstract androidx.navigation.NavDestination? navigate(D destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
+    method public void onRestoreState(android.os.Bundle savedState);
     method public android.os.Bundle? onSaveState();
     method public abstract boolean popBackStack();
   }
@@ -294,8 +294,9 @@ package androidx.navigation {
   public static interface Navigator.Extras {
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE}) public static @interface Navigator.Name {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget}) public static @interface Navigator.Name {
     method public abstract String value();
+    property public abstract String value;
   }
 
   public class NavigatorProvider {

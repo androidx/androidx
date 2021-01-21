@@ -145,7 +145,7 @@ public class DialogFragmentNavigator(
      *                          associated with. Generally retrieved via a [NavController]'s
      *                          [NavigatorProvider.getNavigator] method.
      */
-    public constructor(fragmentNavigator: Navigator<out Destination?>) :
+    public constructor(fragmentNavigator: Navigator<out Destination>) :
         NavDestination(fragmentNavigator), FloatingWindow {
         private var _className: String? = null
         /**

@@ -238,7 +238,7 @@ public open class NavHostFragment : Fragment(), NavHost {
      * @return a new instance of a FragmentNavigator
      */
     @Deprecated("Use {@link #onCreateNavController(NavController)}")
-    protected open fun createFragmentNavigator(): Navigator<out FragmentNavigator.Destination?> {
+    protected open fun createFragmentNavigator(): Navigator<out FragmentNavigator.Destination> {
         return FragmentNavigator(requireContext(), childFragmentManager, containerId)
     }
 
