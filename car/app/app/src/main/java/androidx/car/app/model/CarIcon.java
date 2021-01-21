@@ -210,18 +210,6 @@ public class CarIcon {
     }
 
     /**
-     * Returns a {@link Builder} instance configured with the same data as this {@link CarIcon}
-     * instance.
-     * @deprecated use constructor.
-     */
-    // TODO(b/177484889): remove once host is changed to use new public ctor.
-    @Deprecated
-    @NonNull
-    public Builder newBuilder() {
-        return new Builder(this);
-    }
-
-    /**
      * Returns a {@link Builder} instance using the given {@link IconCompat}.
      *
      * <p>The following types are supported:

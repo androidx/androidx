@@ -146,19 +146,6 @@ public final class Action {
     }
 
     /**
-     * Returns a {@link Builder} instance configured with the same data as this {@link Action}
-     * instance.
-     *
-     * @deprecated use constructor.
-     */
-    // TODO(b/177484889): remove once host is changed to use new public ctor.
-    @NonNull
-    @Deprecated
-    public Builder newBuilder() {
-        return new Builder(this);
-    }
-
-    /**
      * Returns the title displayed in the action, or {@code null} if the action does not have a
      * title.
      */
@@ -247,9 +234,6 @@ public final class Action {
         mTitle = null;
         mIcon = null;
         mBackgroundColor = DEFAULT;
-
-        // The listeners can be set, for actions that support it, by copying the standard action
-        // instance with the newBuilder and setting it.
         mListener = null;
         mOnClickDelegate = null;
         mType = type;

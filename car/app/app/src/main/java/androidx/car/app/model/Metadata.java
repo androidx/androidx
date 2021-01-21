@@ -40,17 +40,6 @@ public class Metadata {
         return new Builder();
     }
 
-    /**
-     * Returns a new {@link Builder} with the data from this {@link Metadata} instance.
-     * @deprecated use constructor.
-     */
-    // TODO(b/177484889): remove once host is changed to use new public ctor.
-    @Deprecated
-    @NonNull
-    public Builder newBuilder() {
-        return new Builder(this);
-    }
-
     @Nullable
     public Place getPlace() {
         return mPlace;
