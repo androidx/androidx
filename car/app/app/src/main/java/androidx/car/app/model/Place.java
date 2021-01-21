@@ -47,17 +47,6 @@ public final class Place {
         return new Builder(requireNonNull(latLng));
     }
 
-    /**
-     * Returns a {@link Builder} instance with the same data as this {@link Place} instance.
-     * @deprecated use constructor.
-     */
-    // TODO(b/177484889): remove once host is changed to use new public ctor.
-    @NonNull
-    @Deprecated
-    public Builder newBuilder() {
-        return new Builder(this);
-    }
-
     @Nullable
     public PlaceMarker getMarker() {
         return mMarker;
