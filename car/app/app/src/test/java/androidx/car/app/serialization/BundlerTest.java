@@ -352,8 +352,9 @@ public class BundlerTest {
                         .setBrowsable(true)
                         .setOnClickListener(() -> {
                         })
-                        .setMetadata(Metadata.ofPlace(new Place.Builder(carLocation2).setMarker(
-                                marker2).build()))
+                        .setMetadata(new Metadata.Builder().setPlace(new Place.Builder(
+                                carLocation2).setMarker(
+                                marker2).build()).build())
                         .build();
         ItemList itemList = new ItemList.Builder().addItem(row1).addItem(row2).build();
         ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.APP_ICON).build();

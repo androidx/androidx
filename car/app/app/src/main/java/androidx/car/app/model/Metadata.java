@@ -41,17 +41,6 @@ public class Metadata {
     }
 
     /**
-     * Constructs a new instance of {@link Metadata} containing a {@link Place}.
-     *
-     * @throws NullPointerException if {@code place} is {@code null}.
-     * @see Builder#setPlace(Place)
-     */
-    @NonNull
-    public static Metadata ofPlace(@NonNull Place place) {
-        return new Builder().setPlace(requireNonNull(place)).build();
-    }
-
-    /**
      * Returns a new {@link Builder} with the data from this {@link Metadata} instance.
      * @deprecated use constructor.
      */

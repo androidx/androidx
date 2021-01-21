@@ -107,8 +107,9 @@ public class RowTest {
 
     @Test
     public void setMetadata() {
-        Metadata metadata = Metadata.ofPlace(new Place.Builder(CarLocation.create(1, 1)).build());
-
+        Metadata metadata =
+                new Metadata.Builder().setPlace(
+                        new Place.Builder(CarLocation.create(1, 1)).build()).build();
         Row row = new Row.Builder().setTitle("Title").setMetadata(metadata).build();
         assertThat(row.getMetadata()).isEqualTo(metadata);
     }

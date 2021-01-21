@@ -265,10 +265,10 @@ public class PlaceListNavigationTemplateTest {
                         })
                         .setImage(CarIcon.ALERT)
                         .setMetadata(
-                                Metadata.ofPlace(
+                                new Metadata.Builder().setPlace(
                                         new Place.Builder(CarLocation.create(10.f, 10.f))
                                                 .setMarker(PlaceMarker.getDefault())
-                                                .build()))
+                                                .build()).build())
                         .build();
 
         assertThrows(
