@@ -53,8 +53,8 @@ public class AppManager {
      * using {@link Looper#getMainLooper()}.
      *
      * @throws SecurityException if the app does not have the required permissions to access the
-     *                           surface.
-     * @throws HostException     if the remote call fails.
+     *                           surface
+     * @throws HostException     if the remote call fails
      */
     @SuppressLint("ExecutorRegistration")
     public void setSurfaceCallback(@Nullable SurfaceCallback surfaceCallback) {
@@ -71,7 +71,7 @@ public class AppManager {
      * Requests the current template to be invalidated, which eventually triggers a call to {@link
      * Screen#onGetTemplate} to get the new template to display.
      *
-     * @throws HostException if the remote call fails.
+     * @throws HostException if the remote call fails
      */
     public void invalidate() {
         mHostDispatcher.dispatch(
@@ -86,9 +86,10 @@ public class AppManager {
     /**
      * Shows a toast on the car screen.
      *
-     * @param text     the text to show.
-     * @param duration how long to display the message.
-     * @throws HostException if the remote call fails.
+     * @param text     the text to show
+     * @param duration how long to display the message
+     *
+     * @throws HostException if the remote call fails
      */
     public void showToast(@NonNull CharSequence text, int duration) {
         mHostDispatcher.dispatch(

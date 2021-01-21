@@ -62,7 +62,7 @@ public final class CarToast {
      * Constructs an empty Toast object. You <strong>MUST</strong> call {@link #setText} before you
      * can call {@link #show}.
      *
-     * @throws NullPointerException if {@code carContext} is {@code null}.
+     * @throws NullPointerException if {@code carContext} is {@code null}
      */
     @VisibleForTesting
     CarToast(@NonNull CarContext carContext) {
@@ -73,10 +73,11 @@ public final class CarToast {
      * Creates and sets the text and duration for the toast view.
      *
      * @param textResId the resource id for the text to show. If the {@code textResId} is 0, the
-     *                  text will be set to empty.
+     *                  text will be set to empty
      * @param duration  how long to display the message. Either {@link #LENGTH_SHORT} or {@link
      *                  #LENGTH_LONG}
-     * @throws NullPointerException if {@code carContext} is {@code null}.
+     *
+     * @throws NullPointerException if {@code carContext} is {@code null}
      */
     @NonNull
     public static CarToast makeText(
@@ -93,8 +94,9 @@ public final class CarToast {
      * @param text     the text to show
      * @param duration how long to display the message. Either {@link #LENGTH_SHORT} or {@link
      *                 #LENGTH_LONG}
+     *
      * @throws NullPointerException if either the {@code carContext} or the {@code text} are {@code
-     *                              null}.
+     *                              null}
      */
     @NonNull
     public static CarToast makeText(
@@ -109,7 +111,7 @@ public final class CarToast {
      * Sets the text for the toast.
      *
      * @param textResId the resource id for the text. If the {@code textResId} is 0, the text
-     *                  will be set to empty.
+     *                  will be set to empty
      */
     public void setText(@StringRes int textResId) {
         mText = textResId == 0 ? "" : mCarContext.getString(textResId);
@@ -118,7 +120,7 @@ public final class CarToast {
     /**
      * Sets the text for the toast.
      *
-     * @throws NullPointerException if {@code text} is {@code null}.
+     * @throws NullPointerException if {@code text} is {@code null}
      */
     public void setText(@NonNull CharSequence text) {
         this.mText = requireNonNull(text);
@@ -137,7 +139,7 @@ public final class CarToast {
     /**
      * Shows the toast with the specified text for the specified duration.
      *
-     * @throws HostException if the remote call fails.
+     * @throws HostException if the remote call fails
      */
     public void show() {
         CharSequence text = this.mText;

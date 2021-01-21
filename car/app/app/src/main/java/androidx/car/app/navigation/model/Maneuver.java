@@ -675,8 +675,8 @@ public final class Maneuver {
          * the one to the left would be exit #3 and the one used by the driver to join the
          * roundabout would be exit #4.
          *
-         * @throws IllegalArgumentException if {@code type} does not include a exit number.
-         * @throws IllegalArgumentException if {@code roundaboutExitNumber} is not greater than
+         * @throws IllegalArgumentException if {@code type} does not include a exit number, or
+         *                                  if {@code roundaboutExitNumber} is not greater than
          *                                  zero.
          */
         @NonNull
@@ -704,9 +704,9 @@ public final class Maneuver {
          * would be at 90 degrees, exit 2 at 180, exit 3 at 270 and exit 4 at 360. However if the
          * exits are irregular then a different angle could be provided.
          *
-         * @throws IllegalArgumentException if {@code type} does not include a exit angle.
-         * @throws IllegalArgumentException if {@code roundaboutExitAngle} is not greater than
-         *                                  zero and less than or equal to 360 degrees.
+         * @throws IllegalArgumentException if {@code type} does not include a exit angle or if
+         *                                  {@code roundaboutExitAngle} is not greater than zero
+         *                                  and less than or equal to 360 degrees.
          */
         @NonNull
         public Builder setRoundaboutExitAngle(
@@ -726,9 +726,8 @@ public final class Maneuver {
          * Constructs the {@link Maneuver} defined by this builder.
          *
          * @throws IllegalArgumentException if {@code type} includes an exit number and one has
-         *                                  not been set.
-         * @throws IllegalArgumentException if {@code type} includes an exit angle and one has
-         *                                  not been set.
+         *                                  not been set, or if it includes an exit angle and one
+         *                                  has not been set.
          */
         @NonNull
         public Maneuver build() {

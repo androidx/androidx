@@ -40,8 +40,7 @@ public final class Destination {
     /**
      * Constructs a new builder of {@link Destination} with the given name and address.
      *
-     * @throws NullPointerException if {@code name} is {@code null}.
-     * @throws NullPointerException if {@code address} is {@code null}.
+     * @throws NullPointerException if {@code name} or {@code address} is {@code null}.
      */
     // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull

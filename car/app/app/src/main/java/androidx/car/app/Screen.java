@@ -99,7 +99,7 @@ public abstract class Screen implements LifecycleOwner {
      * <p>To avoid race conditions with calls to {@link #onGetTemplate} you should call this method
      * with the main thread.
      *
-     * @throws HostException if the remote call fails.
+     * @throws HostException if the remote call fails
      */
     public final void invalidate() {
         if (getLifecycle().getCurrentState().isAtLeast(State.STARTED)) {

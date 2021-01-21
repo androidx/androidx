@@ -372,13 +372,16 @@ public final class Action {
          * <h4>Requirements</h4>
          *
          * <p>The host may ignore this color and use the default instead if the color does not
-         * pass the
-         * contrast requirements.
+         * pass the contrast requirements.
+         *
+         * <p>Note the color of the text cannot be specified. Host implementations may pick the
+         * dark or light versions of the given background color as needed.
          *
          * @param backgroundColor the {@link CarColor} to set as background. Use {@link
-         *                        CarColor#DEFAULT} to let the host pick a default.
-         * @throws IllegalArgumentException if {@code backgroundColor} is not a standard color.
-         * @throws NullPointerException     if {@code backgroundColor} is {@code null}.
+         *                        CarColor#DEFAULT} to let the host pick a default
+         *
+         * @throws IllegalArgumentException if {@code backgroundColor} is not a standard color
+         * @throws NullPointerException     if {@code backgroundColor} is {@code null}
          */
         @NonNull
         public Builder setBackgroundColor(@NonNull CarColor backgroundColor) {
@@ -391,11 +394,9 @@ public final class Action {
          * Constructs the {@link Action} defined by this builder.
          *
          * @throws IllegalStateException if the action is not a standard action and does not have an
-         *                               icon or a title.
-         * @throws IllegalStateException if a listener is set on either {@link #APP_ICON} or {@link
-         *                               #BACK}.
-         * @throws IllegalStateException if an icon or title is set on either {@link #APP_ICON} or
-         *                               {@link #BACK}.
+         *                               icon or a title, if a listener is set on either
+         *                               {@link #APP_ICON} or {@link #BACK}, or if an icon or
+         *                               title is set on either {@link #APP_ICON} or {@link #BACK}
          */
         @NonNull
         public Action build() {
@@ -430,7 +431,7 @@ public final class Action {
          * Returns a {@link Builder} instance configured with the same data as the given
          * {@link Action} instance.
          *
-         * @throws NullPointerException if {@code icon} is {@code null}.
+         * @throws NullPointerException if {@code icon} is {@code null}
          */
         @SuppressWarnings("deprecation")
         Builder(@NonNull Action action) {

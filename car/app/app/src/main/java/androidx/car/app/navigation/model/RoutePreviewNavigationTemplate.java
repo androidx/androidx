@@ -326,11 +326,9 @@ public final class RoutePreviewNavigationTemplate implements Template {
          * Either a header {@link Action} or title must be set on the template.
          *
          * @throws IllegalStateException if the template is in a loading state but the list is
-         *                               set, or vice-versa.
-         * @throws IllegalStateException if the template is not loading and the navigation action
-         *                               is not set.
-         * @throws IllegalStateException if the template does not have either a title or header
-         *                               {@link Action} set.
+         *                               set or vice versa, if the template is not loading and
+         *                               the navigation action is not set, or if the template
+         *                               does not have either a title or header {@link Action} set.
          */
         @NonNull
         public RoutePreviewNavigationTemplate build() {
