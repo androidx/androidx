@@ -22,6 +22,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
@@ -56,10 +57,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 
-@kotlinx.coroutines.ExperimentalCoroutinesApi
-@kotlinx.coroutines.InternalCoroutinesApi
-@kotlinx.coroutines.ObsoleteCoroutinesApi
-@kotlinx.coroutines.FlowPreview
+@ExperimentalCoroutinesApi
 @RunWith(JUnit4::class)
 class SingleProcessDataStoreTest {
     @get:Rule
