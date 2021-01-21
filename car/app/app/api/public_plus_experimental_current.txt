@@ -1017,11 +1017,7 @@ package androidx.car.app.navigation.model {
   public static final class Trip.Builder {
     ctor public Trip.Builder();
     method public androidx.car.app.navigation.model.Trip.Builder addDestination(androidx.car.app.navigation.model.Destination, androidx.car.app.navigation.model.TravelEstimate);
-    method @Deprecated public androidx.car.app.navigation.model.Trip.Builder addDestination(androidx.car.app.navigation.model.Destination);
-    method @Deprecated public androidx.car.app.navigation.model.Trip.Builder addDestinationTravelEstimate(androidx.car.app.navigation.model.TravelEstimate);
     method public androidx.car.app.navigation.model.Trip.Builder addStep(androidx.car.app.navigation.model.Step?, androidx.car.app.navigation.model.TravelEstimate);
-    method @Deprecated public androidx.car.app.navigation.model.Trip.Builder addStep(androidx.car.app.navigation.model.Step?);
-    method @Deprecated public androidx.car.app.navigation.model.Trip.Builder addStepTravelEstimate(androidx.car.app.navigation.model.TravelEstimate);
     method public androidx.car.app.navigation.model.Trip build();
     method public androidx.car.app.navigation.model.Trip.Builder setCurrentRoad(CharSequence?);
     method public androidx.car.app.navigation.model.Trip.Builder setLoading(boolean);
