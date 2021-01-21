@@ -168,7 +168,9 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      *
      * <p>Configuration can only occur once. Once the ProcessCameraProvider has been configured with
      * {@code configureInstance()} or {@link #getInstance(Context)}, this method will throw
-     * an {@link IllegalStateException}.
+     * an {@link IllegalStateException}. Because configuration can only occur once, <b>usage of this
+     * method from library code is not recommended</b> as the application owner should ultimately
+     * be in control of singleton configuration.
      *
      * @param cameraXConfig configuration options for the singleton process camera provider
      *                      instance.
