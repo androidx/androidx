@@ -514,6 +514,8 @@ includeProject(":wear:wear-ongoing", "wear/wear-ongoing", [BuildType.MAIN])
 includeProject(":wear:wear-phone-interactions", "wear/wear-phone-interactions", [BuildType.MAIN])
 includeProject(":wear:wear-remote-interactions", "wear/wear-remote-interactions", [BuildType.MAIN])
 includeProject(":wear:wear-tiles", "wear/wear-tiles", [BuildType.MAIN])
+includeProject(":wear:wear-tiles:wear-tiles-proto", "wear/wear-tiles/wear-tiles-proto",
+        [BuildType.MAIN])
 includeProject(":wear:wear-tiles-data", "wear/wear-tiles-data", [BuildType.MAIN])
 includeProject(":wear:wear-watchface", "wear/wear-watchface", [BuildType.MAIN])
 includeProject(":wear:wear-watchface-complications-rendering", "wear/wear-watchface-complications-rendering", [BuildType.MAIN])
