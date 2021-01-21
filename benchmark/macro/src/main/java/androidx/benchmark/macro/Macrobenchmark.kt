@@ -100,20 +100,10 @@ public class MacrobenchmarkScope(
 
 data class MacrobenchmarkConfig(
     val packageName: String,
-    var metrics: List<Metric>,
+    val metrics: List<Metric>,
     val compilationMode: CompilationMode = CompilationMode.SpeedProfile(),
     val iterations: Int
-) {
-    init {
-        val metricSet = metrics.toSet()
-        val hasStartupMetric = metricSet.any { it is StartupTimingMetric }
-        if (hasStartupMetric) {
-            val metrics = metrics.toMutableList()
-            metrics += PerfettoMetric()
-            this.metrics = metrics.toList()
-        }
-    }
-}
+)
 
 /**
  * macrobenchmark test entrypoint, which doesn't depend on JUnit.
@@ -128,7 +118,7 @@ fun macrobenchmark(
     launchWithClearTask: Boolean,
     setupBlock: MacrobenchmarkScope.(Boolean) -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
-) = withPermissiveSeLinuxPolicy {
+) {
     val startTime = System.nanoTime()
     val scope = MacrobenchmarkScope(config.packageName, launchWithClearTask)
 

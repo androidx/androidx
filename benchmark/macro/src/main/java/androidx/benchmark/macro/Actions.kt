@@ -18,10 +18,7 @@ package androidx.benchmark.macro
 
 import android.app.Instrumentation
 import android.util.Log
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import java.util.concurrent.locks.ReentrantReadWriteLock
-import kotlin.concurrent.read
 
 const val TAG = "MacroBenchmarks"
 
@@ -37,9 +34,6 @@ const val VERIFY = "verify"
 
 // All modes
 private val COMPILE_MODES = listOf(SPEED, SPEED_PROFILE, QUICKEN, VERIFY)
-
-// SELinux Permission Lock
-private val permissiveLock = ReentrantReadWriteLock()
 
 /**
  * Compiles the application with the specified filter.
@@ -93,51 +87,6 @@ fun pressHome(instrumentation: Instrumentation, delayDurationMs: Long = 300) {
     instrumentation.device().pressHome()
     // Sleep for statsd to update the metrics.
     Thread.sleep(delayDurationMs)
-}
-
-/**
- * Temporary, root-only hack to enable getting startup metrics
- */
-fun withPermissiveSeLinuxPolicy(block: () -> Unit) {
-    val instrumentation = InstrumentationRegistry.getInstrumentation()
-    val previousPolicy = getSeLinuxPolicyEnforced(instrumentation)
-    permissiveLock.read {
-        try {
-            if (previousPolicy == 1) {
-                setSeLinuxPolicyEnforced(instrumentation, 0)
-            }
-            block()
-        } finally {
-            if (previousPolicy == 1 && permissiveLock.readHoldCount == 1) {
-                setSeLinuxPolicyEnforced(instrumentation, previousPolicy)
-            }
-        }
-    }
-}
-
-/**
- * Gets the SE Linux policy.
- */
-private fun getSeLinuxPolicyEnforced(instrumentation: Instrumentation): Int {
-    // command returns "Permissive\n" or "Enforcing\n" (note the newline!)
-    val enforcingStatus = instrumentation.device().executeShellCommand("getenforce")
-    return if (enforcingStatus.contains(PERMISSIVE)) 0 else 1
-}
-
-/**
- * Overrides the SE Linux policy.
- */
-private fun setSeLinuxPolicyEnforced(instrumentation: Instrumentation, policy: Int) {
-    check(policy == 0 || policy == 1) {
-        "Policy can only be one of `0` or `1`"
-    }
-
-    // TODO: unable to see failure here, due to executeShellCommand output always being empty.
-    //  for now, we just verify the `setenforce` worked with an extra `getenforce`
-    instrumentation.device().executeShellCommand("setenforce $policy")
-    if (getSeLinuxPolicyEnforced(instrumentation) != policy) {
-        throw IllegalStateException("\"setenforce $policy\" didn't succeed, is ADB session rooted?")
-    }
 }
 
 internal fun Instrumentation.device(): UiDevice {

@@ -61,5 +61,5 @@ object PerfettoResultsParser {
     private const val TIME_ACTIVITY_RESUME = "time_activity_resume"
 
     // Metric Keys
-    private const val STARTUP_MS = "perfetto_startupMs"
+    private const val STARTUP_MS = "startupMs"
 }
