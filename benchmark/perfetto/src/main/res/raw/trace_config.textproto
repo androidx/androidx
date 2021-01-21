@@ -57,11 +57,12 @@ data_sources {
       ftrace_events: "sched/sched_process_free"
 
       # Memory events
-      ftrace_events: "rss_stat"
-      ftrace_events: "ion_heap_shrink"
-      ftrace_events: "ion_heap_grow"
+      ftrace_events: "mm_event/mm_event_record"
+      ftrace_events: "kmem/rss_stat"
+      ftrace_events: "kmem/ion_heap_shrink"
+      ftrace_events: "kmem/ion_heap_grow"
       ftrace_events: "ion/ion_stat"
-      ftrace_events: "oom_score_adj_update"
+      ftrace_events: "oom/oom_score_adj_update"
 
       # Old (kernel) LMK
       ftrace_events: "lowmemorykiller/lowmemory_kill"
@@ -82,7 +83,6 @@ data_sources {
       atrace_categories: "hal"
       atrace_categories: "idle"
       atrace_categories: "input"
-      atrace_categories: "memory"
       atrace_categories: "memreclaim"
       atrace_categories: "res"
       atrace_categories: "sched"
@@ -91,6 +91,10 @@ data_sources {
       atrace_categories: "webview"
       atrace_categories: "wm"
       atrace_categories: "workq"
+
+      # Not included, as some Q devices requiring ftrace_event configuration directly to collect
+      # this data. See b/171085599
+      # atrace_categories: "memory"
     }
   }
 }

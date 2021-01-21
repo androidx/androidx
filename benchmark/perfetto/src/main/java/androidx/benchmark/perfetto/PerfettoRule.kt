@@ -23,7 +23,6 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Assume
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -55,8 +54,6 @@ class PerfettoRule : TestRule {
     override fun apply(base: Statement, description: Description) = object : Statement() {
         override fun evaluate() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                ignorePerfettoTestIfUnsupportedCuttlefish()
-
                 val traceName = description.className + "_" + description.methodName + ".trace"
                 PerfettoCapture().recordAndReportFile(traceName) {
                     base.evaluate()
@@ -70,16 +67,6 @@ class PerfettoRule : TestRule {
 
     companion object {
         internal const val TAG = "PerfettoRule"
-    }
-}
-
-internal fun ignorePerfettoTestIfUnsupportedCuttlefish() {
-    if (Build.MODEL.contains("Cuttlefish")) {
-        // Workaround for Cuttlefish perfetto issue on Q (b/171085599)
-        Assume.assumeTrue(
-            "This test requires a R+ platform build on Cuttlefish",
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-        )
     }
 }
 
