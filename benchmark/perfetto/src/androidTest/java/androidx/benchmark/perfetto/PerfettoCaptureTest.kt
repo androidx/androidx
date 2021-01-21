@@ -47,8 +47,6 @@ class PerfettoCaptureTest {
     @LargeTest
     @Test
     fun traceAndCheckFileSize() {
-        ignorePerfettoTestIfUnsupportedCuttlefish()
-
         val perfettoCapture = PerfettoCapture()
 
         verifyTraceEnable(false)
