@@ -293,8 +293,8 @@ class FragmentContainerViewTest {
 
         view.removeAllViewsInLayout()
 
-        assertThat(removingView1.getAnimationCount).isEqualTo(2)
-        assertThat(removingView2.getAnimationCount).isEqualTo(2)
+        assertThat(removingView1.getAnimationCount).isEqualTo(1)
+        assertThat(removingView2.getAnimationCount).isEqualTo(1)
         assertThat(view.childCount).isEqualTo(0)
     }
 
