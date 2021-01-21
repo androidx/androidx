@@ -57,7 +57,7 @@ public final class ActionStrip {
      *
      * @deprecated use {@link #getActions()} instead.
      */
-    // TODO(jayyoo): remove once {@link #getActions()} is used in the host.
+    // TODO(b/177276260): remove once {@link #getActions()} is used in the host.
     @Deprecated
     @NonNull
     public List<Action> getActionList() {
