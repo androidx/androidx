@@ -80,7 +80,7 @@ public final class CarAppPermission {
     /**
      * Checks that the car app has the given {@code permission} granted.
      *
-     * @throws SecurityException if the app does not have a required permission granted.
+     * @throws SecurityException if the app does not have a required permission granted
      */
     public static void checkHasPermission(@NonNull Context context, @NonNull String permission) {
         if (context.getPackageManager().checkPermission(permission, context.getPackageName())
@@ -98,7 +98,7 @@ public final class CarAppPermission {
      * <p>In contrast to {@link #checkHasPermission}, this method will validate that the app has at
      * least declared the permission requested.
      *
-     * @throws SecurityException if the app does not have the required permission declared.
+     * @throws SecurityException if the app does not have the required permission declared
      */
     public static void checkHasLibraryPermission(
             @NonNull Context context, @NonNull @LibraryPermission String permission) {

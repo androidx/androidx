@@ -236,6 +236,7 @@ public final class ListTemplate implements Template {
          * multiple lists were previously added, they will be cleared.
          *
          * @throws NullPointerException if {@code list} is null.
+         *
          * @see #addList(ItemList, CharSequence)
          */
         @NonNull
@@ -257,13 +258,11 @@ public final class ListTemplate implements Template {
          * <p>If the added {@link ItemList} contains a {@link ItemList.OnSelectedListener}, then it
          * cannot be added alongside other {@link ItemList}(s).
          *
-         * @throws NullPointerException     if {@code list} is null.
-         * @throws IllegalArgumentException if {@code list} is empty.
-         * @throws IllegalArgumentException if {@code list}'s {@link
-         *                                  ItemList.OnItemVisibilityChangedListener} is set.
-         * @throws NullPointerException     if {@code header} is null.
-         * @throws IllegalArgumentException if {@code header} is empty.
-         * @throws IllegalArgumentException if a selectable list is added alongside other lists.
+         * @throws NullPointerException     if {@code list} or {@code header} is {@code null}.
+         * @throws IllegalArgumentException if {@code list} is empty, if {@code list}'s {@link
+         *                                  ItemList.OnItemVisibilityChangedListener} is set, if
+         *                                  {@code header} is empty, or if a selectable list is
+         *                                  added alongside other lists.
          *
          * @deprecated use {@link #addSectionedList}  instead.
          */
@@ -288,13 +287,11 @@ public final class ListTemplate implements Template {
          * {@link ItemList.OnSelectedListener}, then it cannot be added alongside other
          * {@link SectionedItemList}(s).
          *
-         * @throws NullPointerException     if {@code list} is null.
-         * @throws IllegalArgumentException if {@code list} is empty.
-         * @throws IllegalArgumentException if {@code list}'s {@link
-         *                                  ItemList.OnItemVisibilityChangedListener} is set.
-         * @throws NullPointerException     if {@code header} is null.
-         * @throws IllegalArgumentException if {@code header} is empty.
-         * @throws IllegalArgumentException if a selectable list is added alongside other lists.
+         * @throws NullPointerException     if {@code list} or {@code header} is {@code null}.
+         * @throws IllegalArgumentException if {@code list} is empty, if {@code list}'s {@link
+         *                                  ItemList.OnItemVisibilityChangedListener} is set, if
+         *                                  {@code header} is empty, or if a selectable list is
+         *                                  added alongside other lists.
          */
         @NonNull
         public Builder addSectionedList(@NonNull SectionedItemList list) {
@@ -356,11 +353,10 @@ public final class ListTemplate implements Template {
          * <p>Either a header {@link Action} or the title must be set on the template.
          *
          * @throws IllegalStateException    if the template is in a loading state but there are
-         *                                  lists added, or vice versa.
+         *                                  lists added or vice versa, or if the template does
+         *                                  not have either a title or header {@link Action} set.
          * @throws IllegalArgumentException if the added {@link ItemList}(s) do not meet the
          *                                  template's requirements.
-         * @throws IllegalStateException    if the template does not have either a title or header
-         *                                  {@link Action} set.
          */
         @NonNull
         public ListTemplate build() {

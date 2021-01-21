@@ -373,11 +373,11 @@ public final class ItemList {
         /**
          * Constructs the item list defined by this builder.
          *
-         * @throws IllegalStateException if the list is selectable but does not have any items.
-         * @throws IllegalStateException if the selected index is greater or equal to the size of
-         *                               the list.
-         * @throws IllegalStateException if the list is selectable and any items have either one of
-         *                               their {@link OnClickListener} or {@link Toggle} set.
+         * @throws IllegalStateException if the list is selectable but does not have any items, if
+         *                               the selected index is greater or equal to the size of the
+         *                               list, or if the list is selectable and any items have
+         *                               either one of their {@link OnClickListener} or
+         *                               {@link Toggle} set.
          */
         @NonNull
         public ItemList build() {

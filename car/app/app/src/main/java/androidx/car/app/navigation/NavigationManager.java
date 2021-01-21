@@ -94,13 +94,14 @@ public class NavigationManager {
      * displays the associated icon may be shown.
      *
      * @param trip destination, steps, and trip estimates to be sent to the host
+     *
      * @throws HostException            if the call is invoked by an app that is not declared as
      *                                  a navigation app in the manifest
-     * @throws IllegalStateException    if the call occurs when navigation is not started. See
-     *                                  {@link #navigationStarted()} for more info
+     * @throws IllegalStateException    if the call occurs when navigation is not started (see
+     *                                  {@link #navigationStarted()} for more info), or if the
+     *                                  current thread is not the main thread
      * @throws IllegalArgumentException if any of the destinations, steps, or trip position is
      *                                  not well formed
-     * @throws IllegalStateException    if the current thread is not the main thread
      */
     @MainThread
     public void updateTrip(@NonNull Trip trip) {
@@ -133,6 +134,7 @@ public class NavigationManager {
      * {@link #setNavigationManagerCallback(Executor, NavigationManagerCallback)}.
      *
      * @param callback the {@link NavigationManagerCallback} to use
+     *
      * @throws IllegalStateException if the current thread is not the main thread
      */
     @SuppressLint("ExecutorRegistration")
@@ -148,7 +150,8 @@ public class NavigationManager {
      *
      * @param executor the executor which will be used for invoking the callback
      * @param callback the {@link NavigationManagerCallback} to use
-     * @throws IllegalStateException if the current thread is not the main thread.
+     *
+     * @throws IllegalStateException if the current thread is not the main thread
      */
     @MainThread
     public void setNavigationManagerCallback(@NonNull /* @CallbackExecutor */ Executor executor,
@@ -165,9 +168,8 @@ public class NavigationManager {
     /**
      * Clears the callback for receiving navigation manager events.
      *
-     * @throws IllegalStateException if navigation is started. See
-     *                               {@link #navigationStarted()} for more info.
-     * @throws IllegalStateException if the current thread is not the main thread.
+     * @throws IllegalStateException if navigation is started (see {@link #navigationStarted()}
+     *                               for more info), or if the current thread is not the main thread
      */
     @MainThread
     public void clearNavigationManagerCallback() {
@@ -194,8 +196,8 @@ public class NavigationManager {
      *
      * <p>This method is idempotent.
      *
-     * @throws IllegalStateException if no navigation manager callback has been set.
-     * @throws IllegalStateException if the current thread is not the main thread.
+     * @throws IllegalStateException if no navigation manager callback has been set, or if the
+     *                               current thread is not the main thread
      */
     @MainThread
     public void navigationStarted() {
@@ -225,7 +227,7 @@ public class NavigationManager {
      *
      * <p>This method is idempotent.
      *
-     * @throws IllegalStateException if the current thread is not the main thread.
+     * @throws IllegalStateException if the current thread is not the main thread
      */
     @MainThread
     public void navigationEnded() {

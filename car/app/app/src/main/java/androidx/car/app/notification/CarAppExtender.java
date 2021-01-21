@@ -525,8 +525,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          *               navigation notifications in the rail widget, this intent will be sent
          *               when the user taps on the action icon in the rail
          *               widget.
-         * @throws NullPointerException if {@code title} is {@code null}.
-         * @throws NullPointerException if {@code intent} is {@code null}.
+         * @throws NullPointerException if {@code title} or {@code intent} are {@code null}.
          */
         // TODO(rampara): Update to remove use of deprecated Action API
         @SuppressWarnings("deprecation")

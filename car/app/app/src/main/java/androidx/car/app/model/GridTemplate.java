@@ -261,11 +261,10 @@ public final class GridTemplate implements Template {
          * <p>Either a header {@link Action} or title must be set on the template.
          *
          * @throws IllegalStateException    if the template is in a loading state but there are
-         *                                  lists added, or vice versa.
+         *                                  lists added, or vice versa, or if the template does not
+         *                                  have either a title or header {@link Action} set.
          * @throws IllegalArgumentException if the added {@link ItemList} does not meet the
          *                                  template's requirements.
-         * @throws IllegalStateException    if the template does not have either a title or header
-         *                                  {@link Action} set.
          */
         @NonNull
         public GridTemplate build() {

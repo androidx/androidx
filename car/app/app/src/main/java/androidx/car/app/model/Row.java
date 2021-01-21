@@ -484,11 +484,10 @@ public final class Row implements Item {
         /**
          * Constructs the {@link Row} defined by this builder.
          *
-         * @throws IllegalStateException if the row's title is not set.
-         * @throws IllegalStateException if the row is a browsable row and has a {@link Toggle}.
-         * @throws IllegalStateException if the row is a browsable row but does not have a {@link
-         *                               OnClickListener}.
-         * @throws IllegalStateException if the row has both a {@link OnClickListener} and a {@link
+         * @throws IllegalStateException if the row's title is not set, if it is a browsable
+         *                               row and has a {@link Toggle}, if it is a browsable
+         *                               row but does not have a {@link OnClickListener}, or if
+         *                               it has both a {@link OnClickListener} and a {@link
          *                               Toggle}.
          */
         @NonNull
