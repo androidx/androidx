@@ -1,1 +1,1 @@
-This is a collection of test projects that collectively verify that the "-PuseMaxDepVersions" flag (b/112531649) correctly causes the build to replace prebuilt dependencies with project dependencies
+This is a collection of test projects that collectively verify that the "-Pandroidx.useMaxDepVersions" flag (b/112531649) correctly causes the build to replace prebuilt dependencies with project dependencies
