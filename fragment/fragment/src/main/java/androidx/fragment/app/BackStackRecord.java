@@ -580,11 +580,11 @@ final class BackStackRecord extends FragmentTransaction implements
                                 // This is duplicated from above since we only make
                                 // a single pass for expanding ops. Unset any outgoing primary nav.
                                 if (old == oldPrimaryNav) {
-                                    mOps.add(opNum, new Op(OP_UNSET_PRIMARY_NAV, old));
+                                    mOps.add(opNum, new Op(OP_UNSET_PRIMARY_NAV, old, true));
                                     opNum++;
                                     oldPrimaryNav = null;
                                 }
-                                final Op removeOp = new Op(OP_REMOVE, old);
+                                final Op removeOp = new Op(OP_REMOVE, old, true);
                                 removeOp.mEnterAnim = op.mEnterAnim;
                                 removeOp.mPopEnterAnim = op.mPopEnterAnim;
                                 removeOp.mExitAnim = op.mExitAnim;

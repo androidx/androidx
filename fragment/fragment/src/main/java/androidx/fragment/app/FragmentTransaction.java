@@ -63,6 +63,7 @@ public abstract class FragmentTransaction {
     static final class Op {
         int mCmd;
         Fragment mFragment;
+        boolean mTopmostFragment;
         int mEnterAnim;
         int mExitAnim;
         int mPopEnterAnim;
@@ -76,6 +77,15 @@ public abstract class FragmentTransaction {
         Op(int cmd, Fragment fragment) {
             this.mCmd = cmd;
             this.mFragment = fragment;
+            this.mTopmostFragment = false;
+            this.mOldMaxState = Lifecycle.State.RESUMED;
+            this.mCurrentMaxState = Lifecycle.State.RESUMED;
+        }
+
+        Op(int cmd, Fragment fragment, boolean topmostFragment) {
+            this.mCmd = cmd;
+            this.mFragment = fragment;
+            this.mTopmostFragment = topmostFragment;
             this.mOldMaxState = Lifecycle.State.RESUMED;
             this.mCurrentMaxState = Lifecycle.State.RESUMED;
         }
@@ -83,6 +93,7 @@ public abstract class FragmentTransaction {
         Op(int cmd, @NonNull Fragment fragment, Lifecycle.State state) {
             this.mCmd = cmd;
             this.mFragment = fragment;
+            this.mTopmostFragment = false;
             this.mOldMaxState = fragment.mMaxState;
             this.mCurrentMaxState = state;
         }
