@@ -20,14 +20,16 @@ import static android.content.pm.PackageInfo.REQUESTED_PERMISSION_GRANTED;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.content.res.Resources;
 
@@ -42,18 +44,19 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLog;
-import org.robolectric.shadows.ShadowPackageManager;
 
 /** Tests for {@link HostValidator}. */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
+@Config(sdk = 21)
 public class HostValidatorTest {
     private static final String VALID_PACKAGE_NAME = "com.foo";
     private static final String ALTERNATIVE_VALID_PACKAGE_NAME = "com.bar";
-    private static final Signature VALID_CERTIFICATE = new Signature("0123");
-    private static final String VALID_CERTIFICATE_SHA256 = "b71de80778f2783383f5d5a3028af84eab2f18a"
+    private static final Signature VALID_SIGNATURE = new Signature("0123");
+    private static final String VALID_DIGEST = "b71de80778f2783383f5d5a3028af84eab2f18a"
             + "4eb38968172ca41724dd4b3f4";
     private static final int NON_SYSTEM_UID = 123;
     private static final int INVALID_UID = 234;
@@ -62,9 +65,9 @@ public class HostValidatorTest {
     private static final String TEMPLATE_RENDERER_PERMISSION = "android.car.permission"
             + ".TEMPLATE_RENDERER";
 
-    private Context mContext;
     private HostValidator.Builder mHostValidatorBuilder;
-    private ShadowPackageManager mShadowPackageManager;
+    @Mock
+    private PackageManager mPackageManager;
     @Mock
     private Resources mResources;
 
@@ -73,20 +76,19 @@ public class HostValidatorTest {
         MockitoAnnotations.initMocks(this);
 
         ShadowLog.stream = System.out;
-        mContext = spy(ApplicationProvider.getApplicationContext());
-        mHostValidatorBuilder = new HostValidator.Builder(mContext);
+        Context context = spy(ApplicationProvider.getApplicationContext());
+        when(context.getPackageManager()).thenReturn(mPackageManager);
+        mHostValidatorBuilder = new HostValidator.Builder(context);
         mHostValidatorBuilder.setAllowUnknownHostsEnabled(false);
-        mShadowPackageManager = shadowOf(mContext.getPackageManager());
-        when(mContext.getResources()).thenReturn(mResources);
+        when(context.getResources()).thenReturn(mResources);
     }
 
     @Test
     public void isValidHost_allowedHost_accepted() {
-        PackageInfo packageInfo = createPackageInfo(VALID_PACKAGE_NAME, VALID_CERTIFICATE);
-        mShadowPackageManager.installPackage(packageInfo);
+        installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURE);
         HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, NON_SYSTEM_UID);
 
-        mHostValidatorBuilder.addAllowListedHost(VALID_PACKAGE_NAME, VALID_CERTIFICATE_SHA256);
+        mHostValidatorBuilder.addAllowListedHost(VALID_PACKAGE_NAME, VALID_DIGEST);
         HostValidator hostValidator = mHostValidatorBuilder.build();
 
         assertThat(hostValidator.isValidHost(hostInfo)).isTrue();
@@ -94,8 +96,7 @@ public class HostValidatorTest {
 
     @Test
     public void isValidHost_unknownHost_rejected() {
-        PackageInfo packageInfo = createPackageInfo(VALID_PACKAGE_NAME, VALID_CERTIFICATE);
-        mShadowPackageManager.installPackage(packageInfo);
+        installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURE);
 
         HostValidator hostValidator = mHostValidatorBuilder.build();
         HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, NON_SYSTEM_UID);
@@ -105,11 +106,10 @@ public class HostValidatorTest {
 
     @Test
     public void isValidHost_allowListedHosts_accepted() {
-        PackageInfo packageInfo = createPackageInfo(VALID_PACKAGE_NAME, VALID_CERTIFICATE);
-        mShadowPackageManager.installPackage(packageInfo);
+        installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURE);
         when(mResources.getStringArray(eq(MOCK_ALLOW_LIST_HOSTS_RES_ID)))
                 .thenReturn(new String[] {
-                        VALID_CERTIFICATE_SHA256 + "," + VALID_PACKAGE_NAME
+                        VALID_DIGEST + "," + VALID_PACKAGE_NAME
                 });
 
         mHostValidatorBuilder.addAllowListedHosts(MOCK_ALLOW_LIST_HOSTS_RES_ID);
@@ -131,11 +131,10 @@ public class HostValidatorTest {
 
     @Test
     public void isValidHost_denyHost_rejected() {
-        PackageInfo packageInfo = createPackageInfo(VALID_PACKAGE_NAME, VALID_CERTIFICATE);
-        mShadowPackageManager.installPackage(packageInfo);
+        installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURE);
         HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, NON_SYSTEM_UID);
 
-        mHostValidatorBuilder.addAllowListedHost(VALID_PACKAGE_NAME, VALID_CERTIFICATE_SHA256);
+        mHostValidatorBuilder.addAllowListedHost(VALID_PACKAGE_NAME, VALID_DIGEST);
         mHostValidatorBuilder.addDenyListedHost(VALID_PACKAGE_NAME);
         HostValidator hostValidator = mHostValidatorBuilder.build();
 
@@ -144,12 +143,11 @@ public class HostValidatorTest {
 
     @Test
     public void isValidHost_mismatchingPackageName_rejected() {
-        PackageInfo packageInfo = createPackageInfo(VALID_PACKAGE_NAME, VALID_CERTIFICATE);
-        mShadowPackageManager.installPackage(packageInfo);
+        installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURE);
         HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, NON_SYSTEM_UID);
 
         mHostValidatorBuilder.addAllowListedHost(ALTERNATIVE_VALID_PACKAGE_NAME,
-                VALID_CERTIFICATE_SHA256);
+                VALID_DIGEST);
         HostValidator hostValidator = mHostValidatorBuilder.build();
 
         assertThat(hostValidator.isValidHost(hostInfo)).isFalse();
@@ -157,8 +155,7 @@ public class HostValidatorTest {
 
     @Test
     public void isValidHost_allowedUnknownHosts_unknownHostAccepted() {
-        PackageInfo packageInfo = createPackageInfo(VALID_PACKAGE_NAME, VALID_CERTIFICATE);
-        mShadowPackageManager.installPackage(packageInfo);
+        installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURE);
         HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, NON_SYSTEM_UID);
 
         mHostValidatorBuilder.setAllowUnknownHostsEnabled(true);
@@ -169,8 +166,7 @@ public class HostValidatorTest {
 
     @Test
     public void isValidHost_denyHostPlusAllowedUnknownHosts_rejected() {
-        PackageInfo packageInfo = createPackageInfo(VALID_PACKAGE_NAME, VALID_CERTIFICATE);
-        mShadowPackageManager.installPackage(packageInfo);
+        installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURE);
         HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, NON_SYSTEM_UID);
 
         mHostValidatorBuilder.setAllowUnknownHostsEnabled(true);
@@ -182,12 +178,11 @@ public class HostValidatorTest {
 
     @Test
     public void isValidHost_allowHostPlusAllowedUnknownHosts_rejected() {
-        PackageInfo packageInfo = createPackageInfo(VALID_PACKAGE_NAME, VALID_CERTIFICATE);
-        mShadowPackageManager.installPackage(packageInfo);
+        installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURE);
         HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, NON_SYSTEM_UID);
 
         mHostValidatorBuilder.setAllowUnknownHostsEnabled(true);
-        mHostValidatorBuilder.addAllowListedHost(VALID_PACKAGE_NAME, VALID_CERTIFICATE_SHA256);
+        mHostValidatorBuilder.addAllowListedHost(VALID_PACKAGE_NAME, VALID_DIGEST);
         HostValidator hostValidator = mHostValidatorBuilder.build();
 
         assertThat(hostValidator.isValidHost(hostInfo)).isTrue();
@@ -195,9 +190,8 @@ public class HostValidatorTest {
 
     @Test
     public void isValidHost_hostHoldingPermission_accepted() {
-        PackageInfo packageInfo = createPackageInfo(VALID_PACKAGE_NAME, VALID_CERTIFICATE,
+        installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURE,
                 TEMPLATE_RENDERER_PERMISSION);
-        mShadowPackageManager.installPackage(packageInfo);
         HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, NON_SYSTEM_UID);
 
         HostValidator hostValidator = mHostValidatorBuilder.build();
@@ -207,9 +201,7 @@ public class HostValidatorTest {
 
     @Test(expected = IllegalStateException.class)
     public void isValidHost_mismatchingUid_throws() {
-        PackageInfo packageInfo = createPackageInfo(VALID_PACKAGE_NAME, VALID_CERTIFICATE,
-                TEMPLATE_RENDERER_PERMISSION);
-        mShadowPackageManager.installPackage(packageInfo);
+        installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURE, TEMPLATE_RENDERER_PERMISSION);
         HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, INVALID_UID);
 
         HostValidator hostValidator = mHostValidatorBuilder.build();
@@ -221,12 +213,12 @@ public class HostValidatorTest {
         when(mResources.getStringArray(eq(MOCK_ALLOW_LIST_HOSTS_RES_ID)))
                 .thenReturn(new String[] {
                         // Note missing comma between certificate and package name
-                        VALID_CERTIFICATE_SHA256 + VALID_PACKAGE_NAME
+                        VALID_DIGEST + VALID_PACKAGE_NAME
                 });
     }
 
     @SuppressWarnings("deprecation")
-    private PackageInfo createPackageInfo(String packageName, Signature signature,
+    private void installPackage(String packageName, Signature signature,
             String permission) {
         PackageInfo packageInfo = new PackageInfo();
         packageInfo.applicationInfo = new ApplicationInfo();
@@ -237,10 +229,14 @@ public class HostValidatorTest {
             packageInfo.requestedPermissions = new String[] { permission };
             packageInfo.requestedPermissionsFlags = new int[] { REQUESTED_PERMISSION_GRANTED };
         }
-        return packageInfo;
+        try {
+            when(mPackageManager.getPackageInfo(anyString(), anyInt())).thenReturn(packageInfo);
+        } catch (PackageManager.NameNotFoundException ex) {
+            throw new IllegalStateException("Error mocking package manager", ex);
+        }
     }
 
-    private PackageInfo createPackageInfo(String packageName, Signature signature) {
-        return createPackageInfo(packageName, signature, null);
+    private void installPackage(String packageName, Signature signature) {
+        installPackage(packageName, signature, null);
     }
 }

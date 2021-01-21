@@ -24,21 +24,27 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Process;
 import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.ArrayRes;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.car.app.CarAppService;
 import androidx.car.app.HostInfo;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -61,7 +67,7 @@ public final class HostValidator {
     public static final String TEMPLATE_RENDERER_PERMISSION = "android.car.permission"
             + ".TEMPLATE_RENDERER";
 
-    private final Map<String, String> mAllowListedHosts;
+    private final Map<String, List<String>> mAllowListedHosts;
     private final Set<String> mDenyListedHosts;
     private final boolean mAllowUnknownHosts;
     private final Map<String, Pair<Integer, Boolean>> mCallerChecked = new HashMap<>();
@@ -70,7 +76,7 @@ public final class HostValidator {
     private final MessageDigest mMessageDigest;
 
     HostValidator(@NonNull PackageManager packageManager,
-            @NonNull Map<String, String> allowListedHosts,
+            @NonNull Map<String, List<String>> allowListedHosts,
             @NonNull Set<String> denyListedHosts,
             boolean allowUnknownHosts) {
         mPackageManager = packageManager;
@@ -111,12 +117,16 @@ public final class HostValidator {
         return isValid;
     }
 
-    @SuppressWarnings("deprecation")
     @Nullable
+    @SuppressWarnings("deprecation")
     private PackageInfo getPackageInfo(String packageName) {
         try {
-            return mPackageManager.getPackageInfo(packageName,
-                    PackageManager.GET_SIGNATURES | PackageManager.GET_PERMISSIONS);
+            if (Build.VERSION.SDK_INT >= 28) {
+                return Api28Impl.getPackageInfo(mPackageManager, packageName);
+            } else {
+                return mPackageManager.getPackageInfo(packageName,
+                        PackageManager.GET_SIGNATURES | PackageManager.GET_PERMISSIONS);
+            }
         } catch (PackageManager.NameNotFoundException e) {
             Log.d(TAG_HOST_VALIDATION, "Package " + packageName + " not found.", e);
             return null;
@@ -131,8 +141,8 @@ public final class HostValidator {
             return false;
         }
 
-        String signature = getSignature(packageInfo);
-        if (signature == null) {
+        Signature[] signatures = getSignatures(packageInfo);
+        if (signatures == null || signatures.length == 0) {
             Log.d(TAG_HOST_VALIDATION, "Package " + hostPackageName + " is not signed or "
                     + "it has more than one signature");
             return false;
@@ -147,7 +157,7 @@ public final class HostValidator {
         }
 
         boolean hasPermission = hasPermissionGranted(packageInfo, TEMPLATE_RENDERER_PERMISSION);
-        boolean isAllowListed = hostPackageName.equals(mAllowListedHosts.get(signature));
+        boolean isAllowListed = isAllowListed(hostPackageName, signatures);
 
         // Validate
         if (uid == Process.myUid()) {
@@ -175,8 +185,20 @@ public final class HostValidator {
 
         Log.i(TAG_HOST_VALIDATION, String.format("Unrecognized host. If this is a valid caller, "
                 + "please add the following to your CarAppService#onConfigureHostValidator() "
-                + "implementation: hostValidator.allowHost(\"%s\", \"%s\");", signature,
-                hostPackageName));
+                + "implementation: hostValidator.allowHost(\"%s\", \"%s\");",
+                getDigest(signatures[0]), hostPackageName));
+        return false;
+    }
+
+    private boolean isAllowListed(String hostPackageName, Signature[] signatures) {
+        for (Signature signature : signatures) {
+            String digest = getDigest(signature);
+            List<String> allowListedPackageNames = mAllowListedHosts.get(digest);
+            if (allowListedPackageNames != null
+                    && allowListedPackageNames.contains(hostPackageName)) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -212,21 +234,29 @@ public final class HostValidator {
         }
     }
 
-    @SuppressWarnings("deprecation")
     @Nullable
-    private String getSignature(@NonNull PackageInfo packageInfo) {
-        // PackageInfo#signatures is deprecated, but the replacement has a min API of 28
-        if (packageInfo.signatures == null || packageInfo.signatures.length != 1) {
-            // Security best practices dictate that an app should be signed with exactly one (1)
-            // signature. Because of this, if there are multiple signatures, reject it.
-            return null;
+    @SuppressWarnings("deprecation")
+    private Signature[] getSignatures(@NonNull PackageInfo packageInfo) {
+        if (Build.VERSION.SDK_INT >= 28) {
+            // Implementation extracted to inner class to improve runtime performance.
+            return Api28Impl.getSignatures(packageInfo);
+        } else {
+            if (packageInfo.signatures == null || packageInfo.signatures.length != 1) {
+                // Security best practices dictate that an app should be signed with exactly one (1)
+                // signature. Because of this, if there are multiple signatures, reject it.
+                return null;
+            }
+            return packageInfo.signatures;
         }
+    }
+
+    @Nullable
+    private String getDigest(@NonNull Signature signature) {
         if (mMessageDigest == null) {
-            Log.e(TAG_HOST_VALIDATION, "Unable to retrieve certificate digest.");
             return null;
         }
-        byte[] signature = packageInfo.signatures[0].toByteArray();
-        mMessageDigest.update(signature);
+        byte[] data = signature.toByteArray();
+        mMessageDigest.update(data);
         byte[] digest = mMessageDigest.digest();
         StringBuilder sb = new StringBuilder(digest.length * 3 - 1);
         for (int i = 0; i < digest.length; i++) {
@@ -253,7 +283,7 @@ public final class HostValidator {
     }
 
     @NonNull
-    public Map<String, String> getAllowListedHosts() {
+    public Map<String, List<String>> getAllowListedHosts() {
         return mAllowListedHosts;
     }
 
@@ -267,13 +297,38 @@ public final class HostValidator {
     }
 
     /**
+     * Version-specific static inner classes to avoid verification errors that negatively affect
+     * run-time performance (per Jetpack coding guidelines)
+     */
+    @RequiresApi(28)
+    private static final class Api28Impl {
+        private Api28Impl() {}
+
+        @DoNotInline
+        static Signature[] getSignatures(@NonNull PackageInfo packageInfo) {
+            if (packageInfo.signingInfo == null) {
+                return null;
+            }
+            return packageInfo.signingInfo.getSigningCertificateHistory();
+        }
+
+        @DoNotInline
+        @NonNull
+        static PackageInfo getPackageInfo(@NonNull PackageManager packageManager,
+                @NonNull String packageName) throws PackageManager.NameNotFoundException {
+            return packageManager.getPackageInfo(packageName,
+                    PackageManager.GET_SIGNING_CERTIFICATES | PackageManager.GET_PERMISSIONS);
+        }
+    }
+
+    /**
      * Creates a new {@link HostValidator}.
      *
      * <p>Allows applications to customize the {@link HostValidator} that will be used to verify
      * whether a caller is a valid templates host.
      */
     public static final class Builder {
-        private final Map<String, String> mAllowListedHosts = new HashMap<>();
+        private final Map<String, List<String>> mAllowListedHosts = new HashMap<>();
         private final Set<String> mDenyListedHosts = new HashSet<>();
         private boolean mAllowUnknownHosts = false;
         private final Context mContext;
@@ -286,7 +341,7 @@ public final class HostValidator {
          * Add a host to the allow list.
          *
          * @param packageName host package name (as reported by {@link PackageManager})
-         * @param signature SHA256 digest of the DER encoding of the allow-listed host certificate.
+         * @param digest SHA256 digest of the DER encoding of the allow-listed host certificate.
          *                  This must be formatted as 32 lowercase 2 digits hexadecimal values
          *                  separated by colon (e.g.: "000102030405060708090a0b0c0d0e0f101112131415
          *                  161718191a1b1c1d1e1f"). When using
@@ -296,10 +351,15 @@ public final class HostValidator {
          */
         @NonNull
         public Builder addAllowListedHost(@NonNull String packageName,
-                @NonNull String signature) {
+                @NonNull String digest) {
             requireNonNull(packageName);
-            requireNonNull(signature);
-            mAllowListedHosts.put(cleanUp(signature), cleanUp(packageName));
+            requireNonNull(digest);
+            List<String> packageNames = mAllowListedHosts.get(cleanUp(digest));
+            if (packageNames == null) {
+                packageNames = new ArrayList<>();
+                mAllowListedHosts.put(digest, packageNames);
+            }
+            packageNames.add(cleanUp(packageName));
             return this;
         }
 
@@ -311,9 +371,9 @@ public final class HostValidator {
          * Add a list of hosts to the allow list.
          *
          * <p>Allow-listed hosts are retrieved from a string-array resource, encoded as
-         * [signature,package-name] pairs separated by comma. See
-         * {@link #addAllowListedHost(String, String)} for details on signature and package-name
-         * encoding.
+         * [digest,package-name] pairs separated by comma. See
+         * {@link #addAllowListedHost(String, String)} for details on signature digest and
+         * package-name formatting.
          *
          * @param allowListedHostsRes string-array resource identifier
          * @throws IllegalArgumentException if the provided resource doesn't exist or if the entries
