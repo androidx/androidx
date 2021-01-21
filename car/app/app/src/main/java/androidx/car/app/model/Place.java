@@ -25,7 +25,7 @@ import androidx.annotation.Nullable;
 import java.util.Objects;
 
 /** Represents a geographical location and additional information on how to display it. */
-public class Place {
+public final class Place {
     @Keep
     @Nullable
     private final CarLocation mLocation;

@@ -66,7 +66,7 @@ import java.util.Objects;
  * <p>In order to use this template your car app <b>MUST</b> declare that it uses the {@code
  * androidx.car.app.NAVIGATION_TEMPLATES} permission in the manifest.
  */
-public class NavigationTemplate implements Template {
+public final class NavigationTemplate implements Template {
 
     /**
      * Represents navigation information such as routing instructions or navigation-related

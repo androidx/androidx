@@ -26,7 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /** Represents a toggle that can have either a checked or unchecked state. */
-public class Toggle {
+public final class Toggle {
     /** A listener for handling checked state change events. */
     public interface OnCheckedChangeListener {
         /** Notifies that the checked state has changed. */

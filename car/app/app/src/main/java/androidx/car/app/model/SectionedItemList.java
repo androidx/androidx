@@ -27,7 +27,7 @@ import java.util.Objects;
 /**
  * Represents an {@link ItemList} that is contained inside a section, for internal use only.
  */
-public class SectionedItemList {
+public final class SectionedItemList {
     @Keep
     @Nullable
     private final ItemList mItemList;

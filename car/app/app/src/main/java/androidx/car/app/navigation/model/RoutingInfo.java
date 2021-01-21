@@ -32,7 +32,7 @@ import java.util.Objects;
  * Represents routing information that can be shown in the {@link NavigationTemplate} during
  * navigation
  */
-public class RoutingInfo implements NavigationInfo {
+public final class RoutingInfo implements NavigationInfo {
     @Keep
     @Nullable
     private final Step mCurrentStep;

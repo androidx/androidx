@@ -87,7 +87,7 @@ import java.util.Objects;
  * #createCustom}. Wherever custom colors are used by the app, the host may use a default color
  * instead if the custom color does not pass the contrast requirements.
  */
-public class CarColor {
+public final class CarColor {
     /**
      * The type of color represented by the {@link CarColor} instance.
      *

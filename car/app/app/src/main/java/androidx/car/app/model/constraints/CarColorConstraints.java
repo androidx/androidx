@@ -31,7 +31,7 @@ import java.util.HashSet;
  * @hide
  */
 @RestrictTo(Scope.LIBRARY)
-public class CarColorConstraints {
+public final class CarColorConstraints {
 
     @NonNull
     public static final CarColorConstraints UNCONSTRAINED =

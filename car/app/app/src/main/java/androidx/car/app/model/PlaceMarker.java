@@ -31,7 +31,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
 
 /** Describes how a place is to be displayed on a map. */
-public class PlaceMarker {
+public final class PlaceMarker {
     /**
      * Describes the type of image a marker icon represents.
      *

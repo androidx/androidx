@@ -66,7 +66,7 @@ package androidx.car.app {
     field public static final int LENGTH_SHORT = 0; // 0x0
   }
 
-  public class FailureResponse {
+  public final class FailureResponse {
     ctor public FailureResponse(Throwable);
     method public int getErrorType();
     method public String getStackTrace();
@@ -79,19 +79,19 @@ package androidx.car.app {
     field public static final int UNKNOWN_ERROR = 0; // 0x0
   }
 
-  public class HandshakeInfo {
+  public final class HandshakeInfo {
     ctor public HandshakeInfo(String, int);
     method public int getHostCarAppApiLevel();
     method public String getHostPackageName();
   }
 
-  public class HostException extends java.lang.RuntimeException {
+  public final class HostException extends java.lang.RuntimeException {
     ctor public HostException(String);
     ctor public HostException(String, Throwable);
     ctor public HostException(Throwable);
   }
 
-  public class HostInfo {
+  public final class HostInfo {
     ctor public HostInfo(String, int);
     method public String getPackageName();
     method public int getUid();
@@ -145,7 +145,7 @@ package androidx.car.app {
     method public void onVisibleAreaChanged(android.graphics.Rect);
   }
 
-  public class SurfaceContainer {
+  public final class SurfaceContainer {
     ctor public SurfaceContainer(android.view.Surface?, int, int, int);
     method public int getDpi();
     method public int getHeight();
@@ -192,12 +192,12 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Action.Builder setTitle(CharSequence?);
   }
 
-  public class ActionList {
+  public final class ActionList {
     method public static androidx.car.app.model.ActionList create(java.util.List<androidx.car.app.model.Action!>);
     method public java.util.List<androidx.car.app.model.Action!> getList();
   }
 
-  public class ActionStrip {
+  public final class ActionStrip {
     method public static androidx.car.app.model.ActionStrip.Builder builder();
     method public java.util.List<androidx.car.app.model.Action!> getActionList();
     method @Deprecated public java.util.List<java.lang.Object!> getActions();
@@ -210,7 +210,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.ActionStrip build();
   }
 
-  public class CarColor {
+  public final class CarColor {
     method public static androidx.car.app.model.CarColor createCustom(@ColorInt int, @ColorInt int);
     method @ColorInt public int getColor();
     method @ColorInt public int getColorDark();
@@ -232,7 +232,7 @@ package androidx.car.app.model {
     field public static final androidx.car.app.model.CarColor YELLOW;
   }
 
-  public class CarIcon {
+  public final class CarIcon {
     method public static androidx.car.app.model.CarIcon.Builder builder(androidx.core.graphics.drawable.IconCompat);
     method public androidx.core.graphics.drawable.IconCompat? getIcon();
     method public androidx.car.app.model.CarColor? getTint();
@@ -257,7 +257,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarIcon.Builder setTint(androidx.car.app.model.CarColor?);
   }
 
-  public class CarIconSpan extends androidx.car.app.model.CarSpan {
+  public final class CarIconSpan extends androidx.car.app.model.CarSpan {
     method public static androidx.car.app.model.CarIconSpan create(androidx.car.app.model.CarIcon);
     method public static androidx.car.app.model.CarIconSpan create(androidx.car.app.model.CarIcon, int);
     method public int getAlignment();
@@ -279,7 +279,7 @@ package androidx.car.app.model {
     method public void updateDrawState(android.text.TextPaint);
   }
 
-  public class CarText {
+  public final class CarText {
     method public static androidx.car.app.model.CarText create(CharSequence);
     method @Deprecated public java.util.List<androidx.car.app.model.CarText.SpanWrapper!> getSpans();
     method @Deprecated public String getText();
@@ -296,7 +296,7 @@ package androidx.car.app.model {
     method public int getStart();
   }
 
-  public class DateTimeWithZone {
+  public final class DateTimeWithZone {
     method public static androidx.car.app.model.DateTimeWithZone create(long, @IntRange(from=0xffff02e0, to=64800) int, String);
     method public static androidx.car.app.model.DateTimeWithZone create(long, java.util.TimeZone);
     method @RequiresApi(26) public static androidx.car.app.model.DateTimeWithZone create(java.time.ZonedDateTime);
@@ -318,23 +318,23 @@ package androidx.car.app.model {
     field public static final int UNIT_YARDS = 7; // 0x7
   }
 
-  public class DistanceSpan extends androidx.car.app.model.CarSpan {
+  public final class DistanceSpan extends androidx.car.app.model.CarSpan {
     method public static androidx.car.app.model.DistanceSpan create(androidx.car.app.model.Distance);
     method public androidx.car.app.model.Distance getDistance();
   }
 
-  public class DurationSpan extends androidx.car.app.model.CarSpan {
+  public final class DurationSpan extends androidx.car.app.model.CarSpan {
     method public static androidx.car.app.model.DurationSpan create(long);
     method @RequiresApi(26) public static androidx.car.app.model.DurationSpan create(java.time.Duration);
     method public long getDurationSeconds();
   }
 
-  public class ForegroundCarColorSpan extends androidx.car.app.model.CarSpan {
+  public final class ForegroundCarColorSpan extends androidx.car.app.model.CarSpan {
     method public static androidx.car.app.model.ForegroundCarColorSpan create(androidx.car.app.model.CarColor);
     method public androidx.car.app.model.CarColor getColor();
   }
 
-  public class GridItem implements androidx.car.app.model.Item {
+  public final class GridItem implements androidx.car.app.model.Item {
     method public static androidx.car.app.model.GridItem.Builder builder();
     method public androidx.car.app.model.CarIcon? getImage();
     method public int getImageType();
@@ -465,7 +465,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.MessageTemplate.Builder setTitle(CharSequence?);
   }
 
-  public class Metadata {
+  public final class Metadata {
     method public static androidx.car.app.model.Metadata.Builder builder();
     method public androidx.car.app.model.Place? getPlace();
     method @Deprecated public androidx.car.app.model.Metadata.Builder newBuilder();
@@ -557,7 +557,7 @@ package androidx.car.app.model {
     method public void onClick();
   }
 
-  public class Place {
+  public final class Place {
     method @Deprecated public static androidx.car.app.model.Place.Builder builder(androidx.car.app.model.LatLng);
     method @Deprecated public androidx.car.app.model.LatLng getLatLng();
     method public androidx.car.app.model.CarLocation getLocation();
@@ -596,7 +596,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.PlaceListMapTemplate.Builder setTitle(CharSequence?);
   }
 
-  public class PlaceMarker {
+  public final class PlaceMarker {
     method public static androidx.car.app.model.PlaceMarker.Builder builder();
     method public androidx.car.app.model.CarColor? getColor();
     method public static androidx.car.app.model.PlaceMarker getDefault();
@@ -616,7 +616,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.PlaceMarker.Builder setLabel(CharSequence?);
   }
 
-  public class Row implements androidx.car.app.model.Item {
+  public final class Row implements androidx.car.app.model.Item {
     method public static androidx.car.app.model.Row.Builder builder();
     method public androidx.car.app.model.CarIcon? getImage();
     method public androidx.car.app.model.Metadata getMetadata();
@@ -687,7 +687,7 @@ package androidx.car.app.model {
     method public void onSearchTextChanged(String);
   }
 
-  public class SectionedItemList {
+  public final class SectionedItemList {
     method @Deprecated public static androidx.car.app.model.SectionedItemList create(androidx.car.app.model.ItemList, androidx.car.app.model.CarText);
     method public static androidx.car.app.model.SectionedItemList create(androidx.car.app.model.ItemList, CharSequence);
     method public androidx.car.app.model.CarText getHeader();
@@ -718,7 +718,7 @@ package androidx.car.app.model {
     method public static androidx.car.app.model.TemplateWrapper wrap(androidx.car.app.model.Template, String);
   }
 
-  public class Toggle {
+  public final class Toggle {
     method public static androidx.car.app.model.Toggle.Builder builder(androidx.car.app.model.Toggle.OnCheckedChangeListener);
     method public androidx.car.app.model.OnCheckedChangeDelegate getOnCheckedChangeDelegate();
     method @Deprecated public androidx.car.app.model.OnCheckedChangeListenerWrapper getOnCheckedChangeListener();
@@ -867,7 +867,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.Maneuver.Builder setRoundaboutExitNumber(@IntRange(from=1) int);
   }
 
-  public class MessageInfo implements androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo {
+  public final class MessageInfo implements androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo {
     method public static androidx.car.app.navigation.model.MessageInfo.Builder builder(CharSequence);
     method public androidx.car.app.model.CarIcon? getImage();
     method public androidx.car.app.model.CarText? getText();
@@ -882,7 +882,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.MessageInfo.Builder setTitle(CharSequence);
   }
 
-  public class NavigationTemplate implements androidx.car.app.model.Template {
+  public final class NavigationTemplate implements androidx.car.app.model.Template {
     method public static androidx.car.app.navigation.model.NavigationTemplate.Builder builder();
     method public androidx.car.app.model.ActionStrip getActionStrip();
     method public androidx.car.app.model.CarColor? getBackgroundColor();
@@ -942,7 +942,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setTitle(CharSequence?);
   }
 
-  public class RoutingInfo implements androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo {
+  public final class RoutingInfo implements androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo {
     method public static androidx.car.app.navigation.model.RoutingInfo.Builder builder();
     method public androidx.car.app.model.Distance? getCurrentDistance();
     method public androidx.car.app.navigation.model.Step? getCurrentStep();
@@ -1025,7 +1025,7 @@ package androidx.car.app.navigation.model {
 
 package androidx.car.app.notification {
 
-  public class CarAppExtender implements androidx.core.app.NotificationCompat.Extender {
+  public final class CarAppExtender implements androidx.core.app.NotificationCompat.Extender {
     ctor public CarAppExtender(android.app.Notification);
     method public static androidx.car.app.notification.CarAppExtender.Builder builder();
     method public androidx.core.app.NotificationCompat.Builder extend(androidx.core.app.NotificationCompat.Builder);
@@ -1098,7 +1098,7 @@ package androidx.car.app.utils {
 
 package androidx.car.app.versioning {
 
-  public class CarAppApiLevels {
+  public final class CarAppApiLevels {
     method public static int getLatest();
     method public static int getOldest();
     field public static final int LEVEL_1 = 1; // 0x1

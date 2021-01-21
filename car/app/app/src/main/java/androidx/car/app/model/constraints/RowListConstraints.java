@@ -41,7 +41,7 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class RowListConstraints {
+public final class RowListConstraints {
     /** Conservative constraints for all types lists. */
     @NonNull
     public static final RowListConstraints ROW_LIST_CONSTRAINTS_CONSERVATIVE =

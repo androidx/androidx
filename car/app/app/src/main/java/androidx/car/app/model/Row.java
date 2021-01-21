@@ -42,7 +42,7 @@ import java.util.Objects;
  * Represents a row with a title, several lines of text, an optional image, and an optional action
  * or switch.
  */
-public class Row implements Item {
+public final class Row implements Item {
     /**
      * The type of images supported within rows.
      *

@@ -46,7 +46,7 @@ import java.util.Objects;
  * @see CarColor
  * @see ForegroundColorSpan
  */
-public class ForegroundCarColorSpan extends CarSpan {
+public final class ForegroundCarColorSpan extends CarSpan {
     @Keep
     private final CarColor mCarColor;
 

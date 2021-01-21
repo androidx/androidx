@@ -37,7 +37,7 @@ import androidx.car.app.utils.RemoteUtils;
 // TODO(b/177591476): remove after host references have been cleaned up.
 @SuppressWarnings("deprecation")
 @RestrictTo(LIBRARY)
-public class OnSelectedListenerWrapperImpl implements OnSelectedListenerWrapper {
+public final class OnSelectedListenerWrapperImpl implements OnSelectedListenerWrapper {
 
     @Keep
     private final IOnSelectedListener mStub;
