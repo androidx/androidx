@@ -158,6 +158,7 @@ package androidx.appsearch.app {
     method public void close();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,androidx.appsearch.app.GenericDocument!>!> getByUri(androidx.appsearch.app.GetByUriRequest);
     method public com.google.common.util.concurrent.ListenableFuture<java.util.Set<androidx.appsearch.app.AppSearchSchema!>!> getSchema();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> maybeFlush();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> putDocuments(androidx.appsearch.app.PutDocumentsRequest);
     method public androidx.appsearch.app.SearchResults query(String, androidx.appsearch.app.SearchSpec);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> removeByQuery(String, androidx.appsearch.app.SearchSpec);
