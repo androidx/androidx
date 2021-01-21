@@ -112,6 +112,11 @@ package androidx.slice.widget {
     field public int state;
   }
 
+  @RequiresApi(19) public class GridContent extends androidx.slice.widget.SliceContent {
+    method public android.graphics.Point getFirstImageSize(android.content.Context);
+    method public boolean isValid();
+  }
+
   public interface RowStyleFactory {
     method @StyleRes public int getRowStyleRes(androidx.slice.SliceItem);
   }
