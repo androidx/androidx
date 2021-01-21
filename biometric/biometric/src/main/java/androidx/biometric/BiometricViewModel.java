@@ -293,6 +293,13 @@ public class BiometricViewModel extends ViewModel {
     }
 
     /**
+     * Clears the client callback reference held by this view model.
+     */
+    void resetClientCallback() {
+        mClientCallback = null;
+    }
+
+    /**
      * Returns reference to latest activity hosting BiometricPrompt or null if activity has
      * already been destroyed
      * @return Reference to latest activity hosting BiometricPrompt
