@@ -196,17 +196,22 @@ package androidx.navigation {
     method @IdRes public int getPopUpTo();
     method public boolean isPopUpToInclusive();
     method public boolean shouldLaunchSingleTop();
+    property @AnimRes @AnimatorRes public final int enterAnim;
+    property @AnimRes @AnimatorRes public final int exitAnim;
+    property @AnimRes @AnimatorRes public final int popEnterAnim;
+    property @AnimRes @AnimatorRes public final int popExitAnim;
+    property @IdRes public final int popUpTo;
   }
 
   public static final class NavOptions.Builder {
     ctor public NavOptions.Builder();
     method public androidx.navigation.NavOptions build();
-    method public androidx.navigation.NavOptions.Builder setEnterAnim(@AnimRes @AnimatorRes int);
-    method public androidx.navigation.NavOptions.Builder setExitAnim(@AnimRes @AnimatorRes int);
-    method public androidx.navigation.NavOptions.Builder setLaunchSingleTop(boolean);
-    method public androidx.navigation.NavOptions.Builder setPopEnterAnim(@AnimRes @AnimatorRes int);
-    method public androidx.navigation.NavOptions.Builder setPopExitAnim(@AnimRes @AnimatorRes int);
-    method public androidx.navigation.NavOptions.Builder setPopUpTo(@IdRes int, boolean);
+    method public androidx.navigation.NavOptions.Builder setEnterAnim(@AnimRes @AnimatorRes int enterAnim);
+    method public androidx.navigation.NavOptions.Builder setExitAnim(@AnimRes @AnimatorRes int exitAnim);
+    method public androidx.navigation.NavOptions.Builder setLaunchSingleTop(boolean singleTop);
+    method public androidx.navigation.NavOptions.Builder setPopEnterAnim(@AnimRes @AnimatorRes int popEnterAnim);
+    method public androidx.navigation.NavOptions.Builder setPopExitAnim(@AnimRes @AnimatorRes int popExitAnim);
+    method public androidx.navigation.NavOptions.Builder setPopUpTo(@IdRes int destinationId, boolean inclusive);
   }
 
   public abstract class NavType<T> {
