@@ -157,7 +157,7 @@ public final class Toggle {
          * <p>Note that the listener relates to UI events and will be executed on the main thread
          * using {@link Looper#getMainLooper()}.
          *
-         * @throws NullPointerException if {@code onCheckedChangeListener} is {@code null}.
+         * @throws NullPointerException if {@code onCheckedChangeListener} is {@code null}
          */
         @SuppressLint("ExecutorRegistration")
         public Builder(@NonNull OnCheckedChangeListener onCheckedChangeListener) {

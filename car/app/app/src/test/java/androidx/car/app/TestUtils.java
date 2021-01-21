@@ -93,7 +93,14 @@ public class TestUtils {
 
     /** Returns a default {@link Action} instance. */
     public static Action createAction(@Nullable String title, @Nullable CarIcon icon) {
-        return new Action.Builder().setTitle(title).setIcon(icon).setOnClickListener(() -> {
+        Action.Builder builder = new Action.Builder();
+        if (title != null) {
+            builder.setTitle(title);
+        }
+        if (icon != null) {
+            builder.setIcon(icon);
+        }
+        return builder.setOnClickListener(() -> {
         }).build();
     }
 

@@ -79,12 +79,13 @@ public final class Metadata {
 
         /**
          * Sets a {@link Place} used for showing {@link Distance} and {@link PlaceMarker}
-         * information,
-         * or {@code null} if no {@link Place} information is available.
+         * information, or {@code null} if no {@link Place} information is available.
+         *
+         * @throws NullPointerException if {@code place} is {@code null}
          */
         @NonNull
-        public Builder setPlace(@Nullable Place place) {
-            this.mPlace = place;
+        public Builder setPlace(@NonNull Place place) {
+            this.mPlace = requireNonNull(place);
             return this;
         }
 

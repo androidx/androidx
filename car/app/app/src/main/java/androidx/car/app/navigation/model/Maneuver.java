@@ -18,6 +18,8 @@ package androidx.car.app.navigation.model;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import static java.util.Objects.requireNonNull;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.Keep;
@@ -626,10 +628,9 @@ public final class Maneuver {
          * Constructs a new instance of a {@link Builder}.
          *
          * <p>The type should be chosen to reflect the closest semantic meaning of the maneuver.
-         * In some
-         * cases, an exact type match is not possible, but choosing a similar or slightly more
-         * general type is preferred. Using {@link #TYPE_UNKNOWN} is allowed, but some head units
-         * will not display any information in that case.
+         * In some cases, an exact type match is not possible, but choosing a similar or slightly
+         * more general type is preferred. Using {@link #TYPE_UNKNOWN} is allowed, but some head
+         * units will not display any information in that case.
          *
          * @param type one of the {@code TYPE_*} static constants defined in this class.
          * @throws IllegalArgumentException if {@code type} is not a valid maneuver type.
@@ -642,8 +643,7 @@ public final class Maneuver {
         }
 
         /**
-         * Sets an image representing the maneuver, or {@code null} to not set an image for the
-         * maneuver.
+         * Sets an image representing the maneuver.
          *
          * <h4>Image Sizing Guidance</h4>
          *
@@ -653,10 +653,12 @@ public final class Maneuver {
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
+         *
+         * @throws NullPointerException if {@code icon} is {@code null}
          */
         @NonNull
-        public Builder setIcon(@Nullable CarIcon icon) {
-            this.mIcon = icon;
+        public Builder setIcon(@NonNull CarIcon icon) {
+            this.mIcon = requireNonNull(icon);
             return this;
         }
 

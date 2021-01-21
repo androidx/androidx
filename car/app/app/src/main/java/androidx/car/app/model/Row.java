@@ -388,19 +388,18 @@ public final class Row implements Item {
         }
 
         /**
-         * Sets an image to show in the row with the default size {@link #IMAGE_TYPE_SMALL}, or
-         * {@code null} to not display an image in the row.
+         * Sets an image to show in the row with the default size {@link #IMAGE_TYPE_SMALL}.
          *
+         * @throws NullPointerException if {@code image} is {@code null}
          * @see #setImage(CarIcon, int)
          */
         @NonNull
-        public Builder setImage(@Nullable CarIcon image) {
-            return setImage(image, IMAGE_TYPE_SMALL);
+        public Builder setImage(@NonNull CarIcon image) {
+            return setImage(requireNonNull(image), IMAGE_TYPE_SMALL);
         }
 
         /**
-         * Sets an image to show in the row with the given image type, or {@code null} to not
-         * display an image in the row.
+         * Sets an image to show in the row with the given image type.
          *
          * <p>For a custom {@link CarIcon}, its {@link androidx.core.graphics.drawable.IconCompat}
          * instance can be of {@link androidx.core.graphics.drawable.IconCompat#TYPE_BITMAP},
@@ -419,22 +418,24 @@ public final class Row implements Item {
          * @param image     the {@link CarIcon} to display, or {@code null} to not display one.
          * @param imageType one of {@link #IMAGE_TYPE_ICON}, {@link #IMAGE_TYPE_SMALL} or {@link
          *                  #IMAGE_TYPE_LARGE}
+         * @throws NullPointerException if {@code image} is {@code null}
          */
         @NonNull
-        public Builder setImage(@Nullable CarIcon image, @RowImageType int imageType) {
-            CarIconConstraints.UNCONSTRAINED.validateOrThrow(image);
+        public Builder setImage(@NonNull CarIcon image, @RowImageType int imageType) {
+            CarIconConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(image));
             this.mImage = image;
             this.mRowImageType = imageType;
             return this;
         }
 
         /**
-         * Sets a {@link Toggle} to show in the row, or {@code null} to not display a toggle in
-         * the row.
+         * Sets a {@link Toggle} to show in the row.
+         *
+         * @throws NullPointerException if {@code toggle} is {@code null}
          */
         @NonNull
-        public Builder setToggle(@Nullable Toggle toggle) {
-            this.mToggle = toggle;
+        public Builder setToggle(@NonNull Toggle toggle) {
+            this.mToggle = requireNonNull(toggle);
             return this;
         }
 
@@ -458,16 +459,17 @@ public final class Row implements Item {
          *
          * <p>Note that the listener relates to UI events and will be executed on the main thread
          * using {@link Looper#getMainLooper()}.
+         *
+         * @throws NullPointerException if {@code onClickListener} is {@code null}
          */
         @NonNull
         @SuppressLint("ExecutorRegistration")
-        public Builder setOnClickListener(@Nullable OnClickListener onClickListener) {
-            mOnClickListener = onClickListener == null ? null :
-                    OnClickListenerWrapperImpl.create(onClickListener);
-            mOnClickDelegate = onClickListener == null ? null : OnClickDelegateImpl.create(
-                    onClickListener);
+        public Builder setOnClickListener(@NonNull OnClickListener onClickListener) {
+            mOnClickListener = OnClickListenerWrapperImpl.create(requireNonNull(onClickListener));
+            mOnClickDelegate = OnClickDelegateImpl.create(onClickListener);
             return this;
         }
+
 
         /**
          * Sets the {@link Metadata} associated with the row.

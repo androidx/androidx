@@ -117,7 +117,9 @@ public final class MessageInfo implements NavigationInfo {
         /**
          * Sets the title of the message.
          *
-         * @throws NullPointerException if {@code message} is {@code null}.
+         * <p>Unless set with this method, the message will not have a title.
+         *
+         * @throws NullPointerException if {@code message} is {@code null}
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
@@ -125,20 +127,29 @@ public final class MessageInfo implements NavigationInfo {
             return this;
         }
 
-        /** Sets additional text on the message or {@code null} to not set any additional text. */
+        /**
+         * Sets additional text on the message.
+         *
+         * <p>Unless set with this method, the message will not have additional text.
+         *
+         * @throws NullPointerException if {@code text} is {@code null}
+         */
         @NonNull
-        public Builder setText(@Nullable CharSequence text) {
-            this.mText = text == null ? null : CarText.create(text);
+        public Builder setText(@NonNull CharSequence text) {
+            this.mText = CarText.create(requireNonNull(text));
             return this;
         }
 
         /**
-         * Sets the image to display along with the message, or {@code null} to not display an
-         * image.
+         * Sets the image to display along with the message.
+         *
+         * <p>Unless set with this method, the message will not have an image.
+         *
+         * @throws NullPointerException if {@code image} is {@code null}
          */
         @NonNull
-        public Builder setImage(@Nullable CarIcon image) {
-            CarIconConstraints.DEFAULT.validateOrThrow(image);
+        public Builder setImage(@NonNull CarIcon image) {
+            CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(image));
             this.mImage = image;
             return this;
         }

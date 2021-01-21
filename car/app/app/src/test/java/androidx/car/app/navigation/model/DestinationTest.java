@@ -62,7 +62,7 @@ public class DestinationTest {
         assertThat(destination.getName().toString()).isEqualTo("name");
         assertThat(destination.getAddress().toString()).isEmpty();
 
-        destination = new Destination.Builder().setName(null).setAddress("address").build();
+        destination = new Destination.Builder().setAddress("address").build();
         assertThat(destination.getAddress().toString()).isEqualTo("address");
         assertThat(destination.getName()).isNull();
     }

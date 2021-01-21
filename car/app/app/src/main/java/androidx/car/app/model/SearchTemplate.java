@@ -20,6 +20,8 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_SIMPLE;
 
+import static java.util.Objects.requireNonNull;
+
 import android.annotation.SuppressLint;
 import android.os.Looper;
 
@@ -267,19 +269,21 @@ public final class SearchTemplate implements Template {
          * Sets the {@link Action} that will be displayed in the header of the template, or
          * {@code null} to not display an action.
          *
+         * <p>Unless set with this method, the template will not have a header action.
+         *
          * <h4>Requirements</h4>
          *
-         * This template only supports either either one of {@link Action#APP_ICON} and {@link
-         * Action#BACK} as a header {@link Action}.
+         * This template only supports either one of {@link Action#APP_ICON} and
+         * {@link Action#BACK} as a header {@link Action}.
          *
          * @throws IllegalArgumentException if {@code headerAction} does not meet the template's
-         *                                  requirements.
+         *                                  requirements
+         * @throws NullPointerException     if {@code headerAction} is {@code null}
          */
         @NonNull
-        public Builder setHeaderAction(@Nullable Action headerAction) {
+        public Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
-                    headerAction == null ? Collections.emptyList()
-                            : Collections.singletonList(headerAction));
+                    Collections.singletonList(requireNonNull(headerAction)));
             this.mHeaderAction = headerAction;
             return this;
         }
@@ -288,38 +292,38 @@ public final class SearchTemplate implements Template {
          * Sets the {@link ActionStrip} for this template, or {@code null} to not display an {@link
          * ActionStrip}.
          *
+         * <p>Unless set with this method, the template will not have an action strip.
+         *
          * <h4>Requirements</h4>
          *
          * This template allows up to 2 {@link Action}s in its {@link ActionStrip}. Of the 2 allowed
          * {@link Action}s, one of them can contain a title as set via
          * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
          *
-         * @throws IllegalArgumentException if {@code actionStrip} does not meet the template's
-         *                                  requirements.
+         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements.
+         * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @NonNull
-        public Builder setActionStrip(@Nullable ActionStrip actionStrip) {
-            ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(
-                    actionStrip == null ? Collections.emptyList() : actionStrip.getActions());
+        public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
+            ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
             this.mActionStrip = actionStrip;
             return this;
         }
 
         /**
-         * Sets the initial search text to display in the search box, or {@code null} to not
-         * display any initial search text.
-         *
-         * <p>Defaults to {@code null}.
+         * Sets the initial search text to display in the search box.
+         * @throws NullPointerException if {@code initialSearchText} is {@code null}
          */
         @NonNull
-        public Builder setInitialSearchText(@Nullable String initialSearchText) {
-            this.mInitialSearchText = initialSearchText;
+        public Builder setInitialSearchText(@NonNull String initialSearchText) {
+            this.mInitialSearchText = requireNonNull(initialSearchText);
             return this;
         }
 
         /**
-         * Sets the text hint to display in the search box when it is empty, or {@code null} to
-         * use a default search hint.
+         * Sets the text hint to display in the search box when it is empty.
+         *
+         * <p>The host will use a default search hint if one is not set with this method.
          *
          * <p>This is not the actual search text, and will disappear if user types any value into
          * the search.
@@ -327,11 +331,11 @@ public final class SearchTemplate implements Template {
          * <p>If a non empty text is set via {@link #setInitialSearchText}, the {@code searchHint
          * } will not show, unless the user erases the search text.
          *
-         * <p>Defaults to {@code null}.
+         * @throws NullPointerException if {@code searchHint} is {@code null}
          */
         @NonNull
-        public Builder setSearchHint(@Nullable String searchHint) {
-            this.mSearchHint = searchHint;
+        public Builder setSearchHint(@NonNull String searchHint) {
+            this.mSearchHint = requireNonNull(searchHint);
             return this;
         }
 
@@ -351,8 +355,7 @@ public final class SearchTemplate implements Template {
         }
 
         /**
-         * Sets the {@link ItemList} to show for search results, or {@code null} if there are no
-         * results.
+         * Sets the {@link ItemList} to show for search results.
          *
          * <p>The list will be shown below the search box, allowing users to click on individual
          * search results.
@@ -365,14 +368,12 @@ public final class SearchTemplate implements Template {
          * via {@link Row.Builder#addText} and cannot contain a {@link Toggle}.
          *
          * @throws IllegalArgumentException if {@code itemList} does not meet the template's
-         *                                  requirements.
+         *                                  requirements
+         * @throws NullPointerException     if {@code itemList} is {@code null}
          */
         @NonNull
-        public Builder setItemList(@Nullable ItemList itemList) {
-            if (itemList != null) {
-                ROW_LIST_CONSTRAINTS_SIMPLE.validateOrThrow(itemList);
-            }
-
+        public Builder setItemList(@NonNull ItemList itemList) {
+            ROW_LIST_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(itemList));
             this.mItemList = itemList;
             return this;
         }

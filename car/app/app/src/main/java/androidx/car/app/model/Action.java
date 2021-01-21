@@ -156,8 +156,7 @@ public final class Action {
 
     /**
      * Returns the {@link CarIcon} to displayed in the action, or {@code null} if the action does
-     * not
-     * have an icon.
+     * not have an icon.
      */
     @Nullable
     public CarIcon getIcon() {
@@ -172,11 +171,13 @@ public final class Action {
         return mBackgroundColor;
     }
 
+    /** Returns the type of the action. */
     @ActionType
     public int getType() {
         return mType;
     }
 
+    /** Returns whether the action is a standard action such as {@link #BACK}. */
     public boolean isStandard() {
         return isStandardActionType(mType);
     }
@@ -301,37 +302,37 @@ public final class Action {
         int mType = TYPE_CUSTOM;
 
         /**
-         * Sets the title to display in the action, or {@code null} to not display a title.
+         * Sets the title to display in the action.
          *
-         * <p>The title of a standard action can be set with this method. Actions, including
-         * standard
-         * actions, don't have a title by default.
+         * <p>Unless set with this method, the action will not have a title.
+         *
+         * @throws NullPointerException if {@code title} is {@code null}
          */
         @NonNull
-        public Builder setTitle(@Nullable CharSequence title) {
-            this.mTitle = title == null ? null : CarText.create(title);
+        public Builder setTitle(@NonNull CharSequence title) {
+            this.mTitle = CarText.create(requireNonNull(title));
             return this;
         }
 
         /**
-         * Sets the icon to display in the action, or {@code null} to not display an icon.
+         * Sets the icon to display in the action.
          *
-         * <p>Icons can't be set in standard actions.
+         * <p>Unless set with this method, the action will not have an icon.
          *
          * <h4>Icon Sizing Guidance</h4>
          *
          * The provided icon should have a maximum size of 36 x 36 dp. If the icon exceeds this
-         * maximum
-         * size in either one of the dimensions, it will be scaled down to be centered inside the
-         * bounding box while preserving the aspect ratio.
+         * maximum size in either one of the dimensions, it will be scaled down to be centered
+         * inside the bounding box while preserving the aspect ratio.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
-         * that
-         * work with different car screen pixel densities.
+         * that work with different car screen pixel densities.
+         *
+         * @throws NullPointerException if {@code icon} is {@code null}
          */
         @NonNull
-        public Builder setIcon(@Nullable CarIcon icon) {
-            CarIconConstraints.DEFAULT.validateOrThrow(icon);
+        public Builder setIcon(@NonNull CarIcon icon) {
+            CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(icon));
             this.mIcon = icon;
             return this;
         }
@@ -339,14 +340,18 @@ public final class Action {
         /**
          * Sets the {@link OnClickListener} to call when the action is clicked.
          *
+         * <p>Unless set with this method, the action will not have a click listener.
+         *
          * <p>Note that the listener relates to UI events and will be executed on the main thread
          * using {@link Looper#getMainLooper()}.
+         *
+         * @throws NullPointerException if {@code listener} is {@code null}
          */
         @NonNull
         @SuppressLint("ExecutorRegistration")
-        public Builder setOnClickListener(@Nullable OnClickListener listener) {
-            mListener = listener == null ? null : OnClickListenerWrapperImpl.create(listener);
-            mOnClickDelegate = listener == null ? null : OnClickDelegateImpl.create(listener);
+        public Builder setOnClickListener(@NonNull OnClickListener listener) {
+            mListener = OnClickListenerWrapperImpl.create(requireNonNull(listener));
+            mOnClickDelegate = OnClickDelegateImpl.create(listener);
             return this;
         }
 
@@ -419,6 +424,10 @@ public final class Action {
          */
         @SuppressWarnings("deprecation")
         Builder(@NonNull Action action) {
+            // Note: at the moment, the only standard actions that exist (APP_ICON and BACK) can't
+            // be customized with a title or a listener. For that reason, this constructor is not
+            // public since the main reason for that would be to make a copy of a standard action
+            // and customize it.
             mTitle = action.getTitle();
             mIcon = action.getIcon();
             mBackgroundColor = action.getBackgroundColor();

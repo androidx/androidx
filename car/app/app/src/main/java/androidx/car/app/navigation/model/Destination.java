@@ -16,6 +16,8 @@
 
 package androidx.car.app.navigation.model;
 
+import static java.util.Objects.requireNonNull;
+
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -126,28 +128,29 @@ public final class Destination {
         CarIcon mImage;
 
         /**
-         * Sets the destination name formatted for the user's current locale, or {@code null} to not
-         * display a destination name.
+         * Sets the destination name formatted for the user's current locale.
+         *
+         * @throws NullPointerException if {@code name} is {@code null}
          */
         @NonNull
-        public Builder setName(@Nullable CharSequence name) {
-            this.mName = name == null ? null : CarText.create(name);
+        public Builder setName(@NonNull CharSequence name) {
+            this.mName = CarText.create(requireNonNull(name));
             return this;
         }
 
         /**
-         * Sets the destination address formatted for the user's current locale, or {@code null}
-         * to not
-         * display an address.
+         * Sets the destination address formatted for the user's current locale.
+         *
+         * @throws NullPointerException if {@code address} is {@code null}
          */
         @NonNull
-        public Builder setAddress(@Nullable CharSequence address) {
-            this.mAddress = address == null ? null : CarText.create(address);
+        public Builder setAddress(@NonNull CharSequence address) {
+            this.mAddress = CarText.create(requireNonNull(address));
             return this;
         }
 
         /**
-         * Sets the destination image to display, or {@code null} to not display an image.
+         * Sets the destination image to display.
          *
          * <h4>Image Sizing Guidance</h4>
          *
@@ -157,12 +160,13 @@ public final class Destination {
          * bounding box while preserving the aspect ratio.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
-         * that
-         * work with different car screen pixel densities.
+         * that work with different car screen pixel densities.
+         *
+         * @throws NullPointerException if {@code image} is {@code null}
          */
         @NonNull
-        public Builder setImage(@Nullable CarIcon image) {
-            CarIconConstraints.DEFAULT.validateOrThrow(image);
+        public Builder setImage(@NonNull CarIcon image) {
+            CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(image));
             this.mImage = image;
             return this;
         }

@@ -129,11 +129,25 @@ public final class Place {
         /**
          * Returns a builder instance for a {@link CarLocation}.
          *
-         * @param location the geographical location associated with the place.
-         * @throws NullPointerException if {@code location} is {@code null}.
+         * @param location the geographical location associated with the place
+         * @throws NullPointerException if {@code location} is {@code null}
          */
         public Builder(@NonNull CarLocation location) {
             mLocation = Objects.requireNonNull(location);
+        }
+
+        /**
+         * Sets the {@link PlaceMarker} that specifies how this place is to be displayed on a
+         * map.
+         *
+         * <p>Unless set with this method, the place will not have a marker.
+         *
+         * @throws NullPointerException if {@code marker} is {@code null}
+         */
+        @NonNull
+        public Builder setMarker(@NonNull PlaceMarker marker) {
+            this.mMarker = requireNonNull(marker);
+            return this;
         }
 
         /**
@@ -144,18 +158,6 @@ public final class Place {
             requireNonNull(place);
             mLocation = place.getLocation();
             mMarker = place.getMarker();
-        }
-
-        /**
-         * Sets the {@link PlaceMarker} that specifies how this place is to be displayed on a
-         * map, or {@code null} to not display a marker for this place.
-         *
-         * <p>By default and unless otherwise set in this method, a marker will not be displayed.
-         */
-        @NonNull
-        public Builder setMarker(@Nullable PlaceMarker marker) {
-            this.mMarker = marker;
-            return this;
         }
 
         /** Constructs the {@link Place} defined by this builder. */

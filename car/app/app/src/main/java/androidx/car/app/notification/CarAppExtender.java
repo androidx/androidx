@@ -397,24 +397,24 @@ public final class CarAppExtender implements NotificationCompat.Extender {
         CarColor mColor;
 
         /**
-         * Sets the title of the notification in the car screen, or {@code null} to not override the
-         * notification title.
+         * Sets the title of the notification in the car screen.
          *
          * <p>This will be the most prominently displayed text in the car notification.
          *
          * <p>This method is equivalent to
          * {@link NotificationCompat.Builder#setContentTitle(CharSequence)} for the car
          * screen.
+         *
+         * @throws NullPointerException if {@code contentTitle} is {@code null}
          */
         @NonNull
-        public Builder setContentTitle(@Nullable CharSequence contentTitle) {
-            this.mContentTitle = contentTitle;
+        public Builder setContentTitle(@NonNull CharSequence contentTitle) {
+            this.mContentTitle = requireNonNull(contentTitle);
             return this;
         }
 
         /**
-         * Sets the content text of the notification in the car screen, or {@code null} to not
-         * override the content text.
+         * Sets the content text of the notification in the car screen.
          *
          * <p>This method is equivalent to
          * {@link NotificationCompat.Builder#setContentText(CharSequence)} for the car screen.
@@ -424,8 +424,8 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * @throws NullPointerException if {@code contentText} is {@code null}
          */
         @NonNull
-        public Builder setContentText(@Nullable CharSequence contentText) {
-            this.mContentText = contentText;
+        public Builder setContentText(@NonNull CharSequence contentText) {
+            this.mContentText = requireNonNull(contentText);
             return this;
         }
 
@@ -445,8 +445,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
         }
 
         /**
-         * Sets the large icon of the notification in the car screen, or {@code null} to not
-         * override the large icon of the notification.
+         * Sets the large icon of the notification in the car screen.
          *
          * <p>This is used as the secondary icon to represent the notification in the notification
          * center.
@@ -456,17 +455,19 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          *
          * <p>The large icon will be shown in the notification badge. If the large icon is not
          * set in the {@link CarAppExtender} or the notification, the small icon will show instead.
+         *
+         * @throws NullPointerException if {@code bitmap} is {@code null}
          */
         @NonNull
-        public Builder setLargeIcon(@Nullable Bitmap bitmap) {
-            this.mLargeIconBitmap = bitmap;
+        public Builder setLargeIcon(@NonNull Bitmap bitmap) {
+            this.mLargeIconBitmap = requireNonNull(bitmap);
             return this;
         }
 
         /**
          * Supplies a {@link PendingIntent} to send when the notification is clicked in the car.
          *
-         * <p>If set to {@code null}, the notification's content intent will be used.
+         * <p>If not set, the notification's content intent will be used.
          *
          * <p>In the case of navigation notifications in the rail widget, this intent will be
          * sent when the user taps on the rail widget.
@@ -475,10 +476,11 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * {@link NotificationCompat.Builder#setContentIntent(PendingIntent)} for the car screen.
          *
          * @param contentIntent override for the notification's content intent.
+         * @throws NullPointerException if {@code contentIntent} is {@code null}
          */
         @NonNull
-        public Builder setContentIntent(@Nullable PendingIntent contentIntent) {
-            this.mContentIntent = contentIntent;
+        public Builder setContentIntent(@NonNull PendingIntent contentIntent) {
+            this.mContentIntent = requireNonNull(contentIntent);
             return this;
         }
 
@@ -487,16 +489,17 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * using the "clear all" functionality in the notification center, or tapping the individual
          * "close" buttons on the notification in the car screen.
          *
-         * <p>If set to {@code null}, the notification's content intent will be used.
+         * <p>If not set, the notification's content intent will be used.
          *
          * <p>This method is equivalent to
          * {@link NotificationCompat.Builder#setDeleteIntent(PendingIntent)} for the car screen.
          *
          * @param deleteIntent override for the notification's delete intent.
+         * @throws NullPointerException if {@code deleteIntent} is {@code null}
          */
         @NonNull
-        public Builder setDeleteIntent(@Nullable PendingIntent deleteIntent) {
-            this.mDeleteIntent = deleteIntent;
+        public Builder setDeleteIntent(@NonNull PendingIntent deleteIntent) {
+            this.mDeleteIntent = requireNonNull(deleteIntent);
             return this;
         }
 
@@ -554,18 +557,19 @@ public final class CarAppExtender implements NotificationCompat.Extender {
         }
 
         /**
-         * Sets the background color of the notification in the car screen, or {@code null} to not
-         * override the background color of the notification.
+         * Sets the background color of the notification in the car screen.
          *
          * <p>This method is equivalent to {@link NotificationCompat.Builder#setColor(int)} for
          * the car screen.
          *
          * <p>This color is only used for navigation notifications. See the "Navigation" section
          * of {@link CarAppExtender} for more details.
+         *
+         * @throws NullPointerException if {@code color} is {@code null}
          */
         @NonNull
-        public Builder setColor(@Nullable CarColor color) {
-            this.mColor = color;
+        public Builder setColor(@NonNull CarColor color) {
+            this.mColor = requireNonNull(color);
             return this;
         }
 

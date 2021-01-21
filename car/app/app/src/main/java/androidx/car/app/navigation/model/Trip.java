@@ -171,6 +171,9 @@ public final class Trip {
          * provided. Display surfaces may or may not use the destination travel estimate and if
          * multiple destination travel estimates are added the display may only show information
          * about the first destination travel estimate.
+         *
+         * @throws NullPointerException if {@code step} or {@code stepTravelEstiomate} are {@code
+         *                              null}
          */
         @NonNull
         public Builder addDestination(@NonNull Destination destination,
@@ -191,18 +194,25 @@ public final class Trip {
          * Display surfaces may or may not use the step travel estimate and if multiple
          * step travel estimates are added the display may only show information about the first
          * step travel estimate.
+         *
+         * @throws NullPointerException if {@code step} or {@code stepTravelEstiomate} are {@code
+         *                              null}
          */
         @NonNull
-        public Builder addStep(@Nullable Step step, @NonNull TravelEstimate stepTravelEstimate) {
+        public Builder addStep(@NonNull Step step, @NonNull TravelEstimate stepTravelEstimate) {
             mSteps.add(requireNonNull(step));
             mStepTravelEstimates.add(requireNonNull(stepTravelEstimate));
             return this;
         }
 
-        /** Sets a text description of the current road or {@code null} if unknown. */
+        /**
+         * Sets a text description of the current road.
+         *
+         * @throws NullPointerException if {@code currentRoad} is {@code null}
+         */
         @NonNull
-        public Builder setCurrentRoad(@Nullable CharSequence currentRoad) {
-            this.mCurrentRoad = currentRoad == null ? null : CarText.create(currentRoad);
+        public Builder setCurrentRoad(@NonNull CharSequence currentRoad) {
+            this.mCurrentRoad = CarText.create(requireNonNull(currentRoad));
             return this;
         }
 
