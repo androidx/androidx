@@ -34,6 +34,7 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_USE_CASE_EVENT_CALLBACK;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 
 import android.graphics.ImageFormat;
@@ -85,6 +86,7 @@ import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.core.util.Consumer;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -1018,5 +1020,17 @@ public final class Preview extends UseCase {
             getMutableConfig().insertOption(OPTION_PREVIEW_CAPTURE_PROCESSOR, captureProcessor);
             return this;
         }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setAttachedUseCasesUpdateListener(
+                @NonNull Consumer<Collection<UseCase>> attachedUseCasesUpdateListener) {
+            getMutableConfig().insertOption(OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER,
+                    attachedUseCasesUpdateListener);
+            return this;
+        }
+
     }
 }

@@ -39,6 +39,7 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_ROTATIO
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_SOFTWARE_JPEG_ENCODER;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.internal.utils.ImageUtil.min;
 import static androidx.camera.core.internal.utils.ImageUtil.sizeToVertexes;
@@ -116,6 +117,7 @@ import androidx.camera.core.internal.compat.quirk.SoftwareJpegEncodingPreferredQ
 import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability;
 import androidx.camera.core.internal.utils.ImageUtil;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -129,6 +131,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
@@ -2894,6 +2897,17 @@ public final class ImageCapture extends UseCase {
         public Builder setUseCaseEventCallback(
                 @NonNull UseCase.EventCallback useCaseEventCallback) {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setAttachedUseCasesUpdateListener(
+                @NonNull Consumer<Collection<UseCase>> attachedUseCasesUpdateListener) {
+            getMutableConfig().insertOption(OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER,
+                    attachedUseCasesUpdateListener);
             return this;
         }
     }
