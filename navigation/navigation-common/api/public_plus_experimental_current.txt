@@ -300,10 +300,12 @@ package androidx.navigation {
 
   public class NavigatorProvider {
     ctor public NavigatorProvider();
-    method public final androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>? addNavigator(androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>);
-    method @CallSuper public androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>? addNavigator(String, androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>);
-    method public final <T extends androidx.navigation.Navigator<?>> T getNavigator(Class<T!>);
-    method @CallSuper public <T extends androidx.navigation.Navigator<?>> T getNavigator(String);
+    method public final androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>? addNavigator(androidx.navigation.Navigator<? extends androidx.navigation.NavDestination> navigator);
+    method @CallSuper public androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>? addNavigator(String name, androidx.navigation.Navigator<? extends androidx.navigation.NavDestination> navigator);
+    method public final <T extends androidx.navigation.Navigator<?>> T getNavigator(Class<T> navigatorClass);
+    method @CallSuper public <T extends androidx.navigation.Navigator<?>> T getNavigator(String name);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final java.util.Map<java.lang.String,androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>> getNavigators();
+    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final java.util.Map<java.lang.String,androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>> navigators;
   }
 
 }
