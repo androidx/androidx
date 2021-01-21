@@ -391,6 +391,8 @@ WARNING: Use \-\-illegal\-access=warn to enable warnings of further illegal refl
 WARNING: All illegal access operations will be denied in a future release
 # > Task :compose:compiler:compiler-hosted:integration-tests:testDebugUnitTest
 WARNING: Illegal reflective access by org\.robolectric\.util\.ReflectionHelpers \(file:\$CHECKOUT/prebuilts/androidx/external/org/robolectric/shadowapi/[0-9]+\.[0-9]+\-alpha\-[0-9]+/shadowapi\-[0-9]+\.[0-9]+\-alpha\-[0-9]+\.jar\) to field java\.lang\.reflect\.Field\.modifiers
+WARNING: Illegal reflective access by org\.jetbrains\.kotlin\.com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-compiler\-embeddable/[0-9]+\.[0-9]+\.[0-9]+\-[0-9]+/kotlin\-compiler\-embeddable\-[0-9]+\.[0-9]+\.[0-9]+\-[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
+WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-compiler/[0-9]+\.[0-9]+\.[0-9]+\-[0-9]+/kotlin\-compiler\-[0-9]+\.[0-9]+\.[0-9]+\-[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING: Please consider reporting this to the maintainers of org\.robolectric\.util\.ReflectionHelpers
 # > Task :compose:compiler:compiler-hosted:integration-tests:test
 wrote dependency log to \$DIST_DIR/affected_module_detector_log\.txt
@@ -428,6 +430,8 @@ More than one file was found with OS independent path '.*'\. This version of the
 # > Task :docs-runner:dokkaJavaTipOfTreeDocs
 \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-reflect\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
 \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-jdk[0-9]+/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+\-[0-9]+/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-common/[0-9]+\.[0-9]+\.[0-9]+\-[0-9]+/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\-[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
 \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
 \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-common/[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
 \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+\-rc/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-rc\.jar \(version [0-9]+\.[0-9]+\)
@@ -643,6 +647,7 @@ w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/android
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/OnApplyWindowInsetsListenerTest\.kt\: \([0-9]+\, [0-9]+\)\: \'consumeDisplayCutout\(\)\: WindowInsetsCompat\' is deprecated\. Deprecated in Java
 # > Task :contentpager:contentpager:compileDebugAndroidTestJavaWithJavac
 # > Task :annotation:annotation-experimental-lint-integration-tests:lintDebug
+Error processing \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+\-[0-9]+/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-[0-9]+\.jar:META\-INF/versions/[0-9]+/module\-info\.class: broken class file\? \(This feature requires ASM[0-9]+\)
 Error processing \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar:META\-INF/versions/[0-9]+/module\-info\.class: broken class file\? \(This feature requires ASM[0-9]+\)
 \$SUPPORT/compose/animation/animation\-core/lint\-baseline\.xml: Information: [0-9]+ errors/warnings were listed in the baseline file \(lint\-baseline\.xml\) but not found in the project; perhaps they have been fixed\? Another possible explanation is that lint recently stopped analyzing \(and including results from\) dependent projects by default\. You can turn this back on with android\.lintOptions\.checkDependencies=true\. Unmatched issue types: UnknownIssueId \([0-9]+\) \[LintBaseline\]
 \$SUPPORT/compose/ui/ui\-test/lint\-baseline\.xml: Information: [0-9]+ errors/warnings were listed in the baseline file \(lint\-baseline\.xml\) but not found in the project; perhaps they have been fixed\? Another possible explanation is that lint recently stopped analyzing \(and including results from\) dependent projects by default\. You can turn this back on with android\.lintOptions\.checkDependencies=true\. Unmatched issue types: UnknownIssueId \([0-9]+\) \[LintBaseline\]
