@@ -11,6 +11,7 @@ package androidx.wear.watchface.style {
     ctor public UserStyle(java.util.Map<androidx.wear.watchface.style.UserStyleSetting,? extends androidx.wear.watchface.style.UserStyleSetting.Option> selectedOptions);
     ctor public UserStyle(androidx.wear.watchface.style.UserStyle userStyle);
     ctor public UserStyle(java.util.Map<java.lang.String,java.lang.String> userStyle, androidx.wear.watchface.style.UserStyleSchema styleSchema);
+    method public operator androidx.wear.watchface.style.UserStyleSetting.Option? get(androidx.wear.watchface.style.UserStyleSetting setting);
     method public java.util.Map<androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option> getSelectedOptions();
     method public java.util.Map<java.lang.String,java.lang.String> toMap();
     property public final java.util.Map<androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option> selectedOptions;
@@ -140,6 +141,11 @@ package androidx.wear.watchface.style {
   public abstract static class UserStyleSetting.Option {
     ctor public UserStyleSetting.Option(String id);
     method public final String getId();
+    method public final androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption? toBooleanOption();
+    method public final androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption? toComplicationsOption();
+    method public final androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption? toDoubleRangeOption();
+    method public final androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption? toListOption();
+    method public final androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption? toLongRangeOption();
     property public final String id;
     field public static final androidx.wear.watchface.style.UserStyleSetting.Option.Companion Companion;
   }

@@ -166,6 +166,41 @@ public sealed class UserStyleSetting(
         @Suppress("HiddenAbstractMethod")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         public abstract fun toWireFormat(): UserStyleSettingWireFormat.OptionWireFormat
+
+        public fun toBooleanOption(): BooleanUserStyleSetting.BooleanOption? =
+            if (this is BooleanUserStyleSetting.BooleanOption) {
+                this
+            } else {
+                null
+            }
+
+        public fun toComplicationsOption(): ComplicationsUserStyleSetting.ComplicationsOption? =
+            if (this is ComplicationsUserStyleSetting.ComplicationsOption) {
+                this
+            } else {
+                null
+            }
+
+        public fun toDoubleRangeOption(): DoubleRangeUserStyleSetting.DoubleRangeOption? =
+            if (this is DoubleRangeUserStyleSetting.DoubleRangeOption) {
+                this
+            } else {
+                null
+            }
+
+        public fun toListOption(): ListUserStyleSetting.ListOption? =
+            if (this is ListUserStyleSetting.ListOption) {
+                this
+            } else {
+                null
+            }
+
+        public fun toLongRangeOption(): LongRangeUserStyleSetting.LongRangeOption? =
+            if (this is LongRangeUserStyleSetting.LongRangeOption) {
+                this
+            } else {
+                null
+            }
     }
 
     /**

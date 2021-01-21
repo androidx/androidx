@@ -96,12 +96,12 @@ class StyleParcelableTest {
         val wireFormat2 = option2.toWireFormat()
         val wireFormat3 = option3.toWireFormat()
 
-        val unmarshalled1 = UserStyleSetting.Option.createFromWireFormat(wireFormat1)
-            as ListUserStyleSetting.ListOption
-        val unmarshalled2 = UserStyleSetting.Option.createFromWireFormat(wireFormat2)
-            as ListUserStyleSetting.ListOption
-        val unmarshalled3 = UserStyleSetting.Option.createFromWireFormat(wireFormat3)
-            as ListUserStyleSetting.ListOption
+        val unmarshalled1 =
+            UserStyleSetting.Option.createFromWireFormat(wireFormat1).toListOption()!!
+        val unmarshalled2 =
+            UserStyleSetting.Option.createFromWireFormat(wireFormat2).toListOption()!!
+        val unmarshalled3 =
+            UserStyleSetting.Option.createFromWireFormat(wireFormat3).toListOption()!!
 
         assertThat(unmarshalled1.id).isEqualTo("1")
         assertThat(unmarshalled1.displayName).isEqualTo("one")

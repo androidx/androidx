@@ -101,7 +101,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
 
         when {
             booleanUserStyleSetting.isNotEmpty() -> {
-                booleanStyle.isChecked = userStyle.selectedOptions[styleSetting]!!.id.toBoolean()
+                booleanStyle.isChecked = userStyle[styleSetting]!!.id.toBoolean()
                 booleanStyle.setOnCheckedChangeListener { _, isChecked ->
                     setUserStyleOption(styleSetting.getOptionForId(isChecked.toString()))
                 }
@@ -152,7 +152,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                             DoubleRangeUserStyleSetting.DoubleRangeOption
                         ).value
                 val delta = (maxValue - minValue) / 100.0f
-                val value = userStyle.selectedOptions[styleSetting]!!.id.toFloat()
+                val value = userStyle[styleSetting]!!.toDoubleRangeOption()!!.value.toFloat()
                 rangedStyle.progress = ((value - minValue) / delta).toInt()
                 rangedStyle.setOnSeekBarChangeListener(
                     object : SeekBar.OnSeekBarChangeListener {
