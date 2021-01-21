@@ -76,19 +76,6 @@ public class ActionStrip {
     /**
      * Returns the first {@link Action} associated with the input {@code actionType}, or {@code
      * null} if no matching {@link Action} is found.
-     *
-     * @deprecated use {@link #getFirstActionOfType(int)} instead.
-     */
-    // TODO(jayyoo): remove once {@link #getFirstActionOfType(int)} is used in the host.
-    @Deprecated
-    @Nullable
-    public Action getActionOfType(@ActionType int actionType) {
-        return getFirstActionOfType(actionType);
-    }
-
-    /**
-     * Returns the first {@link Action} associated with the input {@code actionType}, or {@code
-     * null} if no matching {@link Action} is found.
      */
     @Nullable
     public Action getFirstActionOfType(@ActionType int actionType) {
