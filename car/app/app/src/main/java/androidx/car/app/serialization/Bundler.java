@@ -74,7 +74,7 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(LIBRARY)
-public class Bundler {
+public final class Bundler {
     @VisibleForTesting
     static final String ICON_COMPAT_ANDROIDX = "androidx.core.graphics.drawable.IconCompat";
 

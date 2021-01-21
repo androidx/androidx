@@ -39,7 +39,7 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(Scope.LIBRARY)
-public class ActionsConstraints {
+public final class ActionsConstraints {
 
     /** Conservative constraints for most template types. */
     @NonNull

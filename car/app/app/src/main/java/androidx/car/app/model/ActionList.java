@@ -33,7 +33,7 @@ import java.util.Objects;
  * <p>This model is intended for internal and host use only, as a transport artifact for
  * homogeneous lists of {@link Action} items.
  */
-public class ActionList {
+public final class ActionList {
     @Keep
     private final List<Action> mList;
 

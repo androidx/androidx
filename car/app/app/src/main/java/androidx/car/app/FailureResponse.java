@@ -40,7 +40,7 @@ import java.util.Objects;
  *
  * <p>This is used for the failure response for a IOnDoneCallback.
  */
-public class FailureResponse {
+public final class FailureResponse {
     /**
      * The exception type of the failure.
      *

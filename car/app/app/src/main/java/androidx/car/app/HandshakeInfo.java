@@ -26,7 +26,7 @@ import androidx.annotation.Nullable;
  * A container for the information conveyed by the host after the handshake with the app is
  * completed.
  */
-public class HandshakeInfo {
+public final class HandshakeInfo {
     @Keep
     @Nullable
     private final String mHostPackageName;

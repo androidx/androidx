@@ -41,7 +41,7 @@ import java.security.InvalidParameterException;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
-public class HostDispatcher {
+public final class HostDispatcher {
     @Nullable
     private ICarHost mCarHost;
     @Nullable

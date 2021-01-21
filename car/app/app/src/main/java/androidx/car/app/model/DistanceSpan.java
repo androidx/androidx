@@ -57,7 +57,7 @@ import java.util.Objects;
  * string.setSpan(ForegroundCarColorSpan.create(CarColor.BLUE), 0, 1, SPAN_EXCLUSIVE_EXCLUSIVE);
  * }</pre>
  */
-public class DistanceSpan extends CarSpan {
+public final class DistanceSpan extends CarSpan {
     @Nullable
     @Keep
     private final Distance mDistance;

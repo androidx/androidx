@@ -29,7 +29,7 @@ import androidx.car.app.model.Row;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class RowConstraints {
+public final class RowConstraints {
     @NonNull
     public static final RowConstraints UNCONSTRAINED = new RowConstraints.Builder().build();
 

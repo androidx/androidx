@@ -38,7 +38,7 @@ import java.util.Objects;
 /**
  * Represents a grid item with an image and an optional title.
  */
-public class GridItem implements Item {
+public final class GridItem implements Item {
     /**
      * The type of images supported within grid items.
      *

@@ -33,7 +33,7 @@ import androidx.annotation.NonNull;
  * <p>The host API level can be used to adjust the models exchanged with the host to those valid
  * for the specific host version the app is connected to.
  */
-public class HostInfo {
+public final class HostInfo {
     @NonNull
     private final String mPackageName;
     private final int mUid;

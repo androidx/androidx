@@ -22,7 +22,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 
 /** A container for the {@link Surface} created by the host and its associated properties. */
-public class SurfaceContainer {
+public final class SurfaceContainer {
     @Keep
     @Nullable
     private final Surface mSurface;

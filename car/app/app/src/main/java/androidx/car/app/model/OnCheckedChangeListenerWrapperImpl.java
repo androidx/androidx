@@ -37,7 +37,7 @@ import androidx.car.app.utils.RemoteUtils;
 // TODO(b/177591476): remove after host references have been cleaned up.
 @SuppressWarnings("deprecation")
 @RestrictTo(LIBRARY)
-public class OnCheckedChangeListenerWrapperImpl implements OnCheckedChangeListenerWrapper {
+public final class OnCheckedChangeListenerWrapperImpl implements OnCheckedChangeListenerWrapper {
 
     @Keep
     private final IOnCheckedChangeListener mStub;
