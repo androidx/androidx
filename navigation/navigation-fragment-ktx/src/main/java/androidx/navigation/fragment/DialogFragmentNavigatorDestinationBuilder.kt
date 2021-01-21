@@ -57,6 +57,6 @@ public class DialogFragmentNavigatorDestinationBuilder(
 
     override fun build(): DialogFragmentNavigator.Destination =
         super.build().also { destination ->
-            destination.className = fragmentClass.java.name
+            destination.setClassName(fragmentClass.java.name)
         }
 }
