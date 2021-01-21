@@ -67,8 +67,8 @@ public final class TravelEstimate {
      * @param arrivalTimeAtDestination The arrival time with the time zone information provided
      *                                 for the destination.
      * @throws IllegalArgumentException if {@code remainingTimeSeconds} is a negative value.
-     * @throws NullPointerException     if {@code remainingDistance} is {@code null}
-     * @throws NullPointerException     if {@code arrivalTimeAtDestination} is {@code null}
+     * @throws NullPointerException     if {@code remainingDistance} or {@code
+     *                                  arrivalTimeAtDestination} are {@code null}
      */
     @NonNull
     public static TravelEstimate create(
@@ -91,9 +91,8 @@ public final class TravelEstimate {
      * @param arrivalTimeAtDestination The arrival time with the time zone information provided for
      *                                 the destination.
      * @throws IllegalArgumentException if {@code remainingTime} contains a negative duration.
-     * @throws NullPointerException     if {@code remainingDistance} is {@code null}
-     * @throws NullPointerException     if {@code remainingTime} is {@code null}
-     * @throws NullPointerException     if {@code arrivalTimeAtDestination} is {@code null}
+     * @throws NullPointerException     if {@code remainingDistance}, {@code remainingTime}, or
+     *                                  {@code arrivalTimeAtDestination} are {@code null}
      */
     @RequiresApi(26)
     @SuppressWarnings("AndroidJdkLibsChecker")
@@ -113,8 +112,8 @@ public final class TravelEstimate {
      *                                 the destination.
      * @param arrivalTimeAtDestination The arrival time with the time zone information provided
      *                                 for the destination.
-     * @throws NullPointerException if {@code remainingDistance} is {@code null}
-     * @throws NullPointerException if {@code arrivalTimeAtDestination} is {@code null}
+     * @throws NullPointerException if {@code remainingDistance} or {@code
+     *                              arrivalTimeAtDestination} are {@code null}
      */
     // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
@@ -133,8 +132,8 @@ public final class TravelEstimate {
      *                                 the destination.
      * @param arrivalTimeAtDestination The arrival time with the time zone information provided for
      *                                 the destination.
-     * @throws NullPointerException if {@code remainingDistance} is {@code null}
-     * @throws NullPointerException if {@code arrivalTimeAtDestination} is {@code null}
+     * @throws NullPointerException if {@code remainingDistance} or
+     *                              {@code arrivalTimeAtDestination} are {@code null}
      */
     @NonNull
     @RequiresApi(26)
@@ -251,8 +250,8 @@ public final class TravelEstimate {
          * @param arrivalTimeAtDestination The arrival time with the time zone information
          *                                 provided for
          *                                 the destination.
-         * @throws NullPointerException if {@code remainingDistance} is {@code null}
-         * @throws NullPointerException if {@code arrivalTimeAtDestination} is {@code null}
+         * @throws NullPointerException if {@code remainingDistance} or
+         *                              {@code arrivalTimeAtDestination} are {@code null}
          */
         public Builder(
                 @NonNull Distance remainingDistance,
@@ -270,8 +269,8 @@ public final class TravelEstimate {
          * @param arrivalTimeAtDestination The arrival time with the time zone information
          *                                 provided for
          *                                 the destination.
-         * @throws NullPointerException if {@code remainingDistance} is {@code null}
-         * @throws NullPointerException if {@code arrivalTimeAtDestination} is {@code null}
+         * @throws NullPointerException if {@code remainingDistance} or
+         *                              {@code arrivalTimeAtDestination} are {@code null}
          */
         // TODO(rampara): Move API 26 calls into separate class.
         @SuppressLint("UnsafeNewApiCall")

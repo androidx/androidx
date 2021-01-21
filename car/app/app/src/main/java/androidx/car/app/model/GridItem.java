@@ -329,10 +329,9 @@ public final class GridItem implements Item {
         /**
          * Constructs the {@link GridItem} defined by this builder.
          *
-         * @throws IllegalStateException if the grid item's title is not set.
-         * @throws IllegalStateException if the grid item's image is set when it is loading and vice
-         *                               versa.
-         * @throws IllegalStateException if the grid item is loading but the click listener is set.
+         * @throws IllegalStateException if the grid item's title is not set, if the grid item's
+         *                               image is set when it is loading or vice versa, or if
+         *                               the grid item is loading but the click listener is set.
          */
         @NonNull
         public GridItem build() {

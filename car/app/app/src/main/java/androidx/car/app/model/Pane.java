@@ -212,7 +212,7 @@ public final class Pane {
          * Constructs the row list defined by this builder.
          *
          * @throws IllegalStateException if the pane is in loading state and also contains rows, or
-         *                               vice-versa.
+         *                               vice versa.
          */
         @NonNull
         public Pane build() {

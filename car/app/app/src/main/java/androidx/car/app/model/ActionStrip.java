@@ -132,9 +132,9 @@ public final class ActionStrip {
         /**
          * Adds an {@link Action} to the list.
          *
-         * @throws IllegalArgumentException if the background color of the action is specified.
-         * @throws IllegalArgumentException if {@code action} is a standard action and an action of
-         *                                  the same type has already been added.
+         * @throws IllegalArgumentException if the background color of the action is specified,
+         *                                  or if {@code action} is a standard action and an
+         *                                  action of the same type has already been added.
          * @throws NullPointerException     if {@code action} is {@code null}.
          */
         @NonNull

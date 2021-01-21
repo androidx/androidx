@@ -64,17 +64,13 @@ public final class TemplateWrapper {
     @NonNull
     public static TemplateWrapper wrap(@NonNull Template template) {
         // Assign a random ID to the template. This should be unique so that the host knows the
-        // template
-        // is a new step. We are not using hashCode() here as we might override template's hash
-        // codes in
-        // the future.
+        // template is a new step. We are not using hashCode() here as we might override
+        // template's hash codes in the future.
         //
         // Note: There is a chance of collision here, in which case the host will reset the
         // task step to the value of a previous template that has the colliding ID. The chance of
-        // this
-        // happening should be negligible given we are dealing with a very small number of
-        // templates in
-        // the stack.
+        // this happening should be negligible given we are dealing with a very small number of
+        // templates in the stack.
         return wrap(template, createRandomId());
     }
 

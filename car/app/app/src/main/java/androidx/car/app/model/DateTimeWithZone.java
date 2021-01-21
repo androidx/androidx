@@ -132,11 +132,10 @@ public final class DateTimeWithZone {
      *                             Pacific Standard Time. This string may be used to display to
      *                             the user along with the date when needed, for example, if this
      *                             time zone is different than the current system time zone.
-     * @throws IllegalArgumentException if {@code timeSinceEpochMillis} is a negative value.
-     * @throws IllegalArgumentException if {@code zoneOffsetSeconds} is no within the required
-     *                                  range.
+     * @throws IllegalArgumentException if {@code timeSinceEpochMillis} is a negative value, if
+     *                                  {@code zoneOffsetSeconds} is not within the required range,
+     *                                  or if {@code zoneShortName} is empty.
      * @throws NullPointerException     if {@code zoneShortName} is {@code null}.
-     * @throws IllegalArgumentException if {@code zoneShortName} is empty.
      */
     @NonNull
     public static DateTimeWithZone create(
@@ -161,11 +160,10 @@ public final class DateTimeWithZone {
      * @param timeSinceEpochMillis The number of milliseconds from the epoch of
      *                             1970-01-01T00:00:00Z.
      * @param timeZone             The time zone at the date specified by {@code timeInUtcMillis}.
-     *                             The abbreviated
-     *                             name of this time zone, formatted using the default locale, may
-     *                             be displayed to the user
-     *                             when needed, for example, if this time zone is different than
-     *                             the current system time zone.
+     *                             The abbreviated name of this time zone, formatted using the
+     *                             default locale, may be displayed to the user when needed, for
+     *                             example, if this time zone is different than the current
+     *                             system time zone.
      * @throws IllegalArgumentException if {@code timeSinceEpochMillis} is a negative value.
      * @throws NullPointerException     if {@code timeZone} is {@code null}.
      */

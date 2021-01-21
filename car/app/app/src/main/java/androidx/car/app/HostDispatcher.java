@@ -52,12 +52,13 @@ public final class HostDispatcher {
     /**
      * Dispatches the {@code call} to the host for the given {@code hostType}.
      *
-     * @param hostType the service to dispatch to.
-     * @param call     the request to dispatch.
-     * @param callName the name of the call for logging purposes.
-     * @throws SecurityException if the host has thrown it.
+     * @param hostType the service to dispatch to
+     * @param call     the request to dispatch
+     * @param callName the name of the call for logging purposes
+     *
+     * @throws SecurityException if the host has thrown it
      * @throws HostException     if the host throws any exception other than
-     *                           {@link SecurityException}.
+     *                           {@link SecurityException}
      */
     @Nullable
     @SuppressWarnings({"unchecked", "cast.unsafe"}) // Cannot check if instanceof ServiceT

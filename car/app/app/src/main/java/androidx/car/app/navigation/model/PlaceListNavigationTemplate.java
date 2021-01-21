@@ -281,7 +281,7 @@ public final class PlaceListNavigationTemplate implements Template {
          * Either a header {@link Action} or title must be set on the template.
          *
          * @throws IllegalArgumentException if the template is in a loading state but the list is
-         *                                  set, or vice-versa.
+         *                                  set, or vice versa.
          * @throws IllegalStateException    if the template does not have either a title or header
          *                                  {@link Action} set.
          */

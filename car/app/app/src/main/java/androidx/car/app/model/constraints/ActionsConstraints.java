@@ -111,11 +111,10 @@ public final class ActionsConstraints {
     /**
      * Validates the input list of {@link Action}s against this {@link ActionsConstraints} instance.
      *
-     * @throws IllegalArgumentException if the actions has more actions than allowed.
-     * @throws IllegalArgumentException if the actions has more actions with custom titles than
-     *                                  allowed.
-     * @throws IllegalArgumentException if the actions does not contain all required types.
-     * @throws IllegalArgumentException if the actions contain any disallowed types.
+     * @throws IllegalArgumentException if the actions has more actions than allowed, if it has
+     *                                  more actions with custom titles than allowed, if the
+     *                                  actions do not contain all required types, or if the
+     *                                  actions contain any disallowed types.
      */
     public void validateOrThrow(@NonNull List<Action> actions) {
         int maxAllowedActions = mMaxActions;

@@ -113,8 +113,8 @@ public final class RowListConstraints {
     /**
      * Validates that the {@link ItemList} satisfies this {@link RowListConstraints} instance.
      *
-     * @throws IllegalArgumentException if the constraints are not met.
-     * @throws IllegalArgumentException if the list contains non-Row instances.
+     * @throws IllegalArgumentException if the constraints are not met, or if the list contains
+     *                                  non-Row instances.
      */
     public void validateOrThrow(@NonNull ItemList itemList) {
         if (itemList.getOnSelectedDelegate() != null && !mAllowSelectableLists) {
@@ -128,8 +128,8 @@ public final class RowListConstraints {
      * Validates that the list of {@link SectionedItemList}s satisfies this
      * {@link RowListConstraints} instance.
      *
-     * @throws IllegalArgumentException if the constraints are not met.
-     * @throws IllegalArgumentException if the lists contain any non-Row instances.
+     * @throws IllegalArgumentException if the constraints are not met or if the lists contain
+     *                                  any non-Row instances.
      */
     public void validateOrThrow(@NonNull List<SectionedItemList> sections) {
         List<Item> combinedLists = new ArrayList<>();

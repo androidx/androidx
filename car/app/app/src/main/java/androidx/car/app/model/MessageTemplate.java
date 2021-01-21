@@ -322,9 +322,8 @@ public final class MessageTemplate implements Template {
          *
          * <p>Either a header {@link Action} or title must be set on the template.
          *
-         * @throws IllegalStateException if the message is empty.
-         * @throws IllegalStateException if the template does not have either a title or header
-         *                               {@link Action} set.
+         * @throws IllegalStateException if the message is empty, or if the template does not have
+         *                               either a title or header {@link Action} set.
          */
         @NonNull
         public MessageTemplate build() {
