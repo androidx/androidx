@@ -69,12 +69,18 @@ public interface AppSearchSession extends Closeable {
      * {@link AppSearchResult#RESULT_INVALID_SCHEMA} and a message describing the incompatibility.
      * In this case the previously set schema will remain active.
      *
-     * <p>If you need to make non-backwards-compatible changes as described above, you can set the
-     * {@link SetSchemaRequest.Builder#setForceOverride} method to {@code true}. In this case,
-     * instead of completing its future with an
-     * {@link androidx.appsearch.exceptions.AppSearchException} with the
-     * {@link AppSearchResult#RESULT_INVALID_SCHEMA} error code, all documents which are not
-     * compatible with the new schema will be deleted and the incompatible schema will be applied.
+     * <p>If you need to make non-backwards-compatible changes as described above, you can either:
+     * <ul>
+     *     <li>Set the {@link SetSchemaRequest.Builder#setForceOverride} method to {@code true}. In
+     *         this case, instead of completing its future with an
+     *         {@link androidx.appsearch.exceptions.AppSearchException} with the
+     *         {@link AppSearchResult#RESULT_INVALID_SCHEMA} error code, all documents which are not
+     *         compatible with the new schema will be deleted and the incompatible schema will be
+     *         applied.
+     *     <li>Add a {@link androidx.appsearch.app.AppSearchSchema.Migrator} for each incompatible
+     *         type and make no deletion. The migrator will migrate documents from it's old schema
+     *         version to the new version. See the migration section below.
+     * </ul>
      *
      * <p>It is a no-op to set the same schema as has been previously set; this is handled
      * efficiently.
@@ -85,13 +91,38 @@ public interface AppSearchSession extends Closeable {
      * Visibility settings for a schema type do not apply or persist across
      * {@link SetSchemaRequest}s.
      *
-     * @param request The schema update request.
-     * @return The pending result of performing this operation.
+     * <p>Migration: make non-backwards-compatible changes will delete all stored documents in
+     * old schema. You can save your documents by setting
+     * {@link androidx.appsearch.app.AppSearchSchema.Migrator} via the
+     * {@link SetSchemaRequest.Builder#setMigrator} for each type you want to save.
+     *
+     * <p>{@link androidx.appsearch.app.AppSearchSchema.Migrator#onDowngrade} or
+     * {@link androidx.appsearch.app.AppSearchSchema.Migrator#onUpgrade} will be triggered if the
+     * version number of the schema stored in AppSearch is different with the version in the
+     * request.
+     *
+     * <p>If any error or Exception occurred in the
+     * {@link androidx.appsearch.app.AppSearchSchema.Migrator#onDowngrade},
+     * {@link androidx.appsearch.app.AppSearchSchema.Migrator#onUpgrade} or
+     * {@link androidx.appsearch.app.AppSearchMigrationHelper.Transformer#transform}, the
+     * migration will be terminated, the setSchema request will be rejected unless
+     * the schema changes are backwards-compatible, and stored documents won't have any observable
+     * changes.
+     *
+     * @param  request The schema update request.
+     * @return The pending {@link SetSchemaResponse} of performing this operation. Success if the
+     *         the schema has been set and any migrations has been done. Otherwise, the failure
+     *         {@link androidx.appsearch.app.SetSchemaResponse.MigrationFailure} indicates which
+     *         document is fail to be migrated.
+     *
+     * @see androidx.appsearch.app.AppSearchSchema.Migrator
+     * @see androidx.appsearch.app.AppSearchMigrationHelper.Transformer
      */
     // TODO(b/169883602): Change @code references to @link when setPlatformSurfaceable APIs are
     //  exposed.
     @NonNull
-    ListenableFuture<Void> setSchema(@NonNull SetSchemaRequest request);
+    ListenableFuture<SetSchemaResponse> setSchema(
+            @NonNull SetSchemaRequest request);
 
     /**
      * Retrieves the schema most recently successfully provided to {@link #setSchema}.

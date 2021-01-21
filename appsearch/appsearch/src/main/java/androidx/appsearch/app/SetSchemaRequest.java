@@ -42,15 +42,18 @@ public final class SetSchemaRequest {
     private final Set<AppSearchSchema> mSchemas;
     private final Set<String> mSchemasNotVisibleToSystemUi;
     private final Map<String, Set<PackageIdentifier>> mSchemasVisibleToPackages;
+    private final Map<String, AppSearchSchema.Migrator> mMigrators;
     private final boolean mForceOverride;
 
     SetSchemaRequest(@NonNull Set<AppSearchSchema> schemas,
             @NonNull Set<String> schemasNotVisibleToSystemUi,
             @NonNull Map<String, Set<PackageIdentifier>> schemasVisibleToPackages,
+            @NonNull Map<String, AppSearchSchema.Migrator> migrators,
             boolean forceOverride) {
         mSchemas = Preconditions.checkNotNull(schemas);
         mSchemasNotVisibleToSystemUi = Preconditions.checkNotNull(schemasNotVisibleToSystemUi);
         mSchemasVisibleToPackages = Preconditions.checkNotNull(schemasVisibleToPackages);
+        mMigrators = Preconditions.checkNotNull(migrators);
         mForceOverride = forceOverride;
     }
 
@@ -85,6 +88,14 @@ public final class SetSchemaRequest {
     }
 
     /**
+     * Returns the map of {@link androidx.appsearch.app.AppSearchSchema.Migrator}.
+     */
+    @NonNull
+    public Map<String, AppSearchSchema.Migrator> getMigrators() {
+        return Collections.unmodifiableMap(mMigrators);
+    }
+
+    /**
      * Returns a mapping of schema types to the set of packages that have access
      * to that schema type. Each package is represented by a {@link PackageIdentifier}.
      * name and byte[] certificate.
@@ -112,6 +123,7 @@ public final class SetSchemaRequest {
         private final Set<String> mSchemasNotVisibleToSystemUi = new ArraySet<>();
         private final Map<String, Set<PackageIdentifier>> mSchemasVisibleToPackages =
                 new ArrayMap<>();
+        private final Map<String, AppSearchSchema.Migrator> mMigrators = new ArrayMap<>();
         private boolean mForceOverride = false;
         private boolean mBuilt = false;
 
@@ -245,6 +257,23 @@ public final class SetSchemaRequest {
             return this;
         }
 
+        /**
+         * Sets the {@link androidx.appsearch.app.AppSearchSchema.Migrator}.
+         *
+         * @param schemaType The schema type to set migrator on.
+         * @param migrator   The migrator translate a document from it's old version to a new
+         *                   incompatible version.
+         */
+        @NonNull
+        @SuppressLint("MissingGetterMatchingBuilder")        // Getter return plural objects.
+        public Builder setMigrator(@NonNull String schemaType,
+                @NonNull AppSearchSchema.Migrator migrator) {
+            Preconditions.checkNotNull(schemaType);
+            Preconditions.checkNotNull(migrator);
+            mMigrators.put(schemaType, migrator);
+            return this;
+        }
+
 // @exportToFramework:startStrip()
         /**
          * Sets visibility on system UI surfaces for the given {@code dataClass}.
@@ -336,8 +365,7 @@ public final class SetSchemaRequest {
             }
 
             return new SetSchemaRequest(mSchemas, mSchemasNotVisibleToSystemUi,
-                    mSchemasVisibleToPackages,
-                    mForceOverride);
+                    mSchemasVisibleToPackages, mMigrators, mForceOverride);
         }
     }
 }
