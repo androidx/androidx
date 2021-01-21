@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 4.2.0-beta04">
+
+    <issue
+        id="BanConcurrentHashMap"
+        severity="Error"
+        message="Detected ConcurrentHashMap usage."
+        category="Correctness"
+        priority="5"
+        summary="ConcurrentHashMap usage is not allowed"
+        explanation="ConcurrentHashMap has an issue on Android’s Lollipop release that can lead to lost updates under thread contention."
+        errorLine1="import java.util.concurrent.ConcurrentHashMap;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="$SUPPORT/lint-checks/integration-tests/src/main/java/Sample.java"
+            line="19"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        severity="Fatal"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        category="Interoperability:Kotlin Interoperability"
+        priority="6"
+        summary="Unknown nullness"
+        explanation="To improve referencing this code from Kotlin, consider adding&#xA;explicit nullness information here with either `@NonNull` or `@Nullable`.&#xA;&#xA;You can set the environment variable&#xA;    `ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED=true`&#xA;if you want lint to ignore classes and members that have been annotated with&#xA;`@Deprecated`."
+        url="https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        urls="https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Sample confirmIntrinisicLintChecksRun() {"
+        errorLine2="                  ~~~~~~">
+        <location
+            file="$SUPPORT/lint-checks/integration-tests/src/main/java/Sample.java"
+            line="28"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        severity="Fatal"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        category="Interoperability:Kotlin Interoperability"
+        priority="6"
+        summary="Unknown nullness"
+        explanation="To improve referencing this code from Kotlin, consider adding&#xA;explicit nullness information here with either `@NonNull` or `@Nullable`.&#xA;&#xA;You can set the environment variable&#xA;    `ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED=true`&#xA;if you want lint to ignore classes and members that have been annotated with&#xA;`@Deprecated`."
+        url="https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        urls="https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void confirmCustomAndroidXChecksRun(ConcurrentHashMap m) {"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="$SUPPORT/lint-checks/integration-tests/src/main/java/Sample.java"
+            line="37"
+            column="55"/>
+    </issue>
+
+</issues>
