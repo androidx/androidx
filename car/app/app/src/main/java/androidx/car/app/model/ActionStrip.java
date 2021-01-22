@@ -55,21 +55,20 @@ public final class ActionStrip {
     /**
      * Returns the list of {@link Action}'s.
      *
-     * @deprecated use {@link #getActionList()} instead.
+     * @deprecated use {@link #getActions()} instead.
      */
-    // TODO(jayyoo): remove once {@link #getActionList()} is used in the host.
+    // TODO(jayyoo): remove once {@link #getActions()} is used in the host.
     @Deprecated
     @NonNull
-    @SuppressWarnings("unchecked")
-    public List<Object> getActions() {
-        return (List<Object>) (List<? extends Object>) mActions;
+    public List<Action> getActionList() {
+        return getActions();
     }
 
     /**
      * Returns the list of {@link Action}'s.
      */
     @NonNull
-    public List<Action> getActionList() {
+    public List<Action> getActions() {
         return mActions;
     }
 
