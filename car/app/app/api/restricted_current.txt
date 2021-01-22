@@ -451,9 +451,9 @@ package androidx.car.app.model {
 
   public static final class MessageTemplate.Builder {
     ctor public MessageTemplate.Builder(CharSequence);
+    method public androidx.car.app.model.MessageTemplate.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.MessageTemplate build();
     method @Deprecated public androidx.car.app.model.MessageTemplate.Builder setActionList(java.util.List<androidx.car.app.model.Action!>);
-    method public androidx.car.app.model.MessageTemplate.Builder setActions(java.util.List<androidx.car.app.model.Action!>);
     method @Deprecated public androidx.car.app.model.MessageTemplate.Builder setDebugCause(Throwable?);
     method public androidx.car.app.model.MessageTemplate.Builder setDebugMessage(Throwable?);
     method public androidx.car.app.model.MessageTemplate.Builder setDebugMessage(String?);
@@ -524,10 +524,10 @@ package androidx.car.app.model {
 
   public static final class Pane.Builder {
     ctor public Pane.Builder();
+    method public androidx.car.app.model.Pane.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.Pane.Builder addRow(androidx.car.app.model.Row);
     method public androidx.car.app.model.Pane build();
     method @Deprecated public androidx.car.app.model.Pane.Builder setActionList(java.util.List<androidx.car.app.model.Action!>);
-    method public androidx.car.app.model.Pane.Builder setActions(java.util.List<androidx.car.app.model.Action!>);
     method public androidx.car.app.model.Pane.Builder setLoading(boolean);
   }
 

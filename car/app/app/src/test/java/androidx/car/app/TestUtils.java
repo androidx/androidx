@@ -138,9 +138,8 @@ public class TestUtils {
 
         List<Action> actions = new ArrayList<>();
         for (int i = 0; i < actionCount; i++) {
-            actions.add(createAction("action " + i, null));
+            builder.addAction(createAction("action " + i, null));
         }
-        builder.setActions(actions);
 
         return builder.build();
     }
