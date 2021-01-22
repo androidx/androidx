@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.car.app.utils;
+package androidx.car.app.validation;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -75,7 +75,6 @@ public class HostValidatorTestApi28 {
         Context context = spy(ApplicationProvider.getApplicationContext());
         when(context.getPackageManager()).thenReturn(mPackageManager);
         mHostValidatorBuilder = new HostValidator.Builder(context);
-        mHostValidatorBuilder.setAllowUnknownHostsEnabled(false);
         when(context.getResources()).thenReturn(mResources);
     }
 
@@ -84,7 +83,7 @@ public class HostValidatorTestApi28 {
         installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURES);
         HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, NON_SYSTEM_UID);
 
-        mHostValidatorBuilder.addAllowListedHost(VALID_PACKAGE_NAME, VALID_DIGESTS[0]);
+        mHostValidatorBuilder.addAllowedHost(VALID_PACKAGE_NAME, VALID_DIGESTS[0]);
         HostValidator hostValidator = mHostValidatorBuilder.build();
 
         assertThat(hostValidator.isValidHost(hostInfo)).isTrue();
@@ -95,7 +94,7 @@ public class HostValidatorTestApi28 {
         installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURES);
         HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, NON_SYSTEM_UID);
 
-        mHostValidatorBuilder.addAllowListedHost(VALID_PACKAGE_NAME, VALID_DIGESTS[1]);
+        mHostValidatorBuilder.addAllowedHost(VALID_PACKAGE_NAME, VALID_DIGESTS[1]);
         HostValidator hostValidator = mHostValidatorBuilder.build();
 
         assertThat(hostValidator.isValidHost(hostInfo)).isTrue();
