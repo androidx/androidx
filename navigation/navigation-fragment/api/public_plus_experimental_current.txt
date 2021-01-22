@@ -43,13 +43,20 @@ package androidx.navigation.fragment {
 
   public class NavHostFragment extends androidx.fragment.app.Fragment implements androidx.navigation.NavHost {
     ctor public NavHostFragment();
-    method public static androidx.navigation.fragment.NavHostFragment create(@NavigationRes int);
-    method public static androidx.navigation.fragment.NavHostFragment create(@NavigationRes int, android.os.Bundle?);
+    method public static final androidx.navigation.fragment.NavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
+    method public static final androidx.navigation.fragment.NavHostFragment create(@NavigationRes int graphResId);
     method @Deprecated protected androidx.navigation.Navigator<? extends androidx.navigation.fragment.FragmentNavigator.Destination> createFragmentNavigator();
-    method public static androidx.navigation.NavController findNavController(androidx.fragment.app.Fragment);
+    method public static final androidx.navigation.NavController findNavController(androidx.fragment.app.Fragment fragment);
     method public final androidx.navigation.NavController getNavController();
-    method @Deprecated @CallSuper protected void onCreateNavController(androidx.navigation.NavController);
-    method @CallSuper protected void onCreateNavHostController(androidx.navigation.NavHostController);
+    method @Deprecated @CallSuper protected void onCreateNavController(androidx.navigation.NavController navController);
+    method @CallSuper protected void onCreateNavHostController(androidx.navigation.NavHostController navHostController);
+    field public static final androidx.navigation.fragment.NavHostFragment.Companion Companion;
+  }
+
+  public static final class NavHostFragment.Companion {
+    method public androidx.navigation.fragment.NavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
+    method public androidx.navigation.fragment.NavHostFragment create(@NavigationRes int graphResId);
+    method public androidx.navigation.NavController findNavController(androidx.fragment.app.Fragment fragment);
   }
 
 }
