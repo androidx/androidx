@@ -50,14 +50,14 @@ public class NavigationTemplateTest {
 
     @Test
     public void noActionStrip_throws() {
-        assertThrows(IllegalStateException.class, () -> NavigationTemplate.builder().build());
+        assertThrows(IllegalStateException.class, () -> new NavigationTemplate.Builder().build());
     }
 
     /** Tests basic construction of a template with a minimal data. */
     @Test
     public void createMinimalInstance() {
         NavigationTemplate template =
-                NavigationTemplate.builder()
+                new NavigationTemplate.Builder()
                         .setNavigationInfo(
                                 new RoutingInfo.Builder().setCurrentStep(mCurrentStep,
                                         mCurrentDistance).build())
@@ -85,7 +85,7 @@ public class NavigationTemplateTest {
                         TimeUnit.HOURS.toSeconds(1),
                         createDateTimeWithZone("2020-05-14T19:57:00-07:00", "US/Pacific"));
         NavigationTemplate template =
-                NavigationTemplate.builder()
+                new NavigationTemplate.Builder()
                         .setNavigationInfo(
                                 new RoutingInfo.Builder()
                                         .setCurrentStep(mCurrentStep, mCurrentDistance)
@@ -125,7 +125,7 @@ public class NavigationTemplateTest {
                 Distance.UNIT_METERS);
 
         NavigationTemplate template =
-                NavigationTemplate.builder()
+                new NavigationTemplate.Builder()
                         .setActionStrip(mActionStrip)
                         .setDestinationTravelEstimate(travelEstimate)
                         .setNavigationInfo(
@@ -139,7 +139,7 @@ public class NavigationTemplateTest {
 
         assertThat(template)
                 .isEqualTo(
-                        NavigationTemplate.builder()
+                        new NavigationTemplate.Builder()
                                 .setActionStrip(mActionStrip)
                                 .setDestinationTravelEstimate(travelEstimate)
                                 .setNavigationInfo(
@@ -154,12 +154,12 @@ public class NavigationTemplateTest {
 
     @Test
     public void notEquals_differentActionStrip() {
-        NavigationTemplate template = NavigationTemplate.builder().setActionStrip(
+        NavigationTemplate template = new NavigationTemplate.Builder().setActionStrip(
                 mActionStrip).build();
 
         assertThat(template)
                 .isNotEqualTo(
-                        NavigationTemplate.builder()
+                        new NavigationTemplate.Builder()
                                 .setActionStrip(
                                         new ActionStrip.Builder().addAction(
                                                 TestUtils.createAction("title2", null)).build())
@@ -175,14 +175,14 @@ public class NavigationTemplateTest {
                         createDateTimeWithZone("2020-05-14T19:57:00-07:00", "US/Pacific"));
 
         NavigationTemplate template =
-                NavigationTemplate.builder()
+                new NavigationTemplate.Builder()
                         .setActionStrip(mActionStrip)
                         .setDestinationTravelEstimate(travelEstimate)
                         .build();
 
         assertThat(template)
                 .isNotEqualTo(
-                        NavigationTemplate.builder()
+                        new NavigationTemplate.Builder()
                                 .setActionStrip(mActionStrip)
                                 .setDestinationTravelEstimate(
                                         TravelEstimate.create(
@@ -210,7 +210,7 @@ public class NavigationTemplateTest {
                 Distance.UNIT_METERS);
 
         NavigationTemplate template =
-                NavigationTemplate.builder()
+                new NavigationTemplate.Builder()
                         .setActionStrip(mActionStrip)
                         .setNavigationInfo(
                                 new RoutingInfo.Builder().setCurrentStep(currentStep,
@@ -218,7 +218,7 @@ public class NavigationTemplateTest {
                         .build();
 
         assertThat(template)
-                .isNotEqualTo(NavigationTemplate.builder()
+                .isNotEqualTo(new NavigationTemplate.Builder()
                         .setActionStrip(mActionStrip)
                         .setNavigationInfo(new RoutingInfo.Builder()
                                 .setCurrentStep(new Step.Builder("do a back flip")
@@ -247,7 +247,7 @@ public class NavigationTemplateTest {
                 Distance.UNIT_METERS);
 
         NavigationTemplate template =
-                NavigationTemplate.builder()
+                new NavigationTemplate.Builder()
                         .setActionStrip(mActionStrip)
                         .setNavigationInfo(
                                 new RoutingInfo.Builder().setCurrentStep(currentStep,
@@ -256,7 +256,7 @@ public class NavigationTemplateTest {
 
         assertThat(template)
                 .isNotEqualTo(
-                        NavigationTemplate.builder()
+                        new NavigationTemplate.Builder()
                                 .setActionStrip(mActionStrip)
                                 .setNavigationInfo(
                                         new RoutingInfo.Builder()
@@ -281,7 +281,7 @@ public class NavigationTemplateTest {
                 Distance.UNIT_METERS);
 
         NavigationTemplate template =
-                NavigationTemplate.builder()
+                new NavigationTemplate.Builder()
                         .setActionStrip(mActionStrip)
                         .setNavigationInfo(
                                 new RoutingInfo.Builder()
@@ -293,7 +293,7 @@ public class NavigationTemplateTest {
 
         assertThat(template)
                 .isNotEqualTo(
-                        NavigationTemplate.builder()
+                        new NavigationTemplate.Builder()
                                 .setActionStrip(mActionStrip)
                                 .setNavigationInfo(
                                         new RoutingInfo.Builder()
@@ -317,7 +317,7 @@ public class NavigationTemplateTest {
                 Distance.UNIT_METERS);
 
         NavigationTemplate template =
-                NavigationTemplate.builder()
+                new NavigationTemplate.Builder()
                         .setActionStrip(mActionStrip)
                         .setNavigationInfo(
                                 new RoutingInfo.Builder()
@@ -327,7 +327,7 @@ public class NavigationTemplateTest {
                         .build();
 
         assertThat(template)
-                .isNotEqualTo(NavigationTemplate.builder()
+                .isNotEqualTo(new NavigationTemplate.Builder()
                         .setActionStrip(mActionStrip)
                         .setNavigationInfo(new RoutingInfo.Builder()
                                 .setCurrentStep(currentStep, currentDistance)
@@ -346,14 +346,14 @@ public class NavigationTemplateTest {
     @Test
     public void notEquals_differentBackgroundColors() {
         NavigationTemplate template =
-                NavigationTemplate.builder()
+                new NavigationTemplate.Builder()
                         .setActionStrip(mActionStrip)
                         .setBackgroundColor(CarColor.BLUE)
                         .build();
 
         assertThat(template)
                 .isNotEqualTo(
-                        NavigationTemplate.builder()
+                        new NavigationTemplate.Builder()
                                 .setActionStrip(mActionStrip)
                                 .setBackgroundColor(CarColor.GREEN)
                                 .build());

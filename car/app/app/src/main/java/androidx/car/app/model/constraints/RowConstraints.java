@@ -78,15 +78,6 @@ public final class RowConstraints {
     private final boolean mIsOnClickListenerAllowed;
     private final CarIconConstraints mCarIconConstraints;
 
-    /**
-     * Returns a new {@link Builder}.
-     */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     /** Returns whether the row can have a click listener associated with it. */
     public boolean isOnClickListenerAllowed() {
         return mIsOnClickListenerAllowed;

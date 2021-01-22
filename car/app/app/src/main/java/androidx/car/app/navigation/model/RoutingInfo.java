@@ -48,13 +48,6 @@ public final class RoutingInfo implements NavigationInfo {
     @Keep
     private final boolean mIsLoading;
 
-    /** Constructs a new builder of {@link RoutingInfo}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     @Nullable
     public Step getCurrentStep() {
         return requireNonNull(mCurrentStep);

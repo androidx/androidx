@@ -73,15 +73,6 @@ public final class PlaceMarker {
     private final int mIconType;
 
     /**
-     * Returns a {@link Builder} for a {@link PlaceMarker}.
-     */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /**
      * Returns the {@link CarIcon} associated with this marker.
      */
     @Nullable

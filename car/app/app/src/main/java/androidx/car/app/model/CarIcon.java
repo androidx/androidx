@@ -209,36 +209,6 @@ public final class CarIcon {
         return "[type: " + typeToString(mType) + ", tint: " + mTint + "]";
     }
 
-    /**
-     * Returns a {@link Builder} instance using the given {@link IconCompat}.
-     *
-     * <p>The following types are supported:
-     *
-     * <ul>
-     *   <li>{@link IconCompat#TYPE_BITMAP}
-     *   <li>{@link IconCompat#TYPE_RESOURCE}
-     *   <li>{@link IconCompat#TYPE_URI}
-     * </ul>
-     *
-     * <p>{@link IconCompat#TYPE_URI} is only supported in templates that explicitly allow it. In
-     * those cases, the appropriate APIs will be documented to indicate this.
-     *
-     * <p>For {@link IconCompat#TYPE_URI}, the URI's scheme must be {@link
-     * ContentResolver#SCHEME_CONTENT}.
-     *
-     * <p>If the icon image is loaded from URI, it may be cached on the host side. Changing the
-     * contents of the URI will result in the host showing a stale image.
-     *
-     * @throws IllegalArgumentException if {@code icon}'s URI scheme is not supported.
-     * @throws NullPointerException     if {@code icon} is {@code null}.
-     */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder(@NonNull IconCompat icon) {
-        return new Builder(
-                CarIconConstraints.UNCONSTRAINED.checkSupportedIcon(requireNonNull(icon)));
-    }
-
     @Override
     public int hashCode() {
         return Objects.hash(mType, mTint, iconCompatHash());
@@ -360,8 +330,7 @@ public final class CarIcon {
          * backing
          * {@link IconCompat} with a {@link CarColor} tint.The tint set through {@link
          * IconCompat#setTint(int)} is not guaranteed to be applied if the {@link CarIcon} tint
-         * is not
-         * set.
+         * is not set.
          *
          * <p>The tint mode used to blend this color is {@link Mode#SRC_IN}.
          *

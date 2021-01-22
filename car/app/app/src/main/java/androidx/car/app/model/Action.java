@@ -138,13 +138,6 @@ public final class Action {
     @ActionType
     private final int mType;
 
-    /** Constructs a new builder of {@link Action}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     /**
      * Returns the title displayed in the action, or {@code null} if the action does not have a
      * title.

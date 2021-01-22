@@ -33,20 +33,6 @@ public final class Place {
     @Nullable
     private final PlaceMarker mMarker;
 
-    /**
-     * Create a builder for a {@link Place} instance.
-     *
-     * @param latLng the geographical location associated with the place.
-     * @throws NullPointerException if {@code latLng} is {@code null}.
-     * @deprecated use {@link Place.Builder#Builder(CarLocation)} instead.
-     */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @Deprecated
-    @NonNull
-    public static Builder builder(@NonNull LatLng latLng) {
-        return new Builder(requireNonNull(latLng));
-    }
-
     @Nullable
     public PlaceMarker getMarker() {
         return mMarker;

@@ -150,13 +150,6 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     @Nullable
     private CarColor mColor;
 
-    /** Creates a {@link CarAppExtender.Builder}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     /**
      * Creates a {@link CarAppExtender} from the {@link CarAppExtender} of an existing notification.
      */

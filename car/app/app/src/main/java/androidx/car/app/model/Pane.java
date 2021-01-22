@@ -40,13 +40,6 @@ public final class Pane {
     @Keep
     private final boolean mIsLoading;
 
-    /** Constructs a new builder of {@link Pane}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     /**
      * Returns the list of {@link Action}s displayed alongside the {@link Row}s in this pane.
      *
@@ -58,7 +51,6 @@ public final class Pane {
     public List<Action> getActionList() {
         return getActions();
     }
-
 
     /**
      * Returns the list of {@link Action}s displayed alongside the {@link Row}s in this pane.

@@ -93,13 +93,6 @@ public final class ItemList {
     @Nullable
     private final CarText mNoItemsMessage;
 
-    /** Constructs a new builder of {@link ItemList}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     /** Returns the index of the selected item of the list. */
     public int getSelectedIndex() {
         return mSelectedIndex;

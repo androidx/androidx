@@ -40,17 +40,6 @@ public final class MessageInfo implements NavigationInfo {
     @Nullable
     private final CarIcon mImage;
 
-    /**
-     * Constructs a new builder of {@link MessageInfo}.
-     *
-     * @throws NullPointerException if {@code title} is {@code null}.
-     */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder(@NonNull CharSequence title) {
-        return new Builder(title);
-    }
-
     @NonNull
     public CarText getTitle() {
         return requireNonNull(mTitle);

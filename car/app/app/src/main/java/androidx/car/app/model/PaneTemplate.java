@@ -59,17 +59,6 @@ public final class PaneTemplate implements Template {
     @Nullable
     private final ActionStrip mActionStrip;
 
-    /**
-     * Constructs a new builder of {@link PaneTemplate}.
-     *
-     * @throws NullPointerException if {@code pane} is {@code null}
-     */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder(@NonNull Pane pane) {
-        return new Builder(requireNonNull(pane));
-    }
-
     @Nullable
     public CarText getTitle() {
         return mTitle;

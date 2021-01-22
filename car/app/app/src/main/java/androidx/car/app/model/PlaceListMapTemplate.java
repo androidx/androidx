@@ -68,13 +68,6 @@ public final class PlaceListMapTemplate implements Template {
     @Nullable
     private final Place mAnchor;
 
-    /** Constructs a new builder of {@link PlaceListMapTemplate}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     public boolean isCurrentLocationEnabled() {
         return mShowCurrentLocation;
     }
