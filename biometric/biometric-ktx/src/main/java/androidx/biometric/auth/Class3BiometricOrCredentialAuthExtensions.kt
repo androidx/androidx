@@ -209,22 +209,6 @@ public suspend fun Fragment.authenticateWithClass3BiometricsOrCredentials(
 }
 
 /**
- * Creates a [Class3BiometricOrCredentialAuthPrompt] with the given parameters.
- */
-private fun buildClass3BiometricOrCredentialAuthPrompt(
-    title: CharSequence,
-    subtitle: CharSequence? = null,
-    description: CharSequence? = null,
-    confirmationRequired: Boolean = true,
-): Class3BiometricOrCredentialAuthPrompt = Class3BiometricOrCredentialAuthPrompt.Builder(title)
-    .apply {
-        subtitle?.let { setSubtitle(it) }
-        description?.let { setDescription(it) }
-        setConfirmationRequired(confirmationRequired)
-    }
-    .build()
-
-/**
  * Creates a [Class3BiometricOrCredentialAuthPrompt] with the given parameters and starts
  * authentication.
  */
@@ -233,10 +217,10 @@ private fun startClass3BiometricOrCredentialAuthenticationInternal(
     host: AuthPromptHost,
     crypto: CryptoObject?,
     title: CharSequence,
-    subtitle: CharSequence? = null,
-    description: CharSequence? = null,
-    confirmationRequired: Boolean = true,
-    executor: Executor? = null,
+    subtitle: CharSequence?,
+    description: CharSequence?,
+    confirmationRequired: Boolean,
+    executor: Executor?,
     callback: AuthPromptCallback
 ): AuthPrompt {
     val prompt = buildClass3BiometricOrCredentialAuthPrompt(
@@ -252,3 +236,20 @@ private fun startClass3BiometricOrCredentialAuthenticationInternal(
         prompt.startAuthentication(host, crypto, executor, callback)
     }
 }
+
+/**
+ * Creates a [Class3BiometricOrCredentialAuthPrompt] with the given parameters.
+ */
+@RequiresApi(Build.VERSION_CODES.R)
+private fun buildClass3BiometricOrCredentialAuthPrompt(
+    title: CharSequence,
+    subtitle: CharSequence?,
+    description: CharSequence?,
+    confirmationRequired: Boolean,
+): Class3BiometricOrCredentialAuthPrompt = Class3BiometricOrCredentialAuthPrompt.Builder(title)
+    .apply {
+        subtitle?.let { setSubtitle(it) }
+        description?.let { setDescription(it) }
+        setConfirmationRequired(confirmationRequired)
+    }
+    .build()
