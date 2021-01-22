@@ -263,7 +263,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
             addStatement("$T $N = new $T()", className, result, className)
             args.forEach { arg ->
                 beginControlFlow("if ($N.contains($S))", savedStateHandle, arg.name).apply {
-                    addStatement("$T $N", arg.type.typeName(), arg.sanitizedName);
+                    addStatement("$T $N", arg.type.typeName(), arg.sanitizedName)
                     addStatement("$N = $N.get($S)", arg.sanitizedName, savedStateHandle, arg.name)
                     addNullCheck(arg, arg.sanitizedName)
                     addStatement(
