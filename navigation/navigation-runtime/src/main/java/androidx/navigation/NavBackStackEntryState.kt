@@ -29,7 +29,7 @@ internal class NavBackStackEntryState : Parcelable {
     val savedState: Bundle
 
     constructor(entry: NavBackStackEntry) {
-        uuid = entry.mId
+        uuid = entry.id
         destinationId = entry.destination.id
         args = entry.arguments
         savedState = Bundle()
