@@ -1,7 +1,8 @@
 // Signature format: 4.0
 package androidx.fragment.app.testing {
 
-  public final class FragmentScenario<F extends androidx.fragment.app.Fragment> {
+  public final class FragmentScenario<F extends androidx.fragment.app.Fragment> implements java.io.Closeable {
+    method public void close();
     method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass, android.os.Bundle? fragmentArgs, androidx.fragment.app.FragmentFactory? factory);
     method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass, android.os.Bundle? fragmentArgs, @StyleRes int themeResId, androidx.fragment.app.FragmentFactory? factory);
     method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState, optional androidx.fragment.app.FragmentFactory? factory);
