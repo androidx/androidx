@@ -58,30 +58,8 @@ public final class CarText {
         return new CarText(text);
     }
 
-    /**
-     * @deprecated use {@link #toString()}
-     */
-    @NonNull
-    @Deprecated
-    // TODO(b/177961439): remove once host is updated to use toString.
-    public String getText() {
-        return mText;
-    }
-
     public boolean isEmpty() {
         return mText.isEmpty();
-    }
-
-    /**
-     * Returns the optional list of spans attached to the text.
-     *
-     * @deprecated use {@link #toCharSequence}
-     */
-    // TODO(b/177961277): remove once host is updated to use toCharSequence.
-    @NonNull
-    @Deprecated
-    public List<SpanWrapper> getSpans() {
-        return mSpans;
     }
 
     @NonNull
@@ -160,8 +138,7 @@ public final class CarText {
     /**
      * Wraps a span to send it to the host.
      */
-    // TODO(b/178026067): Make SpanWrapper private.
-    public static class SpanWrapper {
+    private static class SpanWrapper {
         @Keep
         private final int mStart;
         @Keep
