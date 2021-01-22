@@ -40,26 +40,6 @@ sealed class Metric {
     abstract fun getMetrics(packageName: String, tracePath: String): Map<String, Long>
 }
 
-class StartupTimingMetric : Metric() {
-    private val helper = AppStartupHelper()
-
-    override fun configure(config: MacrobenchmarkConfig) {
-        // does nothing
-    }
-
-    override fun start() {
-        helper.startCollecting()
-    }
-
-    override fun stop() {
-        helper.stopCollecting()
-    }
-
-    override fun getMetrics(packageName: String, tracePath: String): Map<String, Long> {
-        return helper.getMetrics(packageName)
-    }
-}
-
 class FrameTimingMetric : Metric() {
     private lateinit var packageName: String
     private val helper = JankCollectionHelper()
@@ -155,9 +135,9 @@ class FrameTimingMetric : Metric() {
 }
 
 /**
- * Only does startup metrics now. Will need to expand scope.
+ * Captures app startup metrics.
  */
-internal class PerfettoMetric : Metric() {
+class StartupTimingMetric : Metric() {
     private lateinit var packageName: String
     private lateinit var device: UiDevice
     private lateinit var parser: PerfettoTraceParser
