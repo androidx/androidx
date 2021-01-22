@@ -302,7 +302,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
      * Provides an opportunity for sub SliceAdapter to pass a custom RowView.
      */
     @NonNull
-    protected RowView getRowView() {
+    public RowView getRowView() {
         return new RowView(mContext);
     }
 
