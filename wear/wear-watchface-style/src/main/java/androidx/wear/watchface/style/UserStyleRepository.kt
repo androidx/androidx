@@ -68,6 +68,10 @@ public class UserStyle(
     /** Returns the style as a Map<String, String>. */
     public fun toMap(): Map<String, String> =
         selectedOptions.entries.associate { it.key.id to it.value.id }
+
+    /** Returns the [UserStyleSetting.Option] for [setting] if there is one or `null` otherwise. */
+    public operator fun get(setting: UserStyleSetting): UserStyleSetting.Option? =
+        selectedOptions[setting]
 }
 
 /** Describes the list of [UserStyleSetting]s the user can configure. */
