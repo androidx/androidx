@@ -357,26 +357,22 @@ public final class CarIcon {
          *
          *
          * <p>This tint overrides the tint set through {@link IconCompat#setTint(int)} in the
-         * backing
-         * {@link IconCompat} with a {@link CarColor} tint.The tint set through {@link
+         * backing {@link IconCompat} with a {@link CarColor} tint.The tint set through {@link
          * IconCompat#setTint(int)} is not guaranteed to be applied if the {@link CarIcon} tint
-         * is not
-         * set.
+         * is not set.
          *
          * <p>The tint mode used to blend this color is {@link Mode#SRC_IN}.
          *
-         * <p>If set to {@code null}, then no tint will be applied to the icon.
-         *
          * <p>By default, no tint is set unless one is specified with this method.
+         *
+         * @throws NullPointerException if {@code tin} is {@code null}.
          *
          * @see CarColor
          * @see android.graphics.drawable.Drawable#setTintMode(Mode)
          */
         @NonNull
-        public Builder setTint(@Nullable CarColor tint) {
-            if (tint != null) {
-                CarColorConstraints.UNCONSTRAINED.validateOrThrow(tint);
-            }
+        public Builder setTint(@NonNull CarColor tint) {
+            CarColorConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(tint));
             this.mTint = tint;
             return this;
         }

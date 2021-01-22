@@ -74,6 +74,7 @@ public final class CarText {
 
     /**
      * Returns the optional list of spans attached to the text.
+     *
      * @deprecated use {@link #toCharSequence}
      */
     // TODO(b/177961277): remove once host is updated to use toCharSequence.

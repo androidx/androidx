@@ -185,43 +185,42 @@ public final class NavigationTemplate implements Template {
         ActionStrip mActionStrip;
 
         /**
-         * Sets the navigation information to display on the template, or {@code null} to not
-         * display navigation information on top of the map.
+         * Sets the navigation information to display on the template.
+         *
+         * <p>Unless set with this method, navigation info won't be displayed on the template.
+         *
+         * @throws NullPointerException if {@code navigationInfo} is {@code null}
          */
         @NonNull
-        public Builder setNavigationInfo(@Nullable NavigationInfo navigationInfo) {
-            this.mNavigationInfo = navigationInfo;
+        public Builder setNavigationInfo(@NonNull NavigationInfo navigationInfo) {
+            this.mNavigationInfo = requireNonNull(navigationInfo);
             return this;
         }
 
         /**
-         * Sets the background color to use for the navigation information, or {@code null} to
-         * use the default.
+         * Sets the background color to use for the navigation information.
          *
          * <p>The host may ignore this color and use a default color instead if the color does
          * not pass the contrast requirements.
          */
         @NonNull
-        public Builder setBackgroundColor(@Nullable CarColor backgroundColor) {
-            if (backgroundColor != null) {
-                UNCONSTRAINED.validateOrThrow(backgroundColor);
-            }
+        public Builder setBackgroundColor(@NonNull CarColor backgroundColor) {
+            UNCONSTRAINED.validateOrThrow(requireNonNull(backgroundColor));
             this.mBackgroundColor = backgroundColor;
             return this;
         }
 
         /**
-         * Sets the {@link TravelEstimate} to the final destination, or {@code null} to not show any
-         * travel estimate information.
+         * Sets the {@link TravelEstimate} to the final destination.
          *
          * @throws IllegalArgumentException if the {@link TravelEstimate}'s remaining time is
-         *                                  less than zero.
+         *                                  less than zero
+         * @throws NullPointerException     if {@code destinationTravelEstimate} is {@code null}
          */
         @NonNull
         public Builder setDestinationTravelEstimate(
-                @Nullable TravelEstimate destinationTravelEstimate) {
-            if (destinationTravelEstimate != null
-                    && destinationTravelEstimate.getRemainingTimeSeconds() < 0) {
+                @NonNull TravelEstimate destinationTravelEstimate) {
+            if (requireNonNull(destinationTravelEstimate).getRemainingTimeSeconds() < 0) {
                 throw new IllegalArgumentException(
                         "The destination travel estimate's remaining time must be greater or "
                                 + "equal to zero");
