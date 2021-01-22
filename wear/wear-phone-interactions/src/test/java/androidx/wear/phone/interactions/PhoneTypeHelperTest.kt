@@ -16,12 +16,14 @@
 package androidx.wear.phone.interactions
 
 import android.content.ContentProvider
+import android.content.ContentResolver
+import android.content.Context
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.phone.interactions.PhoneTypeHelper.Companion.getPhoneDeviceType
-import org.junit.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,6 +45,8 @@ class PhoneTypeHelperTest {
 
     @Mock
     var mockContentProvider: ContentProvider? = null
+    private var contentResolver: ContentResolver? = null
+
     @Before
     fun setUp() {
         MockitoAnnotations.initMocks(this)
@@ -50,6 +54,8 @@ class PhoneTypeHelperTest {
             PhoneTypeHelper.SETTINGS_AUTHORITY,
             mockContentProvider
         )
+        val context: Context = ApplicationProvider.getApplicationContext()
+        contentResolver = context.contentResolver
     }
 
     @Test
@@ -63,8 +69,8 @@ class PhoneTypeHelperTest {
                 ArgumentMatchers.any()
             )
         )
-            .thenReturn(createFakeBluetoothModeCursor(PhoneTypeHelper.IOS_BLUETOOTH_MODE))
-        Assert.assertEquals(
+            .thenReturn(createFakeBluetoothModeCursor(PhoneTypeHelper.IOS_MODE))
+        assertEquals(
             getPhoneDeviceType(ApplicationProvider.getApplicationContext()).toLong(),
             PhoneTypeHelper.DEVICE_TYPE_IOS.toLong()
         )
@@ -81,8 +87,8 @@ class PhoneTypeHelperTest {
                 ArgumentMatchers.any()
             )
         )
-            .thenReturn(createFakeBluetoothModeCursor(PhoneTypeHelper.ANDROID_BLUETOOTH_MODE))
-        Assert.assertEquals(
+            .thenReturn(createFakeBluetoothModeCursor(PhoneTypeHelper.ANDROID_MODE))
+        assertEquals(
             getPhoneDeviceType(ApplicationProvider.getApplicationContext()).toLong(),
             PhoneTypeHelper.DEVICE_TYPE_ANDROID.toLong()
         )
@@ -100,7 +106,7 @@ class PhoneTypeHelperTest {
             )
         )
             .thenReturn(createFakeBluetoothModeCursor(PhoneTypeHelper.DEVICE_TYPE_UNKNOWN))
-        Assert.assertEquals(
+        assertEquals(
             getPhoneDeviceType(ApplicationProvider.getApplicationContext()).toLong(),
             PhoneTypeHelper.DEVICE_TYPE_UNKNOWN.toLong()
         )
@@ -108,11 +114,68 @@ class PhoneTypeHelperTest {
 
     @Test
     fun testGetDeviceType_returnsErrorWhenContentMissing() {
-        Assert.assertEquals(
+        assertEquals(
             getPhoneDeviceType(ApplicationProvider.getApplicationContext()).toLong(),
             PhoneTypeHelper.DEVICE_TYPE_ERROR.toLong()
         )
     }
+
+    /*
+    Robolectric currently doesn't support API 30, so these tests will automatically fail if
+    uncommented.
+    TODO(b/178086256): Include these tests in the class when API 30 is supported.
+    @Test
+    @Config(sdk = [30])
+    fun testGetDeviceType_returnsErrorWhenContentMissing_onR() {
+        assertEquals(
+            getPhoneDeviceType(ApplicationProvider.getApplicationContext()),
+            PhoneTypeHelper.DEVICE_TYPE_UNKNOWN
+        )
+    }
+
+
+    @Test
+    @Config(sdk = [30])
+    fun testGetDeviceType_returnsAndroid_onR() {
+        Settings.Global.putInt(
+            contentResolver,
+            PhoneTypeHelper.PAIRED_DEVICE_OS_TYPE,
+            PhoneTypeHelper.ANDROID_MODE
+        )
+        assertEquals(
+            getPhoneDeviceType(ApplicationProvider.getApplicationContext()),
+            PhoneTypeHelper.DEVICE_TYPE_ANDROID
+        )
+    }
+
+    @Test
+    @Config(sdk = [30])
+    fun testGetDeviceType_returnsErrorWhenModeUnknown_onR() {
+        Settings.Global.putInt(
+            contentResolver,
+            PhoneTypeHelper.PAIRED_DEVICE_OS_TYPE,
+            PhoneTypeHelper.UNKNOWN_MODE
+        )
+        assertEquals(
+            getPhoneDeviceType(ApplicationProvider.getApplicationContext()),
+            PhoneTypeHelper.DEVICE_TYPE_UNKNOWN
+        )
+    }
+
+    @Test
+    @Config(sdk = [30])
+    fun testGetDeviceType_returnsIos_onR() {
+        Settings.Global.putInt(
+            contentResolver,
+            PhoneTypeHelper.PAIRED_DEVICE_OS_TYPE,
+            PhoneTypeHelper.IOS_MODE
+        )
+        assertEquals(
+            getPhoneDeviceType(ApplicationProvider.getApplicationContext()),
+            PhoneTypeHelper.DEVICE_TYPE_IOS
+        )
+    }
+    */
 
     companion object {
         private fun createFakeBluetoothModeCursor(bluetoothMode: Int): Cursor {
