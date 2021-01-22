@@ -594,11 +594,9 @@ package androidx.car.app.model {
   public final class PlaceMarker {
     method public static androidx.car.app.model.PlaceMarker.Builder builder();
     method public androidx.car.app.model.CarColor? getColor();
-    method public static androidx.car.app.model.PlaceMarker getDefault();
     method public androidx.car.app.model.CarIcon? getIcon();
     method public int getIconType();
     method public androidx.car.app.model.CarText? getLabel();
-    method public static boolean isDefaultMarker(androidx.car.app.model.PlaceMarker?);
     field public static final int TYPE_ICON = 0; // 0x0
     field public static final int TYPE_IMAGE = 1; // 0x1
   }
