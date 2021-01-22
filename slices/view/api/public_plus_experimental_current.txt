@@ -129,7 +129,7 @@ package androidx.slice.widget {
   @RequiresApi(19) public class SliceAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.slice.widget.SliceAdapter.SliceViewHolder> {
     ctor public SliceAdapter(android.content.Context);
     method public int getItemCount();
-    method protected androidx.slice.widget.RowView getRowView();
+    method public androidx.slice.widget.RowView getRowView();
     method public void onBindViewHolder(androidx.slice.widget.SliceAdapter.SliceViewHolder, int);
     method public androidx.slice.widget.SliceAdapter.SliceViewHolder onCreateViewHolder(android.view.ViewGroup, int);
   }
@@ -207,6 +207,7 @@ package androidx.slice.widget {
     ctor public TemplateView(android.content.Context);
     method public void onAttachedToWindow();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void resetView();
+    method public void setAdapter(androidx.slice.widget.SliceAdapter);
   }
 
 }
