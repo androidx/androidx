@@ -4,6 +4,211 @@
 # Messages that only sometimes appear in stdout/stderr should be exempted in message-flakes.ignore, because this file (messages.ignore) may be automatically garbage collected whereas that one will not be.
 # > Task :docs-runner:dokkaJavaPublicDocs
 (logging: loading modules: \[java\.se.*)|(.*No file found when processing Java @sample.*)
+No docs found on supertype with \{@inheritDoc\} method .*
+Can't find node by signature .*
+Exception while resolving link to Module: Package:androidx\.compose\.material Function:animateElevation Receiver:<this>
+java\.lang\.IllegalStateException: Unsupported Receiver
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlUriProvider\$DefaultImpls\.mainUri\(JavaLayoutHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.mainUri\(JavaLayoutHtmlGenerator\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlUriProvider\$DefaultImpls\.linkTo\(JavaLayoutHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.linkTo\(JavaLayoutHtmlGenerator\.kt:[0-9]+\)
+at jdk\.internal\.reflect\.GeneratedMethodAccessor[0-9]+\.invoke\(Unknown Source\)
+at java\.base/jdk\.internal\.reflect\.DelegatingMethodAccessorImpl\.invoke\(DelegatingMethodAccessorImpl\.java:[0-9]+\)
+at java\.base/java\.lang\.reflect\.Method\.invoke\(Method\.java:[0-9]+\)
+at com\.google\.inject\.internal\.DelegatingInvocationHandler\.invoke\(DelegatingInvocationHandler\.java:[0-9]+\)
+at com\.sun\.proxy\.\$Proxy[0-9]+\.linkTo\(Unknown Source\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.a\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.a\$default\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.contentNodeToMarkup\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.contentNodesToMarkup\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$contentNodeToMarkup\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at kotlinx\.html\.ApiKt\.visit\(api\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tag_groupsKt\.p\(gen\-tag\-groups\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.nodeSummary\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$functionLikeSummaryRow\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tags_tKt\.td\(gen\-tags\-t\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tags_tKt\.td\$default\(gen\-tags\-t\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$functionLikeSummaryRow\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tags_tKt\.tr\(gen\-tags\-t\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tags_tKt\.tr\$default\(gen\-tags\-t\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.functionLikeSummaryRow\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$classLikeSummaries\$\$inlined\$with\$lambda\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$groupedRow\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tags_tKt\.tbody\(gen\-tags\-t\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tags_tKt\.tbody\$default\(gen\-tags\-t\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$groupedRow\$[0-9]+\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tag_groupsKt\.table\(gen\-tag\-groups\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tag_groupsKt\.table\$default\(gen\-tag\-groups\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$groupedRow\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$groupedRow\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.groupedRow\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.extensionRow\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$classLikeSummaries\$\$inlined\$with\$lambda\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$summaryNodeGroup\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$summaryNodeGroup\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.summaryNodeGroup\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.classLikeSummaries\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$generateClassLike\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteHtmlTemplateService\$composePage\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tags_hKt\.body\(gen\-tags\-h\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tags_hKt\.body\$default\(gen\-tags\-h\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteHtmlTemplateService\$composePage\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at kotlinx\.html\.ApiKt\.visitAndFinalize\(api\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_consumer_tagsKt\.html\(gen\-consumer\-tags\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteHtmlTemplateService\.composePage\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.generateClassLike\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.generatePage\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.buildClass\(JavaLayoutHtmlGenerator\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.buildPackage\(JavaLayoutHtmlGenerator\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.buildPages\(JavaLayoutHtmlGenerator\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.GeneratorKt\.buildAll\(Generator\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.DokkaGenerator\.generate\(DokkaGenerator\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.DokkaBootstrapImpl\.generate\(DokkaBootstrapImpl\.kt:[0-9]+\)
+at java\.base/jdk\.internal\.reflect\.NativeMethodAccessorImpl\.invoke[0-9]+\(Native Method\)
+at java\.base/jdk\.internal\.reflect\.NativeMethodAccessorImpl\.invoke\(NativeMethodAccessorImpl\.java:[0-9]+\)
+at org\.jetbrains\.dokka\.DelegatedInvocationHandler\.invoke\(ProxyUtils\.kt:[0-9]+\)
+at com\.sun\.proxy\.\$Proxy[0-9]+\.generate\(Unknown Source\)
+at org\.jetbrains\.dokka\.gradle\.DokkaTask\.generate\(main\.kt:[0-9]+\)
+at org\.gradle\.internal\.reflect\.JavaMethod\.invoke\(JavaMethod\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.project\.taskfactory\.StandardTaskAction\.doExecute\(StandardTaskAction\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.project\.taskfactory\.StandardTaskAction\.execute\(StandardTaskAction\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\$[0-9]+\.run\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
+at org\.gradle\.internal\.operations\.DefaultBuildOperationRunner\$[0-9]+\.execute\(DefaultBuildOperationRunner\.java:[0-9]+\)
+at org\.gradle\.internal\.operations\.DefaultBuildOperationRunner\.execute\(DefaultBuildOperationRunner\.java:[0-9]+\)
+at org\.gradle\.internal\.operations\.DefaultBuildOperationRunner\.run\(DefaultBuildOperationRunner\.java:[0-9]+\)
+at org\.gradle\.internal\.operations\.DefaultBuildOperationExecutor\.lambda\$run\$[0-9]+\(DefaultBuildOperationExecutor\.java:[0-9]+\)
+at org\.gradle\.internal\.operations\.UnmanagedBuildOperationWrapper\.runWithUnmanagedSupport\(UnmanagedBuildOperationWrapper\.java:[0-9]+\)
+at org\.gradle\.internal\.operations\.DefaultBuildOperationExecutor\.run\(DefaultBuildOperationExecutor\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\.executeAction\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\.executeActions\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\.access\$[0-9]+\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\$TaskExecution\.executeWithPreviousOutputFiles\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\$TaskExecution\.execute\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.ExecuteStep\.lambda\$executeOperation\$[0-9]+\(ExecuteStep\.java:[0-9]+\)
+at java\.base/java\.util\.Optional\.orElseGet\(Optional\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.ExecuteStep\.executeOperation\(ExecuteStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.ExecuteStep\.access\$[0-9]+\(ExecuteStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.ExecuteStep\$[0-9]+\.call\(ExecuteStep\.java:[0-9]+\)
+at org\.gradle\.internal\.operations\.DefaultBuildOperationRunner\$CallableBuildOperationWorker\.execute\(DefaultBuildOperationRunner\.java:[0-9]+\)
+at org\.gradle\.internal\.operations\.DefaultBuildOperationRunner\.call\(DefaultBuildOperationRunner\.java:[0-9]+\)
+at org\.gradle\.internal\.operations\.DefaultBuildOperationExecutor\.lambda\$call\$[0-9]+\(DefaultBuildOperationExecutor\.java:[0-9]+\)
+at org\.gradle\.internal\.operations\.UnmanagedBuildOperationWrapper\.callWithUnmanagedSupport\(UnmanagedBuildOperationWrapper\.java:[0-9]+\)
+at org\.gradle\.internal\.operations\.DefaultBuildOperationExecutor\.call\(DefaultBuildOperationExecutor\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.ExecuteStep\.execute\(ExecuteStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.RemovePreviousOutputsStep\.execute\(RemovePreviousOutputsStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.ResolveInputChangesStep\.execute\(ResolveInputChangesStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.CancelExecutionStep\.execute\(CancelExecutionStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.TimeoutStep\.executeWithoutTimeout\(TimeoutStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.TimeoutStep\.execute\(TimeoutStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.CreateOutputsStep\.execute\(CreateOutputsStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.CaptureStateAfterExecutionStep\.execute\(CaptureStateAfterExecutionStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.BroadcastChangingOutputsStep\.execute\(BroadcastChangingOutputsStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.BuildCacheStep\.executeWithoutCache\(BuildCacheStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.BuildCacheStep\.execute\(BuildCacheStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.StoreExecutionStateStep\.execute\(StoreExecutionStateStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.RecordOutputsStep\.execute\(RecordOutputsStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.SkipUpToDateStep\.executeBecause\(SkipUpToDateStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.SkipUpToDateStep\.lambda\$execute\$[0-9]+\(SkipUpToDateStep\.java:[0-9]+\)
+at java\.base/java\.util\.Optional\.map\(Optional\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.SkipUpToDateStep\.execute\(SkipUpToDateStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.ResolveChangesStep\.execute\(ResolveChangesStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.legacy\.MarkSnapshottingInputsFinishedStep\.execute\(MarkSnapshottingInputsFinishedStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.ResolveCachingStateStep\.execute\(ResolveCachingStateStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.CaptureStateBeforeExecutionStep\.execute\(CaptureStateBeforeExecutionStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.ValidateStep\.execute\(ValidateStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.SkipEmptyWorkStep\.lambda\$execute\$[0-9]+\(SkipEmptyWorkStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.SkipEmptyWorkStep\.execute\(SkipEmptyWorkStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.legacy\.MarkSnapshottingInputsStartedStep\.execute\(MarkSnapshottingInputsStartedStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.LoadExecutionStateStep\.execute\(LoadExecutionStateStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.AssignWorkspaceStep\.lambda\$execute\$[0-9]+\(AssignWorkspaceStep\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\$TaskExecution\$[0-9]+\.withWorkspace\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.AssignWorkspaceStep\.execute\(AssignWorkspaceStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.IdentityCacheStep\.execute\(IdentityCacheStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.steps\.IdentifyStep\.execute\(IdentifyStep\.java:[0-9]+\)
+at org\.gradle\.internal\.execution\.impl\.DefaultExecutionEngine\.execute\(DefaultExecutionEngine\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\.lambda\$executeIfValid\$[0-9]+\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\.executeIfValid\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.tasks\.execution\.ExecuteActionsTaskExecuter\.execute\(ExecuteActionsTaskExecuter\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.tasks\.execution\.CleanupStaleOutputsExecuter\.execute\(CleanupStaleOutputsExecuter\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.tasks\.execution\.FinalizePropertiesTaskExecuter\.execute\(FinalizePropertiesTaskExecuter\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.tasks\.execution\.ResolveTaskExecutionModeExecuter\.execute\(ResolveTaskExecutionModeExecuter\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.tasks\.execution\.SkipTaskWithNoActionsExecuter\.execute\(SkipTaskWithNoActionsExecuter\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.tasks\.execution\.SkipOnlyIfTaskExecuter\.execute\(SkipOnlyIfTaskExecuter\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.tasks\.execution\.CatchExceptionTaskExecuter\.execute\(CatchExceptionTaskExecuter\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.tasks\.execution\.EventFiringTaskExecuter\$[0-9]+\.executeTask\(EventFiringTaskExecuter\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.tasks\.execution\.EventFiringTaskExecuter\$[0-9]+\.call\(EventFiringTaskExecuter\.java:[0-9]+\)
+at org\.gradle\.api\.internal\.tasks\.execution\.EventFiringTaskExecuter\.execute\(EventFiringTaskExecuter\.java:[0-9]+\)
+at org\.gradle\.execution\.plan\.LocalTaskNodeExecutor\.execute\(LocalTaskNodeExecutor\.java:[0-9]+\)
+at org\.gradle\.execution\.taskgraph\.DefaultTaskExecutionGraph\$InvokeNodeExecutorsAction\.execute\(DefaultTaskExecutionGraph\.java:[0-9]+\)
+at org\.gradle\.execution\.taskgraph\.DefaultTaskExecutionGraph\$BuildOperationAwareExecutionAction\.execute\(DefaultTaskExecutionGraph\.java:[0-9]+\)
+at org\.gradle\.execution\.plan\.DefaultPlanExecutor\$ExecutorWorker\.lambda\$run\$[0-9]+\(DefaultPlanExecutor\.java:[0-9]+\)
+at org\.gradle\.execution\.plan\.DefaultPlanExecutor\$ExecutorWorker\.execute\(DefaultPlanExecutor\.java:[0-9]+\)
+at org\.gradle\.execution\.plan\.DefaultPlanExecutor\$ExecutorWorker\.executeNextNode\(DefaultPlanExecutor\.java:[0-9]+\)
+at org\.gradle\.execution\.plan\.DefaultPlanExecutor\$ExecutorWorker\.run\(DefaultPlanExecutor\.java:[0-9]+\)
+at org\.gradle\.internal\.concurrent\.ExecutorPolicy\$CatchAndRecordFailures\.onExecute\(ExecutorPolicy\.java:[0-9]+\)
+at org\.gradle\.internal\.concurrent\.ManagedExecutorImpl\$[0-9]+\.run\(ManagedExecutorImpl\.java:[0-9]+\)
+at java\.base/java\.util\.concurrent\.ThreadPoolExecutor\.runWorker\(ThreadPoolExecutor\.java:[0-9]+\)
+at java\.base/java\.util\.concurrent\.ThreadPoolExecutor\$Worker\.run\(ThreadPoolExecutor\.java:[0-9]+\)
+at org\.gradle\.internal\.concurrent\.ThreadFactoryImpl\$ManagedThreadRunnable\.run\(ThreadFactoryImpl\.java:[0-9]+\)
+at java\.base/java\.lang\.Thread\.run\(Thread\.java:[0-9]+\)
+Exception while resolving link to Module: Package:androidx\.compose\.animation\.core Class:KeyframesSpec Class:KeyframesSpecConfig Function:at Receiver:<this>
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.nodeContent\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$fullMemberDocs\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tag_groupsKt\.div\(gen\-tag\-groups\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.fullMemberDocs\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.fullMemberDocs\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.classLikeFullMemberDocs\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.metaMarkup\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.metaMarkup\$default\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$fullMemberDocs\$[0-9]+\$[0-9]+\$[0-9]+\$\$special\$\$inlined\$forEach\$lambda\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$fullMemberDocs\$[0-9]+\$[0-9]+\$[0-9]+\$\$special\$\$inlined\$forEach\$lambda\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$fullMemberDocs\$[0-9]+\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$fullMemberDocs\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+Exception while resolving link to Module: Package:androidx\.compose\.animation\.core Class:TransitionSpec Function:using Receiver:<this>
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$summaryNodeGroupForExtensions\$[0-9]+\$\$special\$\$inlined\$forEach\$lambda\$[0-9]+\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$summaryNodeGroupForExtensions\$[0-9]+\$\$special\$\$inlined\$forEach\$lambda\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$summaryNodeGroupForExtensions\$[0-9]+\$\$special\$\$inlined\$forEach\$lambda\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$summaryNodeGroupForExtensions\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tag_groupsKt\.div\$default\(gen\-tag\-groups\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.summaryNodeGroupForExtensions\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.access\$summaryNodeGroupForExtensions\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$generatePackage\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.generatePackage\(DacHtmlFormat\.kt:[0-9]+\)
+Exception while resolving link to Module: Package:androidx\.compose\.runtime\.snapshots Function:readable Receiver:<this>
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.geometry ExternalClass:kotlin\.Double Function:times Receiver:<this>
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.geometry ExternalClass:kotlin\.Float Function:times Receiver:<this>
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.geometry ExternalClass:kotlin\.Int Function:times Receiver:<this>
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics GroupNode:Shader
+java\.lang\.IllegalStateException: Unsupported GroupNode
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.renderedSignature\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$generatePackage\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$summaryNodeGroup\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$summaryNodeGroup\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.summaryNodeGroup\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.shortFunctionParametersList\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$functionLikeSummaryRow\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tag_unionsKt\.code\(gen\-tag\-unions\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tag_unionsKt\.code\$default\(gen\-tag\-unions\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$functionLikeSummaryRow\$[0-9]+\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics Function:compositeOver Receiver:<this>
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics GroupNode:NativeTileMode
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics GroupNode:NativeCanvas
+at kotlinx\.html\.Gen_tag_groupsKt\.pre\(gen\-tag\-groups\.kt:[0-9]+\)
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics GroupNode:NativePaint
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics GroupNode:NativePathEffect
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$propertyLikeSummaryRow\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$propertyLikeSummaryRow\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.propertyLikeSummaryRow\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.propertyLikeSummaryRow\$default\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.qualifiedTypeReference\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$classHierarchy\$[0-9]+\$\$special\$\$inlined\$forEach\$lambda\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$classHierarchy\$[0-9]+\$\$special\$\$inlined\$forEach\$lambda\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$classHierarchy\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.classHierarchy\(DacHtmlFormat\.kt:[0-9]+\)
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics GroupNode:NativeVertexMode
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics\.vector Function:group Receiver:<this>
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics\.vector Function:path Receiver:<this>
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.unit ExternalClass:kotlin\.Int Function:times Receiver:<this>
 # > Task :icing:extractIncludeDebugAndroidTestProto
 proto file '[^ ]*' directly specified in configuration\. It's likely you specified files\('path/to/foo\.proto'\) or fileTree\('path/to/directory'\) in protobuf or compile configuration\. This makes you vulnerable to https://github\.com/google/protobuf\-gradle\-plugin/issues/[0-9][0-9]*\. Please use files\('path/to/directory'\) instead\.
 OUT_DIR=\$OUT_DIR
@@ -13,15 +218,23 @@ GRADLE_USER_HOME=\$GRADLE_USER_HOME
 Starting a Gradle Daemon, [0-9]+ busy and [0-9]+ incompatible Daemons could not be reused, use \-\-status for details
 Starting a Gradle Daemon, [0-9]+ busy and [0-9]+ incompatible and [0-9]+ stopped Daemons could not be reused, use \-\-status for details
 Downloading file\:\$SUPPORT\/gradle\/wrapper\/\.\.\/\.\.\/\.\.\/\.\.\/tools\/external\/gradle\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\.zip
+\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%
 Downloading file:\$SUPPORT/gradle/wrapper/\.\./\.\./\.\./\.\./tools/external/gradle/gradle\-[0-9]+\.[0-9]+\-bin\.zip
 \.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%
 Welcome to Gradle [0-9]+\.[0-9]+\.[0-9]+\!
 Welcome to Gradle [0-9]+\.[0-9]+!
 Here are the highlights of this release:
+\- Faster Kotlin DSL script compilation
+\- Vendor selection for Java toolchains
+\- Convenient execution of tasks in composite builds
+\- Consistent dependency resolution
 \- File system watching is ready for production use
 \- Declare the version of Java your build requires
 \- Java [0-9]+ support
 For more details see https\:\/\/docs\.gradle\.org\/[0-9]+\.[0-9]+\.[0-9]+\/release\-notes\.html
+To honour the JVM settings for this build a single\-use Daemon process will be forked\. See https://docs\.gradle\.org/[0-9]+\.[0-9]+\.[0-9]+/userguide/gradle_daemon\.html\#sec:disabling_the_daemon\.
+Daemon will be stopped at the end of the build
+Remote build cache is disabled when running with \-\-offline\.
 To honour the JVM settings for this build a new JVM will be forked\. Please consider using the daemon\: https\:\/\/docs\.gradle\.org\/[0-9]+\.[0-9]+\.[0-9]+\/userguide\/gradle_daemon\.html\.
 For more details see https://docs\.gradle\.org/[0-9]+\.[0-9]+/release\-notes\.html
 To honour the JVM settings for this build a new JVM will be forked\. Please consider using the daemon: https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/gradle_daemon\.html\.
@@ -175,6 +388,7 @@ provider\#androidx\.work\.impl\.WorkManagerInitializer was tagged at AndroidMani
 # > Task :camera:integration-tests:camera-testapp-extensions:compileDebugJavaWithJavac
 # > Task :camera:integration-tests:camera-testapp-core:compileDebugJavaWithJavac
 # > Task :room:integration-tests:room-testapp:processDebugMainManifest
+\[androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+\] \$GRADLE_USER_HOME/caches/transforms\-[0-9]+/[0-9a-f]{32}/transformed/vectordrawable\-animated\-[0-9]+\.[0-9]+\.[0-9]+/AndroidManifest\.xml Warning:
 \[androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+\] \$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/vectordrawable\-animated\-[0-9]+\.[0-9]+\.[0-9]+/AndroidManifest\.xml Warning:
 Package name 'androidx\.vectordrawable' used in: androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+, androidx\.vectordrawable:vectordrawable:[0-9]+\.[0-9]+\.[0-9]+\.
 # > Task :lifecycle:integration-tests:lifecycle-testapp:compileDebugJavaWithJavac
@@ -307,6 +521,14 @@ Note: \$SUPPORT/room/integration\-tests/testapp/src/androidTest/java/androidx/ro
 warning: The following options were not recognized by any processor: '\[dagger\.hilt\.android\.internal\.disableAndroidSuperclassValidation, kapt\.kotlin\.generated\]'
 # > Task :hilt:integration-tests:hilt-testapp-viewmodel:compileReleaseJavaWithJavac
 # > Task :slice-core:generateApi
+class androidx\.activity\.ComponentActivity with androidx\.core\.app\.ComponentActivity
+androidx\.core\.app\.ComponentActivity\#dispatchKeyShortcutEvent
+androidx\.core\.app\.ComponentActivity\#dispatchKeyEvent
+androidx\.core\.app\.ComponentActivity\#superDispatchKeyEvent
+class androidx\.appcompat\.app\.AppCompatActivity with androidx\.core\.app\.ComponentActivity
+class androidx\.fragment\.app\.FragmentActivity with androidx\.core\.app\.ComponentActivity
+class androidx\.slice\.Slice with androidx\.versionedparcelable\.CustomVersionedParcelable
+class androidx\.slice\.SliceItem with androidx\.versionedparcelable\.CustomVersionedParcelable
 src/main/java/androidx/slice/compat/SliceProviderCompat\.java:[0-9]+: warning: Parameter permissionManager references hidden type androidx\.slice\.compat\.CompatPermissionManager\. \[HiddenTypeParameter\]
 # > Task :appsearch:appsearch-compiler:lint
 [0-9]+ errors, [0-9]+ warnings \([0-9]+ warnings filtered by baseline lint\-baseline\.xml\)
@@ -338,11 +560,70 @@ src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Method an
 src/main/java/androidx/slice/widget/RowContent\.java:[0-9]+: warning: Parameter style references hidden type androidx\.slice\.widget\.SliceStyle\. \[HiddenTypeParameter\]
 src/main/java/androidx/slice/widget/RowContent\.java:[0-9]+: warning: Parameter policy references hidden type androidx\.slice\.widget\.SliceViewPolicy\. \[HiddenTypeParameter\]
 # > Task :appcompat:appcompat-resources:generateApi
+class androidx\.appcompat\.graphics\.drawable\.AnimatedStateListDrawableCompat with androidx\.appcompat\.graphics\.drawable\.StateListDrawable , androidx\.appcompat\.graphics\.drawable\.DrawableContainer
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#setColorFilter
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#getMinimumHeight
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#setHotspot
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#setTintMode
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#getChangingConfigurations
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#setDither
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#getConstantState
+androidx\.appcompat\.graphics\.drawable\.StateListDrawable\#applyTheme
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#setHotspotBounds
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#getIntrinsicWidth
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#getAlpha
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#getOpacity
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#getOutline
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#invalidateDrawable
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#getIntrinsicHeight
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#getMinimumWidth
+androidx\.appcompat\.graphics\.drawable\.StateListDrawable\#addState
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#setAutoMirrored
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#isAutoMirrored
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#getPadding
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#setAlpha
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#draw
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#setExitFadeDuration
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#setEnterFadeDuration
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#canApplyTheme
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#getHotspotBounds
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#getCurrent
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#unscheduleDrawable
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#scheduleDrawable
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#setTintList
+androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#onLayoutDirectionChanged
+src/main/java/androidx/appcompat/widget/ResourceManagerInternal\.java:[0-9]+: warning: Parameter hooks references hidden type androidx\.appcompat\.widget\.ResourceManagerInternal\.ResourceManagerHooks\. \[HiddenTypeParameter\]androidx\.appcompat\.graphics\.drawable\.DrawableContainer\#getHotspotBounds
 src/main/java/androidx/appcompat/widget/ResourceManagerInternal\.java:[0-9]+: warning: Parameter hooks references hidden type androidx\.appcompat\.widget\.ResourceManagerInternal\.ResourceManagerHooks\. \[HiddenTypeParameter\]
 # > Task :arch:core:core-common:generateApi
+class androidx\.arch\.core\.internal\.SafeIterableMap\.IteratorWithAdditions with androidx\.arch\.core\.internal\.SafeIterableMap\.SupportRemove
 src/main/java/androidx/arch/core/internal/FastSafeIterableMap\.java:[0-9]+: warning: Method androidx\.arch\.core\.internal\.FastSafeIterableMap\.get\(K\) references hidden type androidx\.arch\.core\.internal\.SafeIterableMap\.Entry<K,V>\. \[HiddenTypeParameter\]
 src/main/java/androidx/arch/core/internal/SafeIterableMap\.java:[0-9]+: warning: Method androidx\.arch\.core\.internal\.SafeIterableMap\.get\(K\) references hidden type androidx\.arch\.core\.internal\.SafeIterableMap\.Entry<K,V>\. \[HiddenTypeParameter\]
 # > Task :appcompat:appcompat:generateApi
+class androidx\.appcompat\.view\.menu\.MenuItemWrapperICS with androidx\.appcompat\.view\.menu\.BaseMenuWrapper
+class androidx\.appcompat\.view\.menu\.MenuWrapperICS with androidx\.appcompat\.view\.menu\.BaseMenuWrapper
+class androidx\.appcompat\.widget\.ActionBarContextView with androidx\.appcompat\.widget\.AbsActionBarView
+androidx\.appcompat\.widget\.AbsActionBarView\#canShowOverflowMenu
+androidx\.appcompat\.widget\.AbsActionBarView\#onTouchEvent
+androidx\.appcompat\.widget\.AbsActionBarView\#getContentHeight
+androidx\.appcompat\.widget\.AbsActionBarView\#setupAnimatorToVisibility
+androidx\.appcompat\.widget\.AbsActionBarView\#postShowOverflowMenu
+androidx\.appcompat\.widget\.AbsActionBarView\#setVisibility
+androidx\.appcompat\.widget\.AbsActionBarView\#dismissPopupMenus
+androidx\.appcompat\.widget\.AbsActionBarView\#isOverflowMenuShowPending
+androidx\.appcompat\.widget\.AbsActionBarView\#isOverflowReserved
+androidx\.appcompat\.widget\.AbsActionBarView\#onHoverEvent
+androidx\.appcompat\.widget\.AbsActionBarView\#getAnimatedVisibility
+androidx\.appcompat\.widget\.AbsActionBarView\#animateToVisibility
+class androidx\.appcompat\.widget\.MenuPopupWindow\.MenuDropDownListView with androidx\.appcompat\.widget\.DropDownListView
+androidx\.appcompat\.widget\.DropDownListView\#onForwardedEvent
+androidx\.appcompat\.widget\.DropDownListView\#onTouchEvent
+androidx\.appcompat\.widget\.DropDownListView\#measureHeightOfChildrenCompat
+androidx\.appcompat\.widget\.DropDownListView\#setSelector
+androidx\.appcompat\.widget\.DropDownListView\#hasWindowFocus
+androidx\.appcompat\.widget\.DropDownListView\#hasFocus
+androidx\.appcompat\.widget\.DropDownListView\#isInTouchMode
+androidx\.appcompat\.widget\.DropDownListView\#isFocused
+androidx\.appcompat\.widget\.DropDownListView\#lookForSelectablePosition
 src/main/java/androidx/appcompat/view/menu/MenuPopupHelper\.java:[0-9]+: warning: Method androidx\.appcompat\.view\.menu\.MenuPopupHelper\.getPopup\(\) references hidden type androidx\.appcompat\.view\.menu\.MenuPopup\. \[HiddenTypeParameter\]
 src/main/java/androidx/appcompat/widget/ActionMenuView\.java:[0-9]+: warning: Parameter presenter references hidden type androidx\.appcompat\.widget\.ActionMenuPresenter\. \[HiddenTypeParameter\]
 src/main/java/androidx/appcompat/widget/ActivityChooserView\.java:[0-9]+: warning: Method androidx\.appcompat\.widget\.ActivityChooserView\.getDataModel\(\) references hidden type androidx\.appcompat\.widget\.ActivityChooserModel\. \[HiddenTypeParameter\]
@@ -795,3 +1076,182 @@ WARN: Could not read file: \$OUT_DIR/androidx/paging/paging\-common/build/libs/p
 \$SUPPORT/compose/integration\-tests/docs\-snippets/lint\-baseline\.xml: Information: [0-9]+ errors/warnings were listed in the baseline file \(lint\-baseline\.xml\) but not found in the project; perhaps they have been fixed\? Another possible explanation is that lint recently stopped analyzing \(and including results from\) dependent projects by default\. You can turn this back on with android\.lintOptions\.checkDependencies=true\. Unmatched issue types: UnknownIssueId \([0-9]+\) \[LintBaseline\]
 # > Task :navigation:navigation-runtime-ktx:lintDebug
 \$SUPPORT/navigation/navigation\-runtime\-ktx/lint\-baseline\.xml: Information: [0-9]+ errors/warnings were listed in the baseline file \(lint\-baseline\.xml\) but not found in the project; perhaps they have been fixed\? Another possible explanation is that lint recently stopped analyzing \(and including results from\) dependent projects by default\. You can turn this back on with android\.lintOptions\.checkDependencies=true\. Unmatched issue types: IllegalExperimentalApiUsage \([0-9]+\) \[LintBaseline\]
+# > Task :autofill:autofill:generateApi
+class androidx\.autofill\.inline\.common\.ImageViewStyle with androidx\.autofill\.inline\.common\.BundledStyle
+class androidx\.autofill\.inline\.common\.ImageViewStyle\.Builder with androidx\.autofill\.inline\.common\.ViewStyle\.BaseBuilder , androidx\.autofill\.inline\.common\.BundledStyle\.Builder
+class androidx\.autofill\.inline\.common\.TextViewStyle with androidx\.autofill\.inline\.common\.BundledStyle
+class androidx\.autofill\.inline\.common\.TextViewStyle\.Builder with androidx\.autofill\.inline\.common\.ViewStyle\.BaseBuilder , androidx\.autofill\.inline\.common\.BundledStyle\.Builder
+class androidx\.autofill\.inline\.common\.ViewStyle with androidx\.autofill\.inline\.common\.BundledStyle
+androidx\.autofill\.inline\.common\.BundledStyle\#assertIsValid
+androidx\.autofill\.inline\.common\.BundledStyle\#isValid
+androidx\.autofill\.inline\.common\.BundledStyle\#getBundle
+class androidx\.autofill\.inline\.common\.ViewStyle\.Builder with androidx\.autofill\.inline\.common\.ViewStyle\.BaseBuilder , androidx\.autofill\.inline\.common\.BundledStyle\.Builder
+class androidx\.autofill\.inline\.v[0-9]+\.InlineSuggestionUi\.Style with androidx\.autofill\.inline\.common\.BundledStyle
+class androidx\.autofill\.inline\.v[0-9]+\.InlineSuggestionUi\.Style\.Builder with androidx\.autofill\.inline\.common\.BundledStyle\.Builder
+class androidx\.autofill\.inline\.v[0-9]+\.InlineSuggestionUi\.Content with androidx\.autofill\.inline\.common\.SlicedContent
+androidx\.autofill\.inline\.common\.SlicedContent\#getVersion
+androidx\.autofill\.inline\.common\.SlicedContent\#getSlice
+class androidx\.autofill\.inline\.v[0-9]+\.InlineSuggestionUi\.Content\.Builder with androidx\.autofill\.inline\.common\.SlicedContent\.Builder
+# > Task :camera:camera-camera2:generateApi
+class androidx\.camera\.core\.impl\.SessionConfig\.ValidatingBuilder with androidx\.camera\.core\.impl\.SessionConfig\.BaseBuilder
+class androidx\.camera\.core\.impl\.SessionConfig\.Builder with androidx\.camera\.core\.impl\.SessionConfig\.BaseBuilder
+# > Task :core:core:generateApi
+class androidx\.core\.graphics\.drawable\.IconCompat with androidx\.versionedparcelable\.CustomVersionedParcelable
+class androidx\.core\.graphics\.TypefaceCompatApi[0-9]+Impl with androidx\.core\.graphics\.TypefaceCompatApi[0-9]+Impl , androidx\.core\.graphics\.TypefaceCompatBaseImpl
+class androidx\.core\.graphics\.TypefaceCompatApi[0-9]+Impl with androidx\.core\.graphics\.TypefaceCompatBaseImpl
+# > Task :hilt:hilt-lifecycle-viewmodel:generateApi
+class androidx\.hilt\.lifecycle\.HiltViewModelFactory with androidx\.lifecycle\.ViewModelProvider\.KeyedFactory , androidx\.lifecycle\.ViewModelProvider\.OnRequeryFactory
+class androidx\.lifecycle\.AbstractSavedStateViewModelFactory with androidx\.lifecycle\.ViewModelProvider\.KeyedFactory , androidx\.lifecycle\.ViewModelProvider\.OnRequeryFactory
+# > Task :leanback:leanback:generateApi
+class androidx\.leanback\.app\.HeadersFragment with androidx\.leanback\.app\.BaseRowFragment
+androidx\.leanback\.app\.BaseRowFragment\#getAdapter
+androidx\.leanback\.app\.BaseRowFragment\#setAlignment
+androidx\.leanback\.app\.BaseRowFragment\#setSelectedPosition
+androidx\.leanback\.app\.BaseRowFragment\#onTransitionPrepare
+androidx\.leanback\.app\.BaseRowFragment\#onDestroyView
+androidx\.leanback\.app\.BaseRowFragment\#setAdapter
+androidx\.leanback\.app\.BaseRowFragment\#getVerticalGridView
+androidx\.leanback\.app\.BaseRowFragment\#getSelectedPosition
+androidx\.leanback\.app\.BaseRowFragment\#getBridgeAdapter
+androidx\.leanback\.app\.BaseRowFragment\#getPresenterSelector
+androidx\.leanback\.app\.BaseRowFragment\#onCreateView
+androidx\.leanback\.app\.BaseRowFragment\#onSaveInstanceState
+androidx\.leanback\.app\.BaseRowFragment\#setPresenterSelector
+class androidx\.leanback\.app\.HeadersSupportFragment with androidx\.leanback\.app\.BaseRowSupportFragment
+androidx\.leanback\.app\.BaseRowSupportFragment\#getAdapter
+androidx\.leanback\.app\.BaseRowSupportFragment\#setAlignment
+androidx\.leanback\.app\.BaseRowSupportFragment\#setSelectedPosition
+androidx\.leanback\.app\.BaseRowSupportFragment\#onTransitionPrepare
+androidx\.leanback\.app\.BaseRowSupportFragment\#onDestroyView
+androidx\.leanback\.app\.BaseRowSupportFragment\#setAdapter
+androidx\.leanback\.app\.BaseRowSupportFragment\#getVerticalGridView
+androidx\.leanback\.app\.BaseRowSupportFragment\#getSelectedPosition
+androidx\.leanback\.app\.BaseRowSupportFragment\#getBridgeAdapter
+androidx\.leanback\.app\.BaseRowSupportFragment\#getPresenterSelector
+androidx\.leanback\.app\.BaseRowSupportFragment\#onCreateView
+androidx\.leanback\.app\.BaseRowSupportFragment\#onSaveInstanceState
+androidx\.leanback\.app\.BaseRowSupportFragment\#setPresenterSelector
+class androidx\.leanback\.app\.RowsFragment with androidx\.leanback\.app\.BaseRowFragment
+androidx\.leanback\.app\.BaseRowFragment\#onTransitionStart
+class androidx\.leanback\.app\.RowsSupportFragment with androidx\.leanback\.app\.BaseRowSupportFragment
+androidx\.leanback\.app\.BaseRowSupportFragment\#onTransitionStart
+androidx\.leanback\.app\.BaseRowSupportFragment\#getPresenterSelectorandroidx\.leanback\.app\.BaseRowFragment\#getAdapter
+androidx\.leanback\.app\.BaseRowFragment\#setAlignmentandroidx\.leanback\.app\.BaseRowSupportFragment\#onSaveInstanceState
+androidx\.leanback\.app\.BaseRowSupportFragment\#setPresenterSelectorandroidx\.leanback\.app\.BaseRowFragment\#setSelectedPosition
+class androidx\.leanback\.widget\.SearchEditText with androidx\.leanback\.widget\.StreamingTextView
+androidx\.leanback\.widget\.StreamingTextView\#setFinalRecognizedText
+androidx\.leanback\.widget\.StreamingTextView\#isLayoutRtl
+androidx\.leanback\.widget\.StreamingTextView\#reset
+androidx\.leanback\.widget\.StreamingTextView\#updateRecognizedText
+androidx\.leanback\.widget\.StreamingTextView\#onInitializeAccessibilityNodeInfo
+androidx\.leanback\.widget\.StreamingTextView\#setCustomSelectionActionModeCallback
+# > Task :lifecycle:lifecycle-viewmodel-savedstate:generateApi
+class androidx\.lifecycle\.SavedStateViewModelFactory with androidx\.lifecycle\.ViewModelProvider\.KeyedFactory , androidx\.lifecycle\.ViewModelProvider\.OnRequeryFactory
+# > Task :media2:media2-common:generateApi
+class androidx\.media[0-9]+\.common\.CallbackMediaItem with androidx\.versionedparcelable\.CustomVersionedParcelable
+class androidx\.media[0-9]+\.common\.FileMediaItem with androidx\.versionedparcelable\.CustomVersionedParcelable
+class androidx\.media[0-9]+\.common\.MediaItem with androidx\.versionedparcelable\.CustomVersionedParcelable
+androidx\.versionedparcelable\.CustomVersionedParcelable\#onPostParceling
+class androidx\.media[0-9]+\.common\.MediaMetadata with androidx\.versionedparcelable\.CustomVersionedParcelable
+class androidx\.media[0-9]+\.common\.SessionPlayer\.TrackInfo with androidx\.versionedparcelable\.CustomVersionedParcelable
+class androidx\.media[0-9]+\.common\.UriMediaItem with androidx\.versionedparcelable\.CustomVersionedParcelable
+# > Task :media2:media2-player:generateApi
+class androidx\.media[0-9]+\.player\.MediaPlayer\.TrackInfo with androidx\.versionedparcelable\.CustomVersionedParcelable
+# > Task :media2:media2-widget:generateApi
+class androidx\.media[0-9]+\.session\.MediaController\.Builder with androidx\.media[0-9]+\.session\.MediaController\.BuilderBase
+class androidx\.media[0-9]+\.widget\.MediaControlView with androidx\.media[0-9]+\.widget\.MediaViewGroup
+androidx\.media[0-9]+\.widget\.MediaViewGroup\#onVisibilityAggregated
+class androidx\.media[0-9]+\.widget\.VideoView with androidx\.media[0-9]+\.widget\.SelectiveLayout , androidx\.media[0-9]+\.widget\.MediaViewGroup
+androidx\.media[0-9]+\.widget\.SelectiveLayout\#generateLayoutParams
+androidx\.media[0-9]+\.widget\.SelectiveLayout\#onLayout
+androidx\.media[0-9]+\.widget\.SelectiveLayout\#shouldDelayChildPressedState
+# > Task :media2:media2-session:generateApi
+class androidx\.media[0-9]+\.session\.MediaBrowser\.Builder with androidx\.media[0-9]+\.session\.MediaController\.BuilderBase
+class androidx\.media[0-9]+\.session\.MediaLibraryService\.MediaLibrarySession\.Builder with androidx\.media[0-9]+\.session\.MediaSession\.BuilderBase
+class androidx\.media[0-9]+\.session\.MediaSession\.Builder with androidx\.media[0-9]+\.session\.MediaSession\.BuilderBase
+class androidx\.media[0-9]+\.session\.LibraryResult with androidx\.versionedparcelable\.CustomVersionedParcelable
+class androidx\.media[0-9]+\.session\.SessionResult with androidx\.versionedparcelable\.CustomVersionedParcelable
+# > Task :vectordrawable:vectordrawable:generateApi
+class androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCompat with androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon
+androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon\#setFilterBitmap
+androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon\#setColorFilter
+androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon\#getMinimumHeight
+androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon\#setHotspot
+androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon\#getPadding
+androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon\#setChangingConfigurations
+androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon\#jumpToCurrentState
+androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon\#applyTheme
+androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon\#setHotspotBounds
+androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon\#clearColorFilter
+androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon\#getState
+androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon\#getTransparentRegion
+androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon\#getMinimumWidth
+androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon\#setState
+androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon\#getCurrent
+# > Task :tvprovider:tvprovider:generateApi
+class androidx\.tvprovider\.media\.tv\.PreviewProgram with androidx\.tvprovider\.media\.tv\.BasePreviewProgram , androidx\.tvprovider\.media\.tv\.BaseProgram
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getReviewRating
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getSeasonTitle
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getInteractionCount
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#isLive
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getTitle
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#isBrowsable
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getContentId
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getReleaseDate
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getIntent
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getEpisodeTitle
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getAudioLanguages
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getLogoContentDescription
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getEpisodeNumber
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getLongDescription
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getLastPlaybackPositionMillis
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getVideoHeight
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getPosterArtAspectRatio
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getType
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getGenre
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getEndTimeUtcMillis
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getPosterArtUri
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getPreviewAudioUri
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getPackageName
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getLogoUri
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getSeriesId
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getInternalProviderId
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getTvSeriesItemType
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getStartTimeUtcMillis
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getInternalProviderDataByteArray
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getAuthor
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getItemCount
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getIntentUri
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getId
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getOfferPrice
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getDescription
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getThumbnailAspectRatio
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getAvailability
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getContentRatings
+androidx\.tvprovider\.media\.tv\.BaseProgram\#hashCode
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getReviewRatingStyle
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getDurationMillis
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getInternalProviderFlag[0-9]+
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getSeasonNumber
+androidx\.tvprovider\.media\.tv\.BaseProgram\#isSearchable
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getVideoWidth
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getPreviewVideoUri
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getInteractionType
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#getStartingPrice
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getThumbnailUri
+androidx\.tvprovider\.media\.tv\.BasePreviewProgram\#isTransient
+androidx\.tvprovider\.media\.tv\.BaseProgram\#getCanonicalGenres
+class androidx\.tvprovider\.media\.tv\.PreviewProgram\.Builder with androidx\.tvprovider\.media\.tv\.BasePreviewProgram\.Builder , androidx\.tvprovider\.media\.tv\.BaseProgram\.Builder
+class androidx\.tvprovider\.media\.tv\.PreviewProgram with androidx\.tvprovider\.media\.tv\.BasePreviewProgram , androidx\.tvprovider\.media\.tv\.BaseProgram class androidx\.tvprovider\.media\.tv\.Program with androidx\.tvprovider\.media\.tv\.BaseProgram
+class androidx\.tvprovider\.media\.tv\.Program\.Builder with androidx\.tvprovider\.media\.tv\.BaseProgram\.Builder
+class androidx\.tvprovider\.media\.tv\.WatchNextProgram with androidx\.tvprovider\.media\.tv\.BasePreviewProgram , androidx\.tvprovider\.media\.tv\.BaseProgram
+class androidx\.tvprovider\.media\.tv\.WatchNextProgram\.Builder with androidx\.tvprovider\.media\.tv\.BasePreviewProgram\.Builder , androidx\.tvprovider\.media\.tv\.BaseProgram\.Builder
+class androidx\.tvprovider\.media\.tv\.Program with androidx\.tvprovider\.media\.tv\.BaseProgram
+# > Task :vectordrawable:vectordrawable-animated:generateApi
+class androidx\.vectordrawable\.graphics\.drawable\.AnimatedVectorDrawableCompat with androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon
+androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon\#setStateclass androidx\.vectordrawable\.graphics\.drawable\.AnimatedVectorDrawableCompat with androidx\.vectordrawable\.graphics\.drawable\.VectorDrawableCommon
+# > Task :docs-public:dokkaKotlinDocs
+No documentation for .*
+Unresolved link to .*
+Unresolved function .*
+at java.base.*
