@@ -16,6 +16,7 @@
 package androidx.datastore.core
 
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -143,7 +144,7 @@ internal class SingleProcessDataStore<T>(
     override suspend fun updateData(transform: suspend (t: T) -> T): T {
         /**
          * The states here are the same as the states for reads. Additionally we send an ack that
-         * the actor must respond to as long as it is active.
+         * the actor *must* respond to (even if it is cancelled).
          */
         val ack = CompletableDeferred<T>()
         val currentDownStreamFlowState = downstreamFlow.value
@@ -153,8 +154,7 @@ internal class SingleProcessDataStore<T>(
 
         actor.offer(updateMsg)
 
-        // Wait with same scope as the actor, so we're not waiting on a cancelled actor.
-        return withContext(scope.coroutineContext) { ack.await() }
+        return ack.await()
     }
 
     private val SCRATCH_SUFFIX = ".tmp"
@@ -199,6 +199,18 @@ internal class SingleProcessDataStore<T>(
             }
             // We expect it to always be non-null but we will leave the alternative as a no-op
             // just in case.
+        },
+        onUndeliveredElement = { msg, ex ->
+            if (msg is Message.Update) {
+                // TODO(rohitsat): should we instead use scope.ensureActive() to get the original
+                //  cancellation cause? Should we instead have something like
+                //  UndeliveredElementException?
+                msg.ack.completeExceptionally(
+                    ex ?: CancellationException(
+                        "DataStore scope was cancelled before updateData could complete"
+                    )
+                )
+            }
         }
     ) { msg ->
         when (msg) {

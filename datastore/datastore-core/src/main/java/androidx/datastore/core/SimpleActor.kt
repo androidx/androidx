@@ -33,6 +33,7 @@ internal class SimpleActor<T>(
      * Function that will be called when scope is cancelled.
      */
     onComplete: (Throwable?) -> Unit,
+    onUndeliveredElement: (T, Throwable?) -> Unit,
     /**
      * Function that will be called once for each message.
      *
@@ -41,6 +42,13 @@ internal class SimpleActor<T>(
     private val consumeMessage: suspend (T) -> Unit
 ) {
     private val messageQueue = Channel<T>(capacity = UNLIMITED)
+
+    /**
+     * Count of the number of remaining messages to process. This is set to Int.MIN_VALUE when
+     * the scope is completed in order to signal that no more messages should be added to the
+     * queue. When this is set to Int.MIN_VALUE, there is no guarantee that more messages will be
+     * processed.
+     */
     private val remainingMessages = AtomicInteger(0)
 
     init {
@@ -48,32 +56,62 @@ internal class SimpleActor<T>(
         // callback.
         scope.coroutineContext[Job]?.invokeOnCompletion { ex ->
             onComplete(ex)
+            // TODO(rohitsat): replace this with Channel(onUndelievedElement) when it
+            // is fixed: https://github.com/Kotlin/kotlinx.coroutines/issues/2435
+            remainingMessages.getAndSet(Int.MIN_VALUE)
+
+            var msg = messageQueue.poll()
+            while (msg != null) {
+                onUndeliveredElement(msg, ex)
+                msg = messageQueue.poll()
+            }
+
             messageQueue.cancel()
         }
     }
 
+    /**
+     * Sends a message to a message queue to be processed by [consumeMessage] in [scope].
+     *
+     * If [offer] completes successfully, the msg *will* be processed either by consumeMessage or
+     * onUndeliveredElement. If [offer] throws an exception, the message may or may not be
+     * processed.
+     */
     fun offer(msg: T) {
         /**
          * Possible states:
-         * 1) No active consumer and remaining=0
-         *     This will happen when there are no remaining messages to receive in the channel
-         *     and there is no one actively sending.
-         * 2) No active consumer and remaining>0
-         *     This will only happen after a new send call after state 1. The new sender
-         *     incremented the count, and must send a message to the queue and is responsible for
-         *     starting a new consumer (state 3).
-         * 3) Active consumer and remaining>0
-         *     The consumer must continue to process messages until it sees that there are no
-         *     remaining messages, at which point it will revert to state 1.
+         * 1) remainingMessages = 0
+         *   All messages have been consumed, so there is no active consumer
+         * 2) remainingMessages > 0, no active consumer
+         *   One of the senders is responsible for triggering the consumer
+         * 3) remainingMessages > 0, active consumer
+         *   Consumer will continue to consume until remainingMessages is 0
+         * 4) remainingMessages < 0, messageQueue not canceled
+         *   The invokeOnCompletion callback is currently running. No active consumers. If a
+         *   message is sent during this time it may or may not be processed, so the sender
+         *   should throw.
+         * 5) remainingMessages < 0, messageQueue canceled.
+         *   Calls to messageQueue.offer will fail with an exception and no more messages will be
+         *   processed.
          */
 
-        // If the number of remaining messages was 0, there is no consumer, since it quits
+        // should never return false bc the channel capacity is unlimited
+        check(messageQueue.offer(msg))
+
+        // By checking the count here we can be sure that invokeOnCompletion hasn't  started. If
+        // it has started, we don't know if [msg] will be processed, so we should throw an
+        // exception.
+        val origRemainingMessages = remainingMessages.getAndIncrement()
+        if (origRemainingMessages < 0) {
+            // InvokeOnCompletion has started, we don't know if [msg] will be processed, so we
+            // should throw an exception.
+            scope.ensureActive()
+            error("scope isn't active so this should've thrown")
+        }
+
+        // If the number of remaining messages was 0, there is no active consumer, since it quits
         // consuming once remaining messages hits 0. We must kick off a new consumer.
-        val shouldReLaunch = remainingMessages.getAndIncrement() == 0
-
-        check(messageQueue.offer(msg)) // should never fail bc the channel capacity is unlimited
-
-        if (shouldReLaunch) {
+        if (origRemainingMessages == 0) {
             scope.launch {
                 // We shouldn't have started a new consumer unless there are remaining messages...
                 check(remainingMessages.get() > 0)
