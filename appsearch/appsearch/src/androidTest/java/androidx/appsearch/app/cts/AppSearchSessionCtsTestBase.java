@@ -443,7 +443,7 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(failResult1).isInstanceOf(AppSearchException.class);
         assertThat(failResult1).hasMessageThat().contains("Schema is incompatible");
         assertThat(failResult1).hasMessageThat().contains(
-                "Deleted types: [builtin:Email]");
+                "Deleted types: {builtin:Email}");
 
         // Try to remove the email schema again, which should now work as we set forceOverride to
         // be true.
@@ -520,7 +520,7 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(failResult1).isInstanceOf(AppSearchException.class);
         assertThat(failResult1).hasMessageThat().contains("Schema is incompatible");
         assertThat(failResult1).hasMessageThat().contains(
-                "Deleted types: [builtin:Email]");
+                "Deleted types: {builtin:Email}");
 
         // Try to remove the email schema again, which should now work as we set forceOverride to
         // be true.

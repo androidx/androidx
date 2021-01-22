@@ -16,8 +16,6 @@
 
 package androidx.appsearch.localstorage;
 
-import static androidx.appsearch.app.AppSearchResult.RESULT_OK;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -29,7 +27,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
-import androidx.appsearch.app.SetSchemaResult;
+import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.converter.GenericDocumentToProtoConverter;
 import androidx.collection.ArraySet;
@@ -648,12 +646,12 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder("Email").build());
 
         // set email incompatible and delete text
-        SetSchemaResult setSchemaResult = mAppSearchImpl.setSchema("package", "database1",
+        SetSchemaResponse setSchemaResponse = mAppSearchImpl.setSchema("package", "database1",
                 newSchemas,  /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
                 /*schemasPackageAccessible=*/ Collections.emptyMap(), /*forceOverride=*/ true);
-        assertThat(setSchemaResult.getDeletedSchemaTypes()).containsExactly("Text");
-        assertThat(setSchemaResult.getIncompatibleSchemaTypes()).containsExactly("Email");
-        assertThat(setSchemaResult.getResultCode()).isEqualTo(RESULT_OK);
+        assertThat(setSchemaResponse.getDeletedTypes()).containsExactly("Text");
+        assertThat(setSchemaResponse.getIncompatibleTypes()).containsExactly("Email");
+        assertThat(setSchemaResponse.isSuccess()).isTrue();
     }
 
     @Test
@@ -687,14 +685,14 @@ public class AppSearchImplTest {
 
         final List<AppSearchSchema> finalSchemas = Collections.singletonList(
                 new AppSearchSchema.Builder("Email").build());
-        SetSchemaResult setSchemaResult =
+        SetSchemaResponse setSchemaResponse =
                 mAppSearchImpl.setSchema("package", "database1", finalSchemas,
                 /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
                 /*schemasPackageAccessible=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false);
 
         // Check the Document type has been deleted.
-        assertThat(setSchemaResult.getDeletedSchemaTypes()).containsExactly("Document");
+        assertThat(setSchemaResponse.getDeletedTypes()).containsExactly("Document");
 
         // ForceOverride to delete.
         mAppSearchImpl.setSchema("package", "database1", finalSchemas,

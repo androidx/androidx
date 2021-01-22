@@ -32,14 +32,14 @@ import androidx.appsearch.app.GetByUriRequest;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
-import androidx.appsearch.app.SetSchemaResult;
+import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.converter.GenericDocumentToProtoConverter;
 import androidx.appsearch.localstorage.converter.ResultCodeToProtoConverter;
 import androidx.appsearch.localstorage.converter.SchemaToProtoConverter;
 import androidx.appsearch.localstorage.converter.SearchResultToProtoConverter;
 import androidx.appsearch.localstorage.converter.SearchSpecToProtoConverter;
-import androidx.appsearch.localstorage.converter.SetSchemaResultToProtoConverter;
+import androidx.appsearch.localstorage.converter.SetSchemaResponseToProtoConverter;
 import androidx.appsearch.localstorage.converter.TypePropertyPathToProtoConverter;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
@@ -256,7 +256,7 @@ public final class AppSearchImpl {
      * @throws AppSearchException on IcingSearchEngine error.
      */
     @NonNull
-    public SetSchemaResult setSchema(
+    public SetSchemaResponse setSchema(
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull List<AppSearchSchema> schemas,
@@ -293,8 +293,8 @@ public final class AppSearchImpl {
             } catch (AppSearchException e) {
                 if (setSchemaResultProto.getDeletedSchemaTypesCount() > 0
                         || setSchemaResultProto.getIncompatibleSchemaTypesCount() > 0) {
-                    return SetSchemaResultToProtoConverter
-                            .toSetSchemaResult(setSchemaResultProto, prefix);
+                    return SetSchemaResponseToProtoConverter
+                            .toSetSchemaResponse(setSchemaResultProto, prefix);
                 } else {
                     throw e;
                 }
@@ -320,9 +320,8 @@ public final class AppSearchImpl {
             mVisibilityStoreLocked.setVisibility(prefix,
                     prefixedSchemasNotPlatformSurfaceable, prefixedSchemasPackageAccessible);
 
-
-            return SetSchemaResultToProtoConverter
-                    .toSetSchemaResult(setSchemaResultProto, prefix);
+            return SetSchemaResponseToProtoConverter
+                    .toSetSchemaResponse(setSchemaResultProto, prefix);
         } finally {
             mReadWriteLock.writeLock().unlock();
         }

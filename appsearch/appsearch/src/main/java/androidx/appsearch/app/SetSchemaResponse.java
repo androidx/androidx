@@ -19,6 +19,8 @@ package androidx.appsearch.app;
 
 import static androidx.appsearch.app.AppSearchResult.RESULT_OK;
 
+import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -33,20 +35,58 @@ import java.util.Set;
 
 /** The response class of {@link AppSearchSession#setSchema} */
 public class SetSchemaResponse {
+
+    private static final String DELETED_TYPES_FIELD = "deletedTypes";
+    private static final String INCOMPATIBLE_TYPES_FIELD = "incompatibleTypes";
+    private static final String MIGRATED_TYPES_FIELD = "migratedTypes";
+    private static final String RESULT_CODE_FIELD = "resultCode";
+
+    private final Bundle mBundle;
+    /**
+     * The migrationFailures won't be saved in the bundle. Since:
+     * <ul>
+     *     <li>{@link MigrationFailure} is generated in {@link AppSearchSession} which will be
+     *         the SDK side in platform. We don't need to pass it from service side via binder.
+     *     <li>Translate multiple {@link MigrationFailure}s to bundles in {@link Builder} and then
+     *         back in constructor will be a huge waste.
+     * </ul>
+     */
     private final List<MigrationFailure> mMigrationFailures;
-    private final Set<String> mDeletedTypes;
-    private final Set<String> mMigratedTypes;
-    private final Set<String> mIncompatibleTypes;
     private final @AppSearchResult.ResultCode int mResultCode;
 
-    SetSchemaResponse(@NonNull List<MigrationFailure> migrationFailures,
-            @NonNull Set<String> deletedTypes, @NonNull Set<String> migratedTypes,
-            @NonNull Set<String> incompatibleTypes, @AppSearchResult.ResultCode int resultCode) {
+    /** Cache of the inflated deleted schema types. Comes from inflating mBundles at first use. */
+    @Nullable
+    private Set<String> mDeletedTypes;
+
+    /** Cache of the inflated migrated schema types. Comes from inflating mBundles at first use. */
+    @Nullable
+    private Set<String> mMigratedTypes;
+
+    /**
+     * Cache of the inflated incompatible schema types. Comes from inflating mBundles at first use.
+     */
+    @Nullable
+    private Set<String> mIncompatibleTypes;
+
+    SetSchemaResponse(@NonNull Bundle bundle, @NonNull List<MigrationFailure> migrationFailures) {
+        mBundle = Preconditions.checkNotNull(bundle);
+        // TODO(b/178060626) remove result code and only return this object in success case.
+        mResultCode = mBundle.getInt(RESULT_CODE_FIELD);
         mMigrationFailures = Preconditions.checkNotNull(migrationFailures);
-        mDeletedTypes = Preconditions.checkNotNull(deletedTypes);
-        mMigratedTypes = Preconditions.checkNotNull(migratedTypes);
-        mIncompatibleTypes = Preconditions.checkNotNull(incompatibleTypes);
-        mResultCode = resultCode;
+    }
+
+    SetSchemaResponse(@NonNull Bundle bundle) {
+        this(bundle, /*migrationFailures=*/ Collections.emptyList());
+    }
+
+    /**
+     * Returns the {@link Bundle} populated by this builder.
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public Bundle getBundle() {
+        return mBundle;
     }
 
     /**
@@ -70,6 +110,10 @@ public class SetSchemaResponse {
      */
     @NonNull
     public Set<String> getDeletedTypes() {
+        if (mDeletedTypes == null) {
+            mDeletedTypes = new ArraySet<>(
+                    Preconditions.checkNotNull(mBundle.getStringArrayList(DELETED_TYPES_FIELD)));
+        }
         return Collections.unmodifiableSet(mDeletedTypes);
     }
 
@@ -79,6 +123,10 @@ public class SetSchemaResponse {
      */
     @NonNull
     public Set<String> getMigratedTypes() {
+        if (mMigratedTypes == null) {
+            mMigratedTypes = new ArraySet<>(
+                    Preconditions.checkNotNull(mBundle.getStringArrayList(MIGRATED_TYPES_FIELD)));
+        }
         return Collections.unmodifiableSet(mMigratedTypes);
     }
 
@@ -95,6 +143,11 @@ public class SetSchemaResponse {
      */
     @NonNull
     public Set<String> getIncompatibleTypes() {
+        if (mIncompatibleTypes == null) {
+            mIncompatibleTypes = new ArraySet<>(
+                    Preconditions.checkNotNull(
+                            mBundle.getStringArrayList(INCOMPATIBLE_TYPES_FIELD)));
+        }
         return Collections.unmodifiableSet(mIncompatibleTypes);
     }
 
@@ -111,39 +164,48 @@ public class SetSchemaResponse {
     }
 
     /**
+     * Translates the {@link SetSchemaResponse}'s bundle to {@link Builder}.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    // TODO(b/179302942) change to Builder(mBundle) powered by mBundle.deepCopy
+    public Builder toBuilder() {
+        return new Builder()
+                .addDeletedTypes(getDeletedTypes())
+                .addIncompatibleTypes(getIncompatibleTypes())
+                .addMigratedTypes(getMigratedTypes())
+                .addMigrationFailures(mMigrationFailures)
+                .setResultCode(mResultCode);
+    }
+
+    /**
      * Builder for {@link SetSchemaResponse} objects.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class Builder {
-        private final List<MigrationFailure> mMigrationFailures = new ArrayList<>();
-        private final Set<String> mDeletedTypes = new ArraySet<>();
-        private final Set<String> mMigratedTypes = new ArraySet<>();
-        private final Set<String> mIncompatibleTypes = new ArraySet<>();
+        private final ArrayList<MigrationFailure> mMigrationFailures = new ArrayList<>();
+        private final ArrayList<String> mDeletedTypes = new ArrayList<>();
+        private final ArrayList<String> mMigratedTypes = new ArrayList<>();
+        private final ArrayList<String> mIncompatibleTypes = new ArrayList<>();
         private @AppSearchResult.ResultCode int mResultCode = RESULT_OK;
         private boolean mBuilt = false;
 
-        /**  Adds a {@link MigrationFailure}. */
+        /**  Adds {@link MigrationFailure}s to the list of migration failures. */
         @NonNull
-        public Builder setFailure(@NonNull String schemaType, @NonNull String namespace,
-                @NonNull String uri, @NonNull AppSearchResult<Void> failureResult) {
+        public Builder addMigrationFailures(
+                @NonNull Collection<MigrationFailure> migrationFailures) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(schemaType);
-            Preconditions.checkNotNull(namespace);
-            Preconditions.checkNotNull(uri);
-            Preconditions.checkNotNull(failureResult);
-            Preconditions.checkState(!failureResult.isSuccess());
-            mMigrationFailures.add(new MigrationFailure(schemaType, namespace, uri, failureResult));
+            mMigrationFailures.addAll(Preconditions.checkNotNull(migrationFailures));
             return this;
         }
 
-        /**  Adds a {@link MigrationFailure}. */
+        /**  Adds a {@link MigrationFailure} to the list of migration failures. */
         @NonNull
-        public Builder setFailure(@NonNull String schemaType, @NonNull String namespace,
-                @NonNull String uri, @AppSearchResult.ResultCode int resultCode,
-                @Nullable String errorMessage) {
-            mMigrationFailures.add(new MigrationFailure(schemaType, namespace, uri,
-                    AppSearchResult.newFailedResult(resultCode, errorMessage)));
+        public Builder addMigrationFailure(@NonNull MigrationFailure migrationFailure) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            mMigrationFailures.add(Preconditions.checkNotNull(migrationFailure));
             return this;
         }
 
@@ -155,6 +217,14 @@ public class SetSchemaResponse {
             return this;
         }
 
+        /**  Adds one deletedType to the list of deleted schema types. */
+        @NonNull
+        public Builder addDeletedType(@NonNull String deletedType) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            mDeletedTypes.add(Preconditions.checkNotNull(deletedType));
+            return this;
+        }
+
         /**  Adds incompatibleTypes to the list of incompatible schema types. */
         @NonNull
         public Builder addIncompatibleTypes(@NonNull Collection<String> incompatibleTypes) {
@@ -163,11 +233,27 @@ public class SetSchemaResponse {
             return this;
         }
 
+        /**  Adds one incompatibleType to the list of incompatible schema types. */
+        @NonNull
+        public Builder addIncompatibleType(@NonNull String incompatibleType) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            mIncompatibleTypes.add(Preconditions.checkNotNull(incompatibleType));
+            return this;
+        }
+
         /**  Adds migratedTypes to the list of migrated schema types. */
         @NonNull
         public Builder addMigratedTypes(@NonNull Collection<String> migratedTypes) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             mMigratedTypes.addAll(Preconditions.checkNotNull(migratedTypes));
+            return this;
+        }
+
+        /**  Adds one migratedType to the list of migrated schema types. */
+        @NonNull
+        public Builder addMigratedType(@NonNull String migratedType) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            mMigratedTypes.add(Preconditions.checkNotNull(migratedType));
             return this;
         }
 
@@ -183,9 +269,16 @@ public class SetSchemaResponse {
         @NonNull
         public SetSchemaResponse build() {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Bundle bundle = new Bundle();
+            bundle.putStringArrayList(INCOMPATIBLE_TYPES_FIELD, mIncompatibleTypes);
+            bundle.putStringArrayList(DELETED_TYPES_FIELD, mDeletedTypes);
+            bundle.putStringArrayList(MIGRATED_TYPES_FIELD, mMigratedTypes);
+            bundle.putInt(RESULT_CODE_FIELD, mResultCode);
             mBuilt = true;
-            return new SetSchemaResponse(mMigrationFailures, mDeletedTypes, mMigratedTypes,
-                    mIncompatibleTypes, mResultCode);
+            // Avoid converting the potential thousands of MigrationFailures to Pracelable and
+            // back just for put in bundle. In platform, we should set MigrationFailures in
+            // AppSearchSession after we pass SetSchemaResponse via binder.
+            return new SetSchemaResponse(bundle, mMigrationFailures);
         }
     }
 
@@ -194,35 +287,44 @@ public class SetSchemaResponse {
      * {@link AppSearchSession#setSchema}.
      */
     public static class MigrationFailure {
-        private final String mSchemaType;
-        private final String mNamespace;
-        private final String mUri;
-        AppSearchResult<Void> mFailureResult;
+        private static final String SCHEMA_TYPE_FIELD = "schemaType";
+        private static final String NAMESPACE_FIELD = "namespace";
+        private static final String URI_FIELD = "uri";
+        private static final String ERROR_MESSAGE_FIELD = "errorMessage";
+        private static final String RESULT_CODE_FIELD = "resultCode";
 
-        MigrationFailure(@NonNull String schemaType, @NonNull String namespace,
-                @NonNull String uri, @NonNull AppSearchResult<Void> result) {
-            mSchemaType = schemaType;
-            mNamespace = namespace;
-            mUri = uri;
-            mFailureResult = result;
+        private final Bundle mBundle;
+
+        MigrationFailure(@NonNull Bundle bundle) {
+            mBundle = bundle;
+        }
+
+        /**
+         * Returns the Bundle of the {@link MigrationFailure}.
+         * @hide
+         */
+        @NonNull
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public Bundle getBundle() {
+            return mBundle;
         }
 
         /** Returns the schema type of the {@link GenericDocument} that fails to be migrated. */
         @NonNull
         public String getSchemaType() {
-            return mSchemaType;
+            return mBundle.getString(SCHEMA_TYPE_FIELD, /*defaultValue=*/"");
         }
 
         /** Returns the namespace of the {@link GenericDocument} that fails to be migrated. */
         @NonNull
         public String getNamespace() {
-            return mNamespace;
+            return mBundle.getString(NAMESPACE_FIELD, /*defaultValue=*/"");
         }
 
         /** Returns the uri of the {@link GenericDocument} that fails to be migrated. */
         @NonNull
         public String getUri() {
-            return mUri;
+            return mBundle.getString(URI_FIELD, /*defaultValue=*/"");
         }
 
         /**
@@ -231,7 +333,68 @@ public class SetSchemaResponse {
          */
         @NonNull
         public AppSearchResult<Void> getAppSearchResult() {
-            return mFailureResult;
+            return AppSearchResult.newFailedResult(mBundle.getInt(RESULT_CODE_FIELD),
+                    mBundle.getString(ERROR_MESSAGE_FIELD, /*defaultValue=*/""));
+        }
+
+        /**
+         * Builder for {@link MigrationFailure} objects.
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public static class Builder {
+            private String mSchemaType;
+            private String mNamespace;
+            private String mUri;
+            private final Bundle mBundle = new Bundle();
+            private AppSearchResult<Void> mFailureResult;
+            private boolean mBuilt = false;
+
+            /** Sets the schema type for the {@link MigrationFailure}. */
+            @NonNull
+            public Builder setSchemaType(@NonNull String schemaType) {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                mSchemaType = Preconditions.checkNotNull(schemaType);
+                return this;
+            }
+
+            /** Sets the namespace for the {@link MigrationFailure}. */
+            @NonNull
+            public Builder setNamespace(@NonNull String namespace) {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                mNamespace = Preconditions.checkNotNull(namespace);
+                return this;
+            }
+
+            /** Sets the uri for the {@link MigrationFailure}. */
+            @NonNull
+            public Builder setUri(@NonNull String uri) {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                mUri = Preconditions.checkNotNull(uri);
+                return this;
+            }
+
+            /**  Sets the failure {@link AppSearchResult} for the {@link MigrationFailure}. */
+            @NonNull
+            public Builder setAppSearchResult(@NonNull AppSearchResult<Void> appSearchResult) {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                Preconditions.checkState(!appSearchResult.isSuccess(), "Input a success result");
+                mFailureResult = Preconditions.checkNotNull(appSearchResult);
+                return this;
+            }
+
+            /** Builds a {@link MigrationFailure} object. */
+            @NonNull
+            public MigrationFailure build() {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                mBundle.putString(SCHEMA_TYPE_FIELD, mSchemaType);
+                mBundle.putString(NAMESPACE_FIELD, mNamespace);
+                mBundle.putString(URI_FIELD, mUri);
+                mBundle.putString(ERROR_MESSAGE_FIELD, mFailureResult.getErrorMessage());
+                mBundle.putInt(RESULT_CODE_FIELD, mFailureResult.getResultCode());
+                mBuilt = true;
+                return new MigrationFailure(mBundle);
+            }
         }
     }
 }
