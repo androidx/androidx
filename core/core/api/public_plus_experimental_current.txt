@@ -630,7 +630,7 @@ package androidx.core.app {
     method public android.os.Bundle getExtras();
     method public androidx.core.app.Person? getPerson();
     method @Deprecated public CharSequence? getSender();
-    method public CharSequence getText();
+    method public CharSequence? getText();
     method public long getTimestamp();
     method public androidx.core.app.NotificationCompat.MessagingStyle.Message setData(String?, android.net.Uri?);
   }
