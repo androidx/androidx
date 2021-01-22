@@ -359,7 +359,6 @@ package androidx.car.app.model {
   public final class GridTemplate implements androidx.car.app.model.Template {
     method public static androidx.car.app.model.GridTemplate.Builder builder();
     method public androidx.car.app.model.ActionStrip? getActionStrip();
-    method public androidx.car.app.model.CarIcon? getBackgroundImage();
     method public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.ItemList? getSingleList();
     method public androidx.car.app.model.CarText? getTitle();
@@ -370,7 +369,6 @@ package androidx.car.app.model {
     ctor public GridTemplate.Builder();
     method public androidx.car.app.model.GridTemplate build();
     method public androidx.car.app.model.GridTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip?);
-    method public androidx.car.app.model.GridTemplate.Builder setBackgroundImage(androidx.car.app.model.CarIcon?);
     method public androidx.car.app.model.GridTemplate.Builder setHeaderAction(androidx.car.app.model.Action?);
     method public androidx.car.app.model.GridTemplate.Builder setLoading(boolean);
     method public androidx.car.app.model.GridTemplate.Builder setSingleList(androidx.car.app.model.ItemList);
