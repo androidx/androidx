@@ -160,7 +160,9 @@ public final class RoutingInfo implements NavigationInfo {
         }
 
         /**
-         * Sets the next {@link Step} or {@code null} to not display it.
+         * Sets the next {@link Step}.
+         *
+         * <p>Unless set with this method, the next step won't be displayed.
          *
          * <h4>Image Sizing Guidance</h4>
          *
@@ -170,16 +172,17 @@ public final class RoutingInfo implements NavigationInfo {
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
+         *
+         * @throws NullPointerException if {@code nextStep} is {@code null}
          */
         @NonNull
-        public Builder setNextStep(@Nullable Step nextStep) {
-            this.mNextStep = nextStep;
+        public Builder setNextStep(@NonNull Step nextStep) {
+            this.mNextStep = requireNonNull(nextStep);
             return this;
         }
 
         /**
-         * Sets an image of a junction for the maneuver or {@code null} to not show a junction
-         * image.
+         * Sets an image of a junction for the maneuver.
          *
          * <p>For example, a photo-realistic view of the upcoming junction that the driver can
          * see when executing the maneuver.
@@ -193,10 +196,12 @@ public final class RoutingInfo implements NavigationInfo {
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
+         *
+         * @throws NullPointerException if {@code junctionImage} is {@code null}
          */
         @NonNull
-        public Builder setJunctionImage(@Nullable CarIcon junctionImage) {
-            CarIconConstraints.DEFAULT.validateOrThrow(junctionImage);
+        public Builder setJunctionImage(@NonNull CarIcon junctionImage) {
+            CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(junctionImage));
             this.mJunctionImage = junctionImage;
             return this;
         }

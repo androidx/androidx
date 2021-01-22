@@ -16,7 +16,6 @@
 
 package androidx.car.app;
 
-import static androidx.car.app.utils.CommonUtils.TAG;
 import static androidx.car.app.utils.ThreadUtils.runOnMain;
 
 import android.app.Service;

@@ -20,6 +20,8 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_SIMPLE;
 
+import static java.util.Objects.requireNonNull;
+
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -210,36 +212,42 @@ public final class PlaceListMapTemplate implements Template {
          * Sets the {@link Action} that will be displayed in the header of the template, or
          * {@code null} to not display an action.
          *
+         * <p>Unless set with this method, the template will not have a header action.
+         *
          * <h4>Requirements</h4>
          *
-         * This template only supports either either one of {@link Action#APP_ICON} and {@link
-         * Action#BACK} as a header {@link Action}.
+         * This template only supports either one of {@link Action#APP_ICON} and
+         * {@link Action#BACK} as a header {@link Action}.
          *
          * @throws IllegalArgumentException if {@code headerAction} does not meet the template's
-         *                                  requirements.
+         *                                  requirements
+         * @throws NullPointerException     if {@code headerAction} is {@code null}
          */
         @NonNull
-        public Builder setHeaderAction(@Nullable Action headerAction) {
+        public Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
-                    headerAction == null ? Collections.emptyList()
-                            : Collections.singletonList(headerAction));
+                    Collections.singletonList(requireNonNull(headerAction)));
             this.mHeaderAction = headerAction;
             return this;
         }
 
         /**
-         * Sets the {@link CharSequence} to show as the template's title, or {@code null} to not
-         * display a title.
+         * Sets the title of the template.
+         *
+         * <p>Unless set with this method, the template will not have a title.
+         *
+         * @throws NullPointerException if {@code title} is null
          */
         @NonNull
-        public Builder setTitle(@Nullable CharSequence title) {
-            this.mTitle = title == null ? null : CarText.create(title);
+        public Builder setTitle(@NonNull CharSequence title) {
+            this.mTitle = CarText.create(requireNonNull(title));
             return this;
         }
 
         /**
-         * Sets an {@link ItemList} to show in a list view along with the map, or {@code null} to
-         * not display a list.
+         * Sets an {@link ItemList} to show in a list view along with the map.
+         *
+         * <p>Unless set with this method, the template will not show an item list.
          *
          * <p>To show a marker corresponding to a point of interest represented by a row, set the
          * {@link Place} instance via {@link Row.Builder#setMetadata}. The host will display the
@@ -262,19 +270,17 @@ public final class PlaceListMapTemplate implements Template {
          * {@link Row.Builder#setBrowsable(boolean)}.
          *
          * @throws IllegalArgumentException if {@code itemList} does not meet the template's
-         *                                  requirements.
+         *                                  requirements
+         * @throws NullPointerException     if {@code itemList} is {@code null}
          */
         @NonNull
-        public Builder setItemList(@Nullable ItemList itemList) {
-            if (itemList != null) {
-                List<Item> items = itemList.getItemList();
-                ROW_LIST_CONSTRAINTS_SIMPLE.validateOrThrow(itemList);
-                ModelUtils.validateAllNonBrowsableRowsHaveDistance(items);
-                ModelUtils.validateAllRowsHaveOnlySmallImages(items);
-                ModelUtils.validateNoRowsHaveBothMarkersAndImages(items);
-            }
+        public Builder setItemList(@NonNull ItemList itemList) {
+            List<Item> items = requireNonNull(itemList).getItemList();
+            ROW_LIST_CONSTRAINTS_SIMPLE.validateOrThrow(itemList);
+            ModelUtils.validateAllNonBrowsableRowsHaveDistance(items);
+            ModelUtils.validateAllRowsHaveOnlySmallImages(items);
+            ModelUtils.validateNoRowsHaveBothMarkersAndImages(items);
             this.mItemList = itemList;
-
             return this;
         }
 
@@ -282,25 +288,28 @@ public final class PlaceListMapTemplate implements Template {
          * Sets the {@link ActionStrip} for this template, or {@code null} to not display an {@link
          * ActionStrip}.
          *
+         * <p>Unless set with this method, the template will not have an action strip.
+         *
          * <h4>Requirements</h4>
          *
          * This template allows up to 2 {@link Action}s in its {@link ActionStrip}. Of the 2 allowed
          * {@link Action}s, one of them can contain a title as set via
          * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
          *
-         * @throws IllegalArgumentException if {@code actionStrip} does not meet the template's
-         *                                  requirements.
+         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements.
+         * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @NonNull
-        public Builder setActionStrip(@Nullable ActionStrip actionStrip) {
-            ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(
-                    actionStrip == null ? Collections.emptyList() : actionStrip.getActions());
+        public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
+            ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
             this.mActionStrip = actionStrip;
             return this;
         }
 
         /**
-         * Sets the anchor maker on the map, or {@code null} to not display an anchor marker.
+         * Sets the anchor maker on the map.
+         *
+         * <p>An anchor marker will not be displayed unless set with this method.
          *
          * <p>The anchor marker is displayed differently from other markers by the host.
          *
@@ -310,10 +319,12 @@ public final class PlaceListMapTemplate implements Template {
          * in the {@link Pane}. This can be used to provide a reference point on the map (e.g.
          * the center of a search region) as the user pages through the {@link Pane}'s markers,
          * for example.
+         *
+         * @throws NullPointerException if {@code anchor} is {@code null}
          */
         @NonNull
-        public Builder setAnchor(@Nullable Place anchor) {
-            this.mAnchor = anchor;
+        public Builder setAnchor(@NonNull Place anchor) {
+            this.mAnchor = requireNonNull(anchor);
             return this;
         }
 

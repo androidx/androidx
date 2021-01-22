@@ -244,6 +244,8 @@ public final class GridItem implements Item {
         /**
          * Sets the title of the row.
          *
+         * <p>Unless set with this method, the grid item will not have an title.
+         *
          * @throws NullPointerException     if {@code title} is {@code null}.
          * @throws IllegalArgumentException if {@code title} is empty.
          */
@@ -258,27 +260,31 @@ public final class GridItem implements Item {
         }
 
         /**
-         * Sets the text string to the grid item that is displayed below the title, or {@code
-         * null} to not show any text below the title.
+         * Sets a secondary text string to the grid item that is displayed below the title.
+         *
+         * <p>Unless set with this method, the grid item will not have a secondary text string.
          *
          * <h2>Text Wrapping</h2>
          *
          * This text is truncated at the end to fit in a single line below the title.
+         *
+         * @throws NullPointerException if {@code text} is {@code null}.
          */
         @NonNull
-        public Builder setText(@Nullable CharSequence text) {
-            this.mText = text == null ? null : CarText.create(text);
+        public Builder setText(@NonNull CharSequence text) {
+            this.mText = CarText.create(requireNonNull(text));
             return this;
         }
 
         /**
          * Sets an image to show in the grid item with the default size {@link #IMAGE_TYPE_LARGE}.
          *
+         * @throws NullPointerException if {@code image} is {@code null}.
          * @see #setImage(CarIcon, int)
          */
         @NonNull
         public Builder setImage(@NonNull CarIcon image) {
-            return setImage(image, IMAGE_TYPE_LARGE);
+            return setImage(requireNonNull(image), IMAGE_TYPE_LARGE);
         }
 
         /**
@@ -300,10 +306,11 @@ public final class GridItem implements Item {
          *
          * @param image     the {@link CarIcon} to display.
          * @param imageType one of {@link #IMAGE_TYPE_ICON} or {@link #IMAGE_TYPE_LARGE}.
+         * @throws NullPointerException if {@code image} is {@code null}.
          */
         @NonNull
         public Builder setImage(@NonNull CarIcon image, @GridItemImageType int imageType) {
-            CarIconConstraints.UNCONSTRAINED.validateOrThrow(image);
+            CarIconConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(image));
             this.mImage = image;
             this.mImageType = imageType;
             return this;
@@ -315,14 +322,15 @@ public final class GridItem implements Item {
          *
          * <p>Note that the listener relates to UI events and will be executed on the main thread
          * using {@link Looper#getMainLooper()}.
+         *
+         * @throws NullPointerException if {@code onClickListener} is {@code null}.
          */
         @NonNull
         @SuppressLint("ExecutorRegistration")
-        public Builder setOnClickListener(@Nullable OnClickListener onClickListener) {
-            mOnClickListener = onClickListener == null ? null :
-                    OnClickListenerWrapperImpl.create(onClickListener);
-            mOnClickDelegate = onClickListener == null ? null : OnClickDelegateImpl.create(
-                    onClickListener);
+        public Builder setOnClickListener(@NonNull OnClickListener onClickListener) {
+            mOnClickListener =
+                    OnClickListenerWrapperImpl.create(requireNonNull(onClickListener));
+            mOnClickDelegate = OnClickDelegateImpl.create(onClickListener);
             return this;
         }
 

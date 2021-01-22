@@ -283,21 +283,17 @@ public final class ItemList {
          *
          * <p>Note that the listener relates to UI events and will be executed on the main thread
          * using {@link Looper#getMainLooper()}.
+         *
+         * @throws NullPointerException if {@code itemVisibilityChangedListener} is {@code null}
          */
         @NonNull
         @SuppressLint("ExecutorRegistration")
         public Builder setOnItemsVisibilityChangedListener(
-                @Nullable OnItemVisibilityChangedListener itemVisibilityChangedListener) {
-            mOnItemVisibilityChangedListener =
-                    itemVisibilityChangedListener == null
-                            ? null
-                            : OnItemVisibilityChangedListenerWrapperImpl.create(
-                                    itemVisibilityChangedListener);
-            mOnItemVisibilityChangedDelegate =
-                    itemVisibilityChangedListener == null
-                            ? null
-                            : OnItemVisibilityChangedDelegateImpl.create(
-                                    itemVisibilityChangedListener);
+                @NonNull OnItemVisibilityChangedListener itemVisibilityChangedListener) {
+            mOnItemVisibilityChangedListener = OnItemVisibilityChangedListenerWrapperImpl.create(
+                    requireNonNull(itemVisibilityChangedListener));
+            mOnItemVisibilityChangedDelegate = OnItemVisibilityChangedDelegateImpl.create(
+                    itemVisibilityChangedListener);
             return this;
         }
 
@@ -315,17 +311,15 @@ public final class ItemList {
          * and the host implementation. For example, some templates may display the list as a
          * radio button group, while others may highlight the selected item's background.
          *
+         * @throws NullPointerException if {@code onSelectedListener} is {@code null}
          * @see #setSelectedIndex(int)
          */
         @NonNull
         @SuppressLint("ExecutorRegistration")
-        public Builder setOnSelectedListener(@Nullable OnSelectedListener onSelectedListener) {
+        public Builder setOnSelectedListener(@NonNull OnSelectedListener onSelectedListener) {
             mOnSelectedListener =
-                    onSelectedListener == null ? null :
-                            OnSelectedListenerWrapperImpl.create(onSelectedListener);
-            mOnSelectedDelegate =
-                    onSelectedListener == null ? null :
-                            OnSelectedDelegateImpl.create(onSelectedListener);
+                    OnSelectedListenerWrapperImpl.create(requireNonNull(onSelectedListener));
+            mOnSelectedDelegate = OnSelectedDelegateImpl.create(onSelectedListener);
             return this;
         }
 
@@ -352,10 +346,12 @@ public final class ItemList {
          *
          * <p>If the list is empty and the app does not explicitly set the message with this
          * method, the host will show a default message.
+         *
+         * @throws NullPointerException if {@code noItemsMessage} is {@code null}
          */
         @NonNull
-        public Builder setNoItemsMessage(@Nullable CharSequence noItemsMessage) {
-            this.mNoItemsMessage = noItemsMessage == null ? null : CarText.create(noItemsMessage);
+        public Builder setNoItemsMessage(@NonNull CharSequence noItemsMessage) {
+            this.mNoItemsMessage = CarText.create(requireNonNull(noItemsMessage));
             return this;
         }
 

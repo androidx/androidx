@@ -192,7 +192,7 @@ public final class Step {
          * <p>Some cluster displays do not support UTF-8 encoded characters, in which case
          * unsupported characters will not be displayed properly.
          *
-         * @throws NullPointerException if {@code cue} is {@code null}.
+         * @throws NullPointerException if {@code cue} is {@code null}
          * @see Builder#setCue(CharSequence)
          */
         public Builder(@NonNull CharSequence cue) {
@@ -200,12 +200,13 @@ public final class Step {
         }
 
         /**
-         * Sets the maneuver to be performed on this step or {@code null} if this step doesn't
-         * involve a maneuver.
+         * Sets the maneuver to be performed on this step.
+         *
+         * @throws NullPointerException if {@code maneuver} is {@code null}
          */
         @NonNull
-        public Builder setManeuver(@Nullable Maneuver maneuver) {
-            this.mManeuver = maneuver;
+        public Builder setManeuver(@NonNull Maneuver maneuver) {
+            this.mManeuver = requireNonNull(maneuver);
             return this;
         }
 
@@ -218,16 +219,17 @@ public final class Step {
          * template primarily uses the lanes image provided in {@link #setLanesImage}.
          *
          * <p>Lanes are displayed from left to right.
+         *
+         * @throws NullPointerException if {@code lane} is {@code null}
          */
         @NonNull
         public Builder addLane(@NonNull Lane lane) {
-            requireNonNull(lane);
-            mLanes.add(lane);
+            mLanes.add(requireNonNull(lane));
             return this;
         }
 
         /**
-         * Sets an image representing all the lanes or {@code null} if no lanes image is available.
+         * Sets an image representing all the lanes.
          *
          * <p>This image takes priority over {@link Lane}s that may have been added with {@link
          * #addLane}. If an image is added for the lanes with this method then corresponding lane
@@ -244,10 +246,12 @@ public final class Step {
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
+         *
+         * @throws NullPointerException if {@code lanesImage} is {@code null}
          */
         @NonNull
-        public Builder setLanesImage(@Nullable CarIcon lanesImage) {
-            this.mLanesImage = lanesImage;
+        public Builder setLanesImage(@NonNull CarIcon lanesImage) {
+            this.mLanesImage = requireNonNull(lanesImage);
             return this;
         }
 

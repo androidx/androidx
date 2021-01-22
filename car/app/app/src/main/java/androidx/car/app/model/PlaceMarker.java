@@ -18,6 +18,8 @@ package androidx.car.app.model;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import static java.util.Objects.requireNonNull;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
@@ -177,7 +179,9 @@ public final class PlaceMarker {
         int mIconType = TYPE_ICON;
 
         /**
-         * Sets the icon to display in the marker, or {@code null} to not display one.
+         * Sets the icon to display in the marker.
+         *
+         * <p>Unless set with this method, the marker will not have an icon.
          *
          * <p>If a label is specified with {@link #setLabel}, the icon will take precedence over it.
          *
@@ -199,12 +203,13 @@ public final class PlaceMarker {
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
          *
-         * @param icon     the {@link CarIcon} to display inside the marker.
-         * @param iconType one of {@link #TYPE_ICON} or {@link #TYPE_IMAGE}.
+         * @param icon     the {@link CarIcon} to display inside the marker
+         * @param iconType one of {@link #TYPE_ICON} or {@link #TYPE_IMAGE}
+         * @throws NullPointerException if the {@code icon} is {@code null}
          */
         @NonNull
-        public Builder setIcon(@Nullable CarIcon icon, @MarkerIconType int iconType) {
-            CarIconConstraints.DEFAULT.validateOrThrow(icon);
+        public Builder setIcon(@NonNull CarIcon icon, @MarkerIconType int iconType) {
+            CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(icon));
             this.mIcon = icon;
             this.mIconType = iconType;
             return this;
@@ -213,21 +218,24 @@ public final class PlaceMarker {
         /**
          * Sets the text that should be displayed as the marker's content.
          *
+         * <p>Unless set with this method, the marker will not have a label.
+         *
          * <p>If an icon is specified with {@link #setIcon}, the icon will take precedence.
          *
          * @param label the text to display inside of the marker. The string must have a maximum
          *              size of 3 characters. Set to {@code null} to let the host choose a
          *              labelling scheme (for example, using a sequence of numbers).
+         * @throws NullPointerException if the {@code label} is {@code null}
          */
         @NonNull
-        public Builder setLabel(@Nullable CharSequence label) {
-            if (label != null && label.length() > MAX_LABEL_LENGTH) {
+        public Builder setLabel(@NonNull CharSequence label) {
+            if (requireNonNull(label).length() > MAX_LABEL_LENGTH) {
                 throw new IllegalArgumentException(
                         "Marker label cannot contain more than " + MAX_LABEL_LENGTH
                                 + " characters");
             }
 
-            this.mLabel = label == null ? null : CarText.create(label);
+            this.mLabel = CarText.create(label);
             return this;
         }
 
@@ -244,17 +252,18 @@ public final class PlaceMarker {
          *       and will always use the default color as chosen by the host.
          * </ul>
          *
-         * <p>When this is set to {@code null}, the host will use a default color. The host may also
-         * ignore this color and use the default instead if the color does not pass the contrast
-         * requirements.
+         * <p>Unless set with this method, the host will use a default color for the marker.
+         *
+         * <p>The host may  ignore this color and use the default instead if the color does not
+         * pass the contrast requirements.
          *
          * <p>A color cannot be set if the marker's icon type is of {@link #TYPE_IMAGE}.
+         *
+         * @throws NullPointerException if the {@code color} is {@code null}
          */
         @NonNull
-        public Builder setColor(@Nullable CarColor color) {
-            if (color != null) {
-                CarColorConstraints.UNCONSTRAINED.validateOrThrow(color);
-            }
+        public Builder setColor(@NonNull CarColor color) {
+            CarColorConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(color));
             this.mColor = color;
             return this;
         }

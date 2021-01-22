@@ -184,8 +184,9 @@ public final class HostValidator {
         }
 
         Log.i(TAG_HOST_VALIDATION, String.format("Unrecognized host. If this is a valid caller, "
-                + "please add the following to your CarAppService#onConfigureHostValidator() "
-                + "implementation: hostValidator.allowHost(\"%s\", \"%s\");",
+                        + "please add the following to your "
+                        + "CarAppService#onConfigureHostValidator() "
+                        + "implementation: hostValidator.allowHost(\"%s\", \"%s\");",
                 getDigest(signatures[0]), hostPackageName));
         return false;
     }
@@ -302,7 +303,8 @@ public final class HostValidator {
      */
     @RequiresApi(28)
     private static final class Api28Impl {
-        private Api28Impl() {}
+        private Api28Impl() {
+        }
 
         @DoNotInline
         static Signature[] getSignatures(@NonNull PackageInfo packageInfo) {
@@ -341,13 +343,15 @@ public final class HostValidator {
          * Add a host to the allow list.
          *
          * @param packageName host package name (as reported by {@link PackageManager})
-         * @param digest SHA256 digest of the DER encoding of the allow-listed host certificate.
-         *                  This must be formatted as 32 lowercase 2 digits hexadecimal values
-         *                  separated by colon (e.g.: "000102030405060708090a0b0c0d0e0f101112131415
-         *                  161718191a1b1c1d1e1f"). When using
-         *                  <a href="https://developer.android.com/about/versions/pie/android-9.0#apk-key-rotation">signature
-         *                  rotation</a>, this digest should correspond to the initial signing
-         *                  certificate.
+         * @param digest      SHA256 digest of the DER encoding of the allow-listed host
+         *                    certificate.
+         *                    This must be formatted as 32 lowercase 2 digits hexadecimal values
+         *                    separated by colon (e.g.:
+         *                    "000102030405060708090a0b0c0d0e0f101112131415
+         *                    161718191a1b1c1d1e1f"). When using
+         *                    <a href="https://developer.android.com/about/versions/pie/android-9.0#apk-key-rotation">signature
+         *                    rotation</a>, this digest should correspond to the initial signing
+         *                    certificate.
          */
         @NonNull
         public Builder addAllowListedHost(@NonNull String packageName,
@@ -377,7 +381,7 @@ public final class HostValidator {
          *
          * @param allowListedHostsRes string-array resource identifier
          * @throws IllegalArgumentException if the provided resource doesn't exist or if the entries
-         * in the given resource are not formatted as expected.
+         *                                  in the given resource are not formatted as expected.
          */
         @NonNull
         @SuppressLint("MissingGetterMatchingBuilder")
