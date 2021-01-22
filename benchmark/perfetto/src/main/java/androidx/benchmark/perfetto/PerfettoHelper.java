@@ -166,7 +166,7 @@ public class PerfettoHelper {
             }
             return false;
         }
-        Log.e(LOG_TAG, "Perfetto stopped successfully.");
+        Log.i(LOG_TAG, "Perfetto stopped successfully.");
         return true;
     }
 

@@ -74,7 +74,7 @@ class PerfettoCapture {
      * such as result of `context.getExternalFilesDir(null)` or other similar `external` paths.
      */
     fun stop(destinationPath: String) {
-        if (!helper.stopCollecting(50, destinationPath)) {
+        if (!helper.stopCollecting(400, destinationPath)) {
             // TODO: move internal failures to be exceptions
             throw IllegalStateException("Unable to store perfetto trace")
         }

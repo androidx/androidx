@@ -39,22 +39,6 @@ dependencies {
     implementation(project(":benchmark:benchmark-perfetto"))
     implementation(ANDROIDX_TEST_EXT_JUNIT)
     implementation(ANDROIDX_TEST_UIAUTOMATOR)
-    // Get rid of this dependency eventually
-    implementation(GUAVA_ANDROID)
-    implementation("com.android:collector-device-lib-platform:0.1.0")
-    implementation("com.android:collector-device-lib:0.1.0")
-    implementation("com.android:collector-helper-utilities:0.1.0")
-    implementation("com.android:jank-helper:0.1.0")
-    implementation("com.android:memory-helper:0.1.0")
-    implementation("com.android:perfetto-helper:0.1.0")
-    implementation("com.android:platform-test-composers:0.1.0")
-    implementation("com.android:power-helper:0.1.0")
-    implementation("com.android:simpleperf-helper:0.1.0")
-    implementation("com.android:statsd-helper:0.1.0")
-    implementation("com.android:system-metric-helper:0.1.0")
-    implementation("com.android:test-composers:0.1.0")
-    implementation("com.android:platform-test-rules:0.1.0")
-    implementation("com.android:microbenchmark-device-lib:0.1.0")
 
     androidTestImplementation("androidx.test:rules:1.3.0")
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
@@ -69,7 +53,7 @@ dependencies {
 
 androidx {
     name = "Android Benchmark - Macrobenchmark"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_ONLY
     mavenGroup = LibraryGroups.BENCHMARK
     inceptionYear = "2020"
     description = "Android Benchmark - Macrobenchmark"
