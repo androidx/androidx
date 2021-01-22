@@ -152,7 +152,7 @@ public final class RowListConstraints {
      * @throws IllegalArgumentException if the constraints are not met.
      */
     public void validateOrThrow(@NonNull Pane pane) {
-        List<Action> actions = pane.getActionList();
+        List<Action> actions = pane.getActions();
         if (actions != null && actions.size() > mMaxActions) {
             throw new IllegalArgumentException(
                     "The number of actions on the pane exceeded the supported max of "

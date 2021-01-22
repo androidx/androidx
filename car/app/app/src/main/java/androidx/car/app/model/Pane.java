@@ -50,20 +50,21 @@ public final class Pane {
     /**
      * Returns the list of {@link Action}s displayed alongside the {@link Row}s in this pane.
      *
-     * @deprecated use {@link #getActionList()} instead.
+     * @deprecated use {@link #getActions()} instead.
      */
-    // TODO(jayyoo): remove once {@link #getActionList()} is used in the host.
+    // TODO(jayyoo): remove once {@link #getActions()} is used in the host.
     @Deprecated
-    @Nullable
-    public ActionList getActions() {
-        return mActionList.isEmpty() ? null : ActionList.create(mActionList);
+    @NonNull
+    public List<Action> getActionList() {
+        return getActions();
     }
+
 
     /**
      * Returns the list of {@link Action}s displayed alongside the {@link Row}s in this pane.
      */
     @NonNull
-    public List<Action> getActionList() {
+    public List<Action> getActions() {
         return mActionList;
     }
 
@@ -179,13 +180,13 @@ public final class Pane {
          * <p>By default, no actions are displayed.
          *
          * @throws NullPointerException if {@code actions} is {@code null}.
-         * @deprecated use {@link #setActionList(List)} instead.
+         * @deprecated use {@link #setActions(List)} instead.
          */
-        // TODO(jayyoo): remove once {@link #setActionList(List)} is used in the host.
+        // TODO(jayyoo): remove once {@link #setActions(List)} is used in the host.
         @Deprecated
         @NonNull
-        public Builder setActions(@NonNull List<Action> actions) {
-            return setActionList(actions);
+        public Builder setActionList(@NonNull List<Action> actions) {
+            return setActions(actions);
         }
 
         /**
@@ -196,7 +197,7 @@ public final class Pane {
          * @throws NullPointerException if {@code actions} is {@code null}.
          */
         @NonNull
-        public Builder setActionList(@NonNull List<Action> actions) {
+        public Builder setActions(@NonNull List<Action> actions) {
             requireNonNull(actions);
             for (Action action : actions) {
                 if (action == null) {

@@ -140,7 +140,7 @@ public class TestUtils {
         for (int i = 0; i < actionCount; i++) {
             actions.add(createAction("action " + i, null));
         }
-        builder.setActionList(actions);
+        builder.setActions(actions);
 
         return builder.build();
     }

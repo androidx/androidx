@@ -313,7 +313,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
         @NonNull
         public Builder setActionStrip(@Nullable ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(
-                    actionStrip == null ? Collections.emptyList() : actionStrip.getActionList());
+                    actionStrip == null ? Collections.emptyList() : actionStrip.getActions());
             this.mActionStrip = actionStrip;
             return this;
         }
