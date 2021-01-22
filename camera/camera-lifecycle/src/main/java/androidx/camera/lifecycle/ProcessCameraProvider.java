@@ -135,7 +135,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      *
      * @return A future which will contain the {@link ProcessCameraProvider}. Cancellation of
      * this future is a no-op. This future may fail with an {@link InitializationException} and
-     * associated cause that can be retrieved by {@link Throwable#getCause()). The cause will be
+     * associated cause that can be retrieved by {@link Throwable#getCause()}. The cause will be
      * a {@link androidx.camera.core.CameraUnavailableException} if it fails to access any camera
      * during initialization.
      * @throws IllegalStateException if CameraX fails to initialize via a default provider or a
