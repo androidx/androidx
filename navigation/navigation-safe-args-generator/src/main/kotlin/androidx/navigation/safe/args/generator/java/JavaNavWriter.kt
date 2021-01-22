@@ -248,6 +248,52 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
             addStatement("return $N", result)
         }.build()
 
+        val fromSavedStateHandleMethod = MethodSpec.methodBuilder("fromSavedStateHandle").apply {
+            addAnnotation(annotations.NONNULL_CLASSNAME)
+            addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            addAnnotation(specs.suppressAnnotationSpec)
+            val savedStateHandle = "savedStateHandle"
+            addParameter(
+                ParameterSpec.builder(SAVED_STATE_HANDLE_CLASSNAME, savedStateHandle)
+                    .addAnnotation(specs.androidAnnotations.NONNULL_CLASSNAME)
+                    .build()
+            )
+            returns(className)
+            val result = "__result"
+            addStatement("$T $N = new $T()", className, result, className)
+            args.forEach { arg ->
+                beginControlFlow("if ($N.contains($S))", savedStateHandle, arg.name).apply {
+                    addStatement("$T $N", arg.type.typeName(), arg.sanitizedName);
+                    addStatement("$N = $N.get($S)", arg.sanitizedName, savedStateHandle, arg.name)
+                    addNullCheck(arg, arg.sanitizedName)
+                    addStatement(
+                        "$result.$N.put($S, $N)",
+                        specs.hashMapFieldSpec,
+                        arg.name,
+                        arg.sanitizedName
+                    )
+                }
+                if (arg.defaultValue == null) {
+                    nextControlFlow("else")
+                    addStatement(
+                        "throw new $T($S)", java.lang.IllegalArgumentException::class.java,
+                        "Required argument \"${arg.name}\" is missing and does " +
+                            "not have an android:defaultValue"
+                    )
+                } else {
+                    nextControlFlow("else")
+                    addStatement(
+                        "$result.$N.put($S, $L)",
+                        specs.hashMapFieldSpec,
+                        arg.name,
+                        arg.defaultValue.write()
+                    )
+                }
+                endControlFlow()
+            }
+            addStatement("return $N", result)
+        }.build()
+
         val constructor = MethodSpec.constructorBuilder().addModifiers(Modifier.PRIVATE).build()
 
         val copyConstructor = MethodSpec.constructorBuilder()
@@ -298,6 +344,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
             .addMethod(constructor)
             .addMethod(fromMapConstructor)
             .addMethod(fromBundleMethod)
+            .addMethod(fromSavedStateHandleMethod)
             .addMethods(specs.getters())
             .addMethod(specs.toBundleMethod("toBundle"))
             .addMethod(specs.equalsMethod(className))
