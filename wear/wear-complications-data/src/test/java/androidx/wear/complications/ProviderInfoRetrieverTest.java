@@ -18,6 +18,7 @@ package androidx.wear.complications;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.when;
 
@@ -37,6 +38,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+
+import java.util.concurrent.ExecutionException;
 
 @RunWith(SharedRobolectricTestRunner.class)
 public class ProviderInfoRetrieverTest {
@@ -93,7 +96,13 @@ public class ProviderInfoRetrieverTest {
         ListenableFuture<ComplicationData> future =
                 mProviderInfoRetriever.requestPreviewComplicationData(component, type);
 
-        assertThat(future.get()).isNull();
+        try {
+            future.get();
+            fail("Should have thrown an ExecutionException.");
+        } catch (ExecutionException e) {
+            assertThat(e.getCause()).isInstanceOf(
+                    ProviderInfoRetriever.PreviewNotAvailableException.class);
+        }
     }
 
     @Test
@@ -107,6 +116,12 @@ public class ProviderInfoRetrieverTest {
         ListenableFuture<ComplicationData> future =
                 mProviderInfoRetriever.requestPreviewComplicationData(component, type);
 
-        assertThat(future.get()).isNull();
+        try {
+            future.get();
+            fail("Should have thrown an ExecutionException.");
+        } catch (ExecutionException e) {
+            assertThat(e.getCause()).isInstanceOf(
+                    ProviderInfoRetriever.PreviewNotAvailableException.class);
+        }
     }
 }
