@@ -19,13 +19,17 @@ package androidx.window;
 import android.app.Activity;
 import android.os.IBinder;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-public class ActivityTestUtil {
+final class ActivityUtil {
 
-    private ActivityTestUtil() { }
+    private ActivityUtil() {}
 
-    static IBinder getActivityWindowToken(@NonNull Activity activity) {
-        return activity.getWindow().getAttributes().token;
+    @Nullable
+    static IBinder getActivityWindowToken(@Nullable Activity activity) {
+        if (activity == null) {
+            return null;
+        }
+        return activity.getWindow() != null ? activity.getWindow().getAttributes().token : null;
     }
 }

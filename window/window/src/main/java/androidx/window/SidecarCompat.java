@@ -16,6 +16,7 @@
 
 package androidx.window;
 
+import static androidx.window.ActivityUtil.getActivityWindowToken;
 import static androidx.window.ExtensionCompat.DEBUG;
 import static androidx.window.Version.VERSION_0_1;
 
@@ -38,6 +39,7 @@ import androidx.window.sidecar.SidecarInterface;
 import androidx.window.sidecar.SidecarProvider;
 import androidx.window.sidecar.SidecarWindowLayoutInfo;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -142,17 +144,19 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
         if (windowToken != null) {
             register(windowToken, activity);
         } else {
-            FirstAttachAdapter attachAdapter = new FirstAttachAdapter(() -> {
-                IBinder token = getActivityWindowToken(activity);
-                register(token, activity);
-            });
+            FirstAttachAdapter attachAdapter = new FirstAttachAdapter(this, activity);
             activity.getWindow().getDecorView().addOnAttachStateChangeListener(attachAdapter);
         }
     }
 
-    private void register(IBinder windowToken, Activity activity) {
+    /**
+     * Register an {@link IBinder} token and an {@link Activity} so that the given
+     * {@link Activity} will receive updates when there is a new {@link WindowLayoutInfo}.
+     * @param windowToken for the given {@link Activity}.
+     * @param activity that is listening for changes of {@link WindowLayoutInfo}
+     */
+    void register(@NonNull IBinder windowToken, @NonNull Activity activity) {
         mWindowListenerRegisteredContexts.put(windowToken, activity);
-
         mSidecar.onWindowLayoutChangeListenerAdded(windowToken);
         mExtensionCallback.onWindowLayoutChanged(activity, getWindowLayoutInfo(activity));
     }
@@ -319,31 +323,41 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
         }
     }
 
-    @Nullable
-    private IBinder getActivityWindowToken(Activity activity) {
-        return activity.getWindow() != null ? activity.getWindow().getAttributes().token : null;
-    }
-
     /**
      * An adapter that will run a callback when a window is attached and then be removed from the
      * listener set.
      */
     private static class FirstAttachAdapter implements View.OnAttachStateChangeListener {
 
-        private final Runnable mCallback;
+        private final SidecarCompat mSidecarCompat;
+        private final WeakReference<Activity> mActivityWeakReference;
 
-        FirstAttachAdapter(Runnable callback) {
-            mCallback = callback;
+        FirstAttachAdapter(SidecarCompat sidecarCompat, Activity activity) {
+            mSidecarCompat = sidecarCompat;
+            mActivityWeakReference = new WeakReference<>(activity);
         }
 
         @Override
         public void onViewAttachedToWindow(View view) {
-            mCallback.run();
             view.removeOnAttachStateChangeListener(this);
+            Activity activity = mActivityWeakReference.get();
+            IBinder token = getActivityWindowToken(activity);
+            if (activity == null) {
+                if (DEBUG) {
+                    Log.d(TAG, "Unable to register activity since activity is missing");
+                }
+                return;
+            }
+            if (token == null) {
+                if (DEBUG) {
+                    Log.w(TAG, "Unable to register activity since the window token is missing");
+                }
+                return;
+            }
+            mSidecarCompat.register(token, activity);
         }
 
         @Override
-        public void onViewDetachedFromWindow(View view) {
-        }
+        public void onViewDetachedFromWindow(View view) { }
     }
 }
