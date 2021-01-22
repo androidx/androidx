@@ -103,7 +103,7 @@ class SearchSessionImpl implements AppSearchSession {
 
             Map<String, AppSearchSchema.Migrator> migratorMap = request.getMigrators();
 
-            // No need to trigger migration if user never set migrator
+            // No need to trigger migration if user never set migrator.
             if (migratorMap.size() == 0) {
                 return setSchemaNoMigrations(request, copySchemasPackageAccessible);
             }
@@ -137,10 +137,12 @@ class SearchSessionImpl implements AppSearchSession {
             if (!request.isForceOverride()) {
                 Set<String> unmigratedTypes = getUnmigratedIncompatibleTypes(
                         setSchemaResponse.getIncompatibleTypes(),
+                        migratorMap.keySet(),
                         currentVersionMap,
                         finalVersionMap);
                 // check is there any unmigrated types or deleted types. If there is, we will throw
-                // exception and stop from here.
+                // exception and stop from here. That's the only case we swallowed in the
+                // AppSearchImpl#setSchema().
                 // Since the force override is false, we shouldn't worry about the schema has
                 // already been set to system.
                 checkDeletedAndIncompatible(setSchemaResponse.getDeletedTypes(),
@@ -160,9 +162,10 @@ class SearchSessionImpl implements AppSearchSession {
                 }
             }
 
-            // 5. SetSchema a second time with forceOverride=true if the first attempted failed.
-            if (!setSchemaResponse.isSuccess()) {
-                // only trigger second setSchema() call if the first one is fail.
+            // 5. SetSchema a second time with forceOverride=true if the first attempted failed
+            // due to backward incompatible changes.
+            if (!setSchemaResponse.getIncompatibleTypes().isEmpty()
+                    || !setSchemaResponse.getDeletedTypes().isEmpty()) {
                 setSchemaResponse = mAppSearchImpl.setSchema(
                         mPackageName,
                         mDatabaseName,
@@ -380,8 +383,9 @@ class SearchSessionImpl implements AppSearchSession {
                 new ArrayList<>(request.getSchemasNotVisibleToSystemUi()),
                 copySchemasPackageAccessible,
                 request.isForceOverride());
-        if (!setSchemaResponse.isSuccess()) {
-            // check both deleted types and incompatible types are empty
+        if (!request.isForceOverride()) {
+            // check both deleted types and incompatible types are empty. That's the only case we
+            // swallowed in the AppSearchImpl#setSchema().
             checkDeletedAndIncompatible(setSchemaResponse.getDeletedTypes(),
                     setSchemaResponse.getIncompatibleTypes());
         }
@@ -394,10 +398,16 @@ class SearchSessionImpl implements AppSearchSession {
      * final version number.
      */
     private Set<String> getUnmigratedIncompatibleTypes(Set<String> incompatibleSchemaTypes,
-            Map<String, Integer> currentVersionMap, Map<String, Integer> finalVersionMap)
+            Set<String> migrators, Map<String, Integer> currentVersionMap,
+            Map<String, Integer> finalVersionMap)
             throws AppSearchException {
         Set<String> unmigratedSchemaTypes = new ArraySet<>();
         for (String unmigratedSchemaType : incompatibleSchemaTypes) {
+            // we don't have migrator for this schema type.
+            if (!migrators.contains(unmigratedSchemaType)) {
+                unmigratedSchemaTypes.add(unmigratedSchemaType);
+                continue;
+            }
             Integer currentVersion = currentVersionMap.get(unmigratedSchemaType);
             Integer finalVersion = finalVersionMap.get(unmigratedSchemaType);
             if (currentVersion == null) {

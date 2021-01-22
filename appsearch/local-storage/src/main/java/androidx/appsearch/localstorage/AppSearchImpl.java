@@ -253,7 +253,12 @@ public final class AppSearchImpl {
      * @param forceOverride                 Whether to force-apply the schema even if it is
      *                                      incompatible. Documents
      *                                      which do not comply with the new schema will be deleted.
-     * @throws AppSearchException on IcingSearchEngine error.
+     *
+     * @throws AppSearchException           On IcingSearchEngine error. If the status code is
+     *                                      FAILED_PRECONDITION for the incompatible change, the
+     *                                      exception will be converted to the SetSchemaResponse.
+     * @return The response contains deleted schema types and incompatible schema types of this
+     *         call.
      */
     @NonNull
     public SetSchemaResponse setSchema(
@@ -291,8 +296,13 @@ public final class AppSearchImpl {
             try {
                 checkSuccess(setSchemaResultProto.getStatus());
             } catch (AppSearchException e) {
-                if (setSchemaResultProto.getDeletedSchemaTypesCount() > 0
-                        || setSchemaResultProto.getIncompatibleSchemaTypesCount() > 0) {
+                // Swallow the exception for the incompatible change case. We will propagate
+                // those deleted schemas and incompatible types to the SetSchemaResponse.
+                boolean isFailedPrecondition = setSchemaResultProto.getStatus().getCode()
+                        == StatusProto.Code.FAILED_PRECONDITION;
+                boolean isIncompatible = setSchemaResultProto.getDeletedSchemaTypesCount() > 0
+                        || setSchemaResultProto.getIncompatibleSchemaTypesCount() > 0;
+                if (isFailedPrecondition && isIncompatible) {
                     return SetSchemaResponseToProtoConverter
                             .toSetSchemaResponse(setSchemaResultProto, prefix);
                 } else {

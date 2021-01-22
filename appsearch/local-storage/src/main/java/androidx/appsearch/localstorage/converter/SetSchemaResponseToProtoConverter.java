@@ -45,8 +45,7 @@ public class SetSchemaResponseToProtoConverter {
             @NonNull String prefix) {
         Preconditions.checkNotNull(proto);
         Preconditions.checkNotNull(prefix);
-        SetSchemaResponse.Builder builder = new SetSchemaResponse.Builder().setResultCode(
-                ResultCodeToProtoConverter.toResultCode(proto.getStatus().getCode()));
+        SetSchemaResponse.Builder builder = new SetSchemaResponse.Builder();
 
         for (int i = 0; i < proto.getDeletedSchemaTypesCount(); i++) {
             builder.addDeletedType(

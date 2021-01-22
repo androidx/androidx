@@ -385,7 +385,6 @@ package androidx.appsearch.app {
     method public java.util.Set<java.lang.String!> getIncompatibleTypes();
     method public java.util.Set<java.lang.String!> getMigratedTypes();
     method public java.util.List<androidx.appsearch.app.SetSchemaResponse.MigrationFailure!> getMigrationFailures();
-    method public boolean isSuccess();
   }
 
   public static class SetSchemaResponse.MigrationFailure {

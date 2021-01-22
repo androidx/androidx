@@ -16,9 +16,6 @@
 
 package androidx.appsearch.app;
 
-
-import static androidx.appsearch.app.AppSearchResult.RESULT_OK;
-
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -39,7 +36,6 @@ public class SetSchemaResponse {
     private static final String DELETED_TYPES_FIELD = "deletedTypes";
     private static final String INCOMPATIBLE_TYPES_FIELD = "incompatibleTypes";
     private static final String MIGRATED_TYPES_FIELD = "migratedTypes";
-    private static final String RESULT_CODE_FIELD = "resultCode";
 
     private final Bundle mBundle;
     /**
@@ -52,7 +48,6 @@ public class SetSchemaResponse {
      * </ul>
      */
     private final List<MigrationFailure> mMigrationFailures;
-    private final @AppSearchResult.ResultCode int mResultCode;
 
     /** Cache of the inflated deleted schema types. Comes from inflating mBundles at first use. */
     @Nullable
@@ -70,8 +65,6 @@ public class SetSchemaResponse {
 
     SetSchemaResponse(@NonNull Bundle bundle, @NonNull List<MigrationFailure> migrationFailures) {
         mBundle = Preconditions.checkNotNull(bundle);
-        // TODO(b/178060626) remove result code and only return this object in success case.
-        mResultCode = mBundle.getInt(RESULT_CODE_FIELD);
         mMigrationFailures = Preconditions.checkNotNull(migrationFailures);
     }
 
@@ -151,18 +144,6 @@ public class SetSchemaResponse {
         return Collections.unmodifiableSet(mIncompatibleTypes);
     }
 
-    /** Returns {@code true} if all {@link AppSearchSchema}s are successful set to the system. */
-    public boolean isSuccess() {
-        return mResultCode == RESULT_OK;
-    }
-
-    @Override
-    @NonNull
-    public String toString() {
-        return "{\n  Does setSchema success? : " + isSuccess()
-                + "\n  failures: " + mMigrationFailures + "\n}";
-    }
-
     /**
      * Translates the {@link SetSchemaResponse}'s bundle to {@link Builder}.
      * @hide
@@ -175,8 +156,7 @@ public class SetSchemaResponse {
                 .addDeletedTypes(getDeletedTypes())
                 .addIncompatibleTypes(getIncompatibleTypes())
                 .addMigratedTypes(getMigratedTypes())
-                .addMigrationFailures(mMigrationFailures)
-                .setResultCode(mResultCode);
+                .addMigrationFailures(mMigrationFailures);
     }
 
     /**
@@ -189,7 +169,6 @@ public class SetSchemaResponse {
         private final ArrayList<String> mDeletedTypes = new ArrayList<>();
         private final ArrayList<String> mMigratedTypes = new ArrayList<>();
         private final ArrayList<String> mIncompatibleTypes = new ArrayList<>();
-        private @AppSearchResult.ResultCode int mResultCode = RESULT_OK;
         private boolean mBuilt = false;
 
         /**  Adds {@link MigrationFailure}s to the list of migration failures. */
@@ -257,14 +236,6 @@ public class SetSchemaResponse {
             return this;
         }
 
-        /**  Sets the {@link AppSearchResult.ResultCode} of the response. */
-        @NonNull
-        public Builder setResultCode(@AppSearchResult.ResultCode int resultCode) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mResultCode = resultCode;
-            return this;
-        }
-
         /** Builds a {@link SetSchemaResponse} object. */
         @NonNull
         public SetSchemaResponse build() {
@@ -273,7 +244,6 @@ public class SetSchemaResponse {
             bundle.putStringArrayList(INCOMPATIBLE_TYPES_FIELD, mIncompatibleTypes);
             bundle.putStringArrayList(DELETED_TYPES_FIELD, mDeletedTypes);
             bundle.putStringArrayList(MIGRATED_TYPES_FIELD, mMigratedTypes);
-            bundle.putInt(RESULT_CODE_FIELD, mResultCode);
             mBuilt = true;
             // Avoid converting the potential thousands of MigrationFailures to Pracelable and
             // back just for put in bundle. In platform, we should set MigrationFailures in

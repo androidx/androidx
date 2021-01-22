@@ -651,7 +651,6 @@ public class AppSearchImplTest {
                 /*schemasPackageAccessible=*/ Collections.emptyMap(), /*forceOverride=*/ true);
         assertThat(setSchemaResponse.getDeletedTypes()).containsExactly("Text");
         assertThat(setSchemaResponse.getIncompatibleTypes()).containsExactly("Email");
-        assertThat(setSchemaResponse.isSuccess()).isTrue();
     }
 
     @Test

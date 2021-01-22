@@ -53,13 +53,6 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
     @Override
     @Test
     @Ignore("TODO(b/177266929)")
-    public void testSetSchema_migrate() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    @Test
-    @Ignore("TODO(b/177266929)")
     public void testSetSchema_updateVersion() {
         throw new UnsupportedOperationException();
     }
