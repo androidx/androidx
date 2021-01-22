@@ -97,7 +97,7 @@ public final class MessageTemplate implements Template {
     /**
      * @deprecated use {@link #getActions()} instead.
      */
-    // TODO(jayyoo): remove once {@link #getActions()} is used in the host.
+    // TODO(b/177276260): remove once {@link #getActions()} is used in the host.
     @Deprecated
     @NonNull
     public List<Action> getActionList() {
@@ -284,32 +284,34 @@ public final class MessageTemplate implements Template {
          * <p>Any actions above the maximum limit of 2 will be ignored.
          *
          * @throws NullPointerException if {@code actions} is {@code null}.
-         * @deprecated use {@link #setActions(List)} instead.
+         * @deprecated use {@link #addAction(Action)} instead.
          */
-        // TODO(jayyoo): remove once {@link #setActions(List)} is used in the host.
+        // TODO(b/177276260): remove once {@link #addAction(Action)} is used in the host.
         @Deprecated
         @NonNull
         public Builder setActionList(@NonNull List<Action> actions) {
-            return setActions(actions);
-        }
-
-        /**
-         * Sets a list of {@link Action}s to display along with the message.
-         *
-         * <p>Any actions above the maximum limit of 2 will be ignored.
-         *
-         * @throws NullPointerException if {@code actions} is {@code null}.
-         */
-        @NonNull
-        public Builder setActions(@NonNull List<Action> actions) {
             requireNonNull(actions);
             for (Action action : actions) {
                 if (action == null) {
                     throw new IllegalArgumentException(
                             "Disallowed null action found in action list");
                 }
-                mActionList.add(action);
+                addAction(action);
             }
+            return this;
+        }
+
+        /**
+         * Adds an {@link Action} to display along with the message.
+         *
+         * <p>Any actions above the maximum limit of 2 will be ignored.
+         *
+         * @throws NullPointerException if {@code action} is {@code null}.
+         */
+        @NonNull
+        public Builder addAction(@NonNull Action action) {
+            requireNonNull(action);
+            mActionList.add(action);
             return this;
         }
 
