@@ -220,7 +220,7 @@ public class PlaceListMapTemplateTest {
                         .setMetadata(
                                 new Metadata.Builder().setPlace(
                                         new Place.Builder(CarLocation.create(10.f, 10.f))
-                                                .setMarker(PlaceMarker.getDefault())
+                                                .setMarker(new PlaceMarker.Builder().build())
                                                 .build()).build())
                         .build();
 

@@ -57,7 +57,6 @@ public final class PlaceMarker {
      */
     public static final int TYPE_IMAGE = 1;
 
-    private static final PlaceMarker DEFAULT_INSTANCE = new PlaceMarker.Builder().build();
     private static final int MAX_LABEL_LENGTH = 3;
 
     @Keep
@@ -74,28 +73,12 @@ public final class PlaceMarker {
     private final int mIconType;
 
     /**
-     * Returns an instance of {@link PlaceMarker} that uses the default values of the attributes
-     * specified through a {@link Builder}.
-     */
-    @NonNull
-    public static PlaceMarker getDefault() {
-        return DEFAULT_INSTANCE;
-    }
-
-    /**
      * Returns a {@link Builder} for a {@link PlaceMarker}.
      */
     // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
-    }
-
-    /**
-     * Returns {@code true} if {@code marker} is a default marker, {@code false} otherwise.
-     */
-    public static boolean isDefaultMarker(@Nullable PlaceMarker marker) {
-        return marker != null && marker.getIcon() == null && marker.getLabel() == null;
     }
 
     /**
