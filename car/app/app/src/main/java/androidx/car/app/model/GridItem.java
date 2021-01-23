@@ -93,13 +93,6 @@ public final class GridItem implements Item {
     @Nullable
     private final OnClickDelegate mOnClickDelegate;
 
-    /** Constructs a new builder of {@link GridItem}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     /** Returns whether the grid item is loading. */
     public boolean isLoading() {
         return mIsLoading;

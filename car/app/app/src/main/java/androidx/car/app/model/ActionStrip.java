@@ -45,13 +45,6 @@ public final class ActionStrip {
     @Keep
     private final List<Action> mActions;
 
-    /** Constructs a new builder of {@link ActionStrip}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     /**
      * Returns the list of {@link Action}'s.
      *

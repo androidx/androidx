@@ -62,13 +62,6 @@ public final class MessageTemplate implements Template {
     @Keep
     private final List<Action> mActionList;
 
-    /** Constructs a new builder of {@link MessageTemplate}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder(@NonNull CharSequence message) {
-        return new Builder(requireNonNull(message));
-    }
-
     @Nullable
     public CarText getTitle() {
         return mTitle;

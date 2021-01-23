@@ -469,26 +469,6 @@ public final class Maneuver {
     private final CarIcon mIcon;
 
     /**
-     * Constructs a new builder of {@link Maneuver}.
-     *
-     * <p>The type should be chosen to reflect the closest semantic meaning of the maneuver. In some
-     * cases, an exact type match is not possible, but choosing a similar or slightly more general
-     * type is preferred. Using {@link #TYPE_UNKNOWN} is allowed, but some head units will not
-     * display any information in that case.
-     *
-     * @param type one of the {@code TYPE_*} static constants defined in this class.
-     * @throws IllegalArgumentException if {@code type} is not a valid maneuver type.
-     */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder(@Type int type) {
-        if (!isValidType(type)) {
-            throw new IllegalArgumentException("Maneuver must have a valid type");
-        }
-        return new Builder(type);
-    }
-
-    /**
      * Returns the maneuver type.
      *
      * <p>Required to be set at all times.

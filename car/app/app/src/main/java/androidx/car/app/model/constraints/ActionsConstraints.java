@@ -78,14 +78,6 @@ public final class ActionsConstraints {
     private final Set<Integer> mRequiredActionTypes;
     private final Set<Integer> mDisallowedActionTypes;
 
-    /** Returns a builder of {@link ActionsConstraints}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @VisibleForTesting
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     /** Returns the max number of actions allowed. */
     public int getMaxActions() {
         return mMaxActions;

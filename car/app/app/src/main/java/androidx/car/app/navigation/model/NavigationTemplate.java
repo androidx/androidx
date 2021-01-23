@@ -88,13 +88,6 @@ public final class NavigationTemplate implements Template {
     @Nullable
     private final ActionStrip mActionStrip;
 
-    /** Constructs a new builder of {@link NavigationTemplate}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     /**
      * Returns the navigation information displayed on the template, or {@code null} if there is no
      * navigation information on top of the map.

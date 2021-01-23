@@ -33,13 +33,6 @@ public final class Metadata {
     @Nullable
     private final Place mPlace;
 
-    /** Constructs a new builder of a {@link Metadata} instance. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     @Nullable
     public Place getPlace() {
         return mPlace;
