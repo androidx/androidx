@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"ಪಾಸ್‌ವರ್ಡ್ ಬಳಸಿ"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"ಯಾವುದೇ ಪಿನ್, ಪ್ಯಾಟರ್ನ್ ಅಥವಾ ಪಾಸ್‌ವರ್ಡ್ ಅನ್ನು ಹೊಂದಿಸಿಲ್ಲ."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"ಈ ಸಾಧನವು ಪಿನ್, ಪ್ಯಾಟರ್ನ್ ಅಥವಾ ಪಾಸ್‌ವರ್ಡ್ ಅನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"ಫಿಂಗರ್‌ಪ್ರಿಂಟ್ ಐಕಾನ್"</string>
 </resources>
