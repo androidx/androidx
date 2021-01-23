@@ -279,19 +279,10 @@ package androidx.car.app.model {
 
   public final class CarText {
     method public static androidx.car.app.model.CarText create(CharSequence);
-    method @Deprecated public java.util.List<androidx.car.app.model.CarText.SpanWrapper!> getSpans();
-    method @Deprecated public String getText();
     method public boolean isEmpty();
     method public static boolean isNullOrEmpty(androidx.car.app.model.CarText?);
     method public CharSequence toCharSequence();
     method public static String? toShortString(androidx.car.app.model.CarText?);
-  }
-
-  public static class CarText.SpanWrapper {
-    method public androidx.car.app.model.CarSpan getCarSpan();
-    method public int getEnd();
-    method public int getFlags();
-    method public int getStart();
   }
 
   public final class DateTimeWithZone {
