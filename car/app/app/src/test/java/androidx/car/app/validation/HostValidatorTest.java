@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.car.app.utils;
+package androidx.car.app.validation;
 
 import static android.content.pm.PackageInfo.REQUESTED_PERMISSION_GRANTED;
 
@@ -48,6 +48,8 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLog;
 
+import java.util.List;
+
 /** Tests for {@link HostValidator}. */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -79,7 +81,6 @@ public class HostValidatorTest {
         Context context = spy(ApplicationProvider.getApplicationContext());
         when(context.getPackageManager()).thenReturn(mPackageManager);
         mHostValidatorBuilder = new HostValidator.Builder(context);
-        mHostValidatorBuilder.setAllowUnknownHostsEnabled(false);
         when(context.getResources()).thenReturn(mResources);
     }
 
@@ -88,7 +89,7 @@ public class HostValidatorTest {
         installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURE);
         HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, NON_SYSTEM_UID);
 
-        mHostValidatorBuilder.addAllowListedHost(VALID_PACKAGE_NAME, VALID_DIGEST);
+        mHostValidatorBuilder.addAllowedHost(VALID_PACKAGE_NAME, VALID_DIGEST);
         HostValidator hostValidator = mHostValidatorBuilder.build();
 
         assertThat(hostValidator.isValidHost(hostInfo)).isTrue();
@@ -112,7 +113,7 @@ public class HostValidatorTest {
                         VALID_DIGEST + "," + VALID_PACKAGE_NAME
                 });
 
-        mHostValidatorBuilder.addAllowListedHosts(MOCK_ALLOW_LIST_HOSTS_RES_ID);
+        mHostValidatorBuilder.addAllowedHosts(MOCK_ALLOW_LIST_HOSTS_RES_ID);
         HostValidator hostValidator = mHostValidatorBuilder.build();
         HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, NON_SYSTEM_UID);
 
@@ -123,22 +124,14 @@ public class HostValidatorTest {
     public void allowListedHosts_sample_isReadProperly() {
         HostValidator.Builder builder =
                 new HostValidator.Builder(ApplicationProvider.getApplicationContext());
-        builder.addAllowListedHosts(R.array.hosts_allowlist_sample);
+        builder.addAllowedHosts(R.array.hosts_allowlist_sample);
         HostValidator hostValidator = builder.build();
 
-        assertThat(hostValidator.getAllowListedHosts().size()).isEqualTo(6);
-    }
-
-    @Test
-    public void isValidHost_denyHost_rejected() {
-        installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURE);
-        HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, NON_SYSTEM_UID);
-
-        mHostValidatorBuilder.addAllowListedHost(VALID_PACKAGE_NAME, VALID_DIGEST);
-        mHostValidatorBuilder.addDenyListedHost(VALID_PACKAGE_NAME);
-        HostValidator hostValidator = mHostValidatorBuilder.build();
-
-        assertThat(hostValidator.isValidHost(hostInfo)).isFalse();
+        assertThat(hostValidator.getAllowedHosts().size()).isEqualTo(2);
+        assertThat(hostValidator.getAllowedHosts().values()
+                .stream()
+                .mapToLong(List::size)
+                .sum()).isEqualTo(6);
     }
 
     @Test
@@ -146,7 +139,7 @@ public class HostValidatorTest {
         installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURE);
         HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, NON_SYSTEM_UID);
 
-        mHostValidatorBuilder.addAllowListedHost(ALTERNATIVE_VALID_PACKAGE_NAME,
+        mHostValidatorBuilder.addAllowedHost(ALTERNATIVE_VALID_PACKAGE_NAME,
                 VALID_DIGEST);
         HostValidator hostValidator = mHostValidatorBuilder.build();
 
@@ -158,32 +151,7 @@ public class HostValidatorTest {
         installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURE);
         HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, NON_SYSTEM_UID);
 
-        mHostValidatorBuilder.setAllowUnknownHostsEnabled(true);
-        HostValidator hostValidator = mHostValidatorBuilder.build();
-
-        assertThat(hostValidator.isValidHost(hostInfo)).isTrue();
-    }
-
-    @Test
-    public void isValidHost_denyHostPlusAllowedUnknownHosts_rejected() {
-        installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURE);
-        HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, NON_SYSTEM_UID);
-
-        mHostValidatorBuilder.setAllowUnknownHostsEnabled(true);
-        mHostValidatorBuilder.addDenyListedHost(VALID_PACKAGE_NAME);
-        HostValidator hostValidator = mHostValidatorBuilder.build();
-
-        assertThat(hostValidator.isValidHost(hostInfo)).isFalse();
-    }
-
-    @Test
-    public void isValidHost_allowHostPlusAllowedUnknownHosts_rejected() {
-        installPackage(VALID_PACKAGE_NAME, VALID_SIGNATURE);
-        HostInfo hostInfo = new HostInfo(VALID_PACKAGE_NAME, NON_SYSTEM_UID);
-
-        mHostValidatorBuilder.setAllowUnknownHostsEnabled(true);
-        mHostValidatorBuilder.addAllowListedHost(VALID_PACKAGE_NAME, VALID_DIGEST);
-        HostValidator hostValidator = mHostValidatorBuilder.build();
+        HostValidator hostValidator = HostValidator.ALLOW_ALL_HOSTS_VALIDATOR;
 
         assertThat(hostValidator.isValidHost(hostInfo)).isTrue();
     }
