@@ -23,10 +23,11 @@
     <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"Neregistrovali ste žiadne odtlačky prstov."</string>
     <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"Toto zariadenie nemá senzor odtlačkov prstov"</string>
     <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"Overenie odtlačku prsta zrušil používateľ."</string>
-    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"Príliš veľa pokusov. Skúste to znova neskôr."</string>
+    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"Príliš veľa pokusov. Skúste to neskôr."</string>
     <string name="default_error_msg" msgid="4776854077120974966">"Neznáma chyba"</string>
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"Overenie zrušil používateľ."</string>
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Použiť heslo"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Nie je nastavený kód PIN, vzor ani heslo."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Toto zariadenie nepodporuje PIN, vzor ani heslo."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Ikona odtlačku prsta"</string>
 </resources>

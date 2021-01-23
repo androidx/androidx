@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Naudoti slaptažodį"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Nenustatytas PIN kodas, atrakinimo piešinys arba slaptažodis."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Šis įrenginys nepalaiko PIN kodo, šablono ar slaptažodžio."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Kontrolinio kodo piktograma"</string>
 </resources>

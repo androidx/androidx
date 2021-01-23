@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"ໃຊ້ລະຫັດຜ່ານ"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"ບໍ່ໄດ້ຕັ້ງ PIN, ຮູບແບບປົດລັອກ ຫຼື ລະຫັດຜ່ານ."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"ອຸປະກອນນີ້ບໍ່ຮອງຮັບ PIN, ຮູບແບບ ຫຼື ລະຫັດຜ່ານ."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"ໄອຄອນລາຍນິ້ວມື"</string>
 </resources>
