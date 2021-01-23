@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"စကားဝှက်သုံးရန်"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"ပင်နံပါတ်၊ လော့ခ်ပုံစံ သို့မဟုတ် စကားဝှက် သတ်မှတ်မထားပါ။"</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"ဤစက်သည် ပင်နံပါတ်၊ ပုံစံ သို့မဟုတ် စကားဝှက်ကို မပံ့ပိုးပါ။"</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"လက်ဗွေ သင်္ကေတ"</string>
 </resources>
