@@ -3,6 +3,7 @@ package a.b
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Parcelable
+import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavArgs
 import java.io.Serializable
 import java.lang.IllegalArgumentException
@@ -139,6 +140,99 @@ public data class MainFragmentArgs(
         }
         if (__enumArg == null) {
           throw IllegalArgumentException("Argument \"enumArg\" is marked as non-null but was passed a null value.")
+        }
+      } else {
+        __enumArg = AccessMode.READ
+      }
+      return MainFragmentArgs(__main, __optional, __reference, __referenceZeroDefaultValue,
+          __floatArg, __floatArrayArg, __objectArrayArg, __boolArg, __optionalParcelable, __enumArg)
+    }
+
+    @JvmStatic
+    public fun fromSavedStateHandle(savedStateHandle: SavedStateHandle): MainFragmentArgs {
+      val __main : String?
+      if (savedStateHandle.contains("main")) {
+        __main = savedStateHandle["main"]
+        if (__main == null) {
+          throw IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value")
+        }
+      } else {
+        throw IllegalArgumentException("Required argument \"main\" is missing and does not have an android:defaultValue")
+      }
+      val __optional : Int?
+      if (savedStateHandle.contains("optional")) {
+        __optional = savedStateHandle["optional"]
+        if (__optional == null) {
+          throw IllegalArgumentException("Argument \"optional\" of type integer does not support null values")
+        }
+      } else {
+        __optional = -1
+      }
+      val __reference : Int?
+      if (savedStateHandle.contains("reference")) {
+        __reference = savedStateHandle["reference"]
+        if (__reference == null) {
+          throw IllegalArgumentException("Argument \"reference\" of type reference does not support null values")
+        }
+      } else {
+        __reference = R.drawable.background
+      }
+      val __referenceZeroDefaultValue : Int?
+      if (savedStateHandle.contains("referenceZeroDefaultValue")) {
+        __referenceZeroDefaultValue = savedStateHandle["referenceZeroDefaultValue"]
+        if (__referenceZeroDefaultValue == null) {
+          throw IllegalArgumentException("Argument \"referenceZeroDefaultValue\" of type reference does not support null values")
+        }
+      } else {
+        __referenceZeroDefaultValue = 0
+      }
+      val __floatArg : Float?
+      if (savedStateHandle.contains("floatArg")) {
+        __floatArg = savedStateHandle["floatArg"]
+        if (__floatArg == null) {
+          throw IllegalArgumentException("Argument \"floatArg\" of type float does not support null values")
+        }
+      } else {
+        __floatArg = 1F
+      }
+      val __floatArrayArg : FloatArray?
+      if (savedStateHandle.contains("floatArrayArg")) {
+        __floatArrayArg = savedStateHandle["floatArrayArg"]
+        if (__floatArrayArg == null) {
+          throw IllegalArgumentException("Argument \"floatArrayArg\" is marked as non-null but was passed a null value")
+        }
+      } else {
+        throw IllegalArgumentException("Required argument \"floatArrayArg\" is missing and does not have an android:defaultValue")
+      }
+      val __objectArrayArg : Array<ActivityInfo>?
+      if (savedStateHandle.contains("objectArrayArg")) {
+        __objectArrayArg = savedStateHandle["objectArrayArg"]
+        if (__objectArrayArg == null) {
+          throw IllegalArgumentException("Argument \"objectArrayArg\" is marked as non-null but was passed a null value")
+        }
+      } else {
+        throw IllegalArgumentException("Required argument \"objectArrayArg\" is missing and does not have an android:defaultValue")
+      }
+      val __boolArg : Boolean?
+      if (savedStateHandle.contains("boolArg")) {
+        __boolArg = savedStateHandle["boolArg"]
+        if (__boolArg == null) {
+          throw IllegalArgumentException("Argument \"boolArg\" of type boolean does not support null values")
+        }
+      } else {
+        __boolArg = true
+      }
+      val __optionalParcelable : ActivityInfo?
+      if (savedStateHandle.contains("optionalParcelable")) {
+        __optionalParcelable = savedStateHandle["optionalParcelable"]
+      } else {
+        __optionalParcelable = null
+      }
+      val __enumArg : AccessMode?
+      if (savedStateHandle.contains("enumArg")) {
+        __enumArg = savedStateHandle["enumArg"]
+        if (__enumArg == null) {
+          throw IllegalArgumentException("Argument \"enumArg\" is marked as non-null but was passed a null value")
         }
       } else {
         __enumArg = AccessMode.READ

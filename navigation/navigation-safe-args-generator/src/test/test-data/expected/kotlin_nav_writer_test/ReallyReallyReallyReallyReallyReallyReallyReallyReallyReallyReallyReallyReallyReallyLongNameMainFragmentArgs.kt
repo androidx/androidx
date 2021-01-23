@@ -1,6 +1,7 @@
 package a.b
 
 import android.os.Bundle
+import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavArgs
 import kotlin.jvm.JvmStatic
 
@@ -19,5 +20,11 @@ public data class
       bundle.setClassLoader(ReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyLongNameFragmentArgs::class.java.classLoader)
       return ReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyLongNameFragmentArgs()
     }
+
+    @JvmStatic
+    public fun fromSavedStateHandle(savedStateHandle: SavedStateHandle):
+        ReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyLongNameFragmentArgs
+        =
+        ReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyLongNameFragmentArgs()
   }
 }
