@@ -81,13 +81,6 @@ public final class PlaceListNavigationTemplate implements Template {
     @Nullable
     private final ActionStrip mActionStrip;
 
-    /** Constructs a new builder of {@link PlaceListNavigationTemplate}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     @Nullable
     public CarText getTitle() {
         return mTitle;

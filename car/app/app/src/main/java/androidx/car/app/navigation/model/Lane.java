@@ -38,13 +38,6 @@ public final class Lane {
     @Keep
     private final List<LaneDirection> mDirections;
 
-    /** Constructs a new builder of {@link Lane}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     @NonNull
     public List<LaneDirection> getDirections() {
         return mDirections;

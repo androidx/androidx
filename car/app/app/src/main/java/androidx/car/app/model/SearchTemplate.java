@@ -91,22 +91,6 @@ public final class SearchTemplate implements Template {
     @Nullable
     private final ActionStrip mActionStrip;
 
-    /**
-     * Constructs a new builder of {@link SearchTemplate} with the input {@link SearchCallback}.
-     *
-     * <p>Note that the callback relates to UI events and will be executed on the main thread
-     * using {@link Looper#getMainLooper()}.
-     *
-     * @param callback the callback to be invoked for events such as when the user types new
-     *                 text, or submits a search.
-     */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    @SuppressLint("ExecutorRegistration")
-    public static Builder builder(@NonNull SearchCallback callback) {
-        return new Builder(callback);
-    }
-
     public boolean isLoading() {
         return mIsLoading;
     }

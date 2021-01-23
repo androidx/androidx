@@ -75,7 +75,7 @@ public final class TravelEstimate {
             @NonNull Distance remainingDistance,
             long remainingTimeSeconds,
             @NonNull DateTimeWithZone arrivalTimeAtDestination) {
-        return builder(remainingDistance, arrivalTimeAtDestination).setRemainingTimeSeconds(
+        return new Builder(remainingDistance, arrivalTimeAtDestination).setRemainingTimeSeconds(
                 remainingTimeSeconds).build();
     }
 
@@ -101,50 +101,8 @@ public final class TravelEstimate {
             @NonNull Distance remainingDistance,
             @NonNull Duration remainingTime,
             @NonNull ZonedDateTime arrivalTimeAtDestination) {
-        return builder(remainingDistance, arrivalTimeAtDestination).setRemainingTime(
+        return new Builder(remainingDistance, arrivalTimeAtDestination).setRemainingTime(
                 remainingTime).build();
-    }
-
-    /**
-     * Constructs a new builder of {@link TravelEstimate}.
-     *
-     * @param remainingDistance        The estimated remaining {@link Distance} until arriving at
-     *                                 the destination.
-     * @param arrivalTimeAtDestination The arrival time with the time zone information provided
-     *                                 for the destination.
-     * @throws NullPointerException if {@code remainingDistance} or {@code
-     *                              arrivalTimeAtDestination} are {@code null}
-     */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder(
-            @NonNull Distance remainingDistance,
-            @NonNull DateTimeWithZone arrivalTimeAtDestination) {
-        return new Builder(
-                requireNonNull(remainingDistance),
-                requireNonNull(arrivalTimeAtDestination));
-    }
-
-    /**
-     * Constructs a new builder of {@link TravelEstimate}.
-     *
-     * @param remainingDistance        The estimated remaining {@link Distance} until arriving at
-     *                                 the destination.
-     * @param arrivalTimeAtDestination The arrival time with the time zone information provided for
-     *                                 the destination.
-     * @throws NullPointerException if {@code remainingDistance} or
-     *                              {@code arrivalTimeAtDestination} are {@code null}
-     */
-    @NonNull
-    @RequiresApi(26)
-    @SuppressWarnings("AndroidJdkLibsChecker")
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    public static Builder builder(
-            @NonNull Distance remainingDistance,
-            @NonNull ZonedDateTime arrivalTimeAtDestination) {
-        return new Builder(
-                requireNonNull(remainingDistance),
-                requireNonNull(arrivalTimeAtDestination));
     }
 
     @NonNull

@@ -50,13 +50,6 @@ public final class Trip {
     @Keep
     private final boolean mIsLoading;
 
-    /** Constructs a new builder of {@link Trip}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     @NonNull
     public List<Destination> getDestinations() {
         return mDestinations;

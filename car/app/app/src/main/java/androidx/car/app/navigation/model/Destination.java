@@ -39,24 +39,6 @@ public final class Destination {
     @Nullable
     private final CarIcon mImage;
 
-    /**
-     * Constructs a new builder of {@link Destination} with the given name and address.
-     *
-     * @throws NullPointerException if {@code name} or {@code address} is {@code null}.
-     */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder(@NonNull CharSequence name, @NonNull CharSequence address) {
-        return builder().setName(name).setAddress(address);
-    }
-
-    /** Constructs a new builder of {@link Destination}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     @Nullable
     public CarText getName() {
         return mName;

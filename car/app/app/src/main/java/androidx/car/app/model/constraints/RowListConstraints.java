@@ -87,13 +87,6 @@ public final class RowListConstraints {
     private final RowConstraints mRowConstraints;
     private final boolean mAllowSelectableLists;
 
-    /** A builder of {@link RowListConstraints}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     /** Returns the maximum number of actions allowed to be added alongside the list. */
     public int getMaxActions() {
         return mMaxActions;

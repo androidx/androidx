@@ -44,21 +44,6 @@ public final class Toggle {
     private final boolean mIsChecked;
 
     /**
-     * Constructs a new builder of {@link Toggle} with the given {@link OnCheckedChangeListener}.
-     *
-     * <p>Note that the listener relates to UI events and will be executed on the main thread
-     * using {@link Looper#getMainLooper()}.z
-     *
-     * @throws NullPointerException if {@code onCheckedChangeListener} is {@code null}.
-     */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    @SuppressLint("ExecutorRegistration")
-    public static Builder builder(@NonNull OnCheckedChangeListener onCheckedChangeListener) {
-        return new Builder(requireNonNull(onCheckedChangeListener));
-    }
-
-    /**
      * Returns {@code true} if the toggle is checked.
      */
     public boolean isChecked() {

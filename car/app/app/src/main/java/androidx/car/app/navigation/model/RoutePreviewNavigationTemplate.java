@@ -91,13 +91,6 @@ public final class RoutePreviewNavigationTemplate implements Template {
     @Nullable
     private final ActionStrip mActionStrip;
 
-    /** Constructs a new builder of {@link RoutePreviewNavigationTemplate}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     /**
      * Returns the {@link CarText} that should be used as the title in the template.
      */

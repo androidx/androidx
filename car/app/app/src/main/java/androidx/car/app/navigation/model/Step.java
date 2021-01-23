@@ -53,24 +53,6 @@ public final class Step {
     private final CarText mRoad;
 
     /**
-     * Constructs a new builder of {@link Step} with a cue.
-     *
-     * <p>A cue must always be set when the step is created and is used as a fallback when {@link
-     * Maneuver} is not set or is unavailable.
-     *
-     * <p>Some cluster displays do not support UTF-8 encoded characters, in which case unsupported
-     * characters will not be displayed properly.
-     *
-     * @throws NullPointerException if {@code cue} is {@code null}.
-     * @see Builder#setCue(CharSequence)
-     */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder(@NonNull CharSequence cue) {
-        return new Builder(requireNonNull(cue));
-    }
-
-    /**
      * Returns the maneuver to be performed on this step or {@code null} if this step doesn't
      * involve a maneuver.
      */
