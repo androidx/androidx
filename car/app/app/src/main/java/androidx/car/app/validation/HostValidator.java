@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.car.app.utils;
+package androidx.car.app.validation;
 
 import static androidx.car.app.utils.CommonUtils.TAG_HOST_VALIDATION;
 
@@ -43,10 +43,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Validates that the calling package is authorized to connect to a {@link CarAppService}.
@@ -61,30 +60,33 @@ public final class HostValidator {
     /**
      * System permission used to identify valid hosts (only used by hosts running on Android API
      * level 31 or later). Other hosts must be allow-listed using
-     * {@link HostValidator.Builder#addAllowListedHost(String, String)} or
-     * {@link HostValidator.Builder#addAllowListedHosts(int)}
+     * {@link HostValidator.Builder#addAllowedHost(String, String)} or
+     * {@link HostValidator.Builder#addAllowedHosts(int)}
      */
     public static final String TEMPLATE_RENDERER_PERMISSION = "android.car.permission"
             + ".TEMPLATE_RENDERER";
 
-    private final Map<String, List<String>> mAllowListedHosts;
-    private final Set<String> mDenyListedHosts;
-    private final boolean mAllowUnknownHosts;
+    private final Map<String, List<String>> mAllowedHosts;
+    private final boolean mAllowAllHosts;
     private final Map<String, Pair<Integer, Boolean>> mCallerChecked = new HashMap<>();
     private final PackageManager mPackageManager;
-    @Nullable
-    private final MessageDigest mMessageDigest;
 
-    HostValidator(@NonNull PackageManager packageManager,
-            @NonNull Map<String, List<String>> allowListedHosts,
-            @NonNull Set<String> denyListedHosts,
-            boolean allowUnknownHosts) {
+    HostValidator(@Nullable PackageManager packageManager,
+            @NonNull Map<String, List<String>> allowedHosts, boolean allowAllHosts) {
         mPackageManager = packageManager;
-        mAllowListedHosts = allowListedHosts;
-        mDenyListedHosts = denyListedHosts;
-        mAllowUnknownHosts = allowUnknownHosts;
-        mMessageDigest = getMessageDigest();
+        mAllowedHosts = allowedHosts;
+        mAllowAllHosts = allowAllHosts;
     }
+
+    /**
+     * A host validator that doesn't block any hosts. This is designed to be used only for
+     * development/debugging, or in situations where validation is not required (e.g.: the UI
+     * provided by the app has no privacy concerns (e.g.: no credentials or other user private
+     * data is exchanged with the host).
+     */
+    @NonNull
+    public static final HostValidator ALLOW_ALL_HOSTS_VALIDATOR = new HostValidator(null,
+            new HashMap<>(), true);
 
     /**
      * @return true if the given host is allowed to bind to this client, or false otherwise
@@ -93,13 +95,8 @@ public final class HostValidator {
         requireNonNull(hostInfo);
         Log.d(TAG_HOST_VALIDATION, "Evaluating " + hostInfo);
 
-        if (mDenyListedHosts.contains(hostInfo.getPackageName())) {
-            Log.d(TAG_HOST_VALIDATION, "Rejected - Host is in the deny list");
-            return false;
-        }
-
-        if (mAllowUnknownHosts) {
-            Log.d(TAG_HOST_VALIDATION, "Accepted - Unknown hosts allowed");
+        if (mAllowAllHosts) {
+            Log.d(TAG_HOST_VALIDATION, "Accepted - Validator disabled, all hosts allowed");
             return true;
         }
 
@@ -183,20 +180,24 @@ public final class HostValidator {
             return true;
         }
 
-        Log.i(TAG_HOST_VALIDATION, String.format("Unrecognized host. If this is a valid caller, "
-                        + "please add the following to your "
-                        + "CarAppService#onConfigureHostValidator() "
-                        + "implementation: hostValidator.allowHost(\"%s\", \"%s\");",
-                getDigest(signatures[0]), hostPackageName));
+        Log.e(TAG_HOST_VALIDATION, String.format("Unrecognized host.\n"
+                        + "If this is a valid caller, please add the following to your "
+                        + "CarAppService#createHostValidator() implementation:\n"
+                        + "return new HostValidator.Builder()\n"
+                        + "\t.addAllowedHost(\"%s\", \"%s\");\n"
+                        + "\t.build()",
+                hostPackageName, getDigest(signatures[0])));
         return false;
     }
 
     private boolean isAllowListed(String hostPackageName, Signature[] signatures) {
+        List<String> allowedDigests = mAllowedHosts.get(hostPackageName);
+        if (allowedDigests == null) {
+            return false;
+        }
         for (Signature signature : signatures) {
             String digest = getDigest(signature);
-            List<String> allowListedPackageNames = mAllowListedHosts.get(digest);
-            if (allowListedPackageNames != null
-                    && allowListedPackageNames.contains(hostPackageName)) {
+            if (allowedDigests.contains(digest)) {
                 return true;
             }
         }
@@ -253,12 +254,14 @@ public final class HostValidator {
 
     @Nullable
     private String getDigest(@NonNull Signature signature) {
-        if (mMessageDigest == null) {
+        byte[] data = signature.toByteArray();
+        MessageDigest messageDigest = getMessageDigest();
+        if (messageDigest == null) {
+            // Error has been already logged in getMessageDigest()
             return null;
         }
-        byte[] data = signature.toByteArray();
-        mMessageDigest.update(data);
-        byte[] digest = mMessageDigest.digest();
+        messageDigest.update(data);
+        byte[] digest = messageDigest.digest();
         StringBuilder sb = new StringBuilder(digest.length * 3 - 1);
         for (int i = 0; i < digest.length; i++) {
             sb.append(String.format("%02x", digest[i]));
@@ -283,18 +286,12 @@ public final class HostValidator {
         return false;
     }
 
+    /**
+     * Returns a map from package name to signature digests of each of the allowed hosts.
+     */
     @NonNull
-    public Map<String, List<String>> getAllowListedHosts() {
-        return mAllowListedHosts;
-    }
-
-    @NonNull
-    public Set<String> getDenyListedHosts() {
-        return mDenyListedHosts;
-    }
-
-    public boolean isAllowUnknownHostsEnabled() {
-        return mAllowUnknownHosts;
+    public Map<String, List<String>> getAllowedHosts() {
+        return mAllowedHosts;
     }
 
     /**
@@ -330,9 +327,7 @@ public final class HostValidator {
      * whether a caller is a valid templates host.
      */
     public static final class Builder {
-        private final Map<String, List<String>> mAllowListedHosts = new HashMap<>();
-        private final Set<String> mDenyListedHosts = new HashSet<>();
-        private boolean mAllowUnknownHosts = false;
+        private final Map<String, List<String>> mAllowedHosts = new HashMap<>();
         private final Context mContext;
 
         public Builder(@NonNull Context context) {
@@ -354,21 +349,21 @@ public final class HostValidator {
          *                    certificate.
          */
         @NonNull
-        public Builder addAllowListedHost(@NonNull String packageName,
+        public Builder addAllowedHost(@NonNull String packageName,
                 @NonNull String digest) {
             requireNonNull(packageName);
             requireNonNull(digest);
-            List<String> packageNames = mAllowListedHosts.get(cleanUp(digest));
-            if (packageNames == null) {
-                packageNames = new ArrayList<>();
-                mAllowListedHosts.put(digest, packageNames);
+            List<String> digests = mAllowedHosts.get(packageName);
+            if (digests == null) {
+                digests = new ArrayList<>();
+                mAllowedHosts.put(packageName, digests);
             }
-            packageNames.add(cleanUp(packageName));
+            digests.add(digest);
             return this;
         }
 
         private String cleanUp(String value) {
-            return value.toLowerCase().replace(" ", "");
+            return value.toLowerCase(Locale.US).replace(" ", "");
         }
 
         /**
@@ -376,7 +371,7 @@ public final class HostValidator {
          *
          * <p>Allow-listed hosts are retrieved from a string-array resource, encoded as
          * [digest,package-name] pairs separated by comma. See
-         * {@link #addAllowListedHost(String, String)} for details on signature digest and
+         * {@link #addAllowedHost(String, String)} for details on signature digest and
          * package-name formatting.
          *
          * @param allowListedHostsRes string-array resource identifier
@@ -385,7 +380,7 @@ public final class HostValidator {
          */
         @NonNull
         @SuppressLint("MissingGetterMatchingBuilder")
-        public Builder addAllowListedHosts(@ArrayRes int allowListedHostsRes) {
+        public Builder addAllowedHosts(@ArrayRes int allowListedHostsRes) {
             Resources resources = mContext.getResources();
             String[] entries = resources.getStringArray(allowListedHostsRes);
             if (entries == null) {
@@ -399,41 +394,15 @@ public final class HostValidator {
                     throw new IllegalArgumentException("Invalid allowed host entry: '" + entry
                             + "'");
                 }
-                addAllowListedHost(keyValue[1], keyValue[0]);
+                addAllowedHost(cleanUp(keyValue[1]), cleanUp(keyValue[0]));
             }
-            return this;
-        }
-
-        /**
-         * Add a host to the deny list.
-         *
-         * <p>If a host appears in both the allow and deny lists, the deny list will take
-         * precedence.
-         *
-         * @param packageName host package name (as reported by {@link PackageManager})
-         */
-        @NonNull
-        public Builder addDenyListedHost(@NonNull String packageName) {
-            requireNonNull(packageName);
-            mDenyListedHosts.add(cleanUp(packageName));
-            return this;
-        }
-
-        /**
-         * Configures this validator to accept bindings from unknown hosts. Use this option only for
-         * testing or debugging.
-         */
-        @NonNull
-        public Builder setAllowUnknownHostsEnabled(boolean allowUnknownHosts) {
-            mAllowUnknownHosts = allowUnknownHosts;
             return this;
         }
 
         /** @return a new {@link HostValidator} */
         @NonNull
         public HostValidator build() {
-            return new HostValidator(mContext.getPackageManager(), mAllowListedHosts,
-                    mDenyListedHosts, mAllowUnknownHosts);
+            return new HostValidator(mContext.getPackageManager(), mAllowedHosts, false);
         }
     }
 }

@@ -24,7 +24,7 @@ package androidx.car.app {
 
   public abstract class CarAppService extends android.app.Service {
     ctor public CarAppService();
-    method public abstract void configureHostValidator(androidx.car.app.utils.HostValidator.Builder);
+    method public abstract androidx.car.app.validation.HostValidator createHostValidator();
     method @CallSuper public final void dump(java.io.FileDescriptor, java.io.PrintWriter, String![]?);
     method public final androidx.car.app.Session? getCurrentSession();
     method public final androidx.car.app.HostInfo? getHostInfo();
@@ -1058,23 +1058,20 @@ package androidx.car.app.serialization {
 
 }
 
-package androidx.car.app.utils {
+package androidx.car.app.validation {
 
   public final class HostValidator {
-    method public java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!> getAllowListedHosts();
-    method public java.util.Set<java.lang.String!> getDenyListedHosts();
-    method public boolean isAllowUnknownHostsEnabled();
+    method public java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!> getAllowedHosts();
     method public boolean isValidHost(androidx.car.app.HostInfo);
+    field public static final androidx.car.app.validation.HostValidator ALLOW_ALL_HOSTS_VALIDATOR;
     field public static final String TEMPLATE_RENDERER_PERMISSION = "android.car.permission.TEMPLATE_RENDERER";
   }
 
   public static final class HostValidator.Builder {
     ctor public HostValidator.Builder(android.content.Context);
-    method public androidx.car.app.utils.HostValidator.Builder addAllowListedHost(String, String);
-    method public androidx.car.app.utils.HostValidator.Builder addAllowListedHosts(@ArrayRes int);
-    method public androidx.car.app.utils.HostValidator.Builder addDenyListedHost(String);
-    method public androidx.car.app.utils.HostValidator build();
-    method public androidx.car.app.utils.HostValidator.Builder setAllowUnknownHostsEnabled(boolean);
+    method public androidx.car.app.validation.HostValidator.Builder addAllowedHost(String, String);
+    method public androidx.car.app.validation.HostValidator.Builder addAllowedHosts(@ArrayRes int);
+    method public androidx.car.app.validation.HostValidator build();
   }
 
 }

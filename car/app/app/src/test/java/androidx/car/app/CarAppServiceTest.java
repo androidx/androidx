@@ -35,7 +35,7 @@ import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.testing.CarAppServiceController;
 import androidx.car.app.testing.TestCarContext;
-import androidx.car.app.utils.HostValidator;
+import androidx.car.app.validation.HostValidator;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
@@ -90,9 +90,9 @@ public final class CarAppServiceTest {
                     }
 
                     @Override
-                    public void configureHostValidator(
-                            @NonNull HostValidator.Builder hostValidatorBuilder) {
-                        hostValidatorBuilder.setAllowUnknownHostsEnabled(true);
+                    @NonNull
+                    public HostValidator createHostValidator() {
+                        return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR;
                     }
 
                     @Override
