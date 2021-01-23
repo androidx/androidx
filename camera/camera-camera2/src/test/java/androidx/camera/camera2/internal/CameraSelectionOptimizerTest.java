@@ -190,6 +190,38 @@ public class CameraSelectionOptimizerTest {
         assertThat(cameraIds).containsExactly("0");
     }
 
+    @Test
+    public void emptyCameraIdList_returnEmptyAvailableIds() throws Exception {
+        // Do not set up any cameras.
+        List<String> cameraIds =
+                CameraSelectionOptimizer.getSelectedAvailableCameraIds(mCamera2CameraFactory,
+                        CameraSelector.DEFAULT_BACK_CAMERA);
+
+        assertThat(cameraIds).isEmpty();
+    }
+
+    @Test
+    public void onlyCamera0_requireFront_returnEmptyAvailableIds() throws Exception {
+        initCharacterisic("0", CameraCharacteristics.LENS_FACING_BACK, 3.52f);
+
+        List<String> cameraIds =
+                CameraSelectionOptimizer.getSelectedAvailableCameraIds(mCamera2CameraFactory,
+                        CameraSelector.DEFAULT_FRONT_CAMERA);
+
+        assertThat(cameraIds).isEmpty();
+    }
+
+    @Test
+    public void onlyCamera1_requireBack_returnEmptyAvailableIds() throws Exception {
+        initCharacterisic("1", CameraCharacteristics.LENS_FACING_FRONT, 3.52f);
+
+        List<String> cameraIds =
+                CameraSelectionOptimizer.getSelectedAvailableCameraIds(mCamera2CameraFactory,
+                        CameraSelector.DEFAULT_BACK_CAMERA);
+
+        assertThat(cameraIds).isEmpty();
+    }
+
     private void initCharacterisic(String cameraId, int lensFacing, float focalLength) {
         CameraCharacteristics characteristics =
                 ShadowCameraCharacteristics.newCameraCharacteristics();
