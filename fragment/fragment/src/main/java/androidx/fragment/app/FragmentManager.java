@@ -63,6 +63,7 @@ import androidx.annotation.StringRes;
 import androidx.collection.ArraySet;
 import androidx.core.os.CancellationSignal;
 import androidx.fragment.R;
+import androidx.fragment.app.strictmode.FragmentStrictMode;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -517,6 +518,8 @@ public abstract class FragmentManager implements FragmentResultOwner {
     private ArrayList<StartEnterTransitionListener> mPostponedTransactions;
 
     private FragmentManagerViewModel mNonConfig;
+
+    private FragmentStrictMode.Policy mStrictModePolicy;
 
     private Runnable mExecCommit = new Runnable() {
         @Override
@@ -3463,6 +3466,23 @@ public abstract class FragmentManager implements FragmentResultOwner {
     @NonNull
     LayoutInflater.Factory2 getLayoutInflaterFactory() {
         return mLayoutInflaterFactory;
+    }
+
+    /** Returns the current policy for this FragmentManager. If no policy is set, returns null. */
+    @Nullable
+    public FragmentStrictMode.Policy getStrictModePolicy() {
+        return mStrictModePolicy;
+    }
+
+    /**
+     * Sets the policy for what actions should be detected, as well as the penalty if such actions
+     * occur. This policy is specific to this FragmentManager and all children of it. Pass null to
+     * clear the policy for this FragmentManager.
+     *
+     * @param policy the policy to put into place
+     */
+    public void setStrictModePolicy(@Nullable FragmentStrictMode.Policy policy) {
+        mStrictModePolicy = policy;
     }
 
     /**
