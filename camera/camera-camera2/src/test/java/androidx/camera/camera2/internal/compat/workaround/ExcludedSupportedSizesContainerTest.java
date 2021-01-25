@@ -72,7 +72,6 @@ public class ExcludedSupportedSizesContainerTest {
         mConfig = config;
     }
 
-    @SuppressWarnings("ConfusingArgumentToVarargsMethod")
     @Test
     public void exclude() {
         // Set up device properties
@@ -88,7 +87,7 @@ public class ExcludedSupportedSizesContainerTest {
         // Get sizes to exclude
         final List<Size> excludedSizes = excludedSupportedSizesContainer.get(mConfig.mImageFormat);
 
-        assertThat(excludedSizes).containsExactly(mConfig.mExcludedSizes);
+        assertThat(excludedSizes).containsExactly((Object[]) mConfig.mExcludedSizes);
     }
 
     static class Config {

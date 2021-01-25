@@ -54,6 +54,7 @@ import org.mockito.stubbing.Answer;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unchecked")
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {

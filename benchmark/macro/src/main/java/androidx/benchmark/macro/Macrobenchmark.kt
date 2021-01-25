@@ -22,6 +22,7 @@ import androidx.benchmark.BenchmarkResult
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.MetricResult
 import androidx.benchmark.ResultWriter
+import androidx.benchmark.perfetto.executeShellScript
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
@@ -80,14 +81,39 @@ public class MacrobenchmarkScope(
         Log.d(TAG, "Killing process $packageName")
         device.executeShellCommand("am force-stop $packageName")
     }
+
+    /**
+     * Drop Kernel's in-memory cache of disk pages.
+     *
+     * Enables measuring disk-based startup cost, without simply accessing cache of disk data
+     * held in memory, such as during [cold startup](StartupMode.COLD).
+     */
+    fun dropKernelPageCache() {
+        val result = device.executeShellScript(
+            "echo 3 > /proc/sys/vm/drop_caches && echo Success || echo Failure"
+        ).trim()
+        check(result == "Success") {
+            "Failed to drop kernel page cache, result: '$result'"
+        }
+    }
 }
 
 data class MacrobenchmarkConfig(
     val packageName: String,
-    val metrics: List<Metric>,
+    var metrics: List<Metric>,
     val compilationMode: CompilationMode = CompilationMode.SpeedProfile(),
     val iterations: Int
-)
+) {
+    init {
+        val metricSet = metrics.toSet()
+        val hasStartupMetric = metricSet.any { it is StartupTimingMetric }
+        if (hasStartupMetric) {
+            val metrics = metrics.toMutableList()
+            metrics += PerfettoMetric()
+            this.metrics = metrics.toList()
+        }
+    }
+}
 
 /**
  * macrobenchmark test entrypoint, which doesn't depend on JUnit.
@@ -125,24 +151,23 @@ fun macrobenchmark(
         val metricResults = List(config.iterations) { iteration ->
             setupBlock(scope, isFirstRun)
             isFirstRun = false
-            try {
-                perfettoCollector.start()
-                config.metrics.forEach {
-                    it.start()
+            perfettoCollector.captureTrace(uniqueName, iteration) { tracePath ->
+                try {
+                    config.metrics.forEach {
+                        it.start()
+                    }
+                    measureBlock(scope)
+                } finally {
+                    config.metrics.forEach {
+                        it.stop()
+                    }
                 }
-                measureBlock(scope)
-            } finally {
-                config.metrics.forEach {
-                    it.stop()
-                }
-                perfettoCollector.stop(uniqueName, iteration)
+                config.metrics
+                    // capture list of Map<String,Long> per metric
+                    .map { it.getMetrics(config.packageName, tracePath) }
+                    // merge into one map
+                    .reduce { sum, element -> sum + element }
             }
-
-            config.metrics
-                // capture list of Map<String,Long> per metric
-                .map { it.getMetrics(config.packageName) }
-                // merge into one map
-                .reduce { sum, element -> sum + element }
         }.mergeToMetricResults()
 
         InstrumentationResults.instrumentationReport {
@@ -220,29 +245,33 @@ enum class StartupMode {
     HOT
 }
 
-fun startupMacrobenchmark(
+fun macrobenchmarkWithStartupMode(
     uniqueName: String,
     className: String,
     testName: String,
     config: MacrobenchmarkConfig,
-    startupMode: StartupMode,
-    performStartup: MacrobenchmarkScope.() -> Unit
+    startupMode: StartupMode?,
+    setupBlock: MacrobenchmarkScope.() -> Unit,
+    measureBlock: MacrobenchmarkScope.() -> Unit
 ) {
     macrobenchmark(
         uniqueName = uniqueName,
         className = className,
         testName = testName,
         config = config,
-        setupBlock = { firstIterAfterCompile ->
+        setupBlock = { firstIterationAfterCompile ->
             if (startupMode == StartupMode.COLD) {
                 killProcess()
-            } else if (firstIterAfterCompile) {
-                // warmup process by launching the activity, unmeasured
-                performStartup()
+                // drop app pages from page cache to ensure it is loaded from disk, from scratch
+                dropKernelPageCache()
+            } else if (startupMode != null && firstIterationAfterCompile) {
+                // warmup process by running the measure block once unmeasured
+                measureBlock()
             }
+            setupBlock(this)
         },
-        // only reuse existing activity if StartupMode == HOT
-        launchWithClearTask = startupMode != StartupMode.HOT,
-        measureBlock = performStartup
+        // Don't reuse activities by default in COLD / WARM
+        launchWithClearTask = startupMode == StartupMode.COLD || startupMode == StartupMode.WARM,
+        measureBlock = measureBlock
     )
 }

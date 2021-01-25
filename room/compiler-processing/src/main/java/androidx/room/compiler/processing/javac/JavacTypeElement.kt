@@ -16,10 +16,12 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.javac.JavacTypeElement.JavacEnumTypeElement
 import androidx.room.compiler.processing.javac.kotlin.KotlinMetadataElement
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -29,7 +31,7 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeKind
 import javax.lang.model.util.ElementFilter
 
-internal class JavacTypeElement(
+internal sealed class JavacTypeElement(
     env: JavacProcessingEnv,
     override val element: TypeElement
 ) : JavacElement(env, element), XTypeElement, XHasModifiers by JavacHasModifiers(element) {
@@ -141,5 +143,39 @@ internal class JavacTypeElement(
 
     override val equalityItems: Array<out Any?> by lazy {
         arrayOf(element)
+    }
+
+    class DefaultJavacTypeElement(
+        env: JavacProcessingEnv,
+        element: TypeElement
+    ) : JavacTypeElement(env, element)
+
+    class JavacEnumTypeElement(
+        env: JavacProcessingEnv,
+        element: TypeElement
+    ) : JavacTypeElement(env, element), XEnumTypeElement {
+        init {
+            check(element.kind == ElementKind.ENUM)
+        }
+
+        override val enumConstantNames: Set<String> by lazy {
+            element.enclosedElements.filter {
+                it.kind == ElementKind.ENUM_CONSTANT
+            }.mapTo(mutableSetOf()) {
+                it.simpleName.toString()
+            }
+        }
+    }
+
+    companion object {
+        fun create(
+            env: JavacProcessingEnv,
+            typeElement: TypeElement
+        ): JavacTypeElement {
+            return when (typeElement.kind) {
+                ElementKind.ENUM -> JavacEnumTypeElement(env, typeElement)
+                else -> DefaultJavacTypeElement(env, typeElement)
+            }
+        }
     }
 }

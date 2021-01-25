@@ -22,7 +22,12 @@ import android.hardware.camera2.CameraDevice
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.impl.Timestamps.formatMs
+import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.DurationNs
+import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.TimestampNs
+import androidx.camera.camera2.pipe.core.Timestamps
+import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.wrapper.AndroidCameraDevice
 import androidx.camera.camera2.pipe.wrapper.CameraDeviceWrapper
 import androidx.camera.camera2.pipe.wrapper.closeWithTrace
@@ -36,11 +41,11 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-sealed class CameraState
-object CameraStateUnopened : CameraState()
-data class CameraStateOpen(val cameraDevice: CameraDeviceWrapper) : CameraState()
-object CameraStateClosing : CameraState()
-data class CameraStateClosed(
+internal sealed class CameraState
+internal object CameraStateUnopened : CameraState()
+internal data class CameraStateOpen(val cameraDevice: CameraDeviceWrapper) : CameraState()
+internal object CameraStateClosing : CameraState()
+internal data class CameraStateClosed(
     val cameraId: CameraId,
 
     // Record the reason that the camera was closed.
@@ -69,7 +74,7 @@ data class CameraStateClosed(
     val cameraErrorCode: Int? = null
 ) : CameraState()
 
-enum class ClosedReason {
+internal enum class ClosedReason {
     APP_CLOSED,
     APP_DISCONNECTED,
 
@@ -91,14 +96,14 @@ enum class ClosedReason {
  * Disconnecting the VirtualCamera will cause an artificial close events to be generated on the
  * state property, but may not cause the underlying [CameraDevice] to be closed.
  */
-interface VirtualCamera {
+internal interface VirtualCamera {
     val state: Flow<CameraState>
     fun disconnect()
 }
 
 internal val virtualCameraDebugIds = atomic(0)
 
-class VirtualCameraState(
+internal class VirtualCameraState(
     val cameraId: CameraId
 ) : VirtualCamera {
     private val debugId = virtualCameraDebugIds.incrementAndGet()

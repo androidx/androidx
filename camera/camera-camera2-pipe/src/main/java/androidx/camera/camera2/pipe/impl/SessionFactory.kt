@@ -23,9 +23,12 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.wrapper.AndroidOutputConfiguration
 import androidx.camera.camera2.pipe.wrapper.CameraDeviceWrapper
+import androidx.camera.camera2.pipe.wrapper.InputConfigData
 import androidx.camera.camera2.pipe.wrapper.OutputConfigurationWrapper
+import androidx.camera.camera2.pipe.wrapper.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
 import androidx.camera.camera2.pipe.wrapper.SessionConfigData
 import dagger.Module
 import dagger.Provides
@@ -35,7 +38,7 @@ import javax.inject.Provider
 /**
  * Creates a Camera2 CaptureSession from a CameraDevice
  */
-interface SessionFactory {
+internal interface SessionFactory {
     /**
      * Create a Camera2 CaptureSession using the given device, surfaces, and listener and return
      * a map of outputs that are not yet available.
@@ -48,7 +51,7 @@ interface SessionFactory {
 }
 
 @Module
-object SessionFactoryModule {
+internal object SessionFactoryModule {
     @CameraGraphScope
     @Provides
     fun provideSessionFactory(
@@ -63,7 +66,7 @@ object SessionFactoryModule {
             return androidPProvider.get()
         }
 
-        if (graphConfig.operatingMode == CameraGraph.OperatingMode.HIGH_SPEED) {
+        if (graphConfig.sessionMode == CameraGraph.OperatingMode.HIGH_SPEED) {
             check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 "Cannot use HighSpeed sessions below Android M"
             }
@@ -81,7 +84,7 @@ object SessionFactoryModule {
         check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             "CameraPipe is not supported below Android L"
         }
-        check(graphConfig.inputStream == null) {
+        check(graphConfig.input == null) {
             "Reprocessing is not supported on Android L"
         }
 
@@ -89,7 +92,7 @@ object SessionFactoryModule {
     }
 }
 
-class AndroidLSessionFactory @Inject constructor(
+internal class AndroidLSessionFactory @Inject constructor(
     private val threads: Threads
 ) : SessionFactory {
     override fun create(
@@ -114,7 +117,7 @@ class AndroidLSessionFactory @Inject constructor(
 }
 
 @RequiresApi(Build.VERSION_CODES.M)
-class AndroidMSessionFactory @Inject constructor(
+internal class AndroidMSessionFactory @Inject constructor(
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config
 ) : SessionFactory {
@@ -124,13 +127,14 @@ class AndroidMSessionFactory @Inject constructor(
         surfaces: Map<StreamId, Surface>,
         virtualSessionState: VirtualSessionState
     ): Map<StreamId, OutputConfigurationWrapper> {
-        if (graphConfig.inputStream != null) {
+        if (graphConfig.input != null) {
             try {
+                val outputConfig = graphConfig.input.stream.outputs.single()
                 cameraDevice.createReprocessableCaptureSession(
                     InputConfiguration(
-                        graphConfig.inputStream.width,
-                        graphConfig.inputStream.height,
-                        graphConfig.inputStream.format
+                        outputConfig.size.width,
+                        outputConfig.size.height,
+                        outputConfig.format.value
                     ),
                     surfaces.map { it.value },
                     virtualSessionState,
@@ -162,7 +166,7 @@ class AndroidMSessionFactory @Inject constructor(
 }
 
 @RequiresApi(Build.VERSION_CODES.M)
-class AndroidMHighSpeedSessionFactory @Inject constructor(
+internal class AndroidMHighSpeedSessionFactory @Inject constructor(
     private val threads: Threads
 ) : SessionFactory {
     override fun create(
@@ -175,9 +179,9 @@ class AndroidMHighSpeedSessionFactory @Inject constructor(
 }
 
 @RequiresApi(Build.VERSION_CODES.N)
-class AndroidNSessionFactory @Inject constructor(
+internal class AndroidNSessionFactory @Inject constructor(
     private val threads: Threads,
-    private val streamMap: StreamMap,
+    private val streamGraph: StreamGraphImpl,
     private val graphConfig: CameraGraph.Config
 ) : SessionFactory {
     override fun create(
@@ -187,20 +191,25 @@ class AndroidNSessionFactory @Inject constructor(
     ): Map<StreamId, OutputConfigurationWrapper> {
         val outputs = buildOutputConfigurations(
             graphConfig,
-            streamMap,
+            streamGraph,
             surfaces
         )
 
         try {
-            if (graphConfig.inputStream == null) {
+            if (graphConfig.input == null) {
                 cameraDevice.createCaptureSessionByOutputConfigurations(
                     outputs.all,
                     virtualSessionState,
                     threads.camera2Handler
                 )
             } else {
+                val outputConfig = graphConfig.input.stream.outputs.single()
                 cameraDevice.createReprocessableCaptureSessionByConfigurations(
-                    graphConfig.inputStream,
+                    InputConfigData(
+                        outputConfig.size.width,
+                        outputConfig.size.height,
+                        outputConfig.format.value
+                    ),
                     outputs.all,
                     virtualSessionState,
                     threads.camera2Handler
@@ -217,10 +226,10 @@ class AndroidNSessionFactory @Inject constructor(
 }
 
 @RequiresApi(Build.VERSION_CODES.P)
-class AndroidPSessionFactory @Inject constructor(
+internal class AndroidPSessionFactory @Inject constructor(
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config,
-    private val streamMap: StreamMap
+    private val streamGraph: StreamGraphImpl
 ) : SessionFactory {
     override fun create(
         cameraDevice: CameraDeviceWrapper,
@@ -229,25 +238,34 @@ class AndroidPSessionFactory @Inject constructor(
     ): Map<StreamId, OutputConfigurationWrapper> {
 
         val operatingMode =
-            when (graphConfig.operatingMode) {
-                CameraGraph.OperatingMode.NORMAL -> 0
-                CameraGraph.OperatingMode.HIGH_SPEED -> 1
+            when (graphConfig.sessionMode) {
+                CameraGraph.OperatingMode.NORMAL -> SessionConfigData.SESSION_TYPE_REGULAR
+                CameraGraph.OperatingMode.HIGH_SPEED -> SessionConfigData.SESSION_TYPE_HIGH_SPEED
             }
 
         val outputs = buildOutputConfigurations(
             graphConfig,
-            streamMap,
+            streamGraph,
             surfaces
         )
 
+        val input = graphConfig.input?.let {
+            val outputConfig = it.stream.outputs.single()
+            InputConfigData(
+                outputConfig.size.width,
+                outputConfig.size.height,
+                outputConfig.format.value
+            )
+        }
+
         val sessionConfig = SessionConfigData(
             operatingMode,
-            graphConfig.inputStream,
+            input,
             outputs.all,
             threads.camera2Executor,
             virtualSessionState,
-            graphConfig.template.value,
-            graphConfig.defaultParameters
+            graphConfig.sessionTemplate.value,
+            graphConfig.sessionParameters
         )
 
         try {
@@ -265,46 +283,77 @@ class AndroidPSessionFactory @Inject constructor(
 @RequiresApi(Build.VERSION_CODES.N)
 internal fun buildOutputConfigurations(
     graphConfig: CameraGraph.Config,
-    streamMap: StreamMap,
+    streamGraph: StreamGraphImpl,
     surfaces: Map<StreamId, Surface>
 ): OutputConfigurations {
-    // TODO: Add support for:
-    //   surfaceGroupId
-    //   surfaceSharing
-    //   multipleSurfaces?
-
-    val outputs = arrayListOf<OutputConfigurationWrapper>()
+    val allOutputs = arrayListOf<OutputConfigurationWrapper>()
     val deferredOutputs = mutableMapOf<StreamId, OutputConfigurationWrapper>()
 
-    for (streamConfig in graphConfig.streams) {
-        val streamId = streamMap.streamConfigMap[streamConfig]!!.id
-        val physicalCameraId = if (streamConfig.camera != graphConfig.camera) {
-            streamConfig.camera
-        } else {
-            null
+    for (outputConfig in streamGraph.outputConfigs) {
+        val outputSurfaces = outputConfig.streams.mapNotNull { surfaces[it.id] }
+
+        val externalConfig = outputConfig.externalOutputConfig
+        if (externalConfig != null) {
+            check(outputSurfaces.size == outputConfig.streams.size) {
+                val missingStreams = outputConfig.streams.filter { !surfaces.contains(it.id) }
+                "Surfaces are not yet available for $outputConfig!" +
+                    " Missing surfaces for $missingStreams!"
+            }
+            allOutputs.add(
+                AndroidOutputConfiguration(
+                    externalConfig,
+                    surfaceSharing = false, // No way to read this value.
+                    maxSharedSurfaceCount = 1, // Hardcoded
+                    physicalCameraId = null, // No way to read this value.
+                )
+            )
+            continue
         }
 
-        val surface = surfaces[streamId]
+        if (outputConfig.deferrable && outputSurfaces.size != outputConfig.streams.size) {
+            val output = AndroidOutputConfiguration.create(
+                null,
+                size = outputConfig.size,
+                outputType = outputConfig.deferredOutputType!!,
+                surfaceSharing = outputConfig.surfaceSharing,
+                surfaceGroupId = outputConfig.groupNumber ?: SURFACE_GROUP_ID_NONE,
+                physicalCameraId = if (outputConfig.camera != graphConfig.camera) {
+                    outputConfig.camera
+                } else {
+                    null
+                }
+            )
+            allOutputs.add(output)
+            for (outputSurface in outputConfig.streamBuilder) {
+                deferredOutputs[outputSurface.id] = output
+            }
+            continue
+        }
 
-        val config = AndroidOutputConfiguration.create(
-            surface,
-            streamType = streamConfig.type,
-            size = streamConfig.size,
-            physicalCameraId = physicalCameraId
+        // Default case: We have the surface(s)
+        check(outputSurfaces.size == outputConfig.streams.size) {
+            val missingStreams = outputConfig.streams.filter { !surfaces.contains(it.id) }
+            "Surfaces are not yet available for $outputConfig!" +
+                " Missing surfaces for $missingStreams!"
+        }
+        val output = AndroidOutputConfiguration.create(
+            outputSurfaces.first(),
+            size = outputConfig.size,
+            surfaceSharing = outputConfig.surfaceSharing,
+            surfaceGroupId = outputConfig.groupNumber ?: SURFACE_GROUP_ID_NONE,
+            physicalCameraId = if (outputConfig.camera != graphConfig.camera) {
+                outputConfig.camera
+            } else {
+                null
+            }
         )
-
-        outputs.add(config)
-
-        if (surface == null) {
-            deferredOutputs[streamId] = config
+        for (surface in outputSurfaces.drop(1)) {
+            output.addSurface(surface)
         }
+        allOutputs.add(output)
     }
 
-    // TODO: Sort outputs by type to try and put the viewfinder output first in the list
-    //   This is important as some devices assume that the first surface is the viewfinder and
-    //   will treat it differently.
-
-    return OutputConfigurations(outputs, deferredOutputs)
+    return OutputConfigurations(allOutputs, deferredOutputs)
 }
 
 internal data class OutputConfigurations(

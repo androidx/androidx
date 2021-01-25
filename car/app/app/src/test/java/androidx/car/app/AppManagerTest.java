@@ -77,9 +77,9 @@ public final class AppManagerTest {
                     }
 
                     @Override
-                    public void setSurfaceListener(@Nullable ISurfaceListener surfaceListener)
+                    public void setSurfaceCallback(@Nullable ISurfaceCallback surfaceCallback)
                             throws RemoteException {
-                        mMockAppHost.setSurfaceListener(surfaceListener);
+                        mMockAppHost.setSurfaceCallback(surfaceCallback);
                     }
                 };
         when(mMockCarHost.getHost(any())).thenReturn(appHost.asBinder());
@@ -158,32 +158,32 @@ public final class AppManagerTest {
 
     @Test
     public void setSurfaceListener_forwardsRequestToHost() throws RemoteException {
-        mAppManager.setSurfaceListener(null);
+        mAppManager.setSurfaceCallback(null);
 
-        verify(mMockAppHost).setSurfaceListener(null);
+        verify(mMockAppHost).setSurfaceCallback(null);
     }
 
     @Test
     public void setSurfaceListener_hostThrowsSecurityException_throwsSecurityException()
             throws RemoteException {
-        doThrow(new SecurityException()).when(mMockAppHost).setSurfaceListener(any());
+        doThrow(new SecurityException()).when(mMockAppHost).setSurfaceCallback(any());
 
-        assertThrows(SecurityException.class, () -> mAppManager.setSurfaceListener(null));
+        assertThrows(SecurityException.class, () -> mAppManager.setSurfaceCallback(null));
     }
 
     @Test
     public void etSurfaceListener_hostThrowsRemoteException_throwsHostException()
             throws RemoteException {
-        doThrow(new RemoteException()).when(mMockAppHost).setSurfaceListener(any());
+        doThrow(new RemoteException()).when(mMockAppHost).setSurfaceCallback(any());
 
-        assertThrows(HostException.class, () -> mAppManager.setSurfaceListener(null));
+        assertThrows(HostException.class, () -> mAppManager.setSurfaceCallback(null));
     }
 
     @Test
     public void setSurfaceListener_hostThrowsRuntimeException_throwsHostException()
             throws RemoteException {
-        doThrow(new IllegalStateException()).when(mMockAppHost).setSurfaceListener(any());
+        doThrow(new IllegalStateException()).when(mMockAppHost).setSurfaceCallback(any());
 
-        assertThrows(HostException.class, () -> mAppManager.setSurfaceListener(null));
+        assertThrows(HostException.class, () -> mAppManager.setSurfaceCallback(null));
     }
 }

@@ -44,6 +44,7 @@ class ViewModelInjectStepTest {
         val compilation = compiler()
             .compile(
                 myViewModel,
+                Sources.ACTIVITY_RETAINED_COMPONENT,
                 Sources.VIEW_MODEL,
                 Sources.SAVED_STATE_HANDLE
             )
@@ -189,18 +190,17 @@ class ViewModelInjectStepTest {
     }
 
     @Test
-    fun verifyWarnIfSavedStateHandleArgIsAnnotated() {
+    fun verifySavedStateHandleArgIsAnnotated() {
         val myViewModel = """
         package androidx.hilt.lifecycle.test;
 
         import androidx.lifecycle.ViewModel;
         import androidx.lifecycle.SavedStateHandle;
-        import androidx.hilt.Assisted;
         import androidx.hilt.lifecycle.ViewModelInject;
 
         class MyViewModel extends ViewModel {
             @ViewModelInject
-            MyViewModel(@Assisted SavedStateHandle savedState) { }
+            MyViewModel(SavedStateHandle savedState) { }
         }
         """.toJFO("androidx.hilt.lifecycle.test.MyViewModel")
 
@@ -211,11 +211,9 @@ class ViewModelInjectStepTest {
                 Sources.SAVED_STATE_HANDLE
             )
         assertThat(compilation).apply {
-            succeeded()
-            hadWarningCount(1)
-            hadWarningContainingMatch(
-                "@Assisted annotation for SavedStateHandle param 'savedState' is no longer needed."
-            )
+            failed()
+            hadErrorCount(1)
+            hadErrorContainingMatch("Missing @Assisted annotation in param 'savedState'")
         }
     }
 }

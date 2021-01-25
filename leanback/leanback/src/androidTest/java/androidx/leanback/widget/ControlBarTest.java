@@ -118,7 +118,7 @@ public class ControlBarTest {
         final TextView v3 = new Button(context);
         bar.addView(v3, 100, 100);
 
-        ArrayList<View> focusables = new ArrayList();
+        ArrayList<View> focusables = new ArrayList<>();
         bar.addFocusables(focusables, View.FOCUS_DOWN);
         assertEquals(1, focusables.size());
         assertSame(focusables.get(0), v2);

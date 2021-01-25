@@ -17,8 +17,8 @@
 package androidx.room.vo
 
 import androidx.room.compiler.processing.XConstructorElement
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -78,7 +78,7 @@ class EntityTest {
         return Entity(
             element = mock(XTypeElement::class.java),
             tableName = tableName,
-            type = mock(XDeclaredType::class.java),
+            type = mock(XType::class.java),
             fields = emptyList(),
             embeddedFields = emptyList(),
             primaryKey = PrimaryKey(mock(XElement::class.java), Fields(), false),

@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing.javac
 
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMessager
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XProcessingEnv
@@ -43,10 +42,17 @@ internal class JavacProcessingEnv(
     val typeUtils: Types = delegate.typeUtils
 
     private val typeElementStore =
-        XTypeElementStore { qName ->
-            val result = delegate.elementUtils.getTypeElement(qName)
-            result?.let(this::wrapTypeElement)
-        }
+        XTypeElementStore(
+            findElement = { qName ->
+                delegate.elementUtils.getTypeElement(qName)
+            },
+            wrap = { typeElement ->
+                JavacTypeElement.create(this, typeElement)
+            },
+            getQName = {
+                it.qualifiedName.toString()
+            }
+        )
 
     override val messager: XMessager by lazy {
         JavacProcessingEnvMessager(delegate)
@@ -94,7 +100,7 @@ internal class JavacProcessingEnv(
         )
     }
 
-    override fun getDeclaredType(type: XTypeElement, vararg types: XType): XDeclaredType {
+    override fun getDeclaredType(type: XTypeElement, vararg types: XType): JavacType {
         check(type is JavacTypeElement)
         val args = types.map {
             check(it is JavacType)
@@ -114,7 +120,7 @@ internal class JavacProcessingEnv(
     }
 
     // maybe cache here ?
-    fun wrapTypeElement(element: TypeElement) = JavacTypeElement(this, element)
+    fun wrapTypeElement(element: TypeElement) = typeElementStore[element]
 
     /**
      * Wraps the given java processing type into an XType.

@@ -16,7 +16,7 @@
 
 package androidx.room.solver.shortcut.binderprovider
 
-import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 import androidx.room.solver.shortcut.binder.InstantDeleteOrUpdateMethodBinder
@@ -28,9 +28,9 @@ class InstantDeleteOrUpdateMethodBinderProvider(
     private val context: Context
 ) : DeleteOrUpdateMethodBinderProvider {
 
-    override fun matches(declared: XDeclaredType) = true
+    override fun matches(declared: XType) = true
 
-    override fun provide(declared: XDeclaredType): DeleteOrUpdateMethodBinder {
+    override fun provide(declared: XType): DeleteOrUpdateMethodBinder {
         val adapter = context.typeAdapterStore.findDeleteOrUpdateAdapter(declared)
         return InstantDeleteOrUpdateMethodBinder(adapter)
     }

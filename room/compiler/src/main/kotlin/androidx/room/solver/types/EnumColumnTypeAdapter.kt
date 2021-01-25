@@ -16,8 +16,7 @@
 
 package androidx.room.solver.types
 
-import androidx.room.compiler.processing.XFieldElement
-import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.ext.CommonTypeNames.ILLEGAL_ARG_EXCEPTION
 import androidx.room.ext.L
 import androidx.room.ext.N
@@ -28,15 +27,14 @@ import androidx.room.solver.CodeGenScope
 import androidx.room.writer.ClassWriter
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
-import java.util.Locale
-import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
 
 /**
  * Uses enum string representation.
  */
-class EnumColumnTypeAdapter(out: XType) :
-    ColumnTypeAdapter(out, TEXT) {
+class EnumColumnTypeAdapter(
+    private val enumTypeElement: XEnumTypeElement
+) : ColumnTypeAdapter(enumTypeElement.type, TEXT) {
     override fun readFromCursor(
         outVarName: String,
         cursorVarName: String,
@@ -72,7 +70,7 @@ class EnumColumnTypeAdapter(out: XType) :
 
     private fun enumToStringMethod(scope: CodeGenScope): MethodSpec {
         return scope.writer.getOrCreateMethod(object :
-                ClassWriter.SharedMethodSpec(out.asTypeElement().name + "_enumToString") {
+                ClassWriter.SharedMethodSpec(out.typeElement!!.name + "_enumToString") {
                 override fun getUniqueKey(): String {
                     return "enumToString_" + out.typeName.toString()
                 }
@@ -92,13 +90,14 @@ class EnumColumnTypeAdapter(out: XType) :
                         beginControlFlow("if ($N == null)", param)
                         addStatement("return null")
                         nextControlFlow("switch ($N)", param)
-                        getEnumConstantElements().forEach { enumConstant ->
-                            addStatement("case $L: return $S", enumConstant.name, enumConstant.name)
+                        enumTypeElement.enumConstantNames.forEach { enumConstantName ->
+                            addStatement("case $L: return $S", enumConstantName, enumConstantName)
                         }
                         addStatement(
-                            "default: throw new $T($S)",
+                            "default: throw new $T($S + $N)",
                             ILLEGAL_ARG_EXCEPTION,
-                            "Can't convert ${param.name} to string, unknown enum value."
+                            "Can't convert enum to string, unknown enum value: ",
+                            param
                         )
                         endControlFlow()
                     }
@@ -108,7 +107,7 @@ class EnumColumnTypeAdapter(out: XType) :
 
     private fun stringToEnumMethod(scope: CodeGenScope): MethodSpec {
         return scope.writer.getOrCreateMethod(object :
-                ClassWriter.SharedMethodSpec(out.asTypeElement().name + "_stringToEnum") {
+                ClassWriter.SharedMethodSpec(out.typeElement!!.name + "_stringToEnum") {
                 override fun getUniqueKey(): String {
                     return out.typeName.toString()
                 }
@@ -128,31 +127,21 @@ class EnumColumnTypeAdapter(out: XType) :
                         beginControlFlow("if ($N == null)", param)
                         addStatement("return null")
                         nextControlFlow("switch ($N)", param)
-                        getEnumConstantElements().forEach {
-                            enumConstant ->
+                        enumTypeElement.enumConstantNames.forEach { enumConstantName ->
                             addStatement(
                                 "case $S: return $T.$L",
-                                enumConstant.name, out.typeName, enumConstant.name
+                                enumConstantName, out.typeName, enumConstantName
                             )
                         }
                         addStatement(
-                            "default: throw new $T($S)",
+                            "default: throw new $T($S + $N)",
                             ILLEGAL_ARG_EXCEPTION,
-                            "Can't convert ${param.name} to enum, unknown value."
+                            "Can't convert value to enum, unknown value: ",
+                            param
                         )
                         endControlFlow()
                     }
                 }
             })
-    }
-
-    private fun getEnumConstantElements(): List<XFieldElement> {
-        // TODO: Switch below logic to use`getDeclaredFields` when the
-        //  functionality is available in the XTypeElement API
-        val typeElementFields = out.asTypeElement().getAllFieldsIncludingPrivateSupers()
-        return typeElementFields.filter {
-            // TODO: (b/173236324) Add kind to the X abstraction API to avoid using kindName()
-            ElementKind.ENUM_CONSTANT.toString().toLowerCase(Locale.US) == it.kindName()
-        }
     }
 }

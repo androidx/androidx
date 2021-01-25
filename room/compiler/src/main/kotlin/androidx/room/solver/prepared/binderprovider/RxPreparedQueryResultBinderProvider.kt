@@ -19,7 +19,6 @@ package androidx.room.solver.prepared.binderprovider
 import androidx.room.ext.L
 import androidx.room.ext.T
 import androidx.room.parser.ParsedQuery
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
@@ -36,14 +35,14 @@ open class RxPreparedQueryResultBinderProvider internal constructor(
         context.processingEnv.findTypeElement(rxType.version.rxRoomClassName) != null
     }
 
-    override fun matches(declared: XDeclaredType): Boolean =
+    override fun matches(declared: XType): Boolean =
         declared.typeArguments.size == 1 && matchesRxType(declared)
 
-    private fun matchesRxType(declared: XDeclaredType): Boolean {
+    private fun matchesRxType(declared: XType): Boolean {
         return declared.rawType.typeName == rxType.className
     }
 
-    override fun provide(declared: XDeclaredType, query: ParsedQuery): PreparedQueryResultBinder {
+    override fun provide(declared: XType, query: ParsedQuery): PreparedQueryResultBinder {
         if (!hasRxJavaArtifact) {
             context.logger.e(rxType.version.missingArtifactMessage)
         }
@@ -56,7 +55,7 @@ open class RxPreparedQueryResultBinderProvider internal constructor(
         }
     }
 
-    open fun extractTypeArg(declared: XDeclaredType): XType = declared.typeArguments.first()
+    open fun extractTypeArg(declared: XType): XType = declared.typeArguments.first()
 
     companion object {
         fun getAll(context: Context) = listOf(
@@ -79,12 +78,12 @@ private class RxCompletablePreparedQueryResultBinderProvider(
         context.processingEnv.findType(rxType.className)?.rawType
     }
 
-    override fun matches(declared: XDeclaredType): Boolean {
+    override fun matches(declared: XType): Boolean {
         if (completableType == null) {
             return false
         }
         return declared.rawType.isAssignableFrom(completableType!!)
     }
 
-    override fun extractTypeArg(declared: XDeclaredType) = context.COMMON_TYPES.VOID
+    override fun extractTypeArg(declared: XType) = context.COMMON_TYPES.VOID
 }

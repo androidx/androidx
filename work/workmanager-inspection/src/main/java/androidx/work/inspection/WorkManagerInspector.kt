@@ -42,6 +42,7 @@ import androidx.work.inspection.WorkManagerInspectorProtocol.WorkAddedEvent
 import androidx.work.inspection.WorkManagerInspectorProtocol.WorkRemovedEvent
 import androidx.work.inspection.WorkManagerInspectorProtocol.WorkUpdatedEvent
 import java.util.UUID
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 
 /**
@@ -267,9 +268,14 @@ class WorkManagerInspector(
 
     override fun onDispose() {
         super.onDispose()
+        val latch = CountDownLatch(1)
         mainHandler.post {
             lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
+            latch.countDown()
         }
+        // await to make sure that all observers that registered by inspector are gone
+        // otherwise they can post message to "disposed" inspector
+        latch.await()
     }
 
     override fun getLifecycle(): Lifecycle {

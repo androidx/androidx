@@ -61,6 +61,10 @@ internal class JavacArrayType private constructor(
     override val equalityItems: Array<out Any?> by lazy {
         arrayOf(typeMirror)
     }
+
+    override val typeArguments: List<XType>
+        get() = emptyList()
+
     override val componentType: XType by lazy {
         val componentType = typeMirror.componentType
         val componentTypeNullability =

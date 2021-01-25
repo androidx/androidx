@@ -31,45 +31,45 @@ public class PlaceTest {
     @Test
     public void setAndGet() {
         Place place =
-                Place.builder(LatLng.create(123, 456))
-                        .setMarker(PlaceMarker.builder().setLabel("A").build())
+                new Place.Builder(CarLocation.create(123, 456))
+                        .setMarker(new PlaceMarker.Builder().setLabel("A").build())
                         .build();
-        assertThat(place.getLatLng()).isEqualTo(LatLng.create(123, 456));
-        assertThat(place.getMarker()).isEqualTo(PlaceMarker.builder().setLabel("A").build());
+        assertThat(place.getLocation()).isEqualTo(CarLocation.create(123, 456));
+        assertThat(place.getMarker()).isEqualTo(new PlaceMarker.Builder().setLabel("A").build());
     }
 
     @Test
     public void equals() {
         Place place =
-                Place.builder(LatLng.create(123, 456))
-                        .setMarker(PlaceMarker.builder().setLabel("A").build())
+                new Place.Builder(CarLocation.create(123, 456))
+                        .setMarker(new PlaceMarker.Builder().setLabel("A").build())
                         .build();
 
         assertThat(place)
                 .isEqualTo(
-                        Place.builder(LatLng.create(123, 456))
-                                .setMarker(PlaceMarker.builder().setLabel("A").build())
+                        new Place.Builder(CarLocation.create(123, 456))
+                                .setMarker(new PlaceMarker.Builder().setLabel("A").build())
                                 .build());
     }
 
     @Test
     public void notEquals_differentLatLng() {
-        Place place = Place.builder(LatLng.create(123, 456)).build();
+        Place place = new Place.Builder(CarLocation.create(123, 456)).build();
 
-        assertThat(place).isNotEqualTo(Place.builder(LatLng.create(1, 2)).build());
+        assertThat(place).isNotEqualTo(new Place.Builder(CarLocation.create(1, 2)).build());
     }
 
     @Test
     public void notEquals_differentMarker() {
         Place place =
-                Place.builder(LatLng.create(123, 456))
-                        .setMarker(PlaceMarker.builder().setLabel("A").build())
+                new Place.Builder(CarLocation.create(123, 456))
+                        .setMarker(new PlaceMarker.Builder().setLabel("A").build())
                         .build();
 
         assertThat(place)
                 .isNotEqualTo(
-                        Place.builder(LatLng.create(123, 456))
-                                .setMarker(PlaceMarker.builder().setLabel("B").build())
+                        new Place.Builder(CarLocation.create(123, 456))
+                                .setMarker(new PlaceMarker.Builder().setLabel("B").build())
                                 .build());
     }
 }

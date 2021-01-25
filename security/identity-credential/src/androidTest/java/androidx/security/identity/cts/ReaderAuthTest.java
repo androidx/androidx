@@ -38,7 +38,6 @@ import androidx.security.identity.InvalidReaderSignatureException;
 import androidx.security.identity.PersonalizationData;
 import androidx.security.identity.ResultData;
 import androidx.security.identity.WritableIdentityCredential;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
@@ -84,6 +83,7 @@ public class ReaderAuthTest {
         return kpg.generateKeyPair();
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void readerAuth()
             throws IdentityCredentialException, CborException, InvalidAlgorithmParameterException,
@@ -158,7 +158,7 @@ public class ReaderAuthTest {
         certChainForBwithC.add(certC);
 
         // Provision the credential.
-        Context appContext = InstrumentationRegistry.getTargetContext();
+        Context appContext = androidx.test.InstrumentationRegistry.getTargetContext();
         IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         String credentialName = "readerAuthTestCredential";

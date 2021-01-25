@@ -18,39 +18,49 @@ package androidx.car.app;
 
 import static java.util.Objects.requireNonNull;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 
 /**
  * A container for the information conveyed by the host after the handshake with the app is
  * completed.
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY)
 public class HandshakeInfo {
+    @Keep
     @Nullable
     private final String mHostPackageName;
+    @Keep
     private final int mHostCarAppApiLevel;
 
+    /**
+     * Creates an instance of {@link HandshakeInfo}.
+     *
+     * @param hostPackageName    the host package name.
+     * @param hostCarAppApiLevel the API level that should be used to communicate with the host.
+     */
     public HandshakeInfo(@NonNull String hostPackageName, int hostCarAppApiLevel) {
         mHostPackageName = hostPackageName;
         mHostCarAppApiLevel = hostCarAppApiLevel;
     }
 
     // Used for serialization
-    public HandshakeInfo() {
+    private HandshakeInfo() {
         mHostPackageName = null;
         mHostCarAppApiLevel = 0;
     }
 
+    /**
+     * Returns the host package name.
+     */
     @NonNull
     public String getHostPackageName() {
         return requireNonNull(mHostPackageName);
     }
 
+    /**
+     * Returns the negotiated API level that should be used to communicate with the host.
+     */
     public int getHostCarAppApiLevel() {
         return mHostCarAppApiLevel;
     }

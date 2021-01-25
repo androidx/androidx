@@ -26,7 +26,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -38,7 +37,6 @@ import androidx.annotation.Nullable;
 import androidx.contentpager.content.ContentPager.ContentCallback;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -60,8 +58,10 @@ public class ContentPagerTest {
     private TestContentCallback mCallback;
     private ContentPager mPager;
 
+    @SuppressWarnings("deprecation")
     @Rule
-    public ActivityTestRule<Activity> mActivityRule = new ActivityTestRule(TestActivity.class);
+    public androidx.test.rule.ActivityTestRule<TestActivity> mActivityRule =
+            new androidx.test.rule.ActivityTestRule<>(TestActivity.class);
 
     @Before
     public void setUp() {

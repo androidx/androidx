@@ -28,6 +28,7 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
+import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraDevice;
 import android.media.ImageReader;
@@ -147,7 +148,7 @@ public final class Camera2CameraImplTest {
         mSemaphore = new Semaphore(0);
         mCameraStateRegistry = new CameraStateRegistry(DEFAULT_AVAILABLE_CAMERA_COUNT);
         CameraManagerCompat cameraManagerCompat =
-                CameraManagerCompat.from(ApplicationProvider.getApplicationContext());
+                CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext());
         Camera2CameraInfoImpl camera2CameraInfo = new Camera2CameraInfoImpl(
                 mCameraId, cameraManagerCompat.getCameraCharacteristicsCompat(mCameraId));
         mCamera2CameraImpl = new Camera2CameraImpl(cameraManagerCompat, mCameraId,
@@ -551,6 +552,7 @@ public final class Camera2CameraImplTest {
         assertThat(currentState).isEqualTo(CameraInternal.State.RELEASED);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void openNewCaptureSessionImmediateBeforePreviousCaptureSessionClosed()
             throws InterruptedException {

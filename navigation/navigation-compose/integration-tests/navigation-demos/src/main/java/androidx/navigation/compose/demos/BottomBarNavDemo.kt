@@ -53,7 +53,7 @@ fun BottomBarNavDemo() {
                 val entryRoute = navBackStackEntry?.arguments?.getString(KEY_ROUTE)
                 items.forEach { (name, route) ->
                     BottomNavigationItem(
-                        icon = { Icon(Icons.Filled.Favorite) },
+                        icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
                         label = { Text(name) },
                         selected = entryRoute == route,
                         onClick = {

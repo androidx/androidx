@@ -3178,7 +3178,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @SuppressWarnings("ConstantConditions")
     void performDestroyView() {
         mChildFragmentManager.dispatchDestroyView();
-        if (mView != null) {
+        if (mView != null && mViewLifecycleOwner.getLifecycle().getCurrentState()
+                        .isAtLeast(Lifecycle.State.CREATED)) {
             mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
         }
         mState = CREATED;

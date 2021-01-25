@@ -16,8 +16,8 @@
 
 package androidx.room.solver.binderprovider
 
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XRawType
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.PagingTypeNames
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
@@ -33,13 +33,13 @@ class DataSourceFactoryQueryResultBinderProvider(val context: Context) : QueryRe
         context.processingEnv.findType(PagingTypeNames.DATA_SOURCE_FACTORY)?.rawType
     }
 
-    override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(declared: XType, query: ParsedQuery): QueryResultBinder {
         if (query.tables.isEmpty()) {
             context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
         }
         val typeArg = declared.typeArguments[1]
         val adapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
-            ListQueryResultAdapter(it)
+            ListQueryResultAdapter(typeArg, it)
         }
 
         val tableNames = (
@@ -50,10 +50,10 @@ class DataSourceFactoryQueryResultBinderProvider(val context: Context) : QueryRe
         return DataSourceFactoryQueryResultBinder(countedBinder)
     }
 
-    override fun matches(declared: XDeclaredType): Boolean =
+    override fun matches(declared: XType): Boolean =
         declared.typeArguments.size == 2 && isLivePagedList(declared)
 
-    private fun isLivePagedList(declared: XDeclaredType): Boolean {
+    private fun isLivePagedList(declared: XType): Boolean {
         if (dataSourceFactoryType == null) {
             return false
         }

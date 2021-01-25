@@ -22,6 +22,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
+import androidx.paging.insertFooterItem
+import androidx.paging.insertHeaderItem
 import androidx.paging.insertSeparators
 import kotlinx.coroutines.flow.map
 
@@ -51,8 +53,8 @@ class V3ViewModel : ViewModel() {
                         )
                     } else null
                 }
-                .insertHeaderItem(Item(Int.MIN_VALUE, "HEADER", Color.MAGENTA))
-                .insertFooterItem(Item(Int.MAX_VALUE, "FOOTER", Color.MAGENTA))
+                .insertHeaderItem(item = Item(Int.MIN_VALUE, "HEADER", Color.MAGENTA))
+                .insertFooterItem(item = Item(Int.MAX_VALUE, "FOOTER", Color.MAGENTA))
         }
         .cachedIn(viewModelScope)
 }

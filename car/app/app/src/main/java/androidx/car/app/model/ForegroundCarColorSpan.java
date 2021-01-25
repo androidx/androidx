@@ -16,19 +16,13 @@
 
 package androidx.car.app.model;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
 import static java.util.Objects.requireNonNull;
 
-import android.text.TextPaint;
-import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import androidx.car.app.model.constraints.CarColorConstraints;
 
 import java.util.Objects;
@@ -52,7 +46,7 @@ import java.util.Objects;
  * @see CarColor
  * @see ForegroundColorSpan
  */
-public class ForegroundCarColorSpan extends CharacterStyle {
+public class ForegroundCarColorSpan extends CarSpan {
     @Keep
     private final CarColor mCarColor;
 
@@ -73,19 +67,6 @@ public class ForegroundCarColorSpan extends CharacterStyle {
     public static ForegroundCarColorSpan create(@NonNull CarColor carColor) {
         CarColorConstraints.STANDARD_ONLY.validateOrThrow(carColor);
         return new ForegroundCarColorSpan(requireNonNull(carColor));
-    }
-
-    /** @hide */
-    @RestrictTo(LIBRARY)
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    @NonNull
-    public static ForegroundCarColorSpan createForTesting(@NonNull CarColor carColor) {
-        return new ForegroundCarColorSpan(carColor);
-    }
-
-    @Override
-    public void updateDrawState(@NonNull TextPaint paint) {
-        // Not relevant.
     }
 
     @Override

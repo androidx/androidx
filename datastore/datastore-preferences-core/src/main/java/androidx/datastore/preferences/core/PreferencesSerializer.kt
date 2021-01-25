@@ -91,14 +91,16 @@ internal object PreferencesSerializer : Serializer<Preferences> {
         mutablePreferences: MutablePreferences
     ) {
         return when (value.valueCase) {
-            Value.ValueCase.BOOLEAN -> mutablePreferences[preferencesKey(name)] = value.boolean
-            Value.ValueCase.FLOAT -> mutablePreferences[preferencesKey(name)] = value.float
-            Value.ValueCase.DOUBLE -> mutablePreferences[preferencesKey(name)] = value.double
-            Value.ValueCase.INTEGER -> mutablePreferences[preferencesKey(name)] = value.integer
-            Value.ValueCase.LONG -> mutablePreferences[preferencesKey(name)] = value.long
-            Value.ValueCase.STRING -> mutablePreferences[preferencesKey(name)] = value.string
+            Value.ValueCase.BOOLEAN ->
+                mutablePreferences[booleanPreferencesKey(name)] =
+                    value.boolean
+            Value.ValueCase.FLOAT -> mutablePreferences[floatPreferencesKey(name)] = value.float
+            Value.ValueCase.DOUBLE -> mutablePreferences[doublePreferencesKey(name)] = value.double
+            Value.ValueCase.INTEGER -> mutablePreferences[intPreferencesKey(name)] = value.integer
+            Value.ValueCase.LONG -> mutablePreferences[longPreferencesKey(name)] = value.long
+            Value.ValueCase.STRING -> mutablePreferences[stringPreferencesKey(name)] = value.string
             Value.ValueCase.STRING_SET ->
-                mutablePreferences[preferencesSetKey<String>(name)] =
+                mutablePreferences[stringSetPreferencesKey(name)] =
                     value.stringSet.stringsList.toSet()
             Value.ValueCase.VALUE_NOT_SET ->
                 throw CorruptionException("Value not set.")

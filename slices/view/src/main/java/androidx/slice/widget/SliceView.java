@@ -235,6 +235,17 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         super.setOnClickListener(this);
     }
 
+    /**
+     * Allows subclasses to set the current view to a custom view.
+     */
+    public void setCurrentView(@NonNull SliceChildView currentView) {
+        removeView(mCurrentView);
+        mCurrentView = currentView;
+        mCurrentView.setPolicy(mViewPolicy);
+        addView(mCurrentView, getChildLp(mCurrentView));
+        applyConfigurations();
+    }
+
     @VisibleForTesting
     void setSliceViewPolicy(SliceViewPolicy policy) {
         mViewPolicy = policy;
@@ -345,7 +356,10 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         }
     }
 
-    private void configureViewPolicy(int maxHeight) {
+    /**
+     * Sets the maximum height for a slice through the view policy.
+     */
+    protected void configureViewPolicy(int maxHeight) {
         if (mListContent != null && mListContent.isValid() && getMode() != MODE_SHORTCUT) {
             if (maxHeight > 0 && maxHeight < mSliceStyle.getRowMaxHeight()) {
                 if (maxHeight <= mMinTemplateHeight) {

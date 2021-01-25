@@ -16,7 +16,6 @@
 
 package androidx.room.processor
 
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XSuspendMethodType
@@ -50,7 +49,7 @@ import androidx.room.vo.TransactionMethod
  */
 abstract class MethodProcessorDelegate(
     val context: Context,
-    val containing: XDeclaredType,
+    val containing: XType,
     val executableElement: XMethodElement
 ) {
 
@@ -93,7 +92,7 @@ abstract class MethodProcessorDelegate(
     companion object {
         fun createFor(
             context: Context,
-            containing: XDeclaredType,
+            containing: XType,
             executableElement: XMethodElement
         ): MethodProcessorDelegate {
             val asMember = executableElement.asMemberOf(containing)
@@ -126,7 +125,7 @@ abstract class MethodProcessorDelegate(
  */
 class DefaultMethodProcessorDelegate(
     context: Context,
-    containing: XDeclaredType,
+    containing: XType,
     executableElement: XMethodElement,
     val executableType: XMethodType
 ) : MethodProcessorDelegate(context, containing, executableElement) {
@@ -164,7 +163,7 @@ class DefaultMethodProcessorDelegate(
  */
 class SuspendMethodProcessorDelegate(
     context: Context,
-    containing: XDeclaredType,
+    containing: XType,
     executableElement: XMethodElement,
     val executableType: XSuspendMethodType
 ) : MethodProcessorDelegate(context, containing, executableElement) {

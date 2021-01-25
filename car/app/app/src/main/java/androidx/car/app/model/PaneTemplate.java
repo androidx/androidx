@@ -16,7 +16,6 @@
 
 package androidx.car.app.model;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_PANE;
@@ -26,7 +25,6 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -66,6 +64,7 @@ public final class PaneTemplate implements Template {
      *
      * @throws NullPointerException if {@code pane} is {@code null}
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder(@NonNull Pane pane) {
         return new Builder(requireNonNull(pane));
@@ -118,7 +117,7 @@ public final class PaneTemplate implements Template {
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
     }
 
-    private PaneTemplate(Builder builder) {
+    PaneTemplate(Builder builder) {
         mTitle = builder.mTitle;
         mPane = builder.mPane;
         mHeaderAction = builder.mHeaderAction;
@@ -136,16 +135,12 @@ public final class PaneTemplate implements Template {
     /** A builder of {@link PaneTemplate}. */
     public static final class Builder {
         @Nullable
-        private CarText mTitle;
-        private Pane mPane;
+        CarText mTitle;
+        Pane mPane;
         @Nullable
-        private Action mHeaderAction;
+        Action mHeaderAction;
         @Nullable
-        private ActionStrip mActionStrip;
-
-        private Builder(Pane pane) {
-            this.mPane = pane;
-        }
+        ActionStrip mActionStrip;
 
         /**
          * Sets the {@link CharSequence} to show as the template's title, or {@code null} to not
@@ -206,7 +201,7 @@ public final class PaneTemplate implements Template {
         @NonNull
         public Builder setActionStrip(@Nullable ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(
-                    actionStrip == null ? Collections.emptyList() : actionStrip.getActions());
+                    actionStrip == null ? Collections.emptyList() : actionStrip.getActionList());
             this.mActionStrip = actionStrip;
             return this;
         }
@@ -241,11 +236,13 @@ public final class PaneTemplate implements Template {
             return new PaneTemplate(this);
         }
 
-        /** @hide */
-        @RestrictTo(LIBRARY)
-        @NonNull
-        public PaneTemplate buildForTesting() {
-            return new PaneTemplate(this);
+        /**
+         * Returns a new instance of a @link Builder}.
+         *
+         * @throws NullPointerException if {@code pane} is {@code null}
+         */
+        public Builder(@NonNull Pane pane) {
+            mPane = pane;
         }
     }
 }

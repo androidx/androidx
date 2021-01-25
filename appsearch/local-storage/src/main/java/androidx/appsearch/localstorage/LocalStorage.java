@@ -16,20 +16,16 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.localstorage;
 
-import static androidx.appsearch.app.AppSearchResult.newSuccessfulResult;
-import static androidx.appsearch.app.AppSearchResult.throwableToFailedResult;
-
 import android.content.Context;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.appsearch.app.AppSearchResult;
+import androidx.annotation.WorkerThread;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GlobalSearchSession;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.util.FutureUtil;
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -59,7 +55,7 @@ public class LocalStorage {
     @VisibleForTesting
     public static final String DEFAULT_DATABASE_NAME = "";
 
-    private static volatile ListenableFuture<AppSearchResult<LocalStorage>> sInstance;
+    private static final String ICING_LIB_ROOT_DIR = "appsearch";
 
     /** Contains information about how to create the search session. */
     public static final class SearchContext {
@@ -161,14 +157,10 @@ public class LocalStorage {
     // execute() won't return anything, we will hang forever waiting for the execution.
     // AppSearch multi-thread execution is guarded by Read & Write Lock in AppSearchImpl, all
     // mutate requests will need to gain write lock and query requests need to gain read lock.
-    private final ExecutorService mExecutorService = Executors.newCachedThreadPool();
+    private static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
+    private static volatile LocalStorage sInstance;
 
-    private static final String ICING_LIB_ROOT_DIR = "appsearch";
-
-    // Package-level visibility to allow SearchResultsImpl to access it without a synthetic
-    // accessor.
-    volatile AppSearchImpl mAppSearchImpl;
-
+    private final AppSearchImpl mAppSearchImpl;
 
     /**
      * Opens a new {@link AppSearchSession} on this storage.
@@ -180,18 +172,33 @@ public class LocalStorage {
      *                {@link AppSearchSession}
      */
     @NonNull
-    public static ListenableFuture<AppSearchResult<AppSearchSession>> createSearchSession(
+    public static ListenableFuture<AppSearchSession> createSearchSession(
             @NonNull SearchContext context) {
         Preconditions.checkNotNull(context);
-        ListenableFuture<AppSearchResult<LocalStorage>> instFuture = getInstance(context.mContext);
-        return FutureUtil.map(instFuture, (instance) -> {
-            if (!instance.isSuccess()) {
-                return AppSearchResult.newFailedResult(
-                        instance.getResultCode(), instance.getErrorMessage());
-            }
-            AppSearchSession searchSession =
-                    instance.getResultValue().doCreateSearchSession(context);
-            return AppSearchResult.newSuccessfulResult(searchSession);
+        return createSearchSession(context, EXECUTOR_SERVICE);
+    }
+
+    /**
+     * Opens a new {@link AppSearchSession} on this storage with executor.
+     *
+     * <p>This process requires a native search library. If it's not created, the initialization
+     * process will create one.
+     *
+     * @param context  The {@link SearchContext} contains all information to create a new
+     *                 {@link AppSearchSession}
+     * @param executor The executor of where tasks will execute.
+     * @hide
+     */
+    @NonNull
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static ListenableFuture<AppSearchSession> createSearchSession(
+            @NonNull SearchContext context, @NonNull ExecutorService executor) {
+        Preconditions.checkNotNull(context);
+        Preconditions.checkNotNull(executor);
+        return FutureUtil.execute(executor, () -> {
+            LocalStorage instance = getOrCreateInstance(context.mContext);
+            return instance.doCreateSearchSession(context, executor);
         });
     }
 
@@ -206,18 +213,12 @@ public class LocalStorage {
      * @hide
      */
     @NonNull
-    public static ListenableFuture<AppSearchResult<GlobalSearchSession>> createGlobalSearchSession(
+    public static ListenableFuture<GlobalSearchSession> createGlobalSearchSession(
             @NonNull GlobalSearchContext context) {
         Preconditions.checkNotNull(context);
-        ListenableFuture<AppSearchResult<LocalStorage>> instFuture = getInstance(context.mContext);
-        return FutureUtil.map(instFuture, (instance) -> {
-            if (!instance.isSuccess()) {
-                return AppSearchResult.newFailedResult(
-                        instance.getResultCode(), instance.getErrorMessage());
-            }
-            GlobalSearchSession searchSession =
-                    instance.getResultValue().doCreateGlobalSearchSession();
-            return AppSearchResult.newSuccessfulResult(searchSession);
+        return FutureUtil.execute(EXECUTOR_SERVICE, () -> {
+            LocalStorage instance = getOrCreateInstance(context.mContext);
+            return instance.doCreateGlobalSearchSession(EXECUTOR_SERVICE);
         });
     }
 
@@ -228,50 +229,36 @@ public class LocalStorage {
      * {@code context}.
      */
     @NonNull
+    @WorkerThread
     @VisibleForTesting
-    static ListenableFuture<AppSearchResult<LocalStorage>> getInstance(@NonNull Context context) {
+    static LocalStorage getOrCreateInstance(@NonNull Context context) throws AppSearchException {
         Preconditions.checkNotNull(context);
-
         if (sInstance == null) {
             synchronized (LocalStorage.class) {
                 if (sInstance == null) {
-                    sInstance = new LocalStorage().initialize(context);
+                    sInstance = new LocalStorage(context);
                 }
             }
         }
         return sInstance;
     }
 
-    private LocalStorage() {}
-
-    // NOTE: No instance of this class should be created or returned except via initialize().
-    // Once the ListenableFuture returned here is populated, the class is ready to use.
-    @GuardedBy("LocalStorage.class")
-    private ListenableFuture<AppSearchResult<LocalStorage>> initialize(@NonNull Context context) {
+    @WorkerThread
+    private LocalStorage(@NonNull Context context) throws AppSearchException {
         Preconditions.checkNotNull(context);
-
-        ResolvableFuture<AppSearchResult<LocalStorage>> future = ResolvableFuture.create();
-        mExecutorService.execute(() -> {
-            if (!future.isCancelled()) {
-
-                File icingDir = new File(context.getFilesDir(), ICING_LIB_ROOT_DIR);
-                try {
-                    mAppSearchImpl = AppSearchImpl.create(icingDir);
-                } catch (Throwable t) {
-                    future.set(throwableToFailedResult(t));
-                }
-
-                future.set(newSuccessfulResult(this));
-            }
-        });
-        return future;
+        File icingDir = new File(context.getFilesDir(), ICING_LIB_ROOT_DIR);
+        mAppSearchImpl = AppSearchImpl.create(icingDir);
     }
 
-    AppSearchSession doCreateSearchSession(@NonNull SearchContext context) {
-        return new SearchSessionImpl(mAppSearchImpl, mExecutorService, context.mDatabaseName);
+    @NonNull
+    private AppSearchSession doCreateSearchSession(@NonNull SearchContext context,
+            @NonNull ExecutorService executor) {
+        return new SearchSessionImpl(mAppSearchImpl, executor,
+                context.mContext.getPackageName(), context.mDatabaseName);
     }
 
-    GlobalSearchSession doCreateGlobalSearchSession() {
-        return new GlobalSearchSessionImpl(mAppSearchImpl, mExecutorService);
+    @NonNull
+    private GlobalSearchSession doCreateGlobalSearchSession(@NonNull ExecutorService executor) {
+        return new GlobalSearchSessionImpl(mAppSearchImpl, executor);
     }
 }

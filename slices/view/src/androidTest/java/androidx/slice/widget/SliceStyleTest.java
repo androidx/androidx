@@ -18,11 +18,11 @@ package androidx.slice.widget;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.util.Xml;
 
 import androidx.slice.SliceItem;
@@ -133,11 +133,10 @@ public class SliceStyleTest {
     }
 
     private int getThemeColor(int colorRes) {
-        TypedValue typedValue = new TypedValue();
-        mContext.getTheme().resolveAttribute(colorRes, typedValue, true);
-        TypedArray arr = mContext.obtainStyledAttributes(typedValue.data, new int[] {colorRes});
+        TypedArray arr = mContext.getTheme().obtainStyledAttributes(new int[] {colorRes});
+        assertTrue(arr.hasValue(0));
         int themeColor = arr.getColor(0, -1);
-        assertNotSame(-1, themeColor);
+        arr.recycle();
         return themeColor;
     }
 }

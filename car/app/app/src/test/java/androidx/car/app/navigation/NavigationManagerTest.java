@@ -61,7 +61,7 @@ public class NavigationManagerTest {
     @Mock
     private INavigationHost.Stub mMockNavHost;
     @Mock
-    private NavigationManagerListener mNavigationListener;
+    private NavigationManagerCallback mNavigationListener;
 
     private final HostDispatcher mHostDispatcher = new HostDispatcher();
     private NavigationManager mNavigationManager;
@@ -82,10 +82,8 @@ public class NavigationManagerTest {
     private static final String CURRENT_ROAD = "State St.";
     private final Trip mTrip =
             Trip.builder()
-                    .addDestination(mDestination)
-                    .addStep(mStep)
-                    .addDestinationTravelEstimate(mDestinationTravelEstimate)
-                    .addStepTravelEstimate(mStepTravelEstimate)
+                    .addDestination(mDestination, mDestinationTravelEstimate)
+                    .addStep(mStep, mStepTravelEstimate)
                     .setCurrentRoad(CURRENT_ROAD)
                     .build();
 
@@ -124,7 +122,7 @@ public class NavigationManagerTest {
     public void navigationStarted_sendState_navigationEnded() throws RemoteException {
         InOrder inOrder = inOrder(mMockNavHost);
 
-        mNavigationManager.setNavigationManagerListener(mNavigationListener);
+        mNavigationManager.setNavigationManagerCallback(mNavigationListener);
         mNavigationManager.navigationStarted();
         inOrder.verify(mMockNavHost).navigationStarted();
 
@@ -143,7 +141,7 @@ public class NavigationManagerTest {
     @Test
     public void navigationStarted_multiple() throws RemoteException {
 
-        mNavigationManager.setNavigationManagerListener(mNavigationListener);
+        mNavigationManager.setNavigationManagerCallback(mNavigationListener);
         mNavigationManager.navigationStarted();
 
         mNavigationManager.navigationStarted();
@@ -165,7 +163,7 @@ public class NavigationManagerTest {
 
     @Test
     public void onStopNavigation_notNavigating() throws RemoteException {
-        mNavigationManager.setNavigationManagerListener(mNavigationListener);
+        mNavigationManager.setNavigationManagerCallback(mNavigationListener);
         mNavigationManager.getIInterface().onStopNavigation(mock(IOnDoneCallback.class));
         verify(mNavigationListener, never()).onStopNavigation();
     }
@@ -174,7 +172,7 @@ public class NavigationManagerTest {
     public void onStopNavigation_navigating_restart() throws RemoteException {
         InOrder inOrder = inOrder(mMockNavHost, mNavigationListener);
 
-        mNavigationManager.setNavigationManagerListener(new SynchronousExecutor(),
+        mNavigationManager.setNavigationManagerCallback(new SynchronousExecutor(),
                 mNavigationListener);
         mNavigationManager.navigationStarted();
         inOrder.verify(mMockNavHost).navigationStarted();
@@ -189,7 +187,7 @@ public class NavigationManagerTest {
 
     @Test
     public void onAutoDriveEnabled_callsListener() {
-        mNavigationManager.setNavigationManagerListener(new SynchronousExecutor(),
+        mNavigationManager.setNavigationManagerCallback(new SynchronousExecutor(),
                 mNavigationListener);
         mNavigationManager.onAutoDriveEnabled();
 
@@ -199,7 +197,7 @@ public class NavigationManagerTest {
     @Test
     public void onAutoDriveEnabledBeforeRegisteringListener_callsListener() {
         mNavigationManager.onAutoDriveEnabled();
-        mNavigationManager.setNavigationManagerListener(new SynchronousExecutor(),
+        mNavigationManager.setNavigationManagerCallback(new SynchronousExecutor(),
                 mNavigationListener);
 
         verify(mNavigationListener).onAutoDriveEnabled();

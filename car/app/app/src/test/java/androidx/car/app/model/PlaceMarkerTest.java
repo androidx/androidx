@@ -43,7 +43,7 @@ public class PlaceMarkerTest {
     @Test
     public void create_throws_invalidLabelLength() {
         assertThrows(IllegalArgumentException.class,
-                () -> PlaceMarker.builder().setLabel("Blah").build());
+                () -> new PlaceMarker.Builder().setLabel("Blah").build());
     }
 
     @Test
@@ -52,7 +52,7 @@ public class PlaceMarkerTest {
                 "ic_test_1");
         assertThrows(
                 IllegalStateException.class,
-                () -> PlaceMarker.builder()
+                () -> new PlaceMarker.Builder()
                         .setIcon(icon, PlaceMarker.TYPE_IMAGE)
                         .setColor(CarColor.SECONDARY)
                         .build());
@@ -64,17 +64,17 @@ public class PlaceMarkerTest {
         builder.scheme(ContentResolver.SCHEME_CONTENT);
         builder.appendPath("foo/bar");
         Uri iconUri = builder.build();
-        CarIcon carIcon = CarIcon.of(IconCompat.createWithContentUri(iconUri));
+        CarIcon carIcon = new CarIcon.Builder(IconCompat.createWithContentUri(iconUri)).build();
         assertThrows(
                 IllegalArgumentException.class,
-                () -> PlaceMarker.builder().setIcon(carIcon, PlaceMarker.TYPE_IMAGE));
+                () -> new PlaceMarker.Builder().setIcon(carIcon, PlaceMarker.TYPE_IMAGE));
     }
 
     @Test
     public void createInstance() {
         CarIcon icon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
                 "ic_test_1");
-        PlaceMarker marker1 = PlaceMarker.builder()
+        PlaceMarker marker1 = new PlaceMarker.Builder()
                 .setIcon(icon, PlaceMarker.TYPE_ICON)
                 .setLabel("foo")
                 .setColor(CarColor.SECONDARY)
@@ -82,30 +82,30 @@ public class PlaceMarkerTest {
         assertThat(marker1.getIcon()).isEqualTo(icon);
         assertThat(marker1.getIconType()).isEqualTo(PlaceMarker.TYPE_ICON);
         assertThat(marker1.getColor()).isEqualTo(CarColor.SECONDARY);
-        assertThat(marker1.getLabel().getText()).isEqualTo("foo");
+        assertThat(marker1.getLabel().toString()).isEqualTo("foo");
     }
 
     @Test
     public void isDefaultMarker() {
         assertThat(PlaceMarker.isDefaultMarker(null)).isFalse();
-        assertThat(PlaceMarker.isDefaultMarker(PlaceMarker.builder().setLabel("foo").build()))
+        assertThat(PlaceMarker.isDefaultMarker(new PlaceMarker.Builder().setLabel("foo").build()))
                 .isFalse();
 
         assertThat(PlaceMarker.isDefaultMarker(PlaceMarker.getDefault())).isTrue();
-        assertThat(PlaceMarker.isDefaultMarker(PlaceMarker.builder().build())).isTrue();
+        assertThat(PlaceMarker.isDefaultMarker(new PlaceMarker.Builder().build())).isTrue();
     }
 
     @Test
     public void equals() {
         CarIcon carIcon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
                 "ic_test_1");
-        PlaceMarker marker = PlaceMarker.builder()
+        PlaceMarker marker = new PlaceMarker.Builder()
                 .setIcon(carIcon, PlaceMarker.TYPE_ICON)
                 .setLabel("foo")
                 .setColor(CarColor.SECONDARY)
                 .build();
 
-        assertThat(PlaceMarker.builder()
+        assertThat(new PlaceMarker.Builder()
                 .setIcon(carIcon, PlaceMarker.TYPE_ICON)
                 .setLabel("foo")
                 .setColor(CarColor.SECONDARY)
@@ -115,23 +115,24 @@ public class PlaceMarkerTest {
 
     @Test
     public void notEquals_differentIcon() {
-        PlaceMarker marker = PlaceMarker.builder().setIcon(BACK, PlaceMarker.TYPE_IMAGE).build();
+        PlaceMarker marker = new PlaceMarker.Builder().setIcon(BACK,
+                PlaceMarker.TYPE_IMAGE).build();
 
-        assertThat(PlaceMarker.builder().setIcon(ALERT, PlaceMarker.TYPE_IMAGE).build())
+        assertThat(new PlaceMarker.Builder().setIcon(ALERT, PlaceMarker.TYPE_IMAGE).build())
                 .isNotEqualTo(marker);
     }
 
     @Test
     public void notEquals_differentLabel() {
-        PlaceMarker marker = PlaceMarker.builder().setLabel("foo").build();
+        PlaceMarker marker = new PlaceMarker.Builder().setLabel("foo").build();
 
-        assertThat(PlaceMarker.builder().setLabel("bar").build()).isNotEqualTo(marker);
+        assertThat(new PlaceMarker.Builder().setLabel("bar").build()).isNotEqualTo(marker);
     }
 
     @Test
     public void notEquals_differentBackgroundColor() {
-        PlaceMarker marker = PlaceMarker.builder().setColor(CarColor.SECONDARY).build();
+        PlaceMarker marker = new PlaceMarker.Builder().setColor(CarColor.SECONDARY).build();
 
-        assertThat(PlaceMarker.builder().setColor(CarColor.BLUE).build()).isNotEqualTo(marker);
+        assertThat(new PlaceMarker.Builder().setColor(CarColor.BLUE).build()).isNotEqualTo(marker);
     }
 }

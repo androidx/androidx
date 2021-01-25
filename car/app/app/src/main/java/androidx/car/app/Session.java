@@ -17,6 +17,7 @@
 package androidx.car.app;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.Lifecycle;
@@ -47,6 +48,39 @@ public abstract class Session implements LifecycleOwner {
      */
     @NonNull
     public abstract Screen onCreateScreen(@NonNull Intent intent);
+
+    /**
+     * Notifies that the car app has received a new {@link Intent}.
+     *
+     * <p>Once the method returns, {@link Screen#onGetTemplate} will be called on the {@link Screen}
+     * that is on top of the {@link Screen} stack managed by the {@link ScreenManager}, and the app
+     * will be displayed on the car screen.
+     *
+     * <p>Often used to update the current {@link Screen} or pushing a new one on the stack,
+     * based off of the information in the {@code intent}.
+     *
+     * <p>Called by the system, do not call this method directly.
+     *
+     * @param intent the intent that was used to start this app. If the app was started with a
+     *               call to {@link CarContext#startCarApp}, this intent will be equal to the
+     *               intent passed to that method.
+     * @see CarContext#startCarApp
+     */
+    public void onNewIntent(@NonNull Intent intent) {
+    }
+
+    /**
+     * Notifies that the {@link CarContext}'s {@link Configuration} has changed.
+     *
+     * <p>At the time that this function is called, the {@link CarContext}'s resources object will
+     * have been updated to return resource values matching the new configuration.
+     *
+     * <p>Called by the system, do not call this method directly.
+     *
+     * @see CarContext
+     */
+    public void onCarConfigurationChanged(@NonNull Configuration newConfiguration) {
+    }
 
     /**
      * Returns the {@link Session}'s {@link Lifecycle}.
@@ -88,6 +122,8 @@ public abstract class Session implements LifecycleOwner {
      *
      * <p>Listeners that are added in {@link Lifecycle.Event#ON_CREATE} should be removed in {@link
      * Lifecycle.Event#ON_DESTROY}.
+     *
+     * <p>Note lifecycle callbacks will be executed on the main thread.
      *
      * @see androidx.lifecycle.LifecycleObserver
      */

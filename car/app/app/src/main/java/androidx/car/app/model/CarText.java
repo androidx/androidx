@@ -16,11 +16,13 @@
 
 package androidx.car.app.model;
 
+import android.text.SpannableString;
 import android.text.Spanned;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.utils.CollectionUtils;
 import androidx.car.app.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -32,13 +34,8 @@ import java.util.Objects;
  * A model used to send text with attached spans to the host.
  */
 public class CarText {
-    /** An empty CarText for convenience. */
-    @NonNull
-    public static final CarText EMPTY = CarText.create("");
-
     @Keep
-    @Nullable
-    private String mText;
+    private final String mText;
     @Keep
     private final List<SpanWrapper> mSpans;
 
@@ -47,35 +44,41 @@ public class CarText {
      * false} otherwise.
      */
     public static boolean isNullOrEmpty(@Nullable CarText carText) {
-        if (carText == null) {
-            return true;
-        }
-
-        String text = carText.mText;
-        return text == null || text.isEmpty();
+        return carText == null || carText.isEmpty();
     }
 
     /**
-     * Returns a {@link CarText} instance for the given {@link CharSequence}, by sanitizing the car
-     * sequence (dropping unsupported {@link Spanned} objects, and wrapping the remaining supported
-     * {@link Spanned} objects into data that can be sent across to the host in a bundle.
+     * Returns a {@link CarText} instance for the given {@link CharSequence}.
+     *
+     * <p>Only {@link CarSpan} type spans are allowed in a {@link CarText}, other spans will be
+     * removed from the provided {@link CharSequence}.
      */
     @NonNull
     public static CarText create(@NonNull CharSequence text) {
         return new CarText(text);
     }
 
-    @Nullable
+    /**
+     * @deprecated use {@link #toString()}
+     */
+    @NonNull
+    @Deprecated
+    // TODO(b/177961439): remove once host is updated to use toString.
     public String getText() {
         return mText;
     }
 
     public boolean isEmpty() {
-        return mText == null || mText.isEmpty();
+        return mText.isEmpty();
     }
 
-    /** Returns the optional list of spans attached to the text. */
+    /**
+     * Returns the optional list of spans attached to the text.
+     * @deprecated use {@link #toCharSequence}
+     */
+    // TODO(b/177961277): remove once host is updated to use toCharSequence.
     @NonNull
+    @Deprecated
     public List<SpanWrapper> getSpans() {
         return mSpans;
     }
@@ -83,8 +86,28 @@ public class CarText {
     @NonNull
     @Override
     public String toString() {
-        String text = getText();
-        return text == null ? "" : text;
+        return mText;
+    }
+
+    /**
+     * Returns the {@link CharSequence} corresponding to this text.
+     *
+     * <p>Spans that are not of type {@link CarSpan} that were passed when creating the
+     * {@link CarText} instance will not be present in the returned {@link CharSequence}.
+     *
+     * @see CarText#create(CharSequence)
+     */
+    @NonNull
+    public CharSequence toCharSequence() {
+        SpannableString spannableString = new SpannableString(mText);
+        for (SpanWrapper spanWrapper : mSpans) {
+            spannableString.setSpan(
+                    spanWrapper.getCarSpan(),
+                    spanWrapper.getStart(),
+                    spanWrapper.getEnd(),
+                    spanWrapper.getFlags());
+        }
+        return spannableString;
     }
 
     /**
@@ -95,28 +118,25 @@ public class CarText {
         return text == null ? null : StringUtils.shortenString(text.toString());
     }
 
-    public CarText() {
-        mText = null;
+    private CarText() {
+        mText = "";
         mSpans = Collections.emptyList();
     }
 
     private CarText(CharSequence text) {
         this.mText = text.toString();
 
-        mSpans = new ArrayList<>();
-
+        List<SpanWrapper> spans = new ArrayList<>();
         if (text instanceof Spanned) {
             Spanned spanned = (Spanned) text;
 
             for (Object span : spanned.getSpans(0, text.length(), Object.class)) {
-                if (span instanceof ForegroundCarColorSpan
-                        || span instanceof CarIconSpan
-                        || span instanceof DurationSpan
-                        || span instanceof DistanceSpan) {
-                    mSpans.add(SpanWrapper.wrap(spanned, span));
+                if (span instanceof CarSpan) {
+                    spans.add(new SpanWrapper(spanned, (CarSpan) span));
                 }
             }
         }
+        mSpans = CollectionUtils.unmodifiableCopy(spans);
     }
 
     @Override
@@ -139,33 +159,47 @@ public class CarText {
     /**
      * Wraps a span to send it to the host.
      */
+    // TODO(b/178026067): Make SpanWrapper private.
     public static class SpanWrapper {
         @Keep
-        public final int start;
+        private final int mStart;
         @Keep
-        public final int end;
+        private final int mEnd;
         @Keep
-        public final int flags;
+        private final int mFlags;
         @Keep
-        @Nullable
-        public final Object span;
+        @NonNull
+        private final CarSpan mCarSpan;
 
-        static SpanWrapper wrap(Spanned spanned, Object span) {
-            return new SpanWrapper(spanned, span);
-        }
-
-        SpanWrapper(Spanned spanned, Object span) {
-            this.start = spanned.getSpanStart(span);
-            this.end = spanned.getSpanEnd(span);
-            this.flags = spanned.getSpanFlags(span);
-            this.span = span;
+        SpanWrapper(@NonNull Spanned spanned, @NonNull CarSpan carSpan) {
+            mStart = spanned.getSpanStart(carSpan);
+            mEnd = spanned.getSpanEnd(carSpan);
+            mFlags = spanned.getSpanFlags(carSpan);
+            mCarSpan = carSpan;
         }
 
         SpanWrapper() {
-            start = 0;
-            end = 0;
-            flags = 0;
-            span = null;
+            mStart = 0;
+            mEnd = 0;
+            mFlags = 0;
+            mCarSpan = new CarSpan();
+        }
+
+        public int getStart() {
+            return mStart;
+        }
+
+        public int getEnd() {
+            return mEnd;
+        }
+
+        public int getFlags() {
+            return mFlags;
+        }
+
+        @NonNull
+        public CarSpan getCarSpan() {
+            return mCarSpan;
         }
 
         @Override
@@ -177,20 +211,21 @@ public class CarText {
                 return false;
             }
             SpanWrapper wrapper = (SpanWrapper) other;
-            return start == wrapper.start
-                    && end == wrapper.end
-                    && flags == wrapper.flags
-                    && Objects.equals(span, wrapper.span);
+            return mStart == wrapper.mStart
+                    && mEnd == wrapper.mEnd
+                    && mFlags == wrapper.mFlags
+                    && Objects.equals(mCarSpan, wrapper.mCarSpan);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(start, end, flags, span);
+            return Objects.hash(mStart, mEnd, mFlags, mCarSpan);
         }
 
+        @NonNull
         @Override
         public String toString() {
-            return "[" + span + ": " + start + ", " + end + ", flags: " + flags + "]";
+            return "[" + mCarSpan + ": " + mStart + ", " + mEnd + ", flags: " + mFlags + "]";
         }
     }
 }

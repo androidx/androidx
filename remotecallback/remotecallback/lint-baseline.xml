@@ -1,27 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 16 (current min is 14): `android.content.Intent#FLAG_RECEIVER_FOREGROUND`"
-        errorLine1="        mIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/remotecallback/RemoteCallback.java"
-            line="121"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="Do not place Android context classes in static fields (static reference to `RemoteCallback` which has field `mContext` pointing to `Context`); this is a memory leak"
-        errorLine1="    public static final RemoteCallback LOCAL = new RemoteCallback(null, -1, null, null, null) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/remotecallback/RemoteCallback.java"
-            line="151"
-            column="12"/>
-    </issue>
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="LambdaLast"

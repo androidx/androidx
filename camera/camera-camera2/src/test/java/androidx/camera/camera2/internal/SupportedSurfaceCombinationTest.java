@@ -93,6 +93,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /** Robolectric test for {@link SupportedSurfaceCombination} class */
+@SuppressWarnings("deprecation")
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -2123,6 +2124,30 @@ public final class SupportedSurfaceCombinationTest {
 
         // Checks 640x480 is final selected for the use case.
         assertThat(suggestedResolutionMap.get(useCase.getCurrentConfig())).isEqualTo(mAnalysisSize);
+    }
+
+    @Test
+    public void canGetSupportedSizeSmallerThan640x480_whenLargerMaxResolutionIsSet()
+            throws CameraUnavailableException {
+        Size[] supportedSizes = new Size[]{
+                new Size(480, 480)
+        };
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+                SENSOR_ORIENTATION_90, LANDSCAPE_PIXEL_ARRAY_SIZE, supportedSizes, null);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
+
+        // Sets the max resolution as 720x1280
+        FakeUseCase useCase =
+                new FakeUseCaseConfig.Builder().setMaxResolution(mDisplaySize).build();
+
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        Collections.singletonList(useCase.getCurrentConfig()));
+
+        // Checks 480x480 is final selected for the use case.
+        assertThat(suggestedResolutionMap.get(useCase.getCurrentConfig())).isEqualTo(
+                new Size(480, 480));
     }
 
     private void setupCamera(int hardwareLevel) {

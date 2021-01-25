@@ -20,6 +20,9 @@ import android.annotation.SuppressLint
 import android.hardware.camera2.CameraManager
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Timestamps
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -52,7 +55,7 @@ private const val requestQueueDepth = 8
 
 @Suppress("EXPERIMENTAL_API_USAGE")
 @Singleton
-class VirtualCameraManager @Inject constructor(
+internal class VirtualCameraManager @Inject constructor(
     private val cameraManager: Provider<CameraManager>,
     private val cameraMetadata: CameraMetadataCache,
     private val permissions: Permissions,
@@ -65,13 +68,13 @@ class VirtualCameraManager @Inject constructor(
         threads.globalScope.launch(CoroutineName("CXCP-VirtualCameraManager")) { requestLoop() }
     }
 
-    fun open(cameraId: CameraId, share: Boolean = false): VirtualCamera {
+    internal fun open(cameraId: CameraId, share: Boolean = false): VirtualCamera {
         val result = VirtualCameraState(cameraId)
         offerChecked(RequestOpen(result, share))
         return result
     }
 
-    fun closeAll() {
+    internal fun closeAll() {
         offerChecked(RequestCloseAll)
     }
 
@@ -196,7 +199,10 @@ class VirtualCameraManager @Inject constructor(
         }
     }
 
-    @SuppressLint("MissingPermission")
+    @SuppressLint(
+        "MissingPermission", // Permissions are checked by calling methods.
+        "UnsafeNewApiCall" // Implementation calls the appropriate API depending on API level
+    )
     private suspend fun openCameraWithRetry(
         cameraId: CameraId,
         scope: CoroutineScope

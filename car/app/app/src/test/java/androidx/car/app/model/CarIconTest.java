@@ -58,17 +58,8 @@ public class CarIconTest {
     }
 
     @Test
-    public void of() {
-        CarIcon carIcon = CarIcon.of(mIcon);
-
-        assertThat(carIcon.getType()).isEqualTo(TYPE_CUSTOM);
-        assertThat(carIcon.getTint()).isNull();
-        assertThat(carIcon.getIcon()).isEqualTo(mIcon);
-    }
-
-    @Test
     public void build_withTint() {
-        CarIcon carIcon = CarIcon.builder(mIcon).setTint(BLUE).build();
+        CarIcon carIcon = new CarIcon.Builder(mIcon).setTint(BLUE).build();
 
         assertThat(carIcon.getType()).isEqualTo(TYPE_CUSTOM);
         assertThat(carIcon.getTint()).isEqualTo(BLUE);
@@ -77,7 +68,7 @@ public class CarIconTest {
 
     @Test
     public void build_noTint() {
-        CarIcon carIcon = CarIcon.builder(mIcon).build();
+        CarIcon carIcon = new CarIcon.Builder(mIcon).build();
 
         assertThat(carIcon.getType()).isEqualTo(TYPE_CUSTOM);
         assertThat(carIcon.getTint()).isNull();
@@ -86,7 +77,7 @@ public class CarIconTest {
 
     @Test
     public void newBuilder_fromStandard() {
-        CarIcon carIcon = BACK.newBuilder().setTint(GREEN).build();
+        CarIcon carIcon = new CarIcon.Builder(BACK).setTint(GREEN).build();
 
         assertThat(carIcon.getType()).isEqualTo(TYPE_BACK);
         assertThat(carIcon.getTint()).isEqualTo(GREEN);
@@ -106,7 +97,7 @@ public class CarIconTest {
         builder.appendPath("foo/bar");
         Uri iconUri = builder.build();
 
-        CarIcon carIcon = CarIcon.of(IconCompat.createWithContentUri(iconUri));
+        CarIcon carIcon = new CarIcon.Builder(IconCompat.createWithContentUri(iconUri)).build();
 
         assertThat(carIcon.getType()).isEqualTo(TYPE_CUSTOM);
         assertThat(carIcon.getTint()).isNull();
@@ -120,21 +111,22 @@ public class CarIconTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> CarIcon.builder(IconCompat.createWithContentUri(iconUri)));
+                () -> new CarIcon.Builder(IconCompat.createWithContentUri(iconUri)));
     }
 
     @Test
     public void custom_icon_unsupported_types() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> CarIcon.builder(IconCompat.createWithAdaptiveBitmapContentUri("foo/bar")));
+                () -> new CarIcon.Builder(
+                        IconCompat.createWithAdaptiveBitmapContentUri("foo/bar")));
         assertThrows(
                 IllegalArgumentException.class,
-                () -> CarIcon.builder(IconCompat.createWithData(new byte[0], 1, 1)));
+                () -> new CarIcon.Builder(IconCompat.createWithData(new byte[0], 1, 1)));
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        CarIcon.builder(
+                        new CarIcon.Builder(
                                 IconCompat.createWithAdaptiveBitmap(
                                         Bitmap.createBitmap(10, 10, Bitmap.Config.ALPHA_8))));
     }
@@ -142,16 +134,16 @@ public class CarIconTest {
     @Test
     public void equals() {
         assertThat(BACK.equals(BACK)).isTrue();
-        CarIcon carIcon = CarIcon.of(mIcon);
+        CarIcon carIcon = new CarIcon.Builder(mIcon).build();
         Context context = ApplicationProvider.getApplicationContext();
 
-        assertThat(CarIcon.of(IconCompat.createWithResource(
-                context, TestUtils.getTestDrawableResId(context, "ic_test_1"))))
+        assertThat(new CarIcon.Builder(IconCompat.createWithResource(
+                context, TestUtils.getTestDrawableResId(context, "ic_test_1"))).build())
                 .isEqualTo(carIcon);
     }
 
     @Test
     public void notEquals() {
-        assertThat(BACK.newBuilder().setTint(GREEN).build()).isNotEqualTo(BACK);
+        assertThat(new CarIcon.Builder(BACK).setTint(GREEN).build()).isNotEqualTo(BACK);
     }
 }

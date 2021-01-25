@@ -45,6 +45,7 @@ public class MessageInfo implements NavigationInfo {
      *
      * @throws NullPointerException if {@code title} is {@code null}.
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder(@NonNull CharSequence title) {
         return new Builder(title);
@@ -91,7 +92,7 @@ public class MessageInfo implements NavigationInfo {
                 && Objects.equals(mImage, otherInfo.mImage);
     }
 
-    private MessageInfo(Builder builder) {
+    MessageInfo(Builder builder) {
         mTitle = builder.mTitle;
         mText = builder.mText;
         mImage = builder.mImage;
@@ -107,15 +108,11 @@ public class MessageInfo implements NavigationInfo {
     /** A builder of {@link MessageInfo}. */
     public static final class Builder {
         @Nullable
-        private CarText mTitle;
+        CarText mTitle;
         @Nullable
-        private CarText mText;
+        CarText mText;
         @Nullable
-        private CarIcon mImage;
-
-        private Builder(@NonNull CharSequence title) {
-            this.mTitle = CarText.create(requireNonNull(title));
-        }
+        CarIcon mImage;
 
         /**
          * Sets the title of the message.
@@ -150,6 +147,15 @@ public class MessageInfo implements NavigationInfo {
         @NonNull
         public MessageInfo build() {
             return new MessageInfo(this);
+        }
+
+        /**
+         * Returns a new instance of a {@link Builder}.
+         *
+         * @throws NullPointerException if {@code title} is {@code null}.
+         */
+        public Builder(@NonNull CharSequence title) {
+            this.mTitle = CarText.create(requireNonNull(title));
         }
     }
 }

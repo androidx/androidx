@@ -60,9 +60,17 @@ public final class AnimationHandler {
         /**
          * Callbacks on new frame arrived.
          *
-         * @param frameCallback The runuable of new frame should be posted
+         * @param frameCallback The runnable of new frame should be posted
          */
         void postFrameCallback(@NonNull Runnable frameCallback);
+
+        /**
+         * Returns whether the current thread is the same as the thread that the scheduler is
+         * running on.
+         *
+         * @return true if the scheduler is running on the same thread as the current thread.
+         */
+        boolean isCurrentThread();
     }
 
     /**
@@ -172,6 +180,16 @@ public final class AnimationHandler {
     }
 
     /**
+     * Returns whether the current thread is the same thread as the animation handler
+     * frame scheduler.
+     *
+     * @return true the current thread is the same thread as the animation handler frame scheduler.
+     */
+    boolean isCurrentThread() {
+        return mScheduler.isCurrentThread();
+    }
+
+    /**
      * Remove the callbacks from mDelayedCallbackStartTime once they have passed the initial delay
      * so that they can start getting frame callbacks.
      *
@@ -236,10 +254,16 @@ public final class AnimationHandler {
     static final class FrameCallbackScheduler16 implements FrameCallbackScheduler {
 
         private final Choreographer mChoreographer = Choreographer.getInstance();
+        private final Looper mLooper = Looper.myLooper();
 
         @Override
         public void postFrameCallback(@NonNull Runnable frameCallback) {
             mChoreographer.postFrameCallback(time -> frameCallback.run());
+        }
+
+        @Override
+        public boolean isCurrentThread() {
+            return Thread.currentThread() == mLooper.getThread();
         }
     }
 
@@ -261,6 +285,11 @@ public final class AnimationHandler {
                 mLastFrameTime = SystemClock.uptimeMillis();
                 frameCallback.run();
             }, delay);
+        }
+
+        @Override
+        public boolean isCurrentThread() {
+            return Thread.currentThread() == mHandler.getLooper().getThread();
         }
     }
 }

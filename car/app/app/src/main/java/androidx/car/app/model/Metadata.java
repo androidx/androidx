@@ -34,23 +34,18 @@ public class Metadata {
     private final Place mPlace;
 
     /** Constructs a new builder of a {@link Metadata} instance. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-     * Constructs a new instance of {@link Metadata} containing a {@link Place}.
-     *
-     * @throws NullPointerException if {@code place} is {@code null}.
-     * @see Builder#setPlace(Place)
+     * Returns a new {@link Builder} with the data from this {@link Metadata} instance.
+     * @deprecated use constructor.
      */
-    @NonNull
-    public static Metadata ofPlace(@NonNull Place place) {
-        return new Builder().setPlace(requireNonNull(place)).build();
-    }
-
-    /** Returns a new {@link Builder} with the data from this {@link Metadata} instance. */
+    // TODO(b/177484889): remove once host is changed to use new public ctor.
+    @Deprecated
     @NonNull
     public Builder newBuilder() {
         return new Builder(this);
@@ -79,7 +74,7 @@ public class Metadata {
         return Objects.equals(mPlace, otherMetadata.mPlace);
     }
 
-    private Metadata(Builder builder) {
+    Metadata(Builder builder) {
         mPlace = builder.mPlace;
     }
 
@@ -91,7 +86,7 @@ public class Metadata {
     /** A builder for {@link Metadata}. */
     public static final class Builder {
         @Nullable
-        private Place mPlace;
+        Place mPlace;
 
         /**
          * Sets a {@link Place} used for showing {@link Distance} and {@link PlaceMarker}
@@ -112,11 +107,17 @@ public class Metadata {
             return new Metadata(this);
         }
 
-        private Builder() {
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
 
-        private Builder(Metadata metadata) {
-            this.mPlace = metadata.mPlace;
+        /**
+         * Returns a new {@link Builder} with the data from the given {@link Metadata} instance.
+         *
+         * @throws NullPointerException if {@code icon} is {@code null}.
+         */
+        public Builder(@NonNull Metadata metadata) {
+            this.mPlace = requireNonNull(metadata).getPlace();
         }
     }
 }

@@ -18,6 +18,7 @@ package androidx.core.widget;
 
 import static androidx.core.view.ContentInfoCompat.FLAG_CONVERT_TO_PLAIN_TEXT;
 import static androidx.core.view.ContentInfoCompat.SOURCE_CLIPBOARD;
+import static androidx.core.view.ContentInfoCompat.SOURCE_DRAG_AND_DROP;
 import static androidx.core.view.ContentInfoCompat.SOURCE_INPUT_METHOD;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -236,6 +237,32 @@ public class TextViewOnReceiveContentListenerTest {
 
         assertThat(result).isFalse();
         assertTextAndCursorPosition("xz", 1);
+    }
+
+    @UiThreadTest
+    @Test
+    public void testOnReceive_dragAndDrop_text() throws Exception {
+        setTextAndCursor("xz", 1);
+
+        ClipData clip = ClipData.newPlainText("test", "y");
+        boolean result = onReceive(mReceiver, clip, SOURCE_DRAG_AND_DROP, 0);
+
+        assertThat(result).isTrue();
+        assertTextAndCursorPosition("xyz", 2);
+    }
+
+    @UiThreadTest
+    @Test
+    public void testOnReceive_dragAndDrop_multipleItemsInClipData() throws Exception {
+        setTextAndCursor("xz", 1);
+
+        ClipData clip = ClipData.newPlainText("test", "ONE");
+        clip.addItem(new ClipData.Item("TWO"));
+        clip.addItem(new ClipData.Item("THREE"));
+        boolean result = onReceive(mReceiver, clip, SOURCE_DRAG_AND_DROP, 0);
+
+        assertThat(result).isTrue();
+        assertTextAndCursorPosition("xONETWOTHREEz", 12);
     }
 
     private boolean onReceive(final OnReceiveContentListener receiver, ClipData clip,

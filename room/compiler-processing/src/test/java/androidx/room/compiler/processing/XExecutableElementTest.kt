@@ -69,8 +69,9 @@ class XExecutableElementTest {
                 assertThat(method.isOverrideableIgnoringContainer()).isTrue()
                 assertThat(method.parameters).hasSize(1)
                 method.getParameter("param1").let { param ->
-                    assertThat(param.type.isArray()).isTrue()
-                    assertThat(param.type.asArray().componentType.typeName)
+                    val paramType = param.type
+                    check(paramType.isArray())
+                    assertThat(paramType.componentType.typeName)
                         .isEqualTo(String::class.typeName())
                 }
                 assertThat(method.returnType.typeName).isEqualTo(String::class.typeName())
@@ -326,9 +327,7 @@ class XExecutableElementTest {
         runProcessorTest(sources = listOf(source)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("Base")
             val subject = invocation.processingEnv.requireType("Subject")
-                .asDeclaredType()
             val nullableSubject = invocation.processingEnv.requireType("NullableSubject")
-                .asDeclaredType()
             val method = base.getMethod("foo")
             method.getParameter("t").let { param ->
                 param.asMemberOf(subject).let {
@@ -459,6 +458,175 @@ class XExecutableElementTest {
                     )
                 ).isFalse()
             }
+        }
+    }
+
+    @Test
+    fun isAbstract() {
+        val javaInterface = Source.java(
+            "JavaInterface",
+            """
+            interface JavaInterface {
+                void interfaceMethod();
+            }
+            """.trimIndent()
+        )
+        val javaAbstractClass = Source.java(
+            "JavaAbstractClass",
+            """
+            abstract class JavaAbstractClass {
+                abstract void abstractMethod();
+                void nonAbstractMethod() {}
+            }
+            """.trimIndent()
+        )
+        val kotlinSource = Source.kotlin(
+            "kotlin.kt",
+            """
+            interface KotlinInterface {
+                fun interfaceMethod(): Unit
+            }
+            abstract class KotlinAbstractClass {
+                abstract fun abstractMethod(): Unit
+                fun nonAbstractMethod() {}
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(javaInterface, javaAbstractClass, kotlinSource)
+        ) { invocation ->
+            listOf("JavaInterface", "KotlinInterface").forEach { qName ->
+                invocation.processingEnv.requireTypeElement(qName).let {
+                    assertThat(it.getMethod("interfaceMethod").isAbstract()).isTrue()
+                }
+            }
+
+            listOf("JavaAbstractClass", "KotlinAbstractClass").forEach { qName ->
+                invocation.processingEnv.requireTypeElement(qName).let {
+                    assertThat(it.getMethod("abstractMethod").isAbstract()).isTrue()
+                    assertThat(it.getMethod("nonAbstractMethod").isAbstract()).isFalse()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun genericToPrimitiveOverrides_methodElement() {
+        genericToPrimitiveOverrides(asMemberOf = false)
+    }
+
+    @Test
+    fun genericToPrimitiveOverrides_asMemberOf() {
+        genericToPrimitiveOverrides(asMemberOf = true)
+    }
+
+    // see b/160258066
+    private fun genericToPrimitiveOverrides(asMemberOf: Boolean) {
+        val source = Source.kotlin(
+            "Foo.kt",
+            """
+            interface Base<Key> {
+                fun getKey(id: Key): Unit
+                fun getKeyOverridden(id: Key): Unit
+                fun returnKey(): Key
+                fun returnKeyOverridden(): Key
+                fun getAndReturnKey(key: Key): Key
+                fun getAndReturnKeyOverridden(key: Key): Key
+            }
+            interface NonNullPrimitiveOverride : Base<Int> {
+                override fun getKeyOverridden(id: Int): Unit
+                override fun returnKeyOverridden(): Int
+                override fun getAndReturnKeyOverridden(key: Int): Int
+            }
+            interface NullablePrimitiveOverride : Base<Int?> {
+                override fun getKeyOverridden(id: Int?): Unit
+                override fun returnKeyOverridden(): Int?
+                override fun getAndReturnKeyOverridden(key: Int?): Int?
+            }
+            class Item
+            interface ClassOverride : Base<Item> {
+                override fun getKeyOverridden(id: Item): Unit
+                override fun returnKeyOverridden(): Item
+                override fun getAndReturnKeyOverridden(key: Item): Item
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(sources = listOf(source)) { invocation ->
+            val objectMethodNames = invocation.processingEnv.requireTypeElement(TypeName.OBJECT)
+                .getAllNonPrivateInstanceMethods().map { it.name }.toSet()
+
+            fun XTypeElement.methodsSignature(): String {
+                return getAllNonPrivateInstanceMethods()
+                    .filterNot { it.name in objectMethodNames }
+                    .sortedBy {
+                        it.name
+                    }.joinToString("\n") { methodElement ->
+                        buildString {
+                            append(methodElement.name)
+                            append("(")
+                            val paramTypes = if (asMemberOf) {
+                                methodElement.asMemberOf(this@methodsSignature.type).parameterTypes
+                            } else {
+                                methodElement.parameters.map { it.type }
+                            }
+                            val paramsSignature = paramTypes.joinToString(",") {
+                                it.typeName.toString()
+                            }
+                            append(paramsSignature)
+                            append("):")
+                            val returnType = if (asMemberOf) {
+                                methodElement.asMemberOf(this@methodsSignature.type).returnType
+                            } else {
+                                methodElement.returnType
+                            }
+                            append(returnType.typeName)
+                        }
+                    }
+            }
+
+            val nonNullOverride =
+                invocation.processingEnv.requireTypeElement("NonNullPrimitiveOverride")
+            assertThat(
+                nonNullOverride.methodsSignature()
+            ).isEqualTo(
+                """
+                getAndReturnKey(java.lang.Integer):java.lang.Integer
+                getAndReturnKeyOverridden(int):java.lang.Integer
+                getAndReturnKeyOverridden(java.lang.Integer):java.lang.Integer
+                getKey(java.lang.Integer):void
+                getKeyOverridden(int):void
+                getKeyOverridden(java.lang.Integer):void
+                returnKey():java.lang.Integer
+                returnKeyOverridden():java.lang.Integer
+                """.trimIndent()
+            )
+            val nullableOverride =
+                invocation.processingEnv.requireTypeElement("NullablePrimitiveOverride")
+            assertThat(
+                nullableOverride.methodsSignature()
+            ).isEqualTo(
+                """
+                getAndReturnKey(java.lang.Integer):java.lang.Integer
+                getAndReturnKeyOverridden(java.lang.Integer):java.lang.Integer
+                getKey(java.lang.Integer):void
+                getKeyOverridden(java.lang.Integer):void
+                returnKey():java.lang.Integer
+                returnKeyOverridden():java.lang.Integer
+                """.trimIndent()
+            )
+            val classOverride = invocation.processingEnv.requireTypeElement("ClassOverride")
+            assertThat(
+                classOverride.methodsSignature()
+            ).isEqualTo(
+                """
+                getAndReturnKey(Item):Item
+                getAndReturnKeyOverridden(Item):Item
+                getKey(Item):void
+                getKeyOverridden(Item):void
+                returnKey():Item
+                returnKeyOverridden():Item
+                """.trimIndent()
+            )
         }
     }
 }

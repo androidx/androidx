@@ -17,8 +17,6 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XNullability
-import androidx.room.compiler.processing.asDeclaredType
-import androidx.room.compiler.processing.isDeclared
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.getField
@@ -50,7 +48,7 @@ class KSAsMemberOfTest {
 
         runKspTest(sources = listOf(src)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("BaseClass")
-            val sub = invocation.processingEnv.requireType("SubClass").asDeclaredType()
+            val sub = invocation.processingEnv.requireType("SubClass")
             base.getField("normalInt").let { prop ->
                 assertThat(
                     prop.asMemberOf(sub).typeName
@@ -124,9 +122,7 @@ class KSAsMemberOfTest {
         runKspTest(sources = listOf(src)) { invocation ->
             val myInterface = invocation.processingEnv.requireTypeElement("MyInterface")
             val nonNullSubject = invocation.processingEnv.requireType("NonNullSubject")
-                .asDeclaredType()
             val nullableSubject = invocation.processingEnv.requireType("NullableSubject")
-                .asDeclaredType()
             val inheritedProp = myInterface.getField("inheritedProp")
             assertThat(
                 inheritedProp.asMemberOf(nonNullSubject).nullability
@@ -145,14 +141,12 @@ class KSAsMemberOfTest {
 
             val inheritedGenericProp = myInterface.getField("inheritedGenericProp")
             inheritedGenericProp.asMemberOf(nonNullSubject).let {
-                check(it.isDeclared())
                 assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
                 assertThat(
                     it.typeArguments.first().nullability
                 ).isEqualTo(XNullability.NONNULL)
             }
             inheritedGenericProp.asMemberOf(nullableSubject).let {
-                check(it.isDeclared())
                 assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
                 assertThat(
                     it.typeArguments.first().nullability
@@ -161,14 +155,12 @@ class KSAsMemberOfTest {
 
             val nullableGenericProp = myInterface.getField("nullableGenericProp")
             nullableGenericProp.asMemberOf(nonNullSubject).let {
-                check(it.isDeclared())
                 assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
                 assertThat(
                     it.typeArguments.first().nullability
                 ).isEqualTo(XNullability.NULLABLE)
             }
             nullableGenericProp.asMemberOf(nullableSubject).let {
-                check(it.isDeclared())
                 assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
                 assertThat(
                     it.typeArguments.first().nullability

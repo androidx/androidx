@@ -22,12 +22,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a parameter in a {@link androidx.hilt.lifecycle.ViewModelInject}-annotated constructor
- * or a {@link androidx.hilt.work.WorkerInject}-annotated constructor to be assisted
- * injected at runtime via a factory.
+ * Marks a parameter in a {@link androidx.hilt.lifecycle.ViewModelInject}-annotated constructor.
+ *
+ * @deprecated Use <a href="https://dagger.dev/api/latest/dagger/assisted/Assisted">Assisted</a>
  */
-// TODO(danysantiago): Remove and replace with dagger.assisted.
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
+@Deprecated
 public @interface Assisted {
 }

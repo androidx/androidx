@@ -16,13 +16,25 @@
 
 package androidx.appsearch.app;
 
+import static androidx.appsearch.app.AppSearchSchema.PropertyConfig.INDEXING_TYPE_PREFIXES;
+import static androidx.appsearch.app.AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Bundle;
 
+import androidx.appsearch.annotation.AppSearchDocument;
+
+import com.google.common.collect.ImmutableSet;
+
 import org.junit.Test;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 public class SearchSpecTest {
+
     @Test
     public void testGetBundle() {
         SearchSpec searchSpec = new SearchSpec.Builder()
@@ -52,4 +64,58 @@ public class SearchSpecTest {
         assertThat(bundle.getInt(SearchSpec.RANKING_STRATEGY_FIELD))
                 .isEqualTo(SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE);
     }
+
+    @Test
+    public void testGetProjectionTypePropertyMasks() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .addProjection("TypeA", "field1", "field2.subfield2")
+                .addProjection("TypeB", "field7")
+                .addProjection("TypeC")
+                .build();
+
+        Map<String, List<String>> typePropertyPathMap = searchSpec.getProjections();
+        assertThat(typePropertyPathMap.keySet())
+                .containsExactly("TypeA", "TypeB", "TypeC");
+        assertThat(typePropertyPathMap.get("TypeA")).containsExactly("field1", "field2.subfield2");
+        assertThat(typePropertyPathMap.get("TypeB")).containsExactly("field7");
+        assertThat(typePropertyPathMap.get("TypeC")).isEmpty();
+    }
+
+    @Test
+    public void testGetRankingStrategy() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
+                .build();
+        assertThat(searchSpec.getRankingStrategy()).isEqualTo(
+                SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE);
+    }
+
+// @exportToFramework:startStrip()
+    @AppSearchDocument
+    static class King extends Card {
+        @AppSearchDocument.Uri
+        String mUri;
+
+        @AppSearchDocument.Property
+                (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
+        String mString;
+    }
+
+    static class Card {}
+
+    @Test
+    public void testAddSchemaByDataClass_byCollection() throws Exception {
+        Set<Class<King>> cardClassSet = ImmutableSet.of(King.class);
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .addSchemaByDataClass(cardClassSet)
+                .build();
+
+        Bundle bundle = searchSpec.getBundle();
+        assertThat(bundle.getStringArrayList(SearchSpec.SCHEMA_TYPE_FIELD)).containsExactly(
+                "King");
+    }
+// @exportToFramework:endStrip()
 }

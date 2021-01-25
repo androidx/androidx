@@ -44,10 +44,10 @@ public class PlaceListMapTemplateTest {
     public void createInstance_emptyList_notLoading_Throws() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> PlaceListMapTemplate.builder().setTitle("Title").build());
+                () -> new PlaceListMapTemplate.Builder().setTitle("Title").build());
 
         // Positive case
-        PlaceListMapTemplate.builder().setTitle("Title").setLoading(true).build();
+        new PlaceListMapTemplate.Builder().setTitle("Title").setLoading(true).build();
     }
 
     @Test
@@ -55,10 +55,10 @@ public class PlaceListMapTemplateTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        PlaceListMapTemplate.builder()
+                        new PlaceListMapTemplate.Builder()
                                 .setTitle("Title")
                                 .setLoading(true)
-                                .setItemList(ItemList.builder().build())
+                                .setItemList(new ItemList.Builder().build())
                                 .build());
     }
 
@@ -67,14 +67,14 @@ public class PlaceListMapTemplateTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        PlaceListMapTemplate.builder()
+                        new PlaceListMapTemplate.Builder()
                                 .setTitle("Title")
                                 .setItemList(TestUtils.createItemListWithDistanceSpan(6, true,
                                         mDistanceSpan))
                                 .build());
 
         // Positive cases.
-        PlaceListMapTemplate.builder()
+        new PlaceListMapTemplate.Builder()
                 .setTitle("Title")
                 .setItemList(TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
                 .build();
@@ -85,22 +85,23 @@ public class PlaceListMapTemplateTest {
         SpannableString title = new SpannableString("Title");
         title.setSpan(mDistanceSpan, /* start= */ 0, /* end= */ 1, /* flags= */ 0);
         Row rowExceedsMaxTexts =
-                Row.builder().setTitle(title).addText("text1").addText("text2").addText(
+                new Row.Builder().setTitle(title).addText("text1").addText("text2").addText(
                         "text3").build();
         Row rowMeetingMaxTexts =
-                Row.builder().setTitle(title).addText("text1").addText("text2").build();
+                new Row.Builder().setTitle(title).addText("text1").addText("text2").build();
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        PlaceListMapTemplate.builder()
+                        new PlaceListMapTemplate.Builder()
                                 .setTitle("Title")
-                                .setItemList(ItemList.builder().addItem(rowExceedsMaxTexts).build())
+                                .setItemList(
+                                        new ItemList.Builder().addItem(rowExceedsMaxTexts).build())
                                 .build());
 
         // Positive cases.
-        PlaceListMapTemplate.builder()
+        new PlaceListMapTemplate.Builder()
                 .setTitle("Title")
-                .setItemList(ItemList.builder().addItem(rowMeetingMaxTexts).build())
+                .setItemList(new ItemList.Builder().addItem(rowMeetingMaxTexts).build())
                 .build();
     }
 
@@ -109,30 +110,30 @@ public class PlaceListMapTemplateTest {
         SpannableString title = new SpannableString("Title");
         title.setSpan(mDistanceSpan, /* start= */ 0, /* end= */ 1, /* flags= */ 0);
         Row rowWithToggle =
-                Row.builder().setTitle(title).setToggle(Toggle.builder(isChecked -> {
+                new Row.Builder().setTitle(title).setToggle(new Toggle.Builder(isChecked -> {
                 }).build()).build();
         Row rowMeetingRestrictions =
-                Row.builder().setTitle(title).addText("text1").addText("text2").build();
+                new Row.Builder().setTitle(title).addText("text1").addText("text2").build();
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        PlaceListMapTemplate.builder()
+                        new PlaceListMapTemplate.Builder()
                                 .setTitle("Title")
-                                .setItemList(ItemList.builder().addItem(rowWithToggle).build())
+                                .setItemList(new ItemList.Builder().addItem(rowWithToggle).build())
                                 .build());
 
         // Positive cases.
-        PlaceListMapTemplate.builder()
+        new PlaceListMapTemplate.Builder()
                 .setTitle("Title")
-                .setItemList(ItemList.builder().addItem(rowMeetingRestrictions).build())
+                .setItemList(new ItemList.Builder().addItem(rowMeetingRestrictions).build())
                 .build();
     }
 
     @Test
     public void createEmpty() {
-        ItemList itemList = ItemList.builder().build();
+        ItemList itemList = new ItemList.Builder().build();
         PlaceListMapTemplate template =
-                PlaceListMapTemplate.builder().setTitle("Title").setItemList(itemList).build();
+                new PlaceListMapTemplate.Builder().setTitle("Title").setItemList(itemList).build();
         assertThat(template.getItemList()).isEqualTo(itemList);
         assertThat(template.getHeaderAction()).isNull();
         assertThat(template.getActionStrip()).isNull();
@@ -144,9 +145,9 @@ public class PlaceListMapTemplateTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        PlaceListMapTemplate.builder()
+                        new PlaceListMapTemplate.Builder()
                                 .setHeaderAction(
-                                        Action.builder().setTitle("Action").setOnClickListener(
+                                        new Action.Builder().setTitle("Action").setOnClickListener(
                                                 () -> {
                                                 }).build()));
     }
@@ -154,8 +155,8 @@ public class PlaceListMapTemplateTest {
     @Test
     public void createInstance_setHeaderAction() {
         PlaceListMapTemplate template =
-                PlaceListMapTemplate.builder()
-                        .setItemList(ItemList.builder().build())
+                new PlaceListMapTemplate.Builder()
+                        .setItemList(new ItemList.Builder().build())
                         .setHeaderAction(Action.BACK)
                         .build();
 
@@ -166,10 +167,10 @@ public class PlaceListMapTemplateTest {
     public void createInstance_notAllRowHaveDistances() {
         SpannableString title = new SpannableString("Title");
         title.setSpan(mDistanceSpan, /* start= */ 0, /* end= */ 1, /* flags= */ 0);
-        Row rowWithDistance = Row.builder().setTitle(title).build();
-        Row rowWithoutDistance = Row.builder().setTitle("Google Kir").build();
+        Row rowWithDistance = new Row.Builder().setTitle(title).build();
+        Row rowWithoutDistance = new Row.Builder().setTitle("Google Kir").build();
         Row browsableRowWithoutDistance =
-                Row.builder()
+                new Row.Builder()
                         .setTitle("Google Kir")
                         .setBrowsable(true)
                         .setOnClickListener(() -> {
@@ -179,30 +180,30 @@ public class PlaceListMapTemplateTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        PlaceListMapTemplate.builder()
+                        new PlaceListMapTemplate.Builder()
                                 .setTitle("Title")
                                 .setItemList(
-                                        ItemList.builder()
+                                        new ItemList.Builder()
                                                 .addItem(rowWithDistance)
                                                 .addItem(rowWithoutDistance)
                                                 .build()));
 
         // Positive cases
-        PlaceListMapTemplate.builder()
+        new PlaceListMapTemplate.Builder()
                 .setTitle("Title")
-                .setItemList(ItemList.builder().addItem(rowWithDistance).build())
+                .setItemList(new ItemList.Builder().addItem(rowWithDistance).build())
                 .build();
-        PlaceListMapTemplate.builder()
+        new PlaceListMapTemplate.Builder()
                 .setTitle("Title")
                 .setItemList(
-                        ItemList.builder()
+                        new ItemList.Builder()
                                 .addItem(rowWithDistance)
                                 .addItem(browsableRowWithoutDistance)
                                 .build())
                 .build();
-        PlaceListMapTemplate.builder()
+        new PlaceListMapTemplate.Builder()
                 .setTitle("Title")
-                .setItemList(ItemList.builder().addItem(browsableRowWithoutDistance).build())
+                .setItemList(new ItemList.Builder().addItem(browsableRowWithoutDistance).build())
                 .build();
     }
 
@@ -211,40 +212,40 @@ public class PlaceListMapTemplateTest {
         SpannableString title = new SpannableString("Title");
         title.setSpan(mDistanceSpan, /* start= */ 0, /* end= */ 1, /* flags= */ 0);
         Row row =
-                Row.builder()
+                new Row.Builder()
                         .setTitle("Google Kir")
                         .setOnClickListener(() -> {
                         })
                         .setImage(CarIcon.ALERT)
                         .setMetadata(
-                                Metadata.ofPlace(
-                                        Place.builder(LatLng.create(10.f, 10.f))
+                                new Metadata.Builder().setPlace(
+                                        new Place.Builder(CarLocation.create(10.f, 10.f))
                                                 .setMarker(PlaceMarker.getDefault())
-                                                .build()))
+                                                .build()).build())
                         .build();
 
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        PlaceListMapTemplate.builder()
+                        new PlaceListMapTemplate.Builder()
                                 .setTitle("Title")
-                                .setItemList(ItemList.builder().addItem(row).build()));
+                                .setItemList(new ItemList.Builder().addItem(row).build()));
     }
 
     @Test
     public void createInstance_setItemList() {
         ItemList itemList = TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan);
         PlaceListMapTemplate template =
-                PlaceListMapTemplate.builder().setTitle("Title").setItemList(itemList).build();
+                new PlaceListMapTemplate.Builder().setTitle("Title").setItemList(itemList).build();
         assertThat(template.getItemList()).isEqualTo(itemList);
     }
 
     @Test
     public void createInstance_setActionStrip() {
         ItemList itemList = TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan);
-        ActionStrip actionStrip = ActionStrip.builder().addAction(Action.BACK).build();
+        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
         PlaceListMapTemplate template =
-                PlaceListMapTemplate.builder()
+                new PlaceListMapTemplate.Builder()
                         .setTitle("Title")
                         .setItemList(itemList)
                         .setActionStrip(actionStrip)
@@ -257,13 +258,13 @@ public class PlaceListMapTemplateTest {
         ItemList itemList = TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan);
         String title = "title";
         PlaceListMapTemplate template =
-                PlaceListMapTemplate.builder()
+                new PlaceListMapTemplate.Builder()
                         .setItemList(itemList)
                         .setTitle(title)
                         .setCurrentLocationEnabled(true)
                         .build();
 
-        assertThat(template.getTitle().getText()).isEqualTo(title);
+        assertThat(template.getTitle().toString()).isEqualTo(title);
     }
 
     @Test
@@ -273,27 +274,28 @@ public class PlaceListMapTemplateTest {
         assertThrows(
                 IllegalStateException.class,
                 () ->
-                        PlaceListMapTemplate.builder()
+                        new PlaceListMapTemplate.Builder()
                                 .setItemList(itemList)
                                 .setCurrentLocationEnabled(true)
                                 .build());
 
         // Positive cases.
-        PlaceListMapTemplate.builder().setTitle("Title").setItemList(itemList).build();
-        PlaceListMapTemplate.builder().setHeaderAction(Action.BACK).setItemList(itemList).build();
+        new PlaceListMapTemplate.Builder().setTitle("Title").setItemList(itemList).build();
+        new PlaceListMapTemplate.Builder().setHeaderAction(Action.BACK).setItemList(
+                itemList).build();
     }
 
     @Test
     public void equals() {
-        ActionStrip actionStrip = ActionStrip.builder().addAction(Action.BACK).build();
+        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
         String title = "foo";
         Place place =
-                Place.builder(LatLng.create(123, 456))
-                        .setMarker(PlaceMarker.builder().setLabel("A").build())
+                new Place.Builder(CarLocation.create(123, 456))
+                        .setMarker(new PlaceMarker.Builder().setLabel("A").build())
                         .build();
 
         PlaceListMapTemplate template =
-                PlaceListMapTemplate.builder()
+                new PlaceListMapTemplate.Builder()
                         .setItemList(
                                 TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
                         .setHeaderAction(Action.BACK)
@@ -305,7 +307,7 @@ public class PlaceListMapTemplateTest {
 
         assertThat(template)
                 .isEqualTo(
-                        PlaceListMapTemplate.builder()
+                        new PlaceListMapTemplate.Builder()
                                 .setItemList(TestUtils.createItemListWithDistanceSpan(6, false,
                                         mDistanceSpan))
                                 .setHeaderAction(Action.BACK)
@@ -319,7 +321,7 @@ public class PlaceListMapTemplateTest {
     @Test
     public void notEquals_differentList() {
         PlaceListMapTemplate template =
-                PlaceListMapTemplate.builder()
+                new PlaceListMapTemplate.Builder()
                         .setTitle("Title")
                         .setItemList(
                                 TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
@@ -327,16 +329,16 @@ public class PlaceListMapTemplateTest {
 
         assertThat(template)
                 .isNotEqualTo(
-                        PlaceListMapTemplate.builder()
+                        new PlaceListMapTemplate.Builder()
                                 .setTitle("Title")
-                                .setItemList(ItemList.builder().build())
+                                .setItemList(new ItemList.Builder().build())
                                 .build());
     }
 
     @Test
     public void notEquals_differentHeaderAction() {
         PlaceListMapTemplate template =
-                PlaceListMapTemplate.builder()
+                new PlaceListMapTemplate.Builder()
                         .setItemList(
                                 TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
                         .setHeaderAction(Action.BACK)
@@ -344,7 +346,7 @@ public class PlaceListMapTemplateTest {
 
         assertThat(template)
                 .isNotEqualTo(
-                        PlaceListMapTemplate.builder()
+                        new PlaceListMapTemplate.Builder()
                                 .setItemList(TestUtils.createItemListWithDistanceSpan(6, false,
                                         mDistanceSpan))
                                 .setHeaderAction(Action.APP_ICON)
@@ -353,10 +355,10 @@ public class PlaceListMapTemplateTest {
 
     @Test
     public void notEquals_differentActionStrip() {
-        ActionStrip actionStrip = ActionStrip.builder().addAction(Action.BACK).build();
+        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
 
         PlaceListMapTemplate template =
-                PlaceListMapTemplate.builder()
+                new PlaceListMapTemplate.Builder()
                         .setTitle("Title")
                         .setItemList(
                                 TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
@@ -365,19 +367,20 @@ public class PlaceListMapTemplateTest {
 
         assertThat(template)
                 .isNotEqualTo(
-                        PlaceListMapTemplate.builder()
+                        new PlaceListMapTemplate.Builder()
                                 .setTitle("Title")
                                 .setItemList(TestUtils.createItemListWithDistanceSpan(6, false,
                                         mDistanceSpan))
                                 .setActionStrip(
-                                        ActionStrip.builder().addAction(Action.APP_ICON).build())
+                                        new ActionStrip.Builder().addAction(
+                                                Action.APP_ICON).build())
                                 .build());
     }
 
     @Test
     public void notEquals_differentTitle() {
         PlaceListMapTemplate template =
-                PlaceListMapTemplate.builder()
+                new PlaceListMapTemplate.Builder()
                         .setItemList(
                                 TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
                         .setTitle("foo")
@@ -385,7 +388,7 @@ public class PlaceListMapTemplateTest {
 
         assertThat(template)
                 .isNotEqualTo(
-                        PlaceListMapTemplate.builder()
+                        new PlaceListMapTemplate.Builder()
                                 .setItemList(TestUtils.createItemListWithDistanceSpan(6, false,
                                         mDistanceSpan))
                                 .setTitle("bar")
@@ -395,17 +398,17 @@ public class PlaceListMapTemplateTest {
     @Test
     public void notEquals_differentAnchor() {
         Place place1 =
-                Place.builder(LatLng.create(123, 456))
-                        .setMarker(PlaceMarker.builder().setLabel("A").build())
+                new Place.Builder(CarLocation.create(123, 456))
+                        .setMarker(new PlaceMarker.Builder().setLabel("A").build())
                         .build();
 
         Place place2 =
-                Place.builder(LatLng.create(123, 456))
-                        .setMarker(PlaceMarker.builder().setLabel("B").build())
+                new Place.Builder(CarLocation.create(123, 456))
+                        .setMarker(new PlaceMarker.Builder().setLabel("B").build())
                         .build();
 
         PlaceListMapTemplate template =
-                PlaceListMapTemplate.builder()
+                new PlaceListMapTemplate.Builder()
                         .setTitle("Title")
                         .setItemList(
                                 TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
@@ -414,7 +417,7 @@ public class PlaceListMapTemplateTest {
 
         assertThat(template)
                 .isNotEqualTo(
-                        PlaceListMapTemplate.builder()
+                        new PlaceListMapTemplate.Builder()
                                 .setTitle("Title")
                                 .setItemList(TestUtils.createItemListWithDistanceSpan(6, false,
                                         mDistanceSpan))
@@ -425,7 +428,7 @@ public class PlaceListMapTemplateTest {
     @Test
     public void notEquals_differentLocationEnabled() {
         PlaceListMapTemplate template =
-                PlaceListMapTemplate.builder()
+                new PlaceListMapTemplate.Builder()
                         .setTitle("Title")
                         .setItemList(
                                 TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
@@ -434,69 +437,11 @@ public class PlaceListMapTemplateTest {
 
         assertThat(template)
                 .isNotEqualTo(
-                        PlaceListMapTemplate.builder()
+                        new PlaceListMapTemplate.Builder()
                                 .setTitle("Title")
                                 .setItemList(TestUtils.createItemListWithDistanceSpan(6, false,
                                         mDistanceSpan))
                                 .setCurrentLocationEnabled(false)
                                 .build());
-    }
-
-// TODO(shiufai): the following shadow is resulting in a ClasscastException.
-//  Further investigation is needed.
-//    @Test
-//    public void checkPermissions_hasPermissions() {
-//        PlaceListMapTemplate template =
-//                PlaceListMapTemplate.builder()
-//                        .setTitle("Title")
-//                        .setItemList(
-//                                TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
-//                        .setCurrentLocationEnabled(true)
-//                        .build();
-//
-//        PackageManager packageManager = mContext.getPackageManager();
-//        PackageInfo pi = new PackageInfo();
-//        pi.packageName = mContext.getPackageName();
-//        pi.versionCode = 1;
-//        pi.requestedPermissions = new String[]{permission.ACCESS_FINE_LOCATION};
-//
-//        shadowOf(packageManager).installPackage(pi);
-//
-//        // Expect that it does not throw
-//        template.checkPermissions(context);
-//    }
-
-// TODO(shiufai): the following shadow is resulting in a ClasscastException.
-//  Further investigation is needed.
-//    @Test
-//    public void checkPermissions_doesNotHaveFineLocationPermission() {
-//        PlaceListMapTemplate template =
-//                PlaceListMapTemplate.builder()
-//                        .setTitle("Title")
-//                        .setItemList(
-//                                TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
-//                        .setCurrentLocationEnabled(true)
-//                        .build();
-//
-//        PackageManager packageManager = mContext.getPackageManager();
-//        PackageInfo pi = new PackageInfo();
-//        pi.packageName = mContext.getPackageName();
-//        pi.versionCode = 1;
-//
-//        shadowOf(packageManager).installPackage(pi);
-//        assertThrows(SecurityException.class, () -> template.checkPermissions(context));
-//    }
-
-    @Test
-    public void checkPermissions_doesNotHavePermissions() {
-        PlaceListMapTemplate template =
-                PlaceListMapTemplate.builder()
-                        .setTitle("Title")
-                        .setItemList(
-                                TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
-                        .setCurrentLocationEnabled(true)
-                        .build();
-
-        assertThrows(SecurityException.class, () -> template.checkPermissions(mContext));
     }
 }

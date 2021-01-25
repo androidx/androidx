@@ -16,9 +16,9 @@
 
 package androidx.room.compiler.processing.javac
 
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XVariableElement
 import androidx.room.compiler.processing.javac.kotlin.KmFunction
@@ -83,11 +83,10 @@ internal class JavacMethodElement(
         )
     }
 
-    override fun asMemberOf(other: XDeclaredType): XMethodType {
-        return if (containing.type.isSameType(other)) {
+    override fun asMemberOf(other: XType): XMethodType {
+        return if (other !is JavacDeclaredType || containing.type.isSameType(other)) {
             executableType
         } else {
-            check(other is JavacDeclaredType)
             val asMemberOf = env.typeUtils.asMemberOf(other.typeMirror, element)
             JavacMethodType.create(
                 env = env,

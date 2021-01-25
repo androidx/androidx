@@ -16,21 +16,33 @@
 
 package androidx.room.solver.types
 
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XType
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.parser.SQLTypeAffinity.TEXT
-import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.solver.CodeGenScope
 
-class StringColumnTypeAdapter(processingEnvironment: XProcessingEnv) :
-    ColumnTypeAdapter((processingEnvironment.requireType(String::class)), TEXT) {
+class StringColumnTypeAdapter private constructor(
+    out: XType
+) : ColumnTypeAdapter(out = out, typeAffinity = TEXT) {
     override fun readFromCursor(
         outVarName: String,
         cursorVarName: String,
         indexVarName: String,
         scope: CodeGenScope
     ) {
-        scope.builder()
-            .addStatement("$L = $L.getString($L)", outVarName, cursorVarName, indexVarName)
+        scope.builder().apply {
+            // according to docs, getString might throw if the value is null
+            // https://developer.android.com/reference/android/database/Cursor#getString(int)
+            beginControlFlow("if ($L.isNull($L))", cursorVarName, indexVarName).apply {
+                addStatement("$L = null", outVarName)
+            }
+            nextControlFlow("else").apply {
+                addStatement("$L = $L.getString($L)", outVarName, cursorVarName, indexVarName)
+            }
+            endControlFlow()
+        }
     }
 
     override fun bindToStmt(
@@ -45,6 +57,22 @@ class StringColumnTypeAdapter(processingEnvironment: XProcessingEnv) :
             nextControlFlow("else")
                 .addStatement("$L.bindString($L, $L)", stmtName, indexVarName, valueVarName)
             endControlFlow()
+        }
+    }
+
+    companion object {
+        fun create(env: XProcessingEnv): List<StringColumnTypeAdapter> {
+            val stringType = env.requireType(CommonTypeNames.STRING)
+            return if (env.backend == XProcessingEnv.Backend.KSP) {
+                listOf(
+                    StringColumnTypeAdapter(stringType.makeNonNullable()),
+                    StringColumnTypeAdapter(stringType.makeNullable()),
+                )
+            } else {
+                listOf(
+                    StringColumnTypeAdapter(stringType)
+                )
+            }
         }
     }
 }

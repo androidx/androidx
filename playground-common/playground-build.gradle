@@ -52,18 +52,19 @@ buildscript {
     }
 
     ext.repos = [:]
-    apply from: '../buildSrc/build_dependencies.gradle'
+    apply from: "$supportRootFolder/buildSrc/build_dependencies.gradle"
 
     dependencies {
         classpath build_libs.agp
         classpath build_libs.kotlin.gradle_plugin
+        classpath build_libs.kotlin.ksp_gradle_plugin
         classpath 'androidx.build:gradle-plugin:0.1.0'
         classpath "com.github.jengelman.gradle.plugins:shadow:5.2.0"
     }
 }
 
-apply from: "../buildSrc/dependencies.gradle"
-apply from: "../playground-common/out.gradle"
+apply from: "$supportRootFolder/buildSrc/dependencies.gradle"
+apply from: "$supportRootFolder/playground-common/out.gradle"
 init.chooseOutDir("/${rootProject.name}")
 
 apply plugin: AndroidXRootPlugin

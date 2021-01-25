@@ -44,7 +44,7 @@ import java.util.concurrent.Callable;
  * An open helper that will copy & open a pre-populated database if it doesn't exists in internal
  * storage.
  */
-class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
+class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper, DelegatingOpenHelper {
 
     @NonNull
     private final Context mContext;
@@ -110,6 +110,12 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
     public synchronized void close() {
         mDelegate.close();
         mVerified = false;
+    }
+
+    @Override
+    @NonNull
+    public SupportSQLiteOpenHelper getDelegate() {
+        return mDelegate;
     }
 
     // Can't be constructor param because the factory is needed by the database builder which in
@@ -253,7 +259,7 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
         FrameworkSQLiteOpenHelperFactory factory = new FrameworkSQLiteOpenHelperFactory();
         Configuration configuration = Configuration.builder(mContext)
                 .name(databaseName)
-                .callback(new Callback(version){
+                .callback(new Callback(version) {
                     @Override
                     public void onCreate(@NonNull SupportSQLiteDatabase db) {
                     }

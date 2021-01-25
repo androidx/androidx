@@ -24,8 +24,6 @@ import static org.mockito.Mockito.when;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.os.Bundle;
 
 import org.junit.Test;
@@ -42,14 +40,15 @@ public class DispatcherActivityCallbackTest {
         checkReportFragment(callback, activity);
     }
 
+    @SuppressWarnings("deprecation")
     @SuppressLint("CommitTransaction")
     private void checkReportFragment(LifecycleDispatcher.DispatcherActivityCallback callback,
             Activity activity) {
         android.app.FragmentManager fm = mock(android.app.FragmentManager.class);
-        FragmentTransaction transaction = mock(FragmentTransaction.class);
+        android.app.FragmentTransaction transaction = mock(android.app.FragmentTransaction.class);
         when(activity.getFragmentManager()).thenReturn(fm);
         when(fm.beginTransaction()).thenReturn(transaction);
-        when(transaction.add(any(Fragment.class), anyString())).thenReturn(transaction);
+        when(transaction.add(any(android.app.Fragment.class), anyString())).thenReturn(transaction);
         callback.onActivityCreated(activity, mock(Bundle.class));
         verify(activity).getFragmentManager();
         verify(fm).beginTransaction();

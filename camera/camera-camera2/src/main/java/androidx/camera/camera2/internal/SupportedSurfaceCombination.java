@@ -357,7 +357,14 @@ final class SupportedSurfaceCombination {
             outputSizes = getAllOutputSizesByFormat(imageFormat);
         }
         List<Size> outputSizeCandidates = new ArrayList<>();
-        Size maxSize = imageOutputConfig.getMaxResolution(getMaxOutputSizeByFormat(imageFormat));
+        Size maxSize = imageOutputConfig.getMaxResolution(null);
+        Size maxOutputSizeByFormat = getMaxOutputSizeByFormat(imageFormat);
+
+        // Set maxSize as the max resolution setting or the max supported output size for the
+        // image format, whichever is smaller.
+        if (maxSize == null || getArea(maxOutputSizeByFormat) < getArea(maxSize)) {
+            maxSize = maxOutputSizeByFormat;
+        }
 
         // Sort the output sizes. The Comparator result must be reversed to have a descending order
         // result.

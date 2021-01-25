@@ -17,9 +17,11 @@ package androidx.paging.multicast
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -29,29 +31,23 @@ import java.util.concurrent.atomic.AtomicBoolean
 internal abstract class StoreRealActor<T>(
     scope: CoroutineScope
 ) {
-    private val inboundChannel: SendChannel<Any?>
+    private val inboundChannel = Channel<Any?>(capacity = Channel.RENDEZVOUS)
     private val closeCompleted = CompletableDeferred<Unit>()
     private val didClose = AtomicBoolean(false)
 
     init {
-        @OptIn(ObsoleteCoroutinesApi::class)
-        inboundChannel = scope.actor(
-            capacity = 0
-        ) {
-            try {
-                for (msg in channel) {
-                    if (msg === CLOSE_TOKEN) {
-                        doClose()
-                        break
-                    } else {
-                        @Suppress("UNCHECKED_CAST")
-                        handle(msg as T)
-                    }
+        inboundChannel.consumeAsFlow()
+            .onEach { msg ->
+                if (msg === CLOSE_TOKEN) {
+                    doClose()
+                } else {
+                    @Suppress("UNCHECKED_CAST")
+                    handle(msg as T)
                 }
-            } finally {
+            }.onCompletion {
                 doClose()
             }
-        }
+            .launchIn(scope)
     }
 
     private fun doClose() {

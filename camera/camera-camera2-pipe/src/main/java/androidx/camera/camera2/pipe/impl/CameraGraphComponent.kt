@@ -16,9 +16,11 @@
 
 package androidx.camera.camera2.pipe.impl
 
+import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.impl.GraphController.GraphListener
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -29,19 +31,20 @@ import javax.inject.Qualifier
 import javax.inject.Scope
 
 @Scope
-annotation class CameraGraphScope
+internal annotation class CameraGraphScope
 
 @Qualifier
-annotation class ForCameraGraph
+internal annotation class ForCameraGraph
 
 @CameraGraphScope
 @Subcomponent(
     modules = [
         CameraGraphModules::class,
-        CameraGraphConfigModule::class
+        CameraGraphConfigModule::class,
+        Camera2CameraGraphModules::class,
     ]
 )
-interface CameraGraphComponent {
+internal interface CameraGraphComponent {
     fun cameraGraph(): CameraGraph
 
     @Subcomponent.Builder
@@ -52,17 +55,13 @@ interface CameraGraphComponent {
 }
 
 @Module
-class CameraGraphConfigModule(private val config: CameraGraph.Config) {
+internal class CameraGraphConfigModule(private val config: CameraGraph.Config) {
     @Provides
     fun provideCameraGraphConfig(): CameraGraph.Config = config
 }
 
-@Module(
-    includes = [
-        SessionFactoryModule::class
-    ]
-)
-abstract class CameraGraphModules {
+@Module
+internal abstract class CameraGraphModules {
     @Binds
     abstract fun bindCameraGraph(cameraGraph: CameraGraphImpl): CameraGraph
 
@@ -70,12 +69,7 @@ abstract class CameraGraphModules {
     abstract fun bindGraphProcessor(graphProcessor: GraphProcessorImpl): GraphProcessor
 
     @Binds
-    abstract fun bindRequestProcessorFactory(
-        factory: StandardRequestProcessorFactory
-    ): RequestProcessor.Factory
-
-    @Binds
-    abstract fun bindGraphState(graphState: GraphStateImpl): GraphState
+    abstract fun bindGraphListener(graphProcessor: GraphProcessorImpl): GraphListener
 
     companion object {
         @CameraGraphScope
@@ -88,9 +82,9 @@ abstract class CameraGraphModules {
         @Provides
         fun provideCameraMetadata(
             graphConfig: CameraGraph.Config,
-            cache: CameraMetadataCache
+            cameraDevices: CameraDevices
         ): CameraMetadata {
-            return cache.awaitMetadata(graphConfig.camera)
+            return cameraDevices.awaitMetadata(graphConfig.camera)
         }
 
         @CameraGraphScope
@@ -107,8 +101,23 @@ abstract class CameraGraphModules {
             // Listeners in CameraGraph.Config can de defined outside of the CameraPipe library,
             // and since we iterate thought the listeners in order and invoke them, it appears
             // beneficial to add the internal listeners first and then the graph config listeners.
-            listeners.addAll(graphConfig.listeners)
+            listeners.addAll(graphConfig.defaultListeners)
             return listeners
         }
     }
+}
+
+@Module(
+    includes = [
+        SessionFactoryModule::class
+    ]
+)
+internal abstract class Camera2CameraGraphModules {
+    @Binds
+    abstract fun bindRequestProcessorFactory(
+        factoryStandard: StandardCamera2RequestProcessorFactory
+    ): Camera2RequestProcessorFactory
+
+    @Binds
+    abstract fun bindGraphState(camera2CameraState: Camera2CameraController): GraphController
 }

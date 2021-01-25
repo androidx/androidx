@@ -43,12 +43,14 @@ public final class Destination {
      * @throws NullPointerException if {@code name} is {@code null}.
      * @throws NullPointerException if {@code address} is {@code null}.
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder(@NonNull CharSequence name, @NonNull CharSequence address) {
         return builder().setName(name).setAddress(address);
     }
 
     /** Constructs a new builder of {@link Destination}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -102,7 +104,7 @@ public final class Destination {
         return Objects.hash(mName, mAddress, mImage);
     }
 
-    private Destination(Builder builder) {
+    Destination(Builder builder) {
         this.mName = builder.mName;
         this.mAddress = builder.mAddress;
         this.mImage = builder.mImage;
@@ -118,11 +120,11 @@ public final class Destination {
     /** A builder of {@link Destination}. */
     public static final class Builder {
         @Nullable
-        private CarText mName;
+        CarText mName;
         @Nullable
-        private CarText mAddress;
+        CarText mAddress;
         @Nullable
-        private CarIcon mImage;
+        CarIcon mImage;
 
         /**
          * Sets the destination name formatted for the user's current locale, or {@code null} to not
@@ -183,7 +185,8 @@ public final class Destination {
             return new Destination(this);
         }
 
-        private Builder() {
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

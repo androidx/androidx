@@ -18,6 +18,7 @@ package androidx.appcompat.widget;
 
 import static androidx.core.view.ContentInfoCompat.FLAG_CONVERT_TO_PLAIN_TEXT;
 import static androidx.core.view.ContentInfoCompat.SOURCE_CLIPBOARD;
+import static androidx.core.view.ContentInfoCompat.SOURCE_DRAG_AND_DROP;
 import static androidx.core.view.ContentInfoCompat.SOURCE_INPUT_METHOD;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -25,6 +26,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -39,6 +41,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
+import android.view.DragEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputContentInfo;
@@ -83,6 +86,7 @@ public class AppCompatEditTextReceiveContentTest {
     private OnReceiveContentListener mMockReceiver;
     private ClipboardManager mClipboardManager;
 
+    @SuppressWarnings("unchecked")
     @UiThreadTest
     @Before
     public void before() {
@@ -449,6 +453,56 @@ public class AppCompatEditTextReceiveContentTest {
                 payloadEq(clip, SOURCE_INPUT_METHOD, 0, sampleLinkUri, sampleOptValue));
     }
 
+    @UiThreadTest
+    @Test
+    public void testDragAndDrop_noReceiver() throws Exception {
+        setTextAndCursor("xz", 1);
+
+        ClipData clip = ClipData.newPlainText("test", "a");
+        clip.addItem(new ClipData.Item("b"));
+        boolean result = triggerDropEvent(clip);
+
+        assertThat(result).isTrue();
+        if (Build.VERSION.SDK_INT <= 20) {
+            // The platform code on Android K and earlier had logic to insert a space before and
+            // after the inserted content (if no space was already present). See
+            // https://cs.android.com/android/platform/superproject/+/android-4.4.4_r2:frameworks/base/core/java/android/widget/TextView.java;l=8526,8527,8528,8545,8546
+            assertTextAndCursorPosition("ab xz", 2);
+        } else {
+            assertTextAndCursorPosition("abxz", 2);
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    public void testDragAndDrop_withReceiver() throws Exception {
+        setTextAndCursor("xz", 1);
+
+        ViewCompat.setOnReceiveContentListener(mEditText, MIME_TYPES_IMAGES, mMockReceiver);
+
+        ClipData clip = ClipData.newPlainText("test", "a");
+        clip.addItem(new ClipData.Item("b"));
+        boolean result = triggerDropEvent(clip);
+
+        assertThat(result).isTrue();
+        if (Build.VERSION.SDK_INT >= 24) {
+            verify(mMockReceiver, times(1)).onReceiveContent(
+                    eq(mEditText), payloadEq(clip, SOURCE_DRAG_AND_DROP, 0));
+            verifyNoMoreInteractions(mMockReceiver);
+            // Note: The cursor is moved to the location of the drop before calling the receiver.
+            assertTextAndCursorPosition("xz", 0);
+        } else {
+            if (Build.VERSION.SDK_INT <= 20) {
+                // The platform code on Android K and earlier had logic to insert a space before and
+                // after the inserted content (if no space was already present). See
+                // https://cs.android.com/android/platform/superproject/+/android-4.4.4_r2:frameworks/base/core/java/android/widget/TextView.java;l=8526,8527,8528,8545,8546
+                assertTextAndCursorPosition("ab xz", 2);
+            } else {
+                assertTextAndCursorPosition("abxz", 2);
+            }
+        }
+    }
+
     private boolean triggerContextMenuAction(final int actionId) {
         return mEditText.onTextContextMenuItem(actionId);
     }
@@ -482,6 +536,21 @@ public class AppCompatEditTextReceiveContentTest {
         EditorInfo editorInfo = new EditorInfo();
         InputConnection ic = mEditText.onCreateInputConnection(editorInfo);
         return ic.commitContent(contentInfo, 0, null);
+    }
+
+    private boolean triggerDropEvent(ClipData clip) {
+        DragEvent dropEvent = createDragEvent(DragEvent.ACTION_DROP, mEditText.getX(),
+                mEditText.getY(), clip);
+        return mEditText.onDragEvent(dropEvent);
+    }
+
+    private static DragEvent createDragEvent(int action, float x, float y, ClipData clip) {
+        DragEvent dragEvent = mock(DragEvent.class);
+        when(dragEvent.getAction()).thenReturn(action);
+        when(dragEvent.getX()).thenReturn(x);
+        when(dragEvent.getY()).thenReturn(y);
+        when(dragEvent.getClipData()).thenReturn(clip);
+        return dragEvent;
     }
 
     private void setTextAndCursor(final String text, final int cursorPosition) {

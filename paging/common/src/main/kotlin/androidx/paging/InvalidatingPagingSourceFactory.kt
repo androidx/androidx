@@ -19,7 +19,7 @@ package androidx.paging
 import androidx.annotation.VisibleForTesting
 
 /**
- * Abstract wrapper class for [PagingSource] factory intended for usage in [Pager] construction.
+ * Wrapper class for [PagingSource] factory intended for usage in [Pager] construction.
  * Stores reference to the [PagingSource] factory and the [PagingSource]s it produces for
  * invalidation when the backing dataset is updated.
  *
@@ -28,7 +28,7 @@ import androidx.annotation.VisibleForTesting
  *
  * @param pagingSourceFactory The [PagingSource] factory that returns a PagingSource when called
  */
-abstract class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
+class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
     private val pagingSourceFactory: () -> PagingSource<Key, Value>
 ) : () -> PagingSource<Key, Value> {
 
@@ -39,7 +39,7 @@ abstract class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
      * @return [PagingSource] which will be invalidated when this factory's [invalidate] method
      * is called
      */
-    final override fun invoke(): PagingSource<Key, Value> {
+    override fun invoke(): PagingSource<Key, Value> {
         return pagingSourceFactory().also { pagingSources.add(it) }
     }
 

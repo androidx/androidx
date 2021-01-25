@@ -25,6 +25,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -52,6 +53,7 @@ import androidx.car.app.versioning.CarAppApiLevels;
  * </manifest>
  * }</pre>
  * <p>
+ *
  * @see CarContext#getCarAppApiLevel()
  */
 public final class AppInfo {
@@ -63,45 +65,57 @@ public final class AppInfo {
     @VisibleForTesting
     public static final String MIN_API_LEVEL_MANIFEST_KEY = "androidx.car.app.min-api-level";
 
+    @Keep
     @Nullable
     private final String mLibraryVersion;
+    @Keep
     @CarAppApiLevel
     private final int mMinCarAppApiLevel;
+    @Keep
     @CarAppApiLevel
     private final int mLatestCarAppApiLevel;
 
-    /** @hide */
+    /**
+     * Creates an instance of {@link AppInfo} based on the input {@link Context}.
+     *
+     * @hide
+     */
     @RestrictTo(Scope.LIBRARY)
     @NonNull
     public static AppInfo create(@NonNull Context context) {
         @CarAppApiLevel
         int minApiLevel = retrieveMinCarAppApiLevel(context);
-        if (minApiLevel < CarAppApiLevels.OLDEST || minApiLevel > CarAppApiLevels.LATEST) {
+        if (minApiLevel < CarAppApiLevels.getOldest()
+                || minApiLevel > CarAppApiLevels.getLatest()) {
             throw new IllegalArgumentException("Min API level (" + MIN_API_LEVEL_MANIFEST_KEY
-                    + "=" + minApiLevel + ") is out of range (" + CarAppApiLevels.OLDEST + "-"
-                    + CarAppApiLevels.LATEST + ")");
+                    + "=" + minApiLevel + ") is out of range (" + CarAppApiLevels.getOldest() + "-"
+                    + CarAppApiLevels.getLatest() + ")");
         }
-        return new AppInfo(minApiLevel, CarAppApiLevels.LATEST, LIBRARY_VERSION);
+        return new AppInfo(minApiLevel, CarAppApiLevels.getLatest(), LIBRARY_VERSION);
     }
 
-    // Used for serialization
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY)
-    public AppInfo() {
-        mMinCarAppApiLevel = 0;
-        mLibraryVersion = null;
-        mLatestCarAppApiLevel = 0;
-    }
 
-    // Used for testing
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY)
+    /**
+     * Creates an instance of {@link AppInfo} with the provided version information.
+     *
+     * @param minCarAppApiLevel    the minimal API level that can work with an app built with
+     *                             the library.
+     * @param latestCarAppApiLevel the latest API level the library supports.
+     * @param libraryVersion       the library artifact version.
+     */
     @VisibleForTesting
     public AppInfo(@CarAppApiLevel int minCarAppApiLevel, @CarAppApiLevel int latestCarAppApiLevel,
             @NonNull String libraryVersion) {
         mMinCarAppApiLevel = minCarAppApiLevel;
         mLibraryVersion = libraryVersion;
         mLatestCarAppApiLevel = latestCarAppApiLevel;
+    }
+
+    // Used for serialization
+    private AppInfo() {
+        mMinCarAppApiLevel = 0;
+        mLibraryVersion = null;
+        mLatestCarAppApiLevel = 0;
     }
 
     /** @hide */
@@ -115,19 +129,24 @@ public final class AppInfo {
                     PackageManager.GET_META_DATA);
             if (applicationInfo.metaData == null) {
                 Log.i(TAG, "Min API level not found (" + MIN_API_LEVEL_MANIFEST_KEY + "). "
-                        + "Assuming min API level = " + CarAppApiLevels.LATEST);
-                return CarAppApiLevels.LATEST;
+                        + "Assuming min API level = " + CarAppApiLevels.getLatest());
+                return CarAppApiLevels.getLatest();
             }
-            return applicationInfo.metaData.getInt(MIN_API_LEVEL_MANIFEST_KEY);
+            return applicationInfo.metaData.getInt(MIN_API_LEVEL_MANIFEST_KEY,
+                    CarAppApiLevels.getLatest());
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(TAG, "Unable to read min API level from manifest. Assuming "
-                            + CarAppApiLevels.LATEST, e);
-            return CarAppApiLevels.LATEST;
+                    + CarAppApiLevels.getLatest(), e);
+            return CarAppApiLevels.getLatest();
         }
     }
 
+    /**
+     * String representation of library version. This version string is opaque and not meant to
+     * be parsed.
+     */
     @NonNull
-    public String getLibraryVersion() {
+    public String getLibraryDisplayVersion() {
         return requireNonNull(mLibraryVersion);
     }
 
@@ -139,5 +158,12 @@ public final class AppInfo {
     @CarAppApiLevel
     public int getLatestCarAppApiLevel() {
         return mLatestCarAppApiLevel;
+    }
+
+    @Override
+    public String toString() {
+        return "Library version: [" + getLibraryDisplayVersion() + "] Min Car Api Level: ["
+                + getMinCarAppApiLevel() + "] Latest Car App Api Level: ["
+                + getLatestCarAppApiLevel() + "]";
     }
 }

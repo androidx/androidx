@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XNullability
+import androidx.room.compiler.processing.XType
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
@@ -34,6 +35,17 @@ internal class KspTypeArgumentType(
     env = env,
     ksType = typeArg.requireType()
 ) {
+    /**
+     * When KSP resolves classes, it always resolves to the upper bound. Hence, the ksType we
+     * pass to super is actually our extendsBound.
+     */
+    private val _extendsBound by lazy {
+        env.wrap(
+            ksType = ksType,
+            allowPrimitives = false
+        )
+    }
+
     override val typeName: TypeName by lazy {
         typeArg.typeName(typeParam, env.resolver)
     }
@@ -42,13 +54,17 @@ internal class KspTypeArgumentType(
         return this
     }
 
+    override fun extendsBound(): XType? {
+        return _extendsBound
+    }
+
     override fun copyWithNullability(nullability: XNullability): KspTypeArgumentType {
         return KspTypeArgumentType(
             env = env,
             typeParam = typeParam,
             typeArg = DelegatingTypeArg(
                 original = typeArg,
-                type = typeArg.requireType().withNullability(nullability).createTypeReference()
+                type = ksType.withNullability(nullability).createTypeReference()
             )
         )
     }

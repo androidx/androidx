@@ -105,6 +105,9 @@ public abstract class UserDao {
     @Delete
     public abstract int deleteAll(User[] users);
 
+    @Delete
+    public abstract void deleteUser(User[] users);
+
     @Query("delete from user")
     public abstract int deleteEverything();
 

@@ -5,13 +5,5 @@
 # For more details, see
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
--keep class androidx.car.app.serialization.Bundleable
--keepclassmembers class * extends androidx.car.app.CarAppService
--keepclassmembers class androidx.car.app.FailureResponse
--keepclassmembers class androidx.car.app.SurfaceContainer
--keepclassmembers class androidx.car.app.CarContext {
-    androidx.car.app.HostDispatcher mHostDispatcher;
-}
--keepclassmembers class * extends androidx.car.app.Screen {
-    androidx.car.app.CarContext mCarContext;
-}
+# Keep all IInterfaces which are needed for host communications.
+-keep class androidx.car.app.** extends android.os.IInterface { *; }

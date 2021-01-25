@@ -21,14 +21,22 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationProviderInfo;
+import android.support.wearable.complications.IPreviewComplicationDataCallback;
 import android.support.wearable.complications.IProviderInfoService;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.wear.complications.data.ComplicationType;
+import androidx.wear.complications.data.DataKt;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -108,7 +116,7 @@ public class ProviderInfoRetriever implements AutoCloseable {
     private final ResolvableFuture<IProviderInfoService> mServiceFuture = ResolvableFuture.create();
 
     /**
-     * @param context  the current context
+     * @param context the current context
      */
     public ProviderInfoRetriever(@NonNull Context context) {
         mContext = context;
@@ -116,6 +124,16 @@ public class ProviderInfoRetriever implements AutoCloseable {
         Intent intent = new Intent(ACTION_GET_COMPLICATION_CONFIG);
         intent.setPackage(PROVIDER_INFO_SERVICE_PACKAGE);
         mContext.bindService(intent, mConn, Context.BIND_AUTO_CREATE);
+    }
+
+    /**
+     * @hide
+     */
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public ProviderInfoRetriever(@NonNull IProviderInfoService service) {
+        mContext = null;
+        mServiceFuture.set(service);
     }
 
     /**
@@ -133,29 +151,88 @@ public class ProviderInfoRetriever implements AutoCloseable {
      *     null will be returned
      */
     @NonNull
-    public ListenableFuture<ProviderInfo> retrieveProviderInfo(
+    public ListenableFuture<ProviderInfo[]> retrieveProviderInfo(
             @NonNull final ComponentName watchFaceComponent,
             @NonNull final int[] watchFaceComplicationIds) {
-        final ResolvableFuture<ProviderInfo> mResultFuture = ResolvableFuture.create();
+        final ResolvableFuture<ProviderInfo[]> mResultFuture = ResolvableFuture.create();
         mServiceFuture.addListener(
                 () -> {
                     try {
-                        if (mServiceFuture.isCancelled())  {
+                        if (mServiceFuture.isCancelled()) {
                             mResultFuture.set(null);
                             return;
                         }
                         ComplicationProviderInfo[] infos =
-                                mServiceFuture.get().getProviderInfos(watchFaceComponent,
-                                        watchFaceComplicationIds);
+                                mServiceFuture.get().getProviderInfos(
+                                        watchFaceComponent, watchFaceComplicationIds);
                         if (infos != null) {
+                            ProviderInfo[] providerInfo = new ProviderInfo[infos.length];
                             for (int i = 0; i < infos.length; i++) {
-                                final int watchFaceComplicationId =
-                                        watchFaceComplicationIds[i];
+                                final int watchFaceComplicationId = watchFaceComplicationIds[i];
                                 final ComplicationProviderInfo info = infos[i];
-                                mResultFuture.set(
-                                        new ProviderInfo(watchFaceComplicationId, info));
+                                providerInfo[i] = new ProviderInfo(watchFaceComplicationId, info);
                             }
+                            mResultFuture.set(providerInfo);
                         } else {
+                            mResultFuture.set(null);
+                        }
+                    } catch (RemoteException e) {
+                        mResultFuture.setException(e);
+                    } catch (InterruptedException e) {
+                        mResultFuture.setException(e);
+                    } catch (ExecutionException e) {
+                        mResultFuture.setException(e);
+                    }
+                },
+                runnable -> runnable.run()
+        );
+        return mResultFuture;
+    }
+
+    /**
+     * Requests preview {@link ComplicationData} for a provider {@link ComponentName} and
+     * {@link ComplicationType}.
+     *
+     * @param providerComponent The {@link ComponentName} of the complication provider from which
+     *                         preview data is requested.
+     * @param complicationType The requested {@link ComplicationType} for the preview data.
+     * @return A {@link ListenableFuture} for the preview {@link ComplicationData}. This may resolve
+     * to `null` if the provider component doesn't exist, or if it doesn't support complicationType,
+     * or if the remote service doesn't support this API.
+     */
+    @NonNull
+    @RequiresApi(Build.VERSION_CODES.R)
+    public ListenableFuture<androidx.wear.complications.data.ComplicationData>
+            requestPreviewComplicationData(
+                @NonNull ComponentName providerComponent,
+                @NonNull ComplicationType complicationType) {
+        final ResolvableFuture<androidx.wear.complications.data.ComplicationData> mResultFuture =
+                ResolvableFuture.create();
+        mServiceFuture.addListener(
+                () -> {
+                    try {
+                        if (mServiceFuture.isCancelled()) {
+                            mResultFuture.set(null);
+                            return;
+                        }
+                        IProviderInfoService service = mServiceFuture.get();
+                        if (service.getApiVersion() < 1) {
+                            mResultFuture.set(null);
+                            return;
+                        }
+                        if (!service.requestPreviewComplicationData(
+                                providerComponent,
+                                complicationType.asWireComplicationType(),
+                                new IPreviewComplicationDataCallback.Stub() {
+                                    @Override
+                                    public void updateComplicationData(ComplicationData data) {
+                                        if (data == null) {
+                                            mResultFuture.set(null);
+                                        } else {
+                                            mResultFuture.set(DataKt.asApiComplicationData(data));
+                                        }
+                                    }
+                                })) {
                             mResultFuture.set(null);
                         }
                     } catch (RemoteException e) {

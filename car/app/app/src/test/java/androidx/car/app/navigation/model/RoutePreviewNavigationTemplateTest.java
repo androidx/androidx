@@ -25,7 +25,6 @@ import static org.mockito.Mockito.verify;
 import android.content.Context;
 import android.text.SpannableString;
 
-import androidx.car.app.CarAppPermission;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.TestUtils;
 import androidx.car.app.model.Action;
@@ -47,26 +46,26 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class RoutePreviewNavigationTemplateTest {
-    private final Context mContext = ApplicationProvider.getApplicationContext();
     private static final DistanceSpan DISTANCE =
             DistanceSpan.create(
                     Distance.create(/* displayDistance= */ 1, Distance.UNIT_KILOMETERS_P1));
+    private final Context mContext = ApplicationProvider.getApplicationContext();
 
     @Test
     public void createInstance_emptyList_notLoading_Throws() {
         assertThrows(
                 IllegalStateException.class,
-                () -> RoutePreviewNavigationTemplate.builder().setTitle("Title").build());
+                () -> new RoutePreviewNavigationTemplate.Builder().setTitle("Title").build());
 
         // Positive case
-        RoutePreviewNavigationTemplate.builder().setTitle("Title").setLoading(true).build();
+        new RoutePreviewNavigationTemplate.Builder().setTitle("Title").setLoading(true).build();
     }
 
     @Test
     public void createInstance_isLoading_hasList_Throws() {
         assertThrows(
                 IllegalStateException.class,
-                () -> RoutePreviewNavigationTemplate.builder()
+                () -> new RoutePreviewNavigationTemplate.Builder()
                         .setTitle("Title")
                         .setLoading(true)
                         .setItemList(
@@ -78,13 +77,13 @@ public class RoutePreviewNavigationTemplateTest {
     public void addList_notSelectable_throws() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> RoutePreviewNavigationTemplate.builder()
+                () -> new RoutePreviewNavigationTemplate.Builder()
                         .setTitle("Title")
                         .setItemList(TestUtils.createItemListWithDistanceSpan(3, false,
                                 DISTANCE)));
 
         // Positive case.
-        RoutePreviewNavigationTemplate.builder()
+        new RoutePreviewNavigationTemplate.Builder()
                 .setTitle("Title")
                 .setItemList(TestUtils.createItemListWithDistanceSpan(3, true, DISTANCE));
     }
@@ -94,26 +93,26 @@ public class RoutePreviewNavigationTemplateTest {
         SpannableString title = new SpannableString("Title");
         title.setSpan(DISTANCE, 0, 1, 0);
         Row rowExceedsMaxTexts =
-                Row.builder().setTitle(title).addText("text1").addText("text2").addText(
+                new Row.Builder().setTitle(title).addText("text1").addText("text2").addText(
                         "text3").build();
         Row rowMeetingMaxTexts =
-                Row.builder().setTitle(title).addText("text1").addText("text2").build();
+                new Row.Builder().setTitle(title).addText("text1").addText("text2").build();
         assertThrows(
                 IllegalArgumentException.class,
-                () -> RoutePreviewNavigationTemplate.builder()
+                () -> new RoutePreviewNavigationTemplate.Builder()
                         .setTitle("Title")
                         .setItemList(
-                                ItemList.builder()
+                                new ItemList.Builder()
                                         .addItem(rowExceedsMaxTexts)
                                         .setOnSelectedListener(selectedIndex -> {
                                         })
                                         .build()));
 
         // Positive case.
-        RoutePreviewNavigationTemplate.builder()
+        new RoutePreviewNavigationTemplate.Builder()
                 .setTitle("Title")
                 .setItemList(
-                        ItemList.builder()
+                        new ItemList.Builder()
                                 .addItem(rowMeetingMaxTexts)
                                 .setOnSelectedListener(selectedIndex -> {
                                 })
@@ -124,11 +123,11 @@ public class RoutePreviewNavigationTemplateTest {
     public void noHeaderTitleOrAction_throws() {
         assertThrows(
                 IllegalStateException.class,
-                () -> RoutePreviewNavigationTemplate.builder().setLoading(true).build());
+                () -> new RoutePreviewNavigationTemplate.Builder().setLoading(true).build());
 
         // Positive cases.
-        RoutePreviewNavigationTemplate.builder().setTitle("Title").setLoading(true).build();
-        RoutePreviewNavigationTemplate.builder()
+        new RoutePreviewNavigationTemplate.Builder().setTitle("Title").setLoading(true).build();
+        new RoutePreviewNavigationTemplate.Builder()
                 .setHeaderAction(Action.BACK)
                 .setLoading(true)
                 .build();
@@ -139,30 +138,30 @@ public class RoutePreviewNavigationTemplateTest {
         ItemList itemList = TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE);
         String title = "title";
         RoutePreviewNavigationTemplate template =
-                RoutePreviewNavigationTemplate.builder()
+                new RoutePreviewNavigationTemplate.Builder()
                         .setItemList(itemList)
                         .setTitle(title)
                         .setNavigateAction(
-                                Action.builder().setTitle("Navigate").setOnClickListener(() -> {
+                                new Action.Builder().setTitle("Navigate").setOnClickListener(() -> {
                                 }).build())
                         .build();
         assertThat(template.getItemList()).isEqualTo(itemList);
-        assertThat(template.getTitle().getText()).isEqualTo(title);
+        assertThat(template.getTitle().toString()).isEqualTo(title);
     }
 
     @Test
     public void createInstance_setHeaderAction_invalidActionThrows() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> RoutePreviewNavigationTemplate.builder()
+                () -> new RoutePreviewNavigationTemplate.Builder()
                         .setItemList(
                                 TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
                         .setNavigateAction(
-                                Action.builder().setTitle("Navigate").setOnClickListener(
+                                new Action.Builder().setTitle("Navigate").setOnClickListener(
                                         () -> {
                                         }).build())
                         .setHeaderAction(
-                                Action.builder().setTitle("Action").setOnClickListener(
+                                new Action.Builder().setTitle("Action").setOnClickListener(
                                         () -> {
                                         }).build()));
     }
@@ -170,10 +169,10 @@ public class RoutePreviewNavigationTemplateTest {
     @Test
     public void createInstance_setHeaderAction() {
         RoutePreviewNavigationTemplate template =
-                RoutePreviewNavigationTemplate.builder()
+                new RoutePreviewNavigationTemplate.Builder()
                         .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
                         .setNavigateAction(
-                                Action.builder().setTitle("Navigate").setOnClickListener(() -> {
+                                new Action.Builder().setTitle("Navigate").setOnClickListener(() -> {
                                 }).build())
                         .setHeaderAction(Action.BACK)
                         .build();
@@ -185,18 +184,18 @@ public class RoutePreviewNavigationTemplateTest {
     public void setOnNavigateAction() {
         OnClickListener mockListener = mock(OnClickListener.class);
         RoutePreviewNavigationTemplate template =
-                RoutePreviewNavigationTemplate.builder()
+                new RoutePreviewNavigationTemplate.Builder()
                         .setTitle("Title")
                         .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
                         .setNavigateAction(
-                                Action.builder().setTitle("Navigate").setOnClickListener(
+                                new Action.Builder().setTitle("Navigate").setOnClickListener(
                                         mockListener).build())
                         .build();
 
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
         template.getNavigateAction()
-                .getOnClickListener()
-                .onClick(onDoneCallback);
+                .getOnClickDelegate()
+                .sendClick(onDoneCallback);
         verify(mockListener).onClick();
         verify(onDoneCallback).onSuccess(null);
     }
@@ -205,32 +204,32 @@ public class RoutePreviewNavigationTemplateTest {
     public void createInstance_emptyNavigateAction_throws() {
         assertThrows(
                 IllegalStateException.class,
-                () -> RoutePreviewNavigationTemplate.builder()
+                () -> new RoutePreviewNavigationTemplate.Builder()
                         .setTitle("Title")
                         .setItemList(
                                 TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
                         .build());
 
         // Positive case
-        RoutePreviewNavigationTemplate.builder().setTitle("Title").setLoading(true).build();
+        new RoutePreviewNavigationTemplate.Builder().setTitle("Title").setLoading(true).build();
     }
 
     @Test
     public void createInstance_emptyListeners_throws() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> RoutePreviewNavigationTemplate.builder()
+                () -> new RoutePreviewNavigationTemplate.Builder()
                         .setTitle("Title")
                         .setItemList(TestUtils.createItemListWithDistanceSpan(2, false,
                                 DISTANCE))
                         .setNavigateAction(
-                                Action.builder().setTitle("Navigate").setOnClickListener(
+                                new Action.Builder().setTitle("Navigate").setOnClickListener(
                                         () -> {
                                         }).build())
                         .build());
 
         // Positive case
-        RoutePreviewNavigationTemplate.builder().setTitle("Title").setLoading(true).build();
+        new RoutePreviewNavigationTemplate.Builder().setTitle("Title").setLoading(true).build();
     }
 
     @Test
@@ -239,19 +238,19 @@ public class RoutePreviewNavigationTemplateTest {
                 "ic_test_1");
         assertThrows(
                 IllegalArgumentException.class,
-                () -> RoutePreviewNavigationTemplate.builder()
+                () -> new RoutePreviewNavigationTemplate.Builder()
                         .setTitle("Title")
                         .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
-                        .setNavigateAction(Action.builder().setIcon(carIcon).setOnClickListener(
+                        .setNavigateAction(new Action.Builder().setIcon(carIcon).setOnClickListener(
                                 () -> {
                                 }).build())
                         .build());
 
         // Positive case
-        RoutePreviewNavigationTemplate.builder()
+        new RoutePreviewNavigationTemplate.Builder()
                 .setTitle("Title")
                 .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
-                .setNavigateAction(Action.builder()
+                .setNavigateAction(new Action.Builder()
                         .setIcon(carIcon)
                         .setTitle("Navigate")
                         .setOnClickListener(() -> {
@@ -264,9 +263,9 @@ public class RoutePreviewNavigationTemplateTest {
     public void createInstance_notAllRowsHaveTime() {
         SpannableString title = new SpannableString("Title");
         title.setSpan(DISTANCE, 0, 1, 0);
-        Row rowWithTime = Row.builder().setTitle(title).build();
-        Row rowWithoutTime = Row.builder().setTitle("Google Bve").build();
-        Action navigateAction = Action.builder()
+        Row rowWithTime = new Row.Builder().setTitle(title).build();
+        Row rowWithoutTime = new Row.Builder().setTitle("Google Bve").build();
+        Action navigateAction = new Action.Builder()
                 .setIcon(TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
                         "ic_test_1"))
                 .setTitle("Navigate")
@@ -276,9 +275,9 @@ public class RoutePreviewNavigationTemplateTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> RoutePreviewNavigationTemplate.builder()
+                () -> new RoutePreviewNavigationTemplate.Builder()
                         .setTitle("Title")
-                        .setItemList(ItemList.builder()
+                        .setItemList(new ItemList.Builder()
                                 .addItem(rowWithTime)
                                 .addItem(rowWithoutTime)
                                 .setOnSelectedListener(index -> {
@@ -288,9 +287,9 @@ public class RoutePreviewNavigationTemplateTest {
                         .build());
 
         // Positive case
-        RoutePreviewNavigationTemplate.builder()
+        new RoutePreviewNavigationTemplate.Builder()
                 .setTitle("Title")
-                .setItemList(ItemList.builder().setOnSelectedListener(index -> {
+                .setItemList(new ItemList.Builder().setOnSelectedListener(index -> {
                 }).addItem(rowWithTime).build())
                 .setNavigateAction(navigateAction)
                 .build();
@@ -299,27 +298,27 @@ public class RoutePreviewNavigationTemplateTest {
     @Test
     public void equals() {
         RoutePreviewNavigationTemplate template =
-                RoutePreviewNavigationTemplate.builder()
+                new RoutePreviewNavigationTemplate.Builder()
                         .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
-                        .setActionStrip(ActionStrip.builder().addAction(Action.BACK).build())
+                        .setActionStrip(new ActionStrip.Builder().addAction(Action.BACK).build())
                         .setTitle("title")
                         .setHeaderAction(Action.BACK)
                         .setNavigateAction(
-                                Action.builder().setTitle("drive").setOnClickListener(() -> {
+                                new Action.Builder().setTitle("drive").setOnClickListener(() -> {
                                 }).build())
                         .build();
 
         assertThat(template)
                 .isEqualTo(
-                        RoutePreviewNavigationTemplate.builder()
+                        new RoutePreviewNavigationTemplate.Builder()
                                 .setItemList(
                                         TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
                                 .setActionStrip(
-                                        ActionStrip.builder().addAction(Action.BACK).build())
+                                        new ActionStrip.Builder().addAction(Action.BACK).build())
                                 .setTitle("title")
                                 .setHeaderAction(Action.BACK)
                                 .setNavigateAction(
-                                        Action.builder().setTitle("drive").setOnClickListener(
+                                        new Action.Builder().setTitle("drive").setOnClickListener(
                                                 () -> {
                                                 }).build())
                                 .build());
@@ -328,22 +327,22 @@ public class RoutePreviewNavigationTemplateTest {
     @Test
     public void notEquals_differentItemList() {
         RoutePreviewNavigationTemplate template =
-                RoutePreviewNavigationTemplate.builder()
+                new RoutePreviewNavigationTemplate.Builder()
                         .setTitle("Title")
                         .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
                         .setNavigateAction(
-                                Action.builder().setTitle("drive").setOnClickListener(() -> {
+                                new Action.Builder().setTitle("drive").setOnClickListener(() -> {
                                 }).build())
                         .build();
 
         assertThat(template)
                 .isNotEqualTo(
-                        RoutePreviewNavigationTemplate.builder()
+                        new RoutePreviewNavigationTemplate.Builder()
                                 .setTitle("Title")
                                 .setItemList(
                                         TestUtils.createItemListWithDistanceSpan(1, true, DISTANCE))
                                 .setNavigateAction(
-                                        Action.builder().setTitle("drive").setOnClickListener(
+                                        new Action.Builder().setTitle("drive").setOnClickListener(
                                                 () -> {
                                                 }).build())
                                 .build());
@@ -352,22 +351,22 @@ public class RoutePreviewNavigationTemplateTest {
     @Test
     public void notEquals_differentHeaderAction() {
         RoutePreviewNavigationTemplate template =
-                RoutePreviewNavigationTemplate.builder()
+                new RoutePreviewNavigationTemplate.Builder()
                         .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
                         .setHeaderAction(Action.BACK)
                         .setNavigateAction(
-                                Action.builder().setTitle("drive").setOnClickListener(() -> {
+                                new Action.Builder().setTitle("drive").setOnClickListener(() -> {
                                 }).build())
                         .build();
 
         assertThat(template)
                 .isNotEqualTo(
-                        RoutePreviewNavigationTemplate.builder()
+                        new RoutePreviewNavigationTemplate.Builder()
                                 .setItemList(
                                         TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
                                 .setHeaderAction(Action.APP_ICON)
                                 .setNavigateAction(
-                                        Action.builder().setTitle("drive").setOnClickListener(
+                                        new Action.Builder().setTitle("drive").setOnClickListener(
                                                 () -> {
                                                 }).build())
                                 .build());
@@ -376,25 +375,26 @@ public class RoutePreviewNavigationTemplateTest {
     @Test
     public void notEquals_differentActionStrip() {
         RoutePreviewNavigationTemplate template =
-                RoutePreviewNavigationTemplate.builder()
+                new RoutePreviewNavigationTemplate.Builder()
                         .setTitle("Title")
                         .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
-                        .setActionStrip(ActionStrip.builder().addAction(Action.BACK).build())
+                        .setActionStrip(new ActionStrip.Builder().addAction(Action.BACK).build())
                         .setNavigateAction(
-                                Action.builder().setTitle("drive").setOnClickListener(() -> {
+                                new Action.Builder().setTitle("drive").setOnClickListener(() -> {
                                 }).build())
                         .build();
 
         assertThat(template)
                 .isNotEqualTo(
-                        RoutePreviewNavigationTemplate.builder()
+                        new RoutePreviewNavigationTemplate.Builder()
                                 .setTitle("Title")
                                 .setItemList(
                                         TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
                                 .setActionStrip(
-                                        ActionStrip.builder().addAction(Action.APP_ICON).build())
+                                        new ActionStrip.Builder().addAction(
+                                                Action.APP_ICON).build())
                                 .setNavigateAction(
-                                        Action.builder().setTitle("drive").setOnClickListener(
+                                        new Action.Builder().setTitle("drive").setOnClickListener(
                                                 () -> {
                                                 }).build())
                                 .build());
@@ -405,11 +405,11 @@ public class RoutePreviewNavigationTemplateTest {
         SpannableString title = new SpannableString("Title");
         title.setSpan(DISTANCE, 0, 1, 0);
         RoutePreviewNavigationTemplate template =
-                RoutePreviewNavigationTemplate.builder()
+                new RoutePreviewNavigationTemplate.Builder()
                         .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
                         .setTitle(title)
                         .setNavigateAction(
-                                Action.builder().setTitle("drive").setOnClickListener(() -> {
+                                new Action.Builder().setTitle("drive").setOnClickListener(() -> {
                                 }).build())
                         .build();
 
@@ -417,12 +417,12 @@ public class RoutePreviewNavigationTemplateTest {
         title2.setSpan(DISTANCE, 0, 1, 0);
         assertThat(template)
                 .isNotEqualTo(
-                        RoutePreviewNavigationTemplate.builder()
+                        new RoutePreviewNavigationTemplate.Builder()
                                 .setItemList(
                                         TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
                                 .setTitle(title2)
                                 .setNavigateAction(
-                                        Action.builder().setTitle("drive").setOnClickListener(
+                                        new Action.Builder().setTitle("drive").setOnClickListener(
                                                 () -> {
                                                 }).build())
                                 .build());
@@ -431,53 +431,24 @@ public class RoutePreviewNavigationTemplateTest {
     @Test
     public void notEquals_differentNavigateAction() {
         RoutePreviewNavigationTemplate template =
-                RoutePreviewNavigationTemplate.builder()
+                new RoutePreviewNavigationTemplate.Builder()
                         .setTitle("Title")
                         .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
                         .setNavigateAction(
-                                Action.builder().setTitle("drive").setOnClickListener(() -> {
+                                new Action.Builder().setTitle("drive").setOnClickListener(() -> {
                                 }).build())
                         .build();
 
         assertThat(template)
                 .isNotEqualTo(
-                        RoutePreviewNavigationTemplate.builder()
+                        new RoutePreviewNavigationTemplate.Builder()
                                 .setTitle("Title")
                                 .setItemList(
                                         TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
                                 .setNavigateAction(
-                                        Action.builder().setTitle("stop").setOnClickListener(() -> {
-                                        }).build())
+                                        new Action.Builder().setTitle("stop").setOnClickListener(
+                                                () -> {
+                                                }).build())
                                 .build());
-    }
-
-    @Test
-    public void checkPermissions_hasPermissions() {
-        RoutePreviewNavigationTemplate template =
-                RoutePreviewNavigationTemplate.builder()
-                        .setTitle("Title")
-                        .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
-                        .setNavigateAction(
-                                Action.builder().setTitle("drive").setOnClickListener(() -> {
-                                }).build())
-                        .build();
-
-        // Expect that it does not throw
-        template.checkPermissions(
-                TestUtils.getMockContextWithPermission(CarAppPermission.NAVIGATION_TEMPLATES));
-    }
-
-    @Test
-    public void checkPermissions_doesNotHavePermissions() {
-        RoutePreviewNavigationTemplate template =
-                RoutePreviewNavigationTemplate.builder()
-                        .setTitle("Title")
-                        .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
-                        .setNavigateAction(
-                                Action.builder().setTitle("drive").setOnClickListener(() -> {
-                                }).build())
-                        .build();
-
-        assertThrows(SecurityException.class, () -> template.checkPermissions(mContext));
     }
 }

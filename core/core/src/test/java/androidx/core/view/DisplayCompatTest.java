@@ -18,7 +18,6 @@ package androidx.core.view;
 
 import static android.content.Context.DISPLAY_SERVICE;
 import static android.content.Context.UI_MODE_SERVICE;
-import static android.content.Context.WINDOW_SERVICE;
 import static android.content.res.Configuration.UI_MODE_TYPE_NORMAL;
 import static android.content.res.Configuration.UI_MODE_TYPE_TELEVISION;
 
@@ -31,7 +30,6 @@ import android.content.ContextWrapper;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.view.Display;
-import android.view.WindowManager;
 
 import androidx.test.core.app.ApplicationProvider;
 
@@ -67,9 +65,9 @@ public final class DisplayCompatTest {
     private final ContextWrapper mContext = ApplicationProvider.getApplicationContext();
     private ShadowUIModeManager mUiModeManagerShadow;
     private DisplayManager mDisplayManager;
-    private WindowManager mWindowManager;
     private Display mDefaultDisplay;
 
+    @SuppressWarnings("deprecation") /* isNative */
     private Optional<DisplayCompat.ModeCompat> findNativeMode(DisplayCompat.ModeCompat[] modes) {
         for (DisplayCompat.ModeCompat modeCompat : modes) {
             if (modeCompat.isNative()) {
@@ -80,13 +78,11 @@ public final class DisplayCompatTest {
     }
 
     @Before
-    @SuppressWarnings("deprecation") /* defaultDisplay */
     public void setup() {
         mUiModeManagerShadow = shadowOf((UiModeManager) mContext.getSystemService(UI_MODE_SERVICE));
         mUiModeManagerShadow.currentModeType = UI_MODE_TYPE_NORMAL;
         mDisplayManager = (DisplayManager) mContext.getSystemService(DISPLAY_SERVICE);
-        mWindowManager = (WindowManager) mContext.getSystemService(WINDOW_SERVICE);
-        mDefaultDisplay = mWindowManager.getDefaultDisplay();
+        mDefaultDisplay = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
         ShadowSystemProperties.reset();
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
             // before treble
@@ -102,16 +98,20 @@ public final class DisplayCompatTest {
 
     @Test
     public void defaultDisplay_sizeFromSystemProperty() {
-        Optional<DisplayCompat.ModeCompat> nativeMode =
-                findNativeMode(DisplayCompat.getSupportedModes(mContext, mDefaultDisplay));
-        assertThat(nativeMode.isPresent());
+        DisplayCompat.ModeCompat mode = DisplayCompat.getMode(mContext, mDefaultDisplay);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            assertThat(nativeMode.get().getPhysicalWidth()).isEqualTo(DISPLAY_WIDTH_VENDOR);
-            assertThat(nativeMode.get().getPhysicalHeight()).isEqualTo(DISPLAY_HEIGHT_VENDOR);
+            assertThat(mode.getPhysicalWidth()).isEqualTo(DISPLAY_WIDTH_VENDOR);
+            assertThat(mode.getPhysicalHeight()).isEqualTo(DISPLAY_HEIGHT_VENDOR);
         } else {
-            assertThat(nativeMode.get().getPhysicalWidth()).isEqualTo(DISPLAY_WIDTH_VENDOR_P);
-            assertThat(nativeMode.get().getPhysicalHeight()).isEqualTo(DISPLAY_HEIGHT_VENDOR_P);
+            assertThat(mode.getPhysicalWidth()).isEqualTo(DISPLAY_WIDTH_VENDOR_P);
+            assertThat(mode.getPhysicalHeight()).isEqualTo(DISPLAY_HEIGHT_VENDOR_P);
         }
+
+        // Backwards compatibility of deprecated API.
+        DisplayCompat.ModeCompat nativeMode =
+                findNativeMode(DisplayCompat.getSupportedModes(mContext, mDefaultDisplay)).get();
+        assertThat(nativeMode.getPhysicalWidth()).isEqualTo(mode.getPhysicalWidth());
+        assertThat(nativeMode.getPhysicalHeight()).isEqualTo(mode.getPhysicalHeight());
     }
 
     @Test
@@ -121,22 +121,30 @@ public final class DisplayCompatTest {
         String displayQualifierString = String.format("w%ddp-h%ddp", displayWidth, displayHeight);
         int secondDisplayId = ShadowDisplayManager.addDisplay(displayQualifierString);
         Display secondDisplay = mDisplayManager.getDisplay(secondDisplayId);
-        Optional<DisplayCompat.ModeCompat> nativeMode =
-                findNativeMode(DisplayCompat.getSupportedModes(mContext, secondDisplay));
-        assertThat(nativeMode.isPresent());
-        assertThat(nativeMode.get().getPhysicalWidth()).isEqualTo(displayWidth);
-        assertThat(nativeMode.get().getPhysicalHeight()).isEqualTo(displayHeight);
+        DisplayCompat.ModeCompat mode = DisplayCompat.getMode(mContext, secondDisplay);
+        assertThat(mode.getPhysicalWidth()).isEqualTo(displayWidth);
+        assertThat(mode.getPhysicalHeight()).isEqualTo(displayHeight);
+
+        // Backwards compatibility of deprecated API.
+        DisplayCompat.ModeCompat nativeMode =
+                findNativeMode(DisplayCompat.getSupportedModes(mContext, secondDisplay)).get();
+        assertThat(nativeMode.getPhysicalWidth()).isEqualTo(mode.getPhysicalWidth());
+        assertThat(nativeMode.getPhysicalHeight()).isEqualTo(mode.getPhysicalHeight());
     }
 
     @Test
     public void emptySystemProperties_sizeFromAccessorFunction() {
         ShadowSystemProperties.override("sys.display-size", "");
         ShadowSystemProperties.override("vendor.display-size", "");
-        Optional<DisplayCompat.ModeCompat> nativeMode =
-                findNativeMode(DisplayCompat.getSupportedModes(mContext, mDefaultDisplay));
-        assertThat(nativeMode.isPresent());
-        assertThat(nativeMode.get().getPhysicalWidth()).isEqualTo(DISPLAY_WIDTH);
-        assertThat(nativeMode.get().getPhysicalHeight()).isEqualTo(DISPLAY_HEIGHT);
+        DisplayCompat.ModeCompat mode = DisplayCompat.getMode(mContext, mDefaultDisplay);
+        assertThat(mode.getPhysicalWidth()).isEqualTo(DISPLAY_WIDTH);
+        assertThat(mode.getPhysicalHeight()).isEqualTo(DISPLAY_HEIGHT);
+
+        // Backwards compatibility of deprecated API.
+        DisplayCompat.ModeCompat nativeMode =
+                findNativeMode(DisplayCompat.getSupportedModes(mContext, mDefaultDisplay)).get();
+        assertThat(nativeMode.getPhysicalWidth()).isEqualTo(mode.getPhysicalWidth());
+        assertThat(nativeMode.getPhysicalHeight()).isEqualTo(mode.getPhysicalHeight());
     }
 
     @Test
@@ -148,11 +156,15 @@ public final class DisplayCompatTest {
         packageManagerShadow.setSystemFeature("com.sony.dtv.hardware.panel.qfhd", true);
         ShadowSystemProperties.override("sys.display-size", "");
         ShadowSystemProperties.override("vendor.display-size", "");
-        Optional<DisplayCompat.ModeCompat> nativeMode =
-                findNativeMode(DisplayCompat.getSupportedModes(mContext, mDefaultDisplay));
-        assertThat(nativeMode.isPresent());
+        DisplayCompat.ModeCompat mode = DisplayCompat.getMode(mContext, mDefaultDisplay);
         // assert that the returned displaySize is equal to the 4k display size
-        assertThat(nativeMode.get().getPhysicalWidth()).isEqualTo(3840);
-        assertThat(nativeMode.get().getPhysicalHeight()).isEqualTo(2160);
+        assertThat(mode.getPhysicalWidth()).isEqualTo(3840);
+        assertThat(mode.getPhysicalHeight()).isEqualTo(2160);
+
+        // Backwards compatibility of deprecated API.
+        DisplayCompat.ModeCompat nativeMode =
+                findNativeMode(DisplayCompat.getSupportedModes(mContext, mDefaultDisplay)).get();
+        assertThat(nativeMode.getPhysicalWidth()).isEqualTo(mode.getPhysicalWidth());
+        assertThat(nativeMode.getPhysicalHeight()).isEqualTo(mode.getPhysicalHeight());
     }
 }

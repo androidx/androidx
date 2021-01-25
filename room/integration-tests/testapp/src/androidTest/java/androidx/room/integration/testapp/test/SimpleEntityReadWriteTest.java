@@ -295,6 +295,17 @@ public class SimpleEntityReadWriteTest {
     }
 
     @Test
+    public void deleteUser() {
+        User[] users = TestUtil.createUsersArray(3, 5, 7, 9);
+        mUserDao.insertAll(users);
+        assertThat(mUserDao.loadByIds(3, 5, 7, 9), is(users));
+        // Using the void return value version of delete
+        mUserDao.deleteUser(new User[]{users[0], users[3],
+                TestUtil.createUser(9)});
+        assertThat(mUserDao.loadByIds(3, 5, 7, 9), is(new User[]{users[1], users[2]}));
+    }
+
+    @Test
     public void deleteEverything() {
         User user = TestUtil.createUser(3);
         mUserDao.insert(user);

@@ -122,7 +122,7 @@ fun testGraph() {
 ```
 
 To test that expected failure cases you should use the
-[assertThrows](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:testutils/testutils-truth/src/main/java/androidx/testutils/assertions.kt)
+[assertThrows](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:testutils/testutils-truth/src/main/java/androidx/testutils/assertions.kt)
 function from the AndroidX testutils module. The assertions.kt file contains two
 assertThrows functions. The second method, which specifically returns a
 TruthFailureSubject, should be used since it allows for validating additional

@@ -223,7 +223,7 @@ public class CarContext extends ContextWrapper {
      * Starts a car app on the car screen.
      *
      * <p>The target application will get the {@link Intent} via {@link Session#onCreateScreen}
-     * or {@link CarAppService#onNewIntent}.
+     * or {@link Session#onNewIntent}.
      *
      * <p>Supported {@link Intent}s:
      *
@@ -329,7 +329,7 @@ public class CarContext extends ContextWrapper {
      * determines that conditions warrant it, as signaled by the value returned by this method.
      *
      * <p>Whenever the dark mode status changes, you will receive a call to {@link
-     * CarAppService#onCarConfigurationChanged}.
+     * Session#onCarConfigurationChanged}.
      */
     public boolean isDarkMode() {
         return (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
@@ -386,13 +386,8 @@ public class CarContext extends ContextWrapper {
      */
     @RestrictTo(LIBRARY)
     @MainThread
-    void onHandshakeComplete(HandshakeInfo handshakeInfo) {
-        int carAppApiLevel = handshakeInfo.getHostCarAppApiLevel();
-        if (!CarAppApiLevels.isValid(carAppApiLevel)) {
-            throw new IllegalArgumentException("Invalid Car App API level received: "
-                    + carAppApiLevel);
-        }
-        mCarAppApiLevel = carAppApiLevel;
+    void updateHandshakeInfo(HandshakeInfo handshakeInfo) {
+        mCarAppApiLevel = handshakeInfo.getHostCarAppApiLevel();
     }
 
     /**
@@ -474,9 +469,9 @@ public class CarContext extends ContextWrapper {
      * @return a value between {@link AppInfo#getMinCarAppApiLevel()} and
      * {@link AppInfo#getLatestCarAppApiLevel()}. In case of incompatibility, the host will
      * disconnect from the service before completing the handshake.
-     *
      * @throws IllegalStateException if invoked before the connection handshake with the host has
-     * been completed (for example, before {@link Session#onCreateScreen(Intent)}).
+     *                               been completed (for example, before
+     *                               {@link Session#onCreateScreen(Intent)}).
      */
     @CarAppApiLevel
     public int getCarAppApiLevel() {

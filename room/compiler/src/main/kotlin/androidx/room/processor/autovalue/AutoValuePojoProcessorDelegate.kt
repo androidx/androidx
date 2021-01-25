@@ -17,10 +17,9 @@
 package androidx.room.processor.autovalue
 
 import androidx.room.Ignore
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XExecutableElement
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.compiler.processing.isType
 import androidx.room.processor.Context
 import androidx.room.processor.PojoProcessor
 import androidx.room.processor.PojoProcessor.Companion.TARGET_METHOD_ANNOTATIONS
@@ -40,8 +39,8 @@ class AutoValuePojoProcessorDelegate(
     private val autoValueElement: XTypeElement
 ) : PojoProcessor.Delegate {
 
-    private val autoValueDeclaredType: XDeclaredType by lazy {
-        autoValueElement.asDeclaredType()
+    private val autoValueDeclaredType: XType by lazy {
+        autoValueElement.type
     }
 
     override fun onPreProcess(element: XTypeElement) {
@@ -85,7 +84,7 @@ class AutoValuePojoProcessorDelegate(
 
     override fun createPojo(
         element: XTypeElement,
-        declaredType: XDeclaredType,
+        declaredType: XType,
         fields: List<Field>,
         embeddedFields: List<EmbeddedField>,
         relations: List<androidx.room.vo.Relation>,
@@ -110,8 +109,8 @@ class AutoValuePojoProcessorDelegate(
         fun getGeneratedClassName(element: XTypeElement): String {
             var type = element
             var name = type.name
-            while (type.enclosingTypeElement?.isType() == true) {
-                type = type.enclosingTypeElement!!.asTypeElement()
+            while (type.enclosingTypeElement != null) {
+                type = type.enclosingTypeElement!!
                 name = "${type.name}_$name"
             }
             val pkg = type.packageName

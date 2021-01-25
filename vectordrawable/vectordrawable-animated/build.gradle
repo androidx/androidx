@@ -46,4 +46,5 @@ androidx {
     mavenGroup = LibraryGroups.VECTORDRAWABLE
     inceptionYear = "2015"
     description = "Android Support AnimatedVectorDrawable"
+    failOnDeprecationWarnings = false
 }

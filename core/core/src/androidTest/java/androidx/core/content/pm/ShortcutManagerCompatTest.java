@@ -85,6 +85,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@SuppressWarnings("unchecked")
 @RunWith(AndroidJUnit4.class)
 public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestActivity> {
 

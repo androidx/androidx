@@ -881,6 +881,7 @@ public class SliceMetadataTest {
         assertEquals(desired.isDefaultToggle(), actual.isDefaultToggle());
         assertEquals(desired.isChecked(), actual.isChecked());
         assertEquals(desired.getPriority(), actual.getPriority());
+        assertEquals(desired.getKey(), actual.getKey());
         assertEquals(desired.getIcon() == null, actual.getIcon() == null);
         assertEquals(desired.getImageMode(), actual.getImageMode());
         assertEquals(desired.isActivity(), actual.isActivity());

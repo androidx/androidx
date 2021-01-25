@@ -16,16 +16,17 @@
 
 package androidx.room.solver.types
 
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.L
 import androidx.room.ext.T
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.TypeName
 import java.nio.ByteBuffer
 
-class ByteBufferColumnTypeAdapter(env: XProcessingEnv) : ColumnTypeAdapter(
-    out = env.requireType("java.nio.ByteBuffer"),
+class ByteBufferColumnTypeAdapter private constructor(out: XType) : ColumnTypeAdapter(
+    out = out,
     typeAffinity = SQLTypeAffinity.BLOB
 ) {
     override fun readFromCursor(
@@ -34,11 +35,18 @@ class ByteBufferColumnTypeAdapter(env: XProcessingEnv) : ColumnTypeAdapter(
         indexVarName: String,
         scope: CodeGenScope
     ) {
-        scope.builder()
-            .addStatement(
-                "$L = $T.wrap($L.getBlob($L))",
-                outVarName, TypeName.get(ByteBuffer::class.java), cursorVarName, indexVarName
-            )
+        scope.builder().apply {
+            beginControlFlow("if ($L.isNull($L))", cursorVarName, indexVarName).apply {
+                addStatement("$L = null", outVarName)
+            }
+            nextControlFlow("else").apply {
+                addStatement(
+                    "$L = $T.wrap($L.getBlob($L))",
+                    outVarName, TypeName.get(ByteBuffer::class.java), cursorVarName, indexVarName
+                )
+            }
+            endControlFlow()
+        }
     }
 
     override fun bindToStmt(
@@ -53,6 +61,22 @@ class ByteBufferColumnTypeAdapter(env: XProcessingEnv) : ColumnTypeAdapter(
             nextControlFlow("else")
                 .addStatement("$L.bindBlob($L, $L.array())", stmtName, indexVarName, valueVarName)
             endControlFlow()
+        }
+    }
+
+    companion object {
+        fun create(env: XProcessingEnv): List<ByteBufferColumnTypeAdapter> {
+            val byteBufferType = env.requireType("java.nio.ByteBuffer")
+            return if (env.backend == XProcessingEnv.Backend.KSP) {
+                listOf(
+                    ByteBufferColumnTypeAdapter(byteBufferType.makeNonNullable()),
+                    ByteBufferColumnTypeAdapter(byteBufferType.makeNullable()),
+                )
+            } else {
+                listOf(
+                    ByteBufferColumnTypeAdapter(byteBufferType)
+                )
+            }
         }
     }
 }

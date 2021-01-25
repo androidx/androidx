@@ -30,7 +30,15 @@ package androidx.navigation.dynamicfeatures.fragment {
 
   public class DynamicNavHostFragment extends androidx.navigation.fragment.NavHostFragment {
     ctor public DynamicNavHostFragment();
+    method public static final androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
+    method public static final androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment create(@NavigationRes int graphResId);
     method protected com.google.android.play.core.splitinstall.SplitInstallManager createSplitInstallManager();
+    field public static final androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment.Companion Companion;
+  }
+
+  public static final class DynamicNavHostFragment.Companion {
+    method public androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
+    method public androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment create(@NavigationRes int graphResId);
   }
 
 }

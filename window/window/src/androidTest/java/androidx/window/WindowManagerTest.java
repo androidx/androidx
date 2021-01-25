@@ -40,6 +40,7 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.Executor;
 
 /** Tests for {@link WindowManager} class. */
+@SuppressWarnings("unchecked")
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class WindowManagerTest extends WindowTestBase {

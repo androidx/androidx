@@ -8,7 +8,7 @@ calling app's task.
 
 [Library Owners](OWNERS)
 
-[Source Code](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/browser/)
+[Source Code](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/browser/)
 
 [Release Nodes](https://developer.android.com/jetpack/androidx/releases/browser)
 

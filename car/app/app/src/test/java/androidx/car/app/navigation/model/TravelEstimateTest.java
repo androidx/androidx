@@ -56,7 +56,7 @@ public class TravelEstimateTest {
                 Distance.UNIT_METERS);
         long remainingTime = TimeUnit.HOURS.toMillis(10);
         TravelEstimate travelEstimate =
-                TravelEstimate.builder(remainingDistance, arrivalTime).build();
+                new TravelEstimate.Builder(remainingDistance, arrivalTime).build();
 
         assertThat(travelEstimate.getRemainingDistance()).isEqualTo(remainingDistance);
         assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(REMAINING_TIME_UNKNOWN);
@@ -131,7 +131,7 @@ public class TravelEstimateTest {
                 Distance.UNIT_METERS);
         assertThrows(
                 IllegalArgumentException.class,
-                () -> TravelEstimate.builder(remainingDistance,
+                () -> new TravelEstimate.Builder(remainingDistance,
                         arrivalTime).setRemainingTimeSeconds(-2));
     }
 
@@ -153,7 +153,7 @@ public class TravelEstimateTest {
 
         for (CarColor carColor : allowedColors) {
             TravelEstimate travelEstimate =
-                    TravelEstimate.builder(remainingDistance,
+                    new TravelEstimate.Builder(remainingDistance,
                             arrivalTime)
                             .setRemainingTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(remainingTime))
                             .setRemainingTimeColor(carColor)
@@ -185,7 +185,7 @@ public class TravelEstimateTest {
 
         for (CarColor carColor : allowedColors) {
             TravelEstimate travelEstimate =
-                    TravelEstimate.builder(remainingDistance,
+                    new TravelEstimate.Builder(remainingDistance,
                             arrivalTime)
                             .setRemainingTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(remainingTime))
                             .setRemainingDistanceColor(carColor)
@@ -208,7 +208,7 @@ public class TravelEstimateTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        TravelEstimate.builder(remainingDistance,
+                        new TravelEstimate.Builder(remainingDistance,
                                 arrivalTime)
                                 .setRemainingTimeSeconds(
                                         TimeUnit.MILLISECONDS.toSeconds(remainingTime))
@@ -274,7 +274,7 @@ public class TravelEstimateTest {
     @Test
     public void notEquals_differentRemainingTimeColor() {
         TravelEstimate travelEstimate =
-                TravelEstimate.builder(mRemainingDistance,
+                new TravelEstimate.Builder(mRemainingDistance,
                         mArrivalTime)
                         .setRemainingTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(mRemainingTime))
                         .setRemainingTimeColor(CarColor.YELLOW)
@@ -282,7 +282,7 @@ public class TravelEstimateTest {
 
         assertThat(travelEstimate)
                 .isNotEqualTo(
-                        TravelEstimate.builder(mRemainingDistance,
+                        new TravelEstimate.Builder(mRemainingDistance,
                                 mArrivalTime)
                                 .setRemainingTimeSeconds(
                                         TimeUnit.MILLISECONDS.toSeconds(mRemainingTime))

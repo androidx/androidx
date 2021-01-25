@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing.javac
 
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.javac.kotlin.KmType
@@ -44,7 +43,7 @@ internal abstract class JavacVariableElement(
         }
     }
 
-    override fun asMemberOf(other: XDeclaredType): XType {
+    override fun asMemberOf(other: XType): JavacType {
         return if (containing.type.isSameType(other)) {
             type
         } else {

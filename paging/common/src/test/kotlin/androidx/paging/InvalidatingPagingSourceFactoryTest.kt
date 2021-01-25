@@ -24,58 +24,39 @@ class InvalidatingPagingSourceFactoryTest {
 
     @Test
     fun getPagingSource() {
-
-        val testFactory = getFactory()
-
-        repeat(4) {
-            testFactory.invoke()
-        }
-
+        val testFactory = InvalidatingPagingSourceFactory { TestPagingSource() }
+        repeat(4) { testFactory() }
         assertEquals(4, testFactory.pagingSources.size)
     }
 
     @Test
     fun invalidateRemoveFromList() {
-
-        val testFactory = getFactory()
-
-        repeat(4) {
-            testFactory.invoke()
-        }
-
+        val testFactory = InvalidatingPagingSourceFactory { TestPagingSource() }
+        repeat(4) { testFactory() }
         assertEquals(4, testFactory.pagingSources.size)
 
         testFactory.invalidate()
-
         assertEquals(0, testFactory.pagingSources.size)
     }
 
     @Test
     fun invalidatePagingSource() {
-
-        val testFactory = getFactory()
-
-        repeat(4) {
-            testFactory.invoke()
-        }
-
-        testFactory.pagingSources.forEach {
-            it.registerInvalidatedCallback {
-                assertEquals(true, it.invalid)
+        val invalidateCalls = Array(4) { false }
+        val testFactory = InvalidatingPagingSourceFactory { TestPagingSource() }
+        repeat(4) { testFactory() }
+        testFactory.pagingSources.forEachIndexed { index, pagingSource ->
+            pagingSource.registerInvalidatedCallback {
+                invalidateCalls[index] = true
             }
         }
-
         testFactory.invalidate()
+        assertTrue { invalidateCalls.all { it } }
     }
 
     @Test
     fun skipInvalidatedPagingSources() {
-
-        val testFactory = getFactory()
-
-        repeat(4) {
-            testFactory.invoke()
-        }
+        val testFactory = InvalidatingPagingSourceFactory { TestPagingSource() }
+        repeat(4) { testFactory() }
 
         val pagingSource = testFactory.pagingSources[0]
         pagingSource.invalidate()
@@ -93,12 +74,5 @@ class InvalidatingPagingSourceFactoryTest {
         testFactory.invalidate()
 
         assertEquals(3, invalidateCount)
-    }
-
-    private fun getFactory(): InvalidatingPagingSourceFactory<Int, Int> {
-
-        val pagingSourceFactory = { TestPagingSource() }
-
-        return object : InvalidatingPagingSourceFactory<Int, Int>(pagingSourceFactory) {}
     }
 }

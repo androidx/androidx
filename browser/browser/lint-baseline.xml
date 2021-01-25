@@ -1,71 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 23 (current min is 16): `android.content.pm.PackageManager#MATCH_ALL`"
-        errorLine1="        return pm.queryIntentActivities(intent, PackageManager.MATCH_ALL);"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
-            line="388"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 23 (current min is 16): `android.content.pm.PackageManager#MATCH_ALL`"
-        errorLine1="                PackageManager.MATCH_ALL);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceConnectionPool.java"
-            line="245"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="InflateParams"
-        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
-        errorLine1="                    R.layout.browser_actions_context_menu_row, null);"
-        errorLine2="                                                               ~~~~">
-        <location
-            file="src/main/java/androidx/browser/browseractions/BrowserActionsFallbackMenuAdapter.java"
-            line="76"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="InflateParams"
-        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
-        errorLine1="                R.layout.browser_actions_context_menu_page, null);"
-        errorLine2="                                                            ~~~~">
-        <location
-            file="src/main/java/androidx/browser/browseractions/BrowserActionsFallbackMenuUi.java"
-            line="142"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="QueryPermissionsNeeded"
-        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this \&#xA;method; see https://g.co/dev/packagevisibility for details"
-        errorLine1="        return pm.queryIntentActivities(intent, PackageManager.MATCH_ALL);"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
-            line="388"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="QueryPermissionsNeeded"
-        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this \&#xA;method; see https://g.co/dev/packagevisibility for details"
-        errorLine1="                .queryIntentActivities(scopeResolutionIntent, PackageManager.MATCH_DEFAULT_ONLY);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceConnectionPool.java"
-            line="219"
-            column="18"/>
-    </issue>
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="UnsafeNewApiCall"
@@ -175,50 +109,6 @@
             file="src/main/java/androidx/browser/trusted/NotificationApiHelperForO.java"
             line="62"
             column="17"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This field leaks a context object"
-        errorLine1="        private final Context mAppContext;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/browser/browseractions/BrowserServiceFileProvider.java"
-            line="78"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This field leaks a context object"
-        errorLine1="        private final Context mAppContext;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/browser/browseractions/BrowserServiceFileProvider.java"
-            line="134"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This field leaks a context object"
-        errorLine1="        private final Context mAppContext;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceConnectionPool.java"
-            line="133"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/browser_actions_bg_grey` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
-        errorLine1="    android:background=&quot;@color/browser_actions_bg_grey&quot;>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/browser_actions_context_menu_page.xml"
-            line="26"
-            column="5"/>
     </issue>
 
 </issues>

@@ -31,7 +31,6 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 import androidx.testutils.PollingCheck;
 import androidx.testutils.SwipeInjector;
 
@@ -41,9 +40,11 @@ import org.junit.Test;
 
 public abstract class SwipeRefreshLayoutInScrollingParentBaseTest {
 
+    @SuppressWarnings("deprecation")
     @Rule
-    public final ActivityTestRule<? extends SwipeRefreshLayoutInRecyclerViewBaseActivity>
-            mActivityTestRule = new ActivityTestRule<>(getActivityClass());
+    public final androidx.test.rule
+            .ActivityTestRule<? extends SwipeRefreshLayoutInRecyclerViewBaseActivity>
+            mActivityTestRule = new androidx.test.rule.ActivityTestRule<>(getActivityClass());
 
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;

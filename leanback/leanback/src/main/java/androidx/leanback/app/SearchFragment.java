@@ -240,6 +240,8 @@ public class SearchFragment extends Fragment {
         }
     };
 
+    boolean mSpeechRecognizerEnabled;
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
@@ -370,7 +372,11 @@ public class SearchFragment extends Fragment {
                 if (mRowsFragment != null && mRowsFragment.getView() != null
                         && mRowsFragment.getView().hasFocus()) {
                     if (direction == View.FOCUS_UP) {
-                        return mSearchBar.findViewById(R.id.lb_search_bar_speech_orb);
+                        if (mSpeechRecognizerEnabled) {
+                            return mSearchBar.findViewById(R.id.lb_search_bar_speech_orb);
+                        } else {
+                            return mSearchBar;
+                        }
                     }
                 } else if (mSearchBar.hasFocus() && direction == View.FOCUS_DOWN) {
                     if (mRowsFragment.getView() != null
@@ -381,6 +387,15 @@ public class SearchFragment extends Fragment {
                 return null;
             }
         });
+
+        if (!isSpeechRecognizerAvailable()) {
+            if(mSearchBar.hasFocus()) {
+                mSearchBar.findViewById(R.id.lb_search_text_editor).requestFocus();
+            }
+            mSearchBar.findViewById(R.id.lb_search_bar_speech_orb).setFocusable(false);
+        } else {
+            mSpeechRecognizerEnabled = true;
+        }
         return root;
     }
 
@@ -402,7 +417,8 @@ public class SearchFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mIsPaused = false;
-        if (mSpeechRecognitionCallback == null && null == mSpeechRecognizer) {
+        if (mSpeechRecognitionCallback == null && null == mSpeechRecognizer
+                && mSpeechRecognizerEnabled) {
             mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(
                     FragmentUtil.getContext(SearchFragment.this));
             mSearchBar.setSpeechRecognizer(mSpeechRecognizer);
@@ -764,6 +780,11 @@ public class SearchFragment extends Fragment {
 
     private void setSearchQuery(String query) {
         mSearchBar.setSearchQuery(query);
+    }
+
+    boolean isSpeechRecognizerAvailable() {
+        return SpeechRecognizer.isRecognitionAvailable(
+                FragmentUtil.getContext(SearchFragment.this));
     }
 
     static class ExternalQuery {

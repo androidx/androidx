@@ -31,65 +31,65 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public class ActionStripTest {
     @Test
     public void createEmpty_throws() {
-        assertThrows(IllegalStateException.class, () -> ActionStrip.builder().build());
+        assertThrows(IllegalStateException.class, () -> new ActionStrip.Builder().build());
     }
 
     @Test
     public void defaultBackgroundColor_doesNotThrow() {
-        Action action = Action.builder().setTitle("Test").setBackgroundColor(
+        Action action = new Action.Builder().setTitle("Test").setBackgroundColor(
                 CarColor.DEFAULT).build();
     }
 
     @Test
     public void backgroundColor_throws() {
-        Action action1 = Action.builder().setTitle("Test").setBackgroundColor(
+        Action action1 = new Action.Builder().setTitle("Test").setBackgroundColor(
                 CarColor.BLUE).build();
         assertThrows(IllegalArgumentException.class,
-                () -> ActionStrip.builder().addAction(action1));
+                () -> new ActionStrip.Builder().addAction(action1));
     }
 
     @Test
     public void addDuplicatedTypes_throws() {
         Action action1 = Action.BACK;
-        Action action2 = Action.builder().setTitle("Test").setOnClickListener(() -> {
+        Action action2 = new Action.Builder().setTitle("Test").setOnClickListener(() -> {
         }).build();
         assertThrows(
                 IllegalArgumentException.class,
-                () -> ActionStrip.builder().addAction(action1).addAction(action1));
+                () -> new ActionStrip.Builder().addAction(action1).addAction(action1));
 
         // Duplicated custom types will not throw.
-        ActionStrip.builder().addAction(action1).addAction(action2).addAction(action2).build();
+        new ActionStrip.Builder().addAction(action1).addAction(action2).addAction(action2).build();
     }
 
     @Test
     public void createActions() {
         Action action1 = Action.BACK;
-        Action action2 = Action.builder().setTitle("Test").setOnClickListener(() -> {
+        Action action2 = new Action.Builder().setTitle("Test").setOnClickListener(() -> {
         }).build();
-        ActionStrip list = ActionStrip.builder().addAction(action1).addAction(action2).build();
+        ActionStrip list = new ActionStrip.Builder().addAction(action1).addAction(action2).build();
 
-        assertThat(list.getActions()).hasSize(2);
-        assertThat(action1).isEqualTo(list.getActions().get(0));
-        assertThat(action2).isEqualTo(list.getActions().get(1));
+        assertThat(list.getActionList()).hasSize(2);
+        assertThat(action1).isEqualTo(list.getActionList().get(0));
+        assertThat(action2).isEqualTo(list.getActionList().get(1));
     }
 
     @Test
-    public void getActionOfType() {
+    public void getFirstActionOfType() {
         Action action1 = Action.BACK;
-        Action action2 = Action.builder().setTitle("Test").setOnClickListener(() -> {
+        Action action2 = new Action.Builder().setTitle("Test").setOnClickListener(() -> {
         }).build();
-        ActionStrip list = ActionStrip.builder().addAction(action1).addAction(action2).build();
+        ActionStrip list = new ActionStrip.Builder().addAction(action1).addAction(action2).build();
 
-        assertThat(list.getActionOfType(Action.TYPE_BACK)).isEqualTo(action1);
-        assertThat(list.getActionOfType(Action.TYPE_CUSTOM)).isEqualTo(action2);
+        assertThat(list.getFirstActionOfType(Action.TYPE_BACK)).isEqualTo(action1);
+        assertThat(list.getFirstActionOfType(Action.TYPE_CUSTOM)).isEqualTo(action2);
     }
 
     @Test
     public void equals() {
         Action action1 = Action.BACK;
         Action action2 = Action.APP_ICON;
-        ActionStrip list = ActionStrip.builder().addAction(action1).addAction(action2).build();
-        ActionStrip list2 = ActionStrip.builder().addAction(action1).addAction(action2).build();
+        ActionStrip list = new ActionStrip.Builder().addAction(action1).addAction(action2).build();
+        ActionStrip list2 = new ActionStrip.Builder().addAction(action1).addAction(action2).build();
 
         assertThat(list2).isEqualTo(list);
     }
@@ -98,8 +98,8 @@ public class ActionStripTest {
     public void notEquals() {
         Action action1 = Action.BACK;
         Action action2 = Action.APP_ICON;
-        ActionStrip list = ActionStrip.builder().addAction(action1).addAction(action2).build();
-        ActionStrip list2 = ActionStrip.builder().addAction(action2).build();
+        ActionStrip list = new ActionStrip.Builder().addAction(action1).addAction(action2).build();
+        ActionStrip list2 = new ActionStrip.Builder().addAction(action2).build();
 
         assertThat(list).isNotEqualTo(list2);
     }

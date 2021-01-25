@@ -25,6 +25,8 @@ plugins {
     id('com.android.application')
     id("org.jetbrains.kotlin.android")
     id("com.google.protobuf")
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.21'
+
 }
 
 dependencies {
@@ -34,15 +36,21 @@ dependencies {
     // For DataStore with protos
     implementation(project(":datastore:datastore"))
 
-    // For settings fragment
-    api("androidx.preference:preference:1.1.1")
 
     implementation(PROTOBUF_LITE)
     implementation(KOTLIN_STDLIB)
     implementation("androidx.appcompat:appcompat:1.2.0")
+    implementation("androidx.activity:activity-ktx:1.2.0-rc01")
+
+    // For settings fragment
+    implementation("androidx.preference:preference:1.1.1")
 
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
-    implementation('androidx.navigation:navigation-fragment-ktx:2.3.0')
+    implementation("androidx.navigation:navigation-fragment-ktx:2.3.2")
+
+    // For kotlin serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
+
     compileOnly project(":annotation:annotation-sampled")
 }
 

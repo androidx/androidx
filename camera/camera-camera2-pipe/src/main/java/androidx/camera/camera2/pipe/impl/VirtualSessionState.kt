@@ -17,10 +17,14 @@
 package androidx.camera.camera2.pipe.impl
 
 import android.view.Surface
-
 import androidx.annotation.GuardedBy
+import androidx.camera.camera2.pipe.RequestProcessor
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.impl.Timestamps.formatMs
+import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.TimestampNs
+import androidx.camera.camera2.pipe.core.Timestamps
+import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.wrapper.CameraCaptureSessionWrapper
 import androidx.camera.camera2.pipe.wrapper.CameraDeviceWrapper
 import androidx.camera.camera2.pipe.wrapper.OutputConfigurationWrapper
@@ -28,10 +32,6 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.Collections.synchronizedMap
-
-interface SurfaceListener {
-    fun setSurfaceMap(surfaces: Map<StreamId, Surface>)
-}
 
 internal val virtualSessionDebugIds = atomic(0)
 
@@ -43,12 +43,12 @@ internal val virtualSessionDebugIds = atomic(0)
  * session (if one has been configured), and prevent / close any session that was in the process of
  * being created when shutdown / disconnect was called.
  */
-class VirtualSessionState(
-    private val graphProcessor: GraphProcessor,
+internal class VirtualSessionState(
+    private val graphListener: GraphController.GraphListener,
     private val sessionFactory: SessionFactory,
-    private val requestProcessorFactory: RequestProcessor.Factory,
+    private val requestProcessorFactory: Camera2RequestProcessorFactory,
     private val scope: CoroutineScope
-) : CameraCaptureSessionWrapper.StateCallback, SurfaceListener {
+) : CameraCaptureSessionWrapper.StateCallback, StreamGraphImpl.SurfaceListener {
     private val debugId = virtualSessionDebugIds.incrementAndGet()
     private val lock = Any()
 
@@ -93,7 +93,7 @@ class VirtualSessionState(
 
     @GuardedBy("lock")
     private var _surfaceMap: Map<StreamId, Surface>? = null
-    override fun setSurfaceMap(surfaces: Map<StreamId, Surface>) {
+    override fun onSurfaceMapUpdated(surfaces: Map<StreamId, Surface>) {
         synchronized(lock) {
             if (state == State.CLOSING || state == State.CLOSED) {
                 return@synchronized
@@ -196,7 +196,7 @@ class VirtualSessionState(
                     "Configured $this in ${duration.formatMs()}"
                 }
 
-                graphProcessor.attach(it.processor)
+                graphListener.onGraphStarted(it.processor)
             }
         }
     }
@@ -218,7 +218,7 @@ class VirtualSessionState(
         }
 
         if (captureSession != null) {
-            graphProcessor.detach(captureSession.processor)
+            graphListener.onGraphStopped(captureSession.processor)
         }
 
         synchronized(this) {
@@ -246,8 +246,8 @@ class VirtualSessionState(
         if (captureSession != null) {
             Debug.traceStart { "$this#shutdown" }
 
-            Debug.traceStart { "$graphProcessor#detach" }
-            graphProcessor.detach(captureSession.processor)
+            Debug.traceStart { "$graphListener#onGraphStopped" }
+            graphListener.onGraphStopped(captureSession.processor)
             Debug.traceStop()
 
             Debug.traceStart { "$this#stopRepeating" }
@@ -307,7 +307,7 @@ class VirtualSessionState(
             }
 
             if (tryResubmit && retryAllowed) {
-                graphProcessor.invalidate()
+                graphListener.onGraphModified(captureSession.processor)
             }
             Debug.traceStop()
         }

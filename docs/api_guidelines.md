@@ -87,7 +87,7 @@ on libraries within the group. Such groups must increment the version of every
 library at the same time and release all libraries at the same time.
 
 Atomic groups are specified in
-[`LibraryGroups.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:buildSrc/src/main/kotlin/androidx/build/LibraryGroups.kt):
+[`LibraryGroups.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/LibraryGroups.kt):
 
 ```kotlin
 // Non-atomic library group
@@ -981,6 +981,10 @@ standalone `com.google.guava:listenablefuture` artifact. See
 `ListenableFuture` in Jetpack libraries.
 
 ### Java 8 {#dependencies-java8}
+
+NOTE All Jetpack libraries will migrate to Java 8 as soon as Android Studio 4.2
+launches to stable. Until then, new dependencies on Java 8 should weigh the pros
+and cons as documented here.
 
 Libraries that take a dependency on a library targeting Java 8 must _also_
 target Java 8, which will incur a ~5% build performance (as of 8/2019) hit for

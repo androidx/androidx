@@ -324,7 +324,9 @@ public class NavController {
         for (Navigator<?> navigator : popOperations) {
             if (navigator.popBackStack()) {
                 NavBackStackEntry entry = mBackStack.removeLast();
-                entry.setMaxLifecycle(Lifecycle.State.DESTROYED);
+                if (entry.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.CREATED)) {
+                    entry.setMaxLifecycle(Lifecycle.State.DESTROYED);
+                }
                 if (mViewModel != null) {
                     mViewModel.clear(entry.mId);
                 }

@@ -22,8 +22,8 @@ import android.hardware.camera2.CameraDevice
 import android.util.Size
 import android.view.Display
 import android.view.WindowManager
-import androidx.camera.camera2.pipe.impl.Log.debug
-import androidx.camera.camera2.pipe.impl.Log.info
+import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.core.Log.info
 import androidx.camera.camera2.pipe.integration.impl.asLandscape
 import androidx.camera.camera2.pipe.integration.impl.minByArea
 import androidx.camera.camera2.pipe.integration.impl.toSize

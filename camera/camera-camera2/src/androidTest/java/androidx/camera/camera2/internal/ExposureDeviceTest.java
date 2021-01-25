@@ -27,6 +27,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
+import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
@@ -40,7 +41,7 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks;
 import androidx.camera.camera2.interop.Camera2Interop;
@@ -93,7 +94,7 @@ import java.util.concurrent.TimeoutException;
  */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-@UseExperimental(markerClass = ExperimentalExposureCompensation.class)
+@OptIn(markerClass = ExperimentalExposureCompensation.class)
 public class ExposureDeviceTest {
 
     @CameraSelector.LensFacing
@@ -147,11 +148,12 @@ public class ExposureDeviceTest {
         mSemaphore = new Semaphore(0);
         mCameraStateRegistry = new CameraStateRegistry(DEFAULT_AVAILABLE_CAMERA_COUNT);
         CameraManagerCompat cameraManagerCompat =
-                CameraManagerCompat.from(ApplicationProvider.getApplicationContext());
+                CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext());
         Camera2CameraInfoImpl camera2CameraInfo = new Camera2CameraInfoImpl(
                 mCameraId, cameraManagerCompat.getCameraCharacteristicsCompat(mCameraId));
         mCamera2CameraImpl = new Camera2CameraImpl(
-                CameraManagerCompat.from(ApplicationProvider.getApplicationContext()), mCameraId,
+                CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext()),
+                mCameraId,
                 camera2CameraInfo,
                 mCameraStateRegistry, sCameraExecutor, sCameraHandler);
 

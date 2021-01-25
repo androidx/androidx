@@ -16,22 +16,27 @@
 
 package androidx.car.app.model.constraints;
 
+import static java.util.Objects.requireNonNull;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Row;
 
 /**
- * Encapsulates the constraints to apply when rendering a {@link
- * androidx.car.app.model.Row} in different contexts.
+ * Encapsulates the constraints to apply when rendering a {@link Row} in different contexts.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class RowConstraints {
     @NonNull
-    public static final RowConstraints UNCONSTRAINED = RowConstraints.builder().build();
+    public static final RowConstraints UNCONSTRAINED = new RowConstraints.Builder().build();
 
     /** Conservative constraints for a row. */
     @NonNull
     public static final RowConstraints ROW_CONSTRAINTS_CONSERVATIVE =
-            RowConstraints.builder()
+            new RowConstraints.Builder()
                     .setMaxActionsExclusive(0)
                     .setImageAllowed(false)
                     .setMaxTextLinesPerRow(1)
@@ -42,7 +47,7 @@ public class RowConstraints {
     /** The constraints for a full-width row in a pane. */
     @NonNull
     public static final RowConstraints ROW_CONSTRAINTS_PANE =
-            RowConstraints.builder()
+            new RowConstraints.Builder()
                     .setMaxActionsExclusive(2)
                     .setImageAllowed(true)
                     .setMaxTextLinesPerRow(2)
@@ -53,7 +58,7 @@ public class RowConstraints {
     /** The constraints for a simple row (2 rows of text and 1 image */
     @NonNull
     public static final RowConstraints ROW_CONSTRAINTS_SIMPLE =
-            RowConstraints.builder()
+            new RowConstraints.Builder()
                     .setMaxActionsExclusive(0)
                     .setImageAllowed(true)
                     .setMaxTextLinesPerRow(2)
@@ -64,7 +69,7 @@ public class RowConstraints {
     /** The constraints for a full-width row in a list (simple + toggle support). */
     @NonNull
     public static final RowConstraints ROW_CONSTRAINTS_FULL_LIST =
-            ROW_CONSTRAINTS_SIMPLE.newBuilder().setToggleAllowed(true).build();
+            new RowConstraints.Builder(ROW_CONSTRAINTS_SIMPLE).setToggleAllowed(true).build();
 
     private final int mMaxTextLinesPerRow;
     private final int mMaxActionsExclusive;
@@ -76,17 +81,10 @@ public class RowConstraints {
     /**
      * Returns a new {@link Builder}.
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
-    }
-
-    /**
-     * Returns a new builder that contains the same data as this {@link RowConstraints} instance.
-     */
-    @NonNull
-    public Builder newBuilder() {
-        return new Builder(this);
     }
 
     /** Returns whether the row can have a click listener associated with it. */
@@ -125,10 +123,8 @@ public class RowConstraints {
      *
      * @throws IllegalArgumentException if the constraints are not met.
      */
-    public void validateOrThrow(@NonNull Object rowObj) {
-        Row row = (Row) rowObj;
-
-        if (!mIsOnClickListenerAllowed && row.getOnClickListener() != null) {
+    public void validateOrThrow(@NonNull Row row) {
+        if (!mIsOnClickListenerAllowed && row.getOnClickDelegate() != null) {
             throw new IllegalArgumentException("A click listener is not allowed on the row");
         }
 
@@ -152,7 +148,7 @@ public class RowConstraints {
         }
     }
 
-    private RowConstraints(Builder builder) {
+    RowConstraints(Builder builder) {
         mIsOnClickListenerAllowed = builder.mIsOnClickListenerAllowed;
         mMaxTextLinesPerRow = builder.mMaxTextLines;
         mMaxActionsExclusive = builder.mMaxActionsExclusive;
@@ -163,12 +159,12 @@ public class RowConstraints {
 
     /** A builder of {@link RowConstraints}. */
     public static final class Builder {
-        private boolean mIsOnClickListenerAllowed = true;
-        private boolean mIsToggleAllowed = true;
-        private int mMaxTextLines = Integer.MAX_VALUE;
-        private int mMaxActionsExclusive = Integer.MAX_VALUE;
-        private boolean mIsImageAllowed = true;
-        private CarIconConstraints mCarIconConstraints = CarIconConstraints.UNCONSTRAINED;
+        boolean mIsOnClickListenerAllowed = true;
+        boolean mIsToggleAllowed = true;
+        int mMaxTextLines = Integer.MAX_VALUE;
+        int mMaxActionsExclusive = Integer.MAX_VALUE;
+        boolean mIsImageAllowed = true;
+        CarIconConstraints mCarIconConstraints = CarIconConstraints.UNCONSTRAINED;
 
         /** Sets whether the row can have a click listener associated with it. */
         @NonNull
@@ -220,16 +216,24 @@ public class RowConstraints {
             return new RowConstraints(this);
         }
 
-        private Builder() {
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
 
-        private Builder(RowConstraints constraints) {
-            mIsOnClickListenerAllowed = constraints.mIsOnClickListenerAllowed;
-            mMaxTextLines = constraints.mMaxTextLinesPerRow;
-            mMaxActionsExclusive = constraints.mMaxActionsExclusive;
-            mIsToggleAllowed = constraints.mIsToggleAllowed;
-            mIsImageAllowed = constraints.mIsImageAllowed;
-            mCarIconConstraints = constraints.mCarIconConstraints;
+        /**
+         * Returns a new builder that contains the same data as the given {@link RowConstraints}
+         * instance.
+         *
+         * @throws NullPointerException if {@code latLng} is {@code null}.
+         */
+        public Builder(@NonNull RowConstraints constraints) {
+            requireNonNull(constraints);
+            mIsOnClickListenerAllowed = constraints.isOnClickListenerAllowed();
+            mMaxTextLines = constraints.getMaxTextLinesPerRow();
+            mMaxActionsExclusive = constraints.getMaxActionsExclusive();
+            mIsToggleAllowed = constraints.isToggleAllowed();
+            mIsImageAllowed = constraints.isImageAllowed();
+            mCarIconConstraints = constraints.getCarIconConstraints();
         }
     }
 }

@@ -209,8 +209,10 @@ class ComplicationRenderer {
      * Sets the complication data to be rendered.
      *
      * @param data Complication data to be rendered. If this is null, nothing is drawn.
+     * @param loadDrawablesAsync If true any drawables will be loaded asynchronously, otherwise
+     *     they will be loaded synchronously.
      */
-    public void setComplicationData(@Nullable ComplicationData data) {
+    public void setComplicationData(@Nullable ComplicationData data, boolean loadDrawablesAsync) {
         if (Objects.equals(mComplicationData, data)) {
             return;
         }
@@ -234,8 +236,12 @@ class ComplicationRenderer {
             mComplicationData = data;
             mHasNoData = false;
         }
-        if (!loadDrawableIconAndImages()) {
-            invalidate();
+        if (loadDrawablesAsync) {
+            if (!loadDrawableIconAndImagesAsync()) {
+                invalidate();
+            }
+        } else {
+            loadDrawableIconAndImages();
         }
         calculateBounds();
     }
@@ -274,7 +280,7 @@ class ComplicationRenderer {
         if (mHasNoData) {
             mHasNoData = false;
             setComplicationData(
-                    new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build());
+                    new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build(), true);
         }
     }
 
@@ -701,7 +707,7 @@ class ComplicationRenderer {
      * Returns true if the data contains images. If there are, the images will be loaded
      * asynchronously and the drawable will be invalidated when loading is complete.
      */
-    private boolean loadDrawableIconAndImages() {
+    private boolean loadDrawableIconAndImagesAsync() {
         Handler handler = new Handler(Looper.getMainLooper());
         Icon icon = null;
         Icon smallImage = null;
@@ -819,6 +825,52 @@ class ComplicationRenderer {
                     handler);
         }
         return hasImage;
+    }
+
+    /** Synchronously loads any images. */
+    private void loadDrawableIconAndImages() {
+        Icon icon = null;
+        Icon smallImage = null;
+        Icon burnInProtectionSmallImage = null;
+        Icon largeImage = null;
+        Icon burnInProtectionIcon = null;
+        mIcon = null;
+        mSmallImage = null;
+        mBurnInProtectionSmallImage = null;
+        mLargeImage = null;
+        mBurnInProtectionIcon = null;
+        if (mComplicationData != null) {
+            icon = mComplicationData.hasIcon() ? mComplicationData.getIcon() : null;
+            burnInProtectionIcon = mComplicationData.hasBurnInProtectionIcon()
+                    ? mComplicationData.getBurnInProtectionIcon() : null;
+            burnInProtectionSmallImage =
+                    mComplicationData.hasBurnInProtectionSmallImage()
+                            ? mComplicationData.getBurnInProtectionSmallImage() : null;
+            smallImage =
+                    mComplicationData.hasSmallImage() ? mComplicationData.getSmallImage() : null;
+            largeImage =
+                    mComplicationData.hasLargeImage() ? mComplicationData.getLargeImage() : null;
+        }
+
+        if (icon != null) {
+            mIcon = icon.loadDrawable(mContext);
+        }
+
+        if (burnInProtectionIcon != null) {
+            mBurnInProtectionIcon = burnInProtectionIcon.loadDrawable(mContext);
+        }
+
+        if (smallImage != null) {
+            mSmallImage = smallImage.loadDrawable(mContext);
+        }
+
+        if (burnInProtectionSmallImage != null) {
+            mBurnInProtectionSmallImage = burnInProtectionSmallImage.loadDrawable(mContext);
+        }
+
+        if (largeImage != null) {
+            mLargeImage = largeImage.loadDrawable(mContext);
+        }
     }
 
     @VisibleForTesting

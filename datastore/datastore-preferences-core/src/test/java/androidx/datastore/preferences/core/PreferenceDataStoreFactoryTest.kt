@@ -42,8 +42,8 @@ class PreferenceDataStoreFactoryTest {
     private lateinit var testFile: File
     private lateinit var dataStoreScope: TestCoroutineScope
 
-    val stringKey = preferencesKey<String>("key")
-    val booleanKey = preferencesKey<Boolean>("key")
+    val stringKey = stringPreferencesKey("key")
+    val booleanKey = booleanPreferencesKey("key")
 
     @Before
     fun setUp() {

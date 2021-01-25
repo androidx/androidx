@@ -365,8 +365,13 @@ public final class PreviewView extends FrameLayout {
     /**
      * Applies a {@link ScaleType} to the preview.
      *
-     * <p> Once applied, the transformation will take immediate effect. This value can also be set
-     * in the layout XML file via the {@code app:scaleType} attribute.
+     * <p> If a {@link CameraController} is attached to {@link PreviewView}, the change will take
+     * immediate effect. It also takes immediate effect if {@link #getViewPort()} is not set in
+     * the bound {@link UseCaseGroup}. Otherwise, the {@link UseCase}s need to be bound again
+     * with the latest value of {@link #getViewPort()}.
+     *
+     * <p> This value can also be set in the layout XML file via the {@code app:scaleType}
+     * attribute.
      *
      * <p> The default value is {@link ScaleType#FILL_CENTER}.
      *
@@ -378,6 +383,8 @@ public final class PreviewView extends FrameLayout {
         Threads.checkMainThread();
         mPreviewTransform.setScaleType(scaleType);
         redrawPreview();
+        // Notify controller to re-calculate the crop rect.
+        attachToControllerIfReady(false);
     }
 
     /**
@@ -807,7 +814,7 @@ public final class PreviewView extends FrameLayout {
             mCameraController.clearPreviewSurface();
         }
         mCameraController = cameraController;
-        attachToControllerIfReady(false);
+        attachToControllerIfReady(/*shouldFailSilently=*/false);
     }
 
     /**

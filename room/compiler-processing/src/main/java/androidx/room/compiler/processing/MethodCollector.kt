@@ -34,7 +34,7 @@ private class MethodCollector(
         val selection = target.getDeclaredMethods().forEach(::addToSelection)
 
         target.superType
-            ?.asTypeElement()
+            ?.typeElement
             ?.getAllMethods()
             ?.forEach(::addIfNotOverridden)
         target.getSuperInterfaceElements().forEach {

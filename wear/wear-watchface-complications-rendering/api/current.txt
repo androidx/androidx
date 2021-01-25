@@ -23,7 +23,7 @@ package androidx.wear.watchface.complications.rendering {
     method public void setAlpha(int);
     method public void setBurnInProtection(boolean);
     method public void setColorFilter(android.graphics.ColorFilter?);
-    method public void setComplicationData(android.support.wearable.complications.ComplicationData?);
+    method public void setComplicationData(android.support.wearable.complications.ComplicationData?, boolean);
     method public void setContext(android.content.Context);
     method public void setCurrentTimeMillis(long);
     method public void setHighlightDuration(@IntRange(from=0) long);

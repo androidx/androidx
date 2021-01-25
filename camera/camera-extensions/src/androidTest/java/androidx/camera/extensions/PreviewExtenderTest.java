@@ -198,6 +198,7 @@ public class PreviewExtenderTest {
         verifyNoMoreInteractions(mockPreviewExtenderImpl);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     @MediumTest
     public void getCaptureStagesTest_shouldSetToRepeatingRequest() {

@@ -99,20 +99,20 @@ public class ExifInterfaceTest {
             "jpeg_with_datetime_tag_primary_format.jpg";
     private static final String JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT =
             "jpeg_with_datetime_tag_secondary_format.jpg";
-    private static final String HEIC_WITH_EXIF = "heic_with_exif.heic";
+    private static final String HEIF_WITH_EXIF = "heif_with_exif.heic";
     private static final int[] IMAGE_RESOURCES = new int[] {
             R.raw.jpeg_with_exif_byte_order_ii, R.raw.jpeg_with_exif_byte_order_mm,
             R.raw.dng_with_exif_with_xmp, R.raw.jpeg_with_exif_with_xmp,
             R.raw.png_with_exif_byte_order_ii, R.raw.png_without_exif, R.raw.webp_with_exif,
             R.raw.webp_with_anim_without_exif, R.raw.webp_without_exif,
             R.raw.webp_lossless_without_exif, R.raw.jpeg_with_datetime_tag_primary_format,
-            R.raw.jpeg_with_datetime_tag_secondary_format, R.raw.heic_with_exif};
+            R.raw.jpeg_with_datetime_tag_secondary_format, R.raw.heif_with_exif};
     private static final String[] IMAGE_FILENAMES = new String[] {
             JPEG_WITH_EXIF_BYTE_ORDER_II, JPEG_WITH_EXIF_BYTE_ORDER_MM, DNG_WITH_EXIF_WITH_XMP,
             JPEG_WITH_EXIF_WITH_XMP, PNG_WITH_EXIF_BYTE_ORDER_II, PNG_WITHOUT_EXIF,
             WEBP_WITH_EXIF, WEBP_WITHOUT_EXIF_WITH_ANIM_DATA, WEBP_WITHOUT_EXIF,
             WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING, JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT,
-            JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT, HEIC_WITH_EXIF};
+            JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT, HEIF_WITH_EXIF};
 
     private static final int USER_READ_WRITE = 0600;
     private static final String TEST_TEMP_FILE_NAME = "testImage";
@@ -219,23 +219,23 @@ public class ExifInterfaceTest {
     private static final HashMap<Integer, Pair> FLIP_STATE_AND_ROTATION_DEGREES = new HashMap<>();
     static {
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_UNDEFINED, new Pair(false, 0));
+                ExifInterface.ORIENTATION_UNDEFINED, new Pair<>(false, 0));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_NORMAL, new Pair(false, 0));
+                ExifInterface.ORIENTATION_NORMAL, new Pair<>(false, 0));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_ROTATE_90, new Pair(false, 90));
+                ExifInterface.ORIENTATION_ROTATE_90, new Pair<>(false, 90));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_ROTATE_180, new Pair(false, 180));
+                ExifInterface.ORIENTATION_ROTATE_180, new Pair<>(false, 180));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_ROTATE_270, new Pair(false, 270));
+                ExifInterface.ORIENTATION_ROTATE_270, new Pair<>(false, 270));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL, new Pair(true, 0));
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL, new Pair<>(true, 0));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_TRANSVERSE, new Pair(true, 90));
+                ExifInterface.ORIENTATION_TRANSVERSE, new Pair<>(true, 90));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_FLIP_VERTICAL, new Pair(true, 180));
+                ExifInterface.ORIENTATION_FLIP_VERTICAL, new Pair<>(true, 180));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_TRANSPOSE, new Pair(true, 270));
+                ExifInterface.ORIENTATION_TRANSPOSE, new Pair<>(true, 270));
     }
 
     private static final String[] EXIF_TAGS = {
@@ -459,15 +459,21 @@ public class ExifInterfaceTest {
     }
 
     /**
-     * .heic file is a container for HEIF format images, which ExifInterface supports.
+     * Support for retrieving EXIF from HEIF was added in SDK 28.
      */
     @Test
     @LargeTest
-    public void testHeicFile() throws Throwable {
-        // TODO: Reading HEIC file for SDK < 28 throws an exception. Revisit once issue is solved.
-        //  (b/172025296)
-        if (Build.VERSION.SDK_INT > 27) {
-            readFromFilesWithExif(HEIC_WITH_EXIF, R.array.heic_with_exif);
+    public void testHeifFile() throws Throwable {
+        if (Build.VERSION.SDK_INT >= 28) {
+            readFromFilesWithExif(HEIF_WITH_EXIF, R.array.heif_with_exif);
+        } else {
+            // Make sure that an exception is not thrown and that image length/width tag values
+            // return default values, not the actual values.
+            File imageFile = getFileFromExternalDir(HEIF_WITH_EXIF);
+            ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+            String defaultTagValue = "0";
+            assertEquals(defaultTagValue, exif.getAttribute(ExifInterface.TAG_IMAGE_LENGTH));
+            assertEquals(defaultTagValue, exif.getAttribute(ExifInterface.TAG_IMAGE_WIDTH));
         }
     }
 
@@ -919,6 +925,7 @@ public class ExifInterfaceTest {
 
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     @SmallTest
     public void testInterchangeabilityBetweenTwoIsoSpeedTags() throws IOException {

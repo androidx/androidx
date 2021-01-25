@@ -21,6 +21,7 @@ package androidx.paging.samples
 import androidx.annotation.Sampled
 import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadResult
+import androidx.paging.PagingState
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -77,6 +78,10 @@ fun pageKeyedPagingSourceSample() {
                 LoadResult.Error(e)
             }
         }
+
+        override fun getRefreshKey(state: PagingState<String, Item>): String? {
+            return state.anchorPosition?.let { state.closestItemToPosition(it)?.id }
+        }
     }
 }
 
@@ -123,6 +128,13 @@ fun pageIndexedPagingSourceSample() {
                 LoadResult.Error(e)
             } catch (e: HttpException) {
                 LoadResult.Error(e)
+            }
+        }
+
+        override fun getRefreshKey(state: PagingState<Int, Item>): Int? {
+            return state.anchorPosition?.let {
+                state.closestPageToPosition(it)?.prevKey?.plus(1)
+                    ?: state.closestPageToPosition(it)?.nextKey?.minus(1)
             }
         }
     }

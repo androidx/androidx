@@ -21,6 +21,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.icu.util.Calendar
+import android.os.Bundle
 import android.support.wearable.watchface.accessibility.AccessibilityUtils
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import androidx.annotation.UiThread
@@ -178,12 +179,6 @@ public class ComplicationsManager(
                 override?.complicationBounds ?: initialConfig.complicationBounds
             complication.enabled =
                 override?.enabled ?: initialConfig.enabled
-            complication.supportedTypes =
-                override?.supportedTypes ?: initialConfig.supportedTypes
-            complication.defaultProviderPolicy =
-                override?.defaultProviderPolicy ?: initialConfig.defaultProviderPolicy
-            complication.defaultProviderType =
-                override?.defaultProviderType ?: initialConfig.defaultProviderType
         }
     }
 
@@ -285,12 +280,14 @@ public class ComplicationsManager(
      * Called when new complication data is received.
      *
      * @param watchFaceComplicationId The id of the complication that the data relates to. This
-     *     will be an id that was previously sent in a call to [setActiveComplications].
+     *     will be an id that was previously sent in a call to [setActiveComplications]. If this id
+     *     is unrecognized the call will be a NOP, the only circumstance when that happens is if
+     *     the watch face changes it's complication config between runs e.g. during development.
      * @param data The [ComplicationData] that should be displayed in the complication.
      */
     @UiThread
     internal fun onComplicationDataUpdate(watchFaceComplicationId: Int, data: ComplicationData) {
-        val complication = complications[watchFaceComplicationId]!!
+        val complication = complications[watchFaceComplicationId] ?: return
         complication.dataDirty =
             complication.dataDirty || (complication.renderer.idAndData?.complicationData != data)
         complication.renderer.idAndData = IdAndComplicationData(watchFaceComplicationId, data)
@@ -399,10 +396,12 @@ public class ComplicationsManager(
                 watchFaceHostApi.getContext(),
                 getComponentName(watchFaceHostApi.getContext()),
                 complicationId,
-                IntArray(complication.supportedTypes.size) {
-                    complication.supportedTypes[it].asWireComplicationType()
+                complication.supportedTypes
+            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).apply {
+                complication.complicationConfigExtras?.let {
+                    replaceExtras(Bundle(it).apply { putAll(extras!!) })
                 }
-            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
         )
         for (complicationListener in complicationListeners) {
             complicationListener.onComplicationDoubleTapped(complicationId)

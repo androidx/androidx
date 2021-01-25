@@ -17,7 +17,6 @@
 package androidx.room.vo
 
 import androidx.room.compiler.processing.XConstructorElement
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
@@ -40,7 +39,7 @@ class DatabaseTest {
                 Entity(
                     mock(XTypeElement::class.java),
                     tableName = "TheTable",
-                    type = mock(XDeclaredType::class.java),
+                    type = mock(XType::class.java),
                     fields = emptyList(),
                     embeddedFields = emptyList(),
                     primaryKey = PrimaryKey(mock(XElement::class.java), Fields(), false),

@@ -17,7 +17,7 @@
 package androidx.room.processor
 
 import COMMON
-import androidx.room.compiler.processing.asDeclaredType
+import androidx.room.compiler.processing.isTypeElement
 import androidx.room.ext.RoomTypeNames
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
@@ -39,6 +39,7 @@ import java.io.File
 
 @RunWith(Parameterized::class)
 class DaoProcessorTest(val enableVerification: Boolean) {
+
     companion object {
         const val DAO_PREFIX = """
             package foo.bar;
@@ -205,7 +206,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
             """
         ) { dao, invocation ->
             val dbType = invocation.context.processingEnv
-                .requireType(RoomTypeNames.ROOM_DB).asDeclaredType()
+                .requireType(RoomTypeNames.ROOM_DB)
             val daoProcessor =
                 DaoProcessor(invocation.context, dao.element, dbType, null)
 
@@ -219,7 +220,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                 assertThat(
                     QueryMethodProcessor(
                         baseContext = daoProcessor.context,
-                        containing = dao.element.asDeclaredType(),
+                        containing = dao.element.type,
                         executableElement = it.element,
                         dbVerifier = null
                     ).context.logger.suppressedWarnings,
@@ -242,7 +243,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
             """
         ) { dao, invocation ->
             val dbType = invocation.context.processingEnv
-                .requireType(RoomTypeNames.ROOM_DB).asDeclaredType()
+                .requireType(RoomTypeNames.ROOM_DB)
             val daoProcessor =
                 DaoProcessor(invocation.context, dao.element, dbType, null)
             assertThat(
@@ -255,7 +256,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                 assertThat(
                     QueryMethodProcessor(
                         baseContext = daoProcessor.context,
-                        containing = dao.element.asDeclaredType(),
+                        containing = dao.element.type,
                         executableElement = it.element,
                         dbVerifier = null
                     ).context.logger.suppressedWarnings,
@@ -349,6 +350,40 @@ class DaoProcessorTest(val enableVerification: Boolean) {
             .withWarningCount(0)
     }
 
+    @Test
+    fun testDeleteQueryWithVoidReturn() {
+        singleDao(
+            """
+                @Dao interface MyDao {
+                    @Query("DELETE FROM User")
+                    abstract void deleteAllIds();
+                }
+                """
+        ) { dao, _ ->
+            assertThat(dao.queryMethods.size, `is`(1))
+            val method = dao.queryMethods.first()
+            assertThat(method.name, `is`("deleteAllIds"))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testSelectQueryWithVoidReturn() {
+        singleDao(
+            """
+                @Dao interface MyDao {
+                    @Query("SELECT * FROM User")
+                    abstract void getAllIds();
+                }
+                """
+        ) { dao, _ ->
+            assertThat(dao.queryMethods.size, `is`(1))
+            val method = dao.queryMethods.first()
+            assertThat(method.name, `is`("getAllIds"))
+        }.failsToCompile().withErrorContaining(
+            "Not sure how to convert a Cursor to this method's return type (void)"
+        )
+    }
+
     fun singleDao(
         vararg inputs: String,
         classpathFiles: Set<File> = emptySet(),
@@ -387,6 +422,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                                 androidx.room.Dao::class.java
                             )
                             .first()
+                        check(dao.isTypeElement())
                         val dbVerifier = if (enableVerification) {
                             createVerifierFromEntitiesAndViews(invocation)
                         } else {
@@ -394,10 +430,9 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                         }
                         val dbType = invocation.context.processingEnv
                             .requireType(RoomTypeNames.ROOM_DB)
-                            .asDeclaredType()
                         val parser = DaoProcessor(
                             invocation.context,
-                            dao.asTypeElement(), dbType, dbVerifier
+                            dao, dbType, dbVerifier
                         )
 
                         val parsedDao = parser.process()

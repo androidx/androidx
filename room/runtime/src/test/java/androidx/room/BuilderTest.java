@@ -44,7 +44,7 @@ import java.io.File;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-@SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
+@SuppressWarnings({"ArraysAsListWithZeroOrOneArgument", "deprecation"})
 @RunWith(JUnit4.class)
 public class BuilderTest {
     @Test(expected = IllegalArgumentException.class)

@@ -37,11 +37,11 @@ import java.util.Objects;
 /**
  * A controller that allows testing of a {@link CarAppService}.
  *
- * <p>This contoller allows:
+ * <p>This controller allows:
  *
  * <ul>
  *   <li>Sending different {@link Intent}s to the {@link CarAppService}'s {@link
- *       Session#onCreateScreen} and {@link CarAppService#onNewIntent} methods.
+ *       Session#onCreateScreen} and {@link Session#onNewIntent} methods.
  *   <li>Moving a {@link CarAppService} through its different {@link State}s.
  * </ul>
  */
@@ -205,7 +205,8 @@ public class CarAppServiceController {
 
     private CarAppServiceController(
             CarAppService carAppService,
-            @NonNull Session session, @NonNull TestCarContext testCarContext) {
+            @NonNull Session session,
+            @NonNull TestCarContext testCarContext) {
         this.mCarAppService = carAppService;
         this.mTestCarContext = testCarContext;
 

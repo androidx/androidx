@@ -22,6 +22,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.model.Action.ActionType;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,9 +43,10 @@ import java.util.Set;
  */
 public class ActionStrip {
     @Keep
-    private final List<Object> mActions;
+    private final List<Action> mActions;
 
     /** Constructs a new builder of {@link ActionStrip}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -52,18 +54,31 @@ public class ActionStrip {
 
     /**
      * Returns the list of {@link Action}'s.
+     *
+     * @deprecated use {@link #getActionList()} instead.
+     */
+    // TODO(jayyoo): remove once {@link #getActionList()} is used in the host.
+    @Deprecated
+    @NonNull
+    @SuppressWarnings("unchecked")
+    public List<Object> getActions() {
+        return (List<Object>) (List<? extends Object>) mActions;
+    }
+
+    /**
+     * Returns the list of {@link Action}'s.
      */
     @NonNull
-    public List<Object> getActions() {
+    public List<Action> getActionList() {
         return mActions;
     }
 
     /**
-     * Returns the {@link Action} associated with the input {@code actionType}, or {@code null} if
-     * no matching {@link Action} is found.
+     * Returns the first {@link Action} associated with the input {@code actionType}, or {@code
+     * null} if no matching {@link Action} is found.
      */
     @Nullable
-    public Action getActionOfType(@ActionType int actionType) {
+    public Action getFirstActionOfType(@ActionType int actionType) {
         for (Object object : mActions) {
             if (object instanceof Action) {
                 Action action = (Action) object;
@@ -100,8 +115,8 @@ public class ActionStrip {
         return Objects.equals(mActions, otherActionStrip.mActions);
     }
 
-    private ActionStrip(Builder builder) {
-        mActions = builder.mActions;
+    ActionStrip(Builder builder) {
+        mActions = CollectionUtils.unmodifiableCopy(builder.mActions);
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -111,8 +126,8 @@ public class ActionStrip {
 
     /** A builder of {@link ActionStrip}. */
     public static final class Builder {
-        private final List<Object> mActions = new ArrayList<>();
-        private final Set<Integer> mAddedActionTypes = new HashSet<>();
+        final List<Action> mActions = new ArrayList<>();
+        final Set<Integer> mAddedActionTypes = new HashSet<>();
 
         /**
          * Adds an {@link Action} to the list.
@@ -150,6 +165,10 @@ public class ActionStrip {
                 throw new IllegalStateException("Action strip must contain at least one action");
             }
             return new ActionStrip(this);
+        }
+
+        /** Creates an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

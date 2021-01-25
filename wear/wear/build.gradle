@@ -60,4 +60,5 @@ androidx {
     mavenVersion = LibraryVersions.WEAR
     inceptionYear = "2016"
     description = "Android Wear Support UI"
+    failOnDeprecationWarnings = false
 }

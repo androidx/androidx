@@ -16,11 +16,15 @@
 
 package androidx.room.compiler.processing.javac
 
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.javac.kotlin.KmType
 import javax.lang.model.type.DeclaredType
 
+/**
+ * Declared types are different from non declared types in java (e.g. primitives, or wildcard
+ * types). Even thought XProcessing does not distinguish between these these, in the java
+ * implementation, it is handy to have a separate type for explicit typeMirror information.
+ */
 internal class JavacDeclaredType private constructor(
     env: JavacProcessingEnv,
     override val typeMirror: DeclaredType,
@@ -28,8 +32,7 @@ internal class JavacDeclaredType private constructor(
     override val kotlinType: KmType?
 ) : JavacType(
     env, typeMirror
-),
-    XDeclaredType {
+) {
     constructor(
         env: JavacProcessingEnv,
         typeMirror: DeclaredType,

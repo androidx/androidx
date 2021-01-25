@@ -42,7 +42,7 @@ class CategoryListConverter {
     }
 
     @TypeConverter
-    fun toString(pojoList: List<JavaPojo>): String? {
+    fun toString(pojoList: List<JavaPojo>?): String {
         return ""
     }
 }

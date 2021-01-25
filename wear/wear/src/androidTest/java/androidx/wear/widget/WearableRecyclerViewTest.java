@@ -154,6 +154,7 @@ public class WearableRecyclerViewTest {
         mActivityRule.getScenario().onActivity(activity -> {
             activity.runOnUiThread(new Runnable() {
                 @Override
+                @SuppressWarnings("unchecked")
                 public void run() {
                     WearableRecyclerView wrv = (WearableRecyclerView) activity.findViewById(
                             R.id.wrv);

@@ -30,7 +30,7 @@ import androidx.car.app.AppManager;
 import androidx.car.app.CarContext;
 import androidx.car.app.IAppHost;
 import androidx.car.app.ICarHost;
-import androidx.car.app.ISurfaceListener;
+import androidx.car.app.ISurfaceCallback;
 import androidx.car.app.Screen;
 import androidx.car.app.navigation.INavigationHost;
 import androidx.car.app.serialization.Bundleable;
@@ -131,7 +131,7 @@ public class FakeHost {
         }
 
         @Override
-        public void setSurfaceListener(@Nullable ISurfaceListener listener) {
+        public void setSurfaceCallback(@Nullable ISurfaceCallback callback) {
             // No-op.
         }
     }

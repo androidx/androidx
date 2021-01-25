@@ -21,15 +21,15 @@ import android.hardware.camera2.CameraMetadata
 /**
  * An enum to match the CameraMetadata.CONTROL_AWB_MODE_* constants.
  */
-enum class AwbMode(val value: Int) {
+public enum class AwbMode(public val value: Int) {
     AUTO(CameraMetadata.CONTROL_AWB_MODE_AUTO),
     CLOUDY_DAYLIGHT(CameraMetadata.CONTROL_AWB_MODE_CLOUDY_DAYLIGHT),
     DAYLIGHT(CameraMetadata.CONTROL_AWB_MODE_DAYLIGHT),
     INCANDESCENT(CameraMetadata.CONTROL_AWB_MODE_INCANDESCENT),
     FLUORESCENT(CameraMetadata.CONTROL_AWB_MODE_FLUORESCENT);
 
-    companion object {
+    public companion object {
         @JvmStatic
-        fun fromIntOrNull(value: Int) = values().firstOrNull { it.value == value }
+        public fun fromIntOrNull(value: Int): AwbMode? = values().firstOrNull { it.value == value }
     }
 }

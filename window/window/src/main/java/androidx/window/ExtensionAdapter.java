@@ -16,8 +16,11 @@
 
 package androidx.window;
 
+import static androidx.window.ExtensionCompat.DEBUG;
+
 import android.app.Activity;
 import android.graphics.Rect;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,6 +36,7 @@ import java.util.List;
  * A class for translating Extension data classes
  */
 final class ExtensionAdapter {
+    private static final String TAG = "ExtensionAdapter";
 
     @NonNull
     DeviceState translate(ExtensionDeviceState deviceState) {
@@ -92,7 +96,7 @@ final class ExtensionAdapter {
         if (!isValid(windowBounds, feature)) {
             return null;
         }
-        int type = FoldingFeature.TYPE_FOLD;
+        int type;
         switch (feature.getType()) {
             case ExtensionFoldingFeature.TYPE_FOLD:
                 type = FoldingFeature.TYPE_FOLD;
@@ -100,8 +104,14 @@ final class ExtensionAdapter {
             case ExtensionFoldingFeature.TYPE_HINGE:
                 type = FoldingFeature.TYPE_HINGE;
                 break;
+            default:
+                if (DEBUG) {
+                    Log.d(TAG, "Unknown feature type: " + feature.getType()
+                            + ", skipping feature.");
+                }
+                return null;
         }
-        int state = FoldingFeature.STATE_FLAT;
+        int state;
         switch (feature.getState()) {
             case ExtensionFoldingFeature.STATE_FLAT:
                 state = FoldingFeature.STATE_FLAT;
@@ -112,6 +122,12 @@ final class ExtensionAdapter {
             case ExtensionFoldingFeature.STATE_HALF_OPENED:
                 state = FoldingFeature.STATE_HALF_OPENED;
                 break;
+            default:
+                if (DEBUG) {
+                    Log.d(TAG, "Unknown feature state: " + feature.getState()
+                            + ", skipping feature.");
+                }
+                return null;
         }
         return new FoldingFeature(feature.getBounds(), type, state);
     }

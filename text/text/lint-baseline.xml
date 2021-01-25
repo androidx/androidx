@@ -1,147 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
-        id="InlinedApi"
-        message="Field requires API level 29 (current min is 21): `android.graphics.fonts.FontStyle#FONT_WEIGHT_NORMAL`"
-        errorLine1="            textPaint.typeface = getTypeface(FontStyle.FONT_WEIGHT_NORMAL, false)"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="UnknownIssueId"
+        message="Unknown issue id &quot;ComposableLambdaParameterNaming&quot;">
         <location
-            file="src/main/java/androidx/compose/ui/text/android/style/FontSpan.kt"
-            line="42"
-            column="46"/>
+            file="build.gradle"/>
     </issue>
 
     <issue
-        id="InlinedApi"
-        message="Field requires API level 29 (current min is 21): `android.graphics.fonts.FontStyle#FONT_WEIGHT_NORMAL`"
-        errorLine1="            textPaint.typeface = getTypeface(FontStyle.FONT_WEIGHT_NORMAL, false)"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="UnknownIssueId"
+        message="Unknown issue id &quot;ComposableLambdaParameterPosition&quot;">
         <location
-            file="src/main/java/androidx/compose/ui/text/android/style/FontSpan.kt"
-            line="42"
-            column="46"/>
+            file="build.gradle"/>
     </issue>
 
     <issue
-        id="InlinedApi"
-        message="Field requires API level 29 (current min is 21): `android.graphics.fonts.FontStyle#FONT_WEIGHT_BOLD`"
-        errorLine1="                FontStyle.FONT_WEIGHT_BOLD"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="UnknownIssueId"
+        message="Unknown issue id &quot;ComposableNaming&quot;">
         <location
-            file="src/main/java/androidx/compose/ui/text/android/style/FontSpan.kt"
-            line="49"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 29 (current min is 21): `android.graphics.fonts.FontStyle#FONT_WEIGHT_NORMAL`"
-        errorLine1="                FontStyle.FONT_WEIGHT_NORMAL"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/text/android/style/FontSpan.kt"
-            line="51"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 29 (current min is 28): `android.graphics.fonts.FontStyle#FONT_WEIGHT_NORMAL`"
-        errorLine1="            oldTypeface?.weight ?: FontStyle.FONT_WEIGHT_NORMAL"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/text/android/style/FontWeightStyleSpan.kt"
-            line="79"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 29 (current min is 21): `android.graphics.text.LineBreaker#JUSTIFICATION_MODE_NONE`"
-        errorLine1="    const val JUSTIFICATION_MODE_NONE = LineBreaker.JUSTIFICATION_MODE_NONE"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/text/android/LayoutCompat.kt"
-            line="51"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 29 (current min is 21): `android.graphics.text.LineBreaker#JUSTIFICATION_MODE_INTER_WORD`"
-        errorLine1="    const val JUSTIFICATION_MODE_INTER_WORD = LineBreaker.JUSTIFICATION_MODE_INTER_WORD"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/text/android/LayoutCompat.kt"
-            line="52"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 23 (current min is 21): `android.text.Layout#HYPHENATION_FREQUENCY_NORMAL`"
-        errorLine1="    const val HYPHENATION_FREQUENCY_NORMAL = Layout.HYPHENATION_FREQUENCY_NORMAL"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/text/android/LayoutCompat.kt"
-            line="58"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 23 (current min is 21): `android.text.Layout#HYPHENATION_FREQUENCY_FULL`"
-        errorLine1="    const val HYPHENATION_FREQUENCY_FULL = Layout.HYPHENATION_FREQUENCY_FULL"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/text/android/LayoutCompat.kt"
-            line="59"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 23 (current min is 21): `android.text.Layout#HYPHENATION_FREQUENCY_NONE`"
-        errorLine1="    const val HYPHENATION_FREQUENCY_NONE = Layout.HYPHENATION_FREQUENCY_NONE"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/text/android/LayoutCompat.kt"
-            line="60"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 29 (current min is 21): `android.graphics.text.LineBreaker#BREAK_STRATEGY_SIMPLE`"
-        errorLine1="    const val BREAK_STRATEGY_SIMPLE = LineBreaker.BREAK_STRATEGY_SIMPLE"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/text/android/LayoutCompat.kt"
-            line="70"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 29 (current min is 21): `android.graphics.text.LineBreaker#BREAK_STRATEGY_HIGH_QUALITY`"
-        errorLine1="    const val BREAK_STRATEGY_HIGH_QUALITY = LineBreaker.BREAK_STRATEGY_HIGH_QUALITY"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/text/android/LayoutCompat.kt"
-            line="71"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 29 (current min is 21): `android.graphics.text.LineBreaker#BREAK_STRATEGY_BALANCED`"
-        errorLine1="    const val BREAK_STRATEGY_BALANCED = LineBreaker.BREAK_STRATEGY_BALANCED"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/text/android/LayoutCompat.kt"
-            line="72"
-            column="41"/>
+            file="build.gradle"/>
     </issue>
 
     <issue

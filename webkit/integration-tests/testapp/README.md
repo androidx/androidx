@@ -1,7 +1,7 @@
 # WebView Demo App
 
 **See this page rendered in [Gitiles
-markdown](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/webkit/integration-tests/testapp/README.md).**
+markdown](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/webkit/integration-tests/testapp/README.md).**
 
 The WebView/Webkit demo app serves as both a practical demonstration how to use
 the latest AndroidX Webkit APIs and as a means to exercise those APIs for manual

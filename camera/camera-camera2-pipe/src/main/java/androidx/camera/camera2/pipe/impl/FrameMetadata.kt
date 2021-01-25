@@ -26,12 +26,13 @@ import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.camera2.pipe.wrapper.Api28Compat
 
 /**
  * An implementation of [FrameMetadata] that retrieves values from a [CaptureResult] object
  */
 @Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
-class AndroidFrameMetadata constructor(
+internal class AndroidFrameMetadata constructor(
     private val captureResult: CaptureResult,
     override val camera: CameraId
 ) : FrameMetadata {
@@ -56,7 +57,7 @@ class AndroidFrameMetadata constructor(
 /**
  * A version of [FrameMetadata] that can override (fix) metadata.
  */
-class CorrectedFrameMetadata(
+internal class CorrectedFrameMetadata(
     private var frameMetadata: FrameMetadata,
     override var extraMetadata: Map<*, Any?>
 ) : FrameMetadata {
@@ -86,7 +87,7 @@ class CorrectedFrameMetadata(
  * An implementation of [FrameInfo] that retrieves values from a [TotalCaptureResult] object.
  */
 @Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
-class AndroidFrameInfo(
+internal class AndroidFrameInfo(
     private val totalCaptureResult: TotalCaptureResult,
     override val camera: CameraId,
     override val requestMetadata: RequestMetadata
@@ -102,8 +103,8 @@ class AndroidFrameInfo(
         // Metadata for physical cameras was introduced in Android P so that it can be used to
         // determine state of the physical lens and sensor in a multi-camera configuration.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val physicalResults = totalCaptureResult.physicalCameraResults
-            if (physicalResults.isNotEmpty()) {
+            val physicalResults = Api28Compat.getPhysicalCaptureResults(totalCaptureResult)
+            if (physicalResults != null && physicalResults.isNotEmpty()) {
                 val map = ArrayMap<CameraId, AndroidFrameMetadata>(physicalResults.size)
                 for (entry in physicalResults) {
                     val physicalCamera = CameraId(entry.key)

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="BanSynchronizedMethods"
@@ -79,17 +79,6 @@
     </issue>
 
     <issue
-        id="BatteryLife"
-        message="Declaring a broadcastreceiver for `android.net.conn.CONNECTIVITY_CHANGE` is deprecated for apps targeting N and higher. In general, apps should not rely on this broadcast and instead use `WorkManager`."
-        errorLine1="                &lt;action android:name=&quot;android.net.conn.CONNECTIVITY_CHANGE&quot;/>"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="99"
-            column="39"/>
-    </issue>
-
-    <issue
         id="UnsafeNewApiCall"
         message="This call is to a method from API 19, the call containing class androidx.work.impl.background.systemalarm.Alarms is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
         errorLine1="                alarmManager.setExact(RTC_WAKEUP, triggerAtMillis, pendingIntent);"
@@ -129,7 +118,7 @@
         errorLine2="                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="292"
+            line="294"
             column="30"/>
     </issue>
 
@@ -428,83 +417,6 @@
             file="src/main/java/androidx/work/WorkRequest.java"
             line="283"
             column="47"/>
-    </issue>
-
-    <issue
-        id="UnsafeProtectedBroadcastReceiver"
-        message="This broadcast receiver declares an intent-filter for a protected broadcast action string, which can only be sent by the system, not third-party applications. However, the receiver&apos;s onReceive method does not appear to call getAction to ensure that the received Intent&apos;s action string matches the expected value, potentially making it possible for another actor to send a spoofed intent with no action string or a different action string and cause undesired behavior. In this case, it is possible that the onReceive method passed the received Intent to another method that checked the action string. If so, this finding can safely be ignored."
-        errorLine1="    public void onReceive(Context context, Intent intent) {"
-        errorLine2="                ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemalarm/RescheduleReceiver.java"
-            line="35"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="WakelockTimeout"
-        message="Provide a timeout when requesting a wakelock with `PowerManager.Wakelock.acquire(long timeout)`. This will ensure the OS will cleanup any wakelocks that last longer than you intend, and will save your user&apos;s battery."
-        errorLine1="        mWakeLock.acquire();"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemalarm/DelayMetCommandHandler.java"
-            line="191"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="WakelockTimeout"
-        message="Provide a timeout when requesting a wakelock with `PowerManager.Wakelock.acquire(long timeout)`. This will ensure the OS will cleanup any wakelocks that last longer than you intend, and will save your user&apos;s battery."
-        errorLine1="                    mForegroundLock.acquire();"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/Processor.java"
-            line="155"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="WakelockTimeout"
-        message="Provide a timeout when requesting a wakelock with `PowerManager.Wakelock.acquire(long timeout)`. This will ensure the OS will cleanup any wakelocks that last longer than you intend, and will save your user&apos;s battery."
-        errorLine1="            processCommandLock.acquire();"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemalarm/SystemAlarmDispatcher.java"
-            line="251"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="WakelockTimeout"
-        message="Provide a timeout when requesting a wakelock with `PowerManager.Wakelock.acquire(long timeout)`. This will ensure the OS will cleanup any wakelocks that last longer than you intend, and will save your user&apos;s battery."
-        errorLine1="                            wakeLock.acquire();"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemalarm/SystemAlarmDispatcher.java"
-            line="276"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="Do not place Android context classes in static fields (static reference to `WorkManagerImpl` which has field `mContext` pointing to `Context`); this is a memory leak"
-        errorLine1="    private static WorkManagerImpl sDelegatedInstance = null;"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/WorkManagerImpl.java"
-            line="100"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="Do not place Android context classes in static fields (static reference to `WorkManagerImpl` which has field `mContext` pointing to `Context`); this is a memory leak"
-        errorLine1="    private static WorkManagerImpl sDefaultInstance = null;"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/WorkManagerImpl.java"
-            line="101"
-            column="13"/>
     </issue>
 
     <issue
@@ -1050,7 +962,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="311"
+            line="313"
             column="31"/>
     </issue>
 
@@ -1061,7 +973,7 @@
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="311"
+            line="313"
             column="48"/>
     </issue>
 
@@ -2260,7 +2172,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/WorkerWrapper.java"
-            line="683"
+            line="685"
             column="16"/>
     </issue>
 

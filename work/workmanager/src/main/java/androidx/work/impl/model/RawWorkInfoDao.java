@@ -34,7 +34,7 @@ public interface RawWorkInfoDao {
      * @param query The raw query obtained using {@link WorkQuery}
      * @return A {@link List} of {@link WorkSpec.WorkInfoPojo}s using the raw query.
      */
-    @RawQuery
+    @RawQuery(observedEntities = WorkSpec.class)
     @NonNull
     List<WorkSpec.WorkInfoPojo> getWorkInfoPojos(@NonNull SupportSQLiteQuery query);
 
@@ -43,7 +43,7 @@ public interface RawWorkInfoDao {
      * @return A {@link LiveData} of a {@link List} of {@link WorkSpec.WorkInfoPojo}s using the
      * raw query.
      */
-    @RawQuery
+    @RawQuery(observedEntities = WorkSpec.class)
     @NonNull
     LiveData<List<WorkSpec.WorkInfoPojo>> getWorkInfoPojosLiveData(
             @NonNull SupportSQLiteQuery query);

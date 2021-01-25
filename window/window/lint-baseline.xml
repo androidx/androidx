@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="PrivateApi"
-        message="Accessing internal APIs via reflection is not supported and may not work on all devices or in the future"
-        errorLine1="            Class&lt;?> displayInfoClass = Class.forName(&quot;android.view.DisplayInfo&quot;);"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="351"
-            column="41"/>
-    </issue>
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="BanUncheckedReflection"
@@ -19,7 +8,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="138"
+            line="158"
             column="38"/>
     </issue>
 
@@ -30,7 +19,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="172"
+            line="192"
             column="35"/>
     </issue>
 
@@ -41,7 +30,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="175"
+            line="195"
             column="35"/>
     </issue>
 
@@ -52,19 +41,8 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="359"
+            line="379"
             column="13"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.window.WindowBoundsHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                    activity.getSystemService(android.view.WindowManager.class);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="113"
-            column="30"/>
     </issue>
 
     <issue
@@ -74,7 +52,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="170"
+            line="190"
             column="26"/>
     </issue>
 
@@ -85,7 +63,7 @@
         errorLine2="                       ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="187"
+            line="207"
             column="24"/>
     </issue>
 
@@ -96,7 +74,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="189"
+            line="209"
             column="23"/>
     </issue>
 
@@ -107,7 +85,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="205"
+            line="225"
             column="30"/>
     </issue>
 
@@ -118,7 +96,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="212"
+            line="232"
             column="50"/>
     </issue>
 
@@ -129,7 +107,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="216"
+            line="236"
             column="71"/>
     </issue>
 
@@ -140,7 +118,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="217"
+            line="237"
             column="51"/>
     </issue>
 
@@ -151,7 +129,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="220"
+            line="240"
             column="49"/>
     </issue>
 
@@ -162,7 +140,7 @@
         errorLine2="                                                                       ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="224"
+            line="244"
             column="72"/>
     </issue>
 
@@ -173,7 +151,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="225"
+            line="245"
             column="52"/>
     </issue>
 
@@ -184,7 +162,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="254"
+            line="274"
             column="23"/>
     </issue>
 
@@ -195,7 +173,7 @@
         errorLine2="                    ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="306"
+            line="326"
             column="21"/>
     </issue>
 

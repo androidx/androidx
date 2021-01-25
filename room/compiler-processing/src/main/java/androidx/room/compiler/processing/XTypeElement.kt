@@ -39,7 +39,7 @@ interface XTypeElement : XHasModifiers, XElement {
     /**
      * The type represented by this [XTypeElement].
      */
-    val type: XDeclaredType
+    val type: XType
 
     /**
      * The super type of this element if it represents a class.

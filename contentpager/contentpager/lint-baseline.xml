@@ -1,49 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 26 (current min is 14): `android.content.ContentResolver#EXTRA_HONORED_ARGS`"
-        errorLine1="    public static final String EXTRA_HONORED_ARGS = ContentResolver.EXTRA_HONORED_ARGS;"
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/contentpager/content/ContentPager.java"
-            line="180"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 26 (current min is 14): `android.content.ContentResolver#EXTRA_TOTAL_COUNT`"
-        errorLine1="    public static final String EXTRA_TOTAL_COUNT = ContentResolver.EXTRA_TOTAL_COUNT;"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/contentpager/content/ContentPager.java"
-            line="183"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 26 (current min is 14): `android.content.ContentResolver#QUERY_ARG_OFFSET`"
-        errorLine1="    public static final String QUERY_ARG_OFFSET = ContentResolver.QUERY_ARG_OFFSET;"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/contentpager/content/ContentPager.java"
-            line="186"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 26 (current min is 14): `android.content.ContentResolver#QUERY_ARG_LIMIT`"
-        errorLine1="    public static final String QUERY_ARG_LIMIT = ContentResolver.QUERY_ARG_LIMIT;"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/contentpager/content/ContentPager.java"
-            line="189"
-            column="50"/>
-    </issue>
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="UnsafeNewApiCall"
@@ -98,17 +54,6 @@
             file="src/main/java/androidx/contentpager/content/Query.java"
             line="149"
             column="37"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This `Loader` class should be static or leaks might occur (anonymous android.content.CursorLoader)"
-        errorLine1="                return new android.content.CursorLoader(mContext) {"
-        errorLine2="                       ^">
-        <location
-            file="src/main/java/androidx/contentpager/content/LoaderQueryRunner.java"
-            line="61"
-            column="24"/>
     </issue>
 
     <issue

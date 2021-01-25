@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.graphics.RectF
+import android.os.BatteryManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -454,6 +455,10 @@ class WatchFaceServiceTest {
             interactiveWatchFaceInstanceWCS.release()
         }
 
+        if (this::engineWrapper.isInitialized && !engineWrapper.destroyed) {
+            engineWrapper.onDestroy()
+        }
+
         validateMockitoUsage()
     }
 
@@ -875,13 +880,40 @@ class WatchFaceServiceTest {
         )
 
         // The delay should change when battery is low.
-        BroadcastReceivers.sendOnActionBatteryChangedForTesting(Intent(Intent.ACTION_BATTERY_LOW))
+        BroadcastReceivers.sendOnActionBatteryLowForTesting(Intent(Intent.ACTION_BATTERY_LOW))
         assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
             WatchFaceImpl.MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS
         )
 
         // And go back to normal when battery is OK.
-        BroadcastReceivers.sendOnActionBatteryChangedForTesting(Intent(Intent.ACTION_BATTERY_OKAY))
+        BroadcastReceivers.sendOnActionBatteryOkayForTesting(Intent(Intent.ACTION_BATTERY_OKAY))
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
+            INTERACTIVE_UPDATE_RATE_MS
+        )
+    }
+
+    @Test
+    fun interactiveFrameRate_restoreWhenPowerConnectedAfterBatteryLow() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
+            INTERACTIVE_UPDATE_RATE_MS
+        )
+
+        // The delay should change when battery is low.
+        BroadcastReceivers.sendOnActionBatteryLowForTesting(Intent(Intent.ACTION_BATTERY_LOW))
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
+            WatchFaceImpl.MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS
+        )
+
+        // And go back to normal when power is connected.
+        BroadcastReceivers.sendOnActionPowerConnectedForTesting(
+            Intent(Intent.ACTION_POWER_CONNECTED)
+        )
         assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
             INTERACTIVE_UPDATE_RATE_MS
         )
@@ -981,6 +1013,7 @@ class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
         assertThat(complicationsManager.getBackgroundComplication()).isNull()
+        engineWrapper.onDestroy()
 
         initEngine(
             WatchFaceType.ANALOG,
@@ -988,6 +1021,7 @@ class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
         assertThat(complicationsManager.getBackgroundComplication()).isNull()
+        engineWrapper.onDestroy()
 
         initEngine(
             WatchFaceType.ANALOG,
@@ -1017,6 +1051,7 @@ class WatchFaceServiceTest {
                 watchHandStyleSetting to gothicStyleOption
             )
         )
+        engineWrapper.onDestroy()
 
         val userStyleRepository2 = UserStyleRepository(
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting))
@@ -1849,6 +1884,39 @@ class WatchFaceServiceTest {
     }
 
     @Test
+    fun updateInvalidCOmpliationIdDoesNotCrash() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "interactiveInstanceId",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                SystemState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null
+            )
+        )
+
+        // Send a complication with an invalid id - this should get ignored.
+        interactiveWatchFaceInstanceWCS.updateComplicationData(
+            listOf(
+                IdAndComplicationDataWireFormat(
+                    RIGHT_COMPLICATION_ID,
+                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(ComplicationText.plainText("TYPE_SHORT_TEXT"))
+                        .build()
+                )
+            )
+        )
+    }
+
+    @Test
     fun invalidateRendererBeforeFullInit() {
         renderer = TestRenderer(
             surfaceHolder,
@@ -1859,5 +1927,115 @@ class WatchFaceServiceTest {
 
         // This should not throw an exception.
         renderer.invalidate()
+    }
+
+    @Test
+    fun watchStateObservableWatchDataMembersHaveValues() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "interactiveInstanceId",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                SystemState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null
+            )
+        )
+
+        assertTrue(watchState.interruptionFilter.hasValue())
+        assertTrue(watchState.isAmbient.hasValue())
+        assertTrue(watchState.isBatteryLowAndNotCharging.hasValue())
+        assertTrue(watchState.isVisible.hasValue())
+    }
+
+    @Test
+    fun setIsBatteryLowAndNotChargingFromBatteryStatus() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "interactiveInstanceId",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                SystemState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null
+            )
+        )
+
+        watchFaceImpl.setIsBatteryLowAndNotChargingFromBatteryStatus(
+            Intent().apply {
+                putExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_DISCHARGING)
+                putExtra(BatteryManager.EXTRA_LEVEL, 0)
+                putExtra(BatteryManager.EXTRA_SCALE, 100)
+            }
+        )
+        assertTrue(watchState.isBatteryLowAndNotCharging.value)
+
+        watchFaceImpl.setIsBatteryLowAndNotChargingFromBatteryStatus(
+            Intent().apply {
+                putExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_CHARGING)
+                putExtra(BatteryManager.EXTRA_LEVEL, 0)
+                putExtra(BatteryManager.EXTRA_SCALE, 100)
+            }
+        )
+        assertFalse(watchState.isBatteryLowAndNotCharging.value)
+
+        watchFaceImpl.setIsBatteryLowAndNotChargingFromBatteryStatus(
+            Intent().apply {
+                putExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_DISCHARGING)
+                putExtra(BatteryManager.EXTRA_LEVEL, 80)
+                putExtra(BatteryManager.EXTRA_SCALE, 100)
+            }
+        )
+        assertFalse(watchState.isBatteryLowAndNotCharging.value)
+
+        watchFaceImpl.setIsBatteryLowAndNotChargingFromBatteryStatus(Intent())
+        assertFalse(watchState.isBatteryLowAndNotCharging.value)
+
+        watchFaceImpl.setIsBatteryLowAndNotChargingFromBatteryStatus(null)
+        assertFalse(watchState.isBatteryLowAndNotCharging.value)
+    }
+
+    @Test
+    fun isAmbientInitalisedEvenWithoutPropertiesSent() {
+        userStyleRepository = UserStyleRepository(UserStyleSchema(emptyList()))
+        complicationsManager = ComplicationsManager(emptyList(), userStyleRepository)
+        renderer = TestRenderer(
+            surfaceHolder,
+            userStyleRepository,
+            watchState.asWatchState(),
+            INTERACTIVE_UPDATE_RATE_MS
+        )
+        testWatchFaceService = TestWatchFaceService(
+            WatchFaceType.ANALOG,
+            complicationsManager,
+            renderer,
+            userStyleRepository,
+            watchState,
+            handler,
+            tapListener
+        )
+        engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onCreate(surfaceHolder)
+
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+        sendBinder(engineWrapper, 1)
+
+        // At this stage we haven't sent properties such as isAmbient, we expect it to be
+        // initialized to false (as opposed to null).
+        assertThat(watchState.isAmbient.value).isFalse()
     }
 }

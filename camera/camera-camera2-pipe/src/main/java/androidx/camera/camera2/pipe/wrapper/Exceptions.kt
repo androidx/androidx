@@ -17,20 +17,20 @@
 package androidx.camera.camera2.pipe.wrapper
 
 import android.hardware.camera2.CameraAccessException
-import androidx.camera.camera2.pipe.impl.Log
+import androidx.camera.camera2.pipe.core.Log
 import kotlin.jvm.Throws
 
 /**
  * Thrown when an operation cannot be executed because underlying object is closed or in an
  * unusable state.
  */
-class ObjectUnavailableException(e: Throwable) : Exception(e)
+internal class ObjectUnavailableException(e: Throwable) : Exception(e)
 
 /**
  * Catch specific exceptions that are not normally thrown, log them, then rethrow.
  */
 @Throws(ObjectUnavailableException::class)
-inline fun <T> rethrowCamera2Exceptions(crossinline block: () -> T): T {
+internal inline fun <T> rethrowCamera2Exceptions(crossinline block: () -> T): T {
     // Camera2 has, at different points in time, thrown a large number of checked and/or
     // unchecked exceptions under different circumstances that are not listed in the
     // documentation. This method catches and recasts these exceptions into a common exception

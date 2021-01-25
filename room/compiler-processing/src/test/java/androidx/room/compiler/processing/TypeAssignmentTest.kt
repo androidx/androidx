@@ -85,6 +85,9 @@ class TypeAssignmentTest {
             val varianceSet = testObject.getField("mVarianceSet").type
             assertThat(varianceSet.isAssignableFromWithoutVariance(set)).isTrue()
             assertThat(set.isAssignableFromWithoutVariance(varianceSet)).isTrue()
+            assertThat(
+                varianceSet.extendsBound()
+            ).isNull()
         }
     }
 

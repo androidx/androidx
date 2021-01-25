@@ -23,10 +23,12 @@ import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
+import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.waitForExecution
+import androidx.testutils.withActivity
 import androidx.transition.test.R
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -1186,6 +1188,14 @@ class FragmentTransitionTest(
         assertThat(endGreen.transitionName).isEqualTo("greenSquare")
     }
 
+    @Test
+    fun ignoreWhenViewNotAttached() {
+        with(ActivityScenario.launch(AddTransitionFragmentInActivity::class.java)) {
+            val fragment = withActivity { fragment }
+            assertThat(fragment.calledOnResume).isTrue()
+        }
+    }
+
     private fun setupInitialFragment(): TransitionFragment {
         val fragment1 = TransitionFragment(R.layout.fragment_scene1)
         fragmentManager.beginTransaction()
@@ -1541,3 +1551,15 @@ class FragmentTransitionTest(
 }
 
 class FragmentTransitionTestActivity : FragmentActivity(R.layout.simple_container)
+
+class AddTransitionFragmentInActivity : FragmentActivity() {
+    val fragment = TransitionFragment()
+
+    override fun onStart() {
+        super.onStart()
+        supportFragmentManager.beginTransaction()
+            .setReorderingAllowed(true)
+            .add(android.R.id.content, fragment)
+            .commit()
+    }
+}

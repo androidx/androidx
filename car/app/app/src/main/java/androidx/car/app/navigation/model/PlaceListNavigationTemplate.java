@@ -20,19 +20,16 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_SIMPLE;
 
-import android.content.Context;
-
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
-import androidx.car.app.CarAppPermission;
 import androidx.car.app.Screen;
-import androidx.car.app.SurfaceListener;
+import androidx.car.app.SurfaceCallback;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.DistanceSpan;
+import androidx.car.app.model.Item;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ModelUtils;
 import androidx.car.app.model.Place;
@@ -49,7 +46,7 @@ import java.util.Objects;
  * A template that supports showing a list of places alongside a custom drawn map.
  *
  * <p>The template itself does not expose a drawing surface. In order to draw on the canvas, use
- * {@link androidx.car.app.AppManager#setSurfaceListener(SurfaceListener)}.
+ * {@link androidx.car.app.AppManager#setSurfaceCallback(SurfaceCallback)}.
  *
  * <h4>Template Restrictions</h4>
  *
@@ -83,6 +80,7 @@ public final class PlaceListNavigationTemplate implements Template {
     private final ActionStrip mActionStrip;
 
     /** Constructs a new builder of {@link PlaceListNavigationTemplate}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -110,11 +108,6 @@ public final class PlaceListNavigationTemplate implements Template {
     @Nullable
     public ActionStrip getActionStrip() {
         return mActionStrip;
-    }
-
-    @Override
-    public void checkPermissions(@NonNull Context context) {
-        CarAppPermission.checkHasLibraryPermission(context, CarAppPermission.NAVIGATION_TEMPLATES);
     }
 
     @NonNull
@@ -145,7 +138,7 @@ public final class PlaceListNavigationTemplate implements Template {
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
     }
 
-    private PlaceListNavigationTemplate(Builder builder) {
+    PlaceListNavigationTemplate(Builder builder) {
         mTitle = builder.mTitle;
         mIsLoading = builder.mIsLoading;
         mItemList = builder.mItemList;
@@ -165,14 +158,14 @@ public final class PlaceListNavigationTemplate implements Template {
     /** A builder of {@link PlaceListNavigationTemplate}. */
     public static final class Builder {
         @Nullable
-        private CarText mTitle;
-        private boolean mIsLoading;
+        CarText mTitle;
+        boolean mIsLoading;
         @Nullable
-        private ItemList mItemList;
+        ItemList mItemList;
         @Nullable
-        private Action mHeaderAction;
+        Action mHeaderAction;
         @Nullable
-        private ActionStrip mActionStrip;
+        ActionStrip mActionStrip;
 
         /** Sets the {@link CharSequence} to show as title, or {@code null} to not show a title. */
         @NonNull
@@ -248,7 +241,7 @@ public final class PlaceListNavigationTemplate implements Template {
         @NonNull
         public Builder setItemList(@Nullable ItemList itemList) {
             if (itemList != null) {
-                List<Object> items = itemList.getItems();
+                List<Item> items = itemList.getItemList();
                 ROW_LIST_CONSTRAINTS_SIMPLE.validateOrThrow(itemList);
                 ModelUtils.validateAllNonBrowsableRowsHaveDistance(items);
                 ModelUtils.validateAllRowsHaveOnlySmallImages(items);
@@ -256,18 +249,6 @@ public final class PlaceListNavigationTemplate implements Template {
             }
             this.mItemList = itemList;
 
-            return this;
-        }
-
-        /**
-         * Sets an {@link ItemList} for the template. This method does not enforce the
-         * template's requirements and is only intended for testing purposes.
-         */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        @VisibleForTesting
-        @NonNull
-        public Builder setItemListForTesting(@Nullable ItemList itemList) {
-            this.mItemList = itemList;
             return this;
         }
 
@@ -287,7 +268,7 @@ public final class PlaceListNavigationTemplate implements Template {
         @NonNull
         public Builder setActionStrip(@Nullable ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(
-                    actionStrip == null ? Collections.emptyList() : actionStrip.getActions());
+                    actionStrip == null ? Collections.emptyList() : actionStrip.getActionList());
             this.mActionStrip = actionStrip;
             return this;
         }
@@ -317,6 +298,10 @@ public final class PlaceListNavigationTemplate implements Template {
             }
 
             return new PlaceListNavigationTemplate(this);
+        }
+
+        /** Constructs an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

@@ -48,10 +48,13 @@ package androidx.paging {
   @kotlin.RequiresOptIn public @interface ExperimentalPagingApi {
   }
 
-  public abstract class InvalidatingPagingSourceFactory<Key, Value> implements kotlin.jvm.functions.Function0<androidx.paging.PagingSource<Key,Value>> {
+  public final class FlowExtKt {
+  }
+
+  public final class InvalidatingPagingSourceFactory<Key, Value> implements kotlin.jvm.functions.Function0<androidx.paging.PagingSource<Key,Value>> {
     ctor public InvalidatingPagingSourceFactory(kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
-    method public final void invalidate();
-    method public final androidx.paging.PagingSource<Key,Value> invoke();
+    method public void invalidate();
+    method public androidx.paging.PagingSource<Key,Value> invoke();
   }
 
   @Deprecated public abstract class ItemKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {
@@ -292,23 +295,25 @@ package androidx.paging {
 
   public final class PagingData<T> {
     method public static <T> androidx.paging.PagingData<T> empty();
-    method @CheckResult public androidx.paging.PagingData<T> filter(kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
-    method @CheckResult public <R> androidx.paging.PagingData<R> flatMap(kotlin.jvm.functions.Function1<? super T,? extends java.lang.Iterable<? extends R>> transform);
     method public static <T> androidx.paging.PagingData<T> from(java.util.List<? extends T> data);
-    method @CheckResult public androidx.paging.PagingData<T> insertFooterItem(T item);
-    method @CheckResult public androidx.paging.PagingData<T> insertHeaderItem(T item);
-    method @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T> pagingData, kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
-    method @CheckResult public <R> androidx.paging.PagingData<R> map(kotlin.jvm.functions.Function1<? super T,? extends R> transform);
     field public static final androidx.paging.PagingData.Companion Companion;
   }
 
   public static final class PagingData.Companion {
     method public <T> androidx.paging.PagingData<T> empty();
     method public <T> androidx.paging.PagingData<T> from(java.util.List<? extends T> data);
-    method @CheckResult public <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T> pagingData, kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
   }
 
-  public final class PagingDataKt {
+  public final class PagingDataTransforms {
+    method @CheckResult public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function1<? super T,? extends java.lang.Iterable<? extends R>> transform);
+    method @CheckResult public static <T> androidx.paging.PagingData<T> insertFooterItem(androidx.paging.PagingData<T>, optional androidx.paging.TerminalSeparatorType terminalSeparatorType, T item);
+    method @CheckResult public static <T> androidx.paging.PagingData<T> insertFooterItem(androidx.paging.PagingData<T>, T item);
+    method @CheckResult public static <T> androidx.paging.PagingData<T> insertHeaderItem(androidx.paging.PagingData<T>, optional androidx.paging.TerminalSeparatorType terminalSeparatorType, T item);
+    method @CheckResult public static <T> androidx.paging.PagingData<T> insertHeaderItem(androidx.paging.PagingData<T>, T item);
+    method @CheckResult public static <R, T extends R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, optional androidx.paging.TerminalSeparatorType terminalSeparatorType, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
+    method @CheckResult public static <R, T extends R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> map(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function1<? super T,? extends R> transform);
   }
 
   public abstract class PagingSource<Key, Value> {
@@ -316,7 +321,7 @@ package androidx.paging {
     method public final boolean getInvalid();
     method public boolean getJumpingSupported();
     method public boolean getKeyReuseSupported();
-    method public Key? getRefreshKey(androidx.paging.PagingState<Key,Value> state);
+    method public abstract Key? getRefreshKey(androidx.paging.PagingState<Key,Value> state);
     method public final void invalidate();
     method public abstract suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> p);
     method public final void registerInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
@@ -475,6 +480,14 @@ package androidx.paging {
   }
 
   public final class SeparatorsKt {
+  }
+
+  public final class SimpleChannelFlowKt {
+  }
+
+  public enum TerminalSeparatorType {
+    enum_constant public static final androidx.paging.TerminalSeparatorType FULLY_COMPLETE;
+    enum_constant public static final androidx.paging.TerminalSeparatorType SOURCE_COMPLETE;
   }
 
 }

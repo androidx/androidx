@@ -38,7 +38,6 @@ dependencies {
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
-    implementation("androidx.wear:wear:1.1.0-rc01")
 
     androidTestImplementation project(":test-screenshot")
     androidTestImplementation project(":wear:wear-watchface-samples")

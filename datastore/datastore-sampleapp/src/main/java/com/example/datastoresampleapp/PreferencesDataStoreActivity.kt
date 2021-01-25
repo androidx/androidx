@@ -28,7 +28,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.createDataStore
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
-import androidx.datastore.preferences.core.preferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
@@ -42,7 +42,7 @@ class PreferencesDataStoreActivity : AppCompatActivity() {
     private val TAG = "PreferencesActivity"
 
     private val PREFERENCE_STORE_FILE_NAME = "datastore_test_app"
-    private val COUNTER_KEY = preferencesKey<Int>("counter")
+    private val COUNTER_KEY = intPreferencesKey("counter")
 
     private val preferenceStore: DataStore<Preferences> by lazy {
         applicationContext.createDataStore(PREFERENCE_STORE_FILE_NAME)

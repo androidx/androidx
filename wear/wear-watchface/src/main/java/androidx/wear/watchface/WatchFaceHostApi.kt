@@ -18,14 +18,12 @@ package androidx.wear.watchface
 
 import android.content.ComponentName
 import android.content.Context
-import android.graphics.Rect
 import android.os.Handler
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.wear.complications.SystemProviders
-import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 /**
@@ -40,19 +38,8 @@ public interface WatchFaceHostApi {
     /** Returns the main thread [Handler]. */
     public fun getHandler(): Handler
 
-    /** Registers the watch face's current user style with the system. */
-    public fun setCurrentUserStyle(userStyle: UserStyleWireFormat)
-
     /** Returns the initial user style stored by the system if there is one or null otherwise. */
     public fun getInitialUserStyle(): UserStyleWireFormat?
-
-    /** Registers details of the complications with the system. */
-    public fun setComplicationDetails(
-        complicationId: Int,
-        bounds: Rect,
-        @ComplicationBoundsType boundsType: Int,
-        types: IntArray
-    )
 
     /**
      * Sets ContentDescriptionLabels for text-to-speech screen readers to make your

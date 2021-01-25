@@ -42,7 +42,7 @@ class DatabaseProcessingStep : XProcessingStep {
                 try {
                     DatabaseProcessor(
                         context,
-                        it.asTypeElement()
+                        it
                     ).process()
                 } catch (ex: MissingTypeException) {
                     // Abandon processing this database class since it needed a type element

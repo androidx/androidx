@@ -19,13 +19,14 @@ package androidx.camera.camera2.pipe.integration.adapter
 import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
-import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
-import androidx.camera.camera2.pipe.impl.Log.warn
+import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.config.CameraScope
-import androidx.camera.camera2.pipe.integration.impl.CameraState
-import androidx.camera.camera2.pipe.integration.impl.UseCaseManager
+import androidx.camera.camera2.pipe.integration.impl.CameraProperties
+import androidx.camera.camera2.pipe.integration.impl.EvCompControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
+import androidx.camera.camera2.pipe.integration.impl.UseCaseManager
+import androidx.camera.camera2.pipe.integration.impl.ZoomControl
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
 import androidx.camera.core.ImageCapture
@@ -39,11 +40,10 @@ import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Provider
 
 /**
  * Adapt the [CameraControlInternal] interface to [CameraPipe].
@@ -52,20 +52,22 @@ import javax.inject.Provider
  * well as providing access to other utility methods. The primary purpose of this class it to
  * forward these interactions to the currently configured [UseCaseCamera].
  */
+@SuppressLint("UnsafeExperimentalUsageError")
 @CameraScope
 @OptIn(ExperimentalCoroutinesApi::class)
 class CameraControlAdapter @Inject constructor(
-    lazyCameraMetadata: Provider<CameraMetadata>,
+    private val cameraProperties: CameraProperties,
     private val cameraScope: CoroutineScope,
-    private val cameraState: CameraState,
-    private val useCaseManager: UseCaseManager
+    private val useCaseManager: UseCaseManager,
+    private val cameraStateAdapter: CameraStateAdapter,
+    private val zoomControl: ZoomControl,
+    private val evCompControl: EvCompControl
 ) : CameraControlInternal {
-    private val cameraMetadata by lazy { lazyCameraMetadata.get() }
     private var interopConfig: Config = MutableOptionsBundle.create()
     private var imageCaptureFlashMode: Int = ImageCapture.FLASH_MODE_OFF
 
     override fun getSensorRect(): Rect {
-        return cameraMetadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
+        return cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
     }
 
     override fun addInteropConfig(config: Config) {
@@ -82,23 +84,23 @@ class CameraControlAdapter @Inject constructor(
 
     override fun enableTorch(torch: Boolean): ListenableFuture<Void> {
         // Launch UNDISPATCHED to preserve interaction order with the camera.
-        return cameraScope.launchAsVoidFuture(start = CoroutineStart.UNDISPATCHED) {
+        return cameraScope.launch(start = CoroutineStart.UNDISPATCHED) {
             useCaseManager.camera?.let {
                 // Tell the camera to turn the torch on / off.
-                val result = it.enableTorchAsync(torch)
+                val result = it.setTorchAsync(torch)
 
-                // Update the torch state.
-                withContext(Dispatchers.Main) {
-                    cameraState.torchState.value = when (torch) {
+                // Update the torch state
+                cameraStateAdapter.setTorchState(
+                    when (torch) {
                         true -> TorchState.ON
                         false -> TorchState.OFF
                     }
-                }
+                )
 
                 // Wait until the command is received by the camera.
                 result.await()
             }
-        }
+        }.asListenableFuture()
     }
 
     override fun startFocusAndMetering(
@@ -114,15 +116,22 @@ class CameraControlAdapter @Inject constructor(
     }
 
     override fun setZoomRatio(ratio: Float): ListenableFuture<Void> {
-        // Note: The current implementation waits until the update has been *submitted* to the
-        //   camera, but does not wait for the total capture result.
-        warn { "TODO: setZoomRatio is not yet supported" }
-        return Futures.immediateFuture(null)
+        return cameraScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            useCaseManager.camera?.let {
+                zoomControl.zoomRatio = ratio
+                val zoomValue = ZoomValue(
+                    ratio,
+                    zoomControl.minZoom,
+                    zoomControl.maxZoom
+                )
+                cameraStateAdapter.setZoomState(zoomValue)
+            }
+        }.asListenableFuture()
     }
 
     override fun setLinearZoom(linearZoom: Float): ListenableFuture<Void> {
-        warn { "TODO: setLinearZoom is not yet supported" }
-        return Futures.immediateFuture(null)
+        val ratio = zoomControl.toZoomRatio(linearZoom)
+        return setZoomRatio(ratio)
     }
 
     override fun getFlashMode(): Int {
@@ -150,8 +159,22 @@ class CameraControlAdapter @Inject constructor(
 
     @SuppressLint("UnsafeExperimentalUsageError")
     override fun setExposureCompensationIndex(exposure: Int): ListenableFuture<Int> {
-        warn { "TODO: setExposureCompensationIndex is not yet supported" }
-        return Futures.immediateFuture(exposure)
+        return cameraScope.async(start = CoroutineStart.UNDISPATCHED) {
+            useCaseManager.camera?.let {
+                evCompControl.evCompIndex = exposure
+                cameraStateAdapter.setExposureState(
+                    EvCompValue(
+                        evCompControl.supported,
+                        evCompControl.evCompIndex,
+                        evCompControl.range,
+                        evCompControl.step,
+                    )
+                )
+                return@async exposure
+            }
+            // TODO: Consider throwing instead? This is only reached if there's no camera.
+            evCompControl.evCompIndex
+        }.asListenableFuture()
     }
 
     override fun submitCaptureRequests(captureConfigs: MutableList<CaptureConfig>) {

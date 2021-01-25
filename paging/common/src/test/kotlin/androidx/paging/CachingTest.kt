@@ -407,6 +407,8 @@ class CachingTest {
             }
         }
 
+        override fun getRefreshKey(state: PagingState<Int, Item>): Int? = null
+
         private fun doLoad(
             position: Int,
             size: Int

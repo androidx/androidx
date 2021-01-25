@@ -1,0 +1,39 @@
+// Signature format: 4.0
+package androidx.annotation {
+
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget}) public @interface OptIn {
+    method public abstract Class<? extends java.lang.annotation.Annotation>[] markerClass();
+    property public abstract Class<? extends java.lang.annotation.Annotation>![] markerClass;
+  }
+
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget) public @interface RequiresOptIn {
+    method public abstract androidx.annotation.RequiresOptIn.Level level() default androidx.annotation.RequiresOptIn.Level.ERROR;
+    property public abstract androidx.annotation.RequiresOptIn.Level level;
+  }
+
+  public enum RequiresOptIn.Level {
+    enum_constant public static final androidx.annotation.RequiresOptIn.Level ERROR;
+    enum_constant public static final androidx.annotation.RequiresOptIn.Level WARNING;
+  }
+
+}
+
+package androidx.annotation.experimental {
+
+  @Deprecated @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget) public @interface Experimental {
+    method @Deprecated public abstract androidx.annotation.experimental.Experimental.Level level() default androidx.annotation.experimental.Experimental.Level.ERROR;
+    property public abstract androidx.annotation.experimental.Experimental.Level level;
+  }
+
+  @Deprecated public enum Experimental.Level {
+    enum_constant @Deprecated public static final androidx.annotation.experimental.Experimental.Level ERROR;
+    enum_constant @Deprecated public static final androidx.annotation.experimental.Experimental.Level WARNING;
+  }
+
+  @Deprecated @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget}) public @interface UseExperimental {
+    method @Deprecated public abstract Class<? extends java.lang.annotation.Annotation>[] markerClass();
+    property public abstract Class<? extends java.lang.annotation.Annotation>![] markerClass;
+  }
+
+}
+

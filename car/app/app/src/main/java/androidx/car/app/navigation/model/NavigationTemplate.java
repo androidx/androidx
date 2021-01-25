@@ -21,14 +21,11 @@ import static androidx.car.app.model.constraints.CarColorConstraints.UNCONSTRAIN
 
 import static java.util.Objects.requireNonNull;
 
-import android.content.Context;
-
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.CarAppPermission;
 import androidx.car.app.Screen;
-import androidx.car.app.SurfaceListener;
+import androidx.car.app.SurfaceCallback;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
@@ -52,7 +49,7 @@ import java.util.Objects;
  * host with a new template with the updated information.
  *
  * <p>The template itself does not expose a drawing surface. In order to draw on the canvas, use
- * {@link androidx.car.app.AppManager#setSurfaceListener(SurfaceListener)}.
+ * {@link androidx.car.app.AppManager#setSurfaceCallback(SurfaceCallback)}.
  *
  * <p>See {@code androidx.car.app.notification.CarAppExtender} for how to show
  * alerts with notifications. Frequent alert notifications distract the driver and are discouraged.
@@ -92,26 +89,42 @@ public class NavigationTemplate implements Template {
     private final ActionStrip mActionStrip;
 
     /** Constructs a new builder of {@link NavigationTemplate}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
     }
 
+    /**
+     * Returns the navigation information displayed on the template, or {@code null} if there is no
+     * navigation information on top of the map.
+     */
     @Nullable
     public NavigationInfo getNavigationInfo() {
         return mNavigationInfo;
     }
 
+    /**
+     * Returns the background color used for the navigation information, or {@code null} if set to
+     * the default value.
+     */
     @Nullable
     public CarColor getBackgroundColor() {
         return mBackgroundColor;
     }
 
+    /**
+     * Returns the {@link TravelEstimate} to the final destination, or {@code null} if there is no
+     * travel estimate information.
+     */
     @Nullable
     public TravelEstimate getDestinationTravelEstimate() {
         return mDestinationTravelEstimate;
     }
 
+    /**
+     * Returns the {@link ActionStrip} with a list of the template-scoped actions for this template.
+     */
     @NonNull
     public ActionStrip getActionStrip() {
         return requireNonNull(mActionStrip);
@@ -146,12 +159,7 @@ public class NavigationTemplate implements Template {
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
     }
 
-    @Override
-    public void checkPermissions(@NonNull Context context) {
-        CarAppPermission.checkHasLibraryPermission(context, CarAppPermission.NAVIGATION_TEMPLATES);
-    }
-
-    private NavigationTemplate(Builder builder) {
+    NavigationTemplate(Builder builder) {
         mNavigationInfo = builder.mNavigationInfo;
         mBackgroundColor = builder.mBackgroundColor;
         mDestinationTravelEstimate = builder.mDestinationTravelEstimate;
@@ -169,15 +177,12 @@ public class NavigationTemplate implements Template {
     /** A builder of {@link NavigationTemplate}. */
     public static final class Builder {
         @Nullable
-        private NavigationInfo mNavigationInfo;
+        NavigationInfo mNavigationInfo;
         @Nullable
-        private CarColor mBackgroundColor;
+        CarColor mBackgroundColor;
         @Nullable
-        private TravelEstimate mDestinationTravelEstimate;
-        private ActionStrip mActionStrip;
-
-        private Builder() {
-        }
+        TravelEstimate mDestinationTravelEstimate;
+        ActionStrip mActionStrip;
 
         /**
          * Sets the navigation information to display on the template, or {@code null} to not
@@ -242,7 +247,7 @@ public class NavigationTemplate implements Template {
         @NonNull
         public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_NAVIGATION.validateOrThrow(
-                    requireNonNull(actionStrip).getActions());
+                    requireNonNull(actionStrip).getActionList());
             this.mActionStrip = actionStrip;
             return this;
         }
@@ -258,6 +263,10 @@ public class NavigationTemplate implements Template {
                 throw new IllegalStateException("Action strip for this template must be set.");
             }
             return new NavigationTemplate(this);
+        }
+
+        /** Constructs an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

@@ -20,23 +20,15 @@ import static androidx.car.app.model.CarIcon.BACK;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.text.SpannableString;
 
 import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarIcon;
-import androidx.car.app.model.CarText;
 import androidx.car.app.model.DateTimeWithZone;
 import androidx.car.app.model.DistanceSpan;
 import androidx.car.app.model.GridItem;
@@ -67,8 +59,8 @@ public class TestUtils {
     }
 
     public static CarIcon getTestCarIcon(Context context, String drawable) {
-        return CarIcon.of(IconCompat.createWithResource(context,
-                TestUtils.getTestDrawableResId(context, drawable)));
+        return new CarIcon.Builder(IconCompat.createWithResource(context,
+                TestUtils.getTestDrawableResId(context, drawable))).build();
     }
 
     @DrawableRes
@@ -101,7 +93,7 @@ public class TestUtils {
 
     /** Returns a default {@link Action} instance. */
     public static Action createAction(@Nullable String title, @Nullable CarIcon icon) {
-        return Action.builder().setTitle(title).setIcon(icon).setOnClickListener(() -> {
+        return new Action.Builder().setTitle(title).setIcon(icon).setOnClickListener(() -> {
         }).build();
     }
 
@@ -116,9 +108,9 @@ public class TestUtils {
      */
     public static ItemList createItemListWithDistanceSpan(
             int rowCount, boolean isSelectable, @Nullable DistanceSpan distanceSpan) {
-        ItemList.Builder builder = ItemList.builder();
+        ItemList.Builder builder = new ItemList.Builder();
         for (int i = 0; i < rowCount; ++i) {
-            Row.Builder rowBuilder = Row.builder();
+            Row.Builder rowBuilder = new Row.Builder();
             if (distanceSpan != null) {
                 SpannableString title = new SpannableString("  title " + i);
                 title.setSpan(distanceSpan, /* start= */ 0, /* end= */ 1, /* flags= */ 0);
@@ -139,16 +131,16 @@ public class TestUtils {
 
     /** Returns a {@link Pane} with the given number of rows and actions */
     public static Pane createPane(int rowCount, int actionCount) {
-        Pane.Builder builder = Pane.builder();
+        Pane.Builder builder = new Pane.Builder();
         for (int i = 0; i < rowCount; ++i) {
-            builder.addRow(Row.builder().setTitle("title " + i).build());
+            builder.addRow(new Row.Builder().setTitle("title " + i).build());
         }
 
         List<Action> actions = new ArrayList<>();
         for (int i = 0; i < actionCount; i++) {
             actions.add(createAction("action " + i, null));
         }
-        builder.setActions(actions);
+        builder.setActionList(actions);
 
         return builder.build();
     }
@@ -162,7 +154,7 @@ public class TestUtils {
             sections.add(
                     SectionedItemList.create(
                             createItemList(rowCountPerSection, isSelectable),
-                            CarText.create("Section " + i)));
+                            "Section " + i));
         }
 
         return sections;
@@ -170,9 +162,9 @@ public class TestUtils {
 
     /** Returns an {@link ItemList} consisting of {@link GridItem}s */
     public static ItemList getGridItemList(int itemCount) {
-        ItemList.Builder builder = ItemList.builder();
+        ItemList.Builder builder = new ItemList.Builder();
         while (itemCount-- > 0) {
-            builder.addItem(GridItem.builder().setTitle("Title").setImage(BACK).build());
+            builder.addItem(new GridItem.Builder().setTitle("Title").setImage(BACK).build());
         }
         return builder.build();
     }
@@ -187,14 +179,5 @@ public class TestUtils {
                 .isEqualTo(dateTimeWithZone.getZoneOffsetSeconds());
         assertThat(dateTimeWithZone.getTimeSinceEpochMillis())
                 .isEqualTo(dateTimeWithZone.getTimeSinceEpochMillis());
-    }
-
-    public static Context getMockContextWithPermission(@NonNull String permission) {
-        Context mockContext = mock(Context.class);
-        PackageManager packageManager = mock(PackageManager.class);
-        when(mockContext.getPackageManager()).thenReturn(packageManager);
-        when(packageManager.checkPermission(eq(permission), any())).thenReturn(
-                PackageManager.PERMISSION_GRANTED);
-        return mockContext;
     }
 }

@@ -16,10 +16,10 @@
 
 package androidx.room.solver.binderprovider
 
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.RoomCoroutinesTypeNames
 import androidx.room.parser.ParsedQuery
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
@@ -47,7 +47,7 @@ private class CoroutineFlowResultBinderProviderImpl(
         )
     }
 
-    override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(declared: XType, query: ParsedQuery): QueryResultBinder {
         val typeArg = declared.typeArguments.first()
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query)
         val tableNames = (
@@ -60,7 +60,7 @@ private class CoroutineFlowResultBinderProviderImpl(
         return CoroutineFlowResultBinder(typeArg, tableNames, adapter)
     }
 
-    override fun matches(declared: XDeclaredType): Boolean {
+    override fun matches(declared: XType): Boolean {
         if (declared.typeArguments.size != 1) {
             return false
         }

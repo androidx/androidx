@@ -41,10 +41,11 @@ public class DestinationTest {
         String title = "Google BVE";
         String address = "1120 112th Ave NE";
 
-        Destination destination = Destination.builder().setName(title).setAddress(address).build();
+        Destination destination = new Destination.Builder().setName(title).setAddress(
+                address).build();
 
-        assertThat(destination.getName().getText()).isEqualTo(title);
-        assertThat(destination.getAddress().getText()).isEqualTo(address);
+        assertThat(destination.getName().toString()).isEqualTo(title);
+        assertThat(destination.getAddress().toString()).isEqualTo(address);
         assertThat(destination.getImage()).isNull();
     }
 
@@ -52,17 +53,17 @@ public class DestinationTest {
     public void emptyNameAndAddress_throws() {
         assertThrows(
                 IllegalStateException.class,
-                () -> Destination.builder().setName("").setAddress("").build());
+                () -> new Destination.Builder().setName("").setAddress("").build());
     }
 
     @Test
     public void emptyNameOrAddress_allowed() {
-        Destination destination = Destination.builder().setName("name").setAddress("").build();
-        assertThat(destination.getName().getText()).isEqualTo("name");
-        assertThat(destination.getAddress().getText()).isEmpty();
+        Destination destination = new Destination.Builder().setName("name").setAddress("").build();
+        assertThat(destination.getName().toString()).isEqualTo("name");
+        assertThat(destination.getAddress().toString()).isEmpty();
 
-        destination = Destination.builder().setName(null).setAddress("address").build();
-        assertThat(destination.getAddress().getText()).isEqualTo("address");
+        destination = new Destination.Builder().setName(null).setAddress("address").build();
+        assertThat(destination.getAddress().toString()).isEqualTo("address");
         assertThat(destination.getName()).isNull();
     }
 
@@ -72,21 +73,22 @@ public class DestinationTest {
         builder.scheme(ContentResolver.SCHEME_CONTENT);
         builder.appendPath("foo/bar");
         Uri iconUri = builder.build();
-        CarIcon carIcon = CarIcon.of(IconCompat.createWithContentUri(iconUri));
+        CarIcon carIcon = new CarIcon.Builder(IconCompat.createWithContentUri(iconUri)).build();
         assertThrows(
                 IllegalArgumentException.class,
-                () -> Destination.builder().setName("hello").setAddress("world").setImage(carIcon));
+                () -> new Destination.Builder().setName("hello").setAddress("world").setImage(
+                        carIcon));
     }
 
     @Test
     public void validate_hashcodeAndEquals() {
-        Destination destination1 = Destination.builder().setName("name").setAddress(
+        Destination destination1 = new Destination.Builder().setName("name").setAddress(
                 "address").build();
-        Destination destination2 = Destination.builder().setName("name").setAddress(
+        Destination destination2 = new Destination.Builder().setName("name").setAddress(
                 "address1").build();
-        Destination destination3 = Destination.builder().setName("name2").setAddress(
+        Destination destination3 = new Destination.Builder().setName("name2").setAddress(
                 "address").build();
-        Destination destination4 = Destination.builder().setName("name").setAddress(
+        Destination destination4 = new Destination.Builder().setName("name").setAddress(
                 "address").build();
 
         assertThat(destination1.hashCode()).isNotEqualTo(destination2.hashCode());
@@ -99,30 +101,30 @@ public class DestinationTest {
 
     @Test
     public void equals() {
-        Destination destination = Destination.builder().setName("name").setAddress(
+        Destination destination = new Destination.Builder().setName("name").setAddress(
                 "address").build();
 
         assertThat(destination)
-                .isEqualTo(Destination.builder().setName("name").setAddress("address").build());
+                .isEqualTo(new Destination.Builder().setName("name").setAddress("address").build());
     }
 
     @Test
     public void notEquals_differentName() {
-        Destination destination = Destination.builder().setName("name").setAddress(
+        Destination destination = new Destination.Builder().setName("name").setAddress(
                 "address").build();
 
         assertThat(destination)
-                .isNotEqualTo(Destination.builder().setName("Rafael").setAddress(
+                .isNotEqualTo(new Destination.Builder().setName("Rafael").setAddress(
                         "address").build());
     }
 
     @Test
     public void notEquals_differentAddress() {
-        Destination destination = Destination.builder().setName("name").setAddress(
+        Destination destination = new Destination.Builder().setName("name").setAddress(
                 "address").build();
 
         assertThat(destination)
-                .isNotEqualTo(Destination.builder().setName("name").setAddress(
+                .isNotEqualTo(new Destination.Builder().setName("name").setAddress(
                         "123 main st.").build());
     }
 }

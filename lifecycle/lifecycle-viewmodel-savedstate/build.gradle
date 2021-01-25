@@ -38,7 +38,11 @@ dependencies {
     api(project(":lifecycle:lifecycle-livedata-core"))
     api(project(":lifecycle:lifecycle-viewmodel"))
 
-    androidTestImplementation project(":fragment:fragment"), {
+    androidTestImplementation project(":lifecycle:lifecycle-runtime")
+    androidTestImplementation project(":lifecycle:lifecycle-livedata-core")
+    androidTestImplementation projectOrArtifact(":fragment:fragment"), {
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-runtime'
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-livedata-core'
         exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel-savedstate'
         exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel'
     }

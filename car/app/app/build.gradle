@@ -26,7 +26,7 @@ plugins {
 
 dependencies {
     implementation "androidx.activity:activity:1.1.0"
-    implementation "androidx.annotation:annotation:1.1.0"
+    implementation(project(":annotation:annotation"))
     implementation "androidx.core:core:1.3.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel:2.2.0"
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
@@ -49,9 +49,6 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     lintOptions {
-        // We have a bunch of builder/inner classes where the outer classes access the private
-        // fields/constructors directly.
-        disable("SyntheticAccessor")
         // We rely on keeping a bunch of private variables in the library for serialization.
         disable("BanKeepAnnotation")
     }

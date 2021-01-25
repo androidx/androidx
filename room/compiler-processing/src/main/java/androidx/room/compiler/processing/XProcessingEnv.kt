@@ -21,6 +21,7 @@ import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
+import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.TypeName
 import javax.annotation.processing.ProcessingEnvironment
 import kotlin.reflect.KClass
@@ -71,10 +72,10 @@ interface XProcessingEnv {
     fun findGeneratedAnnotation(): XTypeElement?
 
     /**
-     * Returns an [XDeclaredType] for the given [type] element with the type arguments specified
+     * Returns an [XType] for the given [type] element with the type arguments specified
      * as in [types].
      */
-    fun getDeclaredType(type: XTypeElement, vararg types: XType): XDeclaredType
+    fun getDeclaredType(type: XTypeElement, vararg types: XType): XType
 
     /**
      * Return an [XArrayType] that has [type] as the [XArrayType.componentType].
@@ -92,11 +93,22 @@ interface XProcessingEnv {
     }
 
     // helpers for smooth migration, these could be extension methods
-    fun requireType(typeName: TypeName) = requireType(typeName.toString())
+    fun requireType(typeName: TypeName) = checkNotNull(findType(typeName)) {
+        "cannot find required type $typeName"
+    }
 
     fun requireType(klass: KClass<*>) = requireType(klass.java.canonicalName!!)
 
-    fun findType(typeName: TypeName) = findType(typeName.toString())
+    fun findType(typeName: TypeName): XType? {
+        // TODO we probably need more complicated logic here but right now room only has these
+        //  usages.
+        if (typeName is ArrayTypeName) {
+            return findType(typeName.componentType)?.let {
+                getArrayType(it)
+            }
+        }
+        return findType(typeName.toString())
+    }
 
     fun findType(klass: KClass<*>) = findType(klass.java.canonicalName!!)
 

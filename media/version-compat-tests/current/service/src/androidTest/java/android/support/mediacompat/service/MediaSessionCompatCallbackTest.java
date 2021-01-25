@@ -175,6 +175,7 @@ public class MediaSessionCompatCallbackTest {
     /**
      * Tests that a session can be created and that all the fields are initialized correctly.
      */
+    @SuppressWarnings("deprecation")
     @Test
     @SmallTest
     public void testCreateSession() throws Exception {

@@ -254,7 +254,7 @@ def collapse_tasks_having_no_output(lines):
     pending_task = None
     pending_blanks = []
     for line in lines:
-        is_section = is_task_line(line) or line.startswith("> Configure project ")
+        is_section = is_task_line(line) or line.startswith("> Configure project ") or line.startswith("FAILURE: Build failed with an exception.")
         if is_section:
             pending_task = line
             pending_blanks = []
@@ -549,7 +549,7 @@ def main():
             print("Instructions:")
             print("  Fix these messages if you can.")
             print("  Otherwise, you may suppress them.")
-            print("  See also https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/development/build_log_simplifier/VALIDATION_FAILURE.md")
+            print("  See also https://android.googlesource.com/platform/frameworks/support/+/androidx-main/development/build_log_simplifier/VALIDATION_FAILURE.md")
             print("")
             new_exemptions_path = log_paths[0] + ".ignore"
             # filter out any inconsistently observed messages so we don't try to exempt them twice

@@ -48,13 +48,13 @@ public class ParkedOnlyOnClickListenerTest {
     public void create() throws RemoteException {
         ParkedOnlyOnClickListener parkedOnlyOnClickListener =
                 ParkedOnlyOnClickListener.create(mMockOnClickListener);
-        OnClickListenerWrapper wrapper =
-                OnClickListenerWrapperImpl.create(parkedOnlyOnClickListener);
+        OnClickDelegate delegate =
+                OnClickDelegateImpl.create(parkedOnlyOnClickListener);
 
-        assertThat(wrapper.isParkedOnly()).isTrue();
+        assertThat(delegate.isParkedOnly()).isTrue();
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
 
-        wrapper.onClick(onDoneCallback);
+        delegate.sendClick(onDoneCallback);
         verify(mMockOnClickListener).onClick();
         verify(onDoneCallback).onSuccess(null);
     }

@@ -20,15 +20,10 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 import android.os.Looper;
-import android.os.RemoteException;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.IOnDoneCallback;
-import androidx.car.app.OnDoneCallback;
-import androidx.car.app.WrappedRuntimeException;
-import androidx.car.app.utils.RemoteUtils;
 
 /** Represents a toggle that can have either a checked or unchecked state. */
 public class Toggle {
@@ -38,9 +33,13 @@ public class Toggle {
         void onCheckedChange(boolean isChecked);
     }
 
+    @SuppressWarnings("deprecation")
     @Keep
     @Nullable
     private final OnCheckedChangeListenerWrapper mOnCheckedChangeListener;
+    @Keep
+    @Nullable
+    private final OnCheckedChangeDelegate mOnCheckedChangeDelegate;
     @Keep
     private final boolean mIsChecked;
 
@@ -52,6 +51,7 @@ public class Toggle {
      *
      * @throws NullPointerException if {@code onCheckedChangeListener} is {@code null}.
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     @SuppressLint("ExecutorRegistration")
     public static Builder builder(@NonNull OnCheckedChangeListener onCheckedChangeListener) {
@@ -68,10 +68,24 @@ public class Toggle {
     /**
      * Returns the {@link OnCheckedChangeListenerWrapper} that is called when the checked state of
      * the {@link Toggle} is changed.
+     *
+     * @deprecated use {@link #getOnCheckedChangeDelegate} instead.
      */
+    // TODO(b/177591476): remove after host references have been cleaned up.
+    @SuppressWarnings("deprecation")
+    @Deprecated
     @NonNull
     public OnCheckedChangeListenerWrapper getOnCheckedChangeListener() {
         return requireNonNull(mOnCheckedChangeListener);
+    }
+
+    /**
+     * Returns the {@link OnCheckedChangeDelegate} that is called when the checked state of
+     * the {@link Toggle} is changed.
+     */
+    @NonNull
+    public OnCheckedChangeDelegate getOnCheckedChangeDelegate() {
+        return requireNonNull(mOnCheckedChangeDelegate);
     }
 
     @Override
@@ -99,21 +113,25 @@ public class Toggle {
         return mIsChecked == otherToggle.mIsChecked;
     }
 
-    private Toggle(Builder builder) {
+    Toggle(Builder builder) {
         mIsChecked = builder.mIsChecked;
         mOnCheckedChangeListener = builder.mOnCheckedChangeListener;
+        mOnCheckedChangeDelegate = builder.mOnCheckedChangeDelegate;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Toggle() {
         mOnCheckedChangeListener = null;
+        mOnCheckedChangeDelegate = null;
         mIsChecked = false;
     }
 
     /** A builder of {@link Toggle}. */
     public static final class Builder {
-        private OnCheckedChangeListenerWrapper mOnCheckedChangeListener;
-        private boolean mIsChecked;
+        @SuppressWarnings("deprecation")
+        OnCheckedChangeListenerWrapper mOnCheckedChangeListener;
+        OnCheckedChangeDelegate mOnCheckedChangeDelegate;
+        boolean mIsChecked;
 
         /**
          * Sets the initial checked state for {@link Toggle}.
@@ -126,67 +144,26 @@ public class Toggle {
             return this;
         }
 
+        /** Constructs the {@link Toggle} defined by this builder. */
+        @NonNull
+        public Toggle build() {
+            return new Toggle(this);
+        }
+
         /**
-         * Sets the {@link OnCheckedChangeListener} to call when the checked state of the
-         * {@link Toggle} is changed.
+         * Returns a new instance of a {@link Builder} with the given
+         * {@link OnCheckedChangeListener}.
          *
          * <p>Note that the listener relates to UI events and will be executed on the main thread
          * using {@link Looper#getMainLooper()}.
          *
          * @throws NullPointerException if {@code onCheckedChangeListener} is {@code null}.
          */
-        @NonNull
-        @SuppressLint({"ExecutorRegistration"})
-        public Builder setOnCheckedChangeListener(
-                @NonNull OnCheckedChangeListener onCheckedChangeListener) {
-            this.mOnCheckedChangeListener =
-                    createOnCheckedChangeListener(onCheckedChangeListener);
-            return this;
-        }
-
-        private Builder(@NonNull OnCheckedChangeListener onCheckedChangeListener) {
-            this.mOnCheckedChangeListener =
-                    createOnCheckedChangeListener(onCheckedChangeListener);
-        }
-
-        /** Constructs the {@link Toggle} defined by this builder. */
-        @NonNull
-        public Toggle build() {
-            return new Toggle(this);
-        }
-    }
-
-    private static OnCheckedChangeListenerWrapper createOnCheckedChangeListener(
-            @NonNull OnCheckedChangeListener listener) {
-        return new OnCheckedChangeListenerWrapper() {
-            private final IOnCheckedChangeListener mOnCheckedChangeListener =
-                    new OnCheckedChangeListenerStub(listener);
-
-            @Override
-            public void onCheckedChange(boolean isChecked, @NonNull OnDoneCallback callback) {
-                try {
-                    mOnCheckedChangeListener.onCheckedChange(isChecked,
-                            RemoteUtils.createOnDoneCallbackStub(callback));
-                } catch (RemoteException e) {
-                    throw new WrappedRuntimeException(e);
-                }
-            }
-        };
-    }
-
-    @Keep // We need to keep these stub for Bundler serialization logic.
-    private static class OnCheckedChangeListenerStub extends IOnCheckedChangeListener.Stub {
-        private final OnCheckedChangeListener mOnCheckedChangeListener;
-
-        private OnCheckedChangeListenerStub(OnCheckedChangeListener onCheckedChangeListener) {
-            this.mOnCheckedChangeListener = onCheckedChangeListener;
-        }
-
-        @Override
-        public void onCheckedChange(boolean isChecked, IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(
-                    () -> mOnCheckedChangeListener.onCheckedChange(isChecked), callback,
-                    "onCheckedChange");
+        @SuppressLint("ExecutorRegistration")
+        public Builder(@NonNull OnCheckedChangeListener onCheckedChangeListener) {
+            mOnCheckedChangeListener =
+                    OnCheckedChangeListenerWrapperImpl.create(onCheckedChangeListener);
+            mOnCheckedChangeDelegate = OnCheckedChangeDelegateImpl.create(onCheckedChangeListener);
         }
     }
 }

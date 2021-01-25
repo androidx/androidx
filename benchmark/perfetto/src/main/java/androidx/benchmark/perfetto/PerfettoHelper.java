@@ -19,7 +19,10 @@ package androidx.benchmark.perfetto;
 import android.os.SystemClock;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.UiDevice;
 
@@ -31,9 +34,12 @@ import java.nio.file.Paths;
 /**
  * PerfettoHelper is used to start and stop the perfetto tracing and move the
  * output perfetto trace file to destination folder.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(28)
-class PerfettoHelper {
+public class PerfettoHelper {
     private static final String LOG_TAG = PerfettoHelper.class.getSimpleName();
     // Command to start the perfetto tracing in the background.
     // perfetto -b -c /data/misc/perfetto-traces/trace_config.pb -o
@@ -51,7 +57,8 @@ class PerfettoHelper {
     // Check if perfetto is stopped every 5 secs.
     private static final long PERFETTO_KILL_WAIT_TIME = 5000;
 
-    private UiDevice mUIDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+    private final UiDevice mUIDevice =
+            UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
 
     /**
      * Start the perfetto tracing in background using the given config file.
@@ -64,7 +71,7 @@ class PerfettoHelper {
      * @param isTextProtoConfig true if the config file is textproto format otherwise false.
      * @return true if trace collection started successfully otherwise return false.
      */
-    public boolean startCollecting(String configFilePath, boolean isTextProtoConfig) {
+    public boolean startCollecting(@Nullable String configFilePath, boolean isTextProtoConfig) {
         if (configFilePath == null || configFilePath.isEmpty()) {
             Log.e(LOG_TAG, "Perfetto config file name is null or empty.");
             return false;
@@ -115,7 +122,7 @@ class PerfettoHelper {
      * @param destinationFile file to copy the perfetto output trace.
      * @return true if the trace collection is successful otherwise false.
      */
-    public boolean stopCollecting(long waitTimeInMsecs, String destinationFile) {
+    public boolean stopCollecting(long waitTimeInMsecs, @NonNull String destinationFile) {
         // Wait for the dump interval before stopping the trace.
         Log.i(LOG_TAG, String.format(
                 "Waiting for %d msecs before stopping perfetto.", waitTimeInMsecs));
@@ -190,13 +197,22 @@ class PerfettoHelper {
     }
 
     /**
+     * @return the {@link String} path to the temporary output file used to store the trace file
+     * during collection.
+     */
+    @NonNull
+    public static String getPerfettoTmpOutputFilePath() {
+        return PERFETTO_TMP_OUTPUT_FILE;
+    }
+
+    /**
      * Copy the temporary perfetto trace output file from /data/misc/perfetto-traces/ to given
      * destinationFile.
      *
      * @param destinationFile file to copy the perfetto output trace.
      * @return true if the trace file copied successfully otherwise false.
      */
-    private boolean copyFileOutput(String destinationFile) {
+    private boolean copyFileOutput(@NonNull String destinationFile) {
         Path path = Paths.get(destinationFile);
         String destDirectory = path.getParent().toString();
         // Check if the directory already exists

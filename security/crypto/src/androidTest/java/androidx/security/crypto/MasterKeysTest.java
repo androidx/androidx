@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 
+@SuppressWarnings("deprecation")
 @MediumTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 @RunWith(AndroidJUnit4.class)

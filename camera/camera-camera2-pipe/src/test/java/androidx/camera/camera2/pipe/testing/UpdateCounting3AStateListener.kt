@@ -24,7 +24,7 @@ import androidx.camera.camera2.pipe.impl.Result3AStateListener
  * Wrapper on Result3AStateListenerImpl to keep track of the number of times the update method is
  * called.
  */
-class UpdateCounting3AStateListener(
+internal class UpdateCounting3AStateListener(
     private val listener: Result3AStateListener
 ) : Result3AStateListener {
     var updateCount = 0

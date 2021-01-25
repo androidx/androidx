@@ -51,7 +51,6 @@ import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.wear.complications.ComplicationHelperActivity;
 import androidx.wear.watchface.CanvasType;
-import androidx.wear.watchface.ComplicationsManager;
 import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchFace;
 import androidx.wear.watchface.WatchFaceService;
@@ -135,7 +134,7 @@ public class ComplicationDrawableTest {
     public void callingSetComplicationDataBeforeSetContextThrowsAnException() {
         assertThrows(
                 IllegalStateException.class,
-                () -> mComplicationDrawable.setComplicationData(mComplicationData));
+                () -> mComplicationDrawable.setComplicationData(mComplicationData, true));
     }
 
     @Test
@@ -168,7 +167,7 @@ public class ComplicationDrawableTest {
         mComplicationDrawable.setContext(ApplicationProvider.getApplicationContext());
         // AND below methods are called afterwards
         mComplicationDrawable.draw(mMockCanvas);
-        mComplicationDrawable.setComplicationData(mComplicationData);
+        mComplicationDrawable.setComplicationData(mComplicationData, true);
         // THEN no exception is thrown
     }
 
@@ -373,7 +372,7 @@ public class ComplicationDrawableTest {
     @Test
     public void onTapReturnsFalseIfNoComplicationData() {
         mComplicationDrawable.setContext(ApplicationProvider.getApplicationContext());
-        mComplicationDrawable.setComplicationData(null);
+        mComplicationDrawable.setComplicationData(null, true);
         mComplicationDrawable.setBounds(new Rect(0, 0, 100, 100));
 
         assertThat(mComplicationDrawable.onTap(50, 50)).isFalse();
@@ -386,7 +385,8 @@ public class ComplicationDrawableTest {
                 new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("rofl"))
                         .setShortTitle(ComplicationText.plainText("copter"))
-                        .build());
+                        .build(),
+                true);
         mComplicationDrawable.setBounds(new Rect(0, 0, 100, 100));
 
         assertThat(mComplicationDrawable.onTap(50, 50)).isFalse();
@@ -400,7 +400,8 @@ public class ComplicationDrawableTest {
                         .setShortText(ComplicationText.plainText("rofl"))
                         .setShortTitle(ComplicationText.plainText("copter"))
                         .setTapAction(mMockPendingIntent)
-                        .build());
+                        .build(),
+                true);
         mComplicationDrawable.setBounds(new Rect(0, 0, 100, 100));
 
         assertThat(mComplicationDrawable.onTap(200, 200)).isFalse();
@@ -416,7 +417,8 @@ public class ComplicationDrawableTest {
                         .setShortText(ComplicationText.plainText("rofl"))
                         .setShortTitle(ComplicationText.plainText("copter"))
                         .setTapAction(mMockPendingIntent)
-                        .build());
+                        .build(),
+                true);
         mComplicationDrawable.setBounds(new Rect(0, 0, 100, 100));
 
         assertThat(mComplicationDrawable.onTap(50, 50)).isFalse();
@@ -430,7 +432,8 @@ public class ComplicationDrawableTest {
                         .setShortText(ComplicationText.plainText("rofl"))
                         .setShortTitle(ComplicationText.plainText("copter"))
                         .setTapAction(mMockPendingIntent)
-                        .build());
+                        .build(),
+                true);
         reset(mMockDrawableCallback);
         mComplicationDrawable.setBounds(new Rect(0, 0, 100, 100));
 
@@ -448,7 +451,8 @@ public class ComplicationDrawableTest {
                         .setShortText(ComplicationText.plainText("rofl"))
                         .setShortTitle(ComplicationText.plainText("copter"))
                         .setTapAction(mMockPendingIntent)
-                        .build());
+                        .build(),
+                true);
         reset(mMockDrawableCallback);
 
         mComplicationDrawable.setBounds(new Rect(0, 0, 100, 100));
@@ -477,7 +481,8 @@ public class ComplicationDrawableTest {
                         .setShortText(ComplicationText.plainText("rofl"))
                         .setShortTitle(ComplicationText.plainText("copter"))
                         .setTapAction(mMockPendingIntent)
-                        .build());
+                        .build(),
+                true);
         mComplicationDrawable.setBounds(new Rect(0, 0, 100, 100));
 
         mComplicationDrawable.setHighlightDuration(highlightDuration);
@@ -511,7 +516,7 @@ public class ComplicationDrawableTest {
         mComplicationDrawable.setBounds(new Rect(0, 0, 100, 100));
 
         mComplicationDrawable.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_NO_PERMISSION).build());
+                new ComplicationData.Builder(ComplicationData.TYPE_NO_PERMISSION).build(), true);
 
         assertThat(mComplicationDrawable.onTap(50, 50)).isTrue();
 
@@ -533,7 +538,7 @@ public class ComplicationDrawableTest {
         mComplicationDrawable.setBounds(new Rect(0, 0, 100, 100));
 
         mComplicationDrawable.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_NO_PERMISSION).build());
+                new ComplicationData.Builder(ComplicationData.TYPE_NO_PERMISSION).build(), true);
 
         assertThat(mComplicationDrawable.onTap(50, 50)).isFalse();
 
@@ -718,7 +723,6 @@ public class ComplicationDrawableTest {
             return new WatchFace(
                     WatchFaceType.ANALOG,
                     userStyleRepository,
-                    new ComplicationsManager(new ArrayList<>(), userStyleRepository),
                     new Renderer.CanvasRenderer(
                             surfaceHolder, userStyleRepository, watchState, CanvasType.SOFTWARE,
                             16L) {

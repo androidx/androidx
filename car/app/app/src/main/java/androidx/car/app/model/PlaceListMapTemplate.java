@@ -16,19 +16,13 @@
 
 package androidx.car.app.model;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_SIMPLE;
 
-import android.Manifest.permission;
-import android.content.Context;
-
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.car.app.CarAppPermission;
 
 import java.util.Collections;
 import java.util.List;
@@ -75,6 +69,7 @@ public final class PlaceListMapTemplate implements Template {
     private final Place mAnchor;
 
     /** Constructs a new builder of {@link PlaceListMapTemplate}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -113,13 +108,6 @@ public final class PlaceListMapTemplate implements Template {
         return mAnchor;
     }
 
-    @Override
-    public void checkPermissions(@NonNull Context context) {
-        if (isCurrentLocationEnabled()) {
-            CarAppPermission.checkHasPermission(context, permission.ACCESS_FINE_LOCATION);
-        }
-    }
-
     @NonNull
     @Override
     public String toString() {
@@ -152,7 +140,7 @@ public final class PlaceListMapTemplate implements Template {
                 && Objects.equals(mAnchor, otherTemplate.mAnchor);
     }
 
-    private PlaceListMapTemplate(Builder builder) {
+    PlaceListMapTemplate(Builder builder) {
         mShowCurrentLocation = builder.mShowCurrentLocation;
         mIsLoading = builder.mIsLoading;
         mTitle = builder.mTitle;
@@ -175,18 +163,18 @@ public final class PlaceListMapTemplate implements Template {
 
     /** A builder of {@link PlaceListMapTemplate}. */
     public static final class Builder {
-        private boolean mShowCurrentLocation;
-        private boolean mIsLoading;
+        boolean mShowCurrentLocation;
+        boolean mIsLoading;
         @Nullable
-        private CarText mTitle;
+        CarText mTitle;
         @Nullable
-        private ItemList mItemList;
+        ItemList mItemList;
         @Nullable
-        private Action mHeaderAction;
+        Action mHeaderAction;
         @Nullable
-        private ActionStrip mActionStrip;
+        ActionStrip mActionStrip;
         @Nullable
-        private Place mAnchor;
+        Place mAnchor;
 
         /**
          * Sets whether to show the current location in the map.
@@ -279,7 +267,7 @@ public final class PlaceListMapTemplate implements Template {
         @NonNull
         public Builder setItemList(@Nullable ItemList itemList) {
             if (itemList != null) {
-                List<Object> items = itemList.getItems();
+                List<Item> items = itemList.getItemList();
                 ROW_LIST_CONSTRAINTS_SIMPLE.validateOrThrow(itemList);
                 ModelUtils.validateAllNonBrowsableRowsHaveDistance(items);
                 ModelUtils.validateAllRowsHaveOnlySmallImages(items);
@@ -287,14 +275,6 @@ public final class PlaceListMapTemplate implements Template {
             }
             this.mItemList = itemList;
 
-            return this;
-        }
-
-        /** @hide */
-        @RestrictTo(LIBRARY)
-        @NonNull
-        public Builder setItemListForTesting(@Nullable ItemList itemList) {
-            this.mItemList = itemList;
             return this;
         }
 
@@ -314,7 +294,7 @@ public final class PlaceListMapTemplate implements Template {
         @NonNull
         public Builder setActionStrip(@Nullable ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(
-                    actionStrip == null ? Collections.emptyList() : actionStrip.getActions());
+                    actionStrip == null ? Collections.emptyList() : actionStrip.getActionList());
             this.mActionStrip = actionStrip;
             return this;
         }
@@ -362,6 +342,10 @@ public final class PlaceListMapTemplate implements Template {
             }
 
             return new PlaceListMapTemplate(this);
+        }
+
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

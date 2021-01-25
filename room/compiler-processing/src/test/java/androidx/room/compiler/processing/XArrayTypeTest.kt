@@ -53,7 +53,8 @@ class XArrayTypeTest {
             assertThat(type.typeName).isEqualTo(
                 ArrayTypeName.of(String::class.java)
             )
-            type.asArray().componentType.let { component ->
+            check(type.isArray())
+            type.componentType.let { component ->
                 assertThat(component.typeName).isEqualTo(String::class.typeName())
                 assertThat(component.nullability).isEqualTo(XNullability.UNKNOWN)
             }
@@ -66,8 +67,8 @@ class XArrayTypeTest {
             val objArray = it.processingEnv.getArrayType(
                 TypeName.OBJECT
             )
-            assertThat(objArray.isArray()).isTrue()
-            assertThat(objArray.asArray().componentType.typeName).isEqualTo(
+            check(objArray.isArray())
+            assertThat(objArray.componentType.typeName).isEqualTo(
                 TypeName.OBJECT
             )
             assertThat(objArray.typeName).isEqualTo(
@@ -100,14 +101,15 @@ class XArrayTypeTest {
                     ArrayTypeName.of(String::class.java)
                 )
             }
-
-            nonNull.asArray().componentType.let { component ->
+            check(nonNull.isArray())
+            nonNull.componentType.let { component ->
                 assertThat(component.typeName).isEqualTo(
                     String::class.typeName()
                 )
                 assertThat(component.nullability).isEqualTo(XNullability.NONNULL)
             }
-            nullable.asArray().componentType.let { component ->
+            check(nullable.isArray())
+            nullable.componentType.let { component ->
                 assertThat(component.typeName).isEqualTo(String::class.typeName())
                 assertThat(component.nullability).isEqualTo(XNullability.NULLABLE)
             }

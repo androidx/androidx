@@ -16,12 +16,14 @@
 
 package androidx.camera.camera2.pipe.impl
 
-import android.hardware.camera2.CaptureRequest
 import androidx.annotation.GuardedBy
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestProcessor
+import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.formatForLogs
-import androidx.camera.camera2.pipe.impl.Log.debug
-import androidx.camera.camera2.pipe.impl.Log.warn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,11 +34,19 @@ import javax.inject.Inject
  * [RequestProcessor] instance, and for maintaining state across one or more [RequestProcessor]
  * instances.
  */
-interface GraphProcessor {
-    fun setRepeating(request: Request)
+internal interface GraphProcessor : GraphController.GraphListener {
     fun submit(request: Request)
     fun submit(requests: List<Request>)
-    suspend fun submit(parameters: Map<CaptureRequest.Key<*>, Any>): Boolean
+    suspend fun submit(parameters: Map<*, Any>): Boolean
+
+    fun startRepeating(request: Request)
+    fun stopRepeating()
+
+    /**
+     * Indicates that internal parameters may have changed, and that the repeating request should
+     * be updated as soon as possible.
+     */
+    fun invalidate()
 
     /**
      * Abort all submitted requests that have not yet been submitted to the [RequestProcessor] as
@@ -49,25 +59,23 @@ interface GraphProcessor {
      * [GraphProcessor] is closed will be immediately aborted.
      */
     fun close()
-
-    fun attach(requestProcessor: RequestProcessor)
-    fun detach(requestProcessor: RequestProcessor)
-    fun invalidate()
 }
 
 /**
  * The graph processor handles *cross-session* state, such as the most recent repeating request.
  */
 @CameraGraphScope
-class GraphProcessorImpl @Inject constructor(
+internal class GraphProcessorImpl @Inject constructor(
     private val threads: Threads,
+    private val cameraGraphConfig: CameraGraph.Config,
+    private val graphState3A: GraphState3A,
     @ForCameraGraph private val graphScope: CoroutineScope,
     @ForCameraGraph private val graphListeners: java.util.ArrayList<Request.Listener>
 ) : GraphProcessor {
     private val lock = Any()
 
     @GuardedBy("lock")
-    private val requestQueue: MutableList<List<Request>> = ArrayList()
+    private val submitQueue: MutableList<List<Request>> = ArrayList()
 
     @GuardedBy("lock")
     private var currentRepeatingRequest: Request? = null
@@ -87,7 +95,7 @@ class GraphProcessorImpl @Inject constructor(
     @GuardedBy("lock")
     private var closed = false
 
-    override fun attach(requestProcessor: RequestProcessor) {
+    override fun onGraphStarted(requestProcessor: RequestProcessor) {
         var oldRequestProcessor: RequestProcessor? = null
         synchronized(lock) {
             if (closed) {
@@ -111,7 +119,7 @@ class GraphProcessorImpl @Inject constructor(
         resubmit()
     }
 
-    override fun detach(requestProcessor: RequestProcessor) {
+    override fun onGraphStopped(requestProcessor: RequestProcessor) {
         var oldRequestProcessor: RequestProcessor? = null
         synchronized(lock) {
             if (closed) {
@@ -137,19 +145,48 @@ class GraphProcessorImpl @Inject constructor(
         }
     }
 
-    override fun invalidate() {
+    override fun onGraphModified(requestProcessor: RequestProcessor) {
+        synchronized(lock) {
+            if (closed) {
+                return
+            }
+            if (requestProcessor != _requestProcessor) {
+                return
+            }
+        }
         resubmit()
     }
 
-    override fun setRepeating(request: Request) {
+    override fun startRepeating(request: Request) {
         synchronized(lock) {
             if (closed) return
             nextRepeatingRequest = request
-            debug { "Set repeating request to ${request.formatForLogs()}" }
+            debug { "startRepeating with ${request.formatForLogs()}" }
         }
 
         graphScope.launch {
-            trySetRepeating()
+            tryStartRepeating()
+        }
+    }
+
+    override fun stopRepeating() {
+        val processor: RequestProcessor?
+
+        synchronized(lock) {
+            processor = _requestProcessor
+            nextRepeatingRequest = null
+            currentRepeatingRequest = null
+        }
+
+        graphScope.launch {
+            Debug.traceStart { "$this#stopRepeating" }
+            // Start with requests that have already been submitted
+            if (processor != null) {
+                synchronized(processor) {
+                    processor.stopRepeating()
+                }
+            }
+            Debug.traceStop()
         }
     }
 
@@ -165,7 +202,7 @@ class GraphProcessorImpl @Inject constructor(
                 }
                 return
             }
-            requestQueue.add(requests)
+            submitQueue.add(requests)
         }
 
         graphScope.launch {
@@ -176,26 +213,38 @@ class GraphProcessorImpl @Inject constructor(
     /**
      * Submit a request to the camera using only the current repeating request.
      */
-    override suspend fun submit(parameters: Map<CaptureRequest.Key<*>, Any>): Boolean =
+    override suspend fun submit(parameters: Map<*, Any>): Boolean =
         withContext(threads.ioDispatcher) {
             val processor: RequestProcessor?
             val request: Request?
+            val requiredParameters: Map<*, Any>
 
             synchronized(lock) {
                 if (closed) return@withContext false
                 processor = _requestProcessor
                 request = currentRepeatingRequest
+                requiredParameters =
+                    parameters.toMutableMap().also { it.putAll(graphState3A.readState()) }
             }
 
             return@withContext when {
                 processor == null || request == null -> false
                 else -> processor.submit(
                     request,
-                    parameters,
-                    requireSurfacesForAllStreams = false
+                    defaultParameters = cameraGraphConfig.defaultParameters,
+                    requiredParameters = requiredParameters,
+                    defaultListeners = graphListeners
                 )
             }
         }
+
+    override fun invalidate() {
+        // Invalidate is only used for updates to internal state (listeners, parameters, etc) and
+        // should not (currently) attempt to resubmit the normal request queue.
+        graphScope.launch {
+            tryStartRepeating()
+        }
+    }
 
     override fun abort() {
         val processor: RequestProcessor?
@@ -203,8 +252,8 @@ class GraphProcessorImpl @Inject constructor(
 
         synchronized(lock) {
             processor = _requestProcessor
-            requests = requestQueue.toList()
-            requestQueue.clear()
+            requests = submitQueue.toList()
+            submitQueue.clear()
         }
 
         graphScope.launch {
@@ -241,14 +290,9 @@ class GraphProcessorImpl @Inject constructor(
 
     private fun resubmit() {
         graphScope.launch {
-            trySetRepeating()
+            tryStartRepeating()
             submitLoop()
         }
-    }
-
-    private fun read3AState(): Map<CaptureRequest.Key<*>, Any> {
-        // TODO: Build extras from 3A state
-        return mapOf()
     }
 
     private fun abortBurst(requests: List<Request>) {
@@ -267,7 +311,7 @@ class GraphProcessorImpl @Inject constructor(
         }
     }
 
-    private fun trySetRepeating() {
+    private fun tryStartRepeating() {
         val processor: RequestProcessor?
         val request: Request?
 
@@ -276,15 +320,38 @@ class GraphProcessorImpl @Inject constructor(
 
             processor = _requestProcessor
             request = nextRepeatingRequest ?: currentRepeatingRequest
+
+            // TODO: It might be a good idea to turn the "nextRepeatingRequest" into a queue to
+            //  help with cases where we want to start the camera early. Example: If we have a
+            //  stream configuration where the viewfinder is deferred, but we have an ImageReader
+            //  that is _not_ deferred, it may be possible to submit the repeating request.
+            //  However, a request with *both* streams would be rejected because not all streams
+            //  are ready.
+            //  Example:
+            //   - Request(listOf(viewfinderStream, otherStream)) // Fails (no viewfinder surface)
+            //   - Request(listOf(otherStream)) // works
+            //  If (as an app developer) we wanted to make sure the camera starts before the
+            //  viewfinder is ready, we would likely want to do something like:
+            //   - startRepeating(listOf(otherStream))
+            //   - startRepeating(listOf(viewfinderStream, otherStream))
+            //  The way this is implemented at the moment, the "nextRepeatingRequest" would be set
+            //  to the second call to startRepeating, which would not work. Since the first call got
+            //  discarded, we would be unable to start the camera before the viewfinder was
+            //  available.
         }
 
         if (processor != null && request != null) {
 
-            Debug.traceStart { "$this#setRepeating" }
-            val extras: Map<CaptureRequest.Key<*>, Any> = read3AState()
-
+            Debug.traceStart { "$this#startRepeating" }
             synchronized(processor) {
-                if (processor.setRepeating(request, extras, requireSurfacesForAllStreams = true)) {
+
+                if (processor.startRepeating(
+                        request,
+                        defaultParameters = cameraGraphConfig.defaultParameters,
+                        requiredParameters = graphState3A.readState(),
+                        defaultListeners = graphListeners
+                    )
+                ) {
                     // ONLY update the current repeating request if the update succeeds
                     synchronized(lock) {
                         if (processor === _requestProcessor) {
@@ -317,7 +384,7 @@ class GraphProcessorImpl @Inject constructor(
             }
 
             val nullableProcessor = _requestProcessor
-            val nullableBurst = requestQueue.firstOrNull()
+            val nullableBurst = submitQueue.firstOrNull()
             if (nullableProcessor == null || nullableBurst == null) {
                 return
             }
@@ -332,21 +399,30 @@ class GraphProcessorImpl @Inject constructor(
             var submitted = false
             Debug.traceStart { "$this#submit" }
             try {
-                val extras: Map<CaptureRequest.Key<*>, Any> = read3AState()
                 submitted = synchronized(processor) {
                     if (burst.size == 1) {
-                        processor.submit(burst[0], extras, true)
+                        processor.submit(
+                            burst[0],
+                            defaultParameters = cameraGraphConfig.defaultParameters,
+                            requiredParameters = graphState3A.readState(),
+                            defaultListeners = graphListeners
+                        )
                     } else {
-                        processor.submit(burst, extras, true)
+                        processor.submit(
+                            burst,
+                            defaultParameters = cameraGraphConfig.defaultParameters,
+                            requiredParameters = graphState3A.readState(),
+                            defaultListeners = graphListeners
+                        )
                     }
                 }
             } finally {
                 Debug.traceStop()
                 synchronized(lock) {
                     if (submitted) {
-                        check(requestQueue.removeAt(0) === burst)
+                        check(submitQueue.removeAt(0) === burst)
 
-                        val nullableBurst = requestQueue.firstOrNull()
+                        val nullableBurst = submitQueue.firstOrNull()
                         if (nullableBurst == null) {
                             dirty = false
                             submitting = false

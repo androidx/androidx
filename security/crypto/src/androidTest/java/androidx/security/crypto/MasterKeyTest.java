@@ -170,6 +170,7 @@ public class MasterKeyTest {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     public void testUseOfSchemeAndParamsFails() throws GeneralSecurityException,

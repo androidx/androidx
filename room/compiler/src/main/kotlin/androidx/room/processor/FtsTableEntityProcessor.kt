@@ -167,7 +167,11 @@ class FtsTableEntityProcessor internal constructor(
         if (entityType.isSameType(defaultType)) {
             return null
         }
-        val contentEntityElement = entityType.asTypeElement()
+        val contentEntityElement = entityType.typeElement
+        if (contentEntityElement == null) {
+            context.logger.e(element, ProcessorErrors.FTS_EXTERNAL_CONTENT_CANNOT_FIND_ENTITY)
+            return null
+        }
         if (!contentEntityElement.hasAnnotation(androidx.room.Entity::class)) {
             context.logger.e(
                 contentEntityElement,

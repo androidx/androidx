@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing.ksp.synthetic
 
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.TypeVariableName
@@ -26,7 +25,7 @@ import com.squareup.javapoet.TypeVariableName
  */
 internal sealed class KspSyntheticPropertyMethodType(
     val origin: KspSyntheticPropertyMethodElement,
-    val containing: XDeclaredType
+    val containing: XType
 ) : XMethodType {
 
     override val parameterTypes: List<XType> by lazy {
@@ -41,7 +40,7 @@ internal sealed class KspSyntheticPropertyMethodType(
     companion object {
         fun create(
             element: KspSyntheticPropertyMethodElement,
-            container: XDeclaredType
+            container: XType
         ): XMethodType {
             return when (element) {
                 is KspSyntheticPropertyMethodElement.Getter ->
@@ -60,7 +59,7 @@ internal sealed class KspSyntheticPropertyMethodType(
 
     private class Getter(
         origin: KspSyntheticPropertyMethodElement.Getter,
-        containingType: XDeclaredType
+        containingType: XType
     ) : KspSyntheticPropertyMethodType(
         origin = origin,
         containing = containingType
@@ -72,7 +71,7 @@ internal sealed class KspSyntheticPropertyMethodType(
 
     private class Setter(
         origin: KspSyntheticPropertyMethodElement.Setter,
-        containingType: XDeclaredType
+        containingType: XType
     ) : KspSyntheticPropertyMethodType(
         origin = origin,
         containing = containingType

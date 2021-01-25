@@ -30,10 +30,10 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.UnsafeWrapper
-import androidx.camera.camera2.pipe.impl.Debug
-import androidx.camera.camera2.pipe.impl.Log
-import androidx.camera.camera2.pipe.impl.Timestamps
-import androidx.camera.camera2.pipe.impl.Timestamps.formatMs
+import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Timestamps
+import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.writeParameter
 import kotlin.jvm.Throws
 
@@ -42,7 +42,7 @@ import kotlin.jvm.Throws
  * This interface has been modified to correct nullness, adjust exceptions, and to return or produce
  * wrapper interfaces instead of the native Camera2 types.
  */
-interface CameraDeviceWrapper : UnsafeWrapper<CameraDevice> {
+internal interface CameraDeviceWrapper : UnsafeWrapper<CameraDevice> {
     /** @see [CameraDevice.getId] */
     val cameraId: CameraId
 
@@ -107,11 +107,11 @@ interface CameraDeviceWrapper : UnsafeWrapper<CameraDevice> {
     fun createCaptureSession(config: SessionConfigData)
 }
 
-fun CameraDeviceWrapper?.closeWithTrace() {
+internal fun CameraDeviceWrapper?.closeWithTrace() {
     this?.unwrap().closeWithTrace()
 }
 
-fun CameraDevice?.closeWithTrace() {
+internal fun CameraDevice?.closeWithTrace() {
     this?.let {
         val start = Timestamps.now()
         Log.info { "Closing Camera ${it.id}" }
@@ -123,7 +123,7 @@ fun CameraDevice?.closeWithTrace() {
     }
 }
 
-class AndroidCameraDevice(
+internal class AndroidCameraDevice(
     private val cameraMetadata: CameraMetadata,
     private val cameraDevice: CameraDevice,
     override val cameraId: CameraId
@@ -146,6 +146,7 @@ class AndroidCameraDevice(
     }
 
     @RequiresApi(23)
+    @SuppressLint("UnsafeNewApiCall")
     override fun createReprocessableCaptureSession(
         input: InputConfiguration,
         outputs: List<Surface>,
@@ -165,6 +166,7 @@ class AndroidCameraDevice(
     }
 
     @RequiresApi(23)
+    @SuppressLint("UnsafeNewApiCall")
     override fun createConstrainedHighSpeedCaptureSession(
         outputs: List<Surface>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
@@ -182,6 +184,7 @@ class AndroidCameraDevice(
     }
 
     @RequiresApi(24)
+    @SuppressLint("UnsafeNewApiCall")
     override fun createCaptureSessionByOutputConfigurations(
         outputConfigurations: List<OutputConfigurationWrapper>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
@@ -199,6 +202,7 @@ class AndroidCameraDevice(
     }
 
     @RequiresApi(24)
+    @SuppressLint("UnsafeNewApiCall")
     override fun createReprocessableCaptureSessionByConfigurations(
         inputConfig: InputConfigData,
         outputs: List<OutputConfigurationWrapper>,
@@ -244,7 +248,7 @@ class AndroidCameraDevice(
         // Iterate template parameters and CHECK BY NAME, as there have been cases where equality
         // checks did not pass.
         for ((key, value) in config.sessionParameters) {
-            if (key is CaptureRequest.Key<*> && sessionKeyNames.contains(key.name)) {
+            if (sessionKeyNames.contains(key.name)) {
                 requestBuilder.writeParameter(key, value)
             }
         }

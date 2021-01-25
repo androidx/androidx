@@ -35,8 +35,7 @@ private fun runTests(
             val compilationResult = runner.compile(params)
             val subject = CompilationResultSubject.assertThat(compilationResult)
             // if any assertion failed, throw first those.
-            compilationResult.processor.throwIfFailed()
-
+            subject.assertNoProcessorAssertionErrors()
             compilationResult.processor.invocationInstances.forEach {
                 it.runPostCompilationChecks(subject)
             }

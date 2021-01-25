@@ -82,6 +82,7 @@ public class FakeKeyedAppStatesReporterTest {
         assertThat(mReporter.getOnDeviceKeyedAppStates()).containsExactly(KEYED_APP_STATE);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void setStates_deprecated_isRecordedInOnDeviceKeyedAppStates() {
         mReporter.setStates(singletonList(KEYED_APP_STATE));
@@ -214,6 +215,7 @@ public class FakeKeyedAppStatesReporterTest {
         assertThat(mReporter.getUploadedKeyedAppStates()).containsExactly(KEYED_APP_STATE);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void setStatesImmediate_deprecated_isRecordedInUploadedKeyedAppStates() {
         mReporter.setStatesImmediate(singletonList(KEYED_APP_STATE));

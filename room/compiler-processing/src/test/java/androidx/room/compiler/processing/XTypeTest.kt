@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.processing.ksp.ERROR_TYPE_NAME
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.getDeclaredMethod
@@ -24,7 +25,6 @@ import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.javaElementUtils
 import androidx.room.compiler.processing.util.kspResolver
 import androidx.room.compiler.processing.util.runKspTest
-import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth
@@ -40,7 +40,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class XTypeTest {
     @Test
-    fun declaredTypeArguments() {
+    fun typeArguments() {
         val parent = Source.java(
             "foo.bar.Parent",
             """
@@ -55,7 +55,7 @@ class XTypeTest {
         runProcessorTest(
             sources = listOf(parent)
         ) {
-            val type = it.processingEnv.requireType("foo.bar.Parent") as XDeclaredType
+            val type = it.processingEnv.requireType("foo.bar.Parent")
             val className = ClassName.get("foo.bar", "Parent")
             assertThat(type.typeName).isEqualTo(
                 ParameterizedTypeName.get(
@@ -63,13 +63,11 @@ class XTypeTest {
                     ClassName.get("", "InputStreamType")
                 )
             )
-            assertThat(type.isDeclared()).isTrue()
 
             val typeArguments = type.typeArguments
             assertThat(typeArguments).hasSize(1)
             val inputStreamClassName = ClassName.get("java.io", "InputStream")
             typeArguments.first().let { firstType ->
-                assertThat(firstType.isDeclared()).isFalse()
                 val expected = TypeVariableName.get(
                     "InputStreamType",
                     inputStreamClassName
@@ -84,7 +82,7 @@ class XTypeTest {
                 )
             }
 
-            type.asTypeElement().getMethod("wildcardParam").let { method ->
+            type.typeElement!!.getMethod("wildcardParam").let { method ->
                 val wildcardParam = method.parameters.first()
                 val extendsBoundOrSelf = wildcardParam.type.extendsBoundOrSelf()
                 assertThat(extendsBoundOrSelf.rawType)
@@ -110,22 +108,24 @@ class XTypeTest {
             """.trimIndent()
         )
 
-        // enable KSP once https://github.com/google/ksp/issues/107 is fixed.
-        runProcessorTestWithoutKsp(
+        runProcessorTest(
             sources = listOf(missingTypeRef)
         ) {
+            val errorTypeName = if (it.isKsp) {
+                // in ksp, we lose the name when resolving the type.
+                // b/175246617
+                ERROR_TYPE_NAME
+            } else {
+                ClassName.get("", "NotExistingType")
+            }
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             element.getField("badField").let { field ->
                 assertThat(field.type.isError()).isTrue()
-                assertThat(field.type.typeName).isEqualTo(
-                    ClassName.get("", "NotExistingType")
-                )
+                assertThat(field.type.typeName).isEqualTo(errorTypeName)
             }
             element.getDeclaredMethod("badMethod").let { method ->
                 assertThat(method.returnType.isError()).isTrue()
-                assertThat(method.returnType.typeName).isEqualTo(
-                    ClassName.get("", "NotExistingType")
-                )
+                assertThat(method.returnType.typeName).isEqualTo(errorTypeName)
             }
             it.assertCompilationResult {
                 compilationDidFail()
@@ -153,6 +153,56 @@ class XTypeTest {
             assertThat(type.isSameType(type)).isTrue()
             assertThat(type.isSameType(list)).isFalse()
             assertThat(list.isSameType(string)).isFalse()
+        }
+    }
+
+    @Test
+    fun sameType_kotlinJava() {
+        val javaSrc = Source.java(
+            "JavaClass",
+            """
+            class JavaClass {
+                int intField;
+                Integer integerField;
+            }
+            """.trimIndent()
+        )
+        val kotlinSrc = Source.kotlin(
+            "Foo.kt",
+            """
+            class KotlinClass {
+                val intProp: Int = 0
+                val integerProp : Int? = null
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(javaSrc, kotlinSrc)
+        ) { invocation ->
+            val javaElm = invocation.processingEnv.requireTypeElement("JavaClass")
+            val kotlinElm = invocation.processingEnv.requireTypeElement("KotlinClass")
+            fun XFieldElement.isSameType(other: XFieldElement): Boolean {
+                return type.isSameType(other.type)
+            }
+            val fields = javaElm.getAllFieldsIncludingPrivateSupers() +
+                kotlinElm.getAllFieldsIncludingPrivateSupers()
+            val results = fields.flatMap { f1 ->
+                fields.map { f2 ->
+                    f1 to f2
+                }.filter { (first, second) ->
+                    first.isSameType(second)
+                }
+            }.map { (first, second) ->
+                first.name to second.name
+            }
+
+            val expected = setOf(
+                "intField" to "intProp",
+                "intProp" to "intField",
+                "integerField" to "integerProp",
+                "integerProp" to "integerField"
+            ) + fields.map { it.name to it.name }.toSet()
+            assertThat(results).containsExactlyElementsIn(expected)
         }
     }
 
@@ -283,6 +333,72 @@ class XTypeTest {
                 it.processingEnv.requireType(String::class)
             )
             assertThat(subject.rawType).isNotEqualTo(setOfStrings.rawType)
+        }
+    }
+
+    @Test
+    fun isKotlinUnit() {
+        val kotlinSubject = Source.kotlin(
+            "Subject.kt",
+            """
+            class KotlinSubject {
+                suspend fun unitSuspend() {}
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(sources = listOf(kotlinSubject)) { invocation ->
+            invocation.processingEnv.requireTypeElement("KotlinSubject").let {
+                val continuationParam = it.getMethod("unitSuspend").parameters.last()
+                val typeArg = continuationParam.type.typeArguments.first()
+                assertThat(
+                    typeArg.extendsBound()?.isKotlinUnit()
+                ).isTrue()
+                assertThat(
+                    typeArg.extendsBound()?.extendsBound()
+                ).isNull()
+            }
+        }
+    }
+
+    @Test
+    fun isVoidObject() {
+        val javaBase = Source.java(
+            "JavaInterface.java",
+            """
+            import java.lang.Void;
+            interface JavaInterface {
+                Void getVoid();
+                Void anotherVoid();
+            }
+            """.trimIndent()
+        )
+        val kotlinSubject = Source.kotlin(
+            "Subject.kt",
+            """
+            abstract class KotlinSubject: JavaInterface {
+                fun voidMethod() {}
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(sources = listOf(javaBase, kotlinSubject)) { invocation ->
+            invocation.processingEnv.requireTypeElement("KotlinSubject").let {
+                it.getMethod("voidMethod").returnType.let {
+                    assertThat(it.isVoidObject()).isFalse()
+                    assertThat(it.isVoid()).isTrue()
+                    assertThat(it.isKotlinUnit()).isFalse()
+                }
+                val method = it.getMethod("getVoid")
+                method.returnType.let {
+                    assertThat(it.isVoidObject()).isTrue()
+                    assertThat(it.isVoid()).isFalse()
+                    assertThat(it.isKotlinUnit()).isFalse()
+                }
+                it.getMethod("anotherVoid").returnType.let {
+                    assertThat(it.isVoidObject()).isTrue()
+                    assertThat(it.isVoid()).isFalse()
+                    assertThat(it.isKotlinUnit()).isFalse()
+                }
+            }
         }
     }
 }

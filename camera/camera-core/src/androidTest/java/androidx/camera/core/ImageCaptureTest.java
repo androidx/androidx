@@ -192,6 +192,7 @@ public class ImageCaptureTest {
     }
 
     // TODO(b/149336664): add a test to verify jpeg quality is 100 when CaptureMode is MAX_QUALITY.
+    @SuppressWarnings("unchecked")
     @Test
     public void captureWithMinLatency_jpegQualityIs95() throws InterruptedException {
         // Arrange.

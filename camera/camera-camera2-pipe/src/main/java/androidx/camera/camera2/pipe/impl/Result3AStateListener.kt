@@ -39,12 +39,12 @@ import kotlinx.coroutines.Deferred
  * This update method can be called multiple times as we get newer [CaptureResult]s from the camera
  * device. This class also exposes a [Deferred] to query the status of desired state.
  */
-interface Result3AStateListener {
+internal interface Result3AStateListener {
     fun onRequestSequenceCreated(requestNumber: RequestNumber)
     fun update(requestNumber: RequestNumber, frameMetadata: FrameMetadata): Boolean
 }
 
-class Result3AStateListenerImpl(
+internal class Result3AStateListenerImpl(
     private val exitConditionForKeys: Map<CaptureResult.Key<*>, List<Any>>,
     private val frameLimit: Int? = null,
     private val timeLimitNs: Long? = null

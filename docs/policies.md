@@ -27,17 +27,16 @@ Library groups should organize their modules into directories and module names
     samples/ [<feature-name>:samples]
 ```
 
-For example, the `room` library group's directory structure is:
+For example, the `navigation` library group's directory structure is:
 
 ```
-room/
-  common/ [room:room-common]
+navigation/
+  navigation-benchmark/ [navigation:navigation-benchmark]
   ...
-  rxjava2/ [room:room-rxjava2]
-  testing/ [room:room-testing]
+  navigation-ui/ [navigation:navigation-ui]
+  navigation-ui-ktx/ [navigation:navigation-ui-ktx]
   integration-tests/
-    testapp/ [room:testapp]
-    testapp-kotlin/ [room:testapp-kotlin]
+    testapp/ [navigation:integration-tests:testapp]
 ```
 
 ## Terminology {#terminology}
@@ -67,13 +66,13 @@ tasks. Artifact versions should **only** be modified by their owners as
 specified in the artifact directory's `OWNERS` file.
 
 Artifact versions are specified in
-[`LibraryVersions.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:buildSrc/src/main/kotlin/androidx/build/LibraryVersions.kt).
+[`LibraryVersions.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/LibraryVersions.kt).
 Versions are bound to your artifact in the `supportLibrary` block in your
 artifact's `build.gradle` file. The `Version` class validates the version string
 at build time.
 
 In the
-[`LibraryVersions.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:buildSrc/src/main/kotlin/androidx/build/LibraryVersions.kt)
+[`LibraryVersions.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/LibraryVersions.kt)
 file:
 
 ```

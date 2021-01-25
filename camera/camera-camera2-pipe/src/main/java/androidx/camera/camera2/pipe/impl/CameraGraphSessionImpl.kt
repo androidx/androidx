@@ -31,7 +31,7 @@ import kotlinx.coroutines.Deferred
 
 internal val cameraGraphSessionIds = atomic(0)
 
-class CameraGraphSessionImpl(
+internal class CameraGraphSessionImpl(
     private val token: TokenLock.Token,
     private val graphProcessor: GraphProcessor,
     private val controller3A: Controller3A
@@ -46,12 +46,16 @@ class CameraGraphSessionImpl(
         graphProcessor.submit(requests)
     }
 
-    override fun setRepeating(request: Request) {
-        graphProcessor.setRepeating(request)
+    override fun startRepeating(request: Request) {
+        graphProcessor.startRepeating(request)
     }
 
     override fun abort() {
         graphProcessor.abort()
+    }
+
+    override fun stopRepeating() {
+        graphProcessor.stopRepeating()
     }
 
     override fun close() {
@@ -67,7 +71,14 @@ class CameraGraphSessionImpl(
         afRegions: List<MeteringRectangle>?,
         awbRegions: List<MeteringRectangle>?
     ): Deferred<Result3A> {
-        return controller3A.update3A(aeMode, afMode, awbMode, aeRegions, afRegions, awbRegions)
+        return controller3A.update3A(
+            aeMode = aeMode,
+            afMode = afMode,
+            awbMode = awbMode,
+            aeRegions = aeRegions,
+            afRegions = afRegions,
+            awbRegions = awbRegions
+        )
     }
 
     override suspend fun submit3A(
@@ -81,8 +92,10 @@ class CameraGraphSessionImpl(
         return controller3A.submit3A(aeMode, afMode, awbMode, aeRegions, afRegions, awbRegions)
     }
 
-    override fun setTorch(torchState: TorchState): Deferred<FrameNumber> {
-        TODO("Implement setTorch")
+    override fun setTorch(torchState: TorchState): Deferred<Result3A> {
+        // TODO(sushilnath): First check whether the camera device has a flash unit. Ref:
+        // https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#FLASH_INFO_AVAILABLE
+        return controller3A.setTorch(torchState)
     }
 
     override suspend fun lock3A(
@@ -121,15 +134,15 @@ class CameraGraphSessionImpl(
         throw UnsupportedOperationException()
     }
 
-    override fun lock3AForCapture(
+    override suspend fun lock3AForCapture(
         frameLimit: Int,
-        timeLimitMs: Int
+        timeLimitNs: Long
     ): Deferred<Result3A> {
-        TODO("Implement lock3AForCapture")
+        return controller3A.lock3AForCapture(frameLimit, timeLimitNs)
     }
 
-    override fun unlock3APostCapture(): Deferred<FrameNumber> {
-        TODO("Implement unlock3APostCapture")
+    override suspend fun unlock3APostCapture(): Deferred<Result3A> {
+        return controller3A.unlock3APostCapture()
     }
 
     override fun toString(): String = "CameraGraph.Session-$debugId"

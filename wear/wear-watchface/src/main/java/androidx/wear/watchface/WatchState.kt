@@ -68,7 +68,10 @@ public class WatchState(
     public val analogPreviewReferenceTimeMillis: Long,
 
     /** UTC reference time for previews of digital watch faces in milliseconds since the epoch. */
-    public val digitalPreviewReferenceTimeMillis: Long
+    public val digitalPreviewReferenceTimeMillis: Long,
+
+    /** Whether or not this is a headless watchface. */
+    public val isHeadless: Boolean
 )
 
 /** @hide */
@@ -83,6 +86,7 @@ public class MutableWatchState {
     public var hasBurnInProtection: Boolean = false
     public var analogPreviewReferenceTimeMillis: Long = 0
     public var digitalPreviewReferenceTimeMillis: Long = 0
+    public var isHeadless: Boolean = false
 
     public fun asWatchState(): WatchState = WatchState(
         interruptionFilter = interruptionFilter,
@@ -92,6 +96,7 @@ public class MutableWatchState {
         hasLowBitAmbient = hasLowBitAmbient,
         hasBurnInProtection = hasBurnInProtection,
         analogPreviewReferenceTimeMillis = analogPreviewReferenceTimeMillis,
-        digitalPreviewReferenceTimeMillis = digitalPreviewReferenceTimeMillis
+        digitalPreviewReferenceTimeMillis = digitalPreviewReferenceTimeMillis,
+        isHeadless = isHeadless
     )
 }

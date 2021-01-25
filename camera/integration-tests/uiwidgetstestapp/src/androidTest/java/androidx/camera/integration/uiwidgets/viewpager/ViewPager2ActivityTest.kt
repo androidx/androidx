@@ -64,10 +64,13 @@ class ViewPager2ActivityTest(private val lensFacing: Int) {
             CameraSelector.LENS_FACING_FRONT,
             CameraSelector.LENS_FACING_BACK
         )
+
+        @JvmField
+        val testCameraRule = CameraUtil.PreTestCamera()
     }
 
     @get:Rule
-    val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest(testCameraRule)
 
     private val mDevice =
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())

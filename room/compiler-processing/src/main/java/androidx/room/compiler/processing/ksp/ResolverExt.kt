@@ -23,8 +23,9 @@ import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSPropertyAccessor
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSTypeParameter
+import com.google.devtools.ksp.symbol.Nullability
 
 internal fun Resolver.findClass(qName: String) = getClassDeclarationByName(
     getKSNameFromString(qName)
@@ -80,14 +81,46 @@ internal fun Resolver.overrides(
 private fun KSFunctionDeclaration.overrides(other: KSFunctionDeclaration): Boolean {
     val overridee = try {
         findOverridee()
-    } catch (ignored: ClassCastException) {
-        // workaround for https://github.com/google/ksp/issues/164
+    } catch (ignored: IllegalStateException) {
+        // workaround for https://github.com/google/ksp/issues/248
         null
     }
-    if (overridee == other) {
+    // before accepting this override, check if we have a primitive parameter that was a type
+    // reference in overridee. In those cases, kotlin will actually generate two jvm methods.
+    if (overridee == other && this.overridesInJvm(other)) {
         return true
     }
     return overridee?.overrides(other) ?: false
+}
+
+/**
+ * If the overrider specifies a primitive value for a type argument, ignore the override as
+ * kotlin will generate two class methods for them.
+ *
+ * see: b/160258066 for details
+ */
+private fun KSFunctionDeclaration.overridesInJvm(
+    other: KSFunctionDeclaration
+): Boolean {
+    parameters.forEachIndexed { index, myParam ->
+        val myParamType = myParam.type.resolve()
+        if (myParamType.nullability == Nullability.NOT_NULL) {
+            val myParamDecl = myParamType.declaration
+            val paramQName = myParamDecl.qualifiedName?.asString()
+            if (paramQName != null &&
+                KspTypeMapper.getPrimitiveJavaTypeName(paramQName) != null
+            ) {
+                // parameter is a primitive. Check if the parent declared it as a type argument,
+                // in which case, we should ignore the override.
+                val otherParamDeclaration = other.parameters
+                    .getOrNull(index)?.type?.resolve()?.declaration
+                if (otherParamDeclaration is KSTypeParameter) {
+                    return false
+                }
+            }
+        }
+    }
+    return true
 }
 
 private fun KSPropertyDeclaration.overrides(other: KSPropertyDeclaration): Boolean {
@@ -108,19 +141,8 @@ internal fun Resolver.safeGetJvmName(
         // TODO remove this catch once that issue is fixed.
         // workaround for https://github.com/google/ksp/issues/164
         return declaration.simpleName.asString()
-    }
-}
-
-@OptIn(KspExperimental::class)
-internal fun Resolver.safeGetJvmName(
-    accessor: KSPropertyAccessor,
-    fallback: () -> String
-): String {
-    return try {
-        getJvmName(accessor)
-    } catch (ignored: ClassCastException) {
-        // TODO remove this catch once that issue is fixed.
-        // workaround for https://github.com/google/ksp/issues/164
-        return fallback()
+    } catch (cannotFindDeclaration: IllegalStateException) {
+        // workaround for https://github.com/google/ksp/issues/240
+        return declaration.simpleName.asString()
     }
 }

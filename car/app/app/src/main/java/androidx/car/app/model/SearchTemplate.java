@@ -22,16 +22,11 @@ import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CON
 
 import android.annotation.SuppressLint;
 import android.os.Looper;
-import android.os.RemoteException;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.IOnDoneCallback;
-import androidx.car.app.OnDoneCallback;
 import androidx.car.app.Screen;
-import androidx.car.app.WrappedRuntimeException;
-import androidx.car.app.utils.RemoteUtils;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -48,7 +43,7 @@ import java.util.Objects;
 public final class SearchTemplate implements Template {
 
     /** A listener for search updates. */
-    public interface SearchListener {
+    public interface SearchCallback {
         /**
          * Notifies the current {@code searchText}.
          *
@@ -71,8 +66,11 @@ public final class SearchTemplate implements Template {
 
     @Keep
     private final boolean mIsLoading;
+    @SuppressWarnings("deprecation")
     @Keep
-    private final SearchListenerWrapper mSearchListener;
+    private final SearchCallbackWrapper mSearchCallback;
+    @Keep
+    private final SearchCallbackDelegate mSearchCallbackDelegate;
     @Keep
     @Nullable
     private final String mInitialSearchText;
@@ -92,18 +90,19 @@ public final class SearchTemplate implements Template {
     private final ActionStrip mActionStrip;
 
     /**
-     * Constructs a new builder of {@link SearchTemplate} with the input {@link SearchListener}.
+     * Constructs a new builder of {@link SearchTemplate} with the input {@link SearchCallback}.
      *
-     * <p>Note that the listener relates to UI events and will be executed on the main thread
+     * <p>Note that the callback relates to UI events and will be executed on the main thread
      * using {@link Looper#getMainLooper()}.
      *
-     * @param listener the listener to be invoked for events such as when the user types new
+     * @param callback the callback to be invoked for events such as when the user types new
      *                 text, or submits a search.
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     @SuppressLint("ExecutorRegistration")
-    public static Builder builder(@NonNull SearchListener listener) {
-        return new Builder(listener);
+    public static Builder builder(@NonNull SearchCallback callback) {
+        return new Builder(callback);
     }
 
     public boolean isLoading() {
@@ -154,11 +153,24 @@ public final class SearchTemplate implements Template {
     }
 
     /**
-     * Returns the {@link SearchListenerWrapper} for search callbacks.
+     * Returns the {@link SearchCallbackWrapper} for search callbacks.
+     *
+     * @deprecated use {@link #getSearchCallbackDelegate()} instead.
+     */
+    // TODO(b/177591476): remove after host references have been cleaned up.
+    @Deprecated
+    @SuppressWarnings("deprecation")
+    @NonNull
+    public SearchCallbackWrapper getSearchCallback() {
+        return mSearchCallback;
+    }
+
+    /**
+     * Returns the {@link SearchCallbackDelegate} for search callbacks.
      */
     @NonNull
-    public SearchListenerWrapper getSearchListener() {
-        return mSearchListener;
+    public SearchCallbackDelegate getSearchCallbackDelegate() {
+        return mSearchCallbackDelegate;
     }
 
     /**
@@ -208,12 +220,13 @@ public final class SearchTemplate implements Template {
                 && mShowKeyboardByDefault == otherTemplate.mShowKeyboardByDefault;
     }
 
-    private SearchTemplate(Builder builder) {
+    SearchTemplate(Builder builder) {
         mInitialSearchText = builder.mInitialSearchText;
         mSearchHint = builder.mSearchHint;
         mIsLoading = builder.mIsLoading;
         mItemList = builder.mItemList;
-        mSearchListener = builder.mSearchListener;
+        mSearchCallback = builder.mSearchCallback;
+        mSearchCallbackDelegate = builder.mSearchCallbackDelegate;
         mShowKeyboardByDefault = builder.mShowKeyboardByDefault;
         mHeaderAction = builder.mHeaderAction;
         mActionStrip = builder.mActionStrip;
@@ -227,43 +240,32 @@ public final class SearchTemplate implements Template {
         mItemList = null;
         mHeaderAction = null;
         mActionStrip = null;
-        mSearchListener = createSearchListener(
-                new SearchListener() {
-                    @Override
-                    public void onSearchTextChanged(@NonNull String searchText) {
-                    }
-
-                    @Override
-                    public void onSearchSubmitted(@NonNull String searchText) {
-                    }
-                });
+        mSearchCallback = null;
+        mSearchCallbackDelegate = null;
         mShowKeyboardByDefault = true;
     }
 
     /** A builder of {@link SearchTemplate}. */
     public static final class Builder {
-        private final SearchListenerWrapper mSearchListener;
+        @SuppressWarnings("deprecation")
+        final SearchCallbackWrapper mSearchCallback;
+        final SearchCallbackDelegate mSearchCallbackDelegate;
         @Nullable
-        private String mInitialSearchText;
+        String mInitialSearchText;
         @Nullable
-        private String mSearchHint;
-        private boolean mIsLoading;
+        String mSearchHint;
+        boolean mIsLoading;
         @Nullable
-        private ItemList mItemList;
-        private boolean mShowKeyboardByDefault = true;
+        ItemList mItemList;
+        boolean mShowKeyboardByDefault = true;
         @Nullable
-        private Action mHeaderAction;
+        Action mHeaderAction;
         @Nullable
-        private ActionStrip mActionStrip;
-
-        private Builder(SearchListener listener) {
-            mSearchListener = createSearchListener(listener);
-        }
+        ActionStrip mActionStrip;
 
         /**
          * Sets the {@link Action} that will be displayed in the header of the template, or
-         * {@code null}
-         * to not display an action.
+         * {@code null} to not display an action.
          *
          * <h4>Requirements</h4>
          *
@@ -298,7 +300,7 @@ public final class SearchTemplate implements Template {
         @NonNull
         public Builder setActionStrip(@Nullable ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(
-                    actionStrip == null ? Collections.emptyList() : actionStrip.getActions());
+                    actionStrip == null ? Collections.emptyList() : actionStrip.getActionList());
             this.mActionStrip = actionStrip;
             return this;
         }
@@ -402,55 +404,20 @@ public final class SearchTemplate implements Template {
 
             return new SearchTemplate(this);
         }
-    }
 
-    private static SearchListenerWrapper createSearchListener(@NonNull SearchListener listener) {
-        return new SearchListenerWrapper() {
-            private final ISearchListener mStubListener = new SearchListenerStub(listener);
-
-            @Override
-            public void onSearchTextChanged(@NonNull String searchText,
-                    @NonNull OnDoneCallback callback) {
-                try {
-                    mStubListener.onSearchTextChanged(searchText,
-                            RemoteUtils.createOnDoneCallbackStub(callback));
-                } catch (RemoteException e) {
-                    throw new WrappedRuntimeException(e);
-                }
-            }
-
-            @Override
-            public void onSearchSubmitted(@NonNull String searchText,
-                    @NonNull OnDoneCallback callback) {
-                try {
-                    mStubListener.onSearchSubmitted(searchText,
-                            RemoteUtils.createOnDoneCallbackStub(callback));
-                } catch (RemoteException e) {
-                    throw new WrappedRuntimeException(e);
-                }
-            }
-        };
-    }
-
-    @Keep // We need to keep these stub for Bundler serialization logic.
-    private static class SearchListenerStub extends ISearchListener.Stub {
-        private final SearchListener mSearchListener;
-
-        private SearchListenerStub(SearchListener searchListener) {
-            mSearchListener = searchListener;
-        }
-
-        @Override
-        public void onSearchTextChanged(String text, IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(
-                    () -> mSearchListener.onSearchTextChanged(text), callback,
-                    "onSearchTextChanged");
-        }
-
-        @Override
-        public void onSearchSubmitted(String text, IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(
-                    () -> mSearchListener.onSearchSubmitted(text), callback, "onSearchSubmitted");
+        /**
+         * Returns a new instance of a {@link Builder} with the input {@link SearchCallback}.
+         *
+         * <p>Note that the callback relates to UI events and will be executed on the main thread
+         * using {@link Looper#getMainLooper()}.
+         *
+         * @param callback the callback to be invoked for events such as when the user types new
+         *                 text, or submits a search.
+         */
+        @SuppressLint("ExecutorRegistration")
+        public Builder(@NonNull SearchCallback callback) {
+            mSearchCallback = SearchCallbackWrapperImpl.create(callback);
+            mSearchCallbackDelegate = SearchCallbackDelegateImpl.create(callback);
         }
     }
 }

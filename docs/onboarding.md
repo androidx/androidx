@@ -91,7 +91,7 @@ Finally, you will need to accept the
 
 Like ChromeOS, Chromium, and the Android build system, we develop in the open as
 much as possible. All feature development occurs in the public
-[androidx-master-dev](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev)
+[androidx-main](https://android.googlesource.com/platform/frameworks/support/+/androidx-main)
 branch of the Android Open Source Project.
 
 As of 2020/03/20, you will need about 38 GB for a fully-built checkout.
@@ -100,17 +100,17 @@ As of 2020/03/20, you will need about 38 GB for a fully-built checkout.
 
 Use the following `repo` commands to check out your branch.
 
-#### Public master development branch {#source-checkout-master}
+#### Public main development branch {#androidx-main}
 
 All development should occur in this branch unless otherwise specified by the
 AndroidX Core team.
 
-The following command will check out the public master development branch:
+The following command will check out the public main development branch:
 
 ```shell
-mkdir androidx-master-dev && cd androidx-master-dev
+mkdir androidx-main && cd androidx-main
 repo init -u https://android.googlesource.com/platform/manifest \
-    -b androidx-master-dev --partial-clone --clone-filter=blob:limit=10M
+    -b androidx-main --partial-clone --clone-filter=blob:limit=10M
 repo sync -c -j8
 ```
 
@@ -132,7 +132,7 @@ git config --global diff.renameLimit 999999
 
 ## Explore source code from a browser {#code-search}
 
-`androidx-master-dev` has a publicly-accessible
+`androidx-main` has a publicly-accessible
 [code search](https://cs.android.com/androidx/platform/frameworks/support) that
 allows you to explore all of the source code in the repository. Links to this
 URL may be shared on public Buganizer and other external sites.
@@ -140,7 +140,7 @@ URL may be shared on public Buganizer and other external sites.
 We recommend setting up a custom search engine in Chrome as a faster (and
 publicly-accessible) alternative to `cs/`.
 
-### Custom search engine for `androidx-master-dev` {#custom-search-engine}
+### Custom search engine for `androidx-main` {#custom-search-engine}
 
 1.  Open `chrome://settings/searchEngines`
 1.  Click the `Add` button
@@ -164,7 +164,7 @@ From the `frameworks/support` directory, you can use `ANDROIDX_PROJECTS=MAIN
 Studio to work on main set of androidx projects. `ANDROIDX_PROJECTS` has several
 other options like `ANDROIDX_PROJECTS=ALL` to open other subsets of the
 projects.
-[settings.gradle](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:settings.gradle)
+[settings.gradle](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:settings.gradle)
 file in the repository has these options listed.
 
 ```shell
@@ -320,13 +320,12 @@ To build API reference docs for tip-of-tree Java source code, run the Gradle
 task:
 
 ```
-./gradlew disttipOfTreeDocs
+./gradlew doclavaDocs
 ```
 
-This will output docs in the zip file:
-`{androidx-master-dev}/out/dist/android-support-tipOfTree-docs-0.zip`, as well
-as in local html files that you can check from your browser:
-`{androidx-master-dev}/out/androidx/build/javadoc/tipOfTree/offline/reference/packages.html`
+To generate offline docs use '-PofflineDocs=true' parameter. Places the
+documentation in
+`{androidx-main}/out/dist/out/androidx/docs-tip-of-tree/build/javadoc`
 
 #### KotlinDocs
 
@@ -334,11 +333,11 @@ To build API reference docs for tip-of-tree Kotlin source code, run the Gradle
 task:
 
 ```
-./gradlew distTipOfTreeDokkaDocs
+./gradlew dokkaKotlinDocs
 ```
 
-This will output docs in the zip file:
-`{androidx-master-dev}/out/dist/dokkaTipOfTreeDocs-0.zip`
+Places the documentation in
+`{androidx-main}/out/dist/out/androidx/docs-tip-of-tree/build/dokkaKotlinDocs`
 
 #### Release docs
 
@@ -346,15 +345,15 @@ To build API reference docs for published artifacts formatted for use on
 [d.android.com](http://d.android.com), run the Gradle command:
 
 ```
-./gradlew distpublicDocs
+./gradlew zipDoclavaDocs
 ```
 
 This will create the artifact
-`{androidx-master-dev}/out/dist/android-support-public-docs-0.zip`. This command
-builds docs based on the version specified in
-`{androidx-master-dev-checkout}/frameworks/support/buildSrc/src/main/kotlin/androidx/build/PublishDocsRules.kt`
+`{androidx-main}/out/dist/doclava-public-docs-0.zip`. This command builds docs
+based on the version specified in
+`{androidx-main-checkout}/frameworks/support/buildSrc/src/main/kotlin/androidx/build/PublishDocsRules.kt`
 and uses the prebuilt checked into
-`{androidx-master-dev-checkout}/prebuilts/androidx/internal/androidx/`. We
+`{androidx-main-checkout}/prebuilts/androidx/internal/androidx/`. We
 colloquially refer to this two step process of (1) updating PublishDocsRules.kt
 and (2) checking in a prebuilt artifact into the prebuilts directory as
 [The Prebuilts Dance](releasing.md#the-prebuilts-dance™). So, to build javadocs
@@ -366,11 +365,10 @@ Once you done the above steps, Kotlin docs will also be generated, with the only
 difference being that we use the Gradle command:
 
 ```
-./gradlew distPublicDokkaDocs
+./gradlew zipDokkaDocs
 ```
 
-which generates the kotlin docs artifact
-`{androidx-master-dev}/out/dist/dokkaPublicDocs-0.zip`
+This will create the artifact `{androidx-main}/out/dist/dokka-public-docs-0.zip`
 
 ### Updating public APIs {#updating-public-apis}
 
@@ -409,8 +407,7 @@ before the release goes live. To auto-populate your release notes, you can use
 the semi-optional commit tag `Relnote:` in your commit, which will automatically
 include that message the commit in the pre-populated release notes.
 
-The presence of a `Relnote:` tag is required for API changes in
-`androidx-master-dev`.
+The presence of a `Relnote:` tag is required for API changes in `androidx-main`.
 
 #### How to use it?
 
@@ -517,7 +514,7 @@ Make sure to upload this change before or concurrently (ex. in the same Gerrit
 topic) with the dependent library code.
 
 Libraries typically reference dependencies using constants defined in
-[`Dependencies.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:buildSrc/src/main/kotlin/androidx/build/dependencies/Dependencies.kt),
+[`Dependencies.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/dependencies/Dependencies.kt),
 so please update this file to include a constant for the version of the library
 that you have checked in. You will reference this constant in your library's
 `build.gradle` dependencies.
@@ -632,7 +629,7 @@ tip-of-tree snapshots
 ### Obtaining a build ID
 
 To browse build IDs, you can visit either
-[androidx-master-dev](https://ci.android.com/builds/branches/aosp-androidx-master-dev/grid?)
+[androidx-main](https://ci.android.com/builds/branches/aosp-androidx-main/grid?)
 on ci.android.com or [Snapshots](https://androidx.dev/snapshots/builds) on the
 androidx.dev site.
 
@@ -655,14 +652,14 @@ sudo apt-get install jq
 ```
 
 ```shell
-ID=`curl -s "https://ci.android.com/builds/branches/aosp-androidx-master-dev/status.json" | jq ".targets[] | select(.ID==\"aosp-androidx-master-dev.androidx_snapshot\") | .last_known_good_build"` \
+ID=`curl -s "https://ci.android.com/builds/branches/aosp-androidx-main/status.json" | jq ".targets[] | select(.ID==\"aosp-androidx-main.androidx_snapshot\") | .last_known_good_build"` \
   && echo https://ci.android.com/builds/submitted/"${ID:1:-1}"/androidx_snapshot/latest/raw/repository/
 ```
 
 #### Android build server
 
 Go to
-[androidx-master-dev](https://ci.android.com/builds/branches/aosp-androidx-master-dev/grid?)
+[androidx-main](https://ci.android.com/builds/branches/aosp-androidx-main/grid?)
 on ci.android.com.
 
 For `androidx-snapshot` target, wait for the green "last known good build"

@@ -22,15 +22,11 @@ import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CON
 
 import static java.util.Objects.requireNonNull;
 
-import android.content.Context;
-
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
-import androidx.car.app.CarAppPermission;
 import androidx.car.app.Screen;
-import androidx.car.app.SurfaceListener;
+import androidx.car.app.SurfaceCallback;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarText;
@@ -59,7 +55,7 @@ import java.util.Objects;
  * </ol>
  *
  * <p>The template itself does not expose a drawing surface. In order to draw on the canvas, use
- * {@link androidx.car.app.AppManager#setSurfaceListener(SurfaceListener)}.
+ * {@link androidx.car.app.AppManager#setSurfaceCallback(SurfaceCallback)}.
  *
  * <h4>Template Restrictions</h4>
  *
@@ -96,6 +92,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
     private final ActionStrip mActionStrip;
 
     /** Constructs a new builder of {@link RoutePreviewNavigationTemplate}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -133,11 +130,6 @@ public final class RoutePreviewNavigationTemplate implements Template {
         return mActionStrip;
     }
 
-    @Override
-    public void checkPermissions(@NonNull Context context) {
-        CarAppPermission.checkHasLibraryPermission(context, CarAppPermission.NAVIGATION_TEMPLATES);
-    }
-
     @NonNull
     @Override
     public String toString() {
@@ -168,7 +160,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
     }
 
-    private RoutePreviewNavigationTemplate(Builder builder) {
+    RoutePreviewNavigationTemplate(Builder builder) {
         mTitle = builder.mTitle;
         mIsLoading = builder.mIsLoading;
         mNavigateAction = builder.mNavigateAction;
@@ -190,16 +182,16 @@ public final class RoutePreviewNavigationTemplate implements Template {
     /** A builder of {@link RoutePreviewNavigationTemplate}. */
     public static final class Builder {
         @Nullable
-        private CarText mTitle;
-        private boolean mIsLoading;
+        CarText mTitle;
+        boolean mIsLoading;
         @Nullable
-        private Action mNavigateAction;
+        Action mNavigateAction;
         @Nullable
-        private ItemList mItemList;
+        ItemList mItemList;
         @Nullable
-        private Action mHeaderAction;
+        Action mHeaderAction;
         @Nullable
-        private ActionStrip mActionStrip;
+        ActionStrip mActionStrip;
 
         /** Sets the {@link CharSequence} to show as title, or {@code null} to not show a title. */
         @NonNull
@@ -292,28 +284,16 @@ public final class RoutePreviewNavigationTemplate implements Template {
         public Builder setItemList(@Nullable ItemList itemList) {
             if (itemList != null) {
                 ROW_LIST_CONSTRAINTS_ROUTE_PREVIEW.validateOrThrow(itemList);
-                ModelUtils.validateAllRowsHaveDistanceOrDuration(itemList.getItems());
-                ModelUtils.validateAllRowsHaveOnlySmallImages(itemList.getItems());
+                ModelUtils.validateAllRowsHaveDistanceOrDuration(itemList.getItemList());
+                ModelUtils.validateAllRowsHaveOnlySmallImages(itemList.getItemList());
 
-                if (!itemList.getItems().isEmpty() && itemList.getOnSelectedListener() == null) {
+                if (!itemList.getItemList().isEmpty() && itemList.getOnSelectedDelegate() == null) {
                     throw new IllegalArgumentException(
                             "The OnSelectedListener must be set for the route list");
                 }
             }
             this.mItemList = itemList;
 
-            return this;
-        }
-
-        /**
-         * Sets an {@link ItemList} for the template. This method does not enforce the
-         * template's requirements and is only intended for testing purposes.
-         */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        @VisibleForTesting
-        @NonNull
-        public Builder setItemListForTesting(@Nullable ItemList itemList) {
-            this.mItemList = itemList;
             return this;
         }
 
@@ -333,7 +313,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
         @NonNull
         public Builder setActionStrip(@Nullable ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(
-                    actionStrip == null ? Collections.emptyList() : actionStrip.getActions());
+                    actionStrip == null ? Collections.emptyList() : actionStrip.getActionList());
             this.mActionStrip = actionStrip;
             return this;
         }
@@ -373,6 +353,10 @@ public final class RoutePreviewNavigationTemplate implements Template {
             }
 
             return new RoutePreviewNavigationTemplate(this);
+        }
+
+        /** Constructs an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

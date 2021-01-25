@@ -64,40 +64,49 @@ public final class Step {
      * @throws NullPointerException if {@code cue} is {@code null}.
      * @see Builder#setCue(CharSequence)
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder(@NonNull CharSequence cue) {
         return new Builder(requireNonNull(cue));
     }
 
     /**
-     * Returns a new {@link Builder} instance configured with the same data as this {@link Step}
-     * instance.
+     * Returns the maneuver to be performed on this step or {@code null} if this step doesn't
+     * involve a maneuver.
      */
-    @NonNull
-    public Builder newBuilder() {
-        return new Builder(this);
-    }
-
     @Nullable
     public Maneuver getManeuver() {
         return mManeuver;
     }
 
+    /**
+     * Returns a list of {@link Lane} that contains information of the road lanes at the point
+     * where the driver should execute this step.
+     */
     @NonNull
     public List<Lane> getLanes() {
         return CollectionUtils.emptyIfNull(mLanes);
     }
 
+    /**
+     * Returns the image representing all the lanes or {@code null} if no lanes image is available.
+     */
     @Nullable
     public CarIcon getLanesImage() {
         return mLanesImage;
     }
 
+    /**
+     * Returns the text description of this maneuver.
+     */
     @Nullable
     public CarText getCue() {
         return mCue;
     }
 
+    /**
+     * Returns the text description of the road for the step or {@code null} if unknown.
+     */
     @Nullable
     public CarText getRoad() {
         return mRoad;
@@ -141,14 +150,14 @@ public final class Step {
                 && Objects.equals(mRoad, otherStep.mRoad);
     }
 
-    private Step(
+    Step(
             @Nullable Maneuver maneuver,
             List<Lane> lanes,
             @Nullable CarIcon lanesImage,
             @Nullable CarText cue,
             @Nullable CarText road) {
         this.mManeuver = maneuver;
-        this.mLanes = new ArrayList<>(lanes);
+        this.mLanes = CollectionUtils.unmodifiableCopy(lanes);
         this.mLanesImage = lanesImage;
         this.mCue = cue;
         this.mRoad = road;
@@ -174,23 +183,25 @@ public final class Step {
         @Nullable
         private CarText mRoad;
 
-        private Builder(CharSequence cue) {
-            this.mCue = CarText.create(cue);
-        }
-
-        private Builder(Step step) {
-            this.mManeuver = step.mManeuver;
-            this.mLanes.clear();
-            this.mLanes.addAll(step.mLanes);
-            this.mLanesImage = step.mLanesImage;
-            this.mCue = requireNonNull(step.mCue);
-            this.mRoad = step.mRoad;
+        /**
+         * Constructs a new builder of {@link Step} with a cue.
+         *
+         * <p>A cue must always be set when the step is created and is used as a fallback when
+         * {@link Maneuver} is not set or is unavailable.
+         *
+         * <p>Some cluster displays do not support UTF-8 encoded characters, in which case
+         * unsupported characters will not be displayed properly.
+         *
+         * @throws NullPointerException if {@code cue} is {@code null}.
+         * @see Builder#setCue(CharSequence)
+         */
+        public Builder(@NonNull CharSequence cue) {
+            this.mCue = CarText.create(requireNonNull(cue));
         }
 
         /**
          * Sets the maneuver to be performed on this step or {@code null} if this step doesn't
-         * involve a
-         * maneuver.
+         * involve a maneuver.
          */
         @NonNull
         public Builder setManeuver(@Nullable Maneuver maneuver) {
@@ -212,16 +223,6 @@ public final class Step {
         public Builder addLane(@NonNull Lane lane) {
             requireNonNull(lane);
             mLanes.add(lane);
-            return this;
-        }
-
-        /**
-         * Clears any lanes that may have been added with {@link #addLane(Lane)} up to this
-         * point.
-         */
-        @NonNull
-        public Builder clearLanes() {
-            mLanes.clear();
             return this;
         }
 
@@ -267,7 +268,7 @@ public final class Step {
          * <pre>{@code
          * SpannableString string = new SpannableString("Turn right on 520 East");
          * string.setSpan(textWithImage.setSpan(
-         *     CarIconSpan.create(CarIcon.of(
+         *     CarIconSpan.create(new CarIcon.Builder(
          *         IconCompat.createWithResource(getCarContext(), R.drawable.ic_520_highway))),
          *         14, 17, SPAN_INCLUSIVE_EXCLUSIVE));
          * }</pre>
@@ -297,8 +298,7 @@ public final class Step {
          * Sets a text description of the road for the step or {@code null} if unknown.
          *
          * <p>This value is primarily used for vehicle cluster and heads-up displays and may not
-         * appear
-         * in the navigation template.
+         * appear in the navigation template.
          *
          * <p>For example, a {@link Step} for a left turn might provide "State Street" for the road.
          *

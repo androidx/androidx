@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
  *    OR acquire will return a token and the close method will not execute until after the token is
  *    released.
  */
-class WakeLock(
+internal class WakeLock(
     private val scope: CoroutineScope,
     private val timeout: Long = 0,
     private val callback: () -> Unit

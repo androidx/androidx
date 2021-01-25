@@ -22,7 +22,11 @@ import android.util.ArrayMap
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.impl.Timestamps.formatMs
+import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Timestamps
+import androidx.camera.camera2.pipe.core.Timestamps.formatMs
+import androidx.camera.camera2.pipe.wrapper.AndroidCameraMetadata
 import kotlinx.coroutines.withContext
 import java.lang.IllegalStateException
 import javax.inject.Inject
@@ -35,7 +39,7 @@ import javax.inject.Singleton
  * accessing CameraMetadata.
  */
 @Singleton
-class CameraMetadataCache @Inject constructor(
+internal class CameraMetadataCache @Inject constructor(
     private val context: Context,
     private val threads: Threads,
     private val permissions: Permissions
@@ -73,7 +77,7 @@ class CameraMetadataCache @Inject constructor(
         }
     }
 
-    private fun createCameraMetadata(cameraId: CameraId, redacted: Boolean): CameraMetadataImpl {
+    private fun createCameraMetadata(cameraId: CameraId, redacted: Boolean): AndroidCameraMetadata {
         val start = Timestamps.now()
 
         return Debug.trace("CameraCharacteristics_$cameraId") {
@@ -83,7 +87,7 @@ class CameraMetadataCache @Inject constructor(
                 val characteristics =
                     cameraManager.getCameraCharacteristics(cameraId.value)
                 val cameraMetadata =
-                    CameraMetadataImpl(cameraId, redacted, characteristics, emptyMap())
+                    AndroidCameraMetadata(cameraId, redacted, characteristics, emptyMap())
 
                 Log.info {
                     val duration = Timestamps.now() - start

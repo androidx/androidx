@@ -31,15 +31,15 @@ import android.view.Surface
  *
  * These interfaces are read-only.
  */
-interface Metadata {
-    operator fun <T> get(key: Key<T>): T?
-    fun <T> getOrDefault(key: Key<T>, default: T): T
+public interface Metadata {
+    public operator fun <T> get(key: Key<T>): T?
+    public fun <T> getOrDefault(key: Key<T>, default: T): T
 
     /**
      * Metadata keys provide values or controls that are provided or computed by CameraPipe.
      */
-    class Key<T> private constructor(private val name: String) {
-        companion object {
+    public class Key<T> private constructor(private val name: String) {
+        public companion object {
             @JvmStatic
             internal val keys: MutableSet<String> = HashSet()
 
@@ -47,7 +47,7 @@ interface Metadata {
              * This will create a new Key instance, and will check to see that the key has not been
              * previously created somewhere else.
              */
-            fun <T> create(name: String): Key<T> {
+            public fun <T> create(name: String): Key<T> {
                 synchronized(keys) {
                     check(keys.add(name)) { "$name is already defined!" }
                 }
@@ -67,21 +67,21 @@ interface Metadata {
  * In some cases the properties on this interface will provide faster or more backwards compatible
  * access to features that are only available on newer versions of the OS.
  */
-interface CameraMetadata : Metadata, UnsafeWrapper<CameraCharacteristics> {
-    operator fun <T> get(key: CameraCharacteristics.Key<T>): T?
-    fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T
+public interface CameraMetadata : Metadata, UnsafeWrapper<CameraCharacteristics> {
+    public operator fun <T> get(key: CameraCharacteristics.Key<T>): T?
+    public fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T
 
-    val camera: CameraId
-    val isRedacted: Boolean
+    public val camera: CameraId
+    public val isRedacted: Boolean
 
-    val keys: Set<CameraCharacteristics.Key<*>>
-    val requestKeys: Set<CaptureRequest.Key<*>>
-    val resultKeys: Set<CaptureResult.Key<*>>
-    val sessionKeys: Set<CaptureRequest.Key<*>>
-    val physicalCameraIds: Set<CameraId>
-    val physicalRequestKeys: Set<CaptureRequest.Key<*>>
+    public val keys: Set<CameraCharacteristics.Key<*>>
+    public val requestKeys: Set<CaptureRequest.Key<*>>
+    public val resultKeys: Set<CaptureResult.Key<*>>
+    public val sessionKeys: Set<CaptureRequest.Key<*>>
+    public val physicalCameraIds: Set<CameraId>
+    public val physicalRequestKeys: Set<CaptureRequest.Key<*>>
 
-    val streamMap: StreamConfigurationMap
+    public val streamMap: StreamConfigurationMap
 }
 
 /**
@@ -92,62 +92,62 @@ interface CameraMetadata : Metadata, UnsafeWrapper<CameraCharacteristics> {
  * [CameraGraph]. This class will report the actual keys / values that were sent to camera2 (if
  * different) from the request that was used to create the Camera2 [CaptureRequest].
  */
-interface RequestMetadata : Metadata, UnsafeWrapper<CaptureRequest> {
-    operator fun <T> get(key: CaptureRequest.Key<T>): T?
-    fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T
+public interface RequestMetadata : Metadata, UnsafeWrapper<CaptureRequest> {
+    public operator fun <T> get(key: CaptureRequest.Key<T>): T?
+    public fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T
 
     /** The actual Camera2 template that was used when creating this [CaptureRequest] */
-    val template: RequestTemplate
+    public val template: RequestTemplate
 
     /**
      * A Map of StreamId(s) that were submitted with this CaptureRequest and the Surface(s) used
      * for this request. It's possible that not all of the streamId's specified in the [Request]
      * are present in the [CaptureRequest].
      */
-    val streams: Map<StreamId, Surface>
+    public val streams: Map<StreamId, Surface>
 
     /** Returns true if this is used in a repeating request. */
-    val repeating: Boolean
+    public val repeating: Boolean
 
     /** The request object that was used to create this [CaptureRequest] */
-    val request: Request
+    public val request: Request
 
     /** An internal number used to identify a specific [CaptureRequest] */
-    val requestNumber: RequestNumber
+    public val requestNumber: RequestNumber
 }
 
 /**
  * [FrameInfo] is a wrapper around [TotalCaptureResult].
  */
-interface FrameInfo : UnsafeWrapper<TotalCaptureResult> {
-    val metadata: FrameMetadata
+public interface FrameInfo : UnsafeWrapper<TotalCaptureResult> {
+    public val metadata: FrameMetadata
 
     /**
      * If this [FrameInfo] was produced from a logical camera there will be metadata associated with
      * the physical streams that were sent to the camera.
      */
-    operator fun get(camera: CameraId): FrameMetadata?
+    public operator fun get(camera: CameraId): FrameMetadata?
 
-    val camera: CameraId
-    val frameNumber: FrameNumber
-    val requestMetadata: RequestMetadata
+    public val camera: CameraId
+    public val frameNumber: FrameNumber
+    public val requestMetadata: RequestMetadata
 }
 
 /**
  * [FrameMetadata] is a wrapper around [CaptureResult].
  */
-interface FrameMetadata : Metadata, UnsafeWrapper<CaptureResult> {
-    operator fun <T> get(key: CaptureResult.Key<T>): T?
-    fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T
+public interface FrameMetadata : Metadata, UnsafeWrapper<CaptureResult> {
+    public operator fun <T> get(key: CaptureResult.Key<T>): T?
+    public fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T
 
-    val camera: CameraId
-    val frameNumber: FrameNumber
+    public val camera: CameraId
+    public val frameNumber: FrameNumber
 
     /**
      * Extra metadata will override values defined by the wrapped CaptureResult object. This is
      * exposed separately to allow other systems to know what is altered relative to Camera2.
      */
-    val extraMetadata: Map<*, Any?>
+    public val extraMetadata: Map<*, Any?>
 }
 
 /**
@@ -157,7 +157,7 @@ interface FrameMetadata : Metadata, UnsafeWrapper<CaptureResult> {
  * [Request.Listener.onComplete] method to be delayed so that the transform can be run on future
  * metadata.
  */
-data class MetadataTransform(
+public data class MetadataTransform(
     /**
      * This defines the number of historical [TotalCaptureResult] objects this transform is
      * allowed to look at. Setting this value to > 0 increases the number of [TotalCaptureResult]
@@ -186,8 +186,8 @@ data class MetadataTransform(
         check(future >= 0)
     }
 
-    interface TransformFn {
-        fun computeOverridesFor(
+    public interface TransformFn {
+        public fun computeOverridesFor(
             result: FrameInfo,
             camera: CameraId,
             related: List<FrameInfo?>
@@ -200,14 +200,14 @@ data class MetadataTransform(
  * default. These values are defined by camera2.
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
-inline class RequestTemplate(val value: Int)
+public inline class RequestTemplate(public val value: Int)
 
 /**
  * A [RequestNumber] is an artificial identifier that is created for each request that is submitted
  * to the Camera.
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
-inline class RequestNumber(val value: Long)
+public inline class RequestNumber(public val value: Long)
 
 /**
  * A [FrameNumber] is the identifier that represents a specific exposure by the Camera. FrameNumbers
@@ -215,7 +215,7 @@ inline class RequestNumber(val value: Long)
  * processing a request.
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
-inline class FrameNumber(val value: Long)
+public inline class FrameNumber(public val value: Long)
 
 /**
  * This is a timestamp from the Camera, and corresponds to the nanosecond exposure time of a Frame.
@@ -229,12 +229,12 @@ inline class FrameNumber(val value: Long)
  * monotonic clock.
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
-inline class CameraTimestamp(val value: Long)
+public inline class CameraTimestamp(public val value: Long)
 
 /**
  * Utility function to help deal with the unsafe nature of the typed Key/Value pairs.
  */
-fun CaptureRequest.Builder.writeParameters(parameters: Map<*, Any>) {
+public fun CaptureRequest.Builder.writeParameters(parameters: Map<*, Any?>) {
     for ((key, value) in parameters) {
         writeParameter(key, value)
     }
@@ -243,7 +243,7 @@ fun CaptureRequest.Builder.writeParameters(parameters: Map<*, Any>) {
 /**
  * Utility function to help deal with the unsafe nature of the typed Key/Value pairs.
  */
-fun CaptureRequest.Builder.writeParameter(key: Any?, value: Any?) {
+public fun CaptureRequest.Builder.writeParameter(key: Any?, value: Any?) {
     if (key != null && key is CaptureRequest.Key<*>) {
         @Suppress("UNCHECKED_CAST")
         this.set(key as CaptureRequest.Key<Any>, value)

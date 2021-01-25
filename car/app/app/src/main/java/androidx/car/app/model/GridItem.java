@@ -28,6 +28,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.Screen;
 import androidx.car.app.model.constraints.CarIconConstraints;
 
 import java.lang.annotation.Retention;
@@ -37,8 +38,6 @@ import java.util.Objects;
 /**
  * Represents a grid item with an image and an optional title.
  */
-// TODO(shiufai): Support toggle state in a grid item.
-// TODO(shiufai): Make grid item browsable.
 public class GridItem implements Item {
     /**
      * The type of images supported within grid items.
@@ -55,7 +54,7 @@ public class GridItem implements Item {
     /**
      * Represents an icon to be displayed in the grid item.
      *
-     * <p>If necessary, icons will be scaled down to fit within a 44 x 44 dp bounding box,
+     * <p>If necessary, icons will be scaled down to fit within a 64 x 64 dp bounding box,
      * preserving
      * their aspect ratios.
      *
@@ -73,6 +72,8 @@ public class GridItem implements Item {
     public static final int IMAGE_TYPE_LARGE = (1 << 1);
 
     @Keep
+    private final boolean mIsLoading;
+    @Keep
     @Nullable
     private final CarText mTitle;
     @Keep
@@ -82,19 +83,26 @@ public class GridItem implements Item {
     @Nullable
     private final CarIcon mImage;
     @Keep
-    @Nullable
-    private final Toggle mToggle;
-    @Keep
     @GridItemImageType
     private final int mImageType;
+    @SuppressWarnings("deprecation")
     @Keep
     @Nullable
     private final OnClickListenerWrapper mOnClickListener;
+    @Keep
+    @Nullable
+    private final OnClickDelegate mOnClickDelegate;
 
     /** Constructs a new builder of {@link GridItem}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
+    }
+
+    /** Returns whether the grid item is loading. */
+    public boolean isLoading() {
+        return mIsLoading;
     }
 
     /** Returns the title of the grid item. */
@@ -110,9 +118,9 @@ public class GridItem implements Item {
     }
 
     /** Returns the image of the grid item. */
-    @NonNull
+    @Nullable
     public CarIcon getImage() {
-        return requireNonNull(mImage);
+        return mImage;
     }
 
     /** Returns the image type of the grid item. */
@@ -122,21 +130,26 @@ public class GridItem implements Item {
     }
 
     /**
-     * Returns the {@link Toggle} in the grid item or {@code null} if the grid item does not
-     * contain a toggle.
-     */
-    @Nullable
-    public Toggle getToggle() {
-        return mToggle;
-    }
-
-    /**
      * Returns the {@link OnClickListener} to be called back when the grid item is clicked, or
      * {@code null} if the grid item is non-clickable.
+     *
+     * @deprecated use {@link #getOnClickDelegate} instead.
      */
+    // TODO(b/177591476): remove after host references have been cleaned up.
+    @SuppressWarnings("deprecation")
+    @Deprecated
     @Nullable
     public OnClickListenerWrapper getOnClickListener() {
         return mOnClickListener;
+    }
+
+    /**
+     * Returns the {@link OnClickDelegate} to be called back when the grid item is clicked, or
+     * {@code null} if the grid item is non-clickable.
+     */
+    @Nullable
+    public OnClickDelegate getOnClickDelegate() {
+        return mOnClickDelegate;
     }
 
     @Override
@@ -148,12 +161,14 @@ public class GridItem implements Item {
                 + CarText.toShortString(mText)
                 + ", image: "
                 + mImage
+                + ", isLoading: "
+                + mIsLoading
                 + "]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mTitle, mImage, mImageType, mToggle, mOnClickListener == null);
+        return Objects.hash(mIsLoading, mTitle, mImage, mImageType, mOnClickDelegate == null);
     }
 
     @Override
@@ -166,47 +181,65 @@ public class GridItem implements Item {
         }
         GridItem otherGridItem = (GridItem) other;
 
-        return Objects.equals(mTitle, otherGridItem.mTitle)
+        return mIsLoading == otherGridItem.mIsLoading
+                && Objects.equals(mTitle, otherGridItem.mTitle)
                 && Objects.equals(mText, otherGridItem.mText)
                 && Objects.equals(mImage, otherGridItem.mImage)
-                && Objects.equals(mToggle, otherGridItem.mToggle)
-                && Objects.equals(mOnClickListener == null, otherGridItem.mOnClickListener == null)
+                && Objects.equals(mOnClickDelegate == null, otherGridItem.mOnClickDelegate == null)
                 && mImageType == otherGridItem.mImageType;
     }
 
-    private GridItem(Builder builder) {
+    GridItem(Builder builder) {
+        mIsLoading = builder.mIsLoading;
         mTitle = builder.mTitle;
         mText = builder.mText;
         mImage = builder.mImage;
         mImageType = builder.mImageType;
-        mToggle = builder.mToggle;
         mOnClickListener = builder.mOnClickListener;
+        mOnClickDelegate = builder.mOnClickDelegate;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private GridItem() {
+        mIsLoading = false;
         mTitle = null;
         mText = null;
         mImage = null;
         mImageType = IMAGE_TYPE_LARGE;
-        mToggle = null;
         mOnClickListener = null;
+        mOnClickDelegate = null;
     }
 
     /** A builder of {@link GridItem}. */
     public static final class Builder {
         @Nullable
-        private CarText mTitle;
+        CarText mTitle;
         @Nullable
-        private CarText mText;
+        CarText mText;
         @Nullable
-        private CarIcon mImage;
+        CarIcon mImage;
         @GridItemImageType
-        private int mImageType = IMAGE_TYPE_LARGE;
+        int mImageType = IMAGE_TYPE_LARGE;
+        @SuppressWarnings("deprecation")
         @Nullable
-        private Toggle mToggle;
+        OnClickListenerWrapper mOnClickListener;
         @Nullable
-        private OnClickListenerWrapper mOnClickListener;
+        OnClickDelegate mOnClickDelegate;
+        boolean mIsLoading;
+
+        /**
+         * Sets whether the item is in a loading state.
+         *
+         * <p>If set to {@code true}, the UI shows a loading indicator where the grid item would be
+         * otherwise. The caller is expected to call {@link Screen#invalidate()} and send
+         * the new template content to the host once the data is ready. If set to {@code false},
+         * the UI shows the item  contents.
+         */
+        @NonNull
+        public Builder setLoading(boolean isLoading) {
+            this.mIsLoading = isLoading;
+            return this;
+        }
 
         /**
          * Sets the title of the row.
@@ -277,19 +310,6 @@ public class GridItem implements Item {
         }
 
         /**
-         * Sets a {@link Toggle} for the grid item, or {@code null} to not have any toggle states
-         * in the grid item. If set, this grid item acts as a toggle.
-         *
-         * <p>If the grid item has a {@link Toggle}, then no {@link OnClickListener} can be added
-         * to it.
-         */
-        @NonNull
-        public Builder setToggle(@Nullable Toggle toggle) {
-            this.mToggle = toggle;
-            return this;
-        }
-
-        /**
          * Sets the {@link OnClickListener} to be called back when the grid item is clicked, or
          * {@code null} to make the grid item non-clickable.
          *
@@ -299,42 +319,42 @@ public class GridItem implements Item {
         @NonNull
         @SuppressLint("ExecutorRegistration")
         public Builder setOnClickListener(@Nullable OnClickListener onClickListener) {
-            if (onClickListener == null) {
-                this.mOnClickListener = null;
-            } else {
-                this.mOnClickListener = OnClickListenerWrapperImpl.create(onClickListener);
-            }
+            mOnClickListener = onClickListener == null ? null :
+                    OnClickListenerWrapperImpl.create(onClickListener);
+            mOnClickDelegate = onClickListener == null ? null : OnClickDelegateImpl.create(
+                    onClickListener);
             return this;
         }
 
         /**
          * Constructs the {@link GridItem} defined by this builder.
          *
-         * @throws IllegalStateException if the grid item's image is not set.
-         * @throws IllegalStateException if the grid item doesn't have a title but the text is set.
-         * @throws IllegalStateException if the grid item has both a {@link OnClickListener} and a
-         *                               {@link Toggle}.
+         * @throws IllegalStateException if the grid item's title is not set.
+         * @throws IllegalStateException if the grid item's image is set when it is loading and vice
+         *                               versa.
+         * @throws IllegalStateException if the grid item is loading but the click listener is set.
          */
         @NonNull
         public GridItem build() {
-            if (mImage == null) {
-                throw new IllegalStateException("An image must be set on the grid item");
-            }
-
             if (mTitle == null) {
                 throw new IllegalStateException("A title must be set on the grid item");
             }
 
-            if (mToggle != null && mOnClickListener != null) {
+            if (mIsLoading == (mImage != null)) {
                 throw new IllegalStateException(
-                        "If a grid item contains a toggle, it must not have a onClickListener set"
-                                + " and vice versa");
+                        "When a grid item is loading, the image must not be set and vice versa");
+            }
+
+            if (mIsLoading && mOnClickDelegate != null) {
+                throw new IllegalStateException(
+                        "The click listener must not be set on the grid item when it is loading");
             }
 
             return new GridItem(this);
         }
 
-        private Builder() {
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

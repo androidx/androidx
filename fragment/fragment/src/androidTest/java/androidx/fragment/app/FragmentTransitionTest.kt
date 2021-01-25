@@ -24,10 +24,12 @@ import android.view.View
 import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
+import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.waitForExecution
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
@@ -1213,6 +1215,14 @@ class FragmentTransitionTest(
         assertThat(fragmentContainer.getTag(R.id.visible_removing_fragment_view_tag)).isNull()
     }
 
+    @Test
+    fun ignoreWhenViewNotAttached() {
+        with(ActivityScenario.launch(AddTransitionFragmentInActivity::class.java)) {
+            val fragment = withActivity { fragment }
+            assertThat(fragment.calledOnResume).isTrue()
+        }
+    }
+
     private fun setupInitialFragment(): TransitionFragment {
         val fragment1 = TransitionFragment(R.layout.scene1)
         fragmentManager.beginTransaction()
@@ -1568,5 +1578,17 @@ class FragmentTransitionTest(
                 add(arrayOf(ordering, OldStateManager))
             }
         }
+    }
+}
+
+class AddTransitionFragmentInActivity : FragmentActivity() {
+    val fragment = TransitionFragment()
+
+    override fun onStart() {
+        super.onStart()
+        supportFragmentManager.beginTransaction()
+            .setReorderingAllowed(true)
+            .add(android.R.id.content, fragment)
+            .commit()
     }
 }

@@ -19,6 +19,7 @@ package androidx.car.app.navigation.model;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -476,6 +477,7 @@ public final class Maneuver {
      * @param type one of the {@code TYPE_*} static constants defined in this class.
      * @throws IllegalArgumentException if {@code type} is not a valid maneuver type.
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder(@Type int type) {
         if (!isValidType(type)) {
@@ -576,8 +578,7 @@ public final class Maneuver {
                 && Objects.equals(mIcon, otherManeuver.mIcon);
     }
 
-    private Maneuver(
-            @Type int type, int roundaboutExitNumber, int roundaboutExitAngle,
+    Maneuver(@Type int type, int roundaboutExitNumber, int roundaboutExitAngle,
             @Nullable CarIcon icon) {
         this.mType = type;
         this.mRoundaboutExitNumber = roundaboutExitNumber;
@@ -594,18 +595,18 @@ public final class Maneuver {
         mIcon = null;
     }
 
-    private static boolean isValidType(@Type int type) {
+    static boolean isValidType(@Type int type) {
         return (type >= TYPE_UNKNOWN && type <= TYPE_FERRY_TRAIN_RIGHT);
     }
 
-    private static boolean isValidTypeWithExitNumber(@Type int type) {
+    static boolean isValidTypeWithExitNumber(@Type int type) {
         return (type == TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW
                 || type == TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW
                 || type == TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW_WITH_ANGLE
                 || type == TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW_WITH_ANGLE);
     }
 
-    private static boolean isValidTypeWithExitAngle(@Type int type) {
+    static boolean isValidTypeWithExitAngle(@Type int type) {
         return (type == TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW_WITH_ANGLE
                 || type == TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW_WITH_ANGLE);
     }
@@ -621,7 +622,22 @@ public final class Maneuver {
         @Nullable
         private CarIcon mIcon;
 
-        private Builder(@Type int type) {
+        /**
+         * Constructs a new instance of a {@link Builder}.
+         *
+         * <p>The type should be chosen to reflect the closest semantic meaning of the maneuver.
+         * In some
+         * cases, an exact type match is not possible, but choosing a similar or slightly more
+         * general type is preferred. Using {@link #TYPE_UNKNOWN} is allowed, but some head units
+         * will not display any information in that case.
+         *
+         * @param type one of the {@code TYPE_*} static constants defined in this class.
+         * @throws IllegalArgumentException if {@code type} is not a valid maneuver type.
+         */
+        public Builder(@Type int type) {
+            if (!isValidType(type)) {
+                throw new IllegalArgumentException("Maneuver must have a valid type");
+            }
             this.mType = type;
         }
 
@@ -664,7 +680,7 @@ public final class Maneuver {
          *                                  zero.
          */
         @NonNull
-        public Builder setRoundaboutExitNumber(int roundaboutExitNumber) {
+        public Builder setRoundaboutExitNumber(@IntRange(from = 1) int roundaboutExitNumber) {
             if (!isValidTypeWithExitNumber(mType)) {
                 throw new IllegalArgumentException(
                         "Maneuver does not include roundaboutExitNumber");
@@ -693,7 +709,8 @@ public final class Maneuver {
          *                                  zero and less than or equal to 360 degrees.
          */
         @NonNull
-        public Builder setRoundaboutExitAngle(int roundaboutExitAngle) {
+        public Builder setRoundaboutExitAngle(
+                @IntRange(from = 1, to = 360) int roundaboutExitAngle) {
             if (!isValidTypeWithExitAngle(mType)) {
                 throw new IllegalArgumentException("Maneuver does not include roundaboutExitAngle");
             }

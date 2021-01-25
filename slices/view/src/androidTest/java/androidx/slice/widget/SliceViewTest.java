@@ -19,7 +19,6 @@ package androidx.slice.widget;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -584,9 +583,9 @@ public class SliceViewTest {
 
         // Expected colors for checked items.
         int checkedTitleColor = mContext.getResources().getColor(
-                R.color.checkedItemTitleColor, mContext.getTheme());
+                R.color.checkedItemTitleColor);
         int checkedSubtitleColor = mContext.getResources().getColor(
-                R.color.checkedItemSubtitleColor, mContext.getTheme());
+                R.color.checkedItemSubtitleColor);
 
         // Expected colors for unchecked items (the default theme colors).
         int themeTitleColor = getThemeColor(android.R.attr.textColorPrimary);
@@ -698,12 +697,10 @@ public class SliceViewTest {
     }
 
     private int getThemeColor(int colorRes) {
-        TypedValue typedValue = new TypedValue();
-        mContext.getTheme().resolveAttribute(colorRes, typedValue, true);
-        TypedArray arr = mContext.obtainStyledAttributes(typedValue.data, new int[]{
-                colorRes});
+        TypedArray arr = mContext.getTheme().obtainStyledAttributes(new int[] {colorRes});
+        assertTrue(arr.hasValue(0));
         int themeColor = arr.getColor(0, -1);
-        assertNotSame(-1, themeColor);
+        arr.recycle();
         return themeColor;
     }
 
@@ -744,6 +741,7 @@ public class SliceViewTest {
         assertEquals(desired.isDefaultToggle(), actual.isDefaultToggle());
         assertEquals(desired.isChecked(), actual.isChecked());
         assertEquals(desired.getPriority(), actual.getPriority());
+        assertEquals(desired.getKey(), actual.getKey());
         assertEquals(desired.getIcon() == null, actual.getIcon() == null);
         assertEquals(desired.getImageMode(), actual.getImageMode());
     }

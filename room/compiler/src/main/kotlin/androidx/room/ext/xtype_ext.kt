@@ -17,6 +17,8 @@
 package androidx.room.ext
 
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.isByte
+import androidx.room.compiler.processing.isVoid
 
 fun XType.isNotVoid() = !isVoid()
 

@@ -40,8 +40,10 @@ dependencies {
     api("androidx.sqlite:sqlite-framework:2.1.0")
     api("androidx.sqlite:sqlite:2.1.0")
     implementation("androidx.arch.core:core-runtime:2.0.1")
-    compileOnly(projectOrArtifact(":paging:paging-common"))
+    compileOnly("androidx.paging:paging-common:2.0.0")
     compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
+    implementation projectOrArtifact(":annotation:annotation-experimental")
+    compileOnly KOTLIN_STDLIB // Due to :annotation-experimental
 
     testImplementation("androidx.arch.core:core-testing:2.0.1")
     testImplementation(JUNIT)
@@ -55,8 +57,12 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(project(":internal-testutils-truth")) // for assertThrows
+    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
+
 }
 
 android.libraryVariants.all { variant ->

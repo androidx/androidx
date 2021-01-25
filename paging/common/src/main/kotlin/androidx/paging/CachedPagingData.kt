@@ -22,13 +22,10 @@ import androidx.paging.ActiveFlowTracker.FlowType.PAGED_DATA_FLOW
 import androidx.paging.ActiveFlowTracker.FlowType.PAGE_EVENT_FLOW
 import androidx.paging.multicast.Multicaster
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.scan
 
 private class MulticastedPagingData<T : Any>(
     val scope: CoroutineScope,
@@ -82,7 +79,6 @@ fun <T : Any> Flow<PagingData<T>>.cachedIn(
     scope: CoroutineScope
 ) = cachedIn(scope, null)
 
-@OptIn(ExperimentalCoroutinesApi::class)
 internal fun <T : Any> Flow<PagingData<T>>.cachedIn(
     scope: CoroutineScope,
     // used in tests
@@ -93,11 +89,11 @@ internal fun <T : Any> Flow<PagingData<T>>.cachedIn(
             scope = scope,
             parent = it
         )
-    }.scan(null as MulticastedPagingData<T>?) { prev, next ->
-        prev?.close()
+    }.simpleRunningReduce { prev, next ->
+        prev.close()
         next
-    }.mapNotNull {
-        it?.asPagingData()
+    }.map {
+        it.asPagingData()
     }.onStart {
         tracker?.onStart(PAGED_DATA_FLOW)
     }.onCompletion {

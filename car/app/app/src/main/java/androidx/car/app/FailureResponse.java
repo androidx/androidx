@@ -16,19 +16,24 @@
 
 package androidx.car.app;
 
+import static androidx.annotation.RestrictTo.Scope;
+
 import static java.util.Objects.requireNonNull;
 
 import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.serialization.BundlerException;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.security.InvalidParameterException;
+import java.util.Objects;
 
 /**
  * Denotes a failure in the client to a host request.
@@ -51,6 +56,7 @@ public class FailureResponse {
                     RUNTIME_EXCEPTION,
                     REMOTE_EXCEPTION
             })
+    @RestrictTo(Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     public @interface ErrorType {
     }
@@ -63,11 +69,18 @@ public class FailureResponse {
     public static final int RUNTIME_EXCEPTION = 5;
     public static final int REMOTE_EXCEPTION = 6;
 
+    @Keep
     @Nullable
     private final String mStackTrace;
+    @Keep
     @ErrorType
     private final int mErrorType;
 
+    /**
+     * Creates an instance of {@link FailureResponse}.
+     *
+     * @param exception the originating cause of the failure.
+     */
     public FailureResponse(@NonNull Throwable exception) {
         this.mStackTrace = Log.getStackTraceString(requireNonNull(exception));
         if (exception instanceof BundlerException) {
@@ -88,18 +101,35 @@ public class FailureResponse {
     }
 
     // Used for serialization.
-    public FailureResponse() {
+    private FailureResponse() {
         mStackTrace = null;
         mErrorType = UNKNOWN_ERROR;
     }
 
+    /** Returns the stack trace of the originating exception. */
     @NonNull
     public String getStackTrace() {
         return requireNonNull(mStackTrace);
     }
 
+    /** Returns the type of the originating exception. */
     @ErrorType
     public int getErrorType() {
         return mErrorType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mErrorType, mStackTrace);
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (!(obj instanceof FailureResponse)) {
+            return false;
+        }
+        FailureResponse other = (FailureResponse) obj;
+
+        return mErrorType == other.mErrorType && Objects.equals(mStackTrace, other.mStackTrace);
     }
 }

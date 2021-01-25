@@ -261,9 +261,9 @@ least a year.
 
 A few notes about version updates:
 
--   The version of your library listed in `androidx-master-dev` should *always*
-    be higher than the version publically available on Google Maven. This allows
-    us to do proper version tracking and API tracking.
+-   The version of your library listed in `androidx-main` should *always* be
+    higher than the version publically available on Google Maven. This allows us
+    to do proper version tracking and API tracking.
 
 -   Version increments must be done before the CL cutoff date (aka the build cut
     date).
@@ -276,11 +276,11 @@ A few notes about version updates:
     [How to update your version on a release branch](release_branches.md#update-your-version)
 
 -   When you're ready for `rc01`, the increment to `rc01` should be done in
-    `androidx-master-dev` and then your release branch should be snapped to that
+    `androidx-main` and then your release branch should be snapped to that
     build. See the guide [Snap your release branch](release_branches.md#snap) on
     how to do this. After the release branch is snapped to that build, you will
-    need to update your version in `androidx-master-dev` to `alpha01` of the
-    next minor (or major) version.
+    need to update your version in `androidx-main` to `alpha01` of the next
+    minor (or major) version.
 
 ### Bi-weekly batched releases (every 2 weeks)
 
@@ -295,8 +295,9 @@ the TPM will increment the version to `1.1.0-alpha05` for the next release.
 
 1.  Update the version listed in
     `frameworks/support/buildSrc/src/main/kotlin/androidx/build/LibraryVersions.kt`
-1.  Run `./gradlew <your-lib>:updateApi`. This will create an API txt file for
-    the new version of your library.
+1.  If your library is a `beta` or `rc01` version, run `./gradlew
+    <your-lib>:updateApi`. This will create an API txt file for the new version
+    of your library. For other versions, this step is not reqired
 1.  Verify changes with `./gradlew checkApi verifyDependencyVersions`.
 1.  Commit these change as one commit.
 1.  Upload these changes to Gerrit for review.

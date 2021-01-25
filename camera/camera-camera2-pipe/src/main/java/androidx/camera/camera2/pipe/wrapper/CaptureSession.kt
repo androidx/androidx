@@ -25,7 +25,7 @@ import android.os.Handler
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.UnsafeWrapper
-import androidx.camera.camera2.pipe.impl.Log
+import androidx.camera.camera2.pipe.core.Log
 import kotlinx.atomicfu.atomic
 import java.io.Closeable
 import kotlin.jvm.Throws
@@ -36,7 +36,7 @@ import kotlin.jvm.Throws
  * This interface has been modified to correct nullness, adjust exceptions, and to return or produce
  * wrapper interfaces instead of the native Camera2 types.
  */
-interface CameraCaptureSessionWrapper : UnsafeWrapper<CameraCaptureSession>, Closeable {
+internal interface CameraCaptureSessionWrapper : UnsafeWrapper<CameraCaptureSession>, Closeable {
 
     /**
      * @see [CameraCaptureSession.getDevice]
@@ -164,7 +164,7 @@ interface CameraCaptureSessionWrapper : UnsafeWrapper<CameraCaptureSession>, Clo
     }
 }
 
-interface CameraConstrainedHighSpeedCaptureSessionWrapper : CameraCaptureSessionWrapper {
+internal interface CameraConstrainedHighSpeedCaptureSessionWrapper : CameraCaptureSessionWrapper {
     /**
      * Forwards to [CameraConstrainedHighSpeedCaptureSession.createHighSpeedRequestList]
      *
@@ -175,7 +175,7 @@ interface CameraConstrainedHighSpeedCaptureSessionWrapper : CameraCaptureSession
     fun createHighSpeedRequestList(request: CaptureRequest): List<CaptureRequest>
 }
 
-class AndroidCaptureSessionStateCallback(
+internal class AndroidCaptureSessionStateCallback(
     private val device: CameraDeviceWrapper,
     private val stateCallback: CameraCaptureSessionWrapper.StateCallback
 ) : CameraCaptureSession.StateCallback() {
@@ -233,7 +233,7 @@ class AndroidCaptureSessionStateCallback(
     }
 }
 
-open class AndroidCameraCaptureSession(
+internal open class AndroidCameraCaptureSession(
     override val device: CameraDeviceWrapper,
     private val cameraCaptureSession: CameraCaptureSession
 ) : CameraCaptureSessionWrapper {
@@ -341,7 +341,7 @@ open class AndroidCameraCaptureSession(
  * real [CameraConstrainedHighSpeedCaptureSession].
  */
 @RequiresApi(23)
-class AndroidCameraConstrainedHighSpeedCaptureSession internal constructor(
+internal class AndroidCameraConstrainedHighSpeedCaptureSession internal constructor(
     device: CameraDeviceWrapper,
     private val session: CameraConstrainedHighSpeedCaptureSession
 ) : AndroidCameraCaptureSession(device, session), CameraConstrainedHighSpeedCaptureSessionWrapper {

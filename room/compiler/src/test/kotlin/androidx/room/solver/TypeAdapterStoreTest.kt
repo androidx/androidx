@@ -20,7 +20,6 @@ import COMMON
 import androidx.paging.DataSource
 import androidx.paging.PagingSource
 import androidx.room.compiler.processing.XProcessingEnv
-import androidx.room.compiler.processing.asDeclaredType
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -35,20 +34,25 @@ import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.T
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.Context
+import androidx.room.processor.CustomConverterProcessor
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.binderprovider.DataSourceFactoryQueryResultBinderProvider
 import androidx.room.solver.binderprovider.DataSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.LiveDataQueryResultBinderProvider
 import androidx.room.solver.binderprovider.PagingSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxQueryResultBinderProvider
+import androidx.room.solver.query.parameter.CollectionQueryParameterAdapter
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureInsertMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxCallableDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxCallableInsertMethodBinderProvider
 import androidx.room.solver.types.CompositeAdapter
+import androidx.room.solver.types.CompositeTypeConverter
+import androidx.room.solver.types.CustomTypeConverterWrapper
 import androidx.room.solver.types.EnumColumnTypeAdapter
 import androidx.room.solver.types.TypeConverter
 import androidx.room.testing.context
+import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
@@ -69,11 +73,70 @@ class TypeAdapterStoreTest {
     }
 
     @Test
+    fun testInvalidNonStaticInnerClass() {
+        val converter = Source.java(
+            "foo.bar.EmptyClass",
+            """
+            package foo.bar;
+            import androidx.room.*;
+            public class EmptyClass {
+                public enum Color {
+                    RED,
+                    GREEN
+                }
+                public class ColorTypeConverter {
+                    @TypeConverter
+                    public Color fromIntToColorEnum(int colorInt) {
+                        if (colorInt == 1) {
+                            return Color.RED;
+                        } else {
+                            return Color.GREEN;
+                        }
+                    }
+                }
+            }
+            """.trimIndent()
+        )
+        val entity = Source.java(
+            "foo.bar.EntityWithOneWayEnum",
+            """
+            package foo.bar;
+            import androidx.room.*;
+            @Entity
+            @TypeConverters(EmptyClass.ColorTypeConverter.class)
+            public class EntityWithOneWayEnum {
+                public enum Color {
+                    RED,
+                    GREEN
+                }
+                @PrimaryKey public Long id;
+                public Color color;
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(entity, converter)
+        ) { invocation ->
+            val typeElement =
+                invocation.processingEnv.requireTypeElement("foo.bar.EntityWithOneWayEnum")
+            val context = Context(invocation.processingEnv)
+            CustomConverterProcessor.Companion.findConverters(context, typeElement)
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.INNER_CLASS_TYPE_CONVERTER_MUST_BE_STATIC)
+            }
+        }
+    }
+
+    @Test
     fun testDirect() {
         runProcessorTest { invocation ->
             val store = TypeAdapterStore.create(Context(invocation.processingEnv))
             val primitiveType = invocation.processingEnv.requireType(TypeName.INT)
-            val adapter = store.findColumnTypeAdapter(primitiveType, null)
+            val adapter = store.findColumnTypeAdapter(
+                primitiveType,
+                null,
+                skipEnumConverter = false
+            )
             assertThat(adapter, notNullValue())
         }
     }
@@ -88,7 +151,11 @@ class TypeAdapterStoreTest {
                 .processingEnv
                 .requireType("java.lang.Boolean")
                 .makeNullable()
-            val adapter = store.findColumnTypeAdapter(boolean, null)
+            val adapter = store.findColumnTypeAdapter(
+                boolean,
+                null,
+                skipEnumConverter = false
+            )
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
             val composite = adapter as CompositeAdapter
@@ -122,7 +189,7 @@ class TypeAdapterStoreTest {
             val enum = invocation
                 .processingEnv
                 .requireType("foo.bar.Fruit")
-            val adapter = store.findColumnTypeAdapter(enum, null)
+            val adapter = store.findColumnTypeAdapter(enum, null, skipEnumConverter = false)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(EnumColumnTypeAdapter::class.java))
         }
@@ -133,7 +200,11 @@ class TypeAdapterStoreTest {
         runProcessorTest { invocation ->
             val store = TypeAdapterStore.create(Context(invocation.processingEnv))
             val booleanType = invocation.processingEnv.requireType(TypeName.BOOLEAN)
-            val adapter = store.findColumnTypeAdapter(booleanType, null)
+            val adapter = store.findColumnTypeAdapter(
+                booleanType,
+                null,
+                skipEnumConverter = false
+            )
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
             val bindScope = testCodeGenScope()
@@ -195,7 +266,11 @@ class TypeAdapterStoreTest {
                 pointTypeConverters(invocation.processingEnv)
             )
             val pointType = invocation.processingEnv.requireType("foo.bar.Point")
-            val adapter = store.findColumnTypeAdapter(pointType, null)
+            val adapter = store.findColumnTypeAdapter(
+                pointType,
+                null,
+                skipEnumConverter = false
+            )
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
 
@@ -238,7 +313,7 @@ class TypeAdapterStoreTest {
                 invocation.context,
                 dateTypeConverters(invocation.processingEnv)
             )
-            val tDate = invocation.processingEnv.requireType("java.util.Date")
+            val tDate = invocation.processingEnv.requireType("java.util.Date").makeNullable()
             val adapter = store.findCursorValueReader(tDate, SQLTypeAffinity.INTEGER)
             assertThat(adapter, notNullValue())
             assertThat(adapter?.typeMirror(), `is`(tDate))
@@ -262,6 +337,99 @@ class TypeAdapterStoreTest {
     }
 
     @Test
+    fun multiStepTypeConverters() {
+        val source = Source.kotlin(
+            "Foo.kt",
+            """
+            import androidx.room.*
+            interface Type1_Super
+            interface Type1 : Type1_Super
+            interface Type1_Sub : Type1
+            interface Type2_Super
+            interface Type2 : Type2_Super
+            interface Type2_Sub : Type2
+            interface JumpType_1
+            interface JumpType_2
+            interface JumpType_3
+            class MyConverters {
+                @TypeConverter
+                fun t1_jump1(inp : Type1): JumpType_1 = TODO()
+                @TypeConverter
+                fun jump1_t2_Sub(inp : JumpType_1): Type2_Sub = TODO()
+                @TypeConverter
+                fun jump1_t2(inp : JumpType_1): Type2 = TODO()
+                @TypeConverter
+                fun t1_super_jump2(inp : Type1_Super): JumpType_2 = TODO()
+                @TypeConverter
+                fun jump2_jump3(inp : JumpType_2): JumpType_3 = TODO()
+                @TypeConverter
+                fun jump2_Type2_Sub(inp : JumpType_3): Type2_Sub = TODO()
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(sources = listOf(source)) { invocation ->
+            val convertersElm = invocation.processingEnv.requireTypeElement("MyConverters")
+            val converters = CustomConverterProcessor(invocation.context, convertersElm)
+                .process()
+            val store = TypeAdapterStore.create(
+                invocation.context,
+                converters.map(::CustomTypeConverterWrapper)
+            )
+
+            fun TypeConverter.toSignature(): String {
+                return when (this) {
+                    is CompositeTypeConverter -> "${conv1.toSignature()} : ${conv2.toSignature()}"
+                    else -> "${from.typeName} -> ${to.typeName}"
+                }
+            }
+
+            fun findConverter(from: String, to: String): String? {
+                val input = invocation.processingEnv.requireType(from)
+                val output = invocation.processingEnv.requireType(to)
+                return store.findTypeConverter(
+                    input = input,
+                    output = output
+                )?.also {
+                    // validate that it makes sense to ensure test is correct
+                    assertThat(output.isAssignableFrom(it.to)).isTrue()
+                    assertThat(it.from.isAssignableFrom(input)).isTrue()
+                }?.toSignature()
+            }
+            assertThat(
+                findConverter("Type1", "Type2")
+            ).isEqualTo(
+                "Type1 -> JumpType_1 : JumpType_1 -> Type2"
+            )
+            assertThat(
+                findConverter("Type1", "Type2_Sub")
+            ).isEqualTo(
+                "Type1 -> JumpType_1 : JumpType_1 -> Type2_Sub"
+            )
+            assertThat(
+                findConverter("Type1_Super", "Type2_Super")
+            ).isEqualTo(
+                "Type1_Super -> JumpType_2 : JumpType_2 -> JumpType_3 : JumpType_3 -> Type2_Sub"
+            )
+            assertThat(
+                findConverter("Type1", "Type2_Sub")
+            ).isEqualTo(
+                "Type1 -> JumpType_1 : JumpType_1 -> Type2_Sub"
+            )
+            assertThat(
+                findConverter("Type1_Sub", "Type2_Sub")
+            ).isEqualTo(
+                "Type1 -> JumpType_1 : JumpType_1 -> Type2_Sub"
+            )
+            assertThat(
+                findConverter("Type2", "Type2_Sub")
+            ).isNull()
+            assertThat(
+                findConverter("Type2", "Type1")
+            ).isNull()
+        }
+    }
+
+    @Test
     fun testIntList() {
         runProcessorTest { invocation ->
             val binders = createIntListToStringBinders(invocation)
@@ -270,7 +438,11 @@ class TypeAdapterStoreTest {
                 binders[1]
             )
 
-            val adapter = store.findColumnTypeAdapter(binders[0].from, null)
+            val adapter = store.findColumnTypeAdapter(
+                binders[0].from,
+                null,
+                skipEnumConverter = false
+            )
             assertThat(adapter, notNullValue())
 
             val bindScope = testCodeGenScope()
@@ -304,7 +476,11 @@ class TypeAdapterStoreTest {
         runProcessorTest { invocation ->
             val binders = createIntListToStringBinders(invocation)
             val store = TypeAdapterStore.create(Context(invocation.processingEnv), binders[0])
-            val adapter = store.findColumnTypeAdapter(binders[0].from, null)
+            val adapter = store.findColumnTypeAdapter(
+                binders[0].from,
+                null,
+                skipEnumConverter = false
+            )
             assertThat(adapter, nullValue())
 
             val stmtBinder = store.findStatementValueBinder(binders[0].from, null)
@@ -330,7 +506,7 @@ class TypeAdapterStoreTest {
             assertThat(publisherElement, notNullValue())
             assertThat(
                 RxQueryResultBinderProvider.getAll(invocation.context).any {
-                    it.matches(publisherElement.asDeclaredType())
+                    it.matches(publisherElement.type)
                 },
                 `is`(true)
             )
@@ -351,7 +527,7 @@ class TypeAdapterStoreTest {
             assertThat(publisherElement, notNullValue())
             assertThat(
                 RxQueryResultBinderProvider.getAll(invocation.context).any {
-                    it.matches(publisherElement.asDeclaredType())
+                    it.matches(publisherElement.type)
                 },
                 `is`(true)
             )
@@ -376,7 +552,7 @@ class TypeAdapterStoreTest {
                 assertThat(publisher, notNullValue())
                 assertThat(
                     RxQueryResultBinderProvider.getAll(invocation.context).any {
-                        it.matches(publisher.asDeclaredType())
+                        it.matches(publisher.type)
                     },
                     `is`(true)
                 )
@@ -397,7 +573,7 @@ class TypeAdapterStoreTest {
                 val flowable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
                     RxQueryResultBinderProvider.getAll(invocation.context).any {
-                        it.matches(flowable.asDeclaredType())
+                        it.matches(flowable.type)
                     },
                     `is`(true)
                 )
@@ -419,7 +595,7 @@ class TypeAdapterStoreTest {
                 assertThat(observable, notNullValue())
                 assertThat(
                     RxQueryResultBinderProvider.getAll(invocation.context).any {
-                        it.matches(observable.asDeclaredType())
+                        it.matches(observable.type)
                     },
                     `is`(true)
                 )
@@ -439,7 +615,7 @@ class TypeAdapterStoreTest {
                 assertThat(single, notNullValue())
                 assertThat(
                     RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
-                        it.matches(single.asDeclaredType())
+                        it.matches(single.type)
                     },
                     `is`(true)
                 )
@@ -457,7 +633,7 @@ class TypeAdapterStoreTest {
                 val maybe = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
                     RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
-                        it.matches(maybe.asDeclaredType())
+                        it.matches(maybe.type)
                     },
                     `is`(true)
                 )
@@ -475,7 +651,7 @@ class TypeAdapterStoreTest {
                 val completable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
                     RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
-                        it.matches(completable.asDeclaredType())
+                        it.matches(completable.type)
                     },
                     `is`(true)
                 )
@@ -491,7 +667,7 @@ class TypeAdapterStoreTest {
                 .requireTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
             assertThat(
                 GuavaListenableFutureInsertMethodBinderProvider(invocation.context).matches(
-                    future.asDeclaredType()
+                    future.type
                 ),
                 `is`(true)
             )
@@ -505,7 +681,7 @@ class TypeAdapterStoreTest {
             assertThat(single, notNullValue())
             assertThat(
                 RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
-                    it.matches(single.asDeclaredType())
+                    it.matches(single.type)
                 },
                 `is`(true)
             )
@@ -520,7 +696,7 @@ class TypeAdapterStoreTest {
             assertThat(maybe, notNullValue())
             assertThat(
                 RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
-                    it.matches(maybe.asDeclaredType())
+                    it.matches(maybe.type)
                 },
                 `is`(true)
             )
@@ -536,7 +712,7 @@ class TypeAdapterStoreTest {
             assertThat(completable, notNullValue())
             assertThat(
                 RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
-                    it.matches(completable.asDeclaredType())
+                    it.matches(completable.type)
                 },
                 `is`(true)
             )
@@ -553,7 +729,7 @@ class TypeAdapterStoreTest {
             assertThat(future, notNullValue())
             assertThat(
                 GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(invocation.context)
-                    .matches(future.asDeclaredType()),
+                    .matches(future.type),
                 `is`(true)
             )
         }
@@ -569,7 +745,7 @@ class TypeAdapterStoreTest {
             assertThat(liveData, notNullValue())
             assertThat(
                 LiveDataQueryResultBinderProvider(invocation.context).matches(
-                    liveData.asDeclaredType()
+                    liveData.type
                 ),
                 `is`(true)
             )
@@ -588,7 +764,7 @@ class TypeAdapterStoreTest {
             assertThat(pagingSourceIntIntType, notNullValue())
             assertThat(
                 PagingSourceQueryResultBinderProvider(invocation.context)
-                    .matches(pagingSourceIntIntType.asDeclaredType()),
+                    .matches(pagingSourceIntIntType),
                 `is`(true)
             )
         }
@@ -606,7 +782,7 @@ class TypeAdapterStoreTest {
             assertThat(pagingSourceIntIntType, notNullValue())
             assertThat(
                 PagingSourceQueryResultBinderProvider(invocation.context)
-                    .matches(pagingSourceIntIntType.asDeclaredType()),
+                    .matches(pagingSourceIntIntType),
                 `is`(true)
             )
             invocation.assertCompilationResult {
@@ -623,7 +799,7 @@ class TypeAdapterStoreTest {
             assertThat(dataSource, notNullValue())
             assertThat(
                 DataSourceQueryResultBinderProvider(invocation.context).matches(
-                    dataSource.asDeclaredType()
+                    dataSource.type
                 ),
                 `is`(true)
             )
@@ -643,7 +819,7 @@ class TypeAdapterStoreTest {
             assertThat(dataSource, notNullValue())
             assertThat(
                 DataSourceQueryResultBinderProvider(invocation.context).matches(
-                    dataSource.asDeclaredType()
+                    dataSource.type
                 ),
                 `is`(true)
             )
@@ -659,10 +835,46 @@ class TypeAdapterStoreTest {
             assertThat(pagedListProvider, notNullValue())
             assertThat(
                 DataSourceFactoryQueryResultBinderProvider(invocation.context).matches(
-                    pagedListProvider.asDeclaredType()
+                    pagedListProvider.type
                 ),
                 `is`(true)
             )
+        }
+    }
+
+    @Test
+    fun findQueryParameterAdapter_collections() {
+        runProcessorTest { invocation ->
+            val store = TypeAdapterStore.create(
+                context = invocation.context
+            )
+            val javacCollectionTypes = listOf(
+                "java.util.Set",
+                "java.util.List",
+                "java.util.ArrayList"
+            )
+            val kotlinCollectionTypes = listOf(
+                "kotlin.collections.List",
+                "kotlin.collections.MutableList"
+            )
+            val collectionTypes = if (invocation.isKsp) {
+                javacCollectionTypes + kotlinCollectionTypes
+            } else {
+                javacCollectionTypes
+            }
+            collectionTypes.map { collectionType ->
+                invocation.processingEnv.getDeclaredType(
+                    invocation.processingEnv.requireTypeElement(collectionType),
+                    invocation.processingEnv.requireType(TypeName.INT).boxed()
+                )
+            }.forEach { type ->
+                val adapter = store.findQueryParameterAdapter(
+                    typeMirror = type,
+                    isMultipleParameter = true
+                )
+                assertThat(adapter).isNotNull()
+                assertThat(adapter).isInstanceOf(CollectionQueryParameterAdapter::class.java)
+            }
         }
     }
 

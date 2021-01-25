@@ -30,6 +30,7 @@ dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
     api(project(":wear:wear-watchface"))
     implementation(project(":wear:wear-watchface-complications-rendering"))
+    implementation(project(":wear:wear-watchface-editor-samples"))
     api(KOTLIN_STDLIB)
 }
 

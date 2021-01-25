@@ -25,7 +25,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import android.view.ViewConfiguration;
 
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 import androidx.testutils.SwipeInjector;
 
 import org.junit.Before;
@@ -34,9 +33,11 @@ import org.junit.Test;
 
 public abstract class SwipeRefreshLayoutRequestDisallowInterceptBaseTest {
 
+    @SuppressWarnings("deprecation")
     @Rule
-    public final ActivityTestRule<? extends SwipeRefreshLayoutInRecyclerViewBaseActivity>
-            mActivityTestRule = new ActivityTestRule<>(getActivityClass());
+    public final androidx.test.rule
+            .ActivityTestRule<? extends SwipeRefreshLayoutInRecyclerViewBaseActivity>
+            mActivityTestRule = new androidx.test.rule.ActivityTestRule<>(getActivityClass());
 
     private RequestDisallowInterceptRecordingRecyclerView mRecyclerView;
     private int mTouchSlop;
