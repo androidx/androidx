@@ -48,6 +48,7 @@ import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 
 /**
@@ -268,39 +269,62 @@ internal abstract class BaseEditorSession(
         providerInfoRetriever: ProviderInfoRetriever,
         providerInfo: ComplicationProviderInfo?
     ): ListenableFuture<ComplicationData?> {
+        val resultFuture = ResolvableFuture.create<ComplicationData>()
         if (providerInfo == null) {
-            return ResolvableFuture.create<ComplicationData>().apply {
+            return resultFuture.apply {
                 set(null)
             }
         }
 
-        providerInfo.providerComponentName?.let {
-            return providerInfoRetriever.requestPreviewComplicationData(
-                it,
+        val providerComponentName = providerInfo.providerComponentName
+        if (providerComponentName != null) {
+            val future = providerInfoRetriever.requestPreviewComplicationData(
+                providerComponentName,
                 ComplicationType.fromWireType(providerInfo.complicationType)
             )
-        }
-
-        // Generate fallback preview data.
-        return ResolvableFuture.create<ComplicationData>().apply {
-            val providerIcon = providerInfo.providerIcon
-            val providerName = providerInfo.providerName
-            set(
-                when {
-                    providerName == null -> null
-
-                    providerIcon == null ->
-                        LongTextComplicationData.Builder(ComplicationText.plain(providerName))
-                            .build()
-
-                    else ->
-                        ShortTextComplicationData.Builder(ComplicationText.plain(providerName))
-                            .setImage(
-                                MonochromaticImage.Builder(providerIcon).build()
-                            )
-                            .build()
-                }
+            future.addListener(
+                {
+                    try {
+                        resultFuture.set(future.get())
+                    } catch (e: ExecutionException) {
+                        resultFuture.set(
+                            if (e.cause is ProviderInfoRetriever.PreviewNotAvailableException) {
+                                // Generate fallback preview data.
+                                generatePreviewFromComplicationProviderInfo(providerInfo)
+                            } else {
+                                null
+                            }
+                        )
+                    }
+                },
+                { runnable -> runnable.run() }
             )
+        } else {
+            // Generate fallback preview data.
+            resultFuture.set(generatePreviewFromComplicationProviderInfo(providerInfo))
+        }
+        return resultFuture
+    }
+
+    private fun generatePreviewFromComplicationProviderInfo(
+        providerInfo: ComplicationProviderInfo
+    ): ComplicationData? {
+        val providerIcon = providerInfo.providerIcon
+        val providerName = providerInfo.providerName
+
+        return when {
+            providerName == null -> null
+
+            providerIcon == null ->
+                LongTextComplicationData.Builder(ComplicationText.plain(providerName))
+                    .build()
+
+            else ->
+                ShortTextComplicationData.Builder(ComplicationText.plain(providerName))
+                    .setImage(
+                        MonochromaticImage.Builder(providerIcon).build()
+                    )
+                    .build()
         }
     }
 
