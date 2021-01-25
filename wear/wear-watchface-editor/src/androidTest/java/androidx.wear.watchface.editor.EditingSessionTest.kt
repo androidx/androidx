@@ -77,6 +77,7 @@ public class OnWatchFaceEditingTestActivity : ComponentActivity() {
 @MediumTest
 public class EditorSessionTest {
     private val testComponentName = ComponentName("test.package", "test.class")
+    private val testEditorComponentName = ComponentName("test.package", "test.editor.class")
     private val testInstanceId = "TEST_INSTANCE_ID"
     private var editorDelegate = Mockito.mock(WatchFace.EditorDelegate::class.java)
     private val screenBounds = Rect(0, 0, 400, 400)
@@ -182,7 +183,7 @@ public class EditorSessionTest {
         return ActivityScenario.launch(
             WatchFaceEditorContract().createIntent(
                 ApplicationProvider.getApplicationContext<Context>(),
-                EditorRequest(testComponentName, testInstanceId, null)
+                EditorRequest(testComponentName, testEditorComponentName, testInstanceId, null)
             ).apply {
                 component = ComponentName(
                     ApplicationProvider.getApplicationContext<Context>(),
@@ -462,5 +463,20 @@ public class EditorSessionTest {
 
         assertThat(result.userStyle[colorStyleSetting.id]).isEqualTo(blueStyleOption.id)
         assertThat(result.userStyle[watchHandStyleSetting.id]).isEqualTo(gothicStyleOption.id)
+    }
+
+    @Test
+    fun watchFaceEditorContract_createIntent() {
+        val intent = WatchFaceEditorContract().createIntent(
+            ApplicationProvider.getApplicationContext<Context>(),
+            EditorRequest(testComponentName, testEditorComponentName, testInstanceId, null)
+        )
+        assertThat(intent.component).isEqualTo(testEditorComponentName)
+
+        val editorRequest = EditorRequest.createFromIntent(intent)!!
+        assertThat(editorRequest.editorComponentName).isEqualTo(testEditorComponentName)
+        assertThat(editorRequest.initialUserStyle).isNull()
+        assertThat(editorRequest.watchFaceComponentName).isEqualTo(testComponentName)
+        assertThat(editorRequest.watchFaceInstanceId).isEqualTo(testInstanceId)
     }
 }

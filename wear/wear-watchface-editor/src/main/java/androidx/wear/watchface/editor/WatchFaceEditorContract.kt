@@ -31,8 +31,11 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
  * be reported via [Activity.setWatchRequestResult].
  */
 public class EditorRequest(
-    /** The [ComponentName] on the watch face being edited. */
+    /** The [ComponentName] of the watch face being edited. */
     public val watchFaceComponentName: ComponentName,
+
+    /** The [ComponentName] of the watch face editor. */
+    public val editorComponentName: ComponentName,
 
     /** A unique ID for the instance of the watch face being edited. */
     public val watchFaceInstanceId: String,
@@ -50,6 +53,7 @@ public class EditorRequest(
             val componentName =
                 intent.getParcelableExtra<ComponentName>(COMPONENT_NAME_KEY)
                     ?: intent.getParcelableExtra(Constants.EXTRA_WATCH_FACE_COMPONENT)
+            val editorComponentName = intent.component ?: ComponentName("?", "?")
             val instanceId = intent.getStringExtra(INSTANCE_ID)!!
             val userStyleKey = intent.getStringArrayExtra(USER_STYLE_KEYS)
             val userStyleValue = intent.getStringArrayExtra(USER_STYLE_VALUES)
@@ -59,6 +63,7 @@ public class EditorRequest(
                 ) {
                     EditorRequest(
                         componentName,
+                        editorComponentName,
                         instanceId,
                         HashMap<String, String>().apply {
                             for (i in userStyleKey.indices) {
@@ -67,7 +72,7 @@ public class EditorRequest(
                         }
                     )
                 } else {
-                    EditorRequest(componentName, instanceId, null)
+                    EditorRequest(componentName, editorComponentName, instanceId, null)
                 }
             }
         }
@@ -99,8 +104,12 @@ public open class WatchFaceEditorContract : ActivityResultContract<EditorRequest
             "androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR"
     }
 
-    override fun createIntent(context: Context, input: EditorRequest): Intent =
+    override fun createIntent(
+        context: Context,
+        input: EditorRequest
+    ): Intent =
         Intent(ACTION_WATCH_FACE_EDITOR).apply {
+            component = input.editorComponentName
             putExtra(EditorRequest.COMPONENT_NAME_KEY, input.watchFaceComponentName)
             putExtra(EditorRequest.INSTANCE_ID, input.watchFaceInstanceId)
             input.initialUserStyle?.let {
