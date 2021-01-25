@@ -177,7 +177,7 @@ internal class Controller3A(
         val listener = createListenerFor3AParams(aeMode, afMode, awbMode)
         graphListener3A.addListener(listener)
 
-        val extra3AParams = mutableMapOf<CaptureRequest.Key<*>, Any>()
+        val extra3AParams = mutableMapOf<CaptureRequest.Key<*>, Any?>()
         aeMode?.let { extra3AParams.put(CaptureRequest.CONTROL_AE_MODE, it.value) }
         afMode?.let { extra3AParams.put(CaptureRequest.CONTROL_AF_MODE, it.value) }
         awbMode?.let { extra3AParams.put(CaptureRequest.CONTROL_AWB_MODE, it.value) }
