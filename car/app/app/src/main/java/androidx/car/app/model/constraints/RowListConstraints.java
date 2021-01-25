@@ -114,7 +114,7 @@ public final class RowListConstraints {
             throw new IllegalArgumentException("Selectable lists are not allowed");
         }
 
-        validateRows(itemList.getItemList());
+        validateRows(itemList.getItems());
     }
 
     /**
@@ -133,7 +133,7 @@ public final class RowListConstraints {
                 throw new IllegalArgumentException("Selectable lists are not allowed");
             }
 
-            combinedLists.addAll(sectionList.getItemList());
+            combinedLists.addAll(sectionList.getItems());
         }
 
         validateRows(combinedLists);
@@ -146,13 +146,13 @@ public final class RowListConstraints {
      */
     public void validateOrThrow(@NonNull Pane pane) {
         List<Action> actions = pane.getActions();
-        if (actions != null && actions.size() > mMaxActions) {
+        if (actions.size() > mMaxActions) {
             throw new IllegalArgumentException(
                     "The number of actions on the pane exceeded the supported max of "
                             + mMaxActions);
         }
 
-        validateRows(pane.getRowList());
+        validateRows(pane.getRows());
     }
 
     private void validateRows(List<? extends Item> rows) {
