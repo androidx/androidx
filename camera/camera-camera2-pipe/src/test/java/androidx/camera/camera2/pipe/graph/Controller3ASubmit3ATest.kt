@@ -27,7 +27,7 @@ import androidx.camera.camera2.pipe.CameraGraph.Constants3A.FRAME_NUMBER_INVALID
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestNumber
-import androidx.camera.camera2.pipe.Status3A
+import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
@@ -84,7 +84,7 @@ internal class Controller3ASubmit3ATest {
         }
         val result3A = result.await()
         assertThat(result3A.frameNumber.value).isEqualTo(101L)
-        assertThat(result3A.status).isEqualTo(Status3A.OK)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
     @Test
@@ -112,7 +112,7 @@ internal class Controller3ASubmit3ATest {
         }
         val result3A = result.await()
         assertThat(result3A.frameNumber.value).isEqualTo(101L)
-        assertThat(result3A.status).isEqualTo(Status3A.OK)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
     @Test
@@ -140,7 +140,7 @@ internal class Controller3ASubmit3ATest {
         }
         val result3A = result.await()
         assertThat(result3A.frameNumber.value).isEqualTo(101L)
-        assertThat(result3A.status).isEqualTo(Status3A.OK)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
     @Test
@@ -168,7 +168,7 @@ internal class Controller3ASubmit3ATest {
         }
         val result3A = result.await()
         assertThat(result3A.frameNumber.value).isEqualTo(101L)
-        assertThat(result3A.status).isEqualTo(Status3A.OK)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
     @Test
@@ -196,7 +196,7 @@ internal class Controller3ASubmit3ATest {
         }
         val result3A = result.await()
         assertThat(result3A.frameNumber.value).isEqualTo(101L)
-        assertThat(result3A.status).isEqualTo(Status3A.OK)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
     @Test
@@ -229,7 +229,7 @@ internal class Controller3ASubmit3ATest {
         }
         val result3A = result.await()
         assertThat(result3A.frameNumber.value).isEqualTo(101L)
-        assertThat(result3A.status).isEqualTo(Status3A.OK)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
     @Test
@@ -241,7 +241,7 @@ internal class Controller3ASubmit3ATest {
         // Since the request processor is closed the submit3A method call will fail.
         val result = controller3A.submit3A(aeMode = AeMode.ON_ALWAYS_FLASH).await()
         assertThat(result.frameNumber).isEqualTo(FRAME_NUMBER_INVALID)
-        assertThat(result.status).isEqualTo(Status3A.SUBMIT_FAILED)
+        assertThat(result.status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
     }
 
     private fun initGraphProcessor() {
