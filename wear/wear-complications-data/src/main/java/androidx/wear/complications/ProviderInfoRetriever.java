@@ -190,6 +190,12 @@ public class ProviderInfoRetriever implements AutoCloseable {
     }
 
     /**
+     * Exception thrown by {#requestPreviewComplicationData} if preview complication data is not
+     * available due to connection problems or due to lack of support by system apps.
+     */
+    public static class PreviewNotAvailableException extends Exception {}
+
+    /**
      * Requests preview {@link ComplicationData} for a provider {@link ComponentName} and
      * {@link ComplicationType}.
      *
@@ -197,8 +203,9 @@ public class ProviderInfoRetriever implements AutoCloseable {
      *                         preview data is requested.
      * @param complicationType The requested {@link ComplicationType} for the preview data.
      * @return A {@link ListenableFuture} for the preview {@link ComplicationData}. This may resolve
-     * to `null` if the provider component doesn't exist, or if it doesn't support complicationType,
-     * or if the remote service doesn't support this API.
+     * to `null` if the provider component doesn't exist, or if it doesn't support complicationType.
+     * May resolve with {@link PreviewNotAvailableException} if the remote service can't be
+     * resolved or if it doesn't support this API.
      */
     @NonNull
     @RequiresApi(Build.VERSION_CODES.R)
@@ -212,12 +219,12 @@ public class ProviderInfoRetriever implements AutoCloseable {
                 () -> {
                     try {
                         if (mServiceFuture.isCancelled()) {
-                            mResultFuture.set(null);
+                            mResultFuture.setException(new PreviewNotAvailableException());
                             return;
                         }
                         IProviderInfoService service = mServiceFuture.get();
                         if (service.getApiVersion() < 1) {
-                            mResultFuture.set(null);
+                            mResultFuture.setException(new PreviewNotAvailableException());
                             return;
                         }
                         if (!service.requestPreviewComplicationData(
@@ -233,7 +240,7 @@ public class ProviderInfoRetriever implements AutoCloseable {
                                         }
                                     }
                                 })) {
-                            mResultFuture.set(null);
+                            mResultFuture.setException(new PreviewNotAvailableException());
                         }
                     } catch (RemoteException e) {
                         mResultFuture.setException(e);

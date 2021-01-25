@@ -208,6 +208,10 @@ package androidx.wear.complications {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.complications.ProviderInfoRetriever.ProviderInfo![]!> retrieveProviderInfo(android.content.ComponentName, int[]);
   }
 
+  public static class ProviderInfoRetriever.PreviewNotAvailableException extends java.lang.Exception {
+    ctor public ProviderInfoRetriever.PreviewNotAvailableException();
+  }
+
   public static class ProviderInfoRetriever.ProviderInfo {
     method public android.support.wearable.complications.ComplicationProviderInfo? getInfo();
     method public int getWatchFaceComplicationId();

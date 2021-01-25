@@ -55,6 +55,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
@@ -383,6 +384,49 @@ public class EditorSessionTest {
                         )
                         setDataPosition(0)
                     }
+                )
+            ).get() as ShortTextComplicationData
+
+            assertThat(
+                previewComplication.text.getTextAt(
+                    ApplicationProvider.getApplicationContext<Context>().resources,
+                    0
+                )
+            ).isEqualTo("provider")
+        }
+    }
+
+    @Test
+    public fun getPreviewData_postRFallback() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            emptyList(),
+            listOf(leftComplication, rightComplication, backgroundComplication)
+        )
+        scenario.onActivity {
+            val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
+            val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
+            val providerComponentName = ComponentName("test.package", "test.class")
+            val complicationType = ComplicationData.TYPE_SHORT_TEXT
+            val providerIcon =
+                Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
+
+            `when`(mockProviderInfoService.apiVersion).thenReturn(1)
+            `when`(
+                mockProviderInfoService.requestPreviewComplicationData(
+                    eq(providerComponentName),
+                    eq(complicationType),
+                    any(IPreviewComplicationDataCallback::class.java)
+                )
+            ).thenReturn(false) // Triggers the ExecutionException.
+
+            val previewComplication = editorSession.getPreviewData(
+                ProviderInfoRetriever(mockProviderInfoService),
+                ComplicationProviderInfo(
+                    "provider.app",
+                    "provider",
+                    providerIcon,
+                    complicationType,
+                    providerComponentName
                 )
             ).get() as ShortTextComplicationData
 
