@@ -29,7 +29,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.wrapper.AndroidCameraMetadata
+import androidx.camera.camera2.pipe.compat.Camera2CameraMetadata
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.atomicfu.atomic
 import org.robolectric.Shadows.shadowOf
@@ -99,7 +99,7 @@ public object RobolectricCameras {
     fun open(cameraId: CameraId): FakeCamera {
         check(initializedCameraIds.contains(cameraId))
         val characteristics = cameraManager.getCameraCharacteristics(cameraId.value)
-        val metadata = AndroidCameraMetadata(cameraId, false, characteristics, emptyMap())
+        val metadata = Camera2CameraMetadata(cameraId, false, characteristics, emptyMap())
 
         @Suppress("SyntheticAccessor")
         val callback = CameraStateCallback(cameraId)
