@@ -37,10 +37,6 @@ dependencies {
     implementation(KOTLIN_COROUTINES_GUAVA)
     implementation(project(":camera:camera-camera2-pipe"))
 
-    compileOnly(ANDROIDX_TEST_CORE)
-    compileOnly(JUNIT)
-    compileOnly(ROBOLECTRIC)
-
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
@@ -52,6 +48,10 @@ dependencies {
 android {
     defaultConfig {
         minSdkVersion 21
+    }
+
+    sourceSets {
+        test.java.srcDirs += 'src/robolectric/java'
     }
 
     // Use Robolectric 4.+
