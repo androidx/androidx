@@ -39,17 +39,6 @@ public final class Place {
     }
 
     /**
-     * @deprecated use {@link #getLocation()} instead.
-     */
-    // TODO(b/177591131): remove after all host references have been removed.
-    @Deprecated
-    @NonNull
-    public LatLng getLatLng() {
-        requireNonNull(mLocation);
-        return LatLng.create(mLocation.getLatitude(), mLocation.getLongitude());
-    }
-
-    /**
      * @return the {@link CarLocation} set for this Place instance.
      */
     @NonNull
@@ -98,19 +87,6 @@ public final class Place {
         CarLocation mLocation;
         @Nullable
         PlaceMarker mMarker;
-
-        /**
-         * Returns a builder instance for a {@link LatLng}.
-         *
-         * @param latLng the geographical location associated with the place.
-         * @throws NullPointerException if {@code latLng} is {@code null}.
-         * @deprecated use {@link #Builder(CarLocation)} instead.
-         */
-        // TODO(b/177591131): remove after all host references have been removed.
-        @Deprecated
-        public Builder(@NonNull LatLng latLng) {
-            this(CarLocation.create(latLng.getLatitude(), latLng.getLongitude()));
-        }
 
         /**
          * Returns a builder instance for a {@link CarLocation}.
