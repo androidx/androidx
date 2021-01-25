@@ -438,7 +438,6 @@ package androidx.car.app.model {
     method public androidx.car.app.model.MessageTemplate.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.MessageTemplate build();
     method @Deprecated public androidx.car.app.model.MessageTemplate.Builder setActionList(java.util.List<androidx.car.app.model.Action!>);
-    method @Deprecated public androidx.car.app.model.MessageTemplate.Builder setDebugCause(Throwable);
     method public androidx.car.app.model.MessageTemplate.Builder setDebugMessage(Throwable);
     method public androidx.car.app.model.MessageTemplate.Builder setDebugMessage(String);
     method public androidx.car.app.model.MessageTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
