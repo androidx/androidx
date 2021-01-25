@@ -20,7 +20,6 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.SuppressLint;
 import android.util.Log;
 
 import androidx.annotation.Keep;
@@ -177,28 +176,6 @@ public final class MessageTemplate implements Template {
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
             this.mTitle = CarText.create(requireNonNull(title));
-            return this;
-        }
-
-        /**
-         * Sets a {@link Throwable} for debugging purposes, or {@code null} to not show it.
-         *
-         * <p>The cause will be displayed along with the message set in {@link #setDebugMessage}.
-         *
-         * <p>The host may choose to not display this debugging information if it doesn't deem it
-         * appropriate, for example, when running on a production environment rather than in a
-         * simulator such as the Desktop Head Unit.
-         *
-         * @throws NullPointerException if {@code icon} is {@code null}
-         * @deprecated use {@link #setDebugMessage(String) instead.}
-         */
-        @NonNull
-        // Suppress as the cause is transformed into a message before transport.
-        @SuppressLint("MissingGetterMatchingBuilder")
-        @Deprecated
-        // TODO(b/177591352): remove once host does not reference this method.
-        public Builder setDebugCause(@NonNull Throwable cause) {
-            this.mDebugCause = requireNonNull(cause);
             return this;
         }
 
