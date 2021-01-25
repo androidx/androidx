@@ -41,10 +41,7 @@ import java.util.Objects;
  * <ul>
  *   <li>The template title has not changed, and
  *   <li>The previous template is in a loading state (see {@link Builder#setLoading}, or the
- *       number of grid items and the string contents (title, texts) of each grid item have not
- *       changed.
- *   <li>For grid items that contain a {@link Toggle}, updates to the title, text and image are also
- *       allowed if the toggle state has changed between the previous and new templates.
+ *       number of grid items and the title of each grid item have not changed.
  * </ul>
  */
 public final class GridTemplate implements Template {
@@ -67,6 +64,7 @@ public final class GridTemplate implements Template {
     private final CarIcon mBackgroundImage;
 
     /** Constructs a new builder of {@link GridTemplate}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -131,7 +129,7 @@ public final class GridTemplate implements Template {
                 && Objects.equals(mBackgroundImage, otherTemplate.mBackgroundImage);
     }
 
-    private GridTemplate(Builder builder) {
+    GridTemplate(Builder builder) {
         mIsLoading = builder.mIsLoading;
         mTitle = builder.mTitle;
         mHeaderAction = builder.mHeaderAction;
@@ -152,28 +150,28 @@ public final class GridTemplate implements Template {
 
     /** A builder of {@link GridTemplate}. */
     public static final class Builder {
-        private boolean mIsLoading;
+        boolean mIsLoading;
         @Nullable
-        private ItemList mSingleList;
+        ItemList mSingleList;
         @Nullable
-        private CarText mTitle;
+        CarText mTitle;
         @Nullable
-        private Action mHeaderAction;
+        Action mHeaderAction;
         @Nullable
-        private ActionStrip mActionStrip;
+        ActionStrip mActionStrip;
 
         /** For internal, host-side use only. */
         @Nullable
-        private CarIcon mBackgroundImage;
+        CarIcon mBackgroundImage;
 
         /**
          * Sets whether the template is in a loading state.
          *
          * <p>If set to {@code true}, the UI shows a loading indicator where the grid content
-         * would be
-         * otherwise. The caller is expected to call {@link androidx.car.app.Screen#invalidate()}
-         * and send the new template content to the host once the data is ready. If set to {@code
-         * false}, the UI shows the {@link ItemList} contents added via {@link #setSingleList}.
+         * would be otherwise. The caller is expected to call
+         * {@link androidx.car.app.Screen#invalidate()} and send the new template content to the
+         * host once the data is ready. If set to {@code false}, the UI shows the
+         * {@link ItemList} contents added via {@link #setSingleList}.
          */
         @NonNull
         public Builder setLoading(boolean isLoading) {
@@ -183,8 +181,7 @@ public final class GridTemplate implements Template {
 
         /**
          * Sets the {@link Action} that will be displayed in the header of the template, or
-         * {@code null}
-         * to not display an action.
+         * {@code null} to not display an action.
          *
          * <h4>Requirements</h4>
          *
@@ -221,13 +218,6 @@ public final class GridTemplate implements Template {
             return this;
         }
 
-        /** Resets the list that was added via {@link #setSingleList}. */
-        @NonNull
-        public Builder clearAllLists() {
-            mSingleList = null;
-            return this;
-        }
-
         /**
          * Sets the {@link ActionStrip} for this template, or {@code null} to not display an {@link
          * ActionStrip}.
@@ -236,15 +226,14 @@ public final class GridTemplate implements Template {
          *
          * This template allows up to 2 {@link Action}s in its {@link ActionStrip}. Of the 2 allowed
          * {@link Action}s, one of them can contain a title as set via
-         * {@link Action.Builder#setTitle}.
-         * Otherwise, only {@link Action}s with icons are allowed.
+         * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
          *
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements.
          */
         @NonNull
         public Builder setActionStrip(@Nullable ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(
-                    actionStrip == null ? Collections.emptyList() : actionStrip.getActions());
+                    actionStrip == null ? Collections.emptyList() : actionStrip.getActionList());
             this.mActionStrip = actionStrip;
             return this;
         }
@@ -272,14 +261,11 @@ public final class GridTemplate implements Template {
          * <p>Either a header {@link Action} or title must be set on the template.
          *
          * @throws IllegalStateException    if the template is in a loading state but there are
-         *                                  lists
-         *                                  added, or vice versa.
+         *                                  lists added, or vice versa.
          * @throws IllegalArgumentException if the added {@link ItemList} does not meet the
-         *                                  template's
-         *                                  requirements.
+         *                                  template's requirements.
          * @throws IllegalStateException    if the template does not have either a title or header
-         *                                  {@link
-         *                                  Action} set.
+         *                                  {@link Action} set.
          */
         @NonNull
         public GridTemplate build() {
@@ -290,7 +276,7 @@ public final class GridTemplate implements Template {
             }
 
             if (mSingleList != null) {
-                for (Object gridItemObject : mSingleList.getItems()) {
+                for (Item gridItemObject : mSingleList.getItemList()) {
                     if (!(gridItemObject instanceof GridItem)) {
                         throw new IllegalArgumentException(
                                 "All the items in grid template's item list must be grid items");
@@ -305,7 +291,8 @@ public final class GridTemplate implements Template {
             return new GridTemplate(this);
         }
 
-        private Builder() {
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

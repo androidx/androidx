@@ -100,7 +100,7 @@ object MethodSpecHelper {
      */
     fun overridingWithFinalParams(
         elm: XMethodElement,
-        owner: XDeclaredType
+        owner: XType
     ): MethodSpec.Builder {
         val asMember = elm.asMemberOf(owner)
         return if (elm is KspMethodElement && asMember is KspMethodType) {

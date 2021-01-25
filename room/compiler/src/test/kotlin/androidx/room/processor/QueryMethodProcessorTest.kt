@@ -26,8 +26,8 @@ import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.typeName
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.processor.ProcessorErrors.cannotFindQueryResultAdapter
 import androidx.room.solver.query.result.DataSourceFactoryQueryResultBinder
 import androidx.room.solver.query.result.ListQueryResultAdapter
@@ -747,7 +747,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             assertThat(
                 QueryMethodProcessor(
                     baseContext = invocation.context,
-                    containing = Mockito.mock(XDeclaredType::class.java),
+                    containing = Mockito.mock(XType::class.java),
                     executableElement = method.element,
                     dbVerifier = null
                 ).context.logger.suppressedWarnings,
@@ -1136,11 +1136,11 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                     )
                     .nextRunHandler { invocation ->
                         val (owner, methods) = invocation.roundEnv
-                            .getElementsAnnotatedWith(Dao::class.java)
+                            .getTypeElementsAnnotatedWith(Dao::class.java)
                             .map {
                                 Pair(
                                     it,
-                                    it.asTypeElement().getAllMethods().filter {
+                                    it.getAllMethods().filter {
                                         it.hasAnnotation(Query::class)
                                     }
                                 )
@@ -1154,7 +1154,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                         }
                         val parser = QueryMethodProcessor(
                             baseContext = invocation.context,
-                            containing = owner.asDeclaredType(),
+                            containing = owner.type,
                             executableElement = methods.first(),
                             dbVerifier = verifier
                         )

@@ -51,6 +51,14 @@
             tools:ignore="HardcodedText"
             />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hidden"
+            android:visibility="gone"
+            tools:ignore="HardcodedText"
+            />
+
         <androidx.wear.widget.WearCurvedTextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -78,6 +86,15 @@
             android:textSize="24sp"
             tools:ignore="HardcodedText"
             />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hidden"
+            android:visibility="gone"
+            tools:ignore="HardcodedText"
+            />
+
     </androidx.wear.widget.WearArcLayout>
 
     <androidx.wear.widget.WearArcLayout
@@ -88,6 +105,14 @@
         circular:anchorPosition="center"
         circular:clockwise="true"
         >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hidden"
+            android:visibility="gone"
+            tools:ignore="HardcodedText"
+            />
 
         <androidx.wear.widget.WearCurvedTextView
             android:layout_width="match_parent"

@@ -18,10 +18,28 @@ package androidx.room.integration.testapp.dao;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
+import androidx.room.Update;
 import androidx.room.integration.testapp.vo.Toy;
 
 @Dao
 public interface ToyDao {
     @Insert
     void insert(Toy... toys);
+
+    @Query("SELECT * FROM Toy WHERE mId = :id")
+    Toy getToy(int id);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertOrReplace(Toy toy);
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    void insertOrIgnore(Toy toy);
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    int updateOrReplace(Toy toy);
+
+    @Update(onConflict = OnConflictStrategy.IGNORE)
+    int updateOrIgnore(Toy toy);
 }

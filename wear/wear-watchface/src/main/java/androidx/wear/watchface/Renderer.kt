@@ -105,7 +105,7 @@ public sealed class Renderer(
      * rates can also help preserve battery life, e.g. if a watch face has a short animation once
      * per second it can adjust the frame rate inorder to sleep when not animating.
      */
-    @IntRange(from = 0, to = 10000)
+    @IntRange(from = 0, to = 60000)
     public var interactiveDrawModeUpdateDelayMillis: Long,
 ) {
     internal lateinit var watchFaceHostApi: WatchFaceHostApi

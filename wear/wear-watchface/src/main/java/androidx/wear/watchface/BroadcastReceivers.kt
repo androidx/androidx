@@ -31,23 +31,31 @@ import androidx.annotation.VisibleForTesting
 internal class BroadcastReceivers private constructor(private val context: Context) {
 
     interface BroadcastEventObserver {
-        /** Called when we receive Intent.ACTION_TIME_TICK. */
+        /** Called when we receive [Intent.ACTION_TIME_TICK]. */
         @UiThread
         fun onActionTimeTick()
 
-        /** Called when we receive Intent.ACTION_TIMEZONE_CHANGED. */
+        /** Called when we receive [Intent.ACTION_TIMEZONE_CHANGED]. */
         @UiThread
         fun onActionTimeZoneChanged()
 
-        /** Called when we receive Intent.ACTION_TIME_CHANGED. */
+        /** Called when we receive [Intent.ACTION_TIME_CHANGED]. */
         @UiThread
         fun onActionTimeChanged()
 
-        /** Called when we receive Intent.ACTION_BATTERY_CHANGED. */
+        /** Called when we receive [Intent.ACTION_BATTERY_LOW]. */
         @UiThread
-        fun onActionBatteryChanged(intent: Intent)
+        fun onActionBatteryLow()
 
-        /** Called when we receive Intent.MOCK_TIME_INTENT. */
+        /** Called when we receive [Intent.ACTION_BATTERY_OKAY]. */
+        @UiThread
+        fun onActionBatteryOkay()
+
+        /** Called when we receive [Intent.ACTION_POWER_CONNECTED]. */
+        @UiThread
+        fun onActionPowerConnected()
+
+        /** Called when we receive [WatchFaceImpl.MOCK_TIME_INTENT]. */
         @UiThread
         fun onMockTime(intent: Intent)
     }
@@ -79,15 +87,35 @@ internal class BroadcastReceivers private constructor(private val context: Conte
         }
 
         @VisibleForTesting
-        fun sendOnActionBatteryChangedForTesting(intent: Intent) {
+        fun sendOnActionBatteryLowForTesting(intent: Intent) {
+            require(intent.action == Intent.ACTION_BATTERY_LOW)
             require(broadcastEventObservers.isNotEmpty())
             for (observer in broadcastEventObservers) {
-                observer.onActionBatteryChanged(intent)
+                observer.onActionBatteryLow()
+            }
+        }
+
+        @VisibleForTesting
+        fun sendOnActionBatteryOkayForTesting(intent: Intent) {
+            require(intent.action == Intent.ACTION_BATTERY_OKAY)
+            require(broadcastEventObservers.isNotEmpty())
+            for (observer in broadcastEventObservers) {
+                observer.onActionBatteryOkay()
+            }
+        }
+
+        @VisibleForTesting
+        fun sendOnActionPowerConnectedForTesting(intent: Intent) {
+            require(intent.action == Intent.ACTION_POWER_CONNECTED)
+            require(broadcastEventObservers.isNotEmpty())
+            for (observer in broadcastEventObservers) {
+                observer.onActionPowerConnected()
             }
         }
 
         @VisibleForTesting
         fun sendOnMockTimeForTesting(intent: Intent) {
+            require(intent.action == WatchFaceImpl.MOCK_TIME_INTENT)
             require(broadcastEventObservers.isNotEmpty())
             for (observer in broadcastEventObservers) {
                 observer.onMockTime(intent)
@@ -120,11 +148,29 @@ internal class BroadcastReceivers private constructor(private val context: Conte
         }
     }
 
-    private val actionBatteryLevelReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+    private val actionBatteryLowReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         @SuppressWarnings("SyntheticAccessor")
         override fun onReceive(context: Context, intent: Intent) {
             for (observer in broadcastEventObservers) {
-                observer.onActionBatteryChanged(intent)
+                observer.onActionBatteryLow()
+            }
+        }
+    }
+
+    private val actionBatteryOkayReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        @SuppressWarnings("SyntheticAccessor")
+        override fun onReceive(context: Context, intent: Intent) {
+            for (observer in broadcastEventObservers) {
+                observer.onActionBatteryOkay()
+            }
+        }
+    }
+
+    private val actionPowerConnectedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        @SuppressWarnings("SyntheticAccessor")
+        override fun onReceive(context: Context, intent: Intent) {
+            for (observer in broadcastEventObservers) {
+                observer.onActionPowerConnected()
             }
         }
     }
@@ -145,9 +191,14 @@ internal class BroadcastReceivers private constructor(private val context: Conte
             IntentFilter(Intent.ACTION_TIMEZONE_CHANGED)
         )
         context.registerReceiver(actionTimeReceiver, IntentFilter(Intent.ACTION_TIME_CHANGED))
+        context.registerReceiver(actionBatteryLowReceiver, IntentFilter(Intent.ACTION_BATTERY_LOW))
         context.registerReceiver(
-            actionBatteryLevelReceiver,
-            IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+            actionBatteryOkayReceiver,
+            IntentFilter(Intent.ACTION_BATTERY_OKAY)
+        )
+        context.registerReceiver(
+            actionPowerConnectedReceiver,
+            IntentFilter(Intent.ACTION_POWER_CONNECTED)
         )
         context.registerReceiver(mockTimeReceiver, IntentFilter(WatchFaceImpl.MOCK_TIME_INTENT))
     }
@@ -156,7 +207,9 @@ internal class BroadcastReceivers private constructor(private val context: Conte
         context.unregisterReceiver(actionTimeTickReceiver)
         context.unregisterReceiver(actionTimeZoneReceiver)
         context.unregisterReceiver(actionTimeReceiver)
-        context.unregisterReceiver(actionBatteryLevelReceiver)
+        context.unregisterReceiver(actionBatteryLowReceiver)
+        context.unregisterReceiver(actionBatteryOkayReceiver)
+        context.unregisterReceiver(actionPowerConnectedReceiver)
         context.unregisterReceiver(mockTimeReceiver)
     }
 }

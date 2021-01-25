@@ -39,7 +39,7 @@ import java.util.Collections;
 public class ActionsConstraintsTest {
     @Test
     public void createEmpty() {
-        ActionsConstraints constraints = ActionsConstraints.builder().build();
+        ActionsConstraints constraints = new ActionsConstraints.Builder().build();
 
         assertThat(constraints.getMaxActions()).isEqualTo(Integer.MAX_VALUE);
         assertThat(constraints.getRequiredActionTypes()).isEmpty();
@@ -49,7 +49,7 @@ public class ActionsConstraintsTest {
     public void create_requiredExceedsMaxAllowedActions() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> ActionsConstraints.builder()
+                () -> new ActionsConstraints.Builder()
                         .setMaxActions(1)
                         .addRequiredActionType(Action.TYPE_BACK)
                         .addRequiredActionType(Action.TYPE_CUSTOM)
@@ -60,7 +60,7 @@ public class ActionsConstraintsTest {
     public void create_requiredAlsoDisallowed() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> ActionsConstraints.builder()
+                () -> new ActionsConstraints.Builder()
                         .addRequiredActionType(Action.TYPE_BACK)
                         .addDisallowedActionType(Action.TYPE_BACK)
                         .build());
@@ -69,7 +69,7 @@ public class ActionsConstraintsTest {
     @Test
     public void createConstraints() {
         ActionsConstraints constraints =
-                ActionsConstraints.builder()
+                new ActionsConstraints.Builder()
                         .setMaxActions(2)
                         .addRequiredActionType(Action.TYPE_CUSTOM)
                         .addDisallowedActionType(Action.TYPE_BACK)
@@ -83,7 +83,7 @@ public class ActionsConstraintsTest {
     @Test
     public void validateActions() {
         ActionsConstraints constraints =
-                ActionsConstraints.builder()
+                new ActionsConstraints.Builder()
                         .setMaxActions(2)
                         .setMaxCustomTitles(1)
                         .addRequiredActionType(Action.TYPE_CUSTOM)
@@ -97,47 +97,47 @@ public class ActionsConstraintsTest {
 
         // Positive case: instance that fits the 2-max-actions, only-1-has-title constraint.
         constraints.validateOrThrow(
-                ActionStrip.builder()
+                new ActionStrip.Builder()
                         .addAction(actionWithIcon)
                         .addAction(actionWithTitle)
                         .build()
-                        .getActions());
+                        .getActionList());
         // Positive case: empty list is okay when there are no required types
-        ActionsConstraints.builder().setMaxActions(2).build().validateOrThrow(
+        new ActionsConstraints.Builder().setMaxActions(2).build().validateOrThrow(
                 Collections.emptyList());
 
         // Missing required type.
         assertThrows(
                 IllegalArgumentException.class,
                 () -> constraints.validateOrThrow(
-                        ActionStrip.builder().addAction(
-                                Action.APP_ICON).build().getActions()));
+                        new ActionStrip.Builder().addAction(
+                                Action.APP_ICON).build().getActionList()));
 
         // Disallowed type
         assertThrows(
                 IllegalArgumentException.class,
                 () -> constraints.validateOrThrow(
-                        ActionStrip.builder().addAction(Action.BACK).build().getActions()));
+                        new ActionStrip.Builder().addAction(Action.BACK).build().getActionList()));
 
         // Over max allowed actions
         assertThrows(
                 IllegalArgumentException.class,
                 () -> constraints.validateOrThrow(
-                        ActionStrip.builder()
+                        new ActionStrip.Builder()
                                 .addAction(Action.APP_ICON)
                                 .addAction(actionWithIcon)
                                 .addAction(actionWithTitle)
                                 .build()
-                                .getActions()));
+                                .getActionList()));
 
         // Over max allowed actions with title
         assertThrows(
                 IllegalArgumentException.class,
                 () -> constraints.validateOrThrow(
-                        ActionStrip.builder()
+                        new ActionStrip.Builder()
                                 .addAction(actionWithTitle)
                                 .addAction(actionWithTitle)
                                 .build()
-                                .getActions()));
+                                .getActionList()));
     }
 }

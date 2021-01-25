@@ -32,7 +32,6 @@ import com.google.crypto.tink.StreamingAead;
 import com.google.crypto.tink.integration.android.AndroidKeysetManager;
 import com.google.crypto.tink.streamingaead.AesGcmHkdfStreamingKeyManager;
 import com.google.crypto.tink.streamingaead.StreamingAeadConfig;
-import com.google.crypto.tink.streamingaead.StreamingAeadFactory;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -50,7 +49,6 @@ import java.security.KeyStore;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class EncryptedFileTest {
-
     private Context mContext;
     private MasterKey mMasterKey;
 
@@ -170,6 +168,7 @@ public class EncryptedFileTest {
 
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testWriteReadEncryptedFileWithAlias() throws Exception {
         final String fileContent = "Don't tell anyone...";
@@ -299,6 +298,7 @@ public class EncryptedFileTest {
         Assert.assertTrue("Keyset should have existed.", containsKeyset);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void tinkTest() throws Exception {
         final String fileContent = "Don't tell anyone...";
@@ -324,8 +324,8 @@ public class EncryptedFileTest {
                 .withMasterKeyUri(KEYSTORE_PATH_URI + mMasterKey.getKeyAlias())
                 .build().getKeysetHandle();
 
-        StreamingAead streamingAead = StreamingAeadFactory.getPrimitive(
-                streadmingAeadKeysetHandle);
+        StreamingAead streamingAead = com.google.crypto.tink.streamingaead.StreamingAeadFactory
+                .getPrimitive(streadmingAeadKeysetHandle);
 
         FileInputStream fileInputStream = new FileInputStream(file);
         InputStream inputStream = streamingAead.newDecryptingStream(fileInputStream,

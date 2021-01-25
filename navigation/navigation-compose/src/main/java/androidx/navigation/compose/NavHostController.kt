@@ -19,10 +19,10 @@ package androidx.navigation.compose
 import android.content.Context
 import android.os.Bundle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.savedinstancestate.Saver
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
@@ -56,7 +56,7 @@ public fun NavController.currentBackStackEntryAsState(): State<NavBackStackEntry
     val currentNavBackStackEntry = remember { mutableStateOf(currentBackStackEntry) }
     // setup the onDestinationChangedListener responsible for detecting when the
     // current back stack entry changes
-    onCommit(this) {
+    DisposableEffect(this) {
         val callback = NavController.OnDestinationChangedListener { controller, _, _ ->
             currentNavBackStackEntry.value = controller.currentBackStackEntry
         }
@@ -126,5 +126,26 @@ fun NavController.createGraph(
     createRoute(startDestination).hashCode(),
     builder
 )
+
+/**
+ * Gets the topmost {@link NavBackStackEntry} for a route.
+ * <p>
+ * This is always safe to use with {@link #getCurrentDestination() the current destination} or
+ * {@link NavDestination#getParent() its parent} or grandparent navigation graphs as these
+ * destinations are guaranteed to be on the back stack.
+ *
+ * @param route route of a destination that exists on the back stack
+ * @throws IllegalArgumentException if the destination is not on the back stack
+ */
+public fun NavController.getBackStackEntry(route: String): NavBackStackEntry {
+    try {
+        return getBackStackEntry(createRoute(route).hashCode())
+    } catch (e: IllegalArgumentException) {
+        throw IllegalArgumentException(
+            "No destination with route $route is on the NavController's back stack. The current " +
+                "destination is $currentDestination"
+        )
+    }
+}
 
 internal fun createRoute(route: String) = "android-app://androidx.navigation.compose/$route"

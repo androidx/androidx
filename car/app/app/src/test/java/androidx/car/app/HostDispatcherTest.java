@@ -72,9 +72,9 @@ public class HostDispatcherTest {
                     }
 
                     @Override
-                    public void setSurfaceListener(@Nullable ISurfaceListener surfaceListener)
+                    public void setSurfaceCallback(@Nullable ISurfaceCallback surfaceCallback)
                             throws RemoteException {
-                        mMockAppHost.setSurfaceListener(surfaceListener);
+                        mMockAppHost.setSurfaceCallback(surfaceCallback);
                     }
                 };
 

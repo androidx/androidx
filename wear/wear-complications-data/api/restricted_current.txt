@@ -85,17 +85,19 @@ package android.support.wearable.complications {
   }
 
   public final class ComplicationProviderInfo implements android.os.Parcelable {
-    ctor public ComplicationProviderInfo(String, String, android.graphics.drawable.Icon, @android.support.wearable.complications.ComplicationData.ComplicationType int);
+    ctor public ComplicationProviderInfo(String, String, android.graphics.drawable.Icon, @android.support.wearable.complications.ComplicationData.ComplicationType int, android.content.ComponentName);
     ctor public ComplicationProviderInfo(android.os.Parcel);
     method public int describeContents();
     method public String? getAppName();
     method @android.support.wearable.complications.ComplicationData.ComplicationType public int getComplicationType();
+    method public android.content.ComponentName? getProviderComponentName();
     method public android.graphics.drawable.Icon? getProviderIcon();
     method public String? getProviderName();
-    method public void setAppName(String?);
+    method public void setAppName(String);
     method public void setComplicationType(@android.support.wearable.complications.ComplicationData.ComplicationType int);
-    method public void setProviderIcon(android.graphics.drawable.Icon?);
-    method public void setProviderName(String?);
+    method public void setProviderComponentName(android.content.ComponentName);
+    method public void setProviderIcon(android.graphics.drawable.Icon);
+    method public void setProviderName(String);
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.support.wearable.complications.ComplicationProviderInfo!> CREATOR;
   }
@@ -166,7 +168,7 @@ package androidx.wear.complications {
   public final class ComplicationHelperActivity extends android.app.Activity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback {
     ctor public ComplicationHelperActivity();
     method public static android.content.Intent createPermissionRequestHelperIntent(android.content.Context, android.content.ComponentName);
-    method public static android.content.Intent createProviderChooserHelperIntent(android.content.Context, android.content.ComponentName, int, int[]);
+    method public static android.content.Intent createProviderChooserHelperIntent(android.content.Context, android.content.ComponentName, int, java.util.Collection<androidx.wear.complications.data.ComplicationType!>);
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String ACTION_PERMISSION_REQUEST_ONLY = "android.support.wearable.complications.ACTION_PERMISSION_REQUEST_ONLY";
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String ACTION_REQUEST_UPDATE_ALL_ACTIVE = "android.support.wearable.complications.ACTION_REQUEST_UPDATE_ALL_ACTIVE";
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String ACTION_START_PROVIDER_CHOOSER = "android.support.wearable.complications.ACTION_START_PROVIDER_CHOOSER";
@@ -202,7 +204,8 @@ package androidx.wear.complications {
   public class ProviderInfoRetriever implements java.lang.AutoCloseable {
     ctor public ProviderInfoRetriever(android.content.Context);
     method public void close();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.complications.ProviderInfoRetriever.ProviderInfo!> retrieveProviderInfo(android.content.ComponentName, int[]);
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) public com.google.common.util.concurrent.ListenableFuture<androidx.wear.complications.data.ComplicationData!> requestPreviewComplicationData(android.content.ComponentName, androidx.wear.complications.data.ComplicationType);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.complications.ProviderInfoRetriever.ProviderInfo![]!> retrieveProviderInfo(android.content.ComponentName, int[]);
   }
 
   public static class ProviderInfoRetriever.ProviderInfo {

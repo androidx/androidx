@@ -51,7 +51,7 @@ import java.util.Arrays;
 public class PlaybackTransportRowPresenterTest {
 
     Context mContext;
-    PlaybackTransportControlGlue mGlue;
+    PlaybackTransportControlGlue<PlayerAdapter> mGlue;
     PlaybackGlueHostImplWithViewHolder mHost;
     PlayerAdapter mImpl;
     PlaybackTransportRowPresenter.ViewHolder mViewHolder;
@@ -68,7 +68,7 @@ public class PlaybackTransportRowPresenterTest {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mGlue = new PlaybackTransportControlGlue(mContext, mImpl) {
+                mGlue = new PlaybackTransportControlGlue<PlayerAdapter>(mContext, mImpl) {
                     @Override
                     protected void onCreatePrimaryActions(ArrayObjectAdapter
                             primaryActionsAdapter) {

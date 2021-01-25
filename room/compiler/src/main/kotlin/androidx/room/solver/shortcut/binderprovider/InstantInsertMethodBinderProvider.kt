@@ -16,7 +16,7 @@
 
 package androidx.room.solver.shortcut.binderprovider
 
-import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
 import androidx.room.solver.shortcut.binder.InstantInsertMethodBinder
@@ -27,10 +27,10 @@ import androidx.room.vo.ShortcutQueryParameter
  */
 class InstantInsertMethodBinderProvider(private val context: Context) : InsertMethodBinderProvider {
 
-    override fun matches(declared: XDeclaredType) = true
+    override fun matches(declared: XType) = true
 
     override fun provide(
-        declared: XDeclaredType,
+        declared: XType,
         params: List<ShortcutQueryParameter>
     ): InsertMethodBinder {
         return InstantInsertMethodBinder(

@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNotNull;
 import android.content.Context;
 import android.graphics.Point;
 import android.graphics.drawable.RotateDrawable;
-import android.os.Build;
 import android.provider.Settings;
 import android.view.Display;
 import android.view.KeyEvent;
@@ -30,14 +29,11 @@ import android.view.Surface;
 import android.view.WindowManager;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.wear.input.testing.R;
 import androidx.wear.input.testing.TestWearableButtonsProvider;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.Shadows;
-import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowDrawable;
 
@@ -45,9 +41,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** Unit tests for {@link WearableButtons}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(WearInputTestRunner.class)
 @DoNotInstrument
-@Config(sdk = Build.VERSION_CODES.P)
 public class WearableButtonsTest {
     private final Point mScreenSize = new Point(480, 480);
 
@@ -295,6 +290,7 @@ public class WearableButtonsTest {
         assertEquals(4, info.getY(), 1.0e-7);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testGetButtonsLeftyNoData() {
         Context context = ApplicationProvider.getApplicationContext();

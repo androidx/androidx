@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XConstructorElement
+import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMethodElement
@@ -31,6 +32,7 @@ import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isOpen
+import com.google.devtools.ksp.isPrivate
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -39,7 +41,7 @@ import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Origin
 import com.squareup.javapoet.ClassName
 
-internal class KspTypeElement(
+internal sealed class KspTypeElement(
     env: KspProcessingEnv,
     override val declaration: KSClassDeclaration
 ) : KspElement(env, declaration),
@@ -72,16 +74,11 @@ internal class KspTypeElement(
         }
     }
 
-    override val type: KspDeclaredType by lazy {
-        val result = env.wrap(
+    override val type: KspType by lazy {
+        env.wrap(
             ksType = declaration.asStarProjectedType(),
             allowPrimitives = false
         )
-        check(result is KspDeclaredType) {
-            "Internal error, expected type of $this to resolve to a declared type but it resolved" +
-                " to $result (${result::class})"
-        }
-        result
     }
 
     override val superType: XType? by lazy {
@@ -105,7 +102,11 @@ internal class KspTypeElement(
         } as ClassName
     }
 
-    private val _declaredPropertyFields by lazy {
+    /**
+     * This list includes fields for all properties in this class and its static companion
+     * properties. They are not necessarily fields as it might include properties of interfaces.
+     */
+    private val _declaredProperties by lazy {
         val declaredProperties = declaration.getDeclaredProperties()
         val companionProperties = declaration
             .findCompanionObject()
@@ -127,22 +128,32 @@ internal class KspTypeElement(
         // Read all properties from all supers and select the ones that are not overridden.
         // TODO: remove once it is implemented in KSP
         // https://github.com/android/kotlin/issues/133
-        val selectedNames = mutableSetOf<String>()
-        _declaredPropertyFields.forEach {
-            selectedNames.add(it.name)
+
+        val myPropertyFields = if (declaration.classKind == ClassKind.INTERFACE) {
+            _declaredProperties.filter {
+                it.isStatic()
+            }
+        } else {
+            _declaredProperties.filter { !it.isAbstract() }
+        }
+        val selectedNames = myPropertyFields.mapTo(mutableSetOf()) {
+            it.name
         }
         val selection = mutableListOf<KSPropertyDeclaration>()
         declaration.getAllSuperTypes().map {
             it.declaration
         }.filterIsInstance(KSClassDeclaration::class.java)
+            .filter {
+                it.classKind != ClassKind.INTERFACE
+            }
             .flatMap {
                 it.getDeclaredProperties().asSequence()
             }.forEach {
-                if (!selectedNames.contains(it.simpleName.asString())) {
+                if (selectedNames.add(it.simpleName.asString())) {
                     selection.add(it)
                 }
             }
-        _declaredPropertyFields + selection.map {
+        myPropertyFields + selection.map {
             KspFieldElement(
                 env = env,
                 declaration = it,
@@ -152,18 +163,23 @@ internal class KspTypeElement(
     }
 
     private val syntheticGetterSetterMethods: List<XMethodElement> by lazy {
-        val setters = _declaredPropertyFields.mapNotNull {
+        val setters = _declaredProperties.mapNotNull {
             if (it.type.ksType.isInline()) {
                 // KAPT does not generate getters/setters for inlines, we'll hide them as well
                 // until room generates kotlin code
                 return@mapNotNull null
             }
+
             val setter = it.declaration.setter
-            val needsSetter = if (setter != null) {
-                // kapt does not generate synthetics for private fields/setters so we won't either
-                !setter.modifiers.contains(Modifier.PRIVATE)
-            } else {
-                isInterface() && it.declaration.isMutable
+            val needsSetter = when {
+                it.declaration.hasJvmFieldAnnotation() -> {
+                    // jvm fields cannot have accessors but KSP generates synthetic accessors for
+                    // them. We check for JVM field first before checking the setter
+                    false
+                }
+                it.declaration.isPrivate() -> false
+                setter != null -> !setter.modifiers.contains(Modifier.PRIVATE)
+                else -> it.declaration.isMutable
             }
             if (needsSetter) {
                 KspSyntheticPropertyMethodElement.Setter(
@@ -174,19 +190,24 @@ internal class KspTypeElement(
                 null
             }
         }
-        val getters = _declaredPropertyFields.mapNotNull {
+        val getters = _declaredProperties.mapNotNull {
             if (it.type.ksType.isInline()) {
                 // KAPT does not generate getters/setters for inlines, we'll hide them as well
                 // until room generates kotlin code
                 return@mapNotNull null
             }
             val getter = it.declaration.getter
-            val needsGetter = if (getter != null) {
-                // kapt does not generate synthetics for private fields/getters so we won't either]
-                !getter.modifiers.contains(Modifier.PRIVATE)
-            } else {
-                isInterface()
+            val needsGetter = when {
+                it.declaration.hasJvmFieldAnnotation() -> {
+                    // jvm fields cannot have accessors but KSP generates synthetic accessors for
+                    // them. We check for JVM field first before checking the getter
+                    false
+                }
+                it.declaration.isPrivate() -> false
+                getter != null -> !getter.modifiers.contains(Modifier.PRIVATE)
+                else -> true
             }
+
             if (needsGetter) {
                 KspSyntheticPropertyMethodElement.Getter(
                     env = env,
@@ -233,8 +254,7 @@ internal class KspTypeElement(
             ?.asSequence()
             ?.filter {
                 it.isStatic()
-            }
-            ?: emptySequence()
+            } ?: emptySequence()
         val declaredMethods = (instanceMethods + companionMethods)
             .filterNot {
                 // filter out constructors
@@ -320,5 +340,37 @@ internal class KspTypeElement(
 
     override fun toString(): String {
         return declaration.toString()
+    }
+
+    private class DefaultKspTypeElement(
+        env: KspProcessingEnv,
+        declaration: KSClassDeclaration
+    ) : KspTypeElement(env, declaration)
+
+    private class KspEnumTypeElement(
+        env: KspProcessingEnv,
+        declaration: KSClassDeclaration
+    ) : KspTypeElement(env, declaration), XEnumTypeElement {
+        override val enumConstantNames: Set<String> by lazy {
+            // TODO this does not work for java sources
+            // https://github.com/google/ksp/issues/234
+            declaration.declarations.filter {
+                it is KSClassDeclaration && it.classKind == ClassKind.ENUM_ENTRY
+            }.mapTo(mutableSetOf()) {
+                it.simpleName.asString()
+            }
+        }
+    }
+
+    companion object {
+        fun create(
+            env: KspProcessingEnv,
+            ksClassDeclaration: KSClassDeclaration
+        ): KspTypeElement {
+            return when (ksClassDeclaration.classKind) {
+                ClassKind.ENUM_CLASS -> KspEnumTypeElement(env, ksClassDeclaration)
+                else -> DefaultKspTypeElement(env, ksClassDeclaration)
+            }
+        }
     }
 }

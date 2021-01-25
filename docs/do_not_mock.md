@@ -1,13 +1,13 @@
-# Do Not Mock, AndroidX
+# Do Not Mock
 
-All APIs created in AndroidX **must have a testing story**: how developers
-should write tests for their code that relies on a library, this story should
-not be "use mockito to mock class `Foo`". Your goal as API owner is to **create
+All APIs created in Jetpack **must have a testing story**: how developers should
+write tests for their code that relies on a library, this story should not be
+"use Mockito to mock class `Foo`". Your goal as an API owner is to **create
 better alternatives** to mocking.
 
 ## Why can't I suggest mocks as testing strategy?
 
-Frequently mocks don't follow guarantees outlined in the API they mock. That
+Frequently, mocks don't follow guarantees outlined in the API they mock. That
 leads to:
 
 *   Significant difference in the behavior that diminishes test value.
@@ -36,15 +36,15 @@ leads to:
     bundle. But our test passes a mock that don't expect such call and, boom,
     test is broken. However, component code is completely valid and has nothing
     to do with the broken test. We observed a lot of issues like that during
-    updates of android SDK and AndroidX libraries to newer versions internally
-    at google. Suggesting to mock our own components is shooting ourselves in
-    the foot, it will make adoption of newer version of libraries even slower.
+    updates of Android SDK and Jetpack libraries to newer versions internally at
+    google. Suggesting to mock our own components is shooting ourselves in the
+    foot, it will make adoption of newer version of libraries even slower.
 
 *   Messy tests. It always starts with simple mock with one method, but then
     this mock grows with the project, and as a result test code has sub-optimal
     half-baked class implementation of on top of the mock.
 
-## But it is ok to mock interfaces, right?
+## But it is okay to mock interfaces, right?
 
 It depends. There are interfaces that don't imply any behavior guarantees and
 they are ok to be mocked. However, **not all** interfaces are like that: for
@@ -54,30 +54,24 @@ interfaces in general, for example: `View.OnClickListener`, `Runnable`.
 
 ## What about spying?
 
-Spying on these classes is banned as well - mockito spies permit stubbing of
+Spying on these classes is banned as well - Mockito spies permit stubbing of
 methods just like mocks do, and interaction verification is brittle and
 unnecessary for these classes. Rather than verifying an interaction with a
 class, developers should observe the result of an interaction - the effect of a
 task submitted to an `Executor`, or the presence of a fragment added to your
 layout. If an API in your library misses a way to have such checks, you should
-add methods to do that. If you think it is dangerous to open such methods in the
-main surface of your library, consult with
-[API council](https://sites.google.com/corp/google.com/android-api-council), it
-may have seen similar patterns before. For example, one of the possible ways to
-resolve such issue can be adding test artifact with special capabilities. So
-`fragment-testing` module was created to drive lifecycle of Fragment and ease
-interaction with fragments in tests.
+add methods to do that.
 
-## Avoid mockito in your own tests.
+## Avoid Mockito in your own tests.
 
 One of the things that would help you to identify if your library is testable
-without mockito is not using mockito yourself. Yes, historically we heavily
-relied on mockito ourselves and old tests are not rewritten, but new tests
+without Mockito is not using Mockito yourself. Yes, historically we heavily
+relied on Mockito ourselves and old tests are not rewritten, but new tests
 shouldn't follow up that and should take as an example good citizens, for
-example, `-ktx` modules. These modules don't rely on mockito and have concise
+example, `-ktx` modules. These modules don't rely on Mockito and have concise
 expressive tests.
 
-One of the popular and legit patterns for mockito usage were tests that verify
+One of the popular and legit patterns for Mockito usage were tests that verify
 that a simple callback-like interface receives correct parameters.
 
 ```java
@@ -90,9 +84,9 @@ class MyApi {
 }
 ```
 
-In api like the one above, in java 7 tests for value received in `Callback`
-tended to become very wordy without mockito. But now in your tests you can use
-Kotlin and test will be as short as with mockito:
+In API like the one above, in Java 7 tests for value received in `Callback`
+tended to become very wordy without Mockito. But now in your tests you can use
+Kotlin and test will be as short as with Mockito:
 
 ```kotlin
 fun test() {
@@ -103,13 +97,13 @@ fun test() {
 }
 ```
 
-## Don't compromise in API to enable mockito
+## Don't compromise in API to enable Mockito
 
-Mockito on android
-[had an issue](https://github.com/mockito/mockito/issues/1173) with mocking
-final classes. Moreover, internally at google this feature is disabled even for
-non-android code. So you may hear complaints that some of your classes are not
-mockable, however **It is not a reason for open up a class for extension**. What
+Mockito on Android
+[had an issue](https://github.com/Mockito/Mockito/issues/1173) with mocking
+final classes. Moreover, internally at Google this feature is disabled even for
+non-Android code. So you may hear complaints that some of your classes are not
+mockable, however **it is not a reason for open up a class for extension**. What
 you should instead is verify that is possible to write the same test without
 mocking, if not, again you should **provide better alternative in your API**.
 
@@ -119,5 +113,3 @@ Best way is to step into developer's shoes and write a sample app that is a
 showcase for your API, then go to the next step - test that code also. If you
 are able to implement tests for your demo app, then users of your API will also
 be able to implement tests for functionalities where your API is also used.
-
-## ~~Use @DoNotMock on most of your APIs ~~(Not available yet)

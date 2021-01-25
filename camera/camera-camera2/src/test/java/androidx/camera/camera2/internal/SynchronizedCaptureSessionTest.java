@@ -23,7 +23,6 @@ import static org.mockito.Mockito.verify;
 
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 
@@ -64,10 +63,11 @@ public class SynchronizedCaptureSessionTest {
     private DeferrableSurface mDeferrableSurface1;
     private DeferrableSurface mDeferrableSurface2;
 
+    @SuppressWarnings("deprecation")
     @Before
     public void setUp() {
         mCaptureSessionRepository =
-                new CaptureSessionRepository(AsyncTask.THREAD_POOL_EXECUTOR);
+                new CaptureSessionRepository(android.os.AsyncTask.THREAD_POOL_EXECUTOR);
 
         mDeferrableSurface1 = mock(DeferrableSurface.class);
         mDeferrableSurface2 = mock(DeferrableSurface.class);
@@ -81,8 +81,8 @@ public class SynchronizedCaptureSessionTest {
         enabledFeature.add(SynchronizedCaptureSessionOpener.FEATURE_DEFERRABLE_SURFACE_CLOSE);
 
         mCaptureSessionOpenerBuilder = new SynchronizedCaptureSessionOpener.Builder(
-                AsyncTask.SERIAL_EXECUTOR, mScheduledExecutorService, mock(Handler.class),
-                mCaptureSessionRepository, -1);
+                android.os.AsyncTask.SERIAL_EXECUTOR, mScheduledExecutorService,
+                mock(Handler.class), mCaptureSessionRepository, -1);
         mSynchronizedCaptureSessionOpener = mCaptureSessionOpenerBuilder.build();
 
         mMockCaptureSession = mock(CameraCaptureSession.class);

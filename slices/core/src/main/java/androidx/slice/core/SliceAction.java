@@ -48,6 +48,12 @@ public interface SliceAction {
     SliceAction setPriority(@IntRange(from = 0) int priority);
 
     /**
+     * Sets the key of this action.
+     */
+    @NonNull
+    SliceAction setKey(@NonNull String key);
+
+    /**
      * @return the {@link PendingIntent} associated with this action.
      */
     @NonNull
@@ -76,6 +82,12 @@ public interface SliceAction {
      * @return the priority associated with this action, -1 if unset.
      */
     int getPriority();
+
+    /**
+     * @return the key associated with this action.
+     */
+    @Nullable
+    String getKey();
 
     /**
      * @return whether this action represents a toggle (i.e. has a checked and unchecked state).

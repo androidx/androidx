@@ -26,6 +26,7 @@ import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 
 import androidx.camera.camera2.interop.Camera2CameraFilter;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
@@ -59,7 +60,7 @@ public class CameraSelectionOptimizerTest {
         mCamera2CameraFactory =
                 spy(new Camera2CameraFactory(ApplicationProvider.getApplicationContext(),
                         CameraThreadConfig.create(CameraXExecutors.mainThreadExecutor(),
-                                new Handler()),
+                                new Handler(Looper.getMainLooper())),
                         null));
     }
 

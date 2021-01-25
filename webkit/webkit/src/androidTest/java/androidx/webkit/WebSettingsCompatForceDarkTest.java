@@ -29,7 +29,6 @@ import android.webkit.WebView;
 import androidx.core.graphics.ColorUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
 import org.junit.Before;
@@ -61,9 +60,10 @@ public class WebSettingsCompatForceDarkTest {
     // LayoutParams are null until WebView has a parent Activity.
     // Test testForceDark_rendersDark requires LayoutParams to define
     // width and height of WebView to capture its bitmap representation.
+    @SuppressWarnings("deprecation")
     @Rule
-    public final ActivityTestRule<WebViewTestActivity> mActivityRule =
-            new ActivityTestRule<>(WebViewTestActivity.class);
+    public final androidx.test.rule.ActivityTestRule<WebViewTestActivity> mActivityRule =
+            new androidx.test.rule.ActivityTestRule<>(WebViewTestActivity.class);
     private WebViewOnUiThread mWebViewOnUiThread;
 
     @Before

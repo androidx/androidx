@@ -26,10 +26,17 @@ import com.google.devtools.ksp.symbol.KSValueParameter
  * Returns the type of a property as if it is member of the given [ksType].
  */
 internal fun KSPropertyDeclaration.typeAsMemberOf(resolver: Resolver, ksType: KSType): KSType {
+    val resolved = type.resolve()
     if (isStatic()) {
         // calling as member with a static would throw as it might be a member of the companion
         // object
-        return type.resolve()
+        return resolved
+    }
+    // see: https://github.com/google/ksp/issues/107
+    // as member of might lose the `isError` information hence we should check before calling
+    // asMemberOf.
+    if (resolved.isError) {
+        return resolved
     }
     return resolver.asMemberOf(
         property = this,
@@ -42,10 +49,17 @@ internal fun KSValueParameter.typeAsMemberOf(
     functionDeclaration: KSFunctionDeclaration,
     ksType: KSType
 ): KSType {
+    val resolved = type.resolve()
     if (functionDeclaration.isStatic()) {
         // calling as member with a static would throw as it might be a member of the companion
         // object
-        return type.resolve()
+        return resolved
+    }
+    if (resolved.isError) {
+        // see: https://github.com/google/ksp/issues/107
+        // as member of might lose the `isError` information hence we should check before calling
+        // asMemberOf.
+        return resolved
     }
     val asMember = resolver.asMemberOf(
         function = functionDeclaration,
@@ -54,22 +68,25 @@ internal fun KSValueParameter.typeAsMemberOf(
     // TODO b/173224718
     // this is counter intuitive, we should remove asMemberOf from method parameters.
     val myIndex = functionDeclaration.parameters.indexOf(this)
-    return asMember.parameterTypes[myIndex] ?: type.resolve()
+    return asMember.parameterTypes[myIndex] ?: resolved
 }
 
 internal fun KSFunctionDeclaration.returnTypeAsMemberOf(
     resolver: Resolver,
     ksType: KSType
 ): KSType {
-    val returnType = if (isStatic()) {
-        // calling as member with a static would throw as it might be a member of the companion
-        // object
-        returnType?.resolve()
-    } else {
-        resolver.asMemberOf(
+    val resolved = returnType?.resolve()
+    return when {
+        resolved == null -> null
+        resolved.isError -> resolved
+        isStatic() -> {
+            // calling as member with a static would throw as it might be a member of the companion
+            // object
+            resolved
+        }
+        else -> resolver.asMemberOf(
             function = this,
             containing = ksType
         ).returnType
-    }
-    return returnType ?: error("cannot find return type for $this")
+    } ?: error("cannot find return type for $this")
 }

@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
@@ -58,8 +57,8 @@ internal sealed class KspMethodElement(
             declaration.hasJvmDefaultAnnotation()
     }
 
-    override fun asMemberOf(other: XDeclaredType): XMethodType {
-        check(other is KspDeclaredType)
+    override fun asMemberOf(other: XType): XMethodType {
+        check(other is KspType)
         return KspMethodType.create(
             env = env,
             origin = this,
@@ -97,12 +96,16 @@ internal sealed class KspMethodElement(
         env, containing, declaration
     ) {
         override val returnType: XType by lazy {
+            // b/160258066
+            // we may need to box the return type if it is overriding a generic, hence, we should
+            // use the declaration of the overridee if available when deciding nullability
+            val overridee = declaration.findOverridee()
             env.wrap(
                 ksType = declaration.returnTypeAsMemberOf(
                     resolver = env.resolver,
                     ksType = containing.type.ksType
                 ),
-                originatingReference = checkNotNull(declaration.returnType)
+                originatingReference = checkNotNull(overridee?.returnType ?: declaration.returnType)
             )
         }
         override fun isSuspendFunction() = false

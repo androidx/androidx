@@ -14,9 +14,9 @@ module, see
 [aosp/1189799](https://android-review.googlesource.com/c/platform/frameworks/support/+/1189799).
 For an example of how to set up Espresso-powered integration tests, see the
 `preference` library's
-[`build.gradle`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:preference/preference/build.gradle)
+[`build.gradle`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:preference/preference/build.gradle)
 and
-[`EditTextPreferenceTest.java`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:preference/preference/src/androidTest/java/androidx/preference/tests/EditTextPreferenceTest.java)
+[`EditTextPreferenceTest.java`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:preference/preference/src/androidTest/java/androidx/preference/tests/EditTextPreferenceTest.java)
 files.
 
 The currently allowed test runners for on-device tests are
@@ -27,7 +27,7 @@ and
 ### What gets tested, and when
 
 We use the
-[AffectedModuleDetector](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:buildSrc/src/main/kotlin/androidx/build/dependencyTracker/AffectedModuleDetector.kt)
+[AffectedModuleDetector](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/dependencyTracker/AffectedModuleDetector.kt)
 to determine what projects have changed since the last merge.
 
 In presubmit, "affected" modules will run all host and device tests regardless
@@ -122,7 +122,7 @@ timing and also makes tests faster.
 
 In rare cases, like testing the animations themselves, you may want to enable
 animations for a particular test or test class. For those cases, you can use the
-[`AnimationDurationScaleRule`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:testutils/testutils-runtime/src/main/java/androidx/testutils/AnimationDurationScaleRule.kt).
+[`AnimationDurationScaleRule`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:testutils/testutils-runtime/src/main/java/androidx/testutils/AnimationDurationScaleRule.kt).
 
 ## Using the emulator {#emulator}
 
@@ -185,11 +185,15 @@ manually add a configuration in Android Instrumented Tests.
 Following a successful build, tests may be run against a particular AndroidX
 module using `gradlew`.
 
-To run all integration tests in a specific project, run the following from
-`framework/support`:
+To run all unit or integration tests in a specific project, run the following
+from `framework/support`:
 
 ```shell
-./gradlew <project-name>:connectedCheck --info --daemon
+# Run instrumentation tests on a connected device
+./gradlew <project-name>:connectedAndroidTest --info --daemon
+
+# Run local unit tests
+./gradlew <project-name>:test --info --daemon
 ```
 
 substituting the Gradle project name (ex. `core`).
@@ -198,14 +202,14 @@ To run all integration tests in the specific project and test class you're
 working on, run
 
 ```shell
-./gradlew <project-name>:connectedCheck --info --daemon \
+./gradlew <project-name>:connectedAndroidTest --info --daemon \
     -Pandroid.testInstrumentationRunnerArguments.class=<fully-qualified-class>[\#testName]
 ```
 
 substituting the Gradle project name (ex. `viewpager`) and fully-qualified class
 name (ex. `androidx.viewpager.widget.ViewPagerTest`) of your test file,
 optionally followed by `\#testName` if you want to execute a single test in that
-file.
+file. Substitute `test` for `connectedAndroidTest` to run local unit tests.
 
 If you see some weird compilation errors such as below, run `./gradlew clean`
 first:

@@ -29,7 +29,14 @@
                android:layout_height="24dp"
                android:layout_marginRight="24dp"
                android:layout_marginEnd="24dp" />
-
+    <ProgressBar android:id="@+id/mr_chooser_route_progress_bar"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginEnd="24dp"
+        android:indeterminate="true"
+        android:visibility="gone"
+        style="?android:attr/progressBarStyle" />
     <LinearLayout android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
                   android:layout_marginBottom="1dp"

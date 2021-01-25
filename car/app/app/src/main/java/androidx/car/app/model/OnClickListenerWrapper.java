@@ -21,7 +21,11 @@ import androidx.car.app.OnDoneCallback;
 
 /**
  * A host-side interface for reporting click to clients.
+ *
+ * @deprecated use {@link OnClickDelegate} instead.
  */
+// TODO(b/177591476): remove after host references have been cleaned up.
+@Deprecated
 public interface OnClickListenerWrapper {
     /**
      * Indicates if the click listener is for parked-only scenarios.

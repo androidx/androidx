@@ -16,11 +16,11 @@
 
 package androidx.room.solver
 
+import androidx.room.compiler.processing.XType
 import androidx.room.parser.ParsedQuery
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.solver.query.result.QueryResultBinder
 
 interface QueryResultBinderProvider {
-    fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder
-    fun matches(declared: XDeclaredType): Boolean
+    fun provide(declared: XType, query: ParsedQuery): QueryResultBinder
+    fun matches(declared: XType): Boolean
 }

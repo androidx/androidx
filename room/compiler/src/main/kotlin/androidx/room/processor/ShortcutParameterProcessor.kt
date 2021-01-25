@@ -16,10 +16,8 @@
 
 package androidx.room.processor
 
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XVariableElement
-import androidx.room.compiler.processing.asDeclaredType
 import androidx.room.compiler.processing.isArray
 import androidx.room.vo.ShortcutQueryParameter
 
@@ -28,7 +26,7 @@ import androidx.room.vo.ShortcutQueryParameter
  */
 class ShortcutParameterProcessor(
     baseContext: Context,
-    val containing: XDeclaredType,
+    val containing: XType,
     val element: XVariableElement
 ) {
     val context = baseContext.fork(element)
@@ -56,22 +54,20 @@ class ShortcutParameterProcessor(
         val processingEnv = context.processingEnv
 
         fun verifyAndPair(pojoType: XType, isMultiple: Boolean): Pair<XType?, Boolean> {
-            if (!pojoType.isType()) {
-                // kotlin may generate ? extends T so we should reduce it.
-                val boundedVar = pojoType.extendsBound()
-                return boundedVar?.let {
-                    verifyAndPair(boundedVar, isMultiple)
-                } ?: Pair(null, isMultiple)
+            // kotlin may generate ? extends T so we should reduce it.
+            val boundedVar = pojoType.extendsBound()
+            return if (boundedVar != null) {
+                verifyAndPair(boundedVar, isMultiple)
+            } else {
+                Pair(pojoType, isMultiple)
             }
-            return Pair(pojoType, isMultiple)
         }
 
-        fun extractPojoTypeFromIterator(iterableType: XDeclaredType): XType {
-            iterableType.asTypeElement().getAllNonPrivateInstanceMethods().forEach {
+        fun extractPojoTypeFromIterator(iterableType: XType): XType {
+            iterableType.typeElement!!.getAllNonPrivateInstanceMethods().forEach {
                 if (it.name == "iterator") {
                     return it.asMemberOf(iterableType)
                         .returnType
-                        .asDeclaredType()
                         .typeArguments
                         .first()
                 }
@@ -82,8 +78,7 @@ class ShortcutParameterProcessor(
         val iterableType = processingEnv
             .requireType("java.lang.Iterable").rawType
         if (iterableType.isAssignableFrom(typeMirror)) {
-            val declared = typeMirror.asDeclaredType()
-            val pojo = extractPojoTypeFromIterator(declared)
+            val pojo = extractPojoTypeFromIterator(typeMirror)
             return verifyAndPair(pojo, true)
         }
         if (typeMirror.isArray()) {

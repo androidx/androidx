@@ -28,7 +28,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Status3A
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
+import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
@@ -43,12 +43,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-@RunWith(CameraPipeRobolectricTestRunner::class)
+@RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class Controller3AUpdate3ATest {
-    private val graphProcessor = FakeGraphProcessor()
+internal class Controller3AUpdate3ATest {
     private val graphState3A = GraphState3A()
-    private val requestProcessor = FakeRequestProcessor(graphState3A)
+    private val graphProcessor = FakeGraphProcessor(graphState3A = graphState3A)
+    private val requestProcessor = FakeRequestProcessor()
     private val listener3A = Listener3A()
     private val controller3A = Controller3A(graphProcessor, graphState3A, listener3A)
 
@@ -57,9 +57,7 @@ class Controller3AUpdate3ATest {
         initGraphProcessor()
 
         val result = controller3A.update3A(afMode = AfMode.OFF)
-        assertThat(graphState3A.readState()[CaptureRequest.CONTROL_AF_MODE]).isEqualTo(
-            CaptureRequest.CONTROL_AE_MODE_OFF
-        )
+        assertThat(graphState3A.afMode!!.value).isEqualTo(CaptureRequest.CONTROL_AF_MODE_OFF)
         assertThat(result.isCompleted).isFalse()
     }
 
@@ -247,7 +245,7 @@ class Controller3AUpdate3ATest {
     }
 
     private fun initGraphProcessor() {
-        graphProcessor.attach(requestProcessor)
-        graphProcessor.setRepeating(Request(streams = listOf(StreamId(1))))
+        graphProcessor.onGraphStarted(requestProcessor)
+        graphProcessor.startRepeating(Request(streams = listOf(StreamId(1))))
     }
 }

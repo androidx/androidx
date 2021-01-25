@@ -31,7 +31,7 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 @OptIn(ExperimentalCoroutinesApi::class)
-class TokenLockTest {
+internal class TokenLockTest {
     @Test
     fun testTokenLockReportsNoAvailableCapacityWhenClosed() {
         val tokenLock = TokenLockImpl(2)

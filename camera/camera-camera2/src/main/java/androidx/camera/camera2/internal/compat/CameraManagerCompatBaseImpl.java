@@ -51,6 +51,7 @@ class CameraManagerCompatBaseImpl implements CameraManagerCompat.CameraManagerCo
                 new CameraManagerCompatParamsApi21(compatHandler));
     }
 
+    @NonNull
     @Override
     public String[] getCameraIdList() throws CameraAccessExceptionCompat {
         try {

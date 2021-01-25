@@ -40,7 +40,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -56,10 +55,11 @@ import java.util.concurrent.TimeUnit;
 @SdkSuppress(minSdkVersion = 30) // Needed only on 30 and above
 public class RendererTest {
 
+    @SuppressWarnings("deprecation")
     @Rule
     @NonNull
-    public final ActivityTestRule<InlineUiActivity> mActivityTestRule =
-            new ActivityTestRule<>(InlineUiActivity.class);
+    public final androidx.test.rule.ActivityTestRule<InlineUiActivity> mActivityTestRule =
+            new androidx.test.rule.ActivityTestRule<>(InlineUiActivity.class);
 
     private Instrumentation mInstrumentation;
     private Context mContext;

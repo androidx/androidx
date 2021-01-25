@@ -19,14 +19,15 @@ package androidx.biometric.auth;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.biometric.BiometricPrompt;
+import androidx.biometric.BiometricPrompt.AuthenticationError;
 import androidx.fragment.app.FragmentActivity;
 
 /**
- * A collection of methods that may be invoked by {@link Class2BiometricAuthPrompt},
- * {@link Class3BiometricAuthPrompt}, {@link Class2BiometricOrCredentialAuthPrompt},
- * {@link Class3BiometricOrCredentialAuthPrompt}, or {@link CredentialAuthPrompt} during
- * authentication, returning the {@link androidx.fragment.app.FragmentActivity} the
- * prompt is attached to.
+ * A collection of methods that may be invoked by an auth prompt during authentication.
+ *
+ * <p>Each method receives a reference to the (possibly {@code null}) activity instance that is
+ * currently hosting the prompt. This reference should be used to fetch or update any necessary
+ * activity state in order for changes to be reflected across configuration changes.
  */
 public abstract class AuthPromptCallback {
     /**
@@ -35,31 +36,32 @@ public abstract class AuthPromptCallback {
      * <p>After this method is called, no further events will be sent for the current
      * authentication session.
      *
-     * @param activity {@link androidx.fragment.app.FragmentActivity} the prompt is attached to
+     * @param activity  The activity that is currently hosting the prompt.
      * @param errorCode An integer ID associated with the error.
      * @param errString A human-readable string that describes the error.
      */
-    public void onAuthenticationError(@Nullable FragmentActivity activity,
-            @BiometricPrompt.AuthenticationError int errorCode, @NonNull CharSequence errString) {}
+    public void onAuthenticationError(
+            @Nullable FragmentActivity activity,
+            @AuthenticationError int errorCode,
+            @NonNull CharSequence errString) {}
 
     /**
-     * Called when a biometric (e.g. fingerprint, face, etc.) is recognized, indicating that the
-     * user has successfully authenticated.
+     * Called when the user has successfully authenticated.
      *
      * <p>After this method is called, no further events will be sent for the current
      * authentication session.
      *
-     * @param activity {@link androidx.fragment.app.FragmentActivity} the prompt is attached to
-     * @param result An object containing authentication-related data.
+     * @param activity The activity that is currently hosting the prompt.
+     * @param result   An object containing authentication-related data.
      */
-    public void onAuthenticationSucceeded(@Nullable FragmentActivity activity,
+    public void onAuthenticationSucceeded(
+            @Nullable FragmentActivity activity,
             @NonNull BiometricPrompt.AuthenticationResult result) {}
 
     /**
-     * Called when a biometric (e.g. fingerprint, face, etc.) is presented but not recognized as
-     * belonging to the user.
+     * Called when an authentication attempt by the user has been rejected.
      *
-     * @param activity {@link androidx.fragment.app.FragmentActivity} the prompt is attached to
+     * @param activity The activity that is currently hosting the prompt.
      */
     public void onAuthenticationFailed(@Nullable FragmentActivity activity) {}
 }

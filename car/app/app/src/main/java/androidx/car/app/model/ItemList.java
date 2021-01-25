@@ -20,15 +20,12 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 import android.os.Looper;
-import android.os.RemoteException;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.IOnDoneCallback;
-import androidx.car.app.OnDoneCallback;
-import androidx.car.app.WrappedRuntimeException;
-import androidx.car.app.utils.RemoteUtils;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,18 +74,27 @@ public final class ItemList {
     @Keep
     private final int mSelectedIndex;
     @Keep
-    private final List<Object> mItems;
+    private final List<Item> mItems;
+    @SuppressWarnings("deprecation")
     @Keep
     @Nullable
     private final OnSelectedListenerWrapper mOnSelectedListener;
     @Keep
     @Nullable
+    private final OnSelectedDelegate mOnSelectedDelegate;
+    @SuppressWarnings("deprecation")
+    @Keep
+    @Nullable
     private final OnItemVisibilityChangedListenerWrapper mOnItemVisibilityChangedListener;
+    @Keep
+    @Nullable
+    private final OnItemVisibilityChangedDelegate mOnItemVisibilityChangedDelegate;
     @Keep
     @Nullable
     private final CarText mNoItemsMessage;
 
     /** Constructs a new builder of {@link ItemList}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -102,10 +108,24 @@ public final class ItemList {
     /**
      * Returns the {@link OnSelectedListenerWrapper} to be called when when an item is selected
      * by the user, or {@code null} is the list is non-selectable.
+     *
+     * @deprecated use {@link #getOnSelectedDelegate()} instead.
      */
+    // TODO(b/177591476): remove after host references have been cleaned up.
+    @Deprecated
+    @SuppressWarnings("deprecation")
     @Nullable
     public OnSelectedListenerWrapper getOnSelectedListener() {
         return mOnSelectedListener;
+    }
+
+    /**
+     * Returns the {@link OnSelectedListenerWrapper} to be called when when an item is selected
+     * by the user, or {@code null} is the list is non-selectable.
+     */
+    @Nullable
+    public OnSelectedDelegate getOnSelectedDelegate() {
+        return mOnSelectedDelegate;
     }
 
     /** Returns the text to be displayed if the list is empty. */
@@ -117,15 +137,43 @@ public final class ItemList {
     /**
      * Returns the {@link OnItemVisibilityChangedListenerWrapper} to be called when the visible
      * items in the list changes.
+     *
+     * @deprecated use {@link #getOnItemVisibilityChangedDelegate()} instead.
      */
+    // TODO(b/177591476): remove after host references have been cleaned up.
+    @Deprecated
+    @SuppressWarnings("deprecation")
     @Nullable
     public OnItemVisibilityChangedListenerWrapper getOnItemsVisibilityChangedListener() {
         return mOnItemVisibilityChangedListener;
     }
 
-    /** Returns the list of items in this {@link ItemList}. */
+    /**
+     * Returns the {@link OnItemVisibilityChangedDelegate} to be called when the visible
+     * items in the list changes.
+     */
+    @Nullable
+    public OnItemVisibilityChangedDelegate getOnItemVisibilityChangedDelegate() {
+        return mOnItemVisibilityChangedDelegate;
+    }
+
+    /**
+     * Returns the list of items in this {@link ItemList}.
+     *
+     * @deprecated use {@link #getItemList()} instead.
+     */
+    // TODO(b/177591128): remove after host(s) no longer reference this.
+    @SuppressWarnings("unchecked")
+    @Deprecated
     @NonNull
     public List<Object> getItems() {
+        return (List<Object>) (List<? extends Object>) mItems;
+    }
+
+    /** Returns the list of items in this {@link ItemList}. */
+    // TODO(b/177591128): rename back to getItems after removal of the deprecated API.
+    @NonNull
+    public List<Item> getItemList() {
         return mItems;
     }
 
@@ -144,8 +192,8 @@ public final class ItemList {
         return Objects.hash(
                 mSelectedIndex,
                 mItems,
-                mOnSelectedListener == null,
-                mOnItemVisibilityChangedListener == null,
+                mOnSelectedDelegate == null,
+                mOnItemVisibilityChangedDelegate == null,
                 mNoItemsMessage);
     }
 
@@ -162,20 +210,22 @@ public final class ItemList {
         // For listeners only check if they are either both null, or both set.
         return mSelectedIndex == otherList.mSelectedIndex
                 && Objects.equals(mItems, otherList.mItems)
-                && Objects.equals(mOnSelectedListener == null,
-                otherList.mOnSelectedListener == null)
+                && Objects.equals(mOnSelectedDelegate == null,
+                otherList.mOnSelectedDelegate == null)
                 && Objects.equals(
-                mOnItemVisibilityChangedListener == null,
-                otherList.mOnItemVisibilityChangedListener == null)
+                mOnItemVisibilityChangedDelegate == null,
+                otherList.mOnItemVisibilityChangedDelegate == null)
                 && Objects.equals(mNoItemsMessage, otherList.mNoItemsMessage);
     }
 
-    private ItemList(Builder builder) {
+    ItemList(Builder builder) {
         mSelectedIndex = builder.mSelectedIndex;
-        mItems = new ArrayList<>(builder.mItems);
+        mItems = CollectionUtils.unmodifiableCopy(builder.mItems);
         mNoItemsMessage = builder.mNoItemsMessage;
         mOnSelectedListener = builder.mOnSelectedListener;
+        mOnSelectedDelegate = builder.mOnSelectedDelegate;
         mOnItemVisibilityChangedListener = builder.mOnItemVisibilityChangedListener;
+        mOnItemVisibilityChangedDelegate = builder.mOnItemVisibilityChangedDelegate;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -184,19 +234,48 @@ public final class ItemList {
         mItems = Collections.emptyList();
         mNoItemsMessage = null;
         mOnSelectedListener = null;
+        mOnSelectedDelegate = null;
         mOnItemVisibilityChangedListener = null;
+        mOnItemVisibilityChangedDelegate = null;
+    }
+
+
+    @Nullable
+    static OnClickDelegate getOnClickListener(Item item) {
+        if (item instanceof Row) {
+            return ((Row) item).getOnClickDelegate();
+        } else if (item instanceof GridItem) {
+            return ((GridItem) item).getOnClickDelegate();
+        }
+
+        return null;
+    }
+
+    @Nullable
+    static Toggle getToggle(Item item) {
+        if (item instanceof Row) {
+            return ((Row) item).getToggle();
+        }
+
+        return null;
     }
 
     /** A builder of {@link ItemList}. */
     public static final class Builder {
-        private final List<Object> mItems = new ArrayList<>();
-        private int mSelectedIndex;
+        final List<Item> mItems = new ArrayList<>();
+        int mSelectedIndex;
+        @SuppressWarnings("deprecation")
         @Nullable
-        private OnSelectedListenerWrapper mOnSelectedListener;
+        OnSelectedListenerWrapper mOnSelectedListener;
         @Nullable
-        private OnItemVisibilityChangedListenerWrapper mOnItemVisibilityChangedListener;
+        OnSelectedDelegate mOnSelectedDelegate;
+        @SuppressWarnings("deprecation")
         @Nullable
-        private CarText mNoItemsMessage;
+        OnItemVisibilityChangedListenerWrapper mOnItemVisibilityChangedListener;
+        @Nullable
+        OnItemVisibilityChangedDelegate mOnItemVisibilityChangedDelegate;
+        @Nullable
+        CarText mNoItemsMessage;
 
         /**
          * Sets the {@link OnItemVisibilityChangedListener} to call when the visible items in the
@@ -209,10 +288,16 @@ public final class ItemList {
         @SuppressLint("ExecutorRegistration")
         public Builder setOnItemsVisibilityChangedListener(
                 @Nullable OnItemVisibilityChangedListener itemVisibilityChangedListener) {
-            this.mOnItemVisibilityChangedListener =
+            mOnItemVisibilityChangedListener =
                     itemVisibilityChangedListener == null
                             ? null
-                            : createOnItemVisibilityChangedListener(itemVisibilityChangedListener);
+                            : OnItemVisibilityChangedListenerWrapperImpl.create(
+                                    itemVisibilityChangedListener);
+            mOnItemVisibilityChangedDelegate =
+                    itemVisibilityChangedListener == null
+                            ? null
+                            : OnItemVisibilityChangedDelegateImpl.create(
+                                    itemVisibilityChangedListener);
             return this;
         }
 
@@ -235,9 +320,12 @@ public final class ItemList {
         @NonNull
         @SuppressLint("ExecutorRegistration")
         public Builder setOnSelectedListener(@Nullable OnSelectedListener onSelectedListener) {
-            this.mOnSelectedListener =
-                    onSelectedListener == null ? null : createOnSelectedListener(
-                            onSelectedListener);
+            mOnSelectedListener =
+                    onSelectedListener == null ? null :
+                            OnSelectedListenerWrapperImpl.create(onSelectedListener);
+            mOnSelectedDelegate =
+                    onSelectedListener == null ? null :
+                            OnSelectedDelegateImpl.create(onSelectedListener);
             return this;
         }
 
@@ -250,7 +338,7 @@ public final class ItemList {
          * value is ignored.
          */
         @NonNull
-        public Builder setSelectedIndex(int selectedIndex) {
+        public Builder setSelectedIndex(@IntRange(from = 0) int selectedIndex) {
             if (selectedIndex < 0) {
                 throw new IllegalArgumentException(
                         "The item index must be larger than or equal to 0.");
@@ -282,13 +370,6 @@ public final class ItemList {
             return this;
         }
 
-        /** Clears any items that may have been added up to this point. */
-        @NonNull
-        public Builder clearItems() {
-            mItems.clear();
-            return this;
-        }
-
         /**
          * Constructs the item list defined by this builder.
          *
@@ -314,7 +395,7 @@ public final class ItemList {
                 }
 
                 // Check that no items have disallowed elements if the list is selectable.
-                for (Object item : mItems) {
+                for (Item item : mItems) {
                     if (getOnClickListener(item) != null) {
                         throw new IllegalStateException(
                                 "Items that belong to selectable lists can't have an "
@@ -331,100 +412,9 @@ public final class ItemList {
 
             return new ItemList(this);
         }
-    }
 
-    @Nullable
-    private static OnClickListenerWrapper getOnClickListener(Object item) {
-        if (item instanceof Row) {
-            return ((Row) item).getOnClickListener();
-        } else if (item instanceof GridItem) {
-            return ((GridItem) item).getOnClickListener();
-        }
-
-        return null;
-    }
-
-    @Nullable
-    private static Toggle getToggle(Object item) {
-        if (item instanceof Row) {
-            return ((Row) item).getToggle();
-        } else if (item instanceof GridItem) {
-            return ((GridItem) item).getToggle();
-        }
-
-        return null;
-    }
-
-    private static OnSelectedListenerWrapper createOnSelectedListener(
-            @NonNull OnSelectedListener listener) {
-        return new OnSelectedListenerWrapper() {
-            private final IOnSelectedListener mStubListener = new OnSelectedListenerStub(listener);
-
-            @Override
-            public void onSelected(int selectedIndex, @NonNull OnDoneCallback callback) {
-                try {
-                    mStubListener.onSelected(selectedIndex,
-                            RemoteUtils.createOnDoneCallbackStub(callback));
-                } catch (RemoteException e) {
-                    throw new WrappedRuntimeException(e);
-                }
-            }
-        };
-    }
-
-    @Keep // We need to keep these stub for Bundler serialization logic.
-    private static class OnSelectedListenerStub extends IOnSelectedListener.Stub {
-        private final OnSelectedListener mOnSelectedListener;
-
-        private OnSelectedListenerStub(OnSelectedListener onSelectedListener) {
-            this.mOnSelectedListener = onSelectedListener;
-        }
-
-        @Override
-        public void onSelected(int index, IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(
-                    () -> mOnSelectedListener.onSelected(index), callback, "onSelectedListener");
-        }
-    }
-
-    private static OnItemVisibilityChangedListenerWrapper createOnItemVisibilityChangedListener(
-            @NonNull OnItemVisibilityChangedListener listener) {
-        return new OnItemVisibilityChangedListenerWrapper() {
-            private final IOnItemVisibilityChangedListener mStubListener =
-                    new OnItemVisibilityChangedListenerStub(listener);
-
-            @Override
-            public void onItemVisibilityChanged(int startIndex, int rightIndex,
-                    @NonNull OnDoneCallback callback) {
-                try {
-                    mStubListener.onItemVisibilityChanged(startIndex, rightIndex,
-                            RemoteUtils.createOnDoneCallbackStub(callback));
-                } catch (RemoteException e) {
-                    throw new WrappedRuntimeException(e);
-                }
-            }
-        };
-    }
-
-    /** Stub class for the {@link IOnItemVisibilityChangedListener} interface. */
-    @Keep // We need to keep these stub for Bundler serialization logic.
-    private static class OnItemVisibilityChangedListenerStub
-            extends IOnItemVisibilityChangedListener.Stub {
-        private final OnItemVisibilityChangedListener mOnItemVisibilityChangedListener;
-
-        private OnItemVisibilityChangedListenerStub(
-                OnItemVisibilityChangedListener onItemVisibilityChangedListener) {
-            this.mOnItemVisibilityChangedListener = onItemVisibilityChangedListener;
-        }
-
-        @Override
-        public void onItemVisibilityChanged(
-                int startIndexInclusive, int endIndexExclusive, IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(
-                    () -> mOnItemVisibilityChangedListener.onItemVisibilityChanged(
-                            startIndexInclusive, endIndexExclusive),
-                    callback,
-                    "onItemVisibilityChanged");
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

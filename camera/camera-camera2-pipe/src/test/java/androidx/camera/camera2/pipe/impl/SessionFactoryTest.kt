@@ -20,15 +20,25 @@ import android.content.Context
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.os.Looper
+import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
-import androidx.camera.camera2.pipe.testing.FakeCameras
+import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.CameraStream
+import androidx.camera.camera2.pipe.RequestProcessor
+import androidx.camera.camera2.pipe.StreamFormat
+import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
+import androidx.camera.camera2.pipe.wrapper.AndroidCameraDevice
+import androidx.camera.camera2.pipe.wrapper.CameraCaptureSessionWrapper
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import dagger.Component
+import dagger.Module
+import dagger.Provides
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
@@ -38,41 +48,25 @@ import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import javax.inject.Singleton
 
-@Singleton
-@CameraGraphScope
-@Component(
-    modules = [
-        FakeCameras.FakeCameraGraphModule::class,
-        FakeCameras.FakeCameraPipeModule::class
-    ]
-)
-interface CameraSessionTestComponent {
-    fun graphConfig(): CameraGraph.Config
-    fun sessionFactory(): SessionFactory
-    fun streamMap(): StreamMap
-}
-
-@RunWith(CameraPipeRobolectricTestRunner::class)
+@RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 @OptIn(ExperimentalCoroutinesApi::class)
-class SessionFactoryTest {
+internal class SessionFactoryTest {
     private val context = ApplicationProvider.getApplicationContext() as Context
     private val mainLooper = Shadows.shadowOf(Looper.getMainLooper())
-    private val cameraId = FakeCameras.create()
-    private val testCamera = FakeCameras.open(cameraId)
+    private val cameraId = RobolectricCameras.create()
+    private val testCamera = RobolectricCameras.open(cameraId)
 
     @After
     fun teardown() {
         mainLooper.idle()
-        FakeCameras.removeAll()
+        RobolectricCameras.clear()
     }
 
     @Test
     fun canCreateSessionFactoryTestComponent() = runBlockingTest {
         val component: CameraSessionTestComponent = DaggerCameraSessionTestComponent.builder()
-            .fakeCameraPipeModule(
-                FakeCameras.FakeCameraPipeModule(context, testCamera)
-            )
+            .fakeCameraPipeModule(FakeCameraPipeModule(context, testCamera))
             .build()
 
         val sessionFactory = component.sessionFactory()
@@ -82,35 +76,89 @@ class SessionFactoryTest {
     @Test
     fun createCameraCaptureSession() = runBlockingTest {
         val component: CameraSessionTestComponent = DaggerCameraSessionTestComponent.builder()
-            .fakeCameraPipeModule(
-                FakeCameras.FakeCameraPipeModule(context, testCamera)
-            )
+            .fakeCameraPipeModule(FakeCameraPipeModule(context, testCamera))
             .build()
 
         val sessionFactory = component.sessionFactory()
         val streamMap = component.streamMap()
-        val streamConfig = component.graphConfig().streams.first()
-        val stream1 = streamMap.streamConfigMap[streamConfig]!!
+        val cameraStreamConfig = component.graphConfig().streams.first()
+        val stream1 = streamMap[cameraStreamConfig]!!
+        val stream1Output = stream1.outputs.first()
 
         val surfaceTexture = SurfaceTexture(0)
         surfaceTexture.setDefaultBufferSize(
-            stream1.size.width,
-            stream1.size.height
+            stream1Output.size.width,
+            stream1Output.size.height
         )
         val surface = Surface(surfaceTexture)
 
         val pendingOutputs = sessionFactory.create(
-            testCamera.cameraDeviceWrapper,
+            AndroidCameraDevice(
+                testCamera.metadata,
+                testCamera.cameraDevice,
+                testCamera.cameraId
+            ),
             mapOf(stream1.id to surface),
             virtualSessionState = VirtualSessionState(
                 FakeGraphProcessor(),
                 sessionFactory,
-                FakeRequestProcessor(GraphState3A()),
+                object : Camera2RequestProcessorFactory {
+                    override fun create(
+                        session: CameraCaptureSessionWrapper,
+                        surfaceMap: Map<StreamId, Surface>
+                    ): RequestProcessor = FakeRequestProcessor()
+                },
                 this
             )
         )
 
         assertThat(pendingOutputs).isNotNull()
         assertThat(pendingOutputs).isEmpty()
+    }
+}
+
+@Singleton
+@CameraGraphScope
+@Component(
+    modules = [
+        FakeCameraGraphModule::class,
+        FakeCameraPipeModule::class
+    ]
+)
+internal interface CameraSessionTestComponent {
+    fun graphConfig(): CameraGraph.Config
+    fun sessionFactory(): SessionFactory
+    fun streamMap(): StreamGraphImpl
+}
+
+/**
+ * Utility module for testing the Dagger generated graph with a a reasonable default config.
+ */
+@Module(includes = [CameraPipeModules::class, Camera2CameraPipeModules::class])
+class FakeCameraPipeModule(
+    private val context: Context,
+    private val fakeCamera: RobolectricCameras.FakeCamera
+) {
+    @Provides
+    fun provideFakeCamera() = fakeCamera
+
+    @Provides
+    @Singleton
+    fun provideFakeCameraPipeConfig() = CameraPipe.Config(context)
+}
+
+@Module(includes = [CameraGraphModules::class, Camera2CameraGraphModules::class])
+class FakeCameraGraphModule {
+    @Provides
+    @CameraGraphScope
+    fun provideFakeGraphConfig(fakeCamera: RobolectricCameras.FakeCamera): CameraGraph.Config {
+        val stream = CameraStream.Config.create(
+            Size(640, 480),
+            StreamFormat.YUV_420_888
+        )
+        return CameraGraph.Config(
+            camera = fakeCamera.cameraId,
+            streams = listOf(stream),
+        )
     }
 }

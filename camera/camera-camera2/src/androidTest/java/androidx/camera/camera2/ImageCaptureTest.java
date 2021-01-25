@@ -50,7 +50,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.AspectRatio;
@@ -145,7 +145,7 @@ public final class ImageCaptureTest {
     }
 
     @Before
-    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     public void setUp() throws ExecutionException, InterruptedException {
         createDefaultPictureFolderIfNotExist();
         mContext = ApplicationProvider.getApplicationContext();
@@ -610,7 +610,7 @@ public final class ImageCaptureTest {
     }
 
     @Test
-    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     public void camera2InteropCaptureSessionCallbacks() {
         ImageCapture.Builder builder = new ImageCapture.Builder();
         CameraCaptureSession.CaptureCallback captureCallback =
@@ -825,6 +825,7 @@ public final class ImageCaptureTest {
                 ImageCapture.ERROR_INVALID_CAMERA);
     }
 
+    @SuppressWarnings("deprecation")
     private void createDefaultPictureFolderIfNotExist() {
         File pictureFolder = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);

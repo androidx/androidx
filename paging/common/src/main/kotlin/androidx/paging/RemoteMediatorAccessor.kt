@@ -21,7 +21,6 @@ import androidx.paging.AccessorState.BlockState.REQUIRES_REFRESH
 import androidx.paging.AccessorState.BlockState.UNBLOCKED
 import androidx.paging.RemoteMediator.MediatorResult
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -40,10 +39,11 @@ internal interface RemoteMediatorConnection<Key : Any, Value : Any> {
     fun retryFailed(pagingState: PagingState<Key, Value>)
 }
 
-@OptIn(ExperimentalPagingApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalPagingApi::class)
 internal interface RemoteMediatorAccessor<Key : Any, Value : Any> :
     RemoteMediatorConnection<Key, Value> {
     val state: StateFlow<LoadStates>
+
     suspend fun initialize(): RemoteMediator.InitializeAction
 }
 
@@ -57,7 +57,6 @@ internal fun <Key : Any, Value : Any> RemoteMediatorAccessor(
 /**
  * Simple wrapper around the local state of accessor to ensure we don't concurrently change it.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 private class AccessorStateHolder<Key : Any, Value : Any> {
     private val lock = ReentrantLock()
     private val _loadStates = MutableStateFlow(LoadStates.IDLE)
@@ -138,7 +137,11 @@ private class AccessorState<Key : Any, Value : Any>() {
             return false
         }
         val blockState = blockStates[loadType.ordinal]
-        if (blockState != UNBLOCKED) {
+        // Ignore block state for REFRESH as it is only sent in cases where we want to clear all
+        // AccessorState, but we cannot simply generate a new one for an existing PageFetcher as
+        // we need to cancel in-flight requests and prevent races between clearing state and
+        // triggering remote REFRESH by clearing state as part of handling the load request.
+        if (blockState != UNBLOCKED && loadType != LoadType.REFRESH) {
             return false
         }
         if (loadType == LoadType.REFRESH) {
@@ -204,7 +207,7 @@ private class AccessorState<Key : Any, Value : Any>() {
     }
 }
 
-@OptIn(ExperimentalPagingApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalPagingApi::class)
 private class RemoteMediatorAccessImpl<Key : Any, Value : Any>(
     private val scope: CoroutineScope,
     private val remoteMediator: RemoteMediator<Key, Value>

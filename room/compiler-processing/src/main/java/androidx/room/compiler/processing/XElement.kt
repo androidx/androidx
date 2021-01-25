@@ -31,46 +31,21 @@ interface XElement : XAnnotated {
      * Returns the string representation of the Element's kind.
      */
     fun kindName(): String
-
-    /**
-     * Casts current element to [XTypeElement].
-     */
-    fun asTypeElement() = this as XTypeElement
-
-    /**
-     * Casts current element to [XVariableElement].
-     */
-    fun asVariableElement() = this as XVariableElement
-
-    /**
-     * Casts current element to [XMethodElement].
-     */
-    fun asMethodElement() = this as XMethodElement
-
-    /**
-     * Returns the [XDeclaredType] type of the current element, assuming it is an [XTypeElement].
-     * It is a shortcut for `asTypeElement().type`.
-     */
-    fun asDeclaredType(): XDeclaredType {
-        return asTypeElement().type
-    }
 }
 
 /**
  * Checks whether this element represents an [XTypeElement].
- * @see [XElement.asTypeElement]
  */
 // we keep these as extension methods to be able to use contracts
-fun XElement.isType(): Boolean {
+fun XElement.isTypeElement(): Boolean {
     contract {
-        returns(true) implies (this@isType is XTypeElement)
+        returns(true) implies (this@isTypeElement is XTypeElement)
     }
     return this is XTypeElement
 }
 
 /**
  * Checks whether this element represents an [XVariableElement].
- * @see [XElement.asVariableElement]
  */
 fun XElement.isVariableElement(): Boolean {
     contract {
@@ -81,7 +56,6 @@ fun XElement.isVariableElement(): Boolean {
 
 /**
  * Checks whether this element represents an [XMethodElement].
- * @see [XElement.asMethodElement]
  */
 fun XElement.isMethod(): Boolean {
     contract {

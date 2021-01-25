@@ -9,6 +9,9 @@
       <scope name="Compose" level="WARNING" enabled="false" />
     </inspection_tool>
     <inspection_tool class="AndroidLintUnknownNullness" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
+    <inspection_tool class="Deprecation" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="IGNORE_IMPORT_STATEMENTS" value="false" />
+    </inspection_tool>
     <inspection_tool class="FunctionName" enabled="true" level="WEAK WARNING" enabled_by_default="true">
       <scope name="Compose" level="WEAK WARNING" enabled="true">
         <option name="namePattern" value="[A-Za-z\d]+" />

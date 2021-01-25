@@ -82,6 +82,7 @@ public class DirectedAcyclicGraphTest {
         mGraph.addEdge(node, edge);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void test_getIncomingEdges() {
         final TestNode node = new TestNode("node");

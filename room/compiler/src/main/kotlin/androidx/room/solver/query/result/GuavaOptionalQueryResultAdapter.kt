@@ -16,6 +16,7 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.GuavaBaseTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.T
@@ -26,9 +27,10 @@ import com.squareup.javapoet.ParameterizedTypeName
  * Wraps a row adapter when there is only 1 item in the result, and the result's outer type is
  * {@link com.google.common.base.Optional}.
  */
-class GuavaOptionalQueryResultAdapter(private val resultAdapter: SingleEntityQueryResultAdapter) :
-    QueryResultAdapter(resultAdapter.rowAdapter) {
-    val type = resultAdapter.rowAdapter?.out
+class GuavaOptionalQueryResultAdapter(
+    private val typeArg: XType,
+    private val resultAdapter: SingleEntityQueryResultAdapter
+) : QueryResultAdapter(resultAdapter.rowAdapter) {
     override fun convert(
         outVarName: String,
         cursorVarName: String,
@@ -39,7 +41,7 @@ class GuavaOptionalQueryResultAdapter(private val resultAdapter: SingleEntityQue
             resultAdapter.convert(valueVarName, cursorVarName, scope)
             addStatement(
                 "final $T $L = $T.fromNullable($L)",
-                ParameterizedTypeName.get(GuavaBaseTypeNames.OPTIONAL, type?.typeName),
+                ParameterizedTypeName.get(GuavaBaseTypeNames.OPTIONAL, typeArg.typeName),
                 outVarName,
                 GuavaBaseTypeNames.OPTIONAL,
                 valueVarName

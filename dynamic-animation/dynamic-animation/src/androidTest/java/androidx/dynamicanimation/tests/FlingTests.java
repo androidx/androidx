@@ -34,7 +34,6 @@ import androidx.dynamicanimation.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,19 +43,22 @@ import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.GreaterThan;
 import org.mockito.internal.matchers.LessThan;
 
+@SuppressWarnings("unchecked")
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class FlingTests {
+    @SuppressWarnings("deprecation")
     @Rule
-    public final ActivityTestRule<AnimationActivity> mActivityTestRule;
+    public final androidx.test.rule.ActivityTestRule<AnimationActivity> mActivityTestRule;
     public View mView1;
     public View mView2;
 
     @Rule
     public ExpectedException mExpectedException = ExpectedException.none();
 
+    @SuppressWarnings("deprecation")
     public FlingTests() {
-        mActivityTestRule = new ActivityTestRule<>(AnimationActivity.class);
+        mActivityTestRule = new androidx.test.rule.ActivityTestRule<>(AnimationActivity.class);
     }
 
     @Before

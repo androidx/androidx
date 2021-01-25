@@ -25,6 +25,7 @@ import android.graphics.drawable.Drawable;
 /**
  * Simple custom drawable.
  */
+@SuppressWarnings("deprecation")
 public class MyDrawable extends Drawable {
     private final Paint mPaint;
 

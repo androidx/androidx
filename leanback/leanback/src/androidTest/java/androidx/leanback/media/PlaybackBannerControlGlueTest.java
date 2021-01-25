@@ -54,7 +54,7 @@ public class PlaybackBannerControlGlueTest {
     }
 
     public static class PlaybackBannerControlGlueImpl
-            extends PlaybackBannerControlGlue {
+            extends PlaybackBannerControlGlue<PlayerAdapter> {
         public PlaybackBannerControlGlueImpl(Context context) {
             super(context, new int[] {1, 2 , 3, 4, 5}, new PlayerAdapterSample());
         }

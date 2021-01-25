@@ -38,22 +38,22 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public class RoutingInfoTest {
 
     private final Maneuver mManeuver =
-            Maneuver.builder(Maneuver.TYPE_FERRY_BOAT).setIcon(CarIcon.APP_ICON).build();
+            new Maneuver.Builder(Maneuver.TYPE_FERRY_BOAT).setIcon(CarIcon.APP_ICON).build();
     private final Step mCurrentStep =
-            Step.builder("Go Straight").setManeuver(mManeuver).setRoad("405").build();
+            new Step.Builder("Go Straight").setManeuver(mManeuver).setRoad("405").build();
     private final Distance mCurrentDistance =
             Distance.create(/* displayDistance= */ 100, Distance.UNIT_METERS);
 
     @Test
     public void noCurrentStep_throws() {
-        assertThrows(IllegalStateException.class, () -> RoutingInfo.builder().build());
+        assertThrows(IllegalStateException.class, () -> new RoutingInfo.Builder().build());
     }
 
     @Test
     public void isLoading_throws_when_not_empty() {
         assertThrows(
                 IllegalStateException.class,
-                () -> RoutingInfo.builder()
+                () -> new RoutingInfo.Builder()
                         .setLoading(true)
                         .setCurrentStep(mCurrentStep, mCurrentDistance)
                         .build());
@@ -65,17 +65,17 @@ public class RoutingInfoTest {
         builder.scheme(ContentResolver.SCHEME_CONTENT);
         builder.appendPath("foo/bar");
         Uri iconUri = builder.build();
-        CarIcon carIcon = CarIcon.of(IconCompat.createWithContentUri(iconUri));
+        CarIcon carIcon = new CarIcon.Builder(IconCompat.createWithContentUri(iconUri)).build();
         assertThrows(
                 IllegalArgumentException.class,
-                () -> RoutingInfo.builder().setJunctionImage(carIcon));
+                () -> new RoutingInfo.Builder().setJunctionImage(carIcon));
     }
 
     /** Tests basic construction of a template with a minimal data. */
     @Test
     public void createMinimalInstance() {
         RoutingInfo routingInfo =
-                RoutingInfo.builder().setCurrentStep(mCurrentStep, mCurrentDistance).build();
+                new RoutingInfo.Builder().setCurrentStep(mCurrentStep, mCurrentDistance).build();
         assertThat(routingInfo.getCurrentStep()).isEqualTo(mCurrentStep);
         assertThat(routingInfo.getNextStep()).isNull();
     }
@@ -84,11 +84,11 @@ public class RoutingInfoTest {
     @Test
     public void createFullInstance() {
         Maneuver nextManeuver =
-                Maneuver.builder(Maneuver.TYPE_U_TURN_LEFT).setIcon(CarIcon.APP_ICON).build();
-        Step nextStep = Step.builder("Turn Around").setManeuver(nextManeuver).setRoad(
+                new Maneuver.Builder(Maneuver.TYPE_U_TURN_LEFT).setIcon(CarIcon.APP_ICON).build();
+        Step nextStep = new Step.Builder("Turn Around").setManeuver(nextManeuver).setRoad(
                 "520").build();
 
-        RoutingInfo routingInfo = RoutingInfo.builder()
+        RoutingInfo routingInfo = new RoutingInfo.Builder()
                 .setCurrentStep(mCurrentStep, mCurrentDistance)
                 .setNextStep(nextStep)
                 .build();
@@ -100,8 +100,8 @@ public class RoutingInfoTest {
     @Test
     public void laneInfo_set_no_lanesImage_throws() {
         Step currentStep =
-                Step.builder("Hop on a ferry")
-                        .addLane(Lane.builder()
+                new Step.Builder("Hop on a ferry")
+                        .addLane(new Lane.Builder()
                                 .addDirection(LaneDirection.create(
                                         LaneDirection.SHAPE_NORMAL_LEFT, false))
                                 .build())
@@ -110,14 +110,15 @@ public class RoutingInfoTest {
                 Distance.UNIT_METERS);
         assertThrows(
                 IllegalStateException.class,
-                () -> RoutingInfo.builder().setCurrentStep(currentStep, currentDistance).build());
+                () -> new RoutingInfo.Builder().setCurrentStep(currentStep,
+                        currentDistance).build());
     }
 
     @Test
     public void laneInfo_set_with_lanesImage_doesnt_throws() {
         Step currentStep =
-                Step.builder("Hop on a ferry")
-                        .addLane(Lane.builder()
+                new Step.Builder("Hop on a ferry")
+                        .addLane(new Lane.Builder()
                                 .addDirection(LaneDirection.create(
                                         LaneDirection.SHAPE_NORMAL_LEFT, false))
                                 .build())
@@ -125,14 +126,14 @@ public class RoutingInfoTest {
                         .build();
         Distance currentDistance = Distance.create(/* displayDistance= */ 100,
                 Distance.UNIT_METERS);
-        RoutingInfo.builder().setCurrentStep(currentStep, currentDistance).build();
+        new RoutingInfo.Builder().setCurrentStep(currentStep, currentDistance).build();
     }
 
     @Test
     public void equals() {
         Step currentStep =
-                Step.builder("Hop on a ferry")
-                        .addLane(Lane.builder()
+                new Step.Builder("Hop on a ferry")
+                        .addLane(new Lane.Builder()
                                 .addDirection(LaneDirection.create(
                                         LaneDirection.SHAPE_NORMAL_LEFT, false))
                                 .build())
@@ -142,14 +143,14 @@ public class RoutingInfoTest {
                 Distance.UNIT_METERS);
 
         RoutingInfo routingInfo =
-                RoutingInfo.builder()
+                new RoutingInfo.Builder()
                         .setCurrentStep(currentStep, currentDistance)
                         .setJunctionImage(CarIcon.ALERT)
                         .setNextStep(currentStep)
                         .build();
 
         assertThat(routingInfo)
-                .isEqualTo(RoutingInfo.builder()
+                .isEqualTo(new RoutingInfo.Builder()
                         .setCurrentStep(currentStep, currentDistance)
                         .setJunctionImage(CarIcon.ALERT)
                         .setNextStep(currentStep)
@@ -159,8 +160,8 @@ public class RoutingInfoTest {
     @Test
     public void notEquals_differentCurrentStep() {
         Step currentStep =
-                Step.builder("Hop on a ferry")
-                        .addLane(Lane.builder()
+                new Step.Builder("Hop on a ferry")
+                        .addLane(new Lane.Builder()
                                 .addDirection(LaneDirection.create(
                                         LaneDirection.SHAPE_NORMAL_LEFT, false))
                                 .build())
@@ -170,12 +171,12 @@ public class RoutingInfoTest {
                 Distance.UNIT_METERS);
 
         RoutingInfo routingInfo =
-                RoutingInfo.builder().setCurrentStep(currentStep, currentDistance).build();
+                new RoutingInfo.Builder().setCurrentStep(currentStep, currentDistance).build();
 
         assertThat(routingInfo)
-                .isNotEqualTo(RoutingInfo.builder()
-                        .setCurrentStep(Step.builder("do a back flip")
-                                        .addLane(Lane.builder()
+                .isNotEqualTo(new RoutingInfo.Builder()
+                        .setCurrentStep(new Step.Builder("do a back flip")
+                                        .addLane(new Lane.Builder()
                                                 .addDirection(LaneDirection.create(
                                                         LaneDirection.SHAPE_NORMAL_LEFT,
                                                         false))
@@ -188,8 +189,8 @@ public class RoutingInfoTest {
 
     @Test
     public void notEquals_differentCurrentDistance() {
-        Step currentStep = Step.builder("Hop on a ferry")
-                .addLane(Lane.builder()
+        Step currentStep = new Step.Builder("Hop on a ferry")
+                .addLane(new Lane.Builder()
                         .addDirection(LaneDirection.create(
                                 LaneDirection.SHAPE_NORMAL_LEFT, false))
                         .build())
@@ -199,10 +200,10 @@ public class RoutingInfoTest {
                 Distance.UNIT_METERS);
 
         RoutingInfo routingInfo =
-                RoutingInfo.builder().setCurrentStep(currentStep, currentDistance).build();
+                new RoutingInfo.Builder().setCurrentStep(currentStep, currentDistance).build();
 
         assertThat(routingInfo)
-                .isNotEqualTo(RoutingInfo.builder()
+                .isNotEqualTo(new RoutingInfo.Builder()
                         .setCurrentStep(currentStep,
                                 Distance.create(/* displayDistance= */ 200, Distance.UNIT_METERS))
                         .build());
@@ -210,8 +211,8 @@ public class RoutingInfoTest {
 
     @Test
     public void notEquals_differentJunctionImage() {
-        Step currentStep = Step.builder("Hop on a ferry")
-                .addLane(Lane.builder()
+        Step currentStep = new Step.Builder("Hop on a ferry")
+                .addLane(new Lane.Builder()
                         .addDirection(LaneDirection.create(
                                 LaneDirection.SHAPE_NORMAL_LEFT, false))
                         .build())
@@ -220,14 +221,14 @@ public class RoutingInfoTest {
         Distance currentDistance = Distance.create(/* displayDistance= */ 100,
                 Distance.UNIT_METERS);
 
-        RoutingInfo routingInfo = RoutingInfo.builder()
+        RoutingInfo routingInfo = new RoutingInfo.Builder()
                 .setCurrentStep(currentStep, currentDistance)
                 .setJunctionImage(CarIcon.ALERT)
                 .setNextStep(currentStep)
                 .build();
 
         assertThat(routingInfo)
-                .isNotEqualTo(RoutingInfo.builder()
+                .isNotEqualTo(new RoutingInfo.Builder()
                         .setCurrentStep(currentStep, currentDistance)
                         .setJunctionImage(CarIcon.ERROR)
                         .setNextStep(currentStep)
@@ -236,8 +237,8 @@ public class RoutingInfoTest {
 
     @Test
     public void notEquals_differentNextStep() {
-        Step currentStep = Step.builder("Hop on a ferry")
-                .addLane(Lane.builder()
+        Step currentStep = new Step.Builder("Hop on a ferry")
+                .addLane(new Lane.Builder()
                         .addDirection(LaneDirection.create(
                                 LaneDirection.SHAPE_NORMAL_LEFT, false))
                         .build())
@@ -246,16 +247,16 @@ public class RoutingInfoTest {
         Distance currentDistance = Distance.create(/* displayDistance= */ 100,
                 Distance.UNIT_METERS);
 
-        RoutingInfo routingInfo = RoutingInfo.builder()
+        RoutingInfo routingInfo = new RoutingInfo.Builder()
                 .setCurrentStep(currentStep, currentDistance)
                 .setNextStep(currentStep)
                 .build();
 
         assertThat(routingInfo)
-                .isNotEqualTo(RoutingInfo.builder()
+                .isNotEqualTo(new RoutingInfo.Builder()
                         .setCurrentStep(currentStep, currentDistance)
-                        .setNextStep(Step.builder("Do a backflip")
-                                .addLane(Lane.builder()
+                        .setNextStep(new Step.Builder("Do a backflip")
+                                .addLane(new Lane.Builder()
                                         .addDirection(LaneDirection.create(
                                                 LaneDirection.SHAPE_NORMAL_LEFT, false))
                                         .build())

@@ -30,6 +30,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.math.roundToInt
 
 /**
  * Instrument tests for [PreviewTransformation].
@@ -117,15 +118,15 @@ public class PreviewTransformationDeviceTest {
     @Test
     public fun correctTextureViewWith0Rotation() {
         assertThat(getTextureViewCorrection(Surface.ROTATION_0)).isEqualTo(
-            floatArrayOf(
-                0f,
-                0f,
-                SURFACE_SIZE.width.toFloat(),
-                0f,
-                SURFACE_SIZE.width.toFloat(),
-                SURFACE_SIZE.height.toFloat(),
-                0f,
-                SURFACE_SIZE.height.toFloat()
+            intArrayOf(
+                0,
+                0,
+                SURFACE_SIZE.width,
+                0,
+                SURFACE_SIZE.width,
+                SURFACE_SIZE.height,
+                0,
+                SURFACE_SIZE.height
             )
         )
     }
@@ -133,15 +134,15 @@ public class PreviewTransformationDeviceTest {
     @Test
     public fun correctTextureViewWith90Rotation() {
         assertThat(getTextureViewCorrection(Surface.ROTATION_90)).isEqualTo(
-            floatArrayOf(
-                0f,
-                SURFACE_SIZE.height.toFloat(),
-                0f,
-                0f,
-                SURFACE_SIZE.width.toFloat(),
-                0f,
-                SURFACE_SIZE.width.toFloat(),
-                SURFACE_SIZE.height.toFloat()
+            intArrayOf(
+                0,
+                SURFACE_SIZE.height,
+                0,
+                0,
+                SURFACE_SIZE.width,
+                0,
+                SURFACE_SIZE.width,
+                SURFACE_SIZE.height
             )
         )
     }
@@ -149,15 +150,15 @@ public class PreviewTransformationDeviceTest {
     @Test
     public fun correctTextureViewWith180Rotation() {
         assertThat(getTextureViewCorrection(Surface.ROTATION_180)).isEqualTo(
-            floatArrayOf(
-                SURFACE_SIZE.width.toFloat(),
-                SURFACE_SIZE.height.toFloat(),
-                0f,
-                SURFACE_SIZE.height.toFloat(),
-                0f,
-                0f,
-                SURFACE_SIZE.width.toFloat(),
-                0f
+            intArrayOf(
+                SURFACE_SIZE.width,
+                SURFACE_SIZE.height,
+                0,
+                SURFACE_SIZE.height,
+                0,
+                0,
+                SURFACE_SIZE.width,
+                0
             )
         )
     }
@@ -165,15 +166,15 @@ public class PreviewTransformationDeviceTest {
     @Test
     public fun correctTextureViewWith270Rotation() {
         assertThat(getTextureViewCorrection(Surface.ROTATION_270)).isEqualTo(
-            floatArrayOf(
-                SURFACE_SIZE.width.toFloat(),
-                0f,
-                SURFACE_SIZE.width.toFloat(),
-                SURFACE_SIZE.height.toFloat(),
-                0f,
-                SURFACE_SIZE.height.toFloat(),
-                0f,
-                0f
+            intArrayOf(
+                SURFACE_SIZE.width,
+                0,
+                SURFACE_SIZE.width,
+                SURFACE_SIZE.height,
+                0,
+                SURFACE_SIZE.height,
+                0,
+                0
             )
         )
     }
@@ -181,7 +182,7 @@ public class PreviewTransformationDeviceTest {
     /**
      * Corrects TextureView based on target rotation and return the corrected vertices.
      */
-    private fun getTextureViewCorrection(@RotationValue rotation: Int): FloatArray {
+    private fun getTextureViewCorrection(@RotationValue rotation: Int): IntArray {
         // Arrange.
         mPreviewTransform.setTransformationInfo(
             SurfaceRequest.TransformationInfo.of(CROP_RECT, 90, rotation),
@@ -192,7 +193,19 @@ public class PreviewTransformationDeviceTest {
         // Act.
         val surfaceVertexes = PreviewTransformation.sizeToVertices(SURFACE_SIZE)
         mPreviewTransform.textureViewCorrectionMatrix.mapPoints(surfaceVertexes)
-        return surfaceVertexes
+        return convertToIntArray(surfaceVertexes)
+    }
+
+    private fun convertToIntArray(elements: FloatArray): IntArray {
+        var result = IntArray(elements.size)
+        var index = 0
+
+        for (element in elements) {
+            result.set(index, element.roundToInt())
+            index++
+        }
+
+        return result
     }
 
     @Test

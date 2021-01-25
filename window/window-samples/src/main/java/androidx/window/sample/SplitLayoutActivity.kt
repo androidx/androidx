@@ -30,7 +30,10 @@ class SplitLayoutActivity : BaseSampleActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_split_layout)
-        windowManager = getTestBackend()?.let { backend -> WindowManager(this, backend) }
+        windowManager = getTestBackend()?.let { backend ->
+            @Suppress("DEPRECATION") // TODO(b/173739071) remove when updating WindowManager
+            WindowManager(this, backend)
+        }
             ?: WindowManager(this)
     }
 

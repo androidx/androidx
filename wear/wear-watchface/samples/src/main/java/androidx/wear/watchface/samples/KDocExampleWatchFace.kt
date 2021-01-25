@@ -171,8 +171,8 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
             return WatchFace(
                 WatchFaceType.ANALOG,
                 userStyleRepository,
-                complicationSlots,
-                renderer
+                renderer,
+                complicationSlots
             )
         }
     }

@@ -16,7 +16,7 @@
 
 package androidx.room.solver.shortcut.binderprovider
 
-import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
 
@@ -26,12 +26,12 @@ import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
 interface DeleteOrUpdateMethodBinderProvider {
 
     /**
-     * Check whether the [XDeclaredType] can be handled by the [DeleteOrUpdateMethodBinder]
+     * Check whether the [XType] can be handled by the [DeleteOrUpdateMethodBinder]
      */
-    fun matches(declared: XDeclaredType): Boolean
+    fun matches(declared: XType): Boolean
 
     /**
-     * Provider of [DeleteOrUpdateMethodAdapter], based on the [XDeclaredType]
+     * Provider of [DeleteOrUpdateMethodAdapter], based on the [XType]
      */
-    fun provide(declared: XDeclaredType): DeleteOrUpdateMethodBinder
+    fun provide(declared: XType): DeleteOrUpdateMethodBinder
 }

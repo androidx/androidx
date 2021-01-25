@@ -20,6 +20,7 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -115,6 +116,7 @@ public final class TravelEstimate {
      * @throws NullPointerException if {@code remainingDistance} is {@code null}
      * @throws NullPointerException if {@code arrivalTimeAtDestination} is {@code null}
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder(
             @NonNull Distance remainingDistance,
@@ -137,6 +139,7 @@ public final class TravelEstimate {
     @NonNull
     @RequiresApi(26)
     @SuppressWarnings("AndroidJdkLibsChecker")
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     public static Builder builder(
             @NonNull Distance remainingDistance,
             @NonNull ZonedDateTime arrivalTimeAtDestination) {
@@ -223,7 +226,7 @@ public final class TravelEstimate {
         mRemainingDistanceColor = CarColor.DEFAULT;
     }
 
-    private TravelEstimate(Builder builder) {
+    TravelEstimate(Builder builder) {
         this.mRemainingDistance = builder.mRemainingDistance;
         this.mRemainingTimeSeconds = builder.mRemainingTimeSeconds;
         this.mArrivalTimeAtDestination = builder.mArrivalTimeAtDestination;
@@ -233,28 +236,53 @@ public final class TravelEstimate {
 
     /** A builder of {@link TravelEstimate}. */
     public static final class Builder {
-        private final Distance mRemainingDistance;
-        private long mRemainingTimeSeconds = REMAINING_TIME_UNKNOWN;
-        private final DateTimeWithZone mArrivalTimeAtDestination;
-        private CarColor mRemainingTimeColor = CarColor.DEFAULT;
-        private CarColor mRemainingDistanceColor = CarColor.DEFAULT;
+        final Distance mRemainingDistance;
+        long mRemainingTimeSeconds = REMAINING_TIME_UNKNOWN;
+        final DateTimeWithZone mArrivalTimeAtDestination;
+        CarColor mRemainingTimeColor = CarColor.DEFAULT;
+        CarColor mRemainingDistanceColor = CarColor.DEFAULT;
 
-        private Builder(
-                Distance remainingDistance,
-                DateTimeWithZone arrivalTimeAtDestination) {
+        /**
+         * Constructs a new builder of {@link TravelEstimate}.
+         *
+         * @param remainingDistance        The estimated remaining {@link Distance} until
+         *                                 arriving at
+         *                                 the destination.
+         * @param arrivalTimeAtDestination The arrival time with the time zone information
+         *                                 provided for
+         *                                 the destination.
+         * @throws NullPointerException if {@code remainingDistance} is {@code null}
+         * @throws NullPointerException if {@code arrivalTimeAtDestination} is {@code null}
+         */
+        public Builder(
+                @NonNull Distance remainingDistance,
+                @NonNull DateTimeWithZone arrivalTimeAtDestination) {
             this.mRemainingDistance = requireNonNull(remainingDistance);
             this.mArrivalTimeAtDestination = requireNonNull(arrivalTimeAtDestination);
         }
 
-        @SuppressLint("UnsafeNewApiCall")
+        /**
+         * Constructs a new builder of {@link TravelEstimate}.
+         *
+         * @param remainingDistance        The estimated remaining {@link Distance} until
+         *                                 arriving at
+         *                                 the destination.
+         * @param arrivalTimeAtDestination The arrival time with the time zone information
+         *                                 provided for
+         *                                 the destination.
+         * @throws NullPointerException if {@code remainingDistance} is {@code null}
+         * @throws NullPointerException if {@code arrivalTimeAtDestination} is {@code null}
+         */
         // TODO(rampara): Move API 26 calls into separate class.
+        @SuppressLint("UnsafeNewApiCall")
         @RequiresApi(26)
         @SuppressWarnings("AndroidJdkLibsChecker")
-        private Builder(
-                Distance remainingDistance,
-                ZonedDateTime arrivalTimeAtDestination) {
-            this.mRemainingDistance = remainingDistance;
-            this.mArrivalTimeAtDestination = DateTimeWithZone.create(arrivalTimeAtDestination);
+        public Builder(
+                @NonNull Distance remainingDistance,
+                @NonNull ZonedDateTime arrivalTimeAtDestination) {
+            this.mRemainingDistance = requireNonNull(remainingDistance);
+            this.mArrivalTimeAtDestination =
+                    DateTimeWithZone.create(requireNonNull(arrivalTimeAtDestination));
         }
 
         /**
@@ -266,7 +294,7 @@ public final class TravelEstimate {
          *                                  but not {@link #REMAINING_TIME_UNKNOWN}.
          */
         @NonNull
-        public Builder setRemainingTimeSeconds(long remainingTimeSeconds) {
+        public Builder setRemainingTimeSeconds(@IntRange(from = -1) long remainingTimeSeconds) {
             this.mRemainingTimeSeconds = validateRemainingTime(remainingTimeSeconds);
             return this;
         }

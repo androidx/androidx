@@ -21,8 +21,8 @@ import android.hardware.camera2.CameraManager
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Process
+import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraPipe
-import androidx.camera.camera2.pipe.Cameras
 import dagger.Binds
 import dagger.Component
 import dagger.Module
@@ -37,46 +37,35 @@ import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Qualifier
-annotation class ForCameraPipe
+internal annotation class ForCameraThread
 
 @Singleton
 @Component(
     modules = [
         CameraPipeModules::class,
-        CameraPipeConfigModule::class
+        CameraPipeConfigModule::class,
+        Camera2CameraPipeModules::class,
     ]
 )
-interface CameraPipeComponent {
+internal interface CameraPipeComponent {
     fun cameraGraphComponentBuilder(): CameraGraphComponent.Builder
-    fun cameras(): Cameras
+    fun cameras(): CameraDevices
 }
 
 @Module(
     subcomponents = [CameraGraphComponent::class]
 )
-class CameraPipeConfigModule(private val config: CameraPipe.Config) {
+internal class CameraPipeConfigModule(private val config: CameraPipe.Config) {
     @Provides
     fun provideCameraPipeConfig(): CameraPipe.Config = config
 }
 
 @Module
-abstract class CameraPipeModules {
-    @Binds
-    abstract fun bindCameras(impl: CamerasImpl): Cameras
-
+internal abstract class CameraPipeModules {
     companion object {
-        @Provides
-        fun provideContext(config: CameraPipe.Config): Context = config.appContext
-
-        @Reusable
-        @Provides
-        fun provideCameraManager(context: Context): CameraManager =
-            context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-
         @Singleton
         @Provides
-        fun provideCameraPipeThreads(config: CameraPipe.Config): Threads {
-
+        fun provideCameraPipeThreads(@ForCameraThread cameraThread: HandlerThread?): Threads {
             val threadIds = atomic(0)
             val cameraThreadPriority =
                 Process.THREAD_PRIORITY_DISPLAY + Process.THREAD_PRIORITY_LESS_FAVORABLE
@@ -106,7 +95,7 @@ abstract class CameraPipeModules {
 
             val cameraHandlerFn =
                 {
-                    config.cameraThread?.let { Handler(it.looper) }
+                    cameraThread?.let { Handler(it.looper) }
                         ?: Handler(
                             HandlerThread("CXCP-Camera2-H").also {
                                 it.start()
@@ -129,10 +118,7 @@ abstract class CameraPipeModules {
             }
 
             val globalScope = CoroutineScope(
-                defaultDispatcher.plus(
-                    CoroutineName
-                    ("CXCP-Pipe")
-                )
+                defaultDispatcher.plus(CoroutineName("CXCP-Pipe"))
             )
 
             return Threads(
@@ -145,5 +131,25 @@ abstract class CameraPipeModules {
                 camera2Executor = cameraExecutorFn
             )
         }
+    }
+}
+
+@Module
+internal abstract class Camera2CameraPipeModules {
+    @Binds
+    abstract fun bindCameras(impl: CameraDevicesImpl): CameraDevices
+
+    companion object {
+        @Provides
+        fun provideContext(config: CameraPipe.Config): Context = config.appContext
+
+        @Provides
+        @ForCameraThread
+        fun provideCameraThread(config: CameraPipe.Config): HandlerThread? = config.cameraThread
+
+        @Reusable
+        @Provides
+        fun provideCameraManager(context: Context): CameraManager =
+            context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
     }
 }

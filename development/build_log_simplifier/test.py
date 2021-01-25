@@ -206,8 +206,9 @@ def test_collapse_tasks_having_no_output():
         "",
         "output inside blanks",
         "",
-        "> Task :no-output2"
-        "> Task :no-output3"
+        "> Task :no-output2",
+        "> Task :no-output3",
+        "FAILURE: Build failed with an exception.\n"
     ]
     expected = [
         "> Task :some-output1",
@@ -219,7 +220,9 @@ def test_collapse_tasks_having_no_output():
     ]
     actual = collapse_tasks_having_no_output(lines)
     if (actual != expected):
-        fail("collapse_tasks_having_no_output gave incorrect error. Expected: " + str(expected) + ", actual = " + str(actual))
+        fail("collapse_tasks_having_no_output gave incorrect error.\n" +
+            "Expected: " + str(expected) + "\n" +
+            "Actual = " + str(actual))
 
 def test_collapse_consecutive_blank_lines():
     print("test_collapse_consecutive_blank_lines")

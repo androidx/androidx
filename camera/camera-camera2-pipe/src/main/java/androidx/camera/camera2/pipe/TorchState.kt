@@ -24,7 +24,7 @@ package androidx.camera.camera2.pipe
  * https://developer.android.com/reference/android/hardware/camera2/CameraMetadata
  * #CONTROL_AE_MODE_ON
  */
-enum class TorchState {
+public enum class TorchState {
     ON,
     OFF
 }

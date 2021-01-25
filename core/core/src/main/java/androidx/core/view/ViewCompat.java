@@ -2504,47 +2504,10 @@ public class ViewCompat {
      * Set an {@link OnApplyWindowInsetsListener} to take over the policy for applying
      * window insets to this view. This will only take effect on devices with API 21 or above.
      */
-    public static void setOnApplyWindowInsetsListener(@NonNull View v,
+    public static void setOnApplyWindowInsetsListener(@NonNull final View v,
             final @Nullable OnApplyWindowInsetsListener listener) {
         if (Build.VERSION.SDK_INT >= 21) {
-            if (listener == null) {
-                v.setOnApplyWindowInsetsListener(null);
-                return;
-            }
-
-            v.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-                WindowInsetsCompat mLastInsets = null;
-                WindowInsets mReturnedInsets = null;
-
-                @Override
-                public WindowInsets onApplyWindowInsets(final View view,
-                        final WindowInsets insets) {
-                    WindowInsetsCompat compatInsets = WindowInsetsCompat
-                            .toWindowInsetsCompat(insets, view);
-                    if (Build.VERSION.SDK_INT < 30) {
-                        if (compatInsets.equals(mLastInsets)) {
-                            // We got the same insets we just return the previously computed insets.
-                            return mReturnedInsets;
-                        }
-                        mLastInsets = compatInsets;
-                    }
-                    compatInsets = listener.onApplyWindowInsets(view, compatInsets);
-
-                    if (Build.VERSION.SDK_INT >= 30) {
-                        return compatInsets.toWindowInsets();
-                    }
-
-                    // On API < 30, the visibleInsets, used to built WindowInsetsCompat, are
-                    // updated after the insets dispatch so we don't have the updated visible
-                    // insets at that point. As a workaround, we req-apply the insets so we know
-                    // that we'll have the right value the next time it's called.
-                    requestApplyInsets(view);
-                    // Keep a copy in case the insets haven't changed on the next call so we don't
-                    // need to call the listener again.
-                    mReturnedInsets = compatInsets.toWindowInsets();
-                    return mReturnedInsets;
-                }
-            });
+            Api21Impl.setOnApplyWindowInsetsListener(v, listener);
         }
     }
 
@@ -2693,6 +2656,32 @@ public class ViewCompat {
             }
             return null;
         }
+    }
+
+    /**
+     * Sets a {@link WindowInsetsAnimationCompat.Callback} to be notified about animations of
+     * windows that cause insets.
+     * <p>
+     * The callback's {@link WindowInsetsAnimationCompat.Callback#getDispatchMode()
+     * dispatch mode} will affect whether animation callbacks are dispatched to the children of
+     * this view.
+     * <p>
+     * Prior to API 30, if an {@link OnApplyWindowInsetsListener} is used on the same
+     * view, be sure to always use the {@link ViewCompat} version of
+     * {@link #setOnApplyWindowInsetsListener(View, OnApplyWindowInsetsListener)}, otherwise the
+     * listener will be overridden by this method.
+     * <p>
+     * The insets dispatch needs to reach this view for the listener to be called. If any view
+     * consumed the insets earlier in the dispatch, this won't be called.
+     * <p>
+     * Prior to API 21, this method has no effect.
+     *
+     * @param callback The callback to set, or <code>null</code> to remove the currently installed
+     *                 callback
+     */
+    public static void setWindowInsetsAnimationCallback(@NonNull View view,
+            @Nullable final WindowInsetsAnimationCompat.Callback callback) {
+        WindowInsetsAnimationCompat.setCallback(view, callback);
     }
 
     /**
@@ -4733,6 +4722,77 @@ public class ViewCompat {
             } else {
                 outLocalInsets.setEmpty();
                 return insets;
+            }
+        }
+
+        static void setOnApplyWindowInsetsListener(final @NonNull View v,
+                final @Nullable OnApplyWindowInsetsListener listener) {
+            // For backward compatibility of WindowInsetsAnimation, we use an
+            // OnApplyWindowInsetsListener. We use the view tags to keep track of both listeners
+            if (Build.VERSION.SDK_INT < 30) {
+                v.setTag(R.id.tag_on_apply_window_listener, listener);
+            }
+
+            if (listener == null) {
+                // If the listener is null, we need to make sure our compat listener, if any, is
+                // set in-lieu of the listener being removed.
+                View.OnApplyWindowInsetsListener compatInsetsAnimationCallback =
+                        (View.OnApplyWindowInsetsListener) v.getTag(
+                                R.id.tag_window_insets_animation_callback);
+                v.setOnApplyWindowInsetsListener(compatInsetsAnimationCallback);
+                return;
+            }
+
+            v.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+                WindowInsetsCompat mLastInsets = null;
+
+                @Override
+                public WindowInsets onApplyWindowInsets(final View view,
+                        final WindowInsets insets) {
+                    WindowInsetsCompat compatInsets = WindowInsetsCompat.toWindowInsetsCompat(
+                            insets, view);
+                    if (Build.VERSION.SDK_INT < 30) {
+                        callCompatInsetAnimationCallback(insets, v);
+
+                        if (compatInsets.equals(mLastInsets)) {
+                            // We got the same insets we just return the previously computed insets.
+                            listener.onApplyWindowInsets(view, compatInsets);
+                            return insets;
+                        }
+                    }
+                    mLastInsets = compatInsets;
+                    compatInsets = listener.onApplyWindowInsets(view, compatInsets);
+
+                    if (Build.VERSION.SDK_INT >= 30) {
+                        return compatInsets.toWindowInsets();
+                    }
+
+                    // On API < 30, the visibleInsets, used to built WindowInsetsCompat, are
+                    // updated after the insets dispatch so we don't have the updated visible
+                    // insets at that point. As a workaround, we re-apply the insets so we know
+                    // that we'll have the right value the next time it's called.
+                    requestApplyInsets(view);
+                    // Keep a copy in case the insets haven't changed on the next call so we don't
+                    // need to call the listener again.
+
+                    return compatInsets.toWindowInsets();
+                }
+            });
+        }
+
+        /**
+         * The backport of {@link WindowInsetsAnimationCompat.Callback} on API < 30 relies on
+         * onApplyWindowInsetsListener, so if this callback is set, we'll call it in this method
+         */
+        static void callCompatInsetAnimationCallback(final @NonNull WindowInsets insets,
+                final @NonNull View v) {
+            // In case a WindowInsetsAnimationCompat.Callback is set, make sure to
+            // call its compat listener.
+            View.OnApplyWindowInsetsListener insetsAnimationCallback =
+                    (View.OnApplyWindowInsetsListener) v.getTag(
+                            R.id.tag_window_insets_animation_callback);
+            if (insetsAnimationCallback != null) {
+                insetsAnimationCallback.onApplyWindowInsets(v, insets);
             }
         }
     }

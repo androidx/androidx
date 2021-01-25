@@ -32,7 +32,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
+import androidx.wear.complications.data.ComplicationType;
 
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -212,12 +214,17 @@ public final class ComplicationHelperActivity extends Activity
             @NonNull Context context,
             @NonNull ComponentName watchFace,
             int watchFaceComplicationId,
-            @NonNull int[] supportedTypes) {
+            @NonNull Collection<ComplicationType> supportedTypes) {
         Intent intent = new Intent(context, ComplicationHelperActivity.class);
         intent.setAction(ACTION_START_PROVIDER_CHOOSER);
         intent.putExtra(ProviderChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME, watchFace);
         intent.putExtra(ProviderChooserIntent.EXTRA_COMPLICATION_ID, watchFaceComplicationId);
-        intent.putExtra(ProviderChooserIntent.EXTRA_SUPPORTED_TYPES, supportedTypes);
+        int[] wireSupportedTypes = new int[supportedTypes.size()];
+        int i = 0;
+        for (ComplicationType supportedType : supportedTypes) {
+            wireSupportedTypes[i++] = supportedType.asWireComplicationType();
+        }
+        intent.putExtra(ProviderChooserIntent.EXTRA_SUPPORTED_TYPES, wireSupportedTypes);
         return intent;
     }
 

@@ -60,6 +60,18 @@ public class WatchFaceControlService : Service() {
     }
 }
 
+/** Factory for use by on watch face editors to create [IWatchFaceControlService]. */
+@RequiresApi(27)
+public class WatchFaceControlServiceFactory {
+    public companion object {
+        @JvmStatic
+        public fun createWatchFaceControlService(
+            context: Context,
+            uiThreadHandler: Handler
+        ): IWatchFaceControlService = IWatchFaceInstanceServiceStub(context, uiThreadHandler)
+    }
+}
+
 @RequiresApi(27)
 private class IWatchFaceInstanceServiceStub(
     private val context: Context,

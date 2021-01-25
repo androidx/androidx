@@ -105,7 +105,7 @@ public class ComplicationRendererTest {
         String noDataText = "No data";
         mComplicationRenderer.setNoDataText(noDataText);
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build());
+                new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build(), true);
         assertThat(mComplicationRenderer.getComplicationData().getType())
                 .isEqualTo(ComplicationData.TYPE_SHORT_TEXT);
         assertThat(mComplicationRenderer
@@ -122,7 +122,7 @@ public class ComplicationRendererTest {
 
         mComplicationRenderer.setNoDataText(firstText);
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build());
+                new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build(), true);
         CharSequence firstResult =
                 mComplicationRenderer
                         .getComplicationData()
@@ -149,7 +149,7 @@ public class ComplicationRendererTest {
 
         mComplicationRenderer.setNoDataText(text);
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build());
+                new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build(), true);
         CharSequence firstResult =
                 mComplicationRenderer
                         .getComplicationData()
@@ -178,7 +178,7 @@ public class ComplicationRendererTest {
         mComplicationRenderer.setNoDataText(text);
 
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build());
+                new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build(), true);
         CharSequence firstResult =
                 mComplicationRenderer
                         .getComplicationData()
@@ -188,7 +188,7 @@ public class ComplicationRendererTest {
         text.setSpan(blueSpan, 0, 2, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build());
+                new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build(), true);
         CharSequence secondResult =
                 mComplicationRenderer
                         .getComplicationData()
@@ -203,7 +203,7 @@ public class ComplicationRendererTest {
     public void componentBoundsAreNotRecalculatedWhenSizeDoesNotChange() {
         // GIVEN an icon type complication and bounds
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(TYPE_ICON).setIcon(mMockIcon).build());
+                new ComplicationData.Builder(TYPE_ICON).setIcon(mMockIcon).build(), true);
         // WHEN complication size changes
         mComplicationBounds.inset(10, 10);
         boolean firstCallResult = mComplicationRenderer.setBounds(mComplicationBounds);
@@ -220,7 +220,7 @@ public class ComplicationRendererTest {
     public void paintSetsAreReinitializedWhenAmbientPropertiesChange() {
         // GIVEN a complication renderer
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(TYPE_ICON).setIcon(mMockIcon).build());
+                new ComplicationData.Builder(TYPE_ICON).setIcon(mMockIcon).build(), true);
         // WHEN complication is drawn in ambient mode
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, true, true, true, false);
         ComplicationRenderer.PaintSet firstPaintSet = mComplicationRenderer.mAmbientPaintSet;
@@ -262,7 +262,7 @@ public class ComplicationRendererTest {
         ambientStyle.setBorderColor(Color.CYAN);
         mComplicationRenderer.updateStyle(activeStyle, ambientStyle);
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(TYPE_ICON).setIcon(mMockIcon).build());
+                new ComplicationData.Builder(TYPE_ICON).setIcon(mMockIcon).build(), true);
 
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, true, true, true, false);
         ComplicationRenderer.PaintSet paintSet = mComplicationRenderer.mAmbientPaintSet;
@@ -287,7 +287,7 @@ public class ComplicationRendererTest {
         ambientStyle.setBorderColor(Color.TRANSPARENT);
         mComplicationRenderer.updateStyle(activeStyle, ambientStyle);
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(TYPE_ICON).setIcon(mMockIcon).build());
+                new ComplicationData.Builder(TYPE_ICON).setIcon(mMockIcon).build(), true);
 
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, true, true, true, false);
         ComplicationRenderer.PaintSet paintSet = mComplicationRenderer.mAmbientPaintSet;
@@ -304,12 +304,12 @@ public class ComplicationRendererTest {
     public void nothingIsDrawnForEmptyAndNotConfiguredTypes() {
         // GIVEN a complication renderer with not configured data
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_NOT_CONFIGURED).build());
+                new ComplicationData.Builder(ComplicationData.TYPE_NOT_CONFIGURED).build(), true);
         // WHEN complication is drawn onto a canvas
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, false);
         // AND complication data is changed to empty
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(ComplicationData.TYPE_EMPTY).build());
+                new ComplicationData.Builder(ComplicationData.TYPE_EMPTY).build(), true);
         // AND complication is drawn again
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, false);
         // THEN nothing is drawn on canvas
@@ -323,7 +323,8 @@ public class ComplicationRendererTest {
                 new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("hello"))
                         .setEndDateTimeMillis(REFERENCE_TIME - 100)
-                        .build());
+                        .build(),
+                true);
 
         // WHEN complication is drawn onto a canvas
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, false);
@@ -340,7 +341,8 @@ public class ComplicationRendererTest {
                         .setShortText(ComplicationText.plainText("hello"))
                         .setStartDateTimeMillis(REFERENCE_TIME - 5000)
                         .setEndDateTimeMillis(REFERENCE_TIME + 2000)
-                        .build());
+                        .build(),
+                true);
 
         // WHEN complication is drawn onto a canvas
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, false);
@@ -415,7 +417,8 @@ public class ComplicationRendererTest {
                         .setRangedValue(value)
                         .setRangedMinValue(min)
                         .setRangedMaxValue(max)
-                        .build());
+                        .build(),
+                true);
         // WHEN the complication is drawn in active mode
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, false);
         int gap = ComplicationRenderer.STROKE_GAP_IN_DEGREES;
@@ -448,7 +451,8 @@ public class ComplicationRendererTest {
                         .setRangedValue(value)
                         .setRangedMinValue(min)
                         .setRangedMaxValue(max)
-                        .build());
+                        .build(),
+                true);
         // WHEN the complication is drawn in ambient mode
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, true, false, false, false);
         int gap = ComplicationRenderer.STROKE_GAP_IN_DEGREES;
@@ -476,7 +480,8 @@ public class ComplicationRendererTest {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("Test text"))
-                        .build());
+                        .build(),
+                true);
         // AND with a style that has borders and border radius
         float radius = 5;
         int borderWidth = 2;
@@ -518,7 +523,8 @@ public class ComplicationRendererTest {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("Test text"))
-                        .build());
+                        .build(),
+                true);
         // WHEN the complication is drawn in ambient mode and as highlighted
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, true, false, false, true);
         RectF bounds = new RectF(mComplicationBounds);
@@ -538,7 +544,8 @@ public class ComplicationRendererTest {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("Test text"))
-                        .build());
+                        .build(),
+                true);
         // WHEN the complication is drawn in low bit ambient mode
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, true, true, false, false);
         assertThat(mComplicationRenderer.mAmbientPaintSet.mPrimaryTextPaint.isAntiAlias())
@@ -558,7 +565,8 @@ public class ComplicationRendererTest {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("Test text"))
-                        .build());
+                        .build(),
+                true);
         // WHEN the complication is drawn in low bit ambient mode
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, true, false, false, false);
         // THEN paints in ambient paint set has anti alias enabled
@@ -644,7 +652,8 @@ public class ComplicationRendererTest {
                         .setLongText(ComplicationText.plainText("Foo"))
                         .setLongTitle(ComplicationText.plainText("Bar"))
                         .setIcon(mMockIcon)
-                        .build());
+                        .build(),
+                true);
         ComplicationStyle newStyle = new ComplicationStyle();
         newStyle.setBorderRadius(radius);
         mComplicationRenderer.updateStyle(newStyle, new ComplicationStyle());
@@ -671,7 +680,8 @@ public class ComplicationRendererTest {
                         .setLongText(ComplicationText.plainText("Foo"))
                         .setSmallImage(mMockSmallImage)
                         .setBurnInProtectionSmallImage(mMockBurnInProtectionSmallImage)
-                        .build());
+                        .build(),
+                true);
 
         Drawable smallImage = loadIconFromMock(mMockSmallImage);
         Drawable burnInProtectionSmallImage = loadIconFromMock(mMockBurnInProtectionSmallImage);
@@ -698,7 +708,8 @@ public class ComplicationRendererTest {
                 new ComplicationData.Builder(TYPE_LONG_TEXT)
                         .setLongText(ComplicationText.plainText("Foo"))
                         .setSmallImage(mMockSmallImage)
-                        .build());
+                        .build(),
+                true);
 
         loadIconFromMock(mMockSmallImage);
 
@@ -717,7 +728,8 @@ public class ComplicationRendererTest {
                         .setBurnInProtectionIcon(mMockBurnInProtectionIcon)
                         .setSmallImage(mMockSmallImage)
                         .setBurnInProtectionSmallImage(mMockBurnInProtectionSmallImage)
-                        .build());
+                        .build(),
+                true);
 
         Drawable loadedIcon = loadIconFromMock(mMockIcon);
         Drawable loadedBurnInProtectionIcon = loadIconFromMock(mMockBurnInProtectionIcon);
@@ -742,7 +754,8 @@ public class ComplicationRendererTest {
                         .setRangedMinValue(1)
                         .setRangedValue(5)
                         .setRangedMaxValue(10)
-                        .build());
+                        .build(),
+                true);
         mComplicationRenderer.setRangedValueProgressHidden(true);
 
         ComplicationRenderer anotherRenderer =
@@ -751,7 +764,8 @@ public class ComplicationRendererTest {
                 new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("foo"))
                         .setShortTitle(ComplicationText.plainText("bar"))
-                        .build());
+                        .build(),
+                true);
 
         assertThat(anotherRenderer.hasSameLayout(mComplicationRenderer)).isTrue();
     }
@@ -764,13 +778,14 @@ public class ComplicationRendererTest {
                         .setRangedMinValue(1)
                         .setRangedValue(5)
                         .setRangedMaxValue(10)
-                        .build());
+                        .build(),
+                true);
         mComplicationRenderer.setRangedValueProgressHidden(true);
 
         ComplicationRenderer anotherRenderer =
                 createRendererWithBounds(mComplicationRenderer.getBounds());
         anotherRenderer.setComplicationData(
-                new ComplicationData.Builder(TYPE_ICON).setIcon(mMockIcon).build());
+                new ComplicationData.Builder(TYPE_ICON).setIcon(mMockIcon).build(), true);
 
         assertThat(anotherRenderer.hasSameLayout(mComplicationRenderer)).isTrue();
     }
@@ -778,7 +793,7 @@ public class ComplicationRendererTest {
     @Test
     public void invalidateCalledWhenIconLoaded() {
         mComplicationRenderer.setComplicationData(
-                new ComplicationData.Builder(TYPE_ICON).setIcon(mMockIcon).build());
+                new ComplicationData.Builder(TYPE_ICON).setIcon(mMockIcon).build(), true);
 
         loadIconFromMock(mMockIcon);
 
@@ -790,7 +805,8 @@ public class ComplicationRendererTest {
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(TYPE_SMALL_IMAGE)
                         .setSmallImage(mMockSmallImage)
-                        .build());
+                        .build(),
+                true);
 
         loadIconFromMock(mMockSmallImage);
 
@@ -803,7 +819,8 @@ public class ComplicationRendererTest {
                 new ComplicationData.Builder(TYPE_ICON)
                         .setIcon(mMockIcon)
                         .setBurnInProtectionIcon(mMockBurnInProtectionIcon)
-                        .build());
+                        .build(),
+                true);
 
         loadIconFromMock(mMockBurnInProtectionIcon);
 

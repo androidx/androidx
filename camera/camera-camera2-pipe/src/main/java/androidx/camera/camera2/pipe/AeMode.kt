@@ -21,15 +21,15 @@ import android.hardware.camera2.CameraMetadata
 /**
  * An enum to match the CameraMetadata.CONTROL_AE_MODE_* constants.
  */
-enum class AeMode(val value: Int) {
+public enum class AeMode(public val value: Int) {
     OFF(CameraMetadata.CONTROL_AE_MODE_OFF),
     ON(CameraMetadata.CONTROL_AE_MODE_ON),
     ON_AUTO_FLASH(CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH),
     ON_ALWAYS_FLASH(CameraMetadata.CONTROL_AE_MODE_ON_ALWAYS_FLASH),
     ON_AUTO_FLASH_REDEYE(CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE);
 
-    companion object {
+    public companion object {
         @JvmStatic
-        fun fromIntOrNull(value: Int) = values().firstOrNull { it.value == value }
+        public fun fromIntOrNull(value: Int): AeMode? = values().firstOrNull { it.value == value }
     }
 }

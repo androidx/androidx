@@ -16,11 +16,11 @@
 
 package androidx.room.solver
 
-import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.writeTo
 import androidx.room.processor.Context
-import androidx.room.testing.TestInvocation
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
@@ -32,17 +32,14 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import simpleRun
 import testCodeGenScope
 
 @RunWith(Parameterized::class)
 class BasicColumnTypeAdaptersTest(
-    val input: Input,
+    val input: TypeName,
     val bindCode: String,
     val cursorCode: String
 ) {
-    val scope = testCodeGenScope()
-
     companion object {
         val SQLITE_STMT: TypeName = ClassName.get("android.database.sqlite", "SQLiteStatement")
         val CURSOR: TypeName = ClassName.get("android.database", "Cursor")
@@ -52,50 +49,49 @@ class BasicColumnTypeAdaptersTest(
         fun params(): List<Array<Any>> {
             return listOf(
                 arrayOf(
-                    Input(TypeName.INT),
+                    TypeName.INT,
                     "st.bindLong(6, inp);",
                     "out = crs.getInt(9);"
                 ),
                 arrayOf(
-                    Input(TypeName.BYTE),
+                    TypeName.BYTE,
                     "st.bindLong(6, inp);",
                     "out = (byte) crs.getShort(9);"
                 ),
                 arrayOf(
-                    Input(TypeName.SHORT),
+                    TypeName.SHORT,
                     "st.bindLong(6, inp);",
                     "out = crs.getShort(9);"
                 ),
                 arrayOf(
-                    Input(TypeName.LONG),
+                    TypeName.LONG,
                     "st.bindLong(6, inp);",
                     "out = crs.getLong(9);"
                 ),
                 arrayOf(
-                    Input(TypeName.CHAR),
+                    TypeName.CHAR,
                     "st.bindLong(6, inp);",
                     "out = (char) crs.getInt(9);"
                 ),
                 arrayOf(
-                    Input(TypeName.FLOAT),
+                    TypeName.FLOAT,
                     "st.bindDouble(6, inp);",
                     "out = crs.getFloat(9);"
                 ),
                 arrayOf(
-                    Input(TypeName.DOUBLE),
+                    TypeName.DOUBLE,
                     "st.bindDouble(6, inp);",
                     "out = crs.getDouble(9);"
                 ),
                 arrayOf(
-                    Input(TypeName.get(String::class.java)),
-                    """
-                            if (inp == null) {
-                              st.bindNull(6);
-                            } else {
-                              st.bindString(6, inp);
-                            }
-                    """.trimIndent(),
+                    TypeName.get(String::class.java),
+                    "st.bindString(6, inp);",
                     "out = crs.getString(9);"
+                ),
+                arrayOf(
+                    TypeName.get(ByteArray::class.java),
+                    "st.bindBlob(6, inp);",
+                    "out = crs.getBlob(9);"
                 )
             )
         }
@@ -103,24 +99,75 @@ class BasicColumnTypeAdaptersTest(
 
     @Test
     fun bind() {
-        simpleRun { invocation ->
+        runProcessorTest { invocation ->
+            val scope = testCodeGenScope()
+            val type = invocation.processingEnv.requireType(input)
             val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
-                .findColumnTypeAdapter(input.getTypeMirror(invocation.processingEnv), null)!!
+                .findColumnTypeAdapter(
+                    out = type,
+                    affinity = null,
+                    skipEnumConverter = false
+                )!!
+            val expected = if (input.isAlwaysCheckedForNull()) {
+                """
+                if (inp == null) {
+                  st.bindNull(6);
+                } else {
+                  $bindCode
+                }
+                """.trimIndent()
+            } else {
+                bindCode
+            }
             adapter.bindToStmt("st", "6", "inp", scope)
-            assertThat(scope.generate().toString().trim(), `is`(bindCode))
-            generateCode(invocation, false)
-        }.compilesWithoutError()
+            assertThat(scope.generate().toString().trim(), `is`(expected))
+            generateCode(invocation, scope, type)
+        }
     }
 
     @Test
     fun boxedBind() {
-        if (!input.typeName.isPrimitive) {
-            return // no-op for those
-        }
-        simpleRun { invocation ->
+        runProcessorTest { invocation ->
+            val scope = testCodeGenScope()
+            val boxedType = invocation.processingEnv.requireType(input).boxed()
             val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
                 .findColumnTypeAdapter(
-                    input.getBoxedTypeMirror(invocation.processingEnv), null
+                    out = boxedType,
+                    affinity = null,
+                    skipEnumConverter = false
+                )!!
+            adapter.bindToStmt("st", "6", "inp", scope)
+            val expected = if (invocation.isKsp && !input.isAlwaysCheckedForNull()) {
+                bindCode
+            } else {
+                """
+                if (inp == null) {
+                  st.bindNull(6);
+                } else {
+                  $bindCode
+                }
+                """.trimIndent()
+            }
+            assertThat(
+                scope.generate().toString().trim(),
+                `is`(
+                    expected
+                )
+            )
+            generateCode(invocation, scope, boxedType)
+        }
+    }
+
+    @Test
+    fun nullableBind() {
+        runProcessorTest { invocation ->
+            val scope = testCodeGenScope()
+            val nullableType = invocation.processingEnv.requireType(input).makeNullable()
+            val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
+                .findColumnTypeAdapter(
+                    out = nullableType,
+                    affinity = null,
+                    skipEnumConverter = false
                 )!!
             adapter.bindToStmt("st", "6", "inp", scope)
             assertThat(
@@ -135,18 +182,20 @@ class BasicColumnTypeAdaptersTest(
                     """.trimIndent()
                 )
             )
-            generateCode(invocation, true)
-        }.compilesWithoutError()
+            generateCode(invocation, scope, nullableType)
+        }
     }
 
-    private fun generateCode(invocation: TestInvocation, boxed: Boolean) {
-        val typeMirror = if (boxed) input.getBoxedTypeMirror(invocation.processingEnv)
-        else input.getTypeMirror(invocation.processingEnv)
+    private fun generateCode(invocation: XTestInvocation, scope: CodeGenScope, type: XType) {
+        if (invocation.processingEnv.findTypeElement("foo.bar.OutClass") != null) {
+            // guard against multi round
+            return
+        }
         val spec = TypeSpec.classBuilder("OutClass")
             .addField(FieldSpec.builder(SQLITE_STMT, "st").build())
             .addField(FieldSpec.builder(CURSOR, "crs").build())
-            .addField(FieldSpec.builder(typeMirror.typeName, "out").build())
-            .addField(FieldSpec.builder(typeMirror.typeName, "inp").build())
+            .addField(FieldSpec.builder(type.typeName, "out").build())
+            .addField(FieldSpec.builder(type.typeName, "inp").build())
             .addMethod(
                 MethodSpec.methodBuilder("foo")
                     .addCode(scope.builder().build())
@@ -160,25 +209,72 @@ class BasicColumnTypeAdaptersTest(
 
     @Test
     fun read() {
-        simpleRun { invocation ->
+        runProcessorTest { invocation ->
+            val scope = testCodeGenScope()
+            val type = invocation.processingEnv.requireType(input)
             val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
-                .findColumnTypeAdapter(input.getTypeMirror(invocation.processingEnv), null)!!
+                .findColumnTypeAdapter(
+                    out = type,
+                    affinity = null,
+                    skipEnumConverter = false
+                )!!
+            val expected = if (input.isAlwaysCheckedForNull()) {
+                """
+                if (crs.isNull(9)) {
+                  out = null;
+                } else {
+                  $cursorCode
+                }
+                """.trimIndent()
+            } else {
+                cursorCode
+            }
             adapter.readFromCursor("out", "crs", "9", scope)
-            assertThat(scope.generate().toString().trim(), `is`(cursorCode))
-            generateCode(invocation, false)
-        }.compilesWithoutError()
+            assertThat(scope.generate().toString().trim(), `is`(expected))
+            generateCode(invocation, scope, type)
+        }
     }
 
     @Test
     fun readBoxed() {
-        if (!input.typeName.isPrimitive) {
-            return // no-op for those
-        }
-        simpleRun { invocation ->
+        runProcessorTest { invocation ->
+            val scope = testCodeGenScope()
+            val boxedType = invocation.processingEnv.requireType(input).boxed()
             val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
                 .findColumnTypeAdapter(
-                    input.getBoxedTypeMirror(invocation.processingEnv), null
+                    out = boxedType,
+                    affinity = null,
+                    skipEnumConverter = false
                 )!!
+            adapter.readFromCursor("out", "crs", "9", scope)
+            val expected = if (invocation.isKsp && !input.isAlwaysCheckedForNull()) {
+                cursorCode
+            } else {
+                """
+                if (crs.isNull(9)) {
+                  out = null;
+                } else {
+                  $cursorCode
+                }
+                """.trimIndent()
+            }
+            assertThat(
+                scope.generate().toString().trim(),
+                `is`(
+                    expected
+                )
+            )
+            generateCode(invocation, scope, boxedType)
+        }
+    }
+
+    @Test
+    fun readNullable() {
+        runProcessorTest { invocation ->
+            val scope = testCodeGenScope()
+            val nullableType = invocation.processingEnv.requireType(input).makeNullable()
+            val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
+                .findColumnTypeAdapter(nullableType, null, false)!!
             adapter.readFromCursor("out", "crs", "9", scope)
             assertThat(
                 scope.generate().toString().trim(),
@@ -192,17 +288,14 @@ class BasicColumnTypeAdaptersTest(
                     """.trimIndent()
                 )
             )
-            generateCode(invocation, true)
-        }.compilesWithoutError()
-    }
-
-    data class Input(val typeName: TypeName) {
-        fun getTypeMirror(processingEnv: XProcessingEnv): XType {
-            return processingEnv.requireType(typeName)
-        }
-
-        fun getBoxedTypeMirror(processingEnv: XProcessingEnv): XType {
-            return getTypeMirror(processingEnv).boxed()
+            generateCode(invocation, scope, nullableType)
         }
     }
+
+    /*
+     * KSP knows when a boxed primitive type is non-null but for declared types (e.g. String) we
+     * still generate code that checks for null. If we start accounting for the nullability in
+     * the generated code for declared types, this function should be removed from this test.
+     */
+    private fun TypeName.isAlwaysCheckedForNull() = !this.isPrimitive
 }

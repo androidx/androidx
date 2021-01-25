@@ -19,6 +19,7 @@ package androidx.benchmark.macro
 import android.os.Build
 import android.util.Log
 import androidx.benchmark.perfetto.PerfettoCapture
+import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.perfetto.destinationPath
 import androidx.benchmark.perfetto.reportAdditionalFileToCopy
 
@@ -27,14 +28,26 @@ import androidx.benchmark.perfetto.reportAdditionalFileToCopy
  */
 class PerfettoCaptureWrapper {
     private var capture: PerfettoCapture? = null
-
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             capture = PerfettoCapture()
         }
     }
 
-    fun start(): Boolean {
+    fun <T> captureTrace(
+        benchmarkName: String,
+        iteration: Int,
+        block: (String) -> T
+    ): T {
+        try {
+            start()
+            return block(PerfettoHelper.getPerfettoTmpOutputFilePath())
+        } finally {
+            stop(benchmarkName, iteration)
+        }
+    }
+
+    private fun start(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             Log.d(TAG, "Recording perfetto trace")
             capture?.start()
@@ -42,19 +55,14 @@ class PerfettoCaptureWrapper {
         return true
     }
 
-    fun stop(benchmarkName: String, iteration: Int): Boolean {
+    private fun stop(benchmarkName: String, iteration: Int): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val iterString = iteration.toString().padStart(3, '0')
             val traceName = "${benchmarkName}_iter$iterString.trace"
-
             val destination = destinationPath(traceName).absolutePath
             capture?.stop(destination)
             reportAdditionalFileToCopy("perfetto_trace_$iterString", destination)
         }
         return true
-    }
-
-    companion object {
-        private const val TAG = "PerfettoCollector"
     }
 }

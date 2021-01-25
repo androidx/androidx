@@ -21,7 +21,7 @@ import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestMetadata
-import androidx.camera.camera2.pipe.impl.Log
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.impl.CAMERAX_TAG_BUNDLE
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState
 import androidx.camera.core.impl.CameraCaptureMetaData.AfMode

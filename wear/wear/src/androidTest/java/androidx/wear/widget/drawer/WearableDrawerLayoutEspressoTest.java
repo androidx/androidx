@@ -701,6 +701,7 @@ public class WearableDrawerLayoutEspressoTest {
      * Returns the first child of {@code root} to be an instance of class {@code T}, or {@code null}
      * if none were found.
      */
+    @SuppressWarnings("unchecked")
     @Nullable
     private <T> T getChildByType(View root, Class<T> classOfChildToFind) {
         for (View child : TreeIterables.breadthFirstViewTraversal(root)) {

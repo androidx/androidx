@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.core.Debug
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -32,7 +33,7 @@ import javax.inject.Singleton
  * without restarting the application process.
  */
 @Singleton
-class Permissions @Inject constructor(private val context: Context) {
+internal class Permissions @Inject constructor(private val context: Context) {
     @Volatile
     private var _hasCameraPermission = false
     val hasCameraPermission: Boolean

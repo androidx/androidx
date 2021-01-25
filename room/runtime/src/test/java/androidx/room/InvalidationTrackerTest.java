@@ -427,6 +427,7 @@ public class InvalidationTrackerTest {
         assertThat(observer.getInvalidatedTables(), hasItem("a"));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void failFastCreateLiveData() {
         // assert that sending a bad createLiveData table name fails instantly

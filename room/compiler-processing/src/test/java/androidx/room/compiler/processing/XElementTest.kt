@@ -35,6 +35,29 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class XElementTest {
     @Test
+    fun kotlinAnnotationModifierrs() {
+        val src = Source.kotlin(
+            "Subject.kt",
+            """
+            object Subject {
+                @Transient val transientProp:Int = 0
+                @JvmStatic val staticProp:Int = 0
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(sources = listOf(src)) { invocation ->
+            invocation.processingEnv.requireTypeElement("Subject").let {
+                assertThat(
+                    it.getField("transientProp").isTransient()
+                ).isTrue()
+                assertThat(
+                    it.getField("staticProp").isStatic()
+                ).isTrue()
+            }
+        }
+    }
+
+    @Test
     fun modifiers() {
         runProcessorTest(
             listOf(
@@ -290,15 +313,15 @@ class XElementTest {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             assertThat(element.isInterface()).isFalse()
             assertThat(element.isAbstract()).isFalse()
-            assertThat(element.isType()).isTrue()
+            assertThat(element.isTypeElement()).isTrue()
             element.getField("field").let { field ->
-                assertThat(field.isType()).isFalse()
+                assertThat(field.isTypeElement()).isFalse()
                 assertThat(field.isAbstract()).isFalse()
                 assertThat(field.isVariableElement()).isTrue()
                 assertThat(field.isMethod()).isFalse()
             }
             element.getMethod("method").let { method ->
-                assertThat(method.isType()).isFalse()
+                assertThat(method.isTypeElement()).isFalse()
                 assertThat(method.isAbstract()).isFalse()
                 assertThat(method.isVariableElement()).isFalse()
                 assertThat(method.isMethod()).isTrue()
@@ -323,10 +346,7 @@ class XElementTest {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             element.getField("x").let { field ->
                 assertThat(field.isStatic()).isTrue()
-                val fail = runCatching {
-                    field.asTypeElement()
-                }
-                assertThat(fail.exceptionOrNull()).isNotNull()
+                assertThat(field.isTypeElement()).isFalse()
             }
         }
     }

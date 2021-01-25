@@ -50,12 +50,15 @@ public enum class LayerMode {
     DRAW,
 
     /**
-     * This layer should be rendered with highlighting (used by the editor) using
-     * [RenderParameters.highlightTint]. See also
-     * [RenderParameters.highlightedComplicationId] for use in combination with
+     * Used by editors, this layer should be rendered with a outline or similar graphical
+     * highlighting with [RenderParameters.outlineTint]. See also
+     * [RenderParameters.selectedComplicationId] for use in combination with
      * [Layer.COMPLICATIONS].
+     *
+     * Note a highlight for background complications won't be drawn since this would typically be
+     * off screen.
      */
-    DRAW_HIGHLIGHTED,
+    DRAW_OUTLINED,
 
     /** This layer should not be drawn. */
     HIDE
@@ -74,17 +77,16 @@ public class RenderParameters constructor(
     public val layerParameters: Map<Layer, LayerMode>,
 
     /**
-     * Optional parameter which non null specifies that a particular complication, rather than all
-     * complications, should be highlighted when [Layer.COMPLICATIONS] is
-     * [LayerMode.DRAW_HIGHLIGHTED].
+     * Optional parameter which if non null specifies that a particular complication should be
+     * drawn with a special highlight to indicate it's been selected.
      */
     @SuppressWarnings("AutoBoxing")
     @get:SuppressWarnings("AutoBoxing")
-    public val highlightedComplicationId: Int?,
+    public val selectedComplicationId: Int?,
 
-    /** Specifies the tint should be used for highlights. */
+    /** Specifies the tint should be used when outlined. */
     @ColorInt
-    public val highlightTint: Int
+    public val outlineTint: Int
 ) {
     public companion object {
         /** A layerParameters map where all Layers have [LayerMode.DRAW]. */
@@ -106,8 +108,8 @@ public class RenderParameters constructor(
             { Layer.values()[it.layer] },
             { LayerMode.values()[it.layerMode] }
         ),
-        wireFormat.highlightedComplicationId,
-        wireFormat.highlightTint
+        wireFormat.selectedComplicationId,
+        wireFormat.outlineTint
     )
 
     /** @hide */
@@ -120,7 +122,7 @@ public class RenderParameters constructor(
                 it.value.ordinal
             )
         },
-        highlightedComplicationId,
-        highlightTint
+        selectedComplicationId,
+        outlineTint
     )
 }

@@ -16,6 +16,8 @@
 
 package androidx.room.processor
 
+import androidx.room.compiler.processing.isTypeElement
+import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.parser.SqlParser
 import androidx.room.parser.expansion.ProjectionExpander
 import androidx.room.testing.TestInvocation
@@ -519,19 +521,20 @@ class ProjectionExpanderTest {
             options = listOf("-Aroom.expandProjection=true")
         ) { invocation ->
             val entities = invocation.roundEnv
-                .getElementsAnnotatedWith(androidx.room.Entity::class.java)
+                .getTypeElementsAnnotatedWith(androidx.room.Entity::class.java)
                 .map { element ->
                     TableEntityProcessor(
                         invocation.context,
-                        element.asTypeElement()
+                        element
                     ).process()
                 }
             val entityElement = invocation.roundEnv
                 .rootElements
                 .first { it.toString() == "foo.bar.User" }
+            check(entityElement.isTypeElement())
             val entity = PojoProcessor.createFor(
                 invocation.context,
-                entityElement.asTypeElement(),
+                entityElement,
                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                 parent = null
             ).process()
@@ -621,19 +624,20 @@ class ProjectionExpanderTest {
             options = listOf("-Aroom.expandProjection=true")
         ) { invocation ->
             val entities = invocation.roundEnv
-                .getElementsAnnotatedWith(androidx.room.Entity::class.java)
+                .getTypeElementsAnnotatedWith(androidx.room.Entity::class.java)
                 .map { element ->
                     TableEntityProcessor(
                         invocation.context,
-                        element.asTypeElement()
+                        element
                     ).process()
                 }
             val pojoElement = invocation.roundEnv
                 .rootElements
                 .first { it.toString() == name }
+            check(pojoElement.isTypeElement())
             val pojo = PojoProcessor.createFor(
                 invocation.context,
-                pojoElement.asTypeElement(),
+                pojoElement,
                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                 parent = null
             ).process()

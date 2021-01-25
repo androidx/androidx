@@ -41,10 +41,8 @@ public class AppManager {
     private final HostDispatcher mHostDispatcher;
 
     /**
-     * Sets the {@link SurfaceListener} to get changes and updates to the surface on which the
+     * Sets the {@link SurfaceCallback} to get changes and updates to the surface on which the
      * app can draw custom content, or {@code null} to reset the listener.
-     *
-     *
      *
      * <p>This call requires the {@code androidx.car.app.ACCESS_SURFACE}
      * permission to be declared.
@@ -59,11 +57,11 @@ public class AppManager {
      * @throws HostException     if the remote call fails.
      */
     @SuppressLint("ExecutorRegistration")
-    public void setSurfaceListener(@Nullable SurfaceListener surfaceListener) {
+    public void setSurfaceCallback(@Nullable SurfaceCallback surfaceCallback) {
         mHostDispatcher.dispatch(
                 CarContext.APP_SERVICE,
                 (IAppHost host) -> {
-                    host.setSurfaceListener(RemoteUtils.stubSurfaceListener(surfaceListener));
+                    host.setSurfaceCallback(RemoteUtils.stubSurfaceCallback(surfaceCallback));
                     return null;
                 },
                 "setSurfaceListener");
@@ -116,41 +114,45 @@ public class AppManager {
         return new AppManager(carContext, hostDispatcher);
     }
 
+    // Strictly to avoid synthetic accessor.
+    @NonNull
+    CarContext getCarContext() {
+        return mCarContext;
+    }
+
     /** @hide */
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
     protected AppManager(@NonNull CarContext carContext, @NonNull HostDispatcher hostDispatcher) {
         this.mCarContext = carContext;
         this.mHostDispatcher = hostDispatcher;
-        mAppManager =
-                new IAppManager.Stub() {
-                    @Override
-                    public void getTemplate(IOnDoneCallback callback) {
-                        ThreadUtils.runOnMain(
-                                () -> {
-                                    TemplateWrapper templateWrapper;
-                                    try {
-                                        templateWrapper =
-                                                AppManager.this
-                                                        .mCarContext
-                                                        .getCarService(ScreenManager.class)
-                                                        .getTopTemplate();
-                                    } catch (RuntimeException e) {
-                                        RemoteUtils.sendFailureResponse(callback,
-                                                "getTemplate", e);
-                                        throw new WrappedRuntimeException(e);
-                                    }
+        mAppManager = new IAppManager.Stub() {
+            @Override
+            public void getTemplate(IOnDoneCallback callback) {
+                ThreadUtils.runOnMain(
+                        () -> {
+                            TemplateWrapper templateWrapper;
+                            try {
+                                templateWrapper = getCarContext().getCarService(
+                                        ScreenManager.class).getTopTemplate();
+                            } catch (RuntimeException e) {
+                                // Catch exceptions, notify the host of it, then rethrow it.
+                                // This allows the host to log, and show an error to the user.
+                                RemoteUtils.sendFailureResponse(callback,
+                                        "getTemplate", e);
+                                throw new RuntimeException(e);
+                            }
 
-                                    RemoteUtils.sendSuccessResponse(callback, "getTemplate",
-                                            templateWrapper);
-                                });
-                    }
+                            RemoteUtils.sendSuccessResponse(callback, "getTemplate",
+                                    templateWrapper);
+                        });
+            }
 
-                    @Override
-                    public void onBackPressed(IOnDoneCallback callback) {
-                        RemoteUtils.dispatchHostCall(
-                                carContext.getOnBackPressedDispatcher()::onBackPressed, callback,
-                                "onBackPressed");
-                    }
-                };
+            @Override
+            public void onBackPressed(IOnDoneCallback callback) {
+                RemoteUtils.dispatchHostCall(
+                        carContext.getOnBackPressedDispatcher()::onBackPressed, callback,
+                        "onBackPressed");
+            }
+        };
     }
 }

@@ -29,26 +29,20 @@ import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
-import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.runningReduce
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -73,8 +67,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val hintChannel = BroadcastChannel<ViewportHint>(CONFLATED)
+    private val hintSharedFlow = MutableSharedFlow<ViewportHint>(replay = 1)
     private var lastHint: ViewportHint.Access? = null
 
     private val pageEventChCollected = AtomicBoolean(false)
@@ -83,7 +76,6 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
     private val pageEventChannelFlowJob = Job()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     val pageEventFlow: Flow<PageEvent<Value>> = cancelableChannelFlow(pageEventChannelFlowJob) {
         check(pageEventChCollected.compareAndSet(false, true)) {
             "Attempt to collect twice from pageEventFlow, which is an illegal operation. Did you " +
@@ -184,8 +176,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     "Cannot retry APPEND / PREPEND load on PagingSource without ViewportHint"
                 }
 
-                @OptIn(ExperimentalCoroutinesApi::class)
-                hintChannel.offer(viewportHint)
+                hintSharedFlow.tryEmit(viewportHint)
             }
         }
     }
@@ -195,8 +186,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             lastHint = viewportHint
         }
 
-        @OptIn(ExperimentalCoroutinesApi::class)
-        hintChannel.offer(viewportHint)
+        hintSharedFlow.tryEmit(viewportHint)
     }
 
     fun close() {
@@ -216,12 +206,11 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     private fun CoroutineScope.startConsumingHints() {
         // Pseudo-tiling via invalidation on jumps.
         if (config.jumpThreshold != COUNT_UNDEFINED) {
             launch {
-                hintChannel.asFlow()
+                hintSharedFlow
                     .filter { hint ->
                         hint.presentedItemsBefore * -1 > config.jumpThreshold ||
                             hint.presentedItemsAfter * -1 > config.jumpThreshold
@@ -243,15 +232,14 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
     /**
      * Maps a [Flow] of generation ids from [PageFetcherSnapshotState] to [ViewportHint]s from
-     * [hintChannel] with back-pressure handling via conflation by prioritizing hints which
+     * [hintSharedFlow] with back-pressure handling via conflation by prioritizing hints which
      * either update presenter state or those that would load the most items.
      *
      * @param loadType [PREPEND] or [APPEND]
      */
-    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun Flow<Int>.collectAsGenerationalViewportHints(
         loadType: LoadType
-    ) = flatMapLatest { generationId ->
+    ) = simpleFlatMapLatest { generationId ->
         // Reset state to Idle and setup a new flow for consuming incoming load hints.
         // Subsequent generationIds are normally triggered by cancellation.
         stateHolder.withLock { state ->
@@ -259,20 +247,19 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             // direction. In the case of the terminal page getting dropped, a new
             // generationId will be sent after load state is updated to Idle.
             if (state.sourceLoadStates.get(loadType) == NotLoading.Complete) {
-                return@flatMapLatest flowOf()
+                return@simpleFlatMapLatest flowOf()
             } else if (state.sourceLoadStates.get(loadType) !is Error) {
                 state.setSourceLoadState(loadType, NotLoading.Incomplete)
             }
         }
 
-        @OptIn(FlowPreview::class)
-        hintChannel.asFlow()
+        hintSharedFlow
             // Prevent infinite loop when competing PREPEND / APPEND cancel each other
             .drop(if (generationId == 0) 0 else 1)
             .map { hint -> GenerationalViewportHint(generationId, hint) }
     }
         // Prioritize new hints that would load the maximum number of items.
-        .runningReduce { previous, next ->
+        .simpleRunningReduce { previous, next ->
             if (next.shouldPrioritizeOver(previous, loadType)) next else previous
         }
         .conflate()

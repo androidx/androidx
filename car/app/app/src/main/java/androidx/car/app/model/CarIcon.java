@@ -21,6 +21,7 @@ import static androidx.car.app.model.CarColor.DEFAULT;
 
 import static java.util.Objects.requireNonNull;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.graphics.PorterDuff.Mode;
 import android.os.Build.VERSION;
@@ -105,22 +106,19 @@ public class CarIcon {
      */
     // TODO(shiufai): investigate how to expose IntDefs if needed.
     @RestrictTo(LIBRARY)
+    @SuppressLint("UniqueConstants") // TYPE_APP will be removed in a follow-up change.
     @IntDef(
             value = {
                     TYPE_CUSTOM,
                     TYPE_BACK,
                     TYPE_ALERT,
                     TYPE_APP,
+                    TYPE_APP_ICON,
                     TYPE_ERROR,
             })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CarIconType {
     }
-
-    /**
-     * An unknown icon type.
-     */
-    public static final int TYPE_UNKNOWN = 0;
 
     /**
      * A custom, non-standard, app-defined icon.
@@ -145,8 +143,18 @@ public class CarIcon {
      * The app's icon.
      *
      * @see #APP_ICON
+     * @deprecated use {@link #TYPE_APP_ICON} instead.
      */
+    // TODO(b/176937077): remove after the host references TYPE_APP_ICON.
+    @Deprecated
     public static final int TYPE_APP = 5;
+
+    /**
+     * The app's icon.
+     *
+     * @see #APP_ICON
+     */
+    public static final int TYPE_APP_ICON = 5;
 
     /**
      * An error icon.
@@ -160,7 +168,7 @@ public class CarIcon {
      * attribute of the {@code application} element.
      */
     @NonNull
-    public static final CarIcon APP_ICON = CarIcon.forStandardType(TYPE_APP);
+    public static final CarIcon APP_ICON = CarIcon.forStandardType(TYPE_APP_ICON);
 
     @NonNull
     public static final CarIcon BACK = CarIcon.forStandardType(TYPE_BACK);
@@ -204,7 +212,10 @@ public class CarIcon {
     /**
      * Returns a {@link Builder} instance configured with the same data as this {@link CarIcon}
      * instance.
+     * @deprecated use constructor.
      */
+    // TODO(b/177484889): remove once host is changed to use new public ctor.
+    @Deprecated
     @NonNull
     public Builder newBuilder() {
         return new Builder(this);
@@ -233,22 +244,11 @@ public class CarIcon {
      * @throws IllegalArgumentException if {@code icon}'s URI scheme is not supported.
      * @throws NullPointerException     if {@code icon} is {@code null}.
      */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder(@NonNull IconCompat icon) {
         return new Builder(
                 CarIconConstraints.UNCONSTRAINED.checkSupportedIcon(requireNonNull(icon)));
-    }
-
-    /**
-     * Returns a {@link CarIcon} instance wrapping the given {@link IconCompat}.
-     *
-     * @throws IllegalArgumentException if {@code icon}'s type is not supported.
-     * @throws NullPointerException     if {@code icon} is {@code null}.
-     * @see #builder(IconCompat)
-     */
-    @NonNull
-    public static CarIcon of(@NonNull IconCompat icon) {
-        return builder(requireNonNull(icon)).setTint(null).build();
     }
 
     @Override
@@ -329,7 +329,7 @@ public class CarIcon {
         switch (type) {
             case TYPE_ALERT:
                 return "ALERT";
-            case TYPE_APP:
+            case TYPE_APP_ICON:
                 return "APP";
             case TYPE_ERROR:
                 return "ERROR";
@@ -342,7 +342,7 @@ public class CarIcon {
         }
     }
 
-    private CarIcon(@Nullable IconCompat icon, @Nullable CarColor tint, @CarIconType int type) {
+    CarIcon(@Nullable IconCompat icon, @Nullable CarColor tint, @CarIconType int type) {
         this.mType = type;
         this.mIcon = icon;
         this.mTint = tint;
@@ -350,7 +350,7 @@ public class CarIcon {
 
     /** Constructs an empty instance, used by serialization code. */
     private CarIcon() {
-        this.mType = TYPE_UNKNOWN;
+        this.mType = TYPE_CUSTOM;
         this.mIcon = null;
         this.mTint = null;
     }
@@ -363,20 +363,6 @@ public class CarIcon {
         private CarColor mTint;
         @CarIconType
         private int mType;
-
-        /**
-         * Configures the builder with the same icon and tint as the given {@link CarIcon}.
-         *
-         * @throws NullPointerException if {@code carIcon} is {@code null}.
-         */
-        @NonNull
-        public Builder setIcon(@NonNull CarIcon carIcon) {
-            requireNonNull(carIcon);
-            mIcon = carIcon.getIcon();
-            mTint = carIcon.getTint();
-            mType = carIcon.getType();
-            return this;
-        }
 
         /**
          * Sets the tint of the icon to the given {@link CarColor}.
@@ -413,13 +399,45 @@ public class CarIcon {
             return new CarIcon(mIcon, mTint, mType);
         }
 
-        private Builder(@NonNull IconCompat icon) {
+        /**
+         * Creates a {@link Builder} instance using the given {@link IconCompat}.
+         *
+         * <p>The following types are supported:
+         *
+         * <ul>
+         *   <li>{@link IconCompat#TYPE_BITMAP}
+         *   <li>{@link IconCompat#TYPE_RESOURCE}
+         *   <li>{@link IconCompat#TYPE_URI}
+         * </ul>
+         *
+         * <p>{@link IconCompat#TYPE_URI} is only supported in templates that explicitly allow it
+         * . In
+         * those cases, the appropriate APIs will be documented to indicate this.
+         *
+         * <p>For {@link IconCompat#TYPE_URI}, the URI's scheme must be {@link
+         * ContentResolver#SCHEME_CONTENT}.
+         *
+         * <p>If the icon image is loaded from URI, it may be cached on the host side. Changing the
+         * contents of the URI will result in the host showing a stale image.
+         *
+         * @throws IllegalArgumentException if {@code icon}'s URI scheme is not supported.
+         * @throws NullPointerException     if {@code icon} is {@code null}.
+         */
+        public Builder(@NonNull IconCompat icon) {
+            CarIconConstraints.UNCONSTRAINED.checkSupportedIcon(requireNonNull(icon));
             mType = TYPE_CUSTOM;
-            this.mIcon = icon;
+            mIcon = icon;
             mTint = null;
         }
 
-        private Builder(@NonNull CarIcon carIcon) {
+        /**
+         * Returns a {@link Builder} instance configured with the same data as the given
+         * {@link CarIcon} instance.
+         *
+         * @throws NullPointerException if {@code icon} is {@code null}.
+         */
+        public Builder(@NonNull CarIcon carIcon) {
+            requireNonNull(carIcon);
             mType = carIcon.getType();
             mIcon = carIcon.getIcon();
             mTint = carIcon.getTint();

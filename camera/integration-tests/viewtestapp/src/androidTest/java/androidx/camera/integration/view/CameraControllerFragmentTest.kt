@@ -77,13 +77,16 @@ class CameraControllerFragmentTest {
 
         // The minimum luminance for comparing pictures. Arbitrarily chosen.
         private const val MIN_LUMINANCE = 50F
+
+        @JvmField
+        val testCameraRule = CameraUtil.PreTestCamera()
     }
 
     @get:Rule
     val thrown: ExpectedException = ExpectedException.none()
 
     @get:Rule
-    val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest(testCameraRule)
 
     @get:Rule
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(

@@ -30,13 +30,14 @@ import dagger.hilt.GeneratesRootInput;
  * with {@code ViewModelInject} will have its dependencies defined in the constructor parameters
  * injected by Dagger's Hilt. The {@code ViewModel} will be available for creation by the
  * {@link androidx.hilt.lifecycle.HiltViewModelFactory} and can be retrieved by default in an {@code
- * Activity} or {@code Fragment} annotated with {@link dagger.hilt.android.AndroidEntryPoint}.
+ * Activity} or {@code Fragment} annotated with
+ * <a href="https://dagger.dev/api/latest/dagger/hilt/android/AndroidEntryPoint">AndroidEntryPoint</a>.
  * <p>
  * Example:
  * <pre>
  * public class DonutViewModel extends ViewModel {
  *     &#64;ViewModelInject
- *     public DonutViewModel(SavedStateHandle handle, RecipeRepository repository) {
+ *     public DonutViewModel(&#64;Assisted SavedStateHandle handle, RecipeRepository repository) {
  *         // ...
  *     }
  * }
@@ -50,16 +51,22 @@ import dagger.hilt.GeneratesRootInput;
  * }
  * </pre>
  * <p>
- * Only one constructor in the {@code ViewModel} must be annotated with {@code ViewModelInject}.
+ * Only one constructor in the {@code ViewModel} must be annotated with {@code ViewModelInject}. The
+ * constructor can optionally define a {@link androidx.hilt.Assisted}-annotated
+ * {@link androidx.lifecycle.SavedStateHandle} parameter along with any other dependency. The
+ * {@code SavedStateHandle} must not be a type param of {@link javax.inject.Provider} nor
+ * <a href="https://dagger.dev/api/latest/dagger/Lazy">Lazy</a> and must not be qualified.
  * <p>
- * Only dependencies available in the {@link androidx.hilt.lifecycle.ViewModelComponent} can be
- * injected into the {@code ViewModel}.
- * <p>
+ * Only dependencies available in the
+ * <a href="https://dagger.dev/api/latest/dagger/hilt/components/ActivityRetainedComponent">ActivityRetainedComponent</a>
+ * can be injected into the {@code ViewModel}.
  *
- * @see androidx.hilt.lifecycle.ViewModelComponent
+ * @deprecated Use
+ * <a href="https://dagger.dev/api/latest/dagger/hilt/android/lifecycle/HiltViewModel">HiltViewModel</a>.
  */
 @Target(ElementType.CONSTRUCTOR)
 @Retention(RetentionPolicy.CLASS)
 @GeneratesRootInput
+@Deprecated
 public @interface ViewModelInject {
 }

@@ -29,6 +29,9 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 public class UserStyle(
     public val selectedOptions: Map<UserStyleSetting, UserStyleSetting.Option>
 ) {
+    /** Constructs a UserStyle with a deep copy of the [selectedOptions]. */
+    public constructor(userStyle: UserStyle) : this(HashMap(userStyle.selectedOptions))
+
     /**
      * Constructs a [UserStyle] from a Map<String, String> and the [UserStyleSchema]. Unrecognized
      * style settings will be ignored. Unlisted style settings will be initialized with that
@@ -108,6 +111,8 @@ public class UserStyleRepository(
 
     private val styleListeners = HashSet<UserStyleListener>()
 
+    private val idToStyleSetting = schema.userStyleSettings.associateBy { it.id }
+
     /**
      * The current [UserStyle]. Assigning to this property triggers immediate [UserStyleListener]
      * callbacks if if any options have changed.
@@ -128,11 +133,12 @@ public class UserStyleRepository(
                 field.selectedOptions as HashMap<UserStyleSetting, UserStyleSetting.Option>
             for ((setting, option) in style.selectedOptions) {
                 // Ignore an unrecognized setting.
-                val styleSetting = field.selectedOptions[setting] ?: continue
+                val localSetting = idToStyleSetting[setting.id] ?: continue
+                val styleSetting = field.selectedOptions[localSetting] ?: continue
                 if (styleSetting.id != option.id) {
                     changed = true
                 }
-                hashmap[setting] = option
+                hashmap[localSetting] = option
             }
 
             if (!changed) {

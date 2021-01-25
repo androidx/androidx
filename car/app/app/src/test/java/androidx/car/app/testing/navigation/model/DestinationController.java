@@ -19,8 +19,6 @@ package androidx.car.app.testing.navigation.model;
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.NonNull;
-import androidx.car.app.model.LatLng;
-import androidx.car.app.model.Place;
 import androidx.car.app.navigation.model.Destination;
 import androidx.car.app.testing.model.ControllerUtil;
 
@@ -45,7 +43,7 @@ public class DestinationController {
 
     /**
      * Retrieves the name that was set in the {@link Destination} being controlled via {@link
-     * Destination.Builder#setName} or {@link Place#builder(LatLng)}.
+     * Destination.Builder#setName}.
      *
      * <p>The value returned is the {@link CharSequence#toString} for the name provided.
      */

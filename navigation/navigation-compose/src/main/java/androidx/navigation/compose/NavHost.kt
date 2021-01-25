@@ -19,8 +19,8 @@ package androidx.navigation.compose
 import android.content.ContextWrapper
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Providers
-import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.savedinstancestate.ExperimentalRestorableStateHolder
 import androidx.compose.runtime.savedinstancestate.RestorableStateHolder
@@ -89,7 +89,7 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
 
     // on successful recompose we setup the navController with proper inputs
     // after the first time, this will only happen again if one of the inputs changes
-    onCommit(navController, lifecycleOwner, viewModelStore) {
+    DisposableEffect(navController, lifecycleOwner, viewModelStore) {
         navController.setLifecycleOwner(lifecycleOwner)
         navController.setViewModelStore(viewModelStore)
 
@@ -103,10 +103,12 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
             }
             context = (context as ContextWrapper).baseContext
         }
+        onDispose { }
     }
 
-    onCommit(rememberedGraph) {
+    DisposableEffect(rememberedGraph) {
         navController.graph = rememberedGraph
+        onDispose { }
     }
 
     val restorableStateHolder = rememberRestorableStateHolder<UUID>()

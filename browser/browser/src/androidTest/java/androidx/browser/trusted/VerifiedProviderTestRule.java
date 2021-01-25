@@ -18,8 +18,6 @@ package androidx.browser.trusted;
 
 import android.content.Context;
 
-import androidx.test.InstrumentationRegistry;
-
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
@@ -46,8 +44,9 @@ public class VerifiedProviderTestRule extends TestWatcher {
         set(false);
     }
 
+    @SuppressWarnings("deprecation")
     private void set(boolean enabled) {
-        Context context = InstrumentationRegistry.getContext();
+        Context context = androidx.test.InstrumentationRegistry.getContext();
         TestTrustedWebActivityService.setVerifiedProvider(enabled
                 ? Token.create(context.getPackageName(), context.getPackageManager())
                 : null);

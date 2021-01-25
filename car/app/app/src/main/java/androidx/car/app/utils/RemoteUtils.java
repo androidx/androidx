@@ -30,11 +30,10 @@ import androidx.annotation.RestrictTo;
 import androidx.car.app.FailureResponse;
 import androidx.car.app.HostException;
 import androidx.car.app.IOnDoneCallback;
-import androidx.car.app.ISurfaceListener;
+import androidx.car.app.ISurfaceCallback;
 import androidx.car.app.OnDoneCallback;
+import androidx.car.app.SurfaceCallback;
 import androidx.car.app.SurfaceContainer;
-import androidx.car.app.SurfaceListener;
-import androidx.car.app.WrappedRuntimeException;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 
@@ -84,33 +83,33 @@ public final class RemoteUtils {
     }
 
     /**
-     * Returns an {@link ISurfaceListener} stub that invokes the given {@link SurfaceListener},
+     * Returns an {@link ISurfaceCallback} stub that invokes the given {@link SurfaceCallback},
      * if it is not {@code null}, otherwise returns {@code null}.
      */
     @Nullable
-    public static ISurfaceListener stubSurfaceListener(@Nullable SurfaceListener surfaceListener) {
-        if (surfaceListener == null) {
+    public static ISurfaceCallback stubSurfaceCallback(@Nullable SurfaceCallback surfaceCallback) {
+        if (surfaceCallback == null) {
             return null;
         }
 
-        return new SurfaceListenerStub(surfaceListener);
+        return new SurfaceCallbackStub(surfaceCallback);
     }
 
     private RemoteUtils() {
     }
 
-    private static class SurfaceListenerStub extends ISurfaceListener.Stub {
+    private static class SurfaceCallbackStub extends ISurfaceCallback.Stub {
 
-        private final SurfaceListener mSurfaceListener;
+        private final SurfaceCallback mSurfaceCallback;
 
-        SurfaceListenerStub(SurfaceListener surfaceListener) {
-            this.mSurfaceListener = surfaceListener;
+        SurfaceCallbackStub(SurfaceCallback surfaceCallback) {
+            this.mSurfaceCallback = surfaceCallback;
         }
 
         @Override
         public void onSurfaceAvailable(Bundleable surfaceContainer, IOnDoneCallback callback) {
             dispatchHostCall(
-                    () -> mSurfaceListener.onSurfaceAvailable(
+                    () -> mSurfaceCallback.onSurfaceAvailable(
                             (SurfaceContainer) surfaceContainer.get()),
                     callback,
                     "onSurfaceAvailable");
@@ -119,7 +118,7 @@ public final class RemoteUtils {
         @Override
         public void onVisibleAreaChanged(Rect visibleArea, IOnDoneCallback callback) {
             dispatchHostCall(
-                    () -> mSurfaceListener.onVisibleAreaChanged(visibleArea),
+                    () -> mSurfaceCallback.onVisibleAreaChanged(visibleArea),
                     callback,
                     "onVisibleAreaChanged");
         }
@@ -127,14 +126,14 @@ public final class RemoteUtils {
         @Override
         public void onStableAreaChanged(Rect stableArea, IOnDoneCallback callback) {
             dispatchHostCall(
-                    () -> mSurfaceListener.onStableAreaChanged(stableArea), callback,
+                    () -> mSurfaceCallback.onStableAreaChanged(stableArea), callback,
                     "onStableAreaChanged");
         }
 
         @Override
         public void onSurfaceDestroyed(Bundleable surfaceContainer, IOnDoneCallback callback) {
             dispatchHostCall(
-                    () -> mSurfaceListener.onSurfaceDestroyed(
+                    () -> mSurfaceCallback.onSurfaceDestroyed(
                             (SurfaceContainer) surfaceContainer.get()),
                     callback,
                     "onSurfaceDestroyed");
@@ -150,8 +149,6 @@ public final class RemoteUtils {
      *
      * <p>If the app throws an exception, will call {@link IOnDoneCallback#onFailure} with a {@link
      * FailureResponse} including information from the caught exception.
-     *
-     * @throws WrappedRuntimeException wrapping any exception that the client throws.
      */
     // TODO(rampara): Change method signature to change parameter order.
     @SuppressLint("LambdaLast")
@@ -167,7 +164,7 @@ public final class RemoteUtils {
                         throw new HostException("Serialization failure in " + callName, e);
                     } catch (RuntimeException e) {
                         sendFailureResponse(callback, callName, e);
-                        throw new WrappedRuntimeException(e);
+                        throw new RuntimeException(e);
                     }
                     sendSuccessResponse(callback, callName, null);
                 });

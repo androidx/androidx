@@ -176,7 +176,11 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
                 }
             }
         }
-        if (removedInfo != null && mCallback != null) {
+        // Keep track of the reference and use that when cancelling Notification. This is because
+        // the work-testing library uses a direct executor and does *not* call this method
+        // on the main thread.
+        Callback callback = mCallback;
+        if (removedInfo != null && callback != null) {
             // Explicitly decrement the reference count for the notification
 
             // We are doing this without having to wait for the handleStop() to clean up
@@ -191,7 +195,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
                             workSpecId,
                             removedInfo.getForegroundServiceType())
             );
-            mCallback.cancelNotification(removedInfo.getNotificationId());
+            callback.cancelNotification(removedInfo.getNotificationId());
         }
     }
 

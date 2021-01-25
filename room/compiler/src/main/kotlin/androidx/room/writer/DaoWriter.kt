@@ -17,11 +17,12 @@
 package androidx.room.writer
 
 import androidx.room.compiler.processing.MethodSpecHelper
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.addOriginatingElement
+import androidx.room.compiler.processing.isVoid
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
@@ -43,6 +44,7 @@ import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.ShortcutEntity
 import androidx.room.vo.ShortcutMethod
 import androidx.room.vo.TransactionMethod
+import androidx.room.vo.UpdateMethod
 import androidx.room.vo.WriteQueryMethod
 import capitalize
 import com.squareup.javapoet.ClassName
@@ -72,7 +74,7 @@ class DaoWriter(
     val processingEnv: XProcessingEnv
 ) :
     ClassWriter(dao.typeName) {
-    private val declaredDao = dao.element.asDeclaredType()
+    private val declaredDao = dao.element.type
 
     companion object {
         const val GET_LIST_OF_TYPE_CONVERTERS_METHOD = "getRequiredConverters"
@@ -425,8 +427,15 @@ class DaoWriter(
             if (entities.isEmpty()) {
                 null
             } else {
+                val onConflict = if (method is UpdateMethod) {
+                    OnConflictProcessor.onConflictText(method.onConflictStrategy)
+                } else {
+                    ""
+                }
                 val fields = entities.mapValues {
-                    val spec = getOrCreateField(DeleteOrUpdateAdapterField(it.value, methodPrefix))
+                    val spec = getOrCreateField(
+                        DeleteOrUpdateAdapterField(it.value, methodPrefix, onConflict)
+                    )
                     val impl = implCallback(method, it.value)
                     spec to impl
                 }
@@ -532,7 +541,7 @@ class DaoWriter(
 
     private fun overrideWithoutAnnotations(
         elm: XMethodElement,
-        owner: XDeclaredType
+        owner: XType
     ): MethodSpec.Builder {
         return MethodSpecHelper.overridingWithFinalParams(elm, owner)
     }
@@ -576,7 +585,8 @@ class DaoWriter(
 
     class DeleteOrUpdateAdapterField(
         val shortcutEntity: ShortcutEntity,
-        val methodPrefix: String
+        val methodPrefix: String,
+        val onConflictText: String
     ) : SharedFieldSpec(
         baseName = "${methodPrefix}AdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
         type = ParameterizedTypeName.get(
@@ -588,7 +598,8 @@ class DaoWriter(
         }
 
         override fun getUniqueKey(): String {
-            return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}$methodPrefix"
+            return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}" +
+                "$methodPrefix$onConflictText"
         }
     }
 

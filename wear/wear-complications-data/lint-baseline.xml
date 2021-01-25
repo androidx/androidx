@@ -1,38 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="                return formattedDate.toUpperCase();"
-        errorLine2="                                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/wearable/complications/TimeFormatText.java"
-            line="91"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="                return formattedDate.toLowerCase();"
-        errorLine2="                                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/wearable/complications/TimeFormatText.java"
-            line="93"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="SimpleDateFormat"
-        message="To get local formatting use `getDateInstance()`, `getDateTimeInstance()`, or `getTimeInstance()`, or use `new SimpleDateFormat(String template, Locale locale)` with for example `Locale.US` for ASCII dates."
-        errorLine1="        mDateFormat = new SimpleDateFormat(format);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/wearable/complications/TimeFormatText.java"
-            line="72"
-            column="23"/>
-    </issue>
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="BanTargetApiAnnotation"
@@ -41,7 +8,7 @@
         errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/complications/ComplicationHelperActivity.java"
-            line="56"
+            line="58"
             column="1"/>
     </issue>
 

@@ -66,10 +66,8 @@ public class TripTest {
     public void createInstance() {
         Trip trip =
                 Trip.builder()
-                        .addDestination(mDestination)
-                        .addStep(mStep)
-                        .addDestinationTravelEstimate(mDestinationTravelEstimate)
-                        .addStepTravelEstimate(mStepTravelEstimate)
+                        .addDestination(mDestination, mDestinationTravelEstimate)
+                        .addStep(mStep, mStepTravelEstimate)
                         .setCurrentRoad(ROAD)
                         .setLoading(false)
                         .build();
@@ -87,30 +85,10 @@ public class TripTest {
     }
 
     @Test
-    public void getDestinationWithEstimates_mismatch_count() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> Trip.builder().addDestination(mDestination).build());
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> Trip.builder().addDestinationTravelEstimate(
-                        mDestinationTravelEstimate).build());
-    }
-
-    @Test
-    public void getStepWithEstimates_mismatch_count() {
-        assertThrows(IllegalArgumentException.class, () -> Trip.builder().addStep(mStep).build());
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> Trip.builder().addStepTravelEstimate(mStepTravelEstimate).build());
-    }
-
-    @Test
     public void createInstance_loading_no_steps() {
         Trip trip =
                 Trip.builder()
-                        .addDestination(mDestination)
-                        .addDestinationTravelEstimate(mDestinationTravelEstimate)
+                        .addDestination(mDestination, mDestinationTravelEstimate)
                         .setCurrentRoad(ROAD)
                         .setLoading(true)
                         .build();
@@ -127,18 +105,11 @@ public class TripTest {
 
     @Test
     public void createInstance_loading_with_steps() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> Trip.builder().addStep(mStep).setLoading(true).build());
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> Trip.builder().addStepTravelEstimate(mStepTravelEstimate).setLoading(
-                        true).build());
+
         assertThrows(
                 IllegalArgumentException.class,
                 () -> Trip.builder()
-                        .addStep(mStep)
-                        .addStepTravelEstimate(mStepTravelEstimate)
+                        .addStep(mStep, mStepTravelEstimate)
                         .setLoading(true)
                         .build());
     }

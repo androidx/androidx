@@ -16,7 +16,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.preference.tests">
-    <application>
+    <application
+        android:name="androidx.multidex.MultiDexApplication">
         <activity
             android:name="androidx.preference.tests.helpers.PreferenceTestHelperActivity"
             android:theme="@style/PreferenceTestTheme"/>

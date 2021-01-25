@@ -139,8 +139,8 @@ fun createExampleOpenGLWatchFaceBuilder(
     return WatchFace(
         WatchFaceType.ANALOG,
         userStyleRepository,
-        complicationsManager,
-        renderer
+        renderer,
+        complicationsManager
     ).setLegacyWatchFaceStyle(
         WatchFace.LegacyWatchFaceOverlayStyle(
             0,
@@ -583,7 +583,7 @@ class ExampleOpenGLRenderer(
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
         // Draw the complication first.
-        // TODO(alexclarke): Implement LayerMode.DRAW_HIGHLIGHTED
+        // TODO(alexclarke): Implement LayerMode.DRAW_OUTLINED
         if (renderParameters.layerParameters[Layer.COMPLICATIONS] != LayerMode.HIDE) {
             complicationTexture.renderToTexture(calendar, renderParameters)
 

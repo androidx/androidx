@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.wrapper
 
 import android.annotation.SuppressLint
 import android.graphics.SurfaceTexture
+import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
 import android.util.Size
@@ -25,11 +26,11 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.StreamType
+import androidx.camera.camera2.pipe.OutputStream.OutputType
 import androidx.camera.camera2.pipe.UnsafeWrapper
-import androidx.camera.camera2.pipe.impl.checkNOrHigher
-import androidx.camera.camera2.pipe.impl.checkOOrHigher
-import androidx.camera.camera2.pipe.impl.checkPOrHigher
+import androidx.camera.camera2.pipe.core.checkNOrHigher
+import androidx.camera.camera2.pipe.core.checkOOrHigher
+import androidx.camera.camera2.pipe.core.checkPOrHigher
 import androidx.camera.camera2.pipe.wrapper.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
 import java.util.concurrent.Executor
 
@@ -38,7 +39,7 @@ import java.util.concurrent.Executor
  * that a real instance can be constructed when creating a
  * [android.hardware.camera2.CameraCaptureSession] on newer versions of the OS.
  */
-data class SessionConfigData(
+internal data class SessionConfigData(
     val sessionType: Int,
     val inputConfiguration: InputConfigData?,
     val outputConfigurations: List<OutputConfigurationWrapper>,
@@ -46,7 +47,7 @@ data class SessionConfigData(
     val stateCallback: CameraCaptureSessionWrapper.StateCallback,
 
     val sessionTemplateId: Int,
-    val sessionParameters: Map<*, Any>
+    val sessionParameters: Map<CaptureRequest.Key<*>, Any>
 ) {
     companion object {
         /* NOTE: These must keep in sync with their SessionConfiguration values. */
@@ -60,7 +61,7 @@ data class SessionConfigData(
  * that a real instance can be constructed when creating a
  * [android.hardware.camera2.CameraCaptureSession] on newer versions of the OS.
  */
-data class InputConfigData(
+internal data class InputConfigData(
     val width: Int,
     val height: Int,
     val format: Int
@@ -75,7 +76,7 @@ data class InputConfigData(
  * [OutputConfiguration]'s are NOT immutable, and changing state of an [OutputConfiguration] may
  * require the CameraCaptureSession to be finalized or updated.
  */
-interface OutputConfigurationWrapper : UnsafeWrapper<OutputConfiguration> {
+internal interface OutputConfigurationWrapper : UnsafeWrapper<OutputConfiguration> {
     /**
      * This method will return null if the output configuration was created without a Surface,
      * and until addSurface is called for the first time.
@@ -118,7 +119,7 @@ interface OutputConfigurationWrapper : UnsafeWrapper<OutputConfiguration> {
 
 @RequiresApi(24)
 @SuppressLint("UnsafeNewApiCall")
-class AndroidOutputConfiguration(
+internal class AndroidOutputConfiguration(
     private val output: OutputConfiguration,
     override val surfaceSharing: Boolean,
     override val maxSharedSurfaceCount: Int,
@@ -132,7 +133,7 @@ class AndroidOutputConfiguration(
          */
         fun create(
             surface: Surface?,
-            streamType: StreamType = StreamType.SURFACE,
+            outputType: OutputType = OutputType.SURFACE,
             size: Size? = null,
             surfaceSharing: Boolean = false,
             surfaceGroupId: Int = SURFACE_GROUP_ID_NONE,
@@ -142,7 +143,11 @@ class AndroidOutputConfiguration(
 
             // Create the OutputConfiguration using the groupId via the constructor (if set)
             val configuration: OutputConfiguration
-            if (surface != null) {
+            if (outputType == OutputType.SURFACE) {
+                check(surface != null) {
+                    "OutputConfigurations defined with ${OutputType.SURFACE} must provide a valid" +
+                        " surface!"
+                }
                 configuration = if (surfaceGroupId != SURFACE_GROUP_ID_NONE) {
                     OutputConfiguration(surfaceGroupId, surface)
                 } else {
@@ -159,17 +164,14 @@ class AndroidOutputConfiguration(
                 check(size != null) {
                     "Size must defined when creating a deferred OutputConfiguration."
                 }
-
-                configuration = OutputConfiguration(
-                    size,
-                    when (streamType) {
-                        StreamType.SURFACE_TEXTURE -> SurfaceTexture::class.java
-                        StreamType.SURFACE_VIEW -> SurfaceHolder::class.java
-                        StreamType.SURFACE -> throw IllegalArgumentException(
-                            "StreamType.Surface is not supported for deferred OutputConfigurations"
-                        )
-                    }
-                )
+                val outputKlass = when (outputType) {
+                    OutputType.SURFACE_TEXTURE -> SurfaceTexture::class.java
+                    OutputType.SURFACE_VIEW -> SurfaceHolder::class.java
+                    OutputType.SURFACE -> throw IllegalStateException(
+                        "Unsupported OutputType: $outputType"
+                    )
+                }
+                configuration = OutputConfiguration(size, outputKlass)
             }
 
             // Enable surface sharing, if set.

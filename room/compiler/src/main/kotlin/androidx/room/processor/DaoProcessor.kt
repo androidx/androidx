@@ -24,8 +24,8 @@ import androidx.room.SkipQueryVerification
 import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.compiler.processing.XConstructorElement
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao
@@ -35,7 +35,7 @@ import androidx.room.vo.KotlinDefaultMethodDelegate
 class DaoProcessor(
     baseContext: Context,
     val element: XTypeElement,
-    val dbType: XDeclaredType,
+    val dbType: XType,
     val dbVerifier: DatabaseVerifier?
 ) {
     val context = baseContext.fork(element)
@@ -57,7 +57,7 @@ class DaoProcessor(
             element, ProcessorErrors.DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE
         )
 
-        val declaredType = element.asDeclaredType()
+        val declaredType = element.type
         val allMethods = element.getAllMethods()
         val methods = allMethods
             .filter {

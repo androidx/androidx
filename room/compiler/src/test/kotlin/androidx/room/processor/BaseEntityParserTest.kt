@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import androidx.annotation.NonNull
 import androidx.room.Embedded
+import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.Entity
@@ -89,13 +90,13 @@ abstract class BaseEntityParserTest {
                     )
                     .nextRunHandler { invocation ->
                         val entity = invocation.roundEnv
-                            .getElementsAnnotatedWith(
+                            .getTypeElementsAnnotatedWith(
                                 androidx.room.Entity::class.java
                             )
                             .first { it.toString() == "foo.bar.MyEntity" }
                         val parser = TableEntityProcessor(
                             invocation.context,
-                            entity.asTypeElement()
+                            entity
                         )
                         val parsedQuery = parser.process()
                         handler(parsedQuery, invocation)

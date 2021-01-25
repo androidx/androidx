@@ -69,7 +69,6 @@ public final class Action {
     @RestrictTo(LIBRARY)
     @IntDef(
             value = {
-                    TYPE_UNKNOWN,
                     TYPE_CUSTOM,
                     TYPE_APP_ICON,
                     TYPE_BACK,
@@ -79,11 +78,6 @@ public final class Action {
     }
 
     static final int FLAG_STANDARD = 1 << 16;
-
-    /**
-     * An unknown action type.
-     */
-    public static final int TYPE_UNKNOWN = 0;
 
     /**
      * An app-defined custom action type.
@@ -133,14 +127,19 @@ public final class Action {
     private final CarIcon mIcon;
     @Keep
     private final CarColor mBackgroundColor;
+    @SuppressWarnings("deprecation")
     @Keep
     @Nullable
     private final OnClickListenerWrapper mListener;
+    @Keep
+    @Nullable
+    private final OnClickDelegate mOnClickDelegate;
     @Keep
     @ActionType
     private final int mType;
 
     /** Constructs a new builder of {@link Action}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -149,8 +148,12 @@ public final class Action {
     /**
      * Returns a {@link Builder} instance configured with the same data as this {@link Action}
      * instance.
+     *
+     * @deprecated use constructor.
      */
+    // TODO(b/177484889): remove once host is changed to use new public ctor.
     @NonNull
+    @Deprecated
     public Builder newBuilder() {
         return new Builder(this);
     }
@@ -182,21 +185,32 @@ public final class Action {
         return mBackgroundColor;
     }
 
-
     @ActionType
     public int getType() {
         return mType;
     }
 
-
     public boolean isStandard() {
         return isStandardActionType(mType);
     }
 
-
+    /**
+     * @deprecated use {@link #getOnClickDelegate} instead.
+     */
+    // TODO(b/177591476): remove after host references have been cleaned up.
+    @SuppressWarnings("deprecation")
+    @Deprecated
     @Nullable
     public OnClickListenerWrapper getOnClickListener() {
         return mListener;
+    }
+
+    /**
+     * Returns the {@link OnClickDelegate} that should be used for this action.
+     */
+    @Nullable
+    public OnClickDelegate getOnClickDelegate() {
+        return mOnClickDelegate;
     }
 
     @Override
@@ -237,20 +251,17 @@ public final class Action {
         // The listeners can be set, for actions that support it, by copying the standard action
         // instance with the newBuilder and setting it.
         mListener = null;
-        this.mType = type;
+        mOnClickDelegate = null;
+        mType = type;
     }
 
-    private Action(
-            @Nullable CarText title,
-            @Nullable CarIcon icon,
-            CarColor backgroundColor,
-            @Nullable OnClickListenerWrapper listener,
-            @ActionType int type) {
-        this.mTitle = title;
-        this.mIcon = icon;
-        this.mBackgroundColor = backgroundColor;
-        this.mListener = listener;
-        this.mType = type;
+    Action(Builder builder) {
+        mTitle = builder.mTitle;
+        mIcon = builder.mIcon;
+        mBackgroundColor = builder.mBackgroundColor;
+        mListener = builder.mListener;
+        mOnClickDelegate = builder.mOnClickDelegate;
+        mType = builder.mType;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -259,12 +270,13 @@ public final class Action {
         mIcon = null;
         mBackgroundColor = DEFAULT;
         mListener = null;
-        mType = TYPE_UNKNOWN;
+        mOnClickDelegate = null;
+        mType = TYPE_CUSTOM;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mTitle, mType, mListener == null, mIcon == null);
+        return Objects.hash(mTitle, mType, mOnClickDelegate == null, mIcon == null);
     }
 
     @Override
@@ -282,24 +294,27 @@ public final class Action {
         return Objects.equals(mTitle, otherAction.mTitle)
                 && mType == otherAction.mType
                 && Objects.equals(mIcon, otherAction.mIcon)
-                && Objects.equals(mListener == null, otherAction.mListener == null);
+                && Objects.equals(mOnClickDelegate == null, otherAction.mOnClickDelegate == null);
     }
 
-    private static boolean isStandardActionType(@ActionType int type) {
+    static boolean isStandardActionType(@ActionType int type) {
         return 0 != (type & FLAG_STANDARD);
     }
 
     /** A builder of {@link Action}. */
     public static final class Builder {
         @Nullable
-        private CarText mTitle;
+        CarText mTitle;
         @Nullable
-        private CarIcon mIcon;
+        CarIcon mIcon;
+        @SuppressWarnings("deprecation")
         @Nullable
-        private OnClickListenerWrapper mListener;
-        private CarColor mBackgroundColor = DEFAULT;
+        OnClickListenerWrapper mListener;
+        @Nullable
+        OnClickDelegate mOnClickDelegate;
+        CarColor mBackgroundColor = DEFAULT;
         @ActionType
-        private int mType = TYPE_CUSTOM;
+        int mType = TYPE_CUSTOM;
 
         /**
          * Sets the title to display in the action, or {@code null} to not display a title.
@@ -346,7 +361,8 @@ public final class Action {
         @NonNull
         @SuppressLint("ExecutorRegistration")
         public Builder setOnClickListener(@Nullable OnClickListener listener) {
-            this.mListener = listener == null ? null : OnClickListenerWrapperImpl.create(listener);
+            mListener = listener == null ? null : OnClickListenerWrapperImpl.create(listener);
+            mOnClickDelegate = listener == null ? null : OnClickDelegateImpl.create(listener);
             return this;
         }
 
@@ -383,12 +399,9 @@ public final class Action {
          */
         @NonNull
         public Action build() {
-            if (mType == TYPE_UNKNOWN) {
-                throw new IllegalStateException("Missing action type");
-            }
             boolean isStandard = isStandardActionType(mType);
             if (!isStandard && mIcon == null && (mTitle == null || TextUtils.isEmpty(
-                    mTitle.getText()))) {
+                    mTitle.toString()))) {
                 throw new IllegalStateException("An action must have either an icon or a title");
             }
 
@@ -399,25 +412,34 @@ public final class Action {
                                     + "action");
                 }
 
-                if (mIcon != null || (mTitle != null && !TextUtils.isEmpty(mTitle.getText()))) {
+                if (mIcon != null || (mTitle != null && !TextUtils.isEmpty(mTitle.toString()))) {
                     throw new IllegalStateException(
                             "An icon or title can't be set on the standard back or app-icon "
                                     + "action");
                 }
             }
 
-            return new Action(mTitle, mIcon, mBackgroundColor, mListener, mType);
+            return new Action(this);
         }
 
-        private Builder() {
+        /** Creates an empty {@link Builder} instance. */
+        public Builder() {
         }
 
-        private Builder(Action action) {
-            mTitle = action.mTitle;
-            mIcon = action.mIcon;
-            mBackgroundColor = action.mBackgroundColor;
-            mListener = action.mListener;
-            mType = action.mType;
+        /**
+         * Returns a {@link Builder} instance configured with the same data as the given
+         * {@link Action} instance.
+         *
+         * @throws NullPointerException if {@code icon} is {@code null}.
+         */
+        @SuppressWarnings("deprecation")
+        Builder(@NonNull Action action) {
+            mTitle = action.getTitle();
+            mIcon = action.getIcon();
+            mBackgroundColor = action.getBackgroundColor();
+            mListener = action.getOnClickListener();
+            mOnClickDelegate = action.getOnClickDelegate();
+            mType = action.getType();
         }
     }
 }

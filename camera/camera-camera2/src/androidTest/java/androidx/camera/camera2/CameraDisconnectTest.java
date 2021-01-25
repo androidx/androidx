@@ -40,7 +40,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
 import org.junit.Before;
@@ -60,12 +59,14 @@ public class CameraDisconnectTest {
     @Rule
     public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
 
+    @SuppressWarnings("deprecation")
     @Rule
-    public ActivityTestRule<CameraXTestActivity> mCameraXTestActivityRule =
-            new ActivityTestRule<>(CameraXTestActivity.class, true, false);
+    public androidx.test.rule.ActivityTestRule<CameraXTestActivity> mCameraXTestActivityRule =
+            new androidx.test.rule.ActivityTestRule<>(CameraXTestActivity.class, true, false);
+    @SuppressWarnings("deprecation")
     @Rule
-    public ActivityTestRule<Camera2TestActivity> mCamera2ActivityRule =
-            new ActivityTestRule<>(Camera2TestActivity.class, true, false);
+    public androidx.test.rule.ActivityTestRule<Camera2TestActivity> mCamera2ActivityRule =
+            new androidx.test.rule.ActivityTestRule<>(Camera2TestActivity.class, true, false);
 
     private CameraXTestActivity mCameraXTestActivity;
 

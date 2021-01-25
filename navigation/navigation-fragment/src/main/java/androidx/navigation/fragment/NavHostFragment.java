@@ -31,6 +31,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NavigationRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
@@ -80,8 +81,12 @@ import androidx.navigation.Navigator;
  * coupling to the navigation host.</p>
  */
 public class NavHostFragment extends Fragment implements NavHost {
-    private static final String KEY_GRAPH_ID = "android-support-nav:fragment:graphId";
-    private static final String KEY_START_DESTINATION_ARGS =
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    protected static final String KEY_GRAPH_ID = "android-support-nav:fragment:graphId";
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    protected static final String KEY_START_DESTINATION_ARGS =
             "android-support-nav:fragment:startDestinationArgs";
     private static final String KEY_NAV_CONTROLLER_STATE =
             "android-support-nav:fragment:navControllerState";
@@ -156,9 +161,9 @@ public class NavHostFragment extends Fragment implements NavHost {
     /**
      * Create a new NavHostFragment instance with an inflated {@link NavGraph} resource.
      *
-     * @param graphResId resource id of the navigation graph to inflate
-     * @param startDestinationArgs arguments to send to the start destination of the graph
-     * @return a new NavHostFragment instance
+     * @param graphResId Resource id of the navigation graph to inflate.
+     * @param startDestinationArgs Arguments to send to the start destination of the graph.
+     * @return A new NavHostFragment instance.
      */
     @NonNull
     public static NavHostFragment create(@NavigationRes int graphResId,

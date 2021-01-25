@@ -32,7 +32,6 @@ import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
-import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.style.UserStyle
 import java.util.Objects
 
@@ -219,7 +218,7 @@ internal class InteractiveWatchFaceSysUiClientImpl internal constructor(
 
     override fun setSystemState(systemState: SystemState) {
         iInteractiveWatchFaceSysUI.setSystemState(
-            SystemState(
+            androidx.wear.watchface.data.SystemState(
                 systemState.inAmbientMode,
                 systemState.interruptionFilter
             )

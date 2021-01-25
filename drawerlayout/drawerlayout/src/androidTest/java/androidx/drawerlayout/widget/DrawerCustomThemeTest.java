@@ -23,7 +23,6 @@ import android.os.Build;
 import androidx.drawerlayout.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,9 +30,10 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public class DrawerCustomThemeTest {
+    @SuppressWarnings("deprecation")
     @Rule
-    public final ActivityTestRule<DrawerCustomThemeActivity> mActivityTestRule =
-            new ActivityTestRule<>(DrawerCustomThemeActivity.class);
+    public final androidx.test.rule.ActivityTestRule<DrawerCustomThemeActivity> mActivityTestRule =
+            new androidx.test.rule.ActivityTestRule<>(DrawerCustomThemeActivity.class);
 
     @Test
     @SmallTest

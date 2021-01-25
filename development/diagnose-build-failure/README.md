@@ -1,3 +1,5 @@
-For automated help diagnosing build failures, run diagnose-build-failure.sh
+*   For automated help diagnosing build failures, run diagnose-build-failure.sh
 
-In the future we might add additional, hard-to-automate suggestions into this README.md too
+    *   To see a list of the possible diagnoses it can make, run it with no arguments
+
+*   In the future, this file might contain additional, hard-to-automate suggestions too

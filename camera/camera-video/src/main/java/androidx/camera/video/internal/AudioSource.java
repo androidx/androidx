@@ -39,6 +39,7 @@ import androidx.core.util.Preconditions;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * AudioSource is used to obtain audio raw data and write to the buffer from {@link BufferProvider}.
@@ -264,13 +265,13 @@ public final class AudioSource {
             AudioTimestamp audioTimestamp = new AudioTimestamp();
             if (mAudioRecord.getTimestamp(audioTimestamp, AudioTimestamp.TIMEBASE_MONOTONIC)
                     == AudioRecord.SUCCESS) {
-                presentationTimeUs = audioTimestamp.nanoTime / 1000L;
+                presentationTimeUs = TimeUnit.NANOSECONDS.toMicros(audioTimestamp.nanoTime);
             } else {
                 Logger.w(TAG, "Unable to get audio timestamp");
             }
         }
         if (presentationTimeUs == -1) {
-            presentationTimeUs = System.nanoTime() / 1000L;
+            presentationTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime());
         }
         return presentationTimeUs;
     }

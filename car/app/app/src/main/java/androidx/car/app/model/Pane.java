@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,14 +34,14 @@ import java.util.Objects;
  */
 public final class Pane {
     @Keep
-    @Nullable
-    private final ActionList mActionList;
+    private final List<Action> mActionList;
     @Keep
-    private final List<Object> mRows;
+    private final List<Row> mRows;
     @Keep
     private final boolean mIsLoading;
 
     /** Constructs a new builder of {@link Pane}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -48,17 +49,43 @@ public final class Pane {
 
     /**
      * Returns the list of {@link Action}s displayed alongside the {@link Row}s in this pane.
+     *
+     * @deprecated use {@link #getActionList()} instead.
      */
+    // TODO(jayyoo): remove once {@link #getActionList()} is used in the host.
+    @Deprecated
     @Nullable
     public ActionList getActions() {
+        return mActionList.isEmpty() ? null : ActionList.create(mActionList);
+    }
+
+    /**
+     * Returns the list of {@link Action}s displayed alongside the {@link Row}s in this pane.
+     */
+    @NonNull
+    public List<Action> getActionList() {
         return mActionList;
     }
 
     /**
      * Returns the list of {@link Row} objects that make up the {@link Pane}.
+     *
+     * @deprecated use {@link #getRowList()} ()} instead.
      */
+    // TODO(b/177591128): remove after host(s) no longer reference this.
+    @SuppressWarnings("unchecked")
+    @Deprecated
     @NonNull
     public List<Object> getRows() {
+        return (List<Object>) (List<?>) mRows;
+    }
+
+    /**
+     * Returns the list of {@link Row} objects that make up the {@link Pane}.
+     */
+    // TODO(b/177591128): rename back to getRows after removal of the deprecated API.
+    @NonNull
+    public List<Row> getRowList() {
         return mRows;
     }
 
@@ -99,25 +126,24 @@ public final class Pane {
                 && Objects.equals(mRows, otherPane.mRows);
     }
 
-    private Pane(Builder builder) {
-        mRows = new ArrayList<>(builder.mRows);
-        mActionList = builder.mActionList;
+    Pane(Builder builder) {
+        mRows = CollectionUtils.unmodifiableCopy(builder.mRows);
+        mActionList = CollectionUtils.unmodifiableCopy(builder.mActionList);
         mIsLoading = builder.mIsLoading;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Pane() {
         mRows = Collections.emptyList();
-        mActionList = null;
+        mActionList = Collections.emptyList();
         mIsLoading = false;
     }
 
     /** A builder of {@link Pane}. */
     public static final class Builder {
-        private final List<Object> mRows = new ArrayList<>();
-        @Nullable
-        private ActionList mActionList;
-        private boolean mIsLoading;
+        final List<Row> mRows = new ArrayList<>();
+        List<Action> mActionList = new ArrayList<>();
+        boolean mIsLoading;
 
         /**
          * Sets whether the {@link Pane} is in a loading state.
@@ -153,10 +179,32 @@ public final class Pane {
          * <p>By default, no actions are displayed.
          *
          * @throws NullPointerException if {@code actions} is {@code null}.
+         * @deprecated use {@link #setActionList(List)} instead.
          */
+        // TODO(jayyoo): remove once {@link #setActionList(List)} is used in the host.
+        @Deprecated
         @NonNull
         public Builder setActions(@NonNull List<Action> actions) {
-            mActionList = ActionList.create(requireNonNull(actions));
+            return setActionList(actions);
+        }
+
+        /**
+         * Sets multiple {@link Action}s to display alongside the rows in the pane.
+         *
+         * <p>By default, no actions are displayed.
+         *
+         * @throws NullPointerException if {@code actions} is {@code null}.
+         */
+        @NonNull
+        public Builder setActionList(@NonNull List<Action> actions) {
+            requireNonNull(actions);
+            for (Action action : actions) {
+                if (action == null) {
+                    throw new IllegalArgumentException(
+                            "Disallowed null action found in action list");
+                }
+                mActionList.add(action);
+            }
             return this;
         }
 
@@ -179,6 +227,10 @@ public final class Pane {
 
         private int size() {
             return mRows.size();
+        }
+
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

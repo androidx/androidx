@@ -23,15 +23,21 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -44,8 +50,11 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.lang.IllegalStateException
+import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.coroutines.AbstractCoroutineContextElement
+import kotlin.coroutines.CoroutineContext
 
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 @kotlinx.coroutines.InternalCoroutinesApi
@@ -292,7 +301,10 @@ class SingleProcessDataStoreTest {
         dataStoreScope.cancel()
 
         assertThrows<CancellationException> { slowUpdate.await() }
+
         assertThrows<CancellationException> { notStartedUpdate.await() }
+
+        assertThrows<CancellationException> { store.updateData { 123 } }
     }
 
     @Test
@@ -678,6 +690,63 @@ class SingleProcessDataStoreTest {
 
         // Shouldn't throw:
         dataStore.updateData { it.inc() }
+    }
+
+    @Test
+    fun testTransformRunInCallersContext() = runBlocking<Unit> {
+        suspend fun getContext(): CoroutineContext {
+            return kotlin.coroutines.coroutineContext
+        }
+
+        withContext(TestElement("123")) {
+            store.updateData {
+                val context = getContext()
+                assertThat(context[TestElement.Key]!!.name).isEqualTo("123")
+                it.inc()
+            }
+        }
+    }
+
+    private class TestElement(
+        val name: String
+    ) : AbstractCoroutineContextElement(Key) {
+        companion object Key : CoroutineContext.Key<TestElement>
+    }
+
+    @Test
+    fun testCancelInflightWrite() = runBlocking<Unit> {
+        val myScope =
+            CoroutineScope(Job() + Executors.newSingleThreadExecutor().asCoroutineDispatcher())
+
+        val updateStarted = CompletableDeferred<Unit>()
+        myScope.launch {
+            store.updateData {
+                updateStarted.complete(Unit)
+                awaitCancellation()
+            }
+        }
+        updateStarted.await()
+        myScope.coroutineContext[Job]!!.cancelAndJoin()
+    }
+
+    @Test
+    fun testWrite_afterCanceledWrite_succeeds() = runBlocking<Unit> {
+        val myScope =
+            CoroutineScope(Job() + Executors.newSingleThreadExecutor().asCoroutineDispatcher())
+
+        val cancelNow = CompletableDeferred<Unit>()
+
+        myScope.launch {
+            store.updateData {
+                cancelNow.complete(Unit)
+                awaitCancellation()
+            }
+        }
+
+        cancelNow.await()
+        myScope.coroutineContext[Job]!!.cancelAndJoin()
+
+        store.updateData { 123 }
     }
 
     // Mutable wrapper around a byte

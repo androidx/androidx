@@ -22,7 +22,7 @@ ext {
                 "androidx.annotation:annotation:1.0.0",
                 KOTLIN_STDLIB,
                 KOTLIN_COROUTINES_ANDROID,
-                "org.jetbrains.kotlinx:atomicfu:0.15.0"
+                "org.jetbrains.kotlinx:atomicfu:0.13.1"
         ],
         IMPLEMENTATION : [DAGGER]
     ]

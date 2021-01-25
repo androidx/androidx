@@ -16,15 +16,19 @@
 
 package androidx.camera.camera2.pipe.testing
 
-import android.hardware.camera2.CaptureRequest
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.impl.GraphProcessor
-import androidx.camera.camera2.pipe.impl.RequestProcessor
+import androidx.camera.camera2.pipe.impl.GraphState3A
+import androidx.camera.camera2.pipe.RequestProcessor
 
 /**
  * Fake implementation of a [GraphProcessor] for tests.
  */
-class FakeGraphProcessor : GraphProcessor {
+internal class FakeGraphProcessor(
+    private val graphState3A: GraphState3A = GraphState3A(),
+    private val defaultParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
+    private val defaultListeners: List<Request.Listener> = emptyList()
+) : GraphProcessor {
     var active = true
         private set
     var closed = false
@@ -37,8 +41,12 @@ class FakeGraphProcessor : GraphProcessor {
     private val _requestQueue = mutableListOf<List<Request>>()
     private var processor: RequestProcessor? = null
 
-    override fun setRepeating(request: Request) {
+    override fun startRepeating(request: Request) {
         repeatingRequest = request
+    }
+
+    override fun stopRepeating() {
+        repeatingRequest = null
     }
 
     override fun submit(request: Request) {
@@ -49,24 +57,28 @@ class FakeGraphProcessor : GraphProcessor {
         _requestQueue.add(requests)
     }
 
-    override suspend fun submit(parameters: Map<CaptureRequest.Key<*>, Any>): Boolean {
+    override suspend fun submit(parameters: Map<*, Any>): Boolean {
         if (closed) {
             return false
         }
         val currProcessor = processor
         val currRepeatingRequest = repeatingRequest
+        val requiredParameters = parameters.toMutableMap()
+            .also { it.putAll(graphState3A.readState()) }
         return when {
             currProcessor == null || currRepeatingRequest == null -> false
             else -> currProcessor.submit(
                 currRepeatingRequest,
-                parameters,
-                requireSurfacesForAllStreams = false
+                defaultParameters = defaultParameters,
+                requiredParameters = requiredParameters,
+                defaultListeners = defaultListeners
             )
         }
     }
 
     override fun abort() {
         _requestQueue.clear()
+        // TODO: Invoke abort on the listeners in the queue.
     }
 
     override fun close() {
@@ -78,13 +90,13 @@ class FakeGraphProcessor : GraphProcessor {
         _requestQueue.clear()
     }
 
-    override fun attach(requestProcessor: RequestProcessor) {
+    override fun onGraphStarted(requestProcessor: RequestProcessor) {
         val old = processor
         processor = requestProcessor
         old?.close()
     }
 
-    override fun detach(requestProcessor: RequestProcessor) {
+    override fun onGraphStopped(requestProcessor: RequestProcessor) {
         val old = processor
         if (requestProcessor === old) {
             processor = null
@@ -92,7 +104,28 @@ class FakeGraphProcessor : GraphProcessor {
         }
     }
 
+    override fun onGraphModified(requestProcessor: RequestProcessor) {
+        invalidate()
+    }
+
     override fun invalidate() {
-        processor!!.setRepeating(repeatingRequest!!, mapOf(), false)
+        if (closed) {
+            return
+        }
+
+        val currProcessor = processor
+        val currRepeatingRequest = repeatingRequest
+        val requiredParameters = graphState3A.readState()
+
+        if (currProcessor == null || currRepeatingRequest == null) {
+            return
+        }
+
+        currProcessor.startRepeating(
+            currRepeatingRequest,
+            defaultParameters = defaultParameters,
+            requiredParameters = requiredParameters,
+            defaultListeners = defaultListeners
+        )
     }
 }

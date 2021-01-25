@@ -46,6 +46,7 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unchecked")
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class ObjectAdapterTest {

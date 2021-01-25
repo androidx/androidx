@@ -18,6 +18,7 @@ package androidx.car.app;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.car.app.utils.CommonUtils.TAG;
+import static androidx.car.app.utils.ThreadUtils.checkMainThread;
 
 import static java.util.Objects.requireNonNull;
 
@@ -29,7 +30,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.model.TemplateInfo;
 import androidx.car.app.model.TemplateWrapper;
-import androidx.car.app.utils.ThreadUtils;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.Event;
@@ -44,9 +44,8 @@ import java.util.List;
 
 /**
  * Manages the stack of {@link Screen}s and their respective {@link Lifecycle}s.
- *
- * <p>This class is not safe for concurrent access.
  */
+@MainThread
 public class ScreenManager {
     private final Deque<Screen> mScreenStack = new ArrayDeque<>();
     private final CarContext mCarContext;
@@ -55,13 +54,15 @@ public class ScreenManager {
     /**
      * Returns the {@link Screen} that is at the top of the stack.
      *
-     * @throws NullPointerException if the method is called before a {@link Screen} has been
-     *                              pushed to the stack via {@link #push}, or
-     *                              {@link #pushForResult}, or returning a {@link Screen} from
-     *                              {@link Session#onCreateScreen}.
+     * @throws NullPointerException  if the method is called before a {@link Screen} has been
+     *                               pushed to the stack via {@link #push}, or
+     *                               {@link #pushForResult}, or returning a {@link Screen} from
+     *                               {@link Session#onCreateScreen}.
+     * @throws IllegalStateException if the current thread is not the main thread.
      */
     @NonNull
     public Screen getTop() {
+        checkMainThread();
         return requireNonNull(mScreenStack.peek());
     }
 
@@ -71,9 +72,11 @@ public class ScreenManager {
      * <p>If the {@code screen} pushed is already in the stack it will be moved to the top of the
      * stack.
      *
-     * @throws NullPointerException if {@code screen} is {@code null}.
+     * @throws NullPointerException  if {@code screen} is {@code null}.
+     * @throws IllegalStateException if the current thread is not the main thread.
      */
     public void push(@NonNull Screen screen) {
+        checkMainThread();
         pushInternal(requireNonNull(screen));
     }
 
@@ -84,13 +87,18 @@ public class ScreenManager {
      * callback to {@link OnScreenResultListener#onScreenResult} with the result that the pushed
      * {@code screen} set via {@link Screen#setResult}.
      *
-     * @throws NullPointerException if either the {@code screen} or the {@code
-     *                              onScreenResultCallback} are {@code null}.
+     * @param screen                 the {@link Screen} to push on top of the stack.
+     * @param onScreenResultListener the listener that will be executed with the result pushed by
+     *                               the {@code screen} through {@link Screen#setResult}. This
+     *                               callback will be executed on the main thread.
+     * @throws NullPointerException  if either the {@code screen} or the {@code
+     *                               onScreenResultCallback} are {@code null}.
+     * @throws IllegalStateException if the current thread is not the main thread.
      */
-    // TODO(rampara): Add Executor parameter.
     @SuppressLint("ExecutorRegistration")
     public void pushForResult(
             @NonNull Screen screen, @NonNull OnScreenResultListener onScreenResultListener) {
+        checkMainThread();
         requireNonNull(screen).setOnScreenResultListener(requireNonNull(onScreenResultListener));
         pushInternal(screen);
     }
@@ -99,8 +107,11 @@ public class ScreenManager {
      * Pops the top {@link Screen} from the stack.
      *
      * <p>If the top {@link Screen} is the only {@link Screen} in the stack, it will not be removed.
+     *
+     * @throws IllegalStateException if the current thread is not the main thread.
      */
     public void pop() {
+        checkMainThread();
         if (mScreenStack.size() > 1) {
             popInternal(Collections.singletonList(mScreenStack.pop()));
         }
@@ -112,10 +123,12 @@ public class ScreenManager {
      *
      * <p>The root {@link Screen} will not be popped.
      *
-     * @throws NullPointerException if {@code marker} is {@code null}.
+     * @throws NullPointerException  if {@code marker} is {@code null}.
+     * @throws IllegalStateException if the current thread is not the main thread.
      * @see Screen#setMarker
      */
     public void popTo(@NonNull String marker) {
+        checkMainThread();
         requireNonNull(marker);
 
         // Pop all screens, except until found root or the provided screen.
@@ -134,8 +147,12 @@ public class ScreenManager {
 
     /**
      * Removes all screens from the stack until the root has been reached.
+     *
+     * @throws IllegalStateException if the current thread is not the main thread.
      */
     public void popToRoot() {
+        checkMainThread();
+
         if (mScreenStack.size() <= 1) {
             return;
         }
@@ -154,9 +171,11 @@ public class ScreenManager {
      *
      * <p>If the {@code screen} is the only {@link Screen} in the stack, it will not be removed.
      *
-     * @throws NullPointerException if {@code screen} is {@code null}.
+     * @throws NullPointerException  if {@code screen} is {@code null}.
+     * @throws IllegalStateException if the current thread is not the main thread.
      */
     public void remove(@NonNull Screen screen) {
+        checkMainThread();
         requireNonNull(screen);
 
         if (mScreenStack.size() <= 1) {
@@ -184,9 +203,8 @@ public class ScreenManager {
 
     /** Returns the {@link TemplateWrapper} for the {@link Screen} that is on top of the stack. */
     @NonNull
-    @MainThread
     TemplateWrapper getTopTemplate() {
-        ThreadUtils.checkMainThread();
+        checkMainThread();
 
         Screen screen = getTop();
         Log.d(TAG, "Requesting template from Screen " + screen);

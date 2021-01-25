@@ -274,7 +274,7 @@ public class TrustedWebActivityIntentBuilder {
     }
 
     /**
-     * Builds an instance of {@link TrustedWebActivityIntent].
+     * Builds an instance of {@link TrustedWebActivityIntent}.
      *
      * @param session The {@link CustomTabsSession} to use for launching a Trusted Web Activity.
      */

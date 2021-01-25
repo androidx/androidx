@@ -76,8 +76,8 @@ public final class ScreenTest {
             @Override
             @NonNull
             public Template onGetTemplate() {
-                return PlaceListMapTemplate.builder().setItemList(
-                        ItemList.builder().build()).build();
+                return new PlaceListMapTemplate.Builder().setItemList(
+                        new ItemList.Builder().build()).build();
             }
         };
 

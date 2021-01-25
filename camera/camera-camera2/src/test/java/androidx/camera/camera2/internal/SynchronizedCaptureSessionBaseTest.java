@@ -25,7 +25,6 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.view.Surface;
@@ -45,6 +44,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+@SuppressWarnings({"deprecation", "unchecked"})
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -66,7 +66,7 @@ public class SynchronizedCaptureSessionBaseTest {
 
         mSyncCaptureSessionBaseImpl =
                 new SynchronizedCaptureSessionBaseImpl(mMockCaptureSessionRepository,
-                        AsyncTask.THREAD_POOL_EXECUTOR, mScheduledExecutorService,
+                        android.os.AsyncTask.THREAD_POOL_EXECUTOR, mScheduledExecutorService,
                         mock(Handler.class));
 
         mMockCaptureSession = mock(CameraCaptureSession.class);

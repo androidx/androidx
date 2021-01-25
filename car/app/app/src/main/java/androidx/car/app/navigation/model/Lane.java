@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,6 +39,7 @@ public final class Lane {
     private final List<LaneDirection> mDirections;
 
     /** Constructs a new builder of {@link Lane}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -72,8 +74,8 @@ public final class Lane {
         return Objects.equals(mDirections, otherLane.mDirections);
     }
 
-    private Lane(List<LaneDirection> directions) {
-        this.mDirections = new ArrayList<>(directions);
+    Lane(List<LaneDirection> directions) {
+        this.mDirections = CollectionUtils.unmodifiableCopy(directions);
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -96,20 +98,14 @@ public final class Lane {
             return this;
         }
 
-        /**
-         * Clears any directions that may have been added with
-         * {@link #addDirection(LaneDirection)} up to this point.
-         */
-        @NonNull
-        public Builder clearDirections() {
-            mDirections.clear();
-            return this;
-        }
-
         /** Constructs the {@link Lane} defined by this builder. */
         @NonNull
         public Lane build() {
             return new Lane(mDirections);
+        }
+
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

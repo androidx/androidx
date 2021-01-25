@@ -67,6 +67,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 /** Utility functions for obtaining instances of camera2 classes. */
 public final class CameraUtil {
@@ -321,7 +322,7 @@ public final class CameraUtil {
             try {
                 cameraUseCaseAdapter.addUseCases(Arrays.asList(useCases));
             } catch (CameraUseCaseAdapter.CameraException e) {
-                throw new IllegalArgumentException("Unable to attach use cases to camera.");
+                throw new IllegalArgumentException("Unable to attach use cases to camera.", e);
             }
         });
 
@@ -569,33 +570,28 @@ public final class CameraUtil {
      * unavailable if PRETEST_CAMERA_TAG is loggable at the debug level (see Log#isLoggable).
      */
     @NonNull
-    public static RuleChain grantCameraPermissionAndPreTest() {
-        RuleChain rule =
-                RuleChain.outerRule(GrantPermissionRule.grant(Manifest.permission.CAMERA)).around(
-                (base, description) -> new Statement() {
-                    @Override
-                    public void evaluate() throws Throwable {
-                        dumpCameraLensFacingInfo();
-                        assumeTrue(deviceHasCamera());
-                        base.evaluate();
-                    }
-                });
-        if (shouldRunPreTest()) {
-            rule = rule.around(
-                    new CameraUtil.PreTestCamera(Log.isLoggable(PRETEST_CAMERA_TAG, Log.DEBUG)));
-        }
-        return rule;
+    public static TestRule grantCameraPermissionAndPreTest() {
+        return grantCameraPermissionAndPreTest(new PreTestCamera());
     }
 
-    private static boolean shouldRunPreTest() {
-        if (Build.MODEL.contains("pixel 2") && Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
-            // TODO(b/170070248) Pixel 2 HAL died easily if the pretest and CameraX open the
-            //  camera device at the same time. Remove the code after the pixel 2 issue fixed.
-            Logger.d(LOG_TAG, "Skip camera pretest (b/170070248)");
-            return false;
-        }
-
-        return true;
+    /**
+     * Grant the camera permission and test the camera.
+     *
+     * @param cameraTestRule the PreTestCamera rule to execute the camera test.
+     */
+    @NonNull
+    public static TestRule grantCameraPermissionAndPreTest(@NonNull PreTestCamera cameraTestRule) {
+        RuleChain rule =
+                RuleChain.outerRule(GrantPermissionRule.grant(Manifest.permission.CAMERA)).around(
+                        (base, description) -> new Statement() {
+                            @Override
+                            public void evaluate() throws Throwable {
+                                dumpCameraLensFacingInfo();
+                                assumeTrue(deviceHasCamera());
+                                base.evaluate();
+                            }
+                        }).around(cameraTestRule);
+        return rule;
     }
 
     /**
@@ -609,6 +605,11 @@ public final class CameraUtil {
      */
     public static class PreTestCamera implements TestRule {
         final boolean mThrowOnError;
+        final AtomicReference<Boolean> mCanOpenCamera = new AtomicReference<>();
+
+        public PreTestCamera() {
+            mThrowOnError = Log.isLoggable(PRETEST_CAMERA_TAG, Log.DEBUG);
+        }
 
         public PreTestCamera(boolean throwOnError) {
             mThrowOnError = throwOnError;
@@ -620,26 +621,28 @@ public final class CameraUtil {
             return new Statement() {
                 @Override
                 public void evaluate() throws Throwable {
-                    boolean backStatus = true;
-                    if (hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK)) {
-                        RetryCameraOpener opener =
-                                new RetryCameraOpener(CameraSelector.LENS_FACING_BACK);
-                        backStatus = opener.openWithRetry(5, 5000);
-                        opener.shutdown();
+                    if (mCanOpenCamera.get() == null) {
+                        boolean backStatus = true;
+                        if (hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK)) {
+                            RetryCameraOpener opener =
+                                    new RetryCameraOpener(CameraSelector.LENS_FACING_BACK);
+                            backStatus = opener.openWithRetry(5, 5000);
+                            opener.shutdown();
+                        }
+
+                        boolean frontStatus = true;
+                        if (hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT)) {
+                            RetryCameraOpener opener =
+                                    new RetryCameraOpener(CameraSelector.LENS_FACING_FRONT);
+                            frontStatus = opener.openWithRetry(5, 5000);
+                            opener.shutdown();
+                        }
+                        Logger.d(LOG_TAG,
+                                "PreTest Open camera result " + backStatus + " " + frontStatus);
+                        mCanOpenCamera.set(backStatus && frontStatus);
                     }
 
-                    boolean frontStatus = true;
-                    if (hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT)) {
-                        RetryCameraOpener opener =
-                                new RetryCameraOpener(CameraSelector.LENS_FACING_FRONT);
-                        frontStatus = opener.openWithRetry(5, 5000);
-                        opener.shutdown();
-                    }
-                    boolean canOpenCamera = backStatus && frontStatus;
-                    Logger.d(LOG_TAG,
-                            "PreTest Open camera result " + backStatus + " " + frontStatus);
-
-                    if (canOpenCamera) {
+                    if (mCanOpenCamera.get()) {
                         base.evaluate();
                     } else {
                         if (mThrowOnError) {

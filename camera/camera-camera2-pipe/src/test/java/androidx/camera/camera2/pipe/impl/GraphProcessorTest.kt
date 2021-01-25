@@ -17,27 +17,33 @@
 package androidx.camera.camera2.pipe.impl
 
 import android.os.Build
+import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
-import androidx.camera.camera2.pipe.testing.Event
+import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.FakeRequestListener
 import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-@RunWith(CameraPipeRobolectricTestRunner::class)
+@RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class GraphProcessorTest {
+internal class GraphProcessorTest {
     private val globalListener = FakeRequestListener()
 
-    private val fakeProcessor1 = FakeRequestProcessor(GraphState3A())
-    private val fakeProcessor2 = FakeRequestProcessor(GraphState3A())
+    private val graphState3A = GraphState3A()
+    private val fakeProcessor1 = FakeRequestProcessor()
+    private val fakeProcessor2 = FakeRequestProcessor()
 
     private val requestListener1 = FakeRequestListener()
     private val request1 = Request(listOf(StreamId(0)), listeners = listOf(requestListener1))
@@ -45,25 +51,32 @@ class GraphProcessorTest {
     private val requestListener2 = FakeRequestListener()
     private val request2 = Request(listOf(StreamId(0)), listeners = listOf(requestListener2))
 
+    private val graphConfig = CameraGraph.Config(
+        camera = CameraId.fromCamera2Id("CameraId-Test"),
+        streams = listOf()
+    )
+
     @Test
     fun graphProcessorSubmitsRequests() {
-        // The graph processor uses 'launch' within the coroutine scope to invoke updates on the
-        // requestProcessor instance. runBlocking forces all jobs to complete before testing the
-        // state of results.
         runBlocking(Dispatchers.Default) {
+
+            // The graph processor uses 'launch' within the coroutine scope to invoke updates on the
+            // requestProcessor instance. runBlocking forces all jobs to complete before testing the
+            // state of results.
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
+                graphState3A,
                 this,
                 arrayListOf(globalListener)
             )
-            graphProcessor.attach(fakeProcessor1)
+            graphProcessor.onGraphStarted(fakeProcessor1)
             graphProcessor.submit(request1)
-        }
 
-        // Make sure the requests get submitted to the request processor
-        assertThat(fakeProcessor1.requestQueue).hasSize(1)
-        assertThat(fakeProcessor1.requestQueue.first().burst).hasSize(1)
-        assertThat(fakeProcessor1.requestQueue.first().burst.first()).isSameInstanceAs(request1)
+            // Make sure the requests get submitted to the request processor
+            val event = fakeProcessor1.nextEvent()
+            assertThat(event.requestSequence!!.requests).containsExactly(request1)
+        }
     }
 
     @Test
@@ -74,22 +87,23 @@ class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
+                graphState3A,
                 this,
                 arrayListOf(globalListener)
             )
 
-            graphProcessor.attach(fakeProcessor1)
-            graphProcessor.attach(fakeProcessor2)
+            graphProcessor.onGraphStarted(fakeProcessor1)
+            graphProcessor.onGraphStarted(fakeProcessor2)
             graphProcessor.submit(request1)
+
+            val event1 = fakeProcessor1.nextEvent()
+            assertThat(event1.close).isTrue()
+
+            val event2 = fakeProcessor2.nextEvent()
+            assertThat(event2.submit).isTrue()
+            assertThat(event2.requestSequence!!.requests).containsExactly(request1)
         }
-
-        // requestProcessor1 does not receive requests
-        assertThat(fakeProcessor1.requestQueue).hasSize(0)
-
-        // requestProcessor2 receives requests
-        assertThat(fakeProcessor2.requestQueue).hasSize(1)
-        assertThat(fakeProcessor2.requestQueue.first().burst).hasSize(1)
-        assertThat(fakeProcessor2.requestQueue.first().burst.first()).isSameInstanceAs(request1)
     }
 
     @Test
@@ -100,6 +114,8 @@ class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
+                graphState3A,
                 this,
                 arrayListOf(globalListener)
             )
@@ -109,13 +125,16 @@ class GraphProcessorTest {
 
             // Request1 and 2 should be queued and will be submitted even when the request
             // processor is set after the requests are submitted.
-            graphProcessor.attach(fakeProcessor1)
-        }
+            graphProcessor.onGraphStarted(fakeProcessor1)
 
-        // Make sure the requests get submitted to the request processor
-        assertThat(fakeProcessor1.requestQueue).hasSize(2)
-        assertThat(fakeProcessor1.requestQueue[0].burst[0]).isSameInstanceAs(request1)
-        assertThat(fakeProcessor1.requestQueue[1].burst[0]).isSameInstanceAs(request2)
+            val event1 = awaitEvent(fakeProcessor1, request1) { it.submit }
+            assertThat(event1.requestSequence!!.requests).hasSize(1)
+            assertThat(event1.requestSequence!!.requests).contains(request1)
+
+            val event2 = fakeProcessor1.nextEvent()
+            assertThat(event2.requestSequence!!.requests).hasSize(1)
+            assertThat(event2.requestSequence!!.requests).contains(request2)
+        }
     }
 
     @Test
@@ -126,17 +145,19 @@ class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
+                graphState3A,
                 this,
                 arrayListOf(globalListener)
             )
 
             graphProcessor.submit(listOf(request1, request2))
-            graphProcessor.attach(fakeProcessor1)
+            graphProcessor.onGraphStarted(fakeProcessor1)
+            val event = awaitEvent(fakeProcessor1, request1) { it.submit }
+            assertThat(event.requestSequence!!.requests).hasSize(2)
+            assertThat(event.requestSequence!!.requests).contains(request1)
+            assertThat(event.requestSequence!!.requests).contains(request2)
         }
-
-        assertThat(fakeProcessor1.requestQueue).hasSize(1)
-        assertThat(fakeProcessor1.requestQueue[0].burst[0]).isSameInstanceAs(request1)
-        assertThat(fakeProcessor1.requestQueue[0].burst[1]).isSameInstanceAs(request2)
     }
 
     @Test
@@ -144,33 +165,33 @@ class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
+                graphState3A,
                 this,
                 arrayListOf(globalListener)
             )
 
             fakeProcessor1.rejectRequests = true
-            graphProcessor.attach(fakeProcessor1)
+            graphProcessor.onGraphStarted(fakeProcessor1)
 
             graphProcessor.submit(request1)
             val event1 = fakeProcessor1.nextEvent()
             assertThat(event1.rejected).isTrue()
-            assertThat(event1.request!!.burst[0]).isSameInstanceAs(request1)
+            assertThat(event1.requestSequence!!.requests[0]).isSameInstanceAs(request1)
 
             graphProcessor.submit(request2)
             val event2 = fakeProcessor1.nextEvent()
             assertThat(event2.rejected).isTrue()
-            assertThat(event2.request!!.burst[0]).isSameInstanceAs(request1)
+            assertThat(event2.requestSequence!!.requests[0]).isSameInstanceAs(request1)
 
-            graphProcessor.attach(fakeProcessor2)
-            assertThat(fakeProcessor2.nextEvent().request!!.burst[0]).isSameInstanceAs(request1)
-            assertThat(fakeProcessor2.nextEvent().request!!.burst[0]).isSameInstanceAs(request2)
-            assertThat(fakeProcessor2.requestQueue).hasSize(2)
+            graphProcessor.onGraphStarted(fakeProcessor2)
+            assertThat(fakeProcessor2.nextEvent().requestSequence!!.requests[0]).isSameInstanceAs(
+                request1
+            )
+            assertThat(fakeProcessor2.nextEvent().requestSequence!!.requests[0]).isSameInstanceAs(
+                request2
+            )
         }
-
-        assertThat(fakeProcessor1.requestQueue).hasSize(0)
-        assertThat(fakeProcessor2.requestQueue).hasSize(2)
-        assertThat(fakeProcessor2.requestQueue[0].burst[0]).isSameInstanceAs(request1)
-        assertThat(fakeProcessor2.requestQueue[1].burst[0]).isSameInstanceAs(request2)
     }
 
     @Test
@@ -178,6 +199,8 @@ class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
+                graphState3A,
                 this,
                 arrayListOf(globalListener)
             )
@@ -185,23 +208,17 @@ class GraphProcessorTest {
             // Note: setting the requestProcessor, and calling submit() can both trigger a call
             // to submit a request.
             fakeProcessor1.rejectRequests = true
-            graphProcessor.attach(fakeProcessor1)
+            graphProcessor.onGraphStarted(fakeProcessor1)
             graphProcessor.submit(request1)
 
             // Check to make sure that submit is called at least once, and that request1 is rejected
             // from the request processor.
-            val event1 = fakeProcessor1.nextEvent()
-            assertThat(event1.request!!.burst).contains(request1)
-            assertThat(event1.rejected).isTrue()
+            awaitEvent(fakeProcessor1, request1) { it.rejected }
 
             // Stop rejecting requests
             fakeProcessor1.rejectRequests = false
-            assertThat(fakeProcessor1.rejectRequests).isFalse()
-            assertThat(fakeProcessor1.closeInvoked).isFalse()
-            assertThat(fakeProcessor1.stopInvoked).isFalse()
 
             graphProcessor.submit(request2)
-
             // Cycle events until we get a submitted event with request1
             val event2 = awaitEvent(fakeProcessor1, request1) { it.submit }
             assertThat(event2.rejected).isFalse()
@@ -209,7 +226,7 @@ class GraphProcessorTest {
             // Assert that immediately after we get a successfully submitted request, the
             //  next request is also submitted.
             val event3 = fakeProcessor1.nextEvent()
-            assertThat(event3.request!!.burst).contains(request2)
+            assertThat(event3.requestSequence!!.requests).contains(request2)
             assertThat(event3.submit).isTrue()
             assertThat(event3.rejected).isFalse()
         }
@@ -220,16 +237,17 @@ class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
+                graphState3A,
                 this,
                 arrayListOf(globalListener)
             )
 
-            graphProcessor.attach(fakeProcessor1)
-            graphProcessor.setRepeating(request1)
-            graphProcessor.setRepeating(request2)
+            graphProcessor.onGraphStarted(fakeProcessor1)
+            graphProcessor.startRepeating(request1)
+            graphProcessor.startRepeating(request2)
+            awaitEvent(fakeProcessor1, request2) { it.startRepeating }
         }
-
-        assertThat(fakeProcessor1.repeatingRequest?.burst).contains(request2)
     }
 
     @Test
@@ -237,20 +255,19 @@ class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
+                graphState3A,
                 this,
                 arrayListOf(globalListener)
             )
 
-            graphProcessor.attach(fakeProcessor1)
-            graphProcessor.setRepeating(request1)
-            awaitEvent(fakeProcessor1, request1) { it.setRepeating }
+            graphProcessor.onGraphStarted(fakeProcessor1)
+            graphProcessor.startRepeating(request1)
+            awaitEvent(fakeProcessor1, request1) { it.startRepeating }
 
-            graphProcessor.attach(fakeProcessor2)
-            awaitEvent(fakeProcessor2, request1) { it.setRepeating }
+            graphProcessor.onGraphStarted(fakeProcessor2)
+            awaitEvent(fakeProcessor2, request1) { it.startRepeating }
         }
-
-        assertThat(fakeProcessor1.repeatingRequest?.burst).contains(request1)
-        assertThat(fakeProcessor2.repeatingRequest?.burst).contains(request1)
     }
 
     @Test
@@ -258,19 +275,20 @@ class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
+                graphState3A,
                 this,
                 arrayListOf(globalListener)
             )
 
             fakeProcessor1.rejectRequests = true
-            graphProcessor.attach(fakeProcessor1)
-            graphProcessor.setRepeating(request1)
+            graphProcessor.onGraphStarted(fakeProcessor1)
+            graphProcessor.startRepeating(request1)
+            awaitEvent(fakeProcessor1, request1) { it.rejected }
 
-            graphProcessor.attach(fakeProcessor2)
-            awaitEvent(fakeProcessor2, request1) { it.setRepeating }
+            graphProcessor.onGraphStarted(fakeProcessor2)
+            awaitEvent(fakeProcessor2, request1) { it.startRepeating }
         }
-
-        assertThat(fakeProcessor2.repeatingRequest?.burst).contains(request1)
     }
 
     @Test
@@ -278,18 +296,30 @@ class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
+                graphState3A,
                 this,
                 arrayListOf(globalListener)
             )
 
-            graphProcessor.setRepeating(request1)
+            graphProcessor.startRepeating(request1)
             graphProcessor.submit(request2)
+            delay(50)
 
-            graphProcessor.attach(fakeProcessor1)
+            graphProcessor.onGraphStarted(fakeProcessor1)
+
+            var hasRequest1Event = false
+            var hasRequest2Event = false
+
+            // Loop until we see at least one repeating request, and one submit event.
+            while (!hasRequest1Event && !hasRequest2Event) {
+                val event = fakeProcessor1.nextEvent()
+                hasRequest1Event = hasRequest1Event ||
+                    event.requestSequence?.requests?.contains(request1) ?: false
+                hasRequest2Event = hasRequest2Event ||
+                    event.requestSequence?.requests?.contains(request2) ?: false
+            }
         }
-
-        assertThat(fakeProcessor1.repeatingRequest?.burst).contains(request1)
-        assertThat(fakeProcessor1.requestQueue[0].burst[0]).isSameInstanceAs(request2)
     }
 
     @Test
@@ -297,24 +327,33 @@ class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
+                graphState3A,
                 this,
                 arrayListOf(globalListener)
             )
 
-            graphProcessor.setRepeating(request1)
+            graphProcessor.startRepeating(request1)
             graphProcessor.submit(request2)
 
             // Abort queued and in-flight requests.
             graphProcessor.abort()
-            graphProcessor.attach(fakeProcessor1)
+            graphProcessor.onGraphStarted(fakeProcessor1)
+
+            val abortEvent1 = withTimeoutOrNull(timeMillis = 50L) {
+                requestListener1.onAbortedFlow.firstOrNull()
+            }
+            val abortEvent2 = requestListener2.onAbortedFlow.first()
+            val globalAbortEvent = globalListener.onAbortedFlow.first()
+
+            assertThat(abortEvent1).isNull()
+            assertThat(abortEvent2.request).isSameInstanceAs(request2)
+            assertThat(globalAbortEvent.request).isSameInstanceAs(request2)
+
+            val nextSequence = fakeProcessor1.nextRequestSequence()
+            assertThat(nextSequence.requests.first()).isSameInstanceAs(request1)
+            assertThat(nextSequence.requestMetadata[request1]!!.repeating).isTrue()
         }
-
-        assertThat(requestListener1.lastAbortedRequest).isNull()
-        assertThat(requestListener2.lastAbortedRequest).isSameInstanceAs(request2)
-        assertThat(globalListener.lastAbortedRequest).isSameInstanceAs(request2)
-
-        assertThat(fakeProcessor1.repeatingRequest?.burst).contains(request1)
-        assertThat(fakeProcessor1.requestQueue).isEmpty()
     }
 
     @Test
@@ -322,38 +361,41 @@ class GraphProcessorTest {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
+                graphConfig,
+                graphState3A,
                 this,
                 arrayListOf(globalListener)
             )
             graphProcessor.close()
 
             // Abort queued and in-flight requests.
-            graphProcessor.attach(fakeProcessor1)
-            graphProcessor.setRepeating(request1)
+            graphProcessor.onGraphStarted(fakeProcessor1)
+            graphProcessor.startRepeating(request1)
             graphProcessor.submit(request2)
+
+            val abortEvent1 = withTimeoutOrNull(timeMillis = 50L) {
+                requestListener1.onAbortedFlow.firstOrNull()
+            }
+            val abortEvent2 = requestListener2.onAbortedFlow.first()
+            assertThat(abortEvent1).isNull()
+            assertThat(abortEvent2.request).isSameInstanceAs(request2)
+
+            assertThat(fakeProcessor1.nextEvent().close).isTrue()
         }
-
-        // The repeating request is not aborted
-        assertThat(requestListener1.lastAbortedRequest).isNull()
-        assertThat(requestListener2.lastAbortedRequest).isSameInstanceAs(request2)
-
-        assertThat(fakeProcessor1.closeInvoked).isTrue()
-        assertThat(fakeProcessor1.repeatingRequest).isNull()
-        assertThat(fakeProcessor1.requestQueue).isEmpty()
     }
 
     private suspend fun awaitEvent(
         requestProcessor: FakeRequestProcessor,
         request: Request,
-        filter: (event: Event) -> Boolean
-    ): Event {
+        filter: (event: FakeRequestProcessor.Event) -> Boolean
+    ): FakeRequestProcessor.Event {
 
-        var event: Event
+        var event: FakeRequestProcessor.Event
         var loopCount = 0
         while (loopCount < 10) {
             loopCount++
             event = requestProcessor.nextEvent()
-            val contains = event.request?.burst?.contains(request) ?: false
+            val contains = event.requestSequence?.requests?.contains(request) ?: false
             if (filter(event) && contains) {
                 return event
             }

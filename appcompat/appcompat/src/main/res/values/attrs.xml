@@ -429,9 +429,9 @@
         <eat-comment />
 
         <!-- Animated Drawable to use for single choice indicators. -->
-        <attr name="listChoiceIndicatorMultipleAnimated" format="reference" />
-        <!-- Animated Drawable to use for multiple choice indicators. -->
         <attr name="listChoiceIndicatorSingleAnimated" format="reference" />
+        <!-- Animated Drawable to use for multiple choice indicators. -->
+        <attr name="listChoiceIndicatorMultipleAnimated" format="reference" />
 
     </declare-styleable>
 

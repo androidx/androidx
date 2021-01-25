@@ -45,7 +45,7 @@ public interface SearchResults extends Closeable {
      * @return The pending result of performing this operation.
      */
     @NonNull
-    ListenableFuture<AppSearchResult<List<SearchResult>>> getNextPage();
+    ListenableFuture<List<SearchResult>> getNextPage();
 
     @Override
     void close();

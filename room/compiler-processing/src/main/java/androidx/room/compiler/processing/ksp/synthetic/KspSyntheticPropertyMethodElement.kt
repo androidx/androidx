@@ -17,7 +17,6 @@
 package androidx.room.compiler.processing.ksp.synthetic
 
 import androidx.room.compiler.processing.XAnnotated
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XHasModifiers
@@ -35,7 +34,6 @@ import androidx.room.compiler.processing.ksp.KspHasModifiers
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspTypeElement
 import androidx.room.compiler.processing.ksp.overrides
-import androidx.room.compiler.processing.ksp.safeGetJvmName
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.KSPropertyAccessor
 import java.util.Locale
@@ -79,7 +77,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
         )
     }
 
-    final override fun asMemberOf(other: XDeclaredType): XMethodType {
+    final override fun asMemberOf(other: XType): XMethodType {
         return KspSyntheticPropertyMethodType.create(
             element = this,
             container = other
@@ -122,9 +120,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
         @OptIn(KspExperimental::class)
         override val name: String by lazy {
             field.declaration.getter?.let {
-                return@lazy env.resolver.safeGetJvmName(it) {
-                    computeGetterName(field.name)
-                }
+                return@lazy env.resolver.getJvmName(it)
             }
             computeGetterName(field.name)
         }
@@ -184,9 +180,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
         @OptIn(KspExperimental::class)
         override val name: String by lazy {
             field.declaration.setter?.let {
-                return@lazy env.resolver.safeGetJvmName(it) {
-                    computeSetterName(field.name)
-                }
+                return@lazy env.resolver.getJvmName(it)
             }
             computeSetterName(field.name)
         }
@@ -234,7 +228,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
             override val type: XType
                 get() = origin.field.type
 
-            override fun asMemberOf(other: XDeclaredType): XType {
+            override fun asMemberOf(other: XType): XType {
                 return origin.field.asMemberOf(other)
             }
 

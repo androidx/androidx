@@ -21,12 +21,17 @@ import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Point
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
+import android.os.BatteryManager
+import android.os.Build
 import android.support.wearable.watchface.WatchFaceStyle
+import android.view.Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
 import android.view.ViewConfiguration
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
@@ -38,13 +43,12 @@ import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.complications.data.IdAndComplicationData
+import androidx.wear.complications.data.NoDataComplicationData
 import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
-import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.data.UserStyleWireFormat
-import androidx.wear.watchface.ui.WatchFaceConfigActivity
-import androidx.wear.watchface.ui.WatchFaceConfigDelegate
 import java.io.FileNotFoundException
 import java.io.InputStreamReader
 import java.security.InvalidParameterException
@@ -52,6 +56,10 @@ import kotlin.math.max
 
 // Human reaction time is limited to ~100ms.
 private const val MIN_PERCEPTABLE_DELAY_MILLIS = 100
+
+// Zero is a special value meaning we will accept the system's choice for the
+// display frame rate, which is the default behavior if this function isn't called.
+private const val SYSTEM_DECIDES_FRAME_RATE = 0f
 
 /**
  * The type of watch face, whether it's digital or analog. This influences the time displayed for
@@ -106,7 +114,7 @@ private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
  * The return value of [WatchFaceService.createWatchFace] which brings together rendering, styling,
  * complications and state observers.
  */
-public class WatchFace(
+public class WatchFace @JvmOverloads constructor(
     /**
      * The type of watch face, whether it's digital or analog. Used to determine the
      * default time for editor preview screenshots.
@@ -114,13 +122,14 @@ public class WatchFace(
     @WatchFaceType internal var watchFaceType: Int,
 
     /** The [UserStyleRepository] for this WatchFace. */
-    internal val userStyleRepository: UserStyleRepository,
-
-    /** The [ComplicationsManager] for this WatchFace. */
-    internal var complicationsManager: ComplicationsManager,
+    public val userStyleRepository: UserStyleRepository,
 
     /** The [Renderer] for this WatchFace. */
-    internal val renderer: Renderer
+    internal val renderer: Renderer,
+
+    /** The [ComplicationsManager] for this WatchFace. */
+    internal var complicationsManager: ComplicationsManager =
+        ComplicationsManager(emptyList(), userStyleRepository)
 ) {
     internal var tapListener: TapListener? = null
 
@@ -129,6 +138,57 @@ public class WatchFace(
         @JvmStatic
         public fun isLegacyWatchFaceOverlayStyleSupported(): Boolean =
             android.os.Build.VERSION.SDK_INT <= 27
+
+        private val componentNameToEditorDelegate = HashMap<ComponentName, EditorDelegate>()
+
+        /** @hide */
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun registerEditorDelegate(
+            componentName: ComponentName,
+            editorDelegate: EditorDelegate
+        ) {
+            componentNameToEditorDelegate[componentName] = editorDelegate
+        }
+
+        internal fun unregisterEditorDelegate(componentName: ComponentName) {
+            componentNameToEditorDelegate.remove(componentName)
+        }
+
+        /**
+         * For use by on watch face editors.
+         * @hide
+         */
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun getEditorDelegate(componentName: ComponentName): EditorDelegate? =
+            componentNameToEditorDelegate[componentName]
+    }
+
+    /**
+     * Delegate used by on watch face editors.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface EditorDelegate {
+        /** The [WatchFace]'s [UserStyleRepository]. */
+        public val userStyleRepository: UserStyleRepository
+
+        /** The [WatchFace]'s [ComplicationsManager]. */
+        public val complicationsManager: ComplicationsManager
+
+        /** The [WatchFace]'s screen bounds [Rect]. */
+        public val screenBounds: Rect
+
+        /** The UTC reference time to use for previews in milliseconds since the epoch. */
+        public val previewReferenceTimeMillis: Long
+
+        /** Takes a screenshot with the [UserStyleRepository]'s [UserStyle]. */
+        public fun takeScreenshot(
+            renderParameters: RenderParameters,
+            calendarTimeMillis: Long,
+            idToComplicationData: Map<Int, ComplicationData>?
+        ): Bitmap
     }
 
     /**
@@ -296,6 +356,12 @@ internal class WatchFaceImpl(
 
         // Complications are highlighted when tapped and after this delay the highlight is removed.
         internal const val CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS = 300L
+
+        // The threshold used to judge whether the battery is low during initialization.  Ideally
+        // we would use the threshold for Intent.ACTION_BATTERY_LOW but it's not documented or
+        // available programmatically. The value below is the default but it could be overridden
+        // by OEMs.
+        internal const val INITIAL_LOW_BATTERY_THRESHOLD = 15.0f
     }
 
     private val systemTimeProvider = watchface.systemTimeProvider
@@ -363,15 +429,16 @@ internal class WatchFaceImpl(
             renderer.invalidate()
         }
 
-        override fun onActionBatteryChanged(intent: Intent) {
-            val isBatteryLowAndNotCharging =
-                watchState.isBatteryLowAndNotCharging as MutableObservableWatchData
-            when (intent.action) {
-                Intent.ACTION_BATTERY_LOW -> isBatteryLowAndNotCharging.value = true
-                Intent.ACTION_BATTERY_OKAY -> isBatteryLowAndNotCharging.value = false
-                Intent.ACTION_POWER_CONNECTED -> isBatteryLowAndNotCharging.value = false
-            }
-            renderer.invalidate()
+        override fun onActionBatteryLow() {
+            updateBatteryLowAndNotChargingStatus(true)
+        }
+
+        override fun onActionBatteryOkay() {
+            updateBatteryLowAndNotChargingStatus(false)
+        }
+
+        override fun onActionPowerConnected() {
+            updateBatteryLowAndNotChargingStatus(false)
         }
 
         override fun onMockTime(intent: Intent) {
@@ -389,6 +456,17 @@ internal class WatchFaceImpl(
             }
             mockTime.maxTime =
                 intent.getLongExtra(EXTRA_MOCK_TIME_WRAPPING_MAX_TIME, Long.MAX_VALUE)
+        }
+
+        private fun updateBatteryLowAndNotChargingStatus(value: Boolean) {
+            val isBatteryLowAndNotCharging =
+                watchState.isBatteryLowAndNotCharging as MutableObservableWatchData
+            if (!isBatteryLowAndNotCharging.hasValue() ||
+                value != isBatteryLowAndNotCharging.value
+            ) {
+                isBatteryLowAndNotCharging.value = value
+                renderer.invalidate()
+            }
         }
     }
 
@@ -427,6 +505,12 @@ internal class WatchFaceImpl(
         }
 
         renderer.watchFaceHostApi = watchFaceHostApi
+
+        setIsBatteryLowAndNotChargingFromBatteryStatus(
+            IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { iFilter ->
+                watchFaceHostApi.getContext().registerReceiver(null, iFilter)
+            }
+        )
     }
 
     private var inOnSetStyle = false
@@ -457,6 +541,21 @@ internal class WatchFaceImpl(
         scheduleDraw()
     }
 
+    // Only installed if Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+    @SuppressLint("NewApi")
+    private val batteryLowAndNotChargingObserver = Observer<Boolean> {
+        // To save power we request a lower hardware display frame rate when the battery is low
+        // and not charging.
+        renderer.surfaceHolder.surface.setFrameRate(
+            if (it) {
+                1000f / MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS.toFloat()
+            } else {
+                SYSTEM_DECIDES_FRAME_RATE
+            },
+            FRAME_RATE_COMPATIBILITY_DEFAULT
+        )
+    }
+
     init {
         // We need to inhibit an immediate callback during initialization because members are not
         // fully constructed and it will fail. It's also superfluous because we're going to render
@@ -484,45 +583,83 @@ internal class WatchFaceImpl(
             }
         )
 
-        WatchFaceConfigActivity.registerWatchFace(
-            componentName,
-            object : WatchFaceConfigDelegate {
-                override fun getUserStyleSchema() = userStyleRepository.schema.toWireFormat()
+        if (!watchState.isHeadless) {
+            WatchFace.registerEditorDelegate(
+                componentName,
+                object : WatchFace.EditorDelegate {
+                    override val userStyleRepository: UserStyleRepository
+                        get() = this@WatchFaceImpl.userStyleRepository
 
-                override fun getUserStyle() = userStyleRepository.userStyle.toWireFormat()
+                    override val complicationsManager: ComplicationsManager
+                        get() = this@WatchFaceImpl.complicationsManager
 
-                override fun setUserStyle(userStyle: UserStyleWireFormat) {
-                    userStyleRepository.userStyle =
-                        UserStyle(userStyle, userStyleRepository.schema)
+                    override val screenBounds
+                        get() = renderer.screenBounds
+
+                    override val previewReferenceTimeMillis
+                        get() = this@WatchFaceImpl.previewReferenceTimeMillis
+
+                    override fun takeScreenshot(
+                        renderParameters: RenderParameters,
+                        calendarTimeMillis: Long,
+                        idToComplicationData: Map<Int, ComplicationData>?
+                    ): Bitmap {
+                        val oldComplicationData =
+                            complicationsManager.complications.values.map {
+                                it.renderer.idAndData ?: IdAndComplicationData(
+                                    it.id,
+                                    NoDataComplicationData()
+                                )
+                            }
+
+                        idToComplicationData?.let {
+                            for ((id, complicationData) in it) {
+                                complicationsManager[id]!!.renderer.setIdComplicationDataSync(
+                                    IdAndComplicationData(id, complicationData)
+                                )
+                            }
+                        }
+                        val screenShot = renderer.takeScreenshot(
+                            Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                                timeInMillis = calendarTimeMillis
+                            },
+                            renderParameters
+                        )
+                        if (idToComplicationData != null) {
+                            for (idAndData in oldComplicationData) {
+                                complicationsManager[idAndData.complicationId]!!.renderer
+                                    .setIdComplicationDataSync(idAndData)
+                            }
+                        }
+                        return screenShot
+                    }
                 }
-
-                override fun getBackgroundComplicationId() =
-                    complicationsManager.getBackgroundComplication()?.id
-
-                override fun getComplicationsMap() = complicationsManager.complications
-
-                override fun getCalendar() = calendar
-
-                override fun getComplicationIdAt(tapX: Int, tapY: Int) =
-                    complicationsManager.getComplicationAt(tapX, tapY)?.id
-
-                override fun brieflyHighlightComplicationId(complicationId: Int) {
-                    complicationsManager.bringAttentionToComplication(complicationId)
-                }
-
-                override fun takeScreenshot(
-                    drawRect: Rect,
-                    calendar: Calendar,
-                    renderParameters: RenderParametersWireFormat
-                ) = renderer.takeScreenshot(calendar, RenderParameters(renderParameters))
-            }
-        )
+            )
+        }
 
         watchState.isAmbient.addObserver(ambientObserver)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            watchState.isBatteryLowAndNotCharging.addObserver(batteryLowAndNotChargingObserver)
+        }
         watchState.interruptionFilter.addObserver(interruptionFilterObserver)
         watchState.isVisible.addObserver(visibilityObserver)
 
         initFinished = true
+    }
+
+    internal fun setIsBatteryLowAndNotChargingFromBatteryStatus(batteryStatus: Intent?) {
+        val status = batteryStatus?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+        val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+            status == BatteryManager.BATTERY_STATUS_FULL
+        val batteryPercent: Float = batteryStatus?.let { intent ->
+            val level: Int = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+            val scale: Int = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+            level * 100 / scale.toFloat()
+        } ?: 100.0f
+        val isBatteryLowAndNotCharging =
+            watchState.isBatteryLowAndNotCharging as MutableObservableWatchData
+        isBatteryLowAndNotCharging.value =
+            (batteryPercent < INITIAL_LOW_BATTERY_THRESHOLD) && !isCharging
     }
 
     /**
@@ -541,9 +678,14 @@ internal class WatchFaceImpl(
         pendingPostDoubleTap.cancel()
         renderer.onDestroy()
         watchState.isAmbient.removeObserver(ambientObserver)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            watchState.isBatteryLowAndNotCharging.removeObserver(batteryLowAndNotChargingObserver)
+        }
         watchState.interruptionFilter.removeObserver(interruptionFilterObserver)
         watchState.isVisible.removeObserver(visibilityObserver)
-        WatchFaceConfigActivity.unregisterWatchFace(componentName)
+        if (!watchState.isHeadless) {
+            WatchFace.unregisterEditorDelegate(componentName)
+        }
         unregisterReceivers()
     }
 

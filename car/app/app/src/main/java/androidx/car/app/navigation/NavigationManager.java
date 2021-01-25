@@ -54,8 +54,8 @@ import java.util.concurrent.Executor;
  * to end navigation or when the destination is reached, {@link #navigationEnded()} should be
  * called.
  *
- * <p>Navigation apps must also register a {@link NavigationManagerListener} to handle callbacks to
- * {@link NavigationManagerListener#onStopNavigation()} issued by the host.
+ * <p>Navigation apps must also register a {@link NavigationManagerCallback} to handle callbacks to
+ * {@link NavigationManagerCallback#onStopNavigation()} issued by the host.
  */
 public class NavigationManager {
     private static final String TAG = "NavigationManager";
@@ -66,9 +66,9 @@ public class NavigationManager {
 
     // Guarded by main thread access.
     @Nullable
-    private NavigationManagerListener mNavigationManagerListener;
+    private NavigationManagerCallback mNavigationManagerCallback;
     @Nullable
-    private Executor mNavigationManagerListenerExecutor;
+    private Executor mNavigationManagerCallbackExecutor;
     private boolean mIsNavigating;
     private boolean mIsAutoDriveEnabled;
 
@@ -81,7 +81,7 @@ public class NavigationManager {
      * <p>This method should only be invoked once the navigation app has called {@link
      * #navigationStarted()}, or else the updates will be dropped by the host. Once the app has
      * called {@link #navigationEnded()} or received
-     * {@link NavigationManagerListener#onStopNavigation()} it should stop sending updates.
+     * {@link NavigationManagerCallback#onStopNavigation()} it should stop sending updates.
      *
      * <p>As the location changes, and in accordance with speed and rounded distance changes, the
      * {@link TravelEstimate}s in the provided {@link Trip} should be rebuilt and this method called
@@ -94,7 +94,6 @@ public class NavigationManager {
      * displays the associated icon may be shown.
      *
      * @param trip destination, steps, and trip estimates to be sent to the host
-     *
      * @throws HostException            if the call is invoked by an app that is not declared as
      *                                  a navigation app in the manifest
      * @throws IllegalStateException    if the call occurs when navigation is not started. See
@@ -127,59 +126,57 @@ public class NavigationManager {
     }
 
     /**
-     * Sets a listener to start receiving navigation manager events.
+     * Sets a callback to start receiving navigation manager events.
      *
-     * Note that the listener will be executed on the main thread using
+     * Note that the callback events will be executed on the main thread using
      * {@link Looper#getMainLooper()}. To specify the execution thread, use
-     * {@link #setNavigationManagerListener(Executor, NavigationManagerListener)}.
+     * {@link #setNavigationManagerCallback(Executor, NavigationManagerCallback)}.
      *
-     * @param listener the {@link NavigationManagerListener} to use
-     *
+     * @param callback the {@link NavigationManagerCallback} to use
      * @throws IllegalStateException if the current thread is not the main thread
      */
     @SuppressLint("ExecutorRegistration")
     @MainThread
-    public void setNavigationManagerListener(@NonNull NavigationManagerListener listener) {
+    public void setNavigationManagerCallback(@NonNull NavigationManagerCallback callback) {
         checkMainThread();
         Executor executor = ContextCompat.getMainExecutor(mCarContext);
-        setNavigationManagerListener(executor, listener);
+        setNavigationManagerCallback(executor, callback);
     }
 
     /**
-     * Sets a listener to start receiving navigation manager events.
+     * Sets a callback to start receiving navigation manager events.
      *
-     * @param executor the executor which will be used for invoking the listener
-     * @param listener the {@link NavigationManagerListener} to use
-     *
+     * @param executor the executor which will be used for invoking the callback
+     * @param callback the {@link NavigationManagerCallback} to use
      * @throws IllegalStateException if the current thread is not the main thread.
      */
     @MainThread
-    public void setNavigationManagerListener(@NonNull /* @CallbackExecutor */ Executor executor,
-            @NonNull NavigationManagerListener listener) {
+    public void setNavigationManagerCallback(@NonNull /* @CallbackExecutor */ Executor executor,
+            @NonNull NavigationManagerCallback callback) {
         checkMainThread();
 
-        mNavigationManagerListenerExecutor = executor;
-        mNavigationManagerListener = listener;
+        mNavigationManagerCallbackExecutor = executor;
+        mNavigationManagerCallback = callback;
         if (mIsAutoDriveEnabled) {
             onAutoDriveEnabled();
         }
     }
 
     /**
-     * Clears the listener for receiving navigation manager events.
+     * Clears the callback for receiving navigation manager events.
      *
      * @throws IllegalStateException if navigation is started. See
      *                               {@link #navigationStarted()} for more info.
      * @throws IllegalStateException if the current thread is not the main thread.
      */
     @MainThread
-    public void clearNavigationManagerListener() {
+    public void clearNavigationManagerCallback() {
         checkMainThread();
         if (mIsNavigating) {
-            throw new IllegalStateException("Removing listener while navigating");
+            throw new IllegalStateException("Removing callback while navigating");
         }
-        mNavigationManagerListenerExecutor = null;
-        mNavigationManagerListener = null;
+        mNavigationManagerCallbackExecutor = null;
+        mNavigationManagerCallback = null;
     }
 
     /**
@@ -190,14 +187,14 @@ public class NavigationManager {
      * navigation in response to user action.
      *
      * <p>This function can only called if
-     * {@link #setNavigationManagerListener(NavigationManagerListener)} has been
-     * called with a non-{@code null} value. The listener is required so that a signal to stop
+     * {@link #setNavigationManagerCallback(NavigationManagerCallback)} has been
+     * called with a non-{@code null} value. The callback is required so that a signal to stop
      * navigation from the host can be handled using
-     * {@link NavigationManagerListener#onStopNavigation()}.
+     * {@link NavigationManagerCallback#onStopNavigation()}.
      *
      * <p>This method is idempotent.
      *
-     * @throws IllegalStateException if no navigation manager listener has been set.
+     * @throws IllegalStateException if no navigation manager callback has been set.
      * @throws IllegalStateException if the current thread is not the main thread.
      */
     @MainThread
@@ -206,8 +203,8 @@ public class NavigationManager {
         if (mIsNavigating) {
             return;
         }
-        if (mNavigationManagerListener == null) {
-            throw new IllegalStateException("No listener has been set");
+        if (mNavigationManagerCallback == null) {
+            throw new IllegalStateException("No callback has been set");
         }
         mIsNavigating = true;
         mHostDispatcher.dispatch(
@@ -282,8 +279,8 @@ public class NavigationManager {
             return;
         }
         mIsNavigating = false;
-        requireNonNull(mNavigationManagerListenerExecutor).execute(() -> {
-            requireNonNull(mNavigationManagerListener).onStopNavigation();
+        requireNonNull(mNavigationManagerCallbackExecutor).execute(() -> {
+            requireNonNull(mNavigationManagerCallback).onStopNavigation();
         });
     }
 
@@ -301,13 +298,13 @@ public class NavigationManager {
     public void onAutoDriveEnabled() {
         checkMainThread();
         mIsAutoDriveEnabled = true;
-        if (mNavigationManagerListener != null) {
+        if (mNavigationManagerCallback != null) {
             Log.d(TAG, "Executing onAutoDriveEnabled");
-            requireNonNull(mNavigationManagerListenerExecutor).execute(() -> {
-                mNavigationManagerListener.onAutoDriveEnabled();
+            requireNonNull(mNavigationManagerCallbackExecutor).execute(() -> {
+                mNavigationManagerCallback.onAutoDriveEnabled();
             });
         } else {
-            Log.w(TAG, "NavigationManagerListener not set, skipping onAutoDriveEnabled");
+            Log.w(TAG, "NavigationManagerCallback not set, skipping onAutoDriveEnabled");
         }
     }
 

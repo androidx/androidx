@@ -18,10 +18,9 @@ package androidx.camera.camera2.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -151,7 +150,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     private CameraManagerCompat getCameraManagerCompat() {
-        return CameraManagerCompat.from(ApplicationProvider.getApplicationContext());
+        return CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext());
     }
 
     private CameraCharacteristicsCompat getCameraCharacteristicsCompat(String cameraId)

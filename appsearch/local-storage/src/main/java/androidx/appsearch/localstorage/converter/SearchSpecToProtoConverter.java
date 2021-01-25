@@ -25,14 +25,20 @@ import com.google.android.icing.proto.ResultSpecProto;
 import com.google.android.icing.proto.ScoringSpecProto;
 import com.google.android.icing.proto.SearchSpecProto;
 import com.google.android.icing.proto.TermMatchType;
+import com.google.android.icing.proto.TypePropertyMask;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Translates a {@link SearchSpec} into icing search protos.
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SearchSpecToProtoConverter {
-    private SearchSpecToProtoConverter() {}
+    private SearchSpecToProtoConverter() {
+    }
 
     /** Extracts {@link SearchSpecProto} information from a {@link SearchSpec}. */
     @NonNull
@@ -56,14 +62,20 @@ public final class SearchSpecToProtoConverter {
     @NonNull
     public static ResultSpecProto toResultSpecProto(@NonNull SearchSpec spec) {
         Preconditions.checkNotNull(spec);
-        return ResultSpecProto.newBuilder()
+        ResultSpecProto.Builder builder = ResultSpecProto.newBuilder()
                 .setNumPerPage(spec.getResultCountPerPage())
                 .setSnippetSpec(
                         ResultSpecProto.SnippetSpecProto.newBuilder()
                                 .setNumToSnippet(spec.getSnippetCount())
                                 .setNumMatchesPerProperty(spec.getSnippetCountPerProperty())
-                                .setMaxWindowBytes(spec.getMaxSnippetSize()))
-                .build();
+                                .setMaxWindowBytes(spec.getMaxSnippetSize()));
+        Map<String, List<String>> projectionTypePropertyPaths = spec.getProjections();
+        for (Map.Entry<String, List<String>> e : projectionTypePropertyPaths.entrySet()) {
+            builder.addTypePropertyMasks(
+                    TypePropertyMask.newBuilder().setSchemaType(
+                            e.getKey()).addAllPaths(e.getValue()));
+        }
+        return builder.build();
     }
 
     /** Extracts {@link ScoringSpecProto} information from a {@link SearchSpec}. */
@@ -78,17 +90,26 @@ public final class SearchSpecToProtoConverter {
         if (orderCodeProto == null) {
             throw new IllegalArgumentException("Invalid result ranking order: " + orderCode);
         }
-        protoBuilder.setOrderBy(orderCodeProto);
-
-        @SearchSpec.RankingStrategy int rankingStrategyCode = spec.getRankingStrategy();
-        ScoringSpecProto.RankingStrategy.Code rankingStrategyCodeProto =
-                ScoringSpecProto.RankingStrategy.Code.forNumber(rankingStrategyCode);
-        if (rankingStrategyCodeProto == null) {
-            throw new IllegalArgumentException("Invalid result ranking strategy: "
-                    + rankingStrategyCode);
-        }
-        protoBuilder.setRankBy(rankingStrategyCodeProto);
+        protoBuilder.setOrderBy(orderCodeProto).setRankBy(
+                toProtoRankingStrategy(spec.getRankingStrategy()));
 
         return protoBuilder.build();
+    }
+
+    private static ScoringSpecProto.RankingStrategy.Code toProtoRankingStrategy(
+            @SearchSpec.RankingStrategy int rankingStrategyCode) {
+        switch (rankingStrategyCode) {
+            case SearchSpec.RANKING_STRATEGY_NONE:
+                return ScoringSpecProto.RankingStrategy.Code.NONE;
+            case SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE:
+                return ScoringSpecProto.RankingStrategy.Code.DOCUMENT_SCORE;
+            case SearchSpec.RANKING_STRATEGY_CREATION_TIMESTAMP:
+                return ScoringSpecProto.RankingStrategy.Code.CREATION_TIMESTAMP;
+            case SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE:
+                return ScoringSpecProto.RankingStrategy.Code.RELEVANCE_SCORE;
+            default:
+                throw new IllegalArgumentException("Invalid result ranking strategy: "
+                        + rankingStrategyCode);
+        }
     }
 }

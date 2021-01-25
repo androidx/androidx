@@ -35,7 +35,7 @@ public class LaneTest {
     public void createInstance() {
         LaneDirection laneDirection1 = LaneDirection.create(SHAPE_SHARP_LEFT, true);
         LaneDirection laneDirection2 = LaneDirection.create(SHAPE_NORMAL_LEFT, false);
-        Lane lane = Lane.builder().addDirection(laneDirection1).addDirection(
+        Lane lane = new Lane.Builder().addDirection(laneDirection1).addDirection(
                 laneDirection2).build();
 
         assertThat(lane.getDirections()).hasSize(2);
@@ -44,33 +44,20 @@ public class LaneTest {
     }
 
     @Test
-    public void clearDirections() {
-        LaneDirection laneDirection1 = LaneDirection.create(SHAPE_SHARP_LEFT, true);
-        LaneDirection laneDirection2 = LaneDirection.create(SHAPE_NORMAL_LEFT, false);
-        Lane lane =
-                Lane.builder()
-                        .addDirection(laneDirection1)
-                        .addDirection(laneDirection2)
-                        .clearDirections()
-                        .build();
-
-        assertThat(lane.getDirections()).hasSize(0);
-    }
-
-    @Test
     public void equals() {
         LaneDirection laneDirection = LaneDirection.create(SHAPE_SHARP_LEFT, true);
-        Lane lane = Lane.builder().addDirection(laneDirection).build();
+        Lane lane = new Lane.Builder().addDirection(laneDirection).build();
 
-        assertThat(Lane.builder().addDirection(laneDirection).build()).isEqualTo(lane);
+        assertThat(new Lane.Builder().addDirection(laneDirection).build()).isEqualTo(lane);
     }
 
     @Test
     public void notEquals_differentDirections() {
         LaneDirection laneDirection = LaneDirection.create(SHAPE_SHARP_LEFT, true);
-        Lane lane = Lane.builder().addDirection(laneDirection).build();
+        Lane lane = new Lane.Builder().addDirection(laneDirection).build();
 
-        assertThat(Lane.builder().addDirection(laneDirection).addDirection(laneDirection).build())
+        assertThat(new Lane.Builder().addDirection(laneDirection).addDirection(
+                laneDirection).build())
                 .isNotEqualTo(lane);
     }
 }

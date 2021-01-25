@@ -16,39 +16,34 @@
   -->
 
 <resources>
-    <string name="select_activity_label">Select Test Activity to Launch:</string>
-
-    <string name="biometricprompt_test_app_title">BiometricPrompt Test App</string>
-
-    <string name="cancel_config_change_label">Cancel on configuration changes</string>
-    <string name="require_confirmation_label">Require confirmation</string>
-    <string name="clear_log_label">Clear log</string>
+    <string name="biometric_test_app_name">Biometric Test App</string>
+    <string name="select_activity_label">Select a test activity:</string>
+    <string name="biometric_prompt_test_title">BiometricPrompt Test</string>
+    <string name="auth_prompt_test_title">AuthPrompt Test</string>
 
     <string name="biometric_prompt_title">Title</string>
     <string name="biometric_prompt_subtitle">Subtitle</string>
     <string name="biometric_prompt_description">Description</string>
-    <string name="biometric_prompt_negative_label">Negative button</string>
+    <string name="biometric_prompt_negative_text">Negative button</string>
 
     <string name="authenticator_types_label">Authenticator types:</string>
-
-    <string name="authenticate_button_label">Authenticate</string>
-    <string name="can_authenticate_button_label">Can authenticate</string>
-
     <string name="biometric_strong_label">BIOMETRIC_STRONG</string>
     <string name="biometric_weak_label">BIOMETRIC_WEAK</string>
     <string name="device_credential_label">DEVICE_CREDENTIAL</string>
 
-    <string name="authprompt_test_app_title">AuthPrompt Test App</string>
+    <string name="auth_type_label">Authentication type:</string>
+    <string name="class2_biometric_label">Class 2 biometric only</string>
+    <string name="class3_biometric_label">Class 3 biometric only</string>
+    <string name="class2_biometric_or_credential_label">Class 2 biometric or credential</string>
+    <string name="class3_biometric_or_credential_label">Class 3 biometric or credential</string>
+    <string name="credential_label">Credential only</string>
 
-    <string name="authclass_label">Authentication type:</string>
-    <string name="class2_biometric_text">Class 2 Biometric Only Authentication</string>
-    <string name="class3_biometric_text">Class 3 Biometric Only Authentication</string>
-    <string name="class2_biometric_or_credential_text">Class 2 Biometric Or Credential
-        Authentication</string>
-    <string name="class3_biometric_or_credential_text">Class 3 Biometric or Credential
-        Authentication</string>
-    <string name="credential_text">Credential Only Authentication</string>
-
-    <string name="crypto_auth_label">Use crypto-based authentication</string>
     <string name="other_options_label">Other options:</string>
+    <string name="cancel_config_change_label">Cancel on configuration changes</string>
+    <string name="require_confirmation_label">Require confirmation</string>
+    <string name="use_crypto_auth_label">Use crypto-based authentication</string>
+
+    <string name="authenticate_button_label">Authenticate</string>
+    <string name="can_authenticate_button_label">Can authenticate</string>
+    <string name="clear_log_label">Clear log</string>
 </resources>

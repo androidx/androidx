@@ -25,6 +25,7 @@ package androidx.slice.builders {
     method public androidx.slice.builders.GridRowBuilder.CellBuilder setContentDescription(CharSequence);
     method public androidx.slice.builders.GridRowBuilder.CellBuilder setContentIntent(android.app.PendingIntent);
     method public androidx.slice.builders.GridRowBuilder.CellBuilder setContentIntent(androidx.remotecallback.RemoteCallback);
+    method public androidx.slice.builders.GridRowBuilder.CellBuilder setSliceAction(androidx.slice.builders.SliceAction);
   }
 
   @RequiresApi(19) public class ListBuilder extends androidx.slice.builders.TemplateSliceBuilder {
@@ -169,6 +170,7 @@ package androidx.slice.builders {
     method public CharSequence? getContentDescription();
     method public androidx.core.graphics.drawable.IconCompat? getIcon();
     method public int getImageMode();
+    method public String? getKey();
     method public int getPriority();
     method public CharSequence getTitle();
     method public boolean isActivity();
@@ -177,6 +179,7 @@ package androidx.slice.builders {
     method public boolean isToggle();
     method public androidx.slice.builders.SliceAction setChecked(boolean);
     method public androidx.slice.builders.SliceAction setContentDescription(CharSequence);
+    method public androidx.slice.builders.SliceAction setKey(String);
     method public androidx.slice.builders.SliceAction setPriority(@IntRange(from=0) int);
   }
 

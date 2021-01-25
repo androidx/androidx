@@ -18,8 +18,10 @@ package androidx.camera.camera2.pipe.impl
 
 import android.os.Build
 import android.os.Looper.getMainLooper
-import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
-import androidx.camera.camera2.pipe.testing.FakeCameras
+import androidx.camera.camera2.pipe.core.Timestamps
+import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.testing.RobolectricCameras
+import androidx.camera.camera2.pipe.wrapper.AndroidCameraDevice
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -37,18 +39,18 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import java.util.concurrent.TimeUnit
 
-@RunWith(CameraPipeRobolectricTestRunner::class)
+@RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 @OptIn(ExperimentalCoroutinesApi::class)
-class VirtualCameraStateTest {
+internal class VirtualCameraStateTest {
     private val mainLooper = shadowOf(getMainLooper())
-    private val cameraId = FakeCameras.create()
-    private val testCamera = FakeCameras.open(cameraId)
+    private val cameraId = RobolectricCameras.create()
+    private val testCamera = RobolectricCameras.open(cameraId)
 
     @After
     fun teardown() {
         mainLooper.idle()
-        FakeCameras.removeAll()
+        RobolectricCameras.clear()
     }
 
     @Test
@@ -80,7 +82,15 @@ class VirtualCameraStateTest {
         // changes that it receives those changes and can be subsequently disconnected, which stops
         // additional events from being passed to the virtual camera instance.
         val virtualCamera = VirtualCameraState(cameraId)
-        val cameraState = flowOf(CameraStateOpen(testCamera.cameraDeviceWrapper))
+        val cameraState = flowOf(
+            CameraStateOpen(
+                AndroidCameraDevice(
+                    testCamera.metadata,
+                    testCamera.cameraDevice,
+                    testCamera.cameraId
+                )
+            )
+        )
         virtualCamera.connect(
             cameraState,
             object : Token {
@@ -107,7 +117,13 @@ class VirtualCameraStateTest {
         // of the events, starting from CameraStateUnopened.
         val virtualCamera = VirtualCameraState(cameraId)
         val states = listOf(
-            CameraStateOpen(testCamera.cameraDeviceWrapper),
+            CameraStateOpen(
+                AndroidCameraDevice(
+                    testCamera.metadata,
+                    testCamera.cameraDevice,
+                    testCamera.cameraId
+                )
+            ),
             CameraStateClosing,
             CameraStateClosed(
                 cameraId,
@@ -141,18 +157,18 @@ class VirtualCameraStateTest {
     }
 }
 
-@RunWith(CameraPipeRobolectricTestRunner::class)
+@RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 @OptIn(ExperimentalCoroutinesApi::class)
-class AndroidCameraDeviceTest {
+internal class AndroidCameraDeviceTest {
     private val mainLooper = shadowOf(getMainLooper())
-    private val cameraId = FakeCameras.create()
-    private val testCamera = FakeCameras.open(cameraId)
+    private val cameraId = RobolectricCameras.create()
+    private val testCamera = RobolectricCameras.open(cameraId)
     private val now = Timestamps.now()
 
     @After
     fun teardown() {
-        FakeCameras.removeAll()
+        RobolectricCameras.clear()
     }
 
     @Test

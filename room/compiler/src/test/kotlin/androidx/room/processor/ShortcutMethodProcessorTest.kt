@@ -22,8 +22,9 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
+import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.ShortcutMethod
@@ -489,11 +490,26 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
         }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_RELATION_IN_PARTIAL_ENTITY)
     }
 
+    @Test
+    fun targetEntity_notDeclared() {
+        singleShortcutMethod(
+            """
+                @${annotation.java.canonicalName}(entity = User.class)
+                abstract public int foo(long x);
+                """
+        ) { _, _ ->
+        }.failsToCompile().withErrorContaining(
+            ProcessorErrors.shortcutMethodArgumentMustBeAClass(
+                TypeName.LONG
+            )
+        )
+    }
+
     abstract fun invalidReturnTypeError(): String
 
     abstract fun process(
         baseContext: Context,
-        containing: XDeclaredType,
+        containing: XType,
         executableElement: XMethodElement
     ): T
 
@@ -521,18 +537,18 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                         .forAnnotations(annotation, Dao::class)
                         .nextRunHandler { invocation ->
                             val (owner, methods) = invocation.roundEnv
-                                .getElementsAnnotatedWith(Dao::class.java)
+                                .getTypeElementsAnnotatedWith(Dao::class.java)
                                 .map {
                                     Pair(
                                         it,
-                                        it.asTypeElement().getAllMethods().filter {
+                                        it.getAllMethods().filter {
                                             it.hasAnnotation(annotation)
                                         }
                                     )
                                 }.first { it.second.isNotEmpty() }
                             val processed = process(
                                 baseContext = invocation.context,
-                                containing = owner.asDeclaredType(),
+                                containing = owner.type,
                                 executableElement = methods.first()
                             )
                             handler(processed, invocation)

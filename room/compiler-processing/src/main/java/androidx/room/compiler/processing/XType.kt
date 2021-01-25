@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 import kotlin.contracts.contract
 import kotlin.reflect.KClass
@@ -25,7 +26,6 @@ import kotlin.reflect.KClass
  *
  * @see javax.lang.model.type.TypeMirror
  * @see [XArrayType]
- * @see [XDeclaredType]
  */
 interface XType {
     /**
@@ -46,11 +46,24 @@ interface XType {
     val nullability: XNullability
 
     /**
-     * Casts the current type to [XTypeElement].
+     * The [XTypeElement] that represents this type.
      *
-     * @see isType
+     * Note that it might be null if the type is not backed by a type element (e.g. if it is a
+     * primitive, wildcard etc)
+     *
+     * @see isTypeElement
      */
-    fun asTypeElement(): XTypeElement
+    val typeElement: XTypeElement?
+
+    /**
+     * Type arguments for the element. Note that they might be either placeholders or real
+     * resolvable types depending on the usage.
+     *
+     * If the type is not declared (e.g. a primitive), the list is empty.
+     *
+     * @see [javax.lang.model.type.DeclaredType.getTypeArguments]
+     */
+    val typeArguments: List<XType>
 
     /**
      * Returns `true` if this type can be assigned from [other]
@@ -84,59 +97,14 @@ interface XType {
     fun boxed(): XType
 
     /**
-     * Returns this type as an instance of [XArrayType] or fails if it is not an array.
-     */
-    fun asArray(): XArrayType = this as XArrayType
-
-    /**
-     * Returns `true` if this is a primitive or boxed it
-     */
-    fun isInt(): Boolean
-
-    /**
-     * Returns `true` if this is a primitive or boxed long
-     */
-    fun isLong(): Boolean
-
-    /**
      * Returns `true` if this is a [List]
      */
-    fun isList(): Boolean = isType() && isTypeOf(List::class)
-
-    /**
-     * Returns `true` if this is `void`
-     */
-    fun isVoid() = typeName == TypeName.VOID
-
-    /**
-     * Returns `true` if this is a [Void]
-     */
-    fun isVoidObject(): Boolean = isType() && isTypeOf(Void::class)
-
-    /**
-     * Returns `true` if this is the kotlin [Unit] type.
-     */
-    fun isKotlinUnit(): Boolean = isType() && isTypeOf(Unit::class)
-
-    /**
-     * Returns `true` if this represents a `byte`.
-     */
-    fun isByte(): Boolean
+    fun isList(): Boolean = isTypeOf(List::class)
 
     /**
      * Returns `true` if this is the None type.
      */
     fun isNone(): Boolean
-
-    /**
-     * Returns true if this represented by a [XTypeElement].
-     */
-    fun isType(): Boolean
-
-    /**
-     * Returns true if this represented by an [Enum].
-     */
-    fun isEnum(): Boolean
 
     /**
      * Returns `true` if this is the same raw type as [other]
@@ -181,16 +149,6 @@ interface XType {
 }
 
 /**
- * Returns true if this is an [XDeclaredType].
- */
-fun XType.isDeclared(): Boolean {
-    contract {
-        returns(true) implies (this@isDeclared is XDeclaredType)
-    }
-    return this is XDeclaredType
-}
-
-/**
  * Returns true if this is an [XArrayType].
  */
 fun XType.isArray(): Boolean {
@@ -204,29 +162,16 @@ fun XType.isArray(): Boolean {
  * Returns true if this is a [List] or [Set].
  */
 fun XType.isCollection(): Boolean {
-    contract {
-        returns(true) implies (this@isCollection is XDeclaredType)
-    }
-    return isType() && (isTypeOf(List::class) || isTypeOf(Set::class))
+    return isTypeOf(List::class) || isTypeOf(Set::class)
 }
-
-/**
- * Returns `this` as an [XDeclaredType].
- */
-fun XType.asDeclaredType() = this as XDeclaredType
 
 private fun isAssignableWithoutVariance(from: XType, to: XType): Boolean {
     val assignable = to.isAssignableFrom(from)
     if (assignable) {
         return true
     }
-    if (!from.isDeclared() || !to.isDeclared()) {
-        return false
-    }
-    val declaredFrom = from.asDeclaredType()
-    val declaredTo = to.asDeclaredType()
-    val fromTypeArgs = declaredFrom.typeArguments
-    val toTypeArgs = declaredTo.typeArguments
+    val fromTypeArgs = from.typeArguments
+    val toTypeArgs = to.typeArguments
     // no type arguments, we don't need extra checks
     if (fromTypeArgs.isEmpty() || fromTypeArgs.size != toTypeArgs.size) {
         return false
@@ -251,4 +196,41 @@ private fun isAssignableWithoutVariance(from: XType, to: XType): Boolean {
             to = toTypeArgs[index]
         )
     }
+}
+
+/**
+ * Returns `true` if this is a primitive or boxed it
+ */
+fun XType.isInt(): Boolean = typeName == TypeName.INT || typeName == KnownTypeNames.BOXED_INT
+
+/**
+ * Returns `true` if this is a primitive or boxed long
+ */
+fun XType.isLong(): Boolean = typeName == TypeName.LONG || typeName == KnownTypeNames.BOXED_LONG
+/**
+ * Returns `true` if this is `void`
+ */
+fun XType.isVoid() = typeName == TypeName.VOID
+
+/**
+ * Returns `true` if this is a [Void]
+ */
+fun XType.isVoidObject(): Boolean = typeName == KnownTypeNames.BOXED_VOID
+
+/**
+ * Returns `true` if this is the kotlin [Unit] type.
+ */
+fun XType.isKotlinUnit(): Boolean = typeName == KnownTypeNames.KOTLIN_UNIT
+
+/**
+ * Returns `true` if this represents a `byte`.
+ */
+fun XType.isByte(): Boolean = typeName == TypeName.BYTE || typeName == KnownTypeNames.BOXED_BYTE
+
+internal object KnownTypeNames {
+    val BOXED_VOID = TypeName.VOID.box()
+    val BOXED_INT = TypeName.INT.box()
+    val BOXED_LONG = TypeName.LONG.box()
+    val BOXED_BYTE = TypeName.BYTE.box()
+    val KOTLIN_UNIT = ClassName.get("kotlin", "Unit")
 }

@@ -19,14 +19,14 @@ package androidx.room.processor
 import androidx.room.OnConflictStrategy.IGNORE
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Update
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
 import androidx.room.vo.UpdateMethod
 import androidx.room.vo.findFieldByColumnName
 
 class UpdateMethodProcessor(
     baseContext: Context,
-    val containing: XDeclaredType,
+    val containing: XType,
     val executableElement: XMethodElement
 ) {
     val context = baseContext.fork(executableElement)

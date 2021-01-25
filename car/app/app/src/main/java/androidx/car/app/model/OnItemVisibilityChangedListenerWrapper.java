@@ -21,7 +21,11 @@ import androidx.car.app.OnDoneCallback;
 
 /**
  * A host-side interface for reporting to clients that the visibility state has changed.
+ *
+ * @deprecated use {@link OnItemVisibilityChangedDelegate} instead.
  */
+// TODO(b/177591476): remove after host references have been cleaned up.
+@Deprecated
 public interface OnItemVisibilityChangedListenerWrapper {
     /**
      * Notifies that the items in the list within the specified indices have become visible.

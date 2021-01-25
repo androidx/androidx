@@ -400,7 +400,7 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
     }
 
     static class StableIdAdapter extends ObjectAdapter {
-        ArrayList<Integer> mList = new ArrayList();
+        ArrayList<Integer> mList = new ArrayList<>();
 
         @Override
         public long getId(int position) {
@@ -526,8 +526,8 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
 
     public static class F_Base extends BrowseFragment {
 
-        List<Long> mEntranceTransitionStartTS = new ArrayList();
-        List<Long> mEntranceTransitionEndTS = new ArrayList();
+        List<Long> mEntranceTransitionStartTS = new ArrayList<>();
+        List<Long> mEntranceTransitionEndTS = new ArrayList<>();
 
         @Override
         protected void onEntranceTransitionStart() {

@@ -23,7 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.car.app.AppManager;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.Screen;
-import androidx.car.app.SurfaceListener;
+import androidx.car.app.SurfaceCallback;
 import androidx.car.app.model.Template;
 
 import java.util.ArrayList;
@@ -35,35 +35,37 @@ import java.util.List;
  * <p>This class will track the following usages of the {@link AppManager} throughout your test:
  *
  * <ul>
- *   <li>All {@link SurfaceListener}s set via calling {@link AppManager#setSurfaceListener}.
+ *   <li>All {@link SurfaceCallback}s set via calling {@link AppManager#setSurfaceCallback}.
  *   <li>The {@link Template}s returned from {@link Screen#onGetTemplate} due to invalidate calls
  *       via {@link AppManager#invalidate}.
  *   <li>All toasts shown via calling {@link AppManager#showToast}.
  * </ul>
  */
 public class TestAppManager extends AppManager {
-    private final List<SurfaceListener> mSurfaceListeners = new ArrayList<>();
+    private final List<SurfaceCallback> mSurfaceCallbacks = new ArrayList<>();
     private final List<CharSequence> mToastsShown = new ArrayList<>();
     private final List<Pair<Screen, Template>> mTemplatesReturned = new ArrayList<>();
 
-    /** Resets the values tracked by this {@link TestAppManager} and all {@link ScreenController}
-     * s. */
+    /**
+     * Resets the values tracked by this {@link TestAppManager} and all {@link ScreenController}
+     * s.
+     */
     public void reset() {
-        mSurfaceListeners.clear();
+        mSurfaceCallbacks.clear();
         mToastsShown.clear();
         mTemplatesReturned.clear();
     }
 
     /**
-     * Retrieves all the {@link SurfaceListener}s set via {@link AppManager#setSurfaceListener}.
+     * Retrieves all the {@link SurfaceCallback}s set via {@link AppManager#setSurfaceCallback}.
      *
      * <p>The listeners are stored in order of calls.
      *
      * <p>The listeners will be stored until {@link #reset} is called.
      */
     @NonNull
-    public List<SurfaceListener> getSurfaceListeners() {
-        return mSurfaceListeners;
+    public List<SurfaceCallback> getSurfaceListeners() {
+        return mSurfaceCallbacks;
     }
 
     /**
@@ -93,8 +95,8 @@ public class TestAppManager extends AppManager {
     }
 
     @Override
-    public void setSurfaceListener(@Nullable SurfaceListener surfaceListener) {
-        mSurfaceListeners.add(surfaceListener);
+    public void setSurfaceCallback(@Nullable SurfaceCallback surfaceCallback) {
+        mSurfaceCallbacks.add(surfaceCallback);
     }
 
     @Override

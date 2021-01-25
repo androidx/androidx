@@ -35,10 +35,10 @@ import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
 import com.squareup.javapoet.WildcardTypeName
 
-internal const val ERROR_PACKAGE_NAME = "androidx.room.compiler.processing.kotlin.error"
-
-// catch-all type name when we cannot resolve to anything.
-internal val ERROR_TYPE_NAME = ClassName.get(ERROR_PACKAGE_NAME, "CannotResolve")
+// Catch-all type name when we cannot resolve to anything. This is what KAPT uses as error type
+// and we use the same type in KSP for consistency.
+// https://kotlinlang.org/docs/reference/kapt.html#non-existent-type-correction
+internal val ERROR_TYPE_NAME = ClassName.get("error", "NonExistentClass")
 
 /**
  * Turns a KSTypeReference into a TypeName in java's type system.

@@ -17,7 +17,6 @@
 package androidx.room.compiler.processing.ksp.synthetic
 
 import androidx.room.compiler.processing.XAnnotated
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XType
@@ -80,7 +79,7 @@ internal class KspSyntheticContinuationParameterElement(
         )
     }
 
-    override fun asMemberOf(other: XDeclaredType): XType {
+    override fun asMemberOf(other: XType): XType {
         check(other is KspType)
         val continuation = env.resolver.requireContinuationClass()
         val asMember = containing.declaration.returnTypeAsMemberOf(

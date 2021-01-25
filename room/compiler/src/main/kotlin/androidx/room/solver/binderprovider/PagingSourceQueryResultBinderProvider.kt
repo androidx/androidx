@@ -16,8 +16,8 @@
 
 package androidx.room.solver.binderprovider
 
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XRawType
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.PagingTypeNames
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
@@ -34,13 +34,13 @@ class PagingSourceQueryResultBinderProvider(val context: Context) : QueryResultB
         context.processingEnv.findType(PagingTypeNames.PAGING_SOURCE)?.rawType
     }
 
-    override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(declared: XType, query: ParsedQuery): QueryResultBinder {
         if (query.tables.isEmpty()) {
             context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
         }
         val typeArg = declared.typeArguments.last()
         val listAdapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
-            ListQueryResultAdapter(it)
+            ListQueryResultAdapter(typeArg, it)
         }
         val tableNames = (
             (listAdapter?.accessedTableNames() ?: emptyList()) +
@@ -51,7 +51,7 @@ class PagingSourceQueryResultBinderProvider(val context: Context) : QueryResultB
         )
     }
 
-    override fun matches(declared: XDeclaredType): Boolean {
+    override fun matches(declared: XType): Boolean {
         if (pagingSourceType == null) {
             return false
         }

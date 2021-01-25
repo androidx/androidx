@@ -17,22 +17,14 @@
 package androidx.appsearch.app.util;
 
 import static com.google.common.truth.Truth.assertThat;
-
-import android.content.Context;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import androidx.appsearch.app.AppSearchBatchResult;
-import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByUriRequest;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
-import androidx.appsearch.app.SetSchemaRequest;
-import androidx.appsearch.localstorage.LocalStorage;
-
-import com.google.common.collect.ImmutableList;
-
-import junit.framework.AssertionFailedError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,38 +32,11 @@ import java.util.concurrent.Future;
 
 public class AppSearchTestUtils {
 
-    // List of databases that may be used in tests. Keeping them in a centralized location helps
-    // #cleanup know which databases to clear.
-    public static final String DEFAULT_DATABASE = LocalStorage.DEFAULT_DATABASE_NAME;
-    public static final String DB_1 = "testDb1";
-    public static final String DB_2 = "testDb2";
-
-    public static void cleanup(Context context) throws Exception {
-        List<String> databases = ImmutableList.of(DEFAULT_DATABASE, DB_1, DB_2);
-        for (String database : databases) {
-            AppSearchSession session =
-                    checkIsResultSuccess(
-                            LocalStorage.createSearchSession(new LocalStorage.SearchContext.Builder(
-                                    context).setDatabaseName(database).build()));
-            checkIsResultSuccess(session.setSchema(
-                    new SetSchemaRequest.Builder().setForceOverride(true).build()));
-        }
-    }
-
-    public static <V> V checkIsResultSuccess(Future<AppSearchResult<V>> future) throws Exception {
-        AppSearchResult<V> result = future.get();
-        if (!result.isSuccess()) {
-            throw new AssertionFailedError("AppSearchResult not successful: " + result);
-        }
-        return result.getResultValue();
-    }
-
     public static <K, V> AppSearchBatchResult<K, V> checkIsBatchResultSuccess(
             Future<AppSearchBatchResult<K, V>> future) throws Exception {
         AppSearchBatchResult<K, V> result = future.get();
-        if (!result.isSuccess()) {
-            throw new AssertionFailedError("AppSearchBatchResult not successful: " + result);
-        }
+        assertWithMessage("AppSearchBatchResult not successful: " + result)
+                .that(result.isSuccess()).isTrue();
         return result;
     }
 
@@ -92,13 +57,13 @@ public class AppSearchTestUtils {
 
     public static List<GenericDocument> convertSearchResultsToDocuments(SearchResults searchResults)
             throws Exception {
-        List<SearchResult> results = checkIsResultSuccess(searchResults.getNextPage());
+        List<SearchResult> results = searchResults.getNextPage().get();
         List<GenericDocument> documents = new ArrayList<>();
         while (results.size() > 0) {
             for (SearchResult result : results) {
                 documents.add(result.getDocument());
             }
-            results = checkIsResultSuccess(searchResults.getNextPage());
+            results = searchResults.getNextPage().get();
         }
         return documents;
     }

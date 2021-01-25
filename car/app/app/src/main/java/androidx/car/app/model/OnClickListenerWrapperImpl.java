@@ -23,11 +23,9 @@ import android.os.RemoteException;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
-import androidx.car.app.WrappedRuntimeException;
 import androidx.car.app.utils.RemoteUtils;
 
 /**
@@ -35,6 +33,8 @@ import androidx.car.app.utils.RemoteUtils;
  *
  * @hide
  */
+// TODO(b/177591476): remove after host references have been cleaned up.
+@SuppressWarnings("deprecation")
 @RestrictTo(LIBRARY)
 public class OnClickListenerWrapperImpl implements OnClickListenerWrapper {
 
@@ -56,24 +56,20 @@ public class OnClickListenerWrapperImpl implements OnClickListenerWrapper {
         try {
             mListener.onClick(RemoteUtils.createOnDoneCallbackStub(callback));
         } catch (RemoteException e) {
-            throw new WrappedRuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
 
-    /**
-     * @hide
-     */
     @NonNull
-    @RestrictTo(LIBRARY)
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    public static OnClickListenerWrapper create(@NonNull OnClickListener listener) {
+    static OnClickListenerWrapper create(@NonNull OnClickListener listener) {
         return new OnClickListenerWrapperImpl(
                 listener,
                 listener instanceof ParkedOnlyOnClickListener);
     }
 
-    private OnClickListenerWrapperImpl(@Nullable OnClickListener listener,
+    private OnClickListenerWrapperImpl(@NonNull OnClickListener listener,
             boolean isParkedOnly) {
         this.mListener = new OnClickListenerStub(listener);
         this.mIsParkedOnly = isParkedOnly;
@@ -89,7 +85,7 @@ public class OnClickListenerWrapperImpl implements OnClickListenerWrapper {
     private static class OnClickListenerStub extends IOnClickListener.Stub {
         private final OnClickListener mOnClickListener;
 
-        private OnClickListenerStub(OnClickListener onClickListener) {
+        OnClickListenerStub(OnClickListener onClickListener) {
             this.mOnClickListener = onClickListener;
         }
 

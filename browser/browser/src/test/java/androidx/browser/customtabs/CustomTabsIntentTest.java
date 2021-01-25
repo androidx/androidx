@@ -39,6 +39,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 /**
  * Tests for CustomTabsIntent.
  */
+@SuppressWarnings("deprecation")
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 // minSdk For Bundle#getBinder

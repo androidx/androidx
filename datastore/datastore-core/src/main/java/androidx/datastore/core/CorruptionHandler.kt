@@ -20,7 +20,7 @@ package androidx.datastore.core
  * CorruptionHandlers allow recovery from corruption that prevents reading data from the file (as
  * indicated by a CorruptionException).
  */
-public interface CorruptionHandler<T> {
+internal interface CorruptionHandler<T> {
     /**
      * This function will be called by DataStore when it encounters corruption. If the
      * implementation of this function throws an exception, it will be propagated to the original

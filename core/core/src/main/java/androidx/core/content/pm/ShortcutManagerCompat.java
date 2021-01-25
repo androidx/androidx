@@ -586,7 +586,11 @@ public class ShortcutManagerCompat {
     }
 
     /**
-     * Delete dynamic shortcuts by ID.
+     * Delete dynamic shortcuts by ID. Note that if a shortcut is set as long-lived, it may still
+     * be available in the system as a cached shortcut even after being removed from the list of
+     * dynamic shortcuts.
+     *
+     * @see #removeLongLivedShortcuts
      */
     public static void removeDynamicShortcuts(@NonNull Context context,
             @NonNull List<String> shortcutIds) {
@@ -598,7 +602,11 @@ public class ShortcutManagerCompat {
     }
 
     /**
-     * Delete all dynamic shortcuts from the caller app.
+     * Delete all dynamic shortcuts from the caller app. Note that if a shortcut is set as
+     * long-lived, it may still be available in the system as a cached shortcut even after being
+     * removed from the list of dynamic shortcuts.
+     *
+     * @see #removeLongLivedShortcuts
      */
     public static void removeAllDynamicShortcuts(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 25) {

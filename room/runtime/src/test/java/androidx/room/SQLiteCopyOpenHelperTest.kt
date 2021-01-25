@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.res.AssetManager
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertSame
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -182,6 +183,13 @@ class SQLiteCopyOpenHelperTest {
 
         assertEquals(2, getAndIncrementAccessCount(copyFile))
         assertEquals(1, exceptions.size)
+    }
+
+    @Test
+    fun testGetDelegate() {
+        val openHelper = createOpenHelper(tempDirectory.newFile("toCopy.db"))
+
+        assertSame(delegate, openHelper.getDelegate())
     }
 
     internal fun setupMocks(tmpDir: File, copyFromFile: File, onAssetOpen: () -> Unit = {}) {

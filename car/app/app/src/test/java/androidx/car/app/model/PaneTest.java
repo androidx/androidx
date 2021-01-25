@@ -36,28 +36,28 @@ import java.util.List;
 public class PaneTest {
     @Test
     public void createEmptyRows_throws() {
-        assertThrows(IllegalStateException.class, () -> Pane.builder().build());
+        assertThrows(IllegalStateException.class, () -> new Pane.Builder().build());
 
         // Positive case
-        Pane.builder().setLoading(true).build();
+        new Pane.Builder().setLoading(true).build();
     }
 
     @Test
     public void isLoading_withRows_throws() {
         Row row = createRow(1);
         assertThrows(
-                IllegalStateException.class, () -> Pane.builder().addRow(row).setLoading(
+                IllegalStateException.class, () -> new Pane.Builder().addRow(row).setLoading(
                         true).build());
 
         // Positive case
-        Pane.builder().addRow(row).build();
+        new Pane.Builder().addRow(row).build();
     }
 
     @Test
     public void addRow() {
         Row row = createRow(1);
-        Pane pane = Pane.builder().addRow(row).build();
-        assertThat(pane.getRows()).containsExactly(row);
+        Pane pane = new Pane.Builder().addRow(row).build();
+        assertThat(pane.getRowList()).containsExactly(row);
     }
 
     @Test
@@ -65,19 +65,20 @@ public class PaneTest {
         Row row1 = createRow(1);
         Row row2 = createRow(2);
         Row row3 = createRow(3);
-        Pane pane = Pane.builder().addRow(row1).addRow(row2).addRow(row3).build();
-        assertThat(pane.getRows()).containsExactly(row1, row2, row3);
+        Pane pane = new Pane.Builder().addRow(row1).addRow(row2).addRow(row3).build();
+        assertThat(pane.getRowList()).containsExactly(row1, row2, row3);
     }
 
     @Test
-    public void setActions() {
+    public void setActionList() {
         Action action1 = createAction(1);
         Action action2 = createAction(2);
         List<Action> actions = Arrays.asList(action1, action2);
         Pane pane =
-                Pane.builder().addRow(Row.builder().setTitle("Title").build()).setActions(
+                new Pane.Builder().addRow(
+                        new Row.Builder().setTitle("Title").build()).setActionList(
                         actions).build();
-        assertActions(pane.getActions(), actions);
+        assertThat(pane.getActionList()).containsExactlyElementsIn(actions);
     }
 
     @Test
@@ -85,75 +86,71 @@ public class PaneTest {
         Action action1 = createAction(1);
         assertThrows(
                 IllegalArgumentException.class,
-                () -> Pane.builder().setActions(Arrays.asList(action1, null)).build());
+                () -> new Pane.Builder().setActionList(Arrays.asList(action1, null)).build());
     }
 
     @Test
     public void equals() {
         Pane pane =
-                Pane.builder()
+                new Pane.Builder()
                         .setLoading(false)
-                        .setActions(ImmutableList.of(Action.APP_ICON, Action.BACK))
-                        .addRow(Row.builder().setTitle("Title").build())
+                        .setActionList(ImmutableList.of(Action.APP_ICON, Action.BACK))
+                        .addRow(new Row.Builder().setTitle("Title").build())
                         .build();
 
         assertThat(pane)
                 .isEqualTo(
-                        Pane.builder()
+                        new Pane.Builder()
                                 .setLoading(false)
-                                .setActions(ImmutableList.of(Action.APP_ICON, Action.BACK))
-                                .addRow(Row.builder().setTitle("Title").build())
+                                .setActionList(ImmutableList.of(Action.APP_ICON, Action.BACK))
+                                .addRow(new Row.Builder().setTitle("Title").build())
                                 .build());
     }
 
     @Test
     public void notEquals_differentLoading() {
         Pane pane =
-                Pane.builder().setLoading(false).addRow(
-                        Row.builder().setTitle("Title").build()).build();
+                new Pane.Builder().setLoading(false).addRow(
+                        new Row.Builder().setTitle("Title").build()).build();
 
-        assertThat(pane).isNotEqualTo(Pane.builder().setLoading(true).build());
+        assertThat(pane).isNotEqualTo(new Pane.Builder().setLoading(true).build());
     }
 
     @Test
     public void notEquals_differentActionsAdded() {
-        Row row = Row.builder().setTitle("Title").build();
+        Row row = new Row.Builder().setTitle("Title").build();
         Pane pane =
-                Pane.builder()
+                new Pane.Builder()
                         .addRow(row)
-                        .setActions(ImmutableList.of(Action.APP_ICON, Action.BACK))
+                        .setActionList(ImmutableList.of(Action.APP_ICON, Action.BACK))
                         .build();
 
         assertThat(pane)
                 .isNotEqualTo(
-                        Pane.builder().addRow(row).setActions(
+                        new Pane.Builder().addRow(row).setActionList(
                                 ImmutableList.of(Action.APP_ICON)).build());
     }
 
     @Test
     public void notEquals_differentRow() {
-        Pane pane = Pane.builder().addRow(Row.builder().setTitle("Title").build()).build();
+        Pane pane = new Pane.Builder().addRow(new Row.Builder().setTitle("Title").build()).build();
 
         assertThat(pane)
                 .isNotEqualTo(
-                        Pane.builder()
-                                .addRow(Row.builder().setTitle("Title").setOnClickListener(() -> {
-                                }).build())
+                        new Pane.Builder()
+                                .addRow(new Row.Builder().setTitle("Title").setOnClickListener(
+                                        () -> {
+                                        }).build())
                                 .build());
     }
 
     private static Row createRow(int suffix) {
-        return Row.builder().setTitle("The title " + suffix).addText(
+        return new Row.Builder().setTitle("The title " + suffix).addText(
                 "The subtitle " + suffix).build();
     }
 
     private static Action createAction(int suffix) {
-        return Action.builder().setTitle("Action " + suffix).setOnClickListener(() -> {
+        return new Action.Builder().setTitle("Action " + suffix).setOnClickListener(() -> {
         }).build();
-    }
-
-    private static void assertActions(Object obj, List<Action> expectedActions) {
-        ActionList actionList = (ActionList) obj;
-        assertThat(actionList.getList()).containsExactlyElementsIn(expectedActions);
     }
 }

@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.config
 
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
+import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraImpl
 import androidx.camera.core.UseCase
 import dagger.Module
 import dagger.Provides
@@ -27,7 +28,7 @@ import javax.inject.Scope
 annotation class UseCaseCameraScope
 
 /** Dependency bindings for building a [UseCaseCamera] */
-@Module(includes = [UseCaseCamera.Bindings::class])
+@Module(includes = [UseCaseCameraImpl.Bindings::class])
 abstract class UseCaseCameraModule {
     // Used for dagger provider methods that are static.
     companion object

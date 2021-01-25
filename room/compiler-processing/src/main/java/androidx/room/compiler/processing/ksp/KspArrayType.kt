@@ -38,6 +38,9 @@ internal sealed class KspArrayType(
 
     override fun boxed() = this
 
+    override val typeArguments: List<XType>
+        get() = emptyList() // hide them to behave like java does
+
     /**
      * Kotlin arrays in the form of Array<X>.
      */

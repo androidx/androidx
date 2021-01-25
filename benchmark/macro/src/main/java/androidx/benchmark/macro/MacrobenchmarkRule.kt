@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro
 
+import androidx.annotation.IntRange
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -24,36 +25,43 @@ import org.junit.runners.model.Statement
  * JUnit rule for benchmarking large app operations like startup.
  */
 class MacrobenchmarkRule : TestRule {
-    lateinit var currentDescription: Description
+    private lateinit var currentDescription: Description
 
+    /**
+     * Measure behavior of the specified [packageName] given a set of [metrics].
+     *
+     * @param packageName Package name of the app being measured.
+     * @param metrics List of metrics to measure.
+     * @param compilationMode Mode of compilation used before capturing measurement, such as
+     * [SPEED_PROFILE], which performs
+     * @param startupMode Optional mode to force app launches performed with
+     * [MacrobenchmarkScope.launchIntentAndWait] (and similar variants) to be of the assigned
+     * type. For example, `COLD` launches kill the process before the measureBlock, to ensure
+     * startups will go through full process creation. Generally, leave as null for non-startup
+     * benchmarks.
+     * @param iterations Number of times the [measureBlock] will be run during measurement.
+     * @param measureBlock The block performing app actions to benchmark.
+     */
     fun measureRepeated(
-        config: MacrobenchmarkConfig,
-        setupBlock: MacrobenchmarkScope.(Boolean) -> Unit = {},
+        packageName: String,
+        metrics: List<Metric>,
+        compilationMode: CompilationMode = CompilationMode.SpeedProfile(),
+        startupMode: StartupMode? = null,
+        @IntRange(from = 1)
+        iterations: Int,
+        setupBlock: MacrobenchmarkScope.() -> Unit = {},
         measureBlock: MacrobenchmarkScope.() -> Unit
     ) {
-        macrobenchmark(
+        macrobenchmarkWithStartupMode(
             uniqueName = currentDescription.toUniqueName(),
             className = currentDescription.className,
             testName = currentDescription.methodName,
-            config = config,
-            launchWithClearTask = true,
+            config = MacrobenchmarkConfig(
+                packageName, metrics, compilationMode, iterations
+            ),
+            startupMode = startupMode,
             setupBlock = setupBlock,
             measureBlock = measureBlock
-        )
-    }
-
-    fun measureStartupRepeated(
-        config: MacrobenchmarkConfig,
-        startupMode: StartupMode,
-        performStartup: MacrobenchmarkScope.() -> Unit
-    ) {
-        startupMacrobenchmark(
-            uniqueName = currentDescription.toUniqueName(),
-            className = currentDescription.className,
-            testName = currentDescription.methodName,
-            config = config,
-            startupMode = startupMode,
-            performStartup = performStartup
         )
     }
 

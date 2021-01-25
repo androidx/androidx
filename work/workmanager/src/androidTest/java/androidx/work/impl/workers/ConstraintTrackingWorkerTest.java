@@ -27,14 +27,16 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.os.Handler;
-import android.os.Looper;
+import android.os.HandlerThread;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.testutils.RepeatRule;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.Data;
@@ -67,12 +69,15 @@ import androidx.work.worker.TestWorker;
 
 import org.hamcrest.CoreMatchers;
 import org.jetbrains.annotations.NotNull;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Collections;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @RunWith(AndroidJUnit4.class)
@@ -84,6 +89,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
     private static final String TEST_ARGUMENT_NAME = "test";
 
     private Context mContext;
+    private HandlerThread mHandlerThread;
     private Handler mHandler;
     private WorkerFactory mWorkerFactory;
 
@@ -103,10 +109,15 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
     private NetworkStateTracker mNetworkStateTracker;
     private StorageNotLowTracker mStorageNotLowTracker;
 
+    @Rule
+    public final RepeatRule mRepeatRule = new RepeatRule();
+
     @Before
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext().getApplicationContext();
-        mHandler = new Handler(Looper.getMainLooper());
+        mHandlerThread = new HandlerThread("ConstraintTrackingHandler");
+        mHandlerThread.start();
+        mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
         mWorkerFactory = new SpyingWorkerFactory();
         mConfiguration = new Configuration.Builder()
                 .setExecutor(new SynchronousExecutor())
@@ -137,6 +148,11 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
         // Override Trackers being used by WorkConstraintsProxy
         Trackers.setInstance(mTracker);
+    }
+
+    @After
+    public void tearDown() {
+        mHandlerThread.quitSafely();
     }
 
     @Test
@@ -176,13 +192,13 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
     public void testConstraintTrackingWorker_onConstraintsChanged() throws InterruptedException {
         when(mBatteryNotLowTracker.getInitialState()).thenReturn(true);
-        setupDelegateForExecution(SleepTestWorker.class.getName(),
-                Executors.newSingleThreadExecutor());
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        setupDelegateForExecution(SleepTestWorker.class.getName(), executorService);
         WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
         builder.withWorker(mWorker).withSchedulers(Collections.singletonList(mScheduler));
 
         mWorkerWrapper = builder.build();
-        mWorkTaskExecutor.getBackgroundExecutor().execute(mWorkerWrapper);
+        executorService.execute(mWorkerWrapper);
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -193,6 +209,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         Thread.sleep(TEST_TIMEOUT_IN_MS);
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
         assertThat(workSpec.state, is(WorkInfo.State.ENQUEUED));
+        executorService.shutdown();
     }
 
     @Test
@@ -200,14 +217,14 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
     public void testConstraintTrackingWorker_onConstraintsChangedTwice()
             throws InterruptedException {
         when(mBatteryNotLowTracker.getInitialState()).thenReturn(true);
-        setupDelegateForExecution(SleepTestWorker.class.getName(),
-                Executors.newSingleThreadExecutor());
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        setupDelegateForExecution(SleepTestWorker.class.getName(), executorService);
 
         WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
         builder.withWorker(mWorker).withSchedulers(Collections.singletonList(mScheduler));
 
         mWorkerWrapper = builder.build();
-        mWorkTaskExecutor.getBackgroundExecutor().execute(mWorkerWrapper);
+        executorService.execute(mWorkerWrapper);
 
         mHandler.postDelayed(new Runnable() {
             @Override
@@ -224,6 +241,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         }, DELAY_IN_MS);
 
         Thread.sleep(TEST_TIMEOUT_IN_MS);
+        executorService.shutdown();
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
         assertThat(workSpec.state, is(WorkInfo.State.ENQUEUED));
     }
@@ -231,17 +249,17 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
     @Test
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
     public void testConstraintTrackingWorker_delegatesInterruption() throws InterruptedException {
-        setupDelegateForExecution(StopAwareWorker.class.getName(),
-                Executors.newSingleThreadExecutor());
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        setupDelegateForExecution(StopAwareWorker.class.getName(), executorService);
 
         WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
         builder.withWorker(mWorker).withSchedulers(Collections.singletonList(mScheduler));
 
         mWorkerWrapper = builder.build();
-        mWorkTaskExecutor.getBackgroundExecutor().execute(mWorkerWrapper);
+        executorService.execute(mWorkerWrapper);
 
         Thread.sleep(TEST_TIMEOUT_IN_MS);
-
+        executorService.shutdown();
         mWorkerWrapper.interrupt();
         assertThat(mWorker.isStopped(), is(true));
         assertThat(mWorker.getDelegate(), is(notNullValue()));
@@ -252,17 +270,17 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
     public void testConstraintTrackingWorker_delegatesInterruption_once()
             throws InterruptedException {
-        setupDelegateForExecution(StopAwareWorker.class.getName(),
-                Executors.newSingleThreadExecutor());
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        setupDelegateForExecution(StopAwareWorker.class.getName(), executorService);
 
         WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
         builder.withWorker(mWorker).withSchedulers(Collections.singletonList(mScheduler));
 
         mWorkerWrapper = builder.build();
-        mWorkTaskExecutor.getBackgroundExecutor().execute(mWorkerWrapper);
+        executorService.execute(mWorkerWrapper);
 
         Thread.sleep(TEST_TIMEOUT_IN_MS);
-
+        executorService.shutdown();
         mWorkerWrapper.interrupt();
         mWorkerWrapper.interrupt();
         verify(mWorker.getDelegate(), times(1)).onStopped();
@@ -272,18 +290,17 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
     public void testConstraintTrackingWorker_delegatesIsRunInForeground()
             throws InterruptedException {
-
-        setupDelegateForExecution(StopAwareForegroundWorker.class.getName(),
-                Executors.newSingleThreadExecutor());
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        setupDelegateForExecution(StopAwareForegroundWorker.class.getName(), executorService);
         WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
         builder.withWorker(mWorker).withSchedulers(Collections.singletonList(mScheduler));
 
         mWorkerWrapper = builder.build();
-        mWorkTaskExecutor.getBackgroundExecutor().execute(mWorkerWrapper);
+        executorService.execute(mWorkerWrapper);
         Thread.sleep(TEST_TIMEOUT_IN_MS);
 
         mWorkerWrapper.interrupt();
-
+        executorService.shutdown();
         assertThat(mWorker.isRunInForeground(), is(true));
         assertThat(mWorker.isStopped(), is(true));
         assertThat(mWorker.getDelegate(), is(notNullValue()));

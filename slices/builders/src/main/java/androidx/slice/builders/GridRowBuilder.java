@@ -17,7 +17,6 @@
 package androidx.slice.builders;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.PendingIntent;
 
@@ -455,11 +454,11 @@ public class GridRowBuilder {
         }
 
         /**
-         * Sets the intent to send when the cell is clicked.
-         * @hide
+         * Sets the SliceAction for the cell. It could be an action or a toggle button or a
+         * date/time picker. The actionTitle and icon image of the SliceAction will only be used
+         * when there is no other text or image in the cell.
          */
         @NonNull
-        @RestrictTo(LIBRARY_GROUP)
         public CellBuilder setSliceAction(@NonNull SliceAction action) {
             mSliceAction = action;
             return this;

@@ -26,7 +26,7 @@ internal class KspRawType private constructor(
     override val typeName: TypeName
 ) : XRawType {
     constructor(original: KspType) : this(
-        ksType = original.ksType.starProjection(),
+        ksType = original.ksType.starProjection().makeNotNullable(),
         typeName = original.typeName.rawTypeName()
     )
 

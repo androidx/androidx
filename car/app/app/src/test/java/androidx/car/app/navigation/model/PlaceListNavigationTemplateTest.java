@@ -23,15 +23,14 @@ import static org.junit.Assert.assertThrows;
 import android.content.Context;
 import android.text.SpannableString;
 
-import androidx.car.app.CarAppPermission;
 import androidx.car.app.TestUtils;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.CarLocation;
 import androidx.car.app.model.Distance;
 import androidx.car.app.model.DistanceSpan;
 import androidx.car.app.model.ItemList;
-import androidx.car.app.model.LatLng;
 import androidx.car.app.model.Metadata;
 import androidx.car.app.model.Place;
 import androidx.car.app.model.PlaceMarker;
@@ -57,10 +56,10 @@ public class PlaceListNavigationTemplateTest {
     public void createInstance_emptyList_notLoading_Throws() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> PlaceListNavigationTemplate.builder().setTitle("Title").build());
+                () -> new PlaceListNavigationTemplate.Builder().setTitle("Title").build());
 
         // Positive case
-        PlaceListNavigationTemplate.builder().setTitle("Title").setLoading(true).build();
+        new PlaceListNavigationTemplate.Builder().setTitle("Title").setLoading(true).build();
     }
 
     @Test
@@ -68,10 +67,10 @@ public class PlaceListNavigationTemplateTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        PlaceListNavigationTemplate.builder()
+                        new PlaceListNavigationTemplate.Builder()
                                 .setTitle("Title")
                                 .setLoading(true)
-                                .setItemList(ItemList.builder().build())
+                                .setItemList(new ItemList.Builder().build())
                                 .build());
     }
 
@@ -80,14 +79,14 @@ public class PlaceListNavigationTemplateTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        PlaceListNavigationTemplate.builder()
+                        new PlaceListNavigationTemplate.Builder()
                                 .setTitle("Title")
                                 .setItemList(TestUtils.createItemListWithDistanceSpan(6, true,
                                         mDistanceSpan))
                                 .build());
 
         // Positive cases.
-        PlaceListNavigationTemplate.builder()
+        new PlaceListNavigationTemplate.Builder()
                 .setTitle("Title")
                 .setItemList(TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
                 .build();
@@ -98,22 +97,23 @@ public class PlaceListNavigationTemplateTest {
         SpannableString title = new SpannableString("Title");
         title.setSpan(mDistanceSpan, /* start= */ 0, /* end= */ 1, /* flags= */ 0);
         Row rowExceedsMaxTexts =
-                Row.builder().setTitle(title).addText("text1").addText("text2").addText(
+                new Row.Builder().setTitle(title).addText("text1").addText("text2").addText(
                         "text3").build();
         Row rowMeetingMaxTexts =
-                Row.builder().setTitle(title).addText("text1").addText("text2").build();
+                new Row.Builder().setTitle(title).addText("text1").addText("text2").build();
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        PlaceListNavigationTemplate.builder()
+                        new PlaceListNavigationTemplate.Builder()
                                 .setTitle("Title")
-                                .setItemList(ItemList.builder().addItem(rowExceedsMaxTexts).build())
+                                .setItemList(
+                                        new ItemList.Builder().addItem(rowExceedsMaxTexts).build())
                                 .build());
 
         // Positive cases.
-        PlaceListNavigationTemplate.builder()
+        new PlaceListNavigationTemplate.Builder()
                 .setTitle("Title")
-                .setItemList(ItemList.builder().addItem(rowMeetingMaxTexts).build())
+                .setItemList(new ItemList.Builder().addItem(rowMeetingMaxTexts).build())
                 .build();
     }
 
@@ -122,22 +122,22 @@ public class PlaceListNavigationTemplateTest {
         SpannableString title = new SpannableString("Title");
         title.setSpan(mDistanceSpan, /* start= */ 0, /* end= */ 1, /* flags= */ 0);
         Row rowWithToggle =
-                Row.builder().setTitle(title).setToggle(Toggle.builder(isChecked -> {
+                new Row.Builder().setTitle(title).setToggle(new Toggle.Builder(isChecked -> {
                 }).build()).build();
         Row rowMeetingRestrictions =
-                Row.builder().setTitle(title).addText("text1").addText("text2").build();
+                new Row.Builder().setTitle(title).addText("text1").addText("text2").build();
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        PlaceListNavigationTemplate.builder()
+                        new PlaceListNavigationTemplate.Builder()
                                 .setTitle("Title")
-                                .setItemList(ItemList.builder().addItem(rowWithToggle).build())
+                                .setItemList(new ItemList.Builder().addItem(rowWithToggle).build())
                                 .build());
 
         // Positive cases.
-        PlaceListNavigationTemplate.builder()
+        new PlaceListNavigationTemplate.Builder()
                 .setTitle("Title")
-                .setItemList(ItemList.builder().addItem(rowMeetingRestrictions).build())
+                .setItemList(new ItemList.Builder().addItem(rowMeetingRestrictions).build())
                 .build();
     }
 
@@ -146,29 +146,29 @@ public class PlaceListNavigationTemplateTest {
         assertThrows(
                 IllegalStateException.class,
                 () ->
-                        PlaceListNavigationTemplate.builder().setItemList(
-                                ItemList.builder().build()).build());
+                        new PlaceListNavigationTemplate.Builder().setItemList(
+                                new ItemList.Builder().build()).build());
 
         // Positive cases.
-        PlaceListNavigationTemplate.builder()
+        new PlaceListNavigationTemplate.Builder()
                 .setTitle("Title")
-                .setItemList(ItemList.builder().build())
+                .setItemList(new ItemList.Builder().build())
                 .build();
-        PlaceListNavigationTemplate.builder()
+        new PlaceListNavigationTemplate.Builder()
                 .setHeaderAction(Action.BACK)
-                .setItemList(ItemList.builder().build())
+                .setItemList(new ItemList.Builder().build())
                 .build();
     }
 
     @Test
     public void createEmpty() {
         PlaceListNavigationTemplate template =
-                PlaceListNavigationTemplate.builder()
+                new PlaceListNavigationTemplate.Builder()
                         .setTitle("Title")
-                        .setItemList(ItemList.builder().build())
+                        .setItemList(new ItemList.Builder().build())
                         .build();
-        assertThat(template.getItemList().getItems()).isEmpty();
-        assertThat(template.getTitle().getText()).isEqualTo("Title");
+        assertThat(template.getItemList().getItemList()).isEmpty();
+        assertThat(template.getTitle().toString()).isEqualTo("Title");
         assertThat(template.getActionStrip()).isNull();
     }
 
@@ -176,16 +176,16 @@ public class PlaceListNavigationTemplateTest {
     public void createInstance() {
         String title = "title";
         ItemList itemList = TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan);
-        ActionStrip actionStrip = ActionStrip.builder().addAction(Action.BACK).build();
+        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
         PlaceListNavigationTemplate template =
-                PlaceListNavigationTemplate.builder()
+                new PlaceListNavigationTemplate.Builder()
                         .setItemList(itemList)
                         .setTitle(title)
                         .setActionStrip(actionStrip)
                         .build();
         assertThat(template.getItemList()).isEqualTo(itemList);
         assertThat(template.getActionStrip()).isEqualTo(actionStrip);
-        assertThat(template.getTitle().getText()).isEqualTo(title);
+        assertThat(template.getTitle().toString()).isEqualTo(title);
     }
 
     @Test
@@ -193,9 +193,9 @@ public class PlaceListNavigationTemplateTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        PlaceListNavigationTemplate.builder()
+                        new PlaceListNavigationTemplate.Builder()
                                 .setHeaderAction(
-                                        Action.builder().setTitle("Action").setOnClickListener(
+                                        new Action.Builder().setTitle("Action").setOnClickListener(
                                                 () -> {
                                                 }).build()));
     }
@@ -203,8 +203,8 @@ public class PlaceListNavigationTemplateTest {
     @Test
     public void createInstance_setHeaderAction() {
         PlaceListNavigationTemplate template =
-                PlaceListNavigationTemplate.builder()
-                        .setItemList(ItemList.builder().build())
+                new PlaceListNavigationTemplate.Builder()
+                        .setItemList(new ItemList.Builder().build())
                         .setHeaderAction(Action.BACK)
                         .build();
 
@@ -215,10 +215,10 @@ public class PlaceListNavigationTemplateTest {
     public void createInstance_notAllRowHaveDistances() {
         SpannableString title = new SpannableString("Title");
         title.setSpan(mDistanceSpan, /* start= */ 0, /* end= */ 1, /* flags= */ 0);
-        Row rowWithDistance = Row.builder().setTitle(title).build();
-        Row rowWithoutDistance = Row.builder().setTitle("Google Kir").build();
+        Row rowWithDistance = new Row.Builder().setTitle(title).build();
+        Row rowWithoutDistance = new Row.Builder().setTitle("Google Kir").build();
         Row browsableRowWithoutDistance =
-                Row.builder()
+                new Row.Builder()
                         .setTitle("Google Kir")
                         .setBrowsable(true)
                         .setOnClickListener(() -> {
@@ -228,29 +228,29 @@ public class PlaceListNavigationTemplateTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        PlaceListNavigationTemplate.builder()
+                        new PlaceListNavigationTemplate.Builder()
                                 .setTitle("Title")
                                 .setItemList(
-                                        ItemList.builder().addItem(rowWithDistance).addItem(
+                                        new ItemList.Builder().addItem(rowWithDistance).addItem(
                                                 rowWithoutDistance).build())
                                 .build());
 
         // Positive cases
-        PlaceListNavigationTemplate.builder()
+        new PlaceListNavigationTemplate.Builder()
                 .setTitle("Title")
-                .setItemList(ItemList.builder().addItem(rowWithDistance).build())
+                .setItemList(new ItemList.Builder().addItem(rowWithDistance).build())
                 .build();
-        PlaceListNavigationTemplate.builder()
+        new PlaceListNavigationTemplate.Builder()
                 .setTitle("Title")
                 .setItemList(
-                        ItemList.builder()
+                        new ItemList.Builder()
                                 .addItem(rowWithDistance)
                                 .addItem(browsableRowWithoutDistance)
                                 .build())
                 .build();
-        PlaceListNavigationTemplate.builder()
+        new PlaceListNavigationTemplate.Builder()
                 .setTitle("Title")
-                .setItemList(ItemList.builder().addItem(browsableRowWithoutDistance).build())
+                .setItemList(new ItemList.Builder().addItem(browsableRowWithoutDistance).build())
                 .build();
     }
 
@@ -259,45 +259,45 @@ public class PlaceListNavigationTemplateTest {
         SpannableString title = new SpannableString("Title");
         title.setSpan(mDistanceSpan, /* start= */ 0, /* end= */ 1, /* flags= */ 0);
         Row row =
-                Row.builder()
+                new Row.Builder()
                         .setTitle("Google Kir")
                         .setOnClickListener(() -> {
                         })
                         .setImage(CarIcon.ALERT)
                         .setMetadata(
-                                Metadata.ofPlace(
-                                        Place.builder(LatLng.create(10.f, 10.f))
+                                new Metadata.Builder().setPlace(
+                                        new Place.Builder(CarLocation.create(10.f, 10.f))
                                                 .setMarker(PlaceMarker.getDefault())
-                                                .build()))
+                                                .build()).build())
                         .build();
 
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        PlaceListNavigationTemplate.builder()
+                        new PlaceListNavigationTemplate.Builder()
                                 .setTitle("Title")
-                                .setItemList(ItemList.builder().addItem(row).build()));
+                                .setItemList(new ItemList.Builder().addItem(row).build()));
     }
 
     @Test
     public void equals() {
         PlaceListNavigationTemplate template =
-                PlaceListNavigationTemplate.builder()
+                new PlaceListNavigationTemplate.Builder()
                         .setItemList(
                                 TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
                         .setHeaderAction(Action.BACK)
-                        .setActionStrip(ActionStrip.builder().addAction(Action.BACK).build())
+                        .setActionStrip(new ActionStrip.Builder().addAction(Action.BACK).build())
                         .setTitle("title")
                         .build();
 
         assertThat(template)
                 .isEqualTo(
-                        PlaceListNavigationTemplate.builder()
+                        new PlaceListNavigationTemplate.Builder()
                                 .setItemList(TestUtils.createItemListWithDistanceSpan(6, false,
                                         mDistanceSpan))
                                 .setHeaderAction(Action.BACK)
                                 .setActionStrip(
-                                        ActionStrip.builder().addAction(Action.BACK).build())
+                                        new ActionStrip.Builder().addAction(Action.BACK).build())
                                 .setTitle("title")
                                 .build());
     }
@@ -305,7 +305,7 @@ public class PlaceListNavigationTemplateTest {
     @Test
     public void notEquals_differentItemList() {
         PlaceListNavigationTemplate template =
-                PlaceListNavigationTemplate.builder()
+                new PlaceListNavigationTemplate.Builder()
                         .setTitle("Title")
                         .setItemList(
                                 TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
@@ -313,7 +313,7 @@ public class PlaceListNavigationTemplateTest {
 
         assertThat(template)
                 .isNotEqualTo(
-                        PlaceListNavigationTemplate.builder()
+                        new PlaceListNavigationTemplate.Builder()
                                 .setTitle("Title")
                                 .setItemList(TestUtils.createItemListWithDistanceSpan(5, false,
                                         mDistanceSpan))
@@ -323,7 +323,7 @@ public class PlaceListNavigationTemplateTest {
     @Test
     public void notEquals_differentHeaderAction() {
         PlaceListNavigationTemplate template =
-                PlaceListNavigationTemplate.builder()
+                new PlaceListNavigationTemplate.Builder()
                         .setItemList(
                                 TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
                         .setHeaderAction(Action.BACK)
@@ -331,7 +331,7 @@ public class PlaceListNavigationTemplateTest {
 
         assertThat(template)
                 .isNotEqualTo(
-                        PlaceListNavigationTemplate.builder()
+                        new PlaceListNavigationTemplate.Builder()
                                 .setItemList(TestUtils.createItemListWithDistanceSpan(6, false,
                                         mDistanceSpan))
                                 .setHeaderAction(Action.APP_ICON)
@@ -341,28 +341,29 @@ public class PlaceListNavigationTemplateTest {
     @Test
     public void notEquals_differentActionStrip() {
         PlaceListNavigationTemplate template =
-                PlaceListNavigationTemplate.builder()
+                new PlaceListNavigationTemplate.Builder()
                         .setTitle("Title")
                         .setItemList(
                                 TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
-                        .setActionStrip(ActionStrip.builder().addAction(Action.BACK).build())
+                        .setActionStrip(new ActionStrip.Builder().addAction(Action.BACK).build())
                         .build();
 
         assertThat(template)
                 .isNotEqualTo(
-                        PlaceListNavigationTemplate.builder()
+                        new PlaceListNavigationTemplate.Builder()
                                 .setTitle("Title")
                                 .setItemList(TestUtils.createItemListWithDistanceSpan(6, false,
                                         mDistanceSpan))
                                 .setActionStrip(
-                                        ActionStrip.builder().addAction(Action.APP_ICON).build())
+                                        new ActionStrip.Builder().addAction(
+                                                Action.APP_ICON).build())
                                 .build());
     }
 
     @Test
     public void notEquals_differentTitle() {
         PlaceListNavigationTemplate template =
-                PlaceListNavigationTemplate.builder()
+                new PlaceListNavigationTemplate.Builder()
                         .setItemList(
                                 TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
                         .setTitle("title")
@@ -370,36 +371,10 @@ public class PlaceListNavigationTemplateTest {
 
         assertThat(template)
                 .isNotEqualTo(
-                        PlaceListNavigationTemplate.builder()
+                        new PlaceListNavigationTemplate.Builder()
                                 .setItemList(TestUtils.createItemListWithDistanceSpan(6, false,
                                         mDistanceSpan))
                                 .setTitle("other")
                                 .build());
-    }
-
-    @Test
-    public void checkPermissions_hasPermissions() {
-        PlaceListNavigationTemplate template =
-                PlaceListNavigationTemplate.builder()
-                        .setItemList(
-                                TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
-                        .setTitle("title")
-                        .build();
-
-        // Expect that it does not throw
-        template.checkPermissions(
-                TestUtils.getMockContextWithPermission(CarAppPermission.NAVIGATION_TEMPLATES));
-    }
-
-    @Test
-    public void checkPermissions_doesNotHavePermissions() {
-        PlaceListNavigationTemplate template =
-                PlaceListNavigationTemplate.builder()
-                        .setItemList(
-                                TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
-                        .setTitle("title")
-                        .build();
-
-        assertThrows(SecurityException.class, () -> template.checkPermissions(mContext));
     }
 }

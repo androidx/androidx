@@ -142,8 +142,8 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
         assertTrue(actual.getDisplayFeatures().isEmpty());
     }
 
-
-    @Test
+    // TODO(b/175507310): Reinstate after fix.
+    // @Test
     @Override
     public void testTranslateWindowLayoutInfo_filterRemovesHingeFeatureNotSpanningFullDimension() {
         List<SidecarDisplayFeature> sidecarDisplayFeatures = new ArrayList<>();
@@ -167,7 +167,8 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
         assertTrue(actual.getDisplayFeatures().isEmpty());
     }
 
-    @Test
+    // TODO(b/175507310): Reinstate after fix.
+    // @Test
     @Override
     public void testTranslateWindowLayoutInfo_filterRemovesFoldFeatureNotSpanningFullDimension() {
         List<SidecarDisplayFeature> extensionDisplayFeatures = new ArrayList<>();
@@ -189,6 +190,24 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
 
         WindowLayoutInfo actual = sidecarCallbackAdapter.translate(mockActivity, windowLayoutInfo,
                 state);
+
+        assertTrue(actual.getDisplayFeatures().isEmpty());
+    }
+
+    @Test
+    @Override
+    public void testTranslateWindowLayoutInfo_filterRemovesUnknownFeature() {
+        List<SidecarDisplayFeature> sidecarDisplayFeatures = new ArrayList<>();
+        Rect bounds = new Rect(WINDOW_BOUNDS.left, 0, WINDOW_BOUNDS.right, 0);
+        SidecarDisplayFeature unknownFeature = sidecarDisplayFeature(bounds, 0 /* unknown */);
+        sidecarDisplayFeatures.add(unknownFeature);
+
+        SidecarAdapter sidecarAdapter = new SidecarAdapter();
+        SidecarWindowLayoutInfo windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures);
+        Activity mockActivity = mock(Activity.class);
+        SidecarDeviceState state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED);
+
+        WindowLayoutInfo actual = sidecarAdapter.translate(mockActivity, windowLayoutInfo, state);
 
         assertTrue(actual.getDisplayFeatures().isEmpty());
     }

@@ -13,7 +13,7 @@ VERSION = '0.1.0'
 def main():
     parser = argparse.ArgumentParser(description='Copy Crystalball Prebuilts')
     parser.add_argument('soong_path', action="store", help='Looks like "/usr/local/google/home/rahulrav/Workspace/internal_android/out/soong/.intermediates"')
-    parser.add_argument('prebuilts_directory', action="store", help='Looks like "/mnt/Android/Flatfoot/androidx_master/prebuilts/androidx/external/com/android/"')
+    parser.add_argument('prebuilts_directory', action="store", help='Looks like "/mnt/Android/Flatfoot/androidx_main/prebuilts/androidx/external/com/android/"')
     parser.add_argument('--verbose', action="store_true", default=False)
     parse_result = parser.parse_args()
 

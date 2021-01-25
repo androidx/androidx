@@ -19,11 +19,12 @@ package androidx.room.processor
 import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.isVoid
+import androidx.room.processor.ProcessorErrors.INNER_CLASS_TYPE_CONVERTER_MUST_BE_STATIC
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_BAD_RETURN_TYPE
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_EMPTY_CLASS
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
@@ -46,10 +47,18 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
             val annotation = element.toAnnotationBox(TypeConverters::class)
             return annotation?.let {
                 val classes = it.getAsTypeList("value")
-                    .filter { it.isType() }
                     .mapTo(LinkedHashSet()) { it }
                 val converters = classes.flatMap {
-                    CustomConverterProcessor(context, it.asTypeElement()).process()
+                    val typeElement = it.typeElement
+                    if (typeElement == null) {
+                        context.logger.e(
+                            element,
+                            ProcessorErrors.typeConverterMustBeDeclared(it.typeName)
+                        )
+                        emptyList()
+                    } else {
+                        CustomConverterProcessor(context, typeElement).process()
+                    }
                 }
                 reportDuplicates(context, converters)
                 ProcessResult(classes, converters.map(::CustomTypeConverterWrapper))
@@ -73,19 +82,21 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
     }
 
     fun process(): List<CustomTypeConverter> {
-        // using element utils instead of MoreElements to include statics.
         val methods = element.getAllMethods()
-        val declaredType = element.asDeclaredType()
         val converterMethods = methods.filter {
             it.hasAnnotation(TypeConverter::class)
         }
-        val isProvidedConverter = declaredType.asTypeElement()
-            .hasAnnotation(ProvidedTypeConverter::class)
+        val isProvidedConverter = element.hasAnnotation(ProvidedTypeConverter::class)
         context.checker.check(converterMethods.isNotEmpty(), element, TYPE_CONVERTER_EMPTY_CLASS)
         val allStatic = converterMethods.all { it.isStatic() }
         val constructors = element.getConstructors()
         val isKotlinObjectDeclaration = element.isKotlinObject()
         if (!isProvidedConverter) {
+            context.checker.check(
+                element.enclosingTypeElement == null || element.isStatic(),
+                element,
+                INNER_CLASS_TYPE_CONVERTER_MUST_BE_STATIC
+            )
             context.checker.check(
                 isKotlinObjectDeclaration || allStatic || constructors.isEmpty() ||
                     constructors.any {
@@ -96,7 +107,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
         }
         return converterMethods.mapNotNull {
             processMethod(
-                container = declaredType,
+                container = element.type,
                 isContainerKotlinObject = isKotlinObjectDeclaration,
                 methodElement = it,
                 isProvidedConverter = isProvidedConverter
@@ -105,7 +116,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
     }
 
     private fun processMethod(
-        container: XDeclaredType,
+        container: XType,
         methodElement: XMethodElement,
         isContainerKotlinObject: Boolean,
         isProvidedConverter: Boolean

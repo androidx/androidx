@@ -17,8 +17,8 @@
 package androidx.room.processor
 
 import androidx.room.ColumnInfo
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XFieldElement
+import androidx.room.compiler.processing.XType
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.EmbeddedField
@@ -27,7 +27,7 @@ import java.util.Locale
 
 class FieldProcessor(
     baseContext: Context,
-    val containing: XDeclaredType,
+    val containing: XType,
     val element: XFieldElement,
     val bindingScope: BindingScope,
     val fieldParent: EmbeddedField?, // pass only if this is processed as a child of Embedded field
@@ -60,7 +60,11 @@ class FieldProcessor(
             ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS
         )
 
-        val adapter = context.typeAdapterStore.findColumnTypeAdapter(member, affinity)
+        val adapter = context.typeAdapterStore.findColumnTypeAdapter(
+            member,
+            affinity,
+            skipEnumConverter = false
+        )
         val adapterAffinity = adapter?.typeAffinity ?: affinity
         val nonNull = Field.calcNonNull(member, fieldParent)
 

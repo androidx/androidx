@@ -26,10 +26,22 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("kotlin-android")
-    id("kotlin-kapt")
+}
+// If set to `true`, we'll use KSP instead of KAPT.
+// Note that the CI does not run tests with KSP yet so this is only for local usage.
+// Once variants are properly supported by both ksp and AndroidX, we'll add support for this.
+// (b/153917176)
+def useKsp = project.properties.getOrDefault("useKsp", "false").toBoolean()
+if (useKsp) {
+    apply plugin: "com.google.devtools.ksp"
+} else {
+    apply plugin: "kotlin-kapt"
 }
 
 android {
+    buildFeatures {
+        buildConfig = true
+    }
     defaultConfig {
         javaCompileOptions {
             annotationProcessorOptions {
@@ -39,6 +51,7 @@ android {
                 ]
             }
         }
+        buildConfigField("boolean", "KSP", "$useKsp")
     }
 
     sourceSets {
@@ -78,11 +91,17 @@ dependencies {
     implementation(project(":room:room-runtime"))
     implementation(projectOrArtifact(":arch:core:core-runtime"))
     implementation(projectOrArtifact(":lifecycle:lifecycle-livedata"))
+    implementation(projectOrArtifact(":lifecycle:lifecycle-livedata-ktx"))
     implementation(KOTLIN_STDLIB)
     implementation(KOTLIN_COROUTINES_ANDROID)
     // depend on the shadowed version so that it tests with the shipped artifact
-    kaptAndroidTest project(path: ":room:room-compiler", configuration: 'shadowAndImplementation')
-
+    // this is a temporary attribute until KSP and AndroidX plugin supports variants.
+    if (useKsp) {
+        ksp(project(path: ":room:room-compiler", configuration: 'shadowAndImplementation'))
+    } else {
+         kaptAndroidTest project(path: ":room:room-compiler", configuration:
+            'shadowAndImplementation')
+    }
     androidTestImplementation(projectOrArtifact(":arch:core:core-runtime")) // Added for b/155802460
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -98,6 +117,7 @@ dependencies {
     androidTestImplementation project(':room:room-guava')
     androidTestImplementation project(':room:room-testing')
     androidTestImplementation project(':room:room-rxjava2')
+    androidTestImplementation(project(":room:room-rxjava3"))
     androidTestImplementation(project(":room:room-ktx"))
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
     androidTestImplementation(GUAVA_ANDROID)

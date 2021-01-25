@@ -26,6 +26,7 @@ function usage() {
   echo
   echo "  A) Some state saved in memory by the Gradle daemon is triggering an error"
   echo "  B) Your source files have been changed"
+  echo "     To (slowly) generate a simpler reproduction case, you can run simplify-build-failure.sh"
   echo "  C) Some file in the out/ dir is triggering an error"
   echo "     If this happens, $scriptName will identify which file(s) specifically"
   echo "  D) The build is nondeterministic and/or affected by timestamps"
@@ -93,7 +94,7 @@ function checkStatus() {
   fi
 }
 
-function getBuildComand() {
+function getBuildCommand() {
   if [ "$expectedMessage" == "" ]; then
     testCommand="$*"
   else
@@ -230,7 +231,7 @@ echo
 echo "Binary-searching the contents of the two output directories until the relevant differences are identified."
 echo "This may take a while."
 echo
-filtererCommand="$(getBuildCommand \"$scriptPath/impl/restore-state.sh . $workingDir && cd $workingDir && ./gradlew --no-daemon $gradleArgs\")"
+filtererCommand="$(getBuildCommand "$scriptPath/impl/restore-state.sh . $workingDir && cd $workingDir && ./gradlew --no-daemon $gradleArgs")"
 if $supportRoot/development/file-utils/diff-filterer.py --assume-no-side-effects --assume-input-states-are-correct --work-path $tempDir $successState $tempDir/prev "$filtererCommand"; then
   echo
   echo "There should be something wrong with the above file state"

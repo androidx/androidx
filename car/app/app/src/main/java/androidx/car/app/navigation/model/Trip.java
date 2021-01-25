@@ -22,6 +22,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.model.CarText;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,6 +51,7 @@ public final class Trip {
     private final boolean mIsLoading;
 
     /** Constructs a new builder of {@link Trip}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -128,11 +130,12 @@ public final class Trip {
                 && Objects.equals(mIsLoading, otherTrip.mIsLoading);
     }
 
-    private Trip(Builder builder) {
-        this.mDestinations = new ArrayList<>(builder.mDestinations);
-        this.mSteps = new ArrayList<>(builder.mSteps);
-        this.mDestinationTravelEstimates = new ArrayList<>(builder.mDestinationTravelEstimates);
-        this.mStepTravelEstimates = new ArrayList<>(builder.mStepTravelEstimates);
+    Trip(Builder builder) {
+        this.mDestinations = CollectionUtils.unmodifiableCopy(builder.mDestinations);
+        this.mSteps = CollectionUtils.unmodifiableCopy(builder.mSteps);
+        this.mDestinationTravelEstimates = CollectionUtils.unmodifiableCopy(
+                builder.mDestinationTravelEstimates);
+        this.mStepTravelEstimates = CollectionUtils.unmodifiableCopy(builder.mStepTravelEstimates);
         this.mCurrentRoad = builder.mCurrentRoad;
         this.mIsLoading = builder.mIsLoading;
     }
@@ -149,13 +152,13 @@ public final class Trip {
 
     /** A builder of {@link Trip}. */
     public static final class Builder {
-        private final List<Destination> mDestinations = new ArrayList<>();
-        private final List<Step> mSteps = new ArrayList<>();
-        private final List<TravelEstimate> mDestinationTravelEstimates = new ArrayList<>();
-        private final List<TravelEstimate> mStepTravelEstimates = new ArrayList<>();
+        final List<Destination> mDestinations = new ArrayList<>();
+        final List<Step> mSteps = new ArrayList<>();
+        final List<TravelEstimate> mDestinationTravelEstimates = new ArrayList<>();
+        final List<TravelEstimate> mStepTravelEstimates = new ArrayList<>();
         @Nullable
-        private CarText mCurrentRoad;
-        private boolean mIsLoading;
+        CarText mCurrentRoad;
+        boolean mIsLoading;
 
         /**
          * Adds a destination to the trip.
@@ -164,20 +167,16 @@ public final class Trip {
          * surfaces may or may not use the destination and if multiple destinations are added the
          * display may only show information about the first destination.
          *
-         * <p>For every destination added, a corresponding {@link TravelEstimate} must be added via
-         * {@link #addDestinationTravelEstimate}.They are added separately so that travel
-         * estimates can be updated frequently based on location.
+         * <p>For every destination added, a corresponding {@link TravelEstimate} must be
+         * provided. Display surfaces may or may not use the destination travel estimate and if
+         * multiple destination travel estimates are added the display may only show information
+         * about the first destination travel estimate.
          */
         @NonNull
-        public Builder addDestination(@NonNull Destination destination) {
+        public Builder addDestination(@NonNull Destination destination,
+                @NonNull TravelEstimate destinationTravelEstimate) {
             mDestinations.add(requireNonNull(destination));
-            return this;
-        }
-
-        /** Clears the list of destinations in the builder. */
-        @NonNull
-        public Builder clearDestinations() {
-            mDestinations.clear();
+            mDestinationTravelEstimates.add(requireNonNull(destinationTravelEstimate));
             return this;
         }
 
@@ -188,69 +187,15 @@ public final class Trip {
          * may or may not use the step and if multiple steps are added the display may only show
          * information about the first step.
          *
-         * <p>For every step added, a corresponding {@link TravelEstimate} must be added via {@link
-         * #addStepTravelEstimate}. They are added separately so that travel estimates can be
-         * updated frequently based on location.
-         */
-        @NonNull
-        public Builder addStep(@Nullable Step step) {
-            mSteps.add(requireNonNull(step));
-            return this;
-        }
-
-        /** Clears the list of steps in the builder. */
-        @NonNull
-        public Builder clearSteps() {
-            mSteps.clear();
-            return this;
-        }
-
-        /**
-         * Adds a destination travel estimate to the trip.
-         *
-         * <p>Destination travel estimates must be added in order of arrival. A destination travel
-         * estimate is not required. Display surfaces may or may not use the destination travel
-         * estimate and if multiple destination travel estimates are added the display may only show
-         * information about the first destination travel estimate.
-         *
-         * <p>For every destination travel estimate added, a corresponding destination must also be
-         * added. They are added separately so that travel estimates can be updated frequently
-         * based on location.
-         */
-        @NonNull
-        public Builder addDestinationTravelEstimate(
-                @NonNull TravelEstimate destinationTravelEstimate) {
-            mDestinationTravelEstimates.add(requireNonNull(destinationTravelEstimate));
-            return this;
-        }
-
-        /** Clears the list of destination travel estimates in the builder. */
-        @NonNull
-        public Builder clearDestinationTravelEstimates() {
-            mDestinationTravelEstimates.clear();
-            return this;
-        }
-
-        /**
-         * Adds a step travel estimate to the trip.
-         *
-         * <p>Step travel estimates must be added in order of arrival. A step travel estimate is not
-         * required. Display surfaces may or may not use the step travel estimate and if multiple
+         * <p>For every step added, a corresponding {@link TravelEstimate} must be provided.
+         * Display surfaces may or may not use the step travel estimate and if multiple
          * step travel estimates are added the display may only show information about the first
          * step travel estimate.
-         *
-         * <p>For every step travel estimate added, a corresponding step must also be added.
          */
         @NonNull
-        public Builder addStepTravelEstimate(@NonNull TravelEstimate stepTravelEstimate) {
+        public Builder addStep(@Nullable Step step, @NonNull TravelEstimate stepTravelEstimate) {
+            mSteps.add(requireNonNull(step));
             mStepTravelEstimates.add(requireNonNull(stepTravelEstimate));
-            return this;
-        }
-
-        /** Clears the list of destination travel estimates in the builder. */
-        @NonNull
-        public Builder clearStepTravelEstimates() {
-            mStepTravelEstimates.clear();
             return this;
         }
 
@@ -290,6 +235,10 @@ public final class Trip {
                 throw new IllegalArgumentException("Step information may not be set while loading");
             }
             return new Trip(this);
+        }
+
+        /** Constructs an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

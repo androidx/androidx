@@ -57,9 +57,25 @@ public final class CarAppPermission {
      *
      * <p>This permission can <b>ONLY</b> be requested by apps that declare themselves as a
      * navigation app.
+     *
+     * @see CarAppService#CATEGORY_NAVIGATION_APP
      */
-    public static final String NAVIGATION_TEMPLATES =
-            "androidx.car.app.NAVIGATION_TEMPLATES";
+    public static final String NAVIGATION_TEMPLATES = "androidx.car.app.NAVIGATION_TEMPLATES";
+
+    /**
+     * Permission that apps can use to get access to templates that show a map such as
+     * {@link androidx.car.app.model.PlaceListMapTemplate}.  Templates used by navigation apps that
+     * draw their own maps
+     * (e.g. {@link androidx.car.app.navigation.model.PlaceListNavigationTemplate}) don't require
+     * this permission.
+     *
+     * <p>This permission can <b>ONLY</b> be requested by apps that declare themselves as a
+     * parking or charging app.
+     *
+     * @see CarAppService#CATEGORY_CHARGING_APP
+     * @see CarAppService#CATEGORY_PARKING_APP
+     */
+    public static final String MAP_TEMPLATES = "androidx.car.app.MAP_TEMPLATES";
 
     /**
      * Checks that the car app has the given {@code permission} granted.

@@ -36,7 +36,7 @@ public class LaneDirectionTest {
         LaneDirection laneDirection = LaneDirection.create(shape, true);
 
         assertThat(shape).isEqualTo(laneDirection.getShape());
-        assertThat(laneDirection.isHighlighted()).isTrue();
+        assertThat(laneDirection.isRecommended()).isTrue();
     }
 
     @Test

@@ -19,8 +19,6 @@ package androidx.wear.watchface.style
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.ComplicationBounds
-import androidx.wear.complications.DefaultComplicationProviderPolicy
-import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
 import androidx.wear.watchface.style.data.BooleanUserStyleSettingWireFormat
@@ -296,25 +294,7 @@ public sealed class UserStyleSetting(
              * If non null, the new [ComplicationBounds] for this configuration. If null then no
              * changes are made.
              */
-            public val complicationBounds: ComplicationBounds? = null,
-
-            /**
-             * If non null, the new types of complication supported by this complication for this
-             * configuration. If null then no changes are made.
-             */
-            public val supportedTypes: List<ComplicationType>? = null,
-
-            /**
-             * If non null, the new default complication provider for this configuration. If null
-             * then no changes are made.
-             */
-            public val defaultProviderPolicy: DefaultComplicationProviderPolicy? = null,
-
-            /**
-             * If non null, the new default complication provider data type. If null then no changes
-             * are made.
-             */
-            public val defaultProviderType: ComplicationType? = null
+            public val complicationBounds: ComplicationBounds? = null
         ) {
             public class Builder(
                 /** The id of the complication to configure. */
@@ -322,10 +302,6 @@ public sealed class UserStyleSetting(
             ) {
                 private var enabled: Boolean? = null
                 private var complicationBounds: ComplicationBounds? = null
-                private var supportedTypes: List<ComplicationType>? = null
-                private var defaultComplicationProviderPolicy: DefaultComplicationProviderPolicy? =
-                    null
-                private var defaultComplicationProviderType: ComplicationType? = null
 
                 /** Overrides the complication's enabled flag. */
                 public fun setEnabled(enabled: Boolean): Builder = apply {
@@ -338,36 +314,11 @@ public sealed class UserStyleSetting(
                         this.complicationBounds = complicationBounds
                     }
 
-                /** Overrides the complication's supported complication types. */
-                public fun setSupportedTypes(supportedTypes: List<ComplicationType>): Builder =
-                    apply {
-                        this.supportedTypes = supportedTypes
-                    }
-
-                /** Overrides the complication's [DefaultComplicationProviderPolicy]. */
-                public fun setDefaultProviderPolicy(
-                    defaultComplicationProviderPolicy: DefaultComplicationProviderPolicy?
-                ): Builder = apply {
-                    this.defaultComplicationProviderPolicy = defaultComplicationProviderPolicy
-                }
-
-                /**
-                 * Overrides the default complication provider data type.
-                 */
-                public fun setDefaultProviderType(
-                    defaultComplicationProviderType: ComplicationType
-                ): Builder = apply {
-                    this.defaultComplicationProviderType = defaultComplicationProviderType
-                }
-
                 public fun build(): ComplicationOverlay =
                     ComplicationOverlay(
                         complicationId,
                         enabled,
-                        complicationBounds,
-                        supportedTypes,
-                        defaultComplicationProviderPolicy,
-                        defaultComplicationProviderType
+                        complicationBounds
                     )
             }
 
@@ -386,30 +337,14 @@ public sealed class UserStyleSetting(
                         "Unrecognised wireFormat.mEnabled " + wireFormat.mEnabled
                     )
                 },
-                wireFormat.mPerComplicationTypeBounds?.let { ComplicationBounds(it) },
-                wireFormat.mSupportedTypes?.let { ComplicationType.fromWireTypeList(it) },
-                wireFormat.mDefaultProviders?.let {
-                    DefaultComplicationProviderPolicy(it, wireFormat.mSystemProviderFallback)
-                },
-                if (wireFormat.mDefaultProviderType !=
-                    ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat
-                        .NO_DEFAULT_PROVIDER_TYPE
-                ) {
-                    ComplicationType.fromWireType(wireFormat.mDefaultProviderType)
-                } else {
-                    null
-                }
+                wireFormat.mPerComplicationTypeBounds?.let { ComplicationBounds(it) }
             )
 
             internal fun toWireFormat() =
                 ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat(
                     complicationId,
                     enabled,
-                    complicationBounds?.perComplicationTypeBounds,
-                    supportedTypes?.let { ComplicationType.toWireTypes(it) },
-                    defaultProviderPolicy?.providersAsList(),
-                    defaultProviderPolicy?.systemProviderFallback,
-                    defaultProviderType?.asWireComplicationType()
+                    complicationBounds?.perComplicationTypeBounds
                 )
         }
 

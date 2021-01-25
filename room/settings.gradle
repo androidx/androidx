@@ -21,5 +21,9 @@ setupPlayground(this, "..")
 selectProjectsFromAndroidX({ name ->
     if (name.startsWith(":room")) return true
     if (name.startsWith(":sqlite") && !name.contains("inspection")) return true
+    if (name == ":annotation:annotation-experimental") return true
+    if (name == ":annotation:annotation-experimental-lint") return true
+    if (name == ":annotation:annotation-experimental-lint-integration-tests") return true
+    if (name == ":internal-testutils-truth") return true
     return false
 })

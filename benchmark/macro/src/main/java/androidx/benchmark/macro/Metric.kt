@@ -16,11 +16,11 @@
 
 package androidx.benchmark.macro
 
+import android.util.Log
+import androidx.benchmark.perfetto.PerfettoResultsParser.parseResult
+import androidx.benchmark.perfetto.PerfettoTraceParser
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import com.android.helpers.CpuUsageHelper
-import com.android.helpers.JankCollectionHelper
-import com.android.helpers.TotalPssHelper
 
 /**
  * Metric interface.
@@ -31,14 +31,13 @@ sealed class Metric {
     abstract fun start()
 
     abstract fun stop()
-
     /**
      * After stopping, collect metrics
      *
      * TODO: takes package for package level filtering, but probably want a
      *  general config object coming into [start].
      */
-    abstract fun getMetrics(packageName: String): Map<String, Long>
+    abstract fun getMetrics(packageName: String, tracePath: String): Map<String, Long>
 }
 
 class StartupTimingMetric : Metric() {
@@ -56,37 +55,12 @@ class StartupTimingMetric : Metric() {
         helper.stopCollecting()
     }
 
-    override fun getMetrics(packageName: String): Map<String, Long> {
+    override fun getMetrics(packageName: String, tracePath: String): Map<String, Long> {
         return helper.getMetrics(packageName)
     }
 }
 
-/**
- * Not public, as this needs clarified metric names, and fix zeros (b/173056421)
- */
-internal class CpuUsageMetric : Metric() {
-    private val helper = CpuUsageHelper().also {
-        it.setEnableCpuUtilization()
-    }
-
-    override fun configure(config: MacrobenchmarkConfig) {
-        // does nothing
-    }
-
-    override fun start() {
-        helper.startCollecting()
-    }
-
-    override fun stop() {
-        helper.stopCollecting()
-    }
-
-    override fun getMetrics(packageName: String): Map<String, Long> {
-        return helper.metrics
-    }
-}
-
-class JankMetric : Metric() {
+class FrameTimingMetric : Metric() {
     private lateinit var packageName: String
     private val helper = JankCollectionHelper()
 
@@ -146,7 +120,7 @@ class JankMetric : Metric() {
         "slow_bmp_upload" to "slowBitmapUploadFrameCount",
         "slow_issue_draw_cmds" to "slowIssueDrawCommandsFrameCount",
         "total_frames" to "totalFrameCount",
-        "janky_frames_percent" to "jankyFramePercent",
+        "janky_frames_percent" to "jankyFramePercent"
     )
 
     /**
@@ -157,10 +131,10 @@ class JankMetric : Metric() {
         "frameTime90thPercentileMs",
         "frameTime95thPercentileMs",
         "frameTime99thPercentileMs",
-        "totalFrameCount",
+        "totalFrameCount"
     )
 
-    override fun getMetrics(packageName: String): Map<String, Long> {
+    override fun getMetrics(packageName: String, tracePath: String): Map<String, Long> {
         return helper.metrics
             .map {
                 val prefix = "gfxinfo_${packageName}_"
@@ -181,24 +155,43 @@ class JankMetric : Metric() {
 }
 
 /**
- * Not public, as this needs clarified metric names
+ * Only does startup metrics now. Will need to expand scope.
  */
-internal class TotalPssMetric : Metric() {
-    private val helper = TotalPssHelper()
+internal class PerfettoMetric : Metric() {
+    private lateinit var packageName: String
+    private lateinit var device: UiDevice
+    private lateinit var parser: PerfettoTraceParser
 
     override fun configure(config: MacrobenchmarkConfig) {
-        helper.setUp(config.packageName)
+        packageName = config.packageName
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        device = instrumentation.device()
+        parser = PerfettoTraceParser()
     }
 
     override fun start() {
-        helper.startCollecting()
+        parser.copyTraceProcessorShell()
     }
 
     override fun stop() {
-        helper.stopCollecting()
     }
 
-    override fun getMetrics(packageName: String): Map<String, Long> {
-        return helper.metrics
+    override fun getMetrics(packageName: String, tracePath: String): Map<String, Long> {
+        val path = parser.shellFile?.absolutePath
+        return if (path != null) {
+            // TODO: Construct `METRICS` based on the config.
+            val command = "$path --run-metric $METRICS $tracePath --metrics-output=json"
+            Log.d(TAG, "Executing command $command")
+            val json = device.executeShellCommand(command)
+            Log.d(TAG, "Trace Processor result \n\n $json")
+            parseResult(json, packageName)
+        } else {
+            emptyMap()
+        }
+    }
+
+    companion object {
+        private const val TAG = "PerfettoMetric"
+        private const val METRICS = "android_startup"
     }
 }

@@ -23,6 +23,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
+import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.solver.shortcut.result.InsertMethodAdapter
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
@@ -863,18 +864,18 @@ class InsertionMethodProcessorTest {
                     .forAnnotations(Insert::class, Dao::class)
                     .nextRunHandler { invocation ->
                         val (owner, methods) = invocation.roundEnv
-                            .getElementsAnnotatedWith(Dao::class.java)
+                            .getTypeElementsAnnotatedWith(Dao::class.java)
                             .map {
                                 Pair(
                                     it,
-                                    it.asTypeElement().getAllMethods().filter {
+                                    it.getAllMethods().filter {
                                         it.hasAnnotation(Insert::class)
                                     }
                                 )
                             }.first { it.second.isNotEmpty() }
                         val processor = InsertionMethodProcessor(
                             baseContext = invocation.context,
-                            containing = owner.asDeclaredType(),
+                            containing = owner.type,
                             executableElement = methods.first()
                         )
                         val processed = processor.process()

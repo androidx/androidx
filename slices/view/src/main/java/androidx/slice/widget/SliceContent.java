@@ -53,26 +53,43 @@ import androidx.slice.core.SliceQuery;
 
 /**
  * Base class representing content that can be displayed.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
 public class SliceContent {
 
+    /**
+     * @hide
+     */
     protected SliceItem mSliceItem;
+    /**
+     * @hide
+     */
     protected SliceItem mColorItem;
+    /**
+     * @hide
+     */
     protected SliceItem mLayoutDirItem;
+    /**
+     * @hide
+     */
     protected SliceItem mContentDescr;
+    /**
+     * @hide
+     */
     protected int mRowIndex;
 
-    public SliceContent(Slice slice) {
+    public SliceContent(@Nullable Slice slice) {
         if (slice == null) return;
         init(new SliceItem(slice, FORMAT_SLICE, null, slice.getHints()));
         // Built from a slice implies it's top level and index shouldn't matter
         mRowIndex = -1;
     }
 
-    public SliceContent(SliceItem item, int rowIndex) {
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public SliceContent(@Nullable SliceItem item, int rowIndex) {
         if (item == null) return;
         init(item);
         mRowIndex = rowIndex;
@@ -91,6 +108,7 @@ public class SliceContent {
 
     /**
      * @return the slice item used to construct this content.
+     * @hide
      */
     @Nullable
     public SliceItem getSliceItem() {
@@ -99,6 +117,7 @@ public class SliceContent {
 
     /**
      * @return the accent color to use for this content or -1 if no color is set.
+     * @hide
      */
     public int getAccentColor() {
         return mColorItem != null ? mColorItem.getInt() : -1;
@@ -106,6 +125,7 @@ public class SliceContent {
 
     /**
      * @return the layout direction to use for this content or -1 if no direction set.
+     * @hide
      */
     public int getLayoutDir() {
         return mLayoutDirItem != null ? resolveLayoutDirection(mLayoutDirItem.getInt()) : -1;
@@ -113,6 +133,7 @@ public class SliceContent {
 
     /**
      * @return the content description to use for this row if set.
+     * @hide
      */
     @Nullable
     public CharSequence getContentDescription() {
@@ -121,12 +142,14 @@ public class SliceContent {
 
     /**
      * @return the row index of this content, or -1 if no row index is set.
+     * @hide
      */
     public int getRowIndex() { return mRowIndex; }
 
     /**
      * @return the desired height of this content based on the provided mode and context or the
      * default height if context is null.
+     * @hide
      */
     public int getHeight(SliceStyle style, SliceViewPolicy policy) {
         return 0;
@@ -134,6 +157,7 @@ public class SliceContent {
 
     /**
      * @return whether this content is valid to display or not.
+     * @hide
      */
     public boolean isValid() {
         return mSliceItem != null;
@@ -141,6 +165,7 @@ public class SliceContent {
 
     /**
      * @return the action that represents the shortcut.
+     * @hide
      */
     @Nullable
     public SliceAction getShortcut(@Nullable Context context) {
@@ -221,7 +246,8 @@ public class SliceContent {
                     Intent launchIntent = pm.getLaunchIntentForPackage(appInfo.packageName);
                     if (launchIntent != null) {
                         actionItem = new SliceItem(
-                                PendingIntent.getActivity(context, 0, launchIntent, 0),
+                                PendingIntent.getActivity(context, 0, launchIntent,
+                                PendingIntent.FLAG_IMMUTABLE),
                                 new Slice.Builder(uri).build(), FORMAT_ACTION,
                                 null /* subtype */, new String[]{});
                     }
@@ -230,7 +256,8 @@ public class SliceContent {
         }
         if (actionItem == null) {
             Intent intent = new Intent();
-            PendingIntent pi = PendingIntent.getActivity(context, 0, intent, 0);
+            PendingIntent pi = PendingIntent.getActivity(context, 0, intent, 
+                PendingIntent.FLAG_IMMUTABLE);
             actionItem = new SliceItem(pi, null, FORMAT_ACTION, null, null);
         }
         if (shortcutAction != null && shortcutIcon != null && actionItem != null) {

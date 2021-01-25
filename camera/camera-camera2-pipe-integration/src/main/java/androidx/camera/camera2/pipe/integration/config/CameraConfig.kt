@@ -22,6 +22,12 @@ import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInternalAdapter
+import androidx.camera.camera2.pipe.integration.compat.EvCompCompat
+import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraProperties
+import androidx.camera.camera2.pipe.integration.impl.CameraProperties
+import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
+import androidx.camera.camera2.pipe.integration.impl.EvCompControl
+import androidx.camera.camera2.pipe.integration.impl.ZoomControl
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
@@ -40,6 +46,12 @@ annotation class CameraScope
 
 /** Dependency bindings for adapting an individual [CameraInternal] instance to [CameraPipe] */
 @Module(
+    includes = [
+        ZoomCompat.Bindings::class,
+        ZoomControl.Bindings::class,
+        EvCompCompat.Bindings::class,
+        EvCompControl.Bindings::class
+    ],
     subcomponents = [UseCaseCameraComponent::class]
 )
 abstract class CameraModule {
@@ -60,6 +72,9 @@ abstract class CameraModule {
         fun provideCameraMetadata(cameraPipe: CameraPipe, config: CameraConfig): CameraMetadata =
             cameraPipe.cameras().awaitMetadata(config.cameraId)
     }
+
+    @Binds
+    abstract fun bindCameraProperties(impl: CameraPipeCameraProperties): CameraProperties
 
     @Binds
     abstract fun bindCameraInternal(adapter: CameraInternalAdapter): CameraInternal

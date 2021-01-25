@@ -25,7 +25,13 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-/** Represents a geographical location with a latitude and a longitude. */
+/**
+ * Represents a geographical location with a latitude and a longitude.
+ *
+ * @deprecated use {@link CarLocation} instead.
+ */
+// TODO(b/177591131): remove after all host references have been removed.
+@Deprecated
 public final class LatLng {
     @Keep
     private final double mLat;

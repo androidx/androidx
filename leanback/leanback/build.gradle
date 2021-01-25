@@ -18,6 +18,7 @@ dependencies {
     api("androidx.recyclerview:recyclerview:1.2.0-beta01")
     api("androidx.appcompat:appcompat:1.0.0")
 
+    androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

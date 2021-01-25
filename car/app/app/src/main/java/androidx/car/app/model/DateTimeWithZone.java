@@ -23,6 +23,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -139,7 +140,8 @@ public class DateTimeWithZone {
      */
     @NonNull
     public static DateTimeWithZone create(
-            long timeSinceEpochMillis, int zoneOffsetSeconds, @NonNull String zoneShortName) {
+            long timeSinceEpochMillis, @IntRange(from = -64800, to = 64800) int zoneOffsetSeconds,
+            @NonNull String zoneShortName) {
         if (timeSinceEpochMillis < 0) {
             throw new IllegalArgumentException(
                     "Time since epoch must be greater than or equal to zero");
@@ -185,8 +187,8 @@ public class DateTimeWithZone {
      *
      * @param zonedDateTime The time with a time zone. The abbreviated name of this time zone,
      *                      formatted using the default locale, may be displayed to the user when
-     *                      needed, for example,
-     *                      if this time zone is different than the current system time zone.
+     *                      needed, for example, if this time zone is different than the current
+     *                      system time zone.
      * @throws NullPointerException if {@code zonedDateTime} is {@code null}.
      */
     // TODO(shiufai): revisit wrapping this method in a container class (e.g. Api26Impl).

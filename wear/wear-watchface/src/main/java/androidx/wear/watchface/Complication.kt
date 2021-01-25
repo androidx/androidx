@@ -22,6 +22,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
+import android.os.Bundle
 import android.support.wearable.complications.ComplicationData
 import androidx.annotation.ColorInt
 import androidx.annotation.UiThread
@@ -34,6 +35,7 @@ import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
 
 /** Interface for rendering complications onto a [Canvas]. */
 public interface CanvasComplication {
@@ -82,6 +84,9 @@ public interface CanvasComplication {
 
     /** The [IdAndComplicationData] to render. */
     public var idAndData: IdAndComplicationData?
+
+    /** @hide */
+    public fun setIdComplicationDataSync(idAndComplicationData: IdAndComplicationData?)
 }
 
 /**
@@ -155,16 +160,18 @@ public open class CanvasComplicationDrawable(
                 drawable.currentTimeMillis = calendar.timeInMillis
                 drawable.draw(canvas)
             }
-            LayerMode.DRAW_HIGHLIGHTED -> {
+            LayerMode.DRAW_OUTLINED -> {
                 drawable.bounds = bounds
                 drawable.currentTimeMillis = calendar.timeInMillis
+                val wasHighlighted = drawable.isHighlighted
+                drawable.isHighlighted =
+                    renderParameters.selectedComplicationId == idAndData?.complicationId
                 drawable.draw(canvas)
-                // If [RenderParameters.highlightedComplicationId] is set then only highlight if
-                // the ids match.
-                if (renderParameters.highlightedComplicationId == null ||
-                    renderParameters.highlightedComplicationId == idAndData?.complicationId
-                ) {
-                    drawOutline(canvas, bounds, calendar, renderParameters.highlightTint)
+                drawable.isHighlighted = wasHighlighted
+
+                // It's only sensible to render a highlight for non-background complications.
+                if (attachedComplication?.boundsType != ComplicationBoundsType.BACKGROUND) {
+                    drawOutline(canvas, bounds, calendar, renderParameters.outlineTint)
                 }
             }
             LayerMode.HIDE -> return
@@ -201,13 +208,28 @@ public open class CanvasComplicationDrawable(
             drawable.isHighlighted = value
         }
 
+    private var _idAndData: IdAndComplicationData? = null
+
     /** The [IdAndComplicationData] to use when rendering the complication. */
-    override var idAndData: IdAndComplicationData? = null
+    override var idAndData: IdAndComplicationData?
+        @UiThread
+        get() = _idAndData
         @UiThread
         set(value) {
-            drawable.complicationData = value?.complicationData?.asWireComplicationData()
-            field = value
+            drawable.setComplicationData(
+                value?.complicationData?.asWireComplicationData(),
+                true
+            )
+            _idAndData = value
         }
+
+    override fun setIdComplicationDataSync(idAndComplicationData: IdAndComplicationData?) {
+        _idAndData = idAndComplicationData
+        drawable.setComplicationData(
+            idAndComplicationData?.complicationData?.asWireComplicationData(),
+            false
+        )
+    }
 }
 
 /**
@@ -217,12 +239,20 @@ public open class CanvasComplicationDrawable(
  */
 public class Complication internal constructor(
     internal val id: Int,
-    @ComplicationBoundsType internal val boundsType: Int,
+    @ComplicationBoundsType public val boundsType: Int,
     complicationBounds: ComplicationBounds,
     canvasComplication: CanvasComplication,
     supportedTypes: List<ComplicationType>,
     defaultProviderPolicy: DefaultComplicationProviderPolicy,
-    defaultProviderType: ComplicationType
+    defaultProviderType: ComplicationType,
+    /**
+     * The initial state of the complication. Note complications can be enabled / disabled by
+     * [UserStyleSetting.ComplicationsUserStyleSetting].
+     */
+    initiallyEnabled: Boolean,
+
+    /** Extras to be merged into the Intent sent when invoking the provider chooser activity. */
+    public val complicationConfigExtras: Bundle?
 ) {
     public companion object {
         internal val unitSquare = RectF(0f, 0f, 1f, 1f)
@@ -270,6 +300,7 @@ public class Complication internal constructor(
             ComplicationBoundsType.ROUND_RECT,
             complicationBounds
         )
+
         /**
          * Constructs a [Builder] for a complication with bound type
          * [ComplicationBoundsType.BACKGROUND] whose bounds cover the entire screen. A background
@@ -323,6 +354,8 @@ public class Complication internal constructor(
         private val complicationBounds: ComplicationBounds
     ) {
         private var defaultProviderType = ComplicationType.NOT_CONFIGURED
+        private var initiallyEnabled = true
+        private var complicationConfigExtras: Bundle? = null
 
         /**
          * Sets the initial [ComplicationType] to use with the initial complication provider.
@@ -336,6 +369,24 @@ public class Complication internal constructor(
             return this
         }
 
+        /**
+         * Whether the complication is initially enabled or not (by default its enabled). This can
+         * be overridden by [ComplicationsUserStyleSetting].
+         */
+        public fun setEnabled(enabled: Boolean): Builder {
+            this.initiallyEnabled = enabled
+            return this
+        }
+
+        /**
+         * Sets optional extras to be merged into the Intent sent when invoking the provider chooser
+         * activity.
+         */
+        public fun setComplicationConfigExtras(extras: Bundle?): Builder {
+            this.complicationConfigExtras = extras
+            return this
+        }
+
         /** Constructs the [Complication]. */
         public fun build(): Complication = Complication(
             id,
@@ -344,7 +395,9 @@ public class Complication internal constructor(
             renderer,
             supportedTypes,
             defaultProviderPolicy,
-            defaultProviderType
+            defaultProviderType,
+            initiallyEnabled,
+            complicationConfigExtras
         )
     }
 
@@ -389,7 +442,7 @@ public class Complication internal constructor(
     internal var enabledDirty = true
 
     /** Whether or not the complication should be drawn and accept taps. */
-    public var enabled: Boolean = true
+    public var enabled: Boolean = initiallyEnabled
         @JvmName("isEnabled")
         @UiThread
         get
@@ -569,7 +622,7 @@ public class Complication internal constructor(
     }
 
     /** Computes the bounds of the complication by converting the unitSquareBounds to pixels. */
-    internal fun computeBounds(screen: Rect): Rect {
+    public fun computeBounds(screen: Rect): Rect {
         // Try the current type if there is one, otherwise fall back to the bounds for the default
         // provider type.
         val unitSquareBounds =

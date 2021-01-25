@@ -250,7 +250,7 @@ public class CaptureConfigTest {
     static class FakeMultiValueSet extends MultiValueSet<Object> {
         @NonNull
         @Override
-        public MultiValueSet clone() {
+        public MultiValueSet<Object> clone() {
             FakeMultiValueSet multiValueSet = new FakeMultiValueSet();
             multiValueSet.addAll(getAllItems());
             return multiValueSet;

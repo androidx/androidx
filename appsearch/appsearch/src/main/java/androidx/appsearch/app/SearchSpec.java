@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.exceptions.IllegalSearchSpecException;
+import androidx.collection.ArrayMap;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -34,6 +35,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This class represents the specification logic for AppSearch. It can be used to set the type of
@@ -41,6 +44,13 @@ import java.util.List;
  */
 // TODO(sidchhabra) : AddResultSpec fields for Snippets etc.
 public final class SearchSpec {
+    /**
+     * Schema type to be used in {@link SearchSpec.Builder#addProjection} to apply
+     * property paths to all results, excepting any types that have had their own, specific
+     * property paths set.
+     */
+    public static final String PROJECTION_SCHEMA_TYPE_WILDCARD = "*";
+
     static final String TERM_MATCH_TYPE_FIELD = "termMatchType";
     static final String SCHEMA_TYPE_FIELD = "schemaType";
     static final String NAMESPACE_FIELD = "namespace";
@@ -50,6 +60,7 @@ public final class SearchSpec {
     static final String SNIPPET_COUNT_FIELD = "snippetCount";
     static final String SNIPPET_COUNT_PER_PROPERTY_FIELD = "snippetCountPerProperty";
     static final String MAX_SNIPPET_FIELD = "maxSnippet";
+    static final String PROJECTION_TYPE_PROPERTY_PATHS_FIELD = "projectionTypeFieldMasks";
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -95,7 +106,8 @@ public final class SearchSpec {
     @IntDef(value = {
             RANKING_STRATEGY_NONE,
             RANKING_STRATEGY_DOCUMENT_SCORE,
-            RANKING_STRATEGY_CREATION_TIMESTAMP
+            RANKING_STRATEGY_CREATION_TIMESTAMP,
+            RANKING_STRATEGY_RELEVANCE_SCORE
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface RankingStrategy {}
@@ -106,6 +118,8 @@ public final class SearchSpec {
     public static final int RANKING_STRATEGY_DOCUMENT_SCORE = 1;
     /** Ranked by document creation timestamps. */
     public static final int RANKING_STRATEGY_CREATION_TIMESTAMP = 2;
+    /** Ranked by document relevance score. */
+    public static final int RANKING_STRATEGY_RELEVANCE_SCORE = 3;
 
     /**
      * Order for query result.
@@ -209,12 +223,34 @@ public final class SearchSpec {
         return mBundle.getInt(MAX_SNIPPET_FIELD);
     }
 
+    /**
+     * Returns a map from schema type to property paths to be used for projection.
+     *
+     * <p>If the map is empty, then all properties will be retrieved for all results.
+     *
+     * <p>Calling this function repeatedly is inefficient. Prefer to retain the Map returned
+     * by this function, rather than calling it multiple times.
+     */
+    @NonNull
+    public Map<String, List<String>> getProjections() {
+        Bundle typePropertyPathsBundle =
+                mBundle.getBundle(PROJECTION_TYPE_PROPERTY_PATHS_FIELD);
+        Set<String> schemaTypes = typePropertyPathsBundle.keySet();
+        Map<String, List<String>> typePropertyPathsMap = new ArrayMap<>(schemaTypes.size());
+        for (String schemaType : schemaTypes) {
+            typePropertyPathsMap.put(schemaType,
+                    typePropertyPathsBundle.getStringArrayList(schemaType));
+        }
+        return typePropertyPathsMap;
+    }
+
     /** Builder for {@link SearchSpec objects}. */
     public static final class Builder {
 
         private final Bundle mBundle;
         private final ArrayList<String> mSchemaTypes = new ArrayList<>();
         private final ArrayList<String> mNamespaces = new ArrayList<>();
+        private final Bundle mProjectionTypePropertyMasks = new Bundle();
         private boolean mBuilt = false;
 
         /** Creates a new {@link SearchSpec.Builder}. */
@@ -262,6 +298,7 @@ public final class SearchSpec {
             return this;
         }
 
+// @exportToFramework:startStrip()
         /**
          * Adds the Schema type of given data classes to the Schema type filter of
          * {@link SearchSpec} Entry. Only search for documents that have the specified schema types.
@@ -273,7 +310,7 @@ public final class SearchSpec {
          */
         @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getSchemaTypes
         @NonNull
-        public Builder addSchemaByDataClass(@NonNull Collection<Class<?>> dataClasses)
+        public Builder addSchemaByDataClass(@NonNull Collection<? extends Class<?>> dataClasses)
                 throws AppSearchException {
             Preconditions.checkNotNull(dataClasses);
             Preconditions.checkState(!mBuilt, "Builder has already been used");
@@ -286,7 +323,9 @@ public final class SearchSpec {
             addSchemaType(schemaTypes);
             return this;
         }
+// @exportToFramework:endStrip()
 
+// @exportToFramework:startStrip()
         /**
          * Adds the Schema type of given data classes to the Schema type filter of
          * {@link SearchSpec} Entry. Only search for documents that have the specified schema types.
@@ -303,6 +342,7 @@ public final class SearchSpec {
             Preconditions.checkNotNull(dataClasses);
             return addSchemaByDataClass(Arrays.asList(dataClasses));
         }
+// @exportToFramework:endStrip()
 
         /**
          * Adds a namespace filter to {@link SearchSpec} Entry. Only search for documents that
@@ -348,7 +388,7 @@ public final class SearchSpec {
         public Builder setRankingStrategy(@RankingStrategy int rankingStrategy) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkArgumentInRange(rankingStrategy, RANKING_STRATEGY_NONE,
-                    RANKING_STRATEGY_CREATION_TIMESTAMP, "Result ranking strategy");
+                    RANKING_STRATEGY_RELEVANCE_SCORE, "Result ranking strategy");
             mBundle.putInt(RANKING_STRATEGY_FIELD, rankingStrategy);
             return this;
         }
@@ -424,6 +464,104 @@ public final class SearchSpec {
             return this;
         }
 
+       /**
+         * Adds property paths for the specified type to be used for projection. If property
+         * paths are added for a type, then only the properties referred to will be retrieved for
+         * results of that type. If a property path that is specified isn't present in a result,
+         * it will be ignored for that result. Property paths cannot be null.
+         *
+         * <p>If no property paths are added for a particular type, then all properties of
+         * results of that type will be retrieved.
+         *
+         * <p>If property path is added for the
+         * {@link SearchSpec#PROJECTION_SCHEMA_TYPE_WILDCARD}, then those property paths will
+         * apply to all results, excepting any types that have their own, specific property paths
+         * set.
+         *
+         * <p>Suppose the following document is in the index.
+         * <pre>{@code
+         * Email: Document {
+         *   sender: Document {
+         *     name: "Mr. Person"
+         *     email: "mrperson123@google.com"
+         *   }
+         *   recipients: [
+         *     Document {
+         *       name: "John Doe"
+         *       email: "johndoe123@google.com"
+         *     }
+         *     Document {
+         *       name: "Jane Doe"
+         *       email: "janedoe123@google.com"
+         *     }
+         *   ]
+         *   subject: "IMPORTANT"
+         *   body: "Limited time offer!"
+         * }
+         * }</pre>
+         *
+         * <p>Then, suppose that a query for "important" is issued with the following projection
+         * type property paths:
+         * <pre>{@code
+         * {schemaType: "Email", ["subject", "sender.name", "recipients.name"]}
+         * }</pre>
+         *
+         * <p>The above document will be returned as:
+         * <pre>{@code
+         * Email: Document {
+         *   sender: Document {
+         *     name: "Mr. Body"
+         *   }
+         *   recipients: [
+         *     Document {
+         *       name: "John Doe"
+         *     }
+         *     Document {
+         *       name: "Jane Doe"
+         *     }
+         *   ]
+         *   subject: "IMPORTANT"
+         * }
+         * }</pre>
+         */
+        @NonNull
+        public SearchSpec.Builder addProjection(
+                @NonNull String schemaType, @NonNull String... propertyPaths) {
+            Preconditions.checkNotNull(propertyPaths);
+            return addProjection(schemaType, Arrays.asList(propertyPaths));
+        }
+
+        /**
+         * Adds property paths for the specified type to be used for projection. If property
+         * paths are added for a type, then only the properties referred to will be retrieved for
+         * results of that type. If a property path that is specified isn't present in a result,
+         * it will be ignored for that result. Property paths cannot be null.
+         *
+         * <p>If no property paths are added for a particular type, then all properties of
+         * results of that type will be retrieved.
+         *
+         * <p>If property path is added for the
+         * {@link SearchSpec#PROJECTION_SCHEMA_TYPE_WILDCARD}, then those property paths will
+         * apply to all results, excepting any types that have their own, specific property paths
+         * set.
+         *
+         * {@see SearchSpec.Builder#addProjection(String, String...)}
+         */
+        @NonNull
+        public SearchSpec.Builder addProjection(
+                @NonNull String schemaType, @NonNull Collection<String> propertyPaths) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkNotNull(schemaType);
+            Preconditions.checkNotNull(propertyPaths);
+            ArrayList<String> propertyPathsArrayList = new ArrayList<>(propertyPaths.size());
+            for (String propertyPath : propertyPaths) {
+                Preconditions.checkNotNull(propertyPath);
+                propertyPathsArrayList.add(propertyPath);
+            }
+            mProjectionTypePropertyMasks.putStringArrayList(schemaType, propertyPathsArrayList);
+            return this;
+        }
+
         /**
          * Constructs a new {@link SearchSpec} from the contents of this builder.
          *
@@ -437,6 +575,7 @@ public final class SearchSpec {
             }
             mBundle.putStringArrayList(NAMESPACE_FIELD, mNamespaces);
             mBundle.putStringArrayList(SCHEMA_TYPE_FIELD, mSchemaTypes);
+            mBundle.putBundle(PROJECTION_TYPE_PROPERTY_PATHS_FIELD, mProjectionTypePropertyMasks);
             mBuilt = true;
             return new SearchSpec(mBundle);
         }

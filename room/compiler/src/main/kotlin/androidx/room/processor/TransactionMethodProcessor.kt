@@ -20,13 +20,13 @@ import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
 import androidx.room.vo.TransactionMethod
 
 class TransactionMethodProcessor(
     baseContext: Context,
-    val containing: XDeclaredType,
+    val containing: XType,
     val executableElement: XMethodElement
 ) {
 

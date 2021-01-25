@@ -20,12 +20,10 @@ import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.kotlin.KmType
+import androidx.room.compiler.processing.ksp.ERROR_TYPE_NAME
 import androidx.room.compiler.processing.safeTypeName
 import com.google.auto.common.MoreTypes
-import com.squareup.javapoet.TypeName
-import javax.lang.model.element.ElementKind
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import kotlin.reflect.KClass
@@ -41,18 +39,21 @@ internal abstract class JavacType(
         JavacRawType(env, this)
     }
 
-    override fun isError() = typeMirror.kind == TypeKind.ERROR
-
-    override fun isInt(): Boolean {
-        return typeName == TypeName.INT || typeName == BOXED_INT
+    override val typeElement by lazy {
+        val element = try {
+            MoreTypes.asTypeElement(typeMirror)
+        } catch (notAnElement: IllegalArgumentException) {
+            null
+        }
+        element?.let {
+            env.wrapTypeElement(it)
+        }
     }
 
-    override fun isLong(): Boolean {
-        return typeName == TypeName.LONG || typeName == BOXED_LONG
-    }
-
-    override fun isByte(): Boolean {
-        return typeName == TypeName.BYTE || typeName == BOXED_BYTE
+    override fun isError(): Boolean {
+        return typeMirror.kind == TypeKind.ERROR ||
+            // https://kotlinlang.org/docs/reference/kapt.html#non-existent-type-correction
+            (kotlinType != null && typeName == ERROR_TYPE_NAME)
     }
 
     override val typeName by lazy {
@@ -100,12 +101,6 @@ internal abstract class JavacType(
         }
     }
 
-    override fun asTypeElement(): XTypeElement {
-        return env.wrapTypeElement(
-            MoreTypes.asTypeElement(typeMirror)
-        )
-    }
-
     override fun isNone() = typeMirror.kind == TypeKind.NONE
 
     override fun toString(): String {
@@ -130,18 +125,20 @@ internal abstract class JavacType(
     }
 
     override fun isTypeOf(other: KClass<*>): Boolean {
-        return MoreTypes.isTypeOf(
-            other.java,
-            typeMirror
-        )
+        return try {
+            MoreTypes.isTypeOf(
+                other.java,
+                typeMirror
+            )
+        } catch (notAType: IllegalArgumentException) {
+            // `MoreTypes.isTypeOf` might throw if the current TypeMirror is not a type.
+            // for Room, a `false` response is good enough.
+            false
+        }
     }
 
     override fun isSameType(other: XType): Boolean {
         return other is JavacType && env.typeUtils.isSameType(typeMirror, other.typeMirror)
-    }
-
-    override fun isType(): Boolean {
-        return MoreTypes.isType(typeMirror)
     }
 
     /**
@@ -169,13 +166,4 @@ internal abstract class JavacType(
         // a boxed primitive to be marked as non-null.
         return copyWithNullability(XNullability.NONNULL)
     }
-
-    companion object {
-        private val BOXED_INT = TypeName.INT.box()
-        private val BOXED_LONG = TypeName.LONG.box()
-        private val BOXED_BYTE = TypeName.BYTE.box()
-    }
-
-    override fun isEnum() = typeMirror.kind == TypeKind.DECLARED &&
-        MoreTypes.asElement(typeMirror).kind == ElementKind.ENUM
 }

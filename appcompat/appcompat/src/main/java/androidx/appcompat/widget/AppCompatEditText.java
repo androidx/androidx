@@ -34,6 +34,7 @@ import android.text.Editable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.DragEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
@@ -86,6 +87,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
     private final AppCompatTextHelper mTextHelper;
     private final AppCompatTextClassifierHelper mTextClassifierHelper;
     private final TextViewOnReceiveContentListener mDefaultOnReceiveContentListener;
+    private final AppCompatEditor mEditor;
 
     public AppCompatEditText(@NonNull Context context) {
         this(context, null);
@@ -111,6 +113,8 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
         mTextClassifierHelper = new AppCompatTextClassifierHelper(this);
 
         mDefaultOnReceiveContentListener = new TextViewOnReceiveContentListener();
+
+        mEditor = new AppCompatEditor(this);
     }
 
     /**
@@ -312,6 +316,14 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
             return super.getTextClassifier();
         }
         return mTextClassifierHelper.getTextClassifier();
+    }
+
+    @Override
+    public boolean onDragEvent(@SuppressWarnings("MissingNullability") DragEvent event) {
+        if (mEditor.onDragEvent(event)) {
+            return true;
+        }
+        return super.onDragEvent(event);
     }
 
     /**

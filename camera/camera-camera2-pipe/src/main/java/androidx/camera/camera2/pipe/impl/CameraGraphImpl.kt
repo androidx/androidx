@@ -19,21 +19,22 @@ package androidx.camera.camera2.pipe.impl
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.Stream
-import androidx.camera.camera2.pipe.StreamConfig
+import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.Log
 import kotlinx.atomicfu.atomic
 import javax.inject.Inject
 
 internal val cameraGraphIds = atomic(0)
 
 @CameraGraphScope
-class CameraGraphImpl @Inject constructor(
+internal class CameraGraphImpl @Inject constructor(
     graphConfig: CameraGraph.Config,
     metadata: CameraMetadata,
     private val graphProcessor: GraphProcessor,
-    private val streamMap: StreamMap,
-    private val graphState: GraphState,
+    private val streamGraph: StreamGraphImpl,
+    private val graphController: GraphController,
     private val graphState3A: GraphState3A,
     private val listener3A: Listener3A
 ) : CameraGraph {
@@ -46,23 +47,25 @@ class CameraGraphImpl @Inject constructor(
 
     init {
         // Log out the configuration of the camera graph when it is created.
-        Debug.logConfiguration(this.toString(), metadata, graphConfig, streamMap)
+        Log.info {
+            Debug.formatCameraGraphProperties(metadata, graphConfig, this)
+        }
     }
 
-    override val streams: Map<StreamConfig, Stream>
-        get() = streamMap.streamConfigMap
+    override val streams: StreamGraph
+        get() = streamGraph
 
     override fun start() {
         Debug.traceStart { "$this#start" }
         Log.info { "Starting $this" }
-        graphState.start()
+        graphController.start()
         Debug.traceStop()
     }
 
     override fun stop() {
         Debug.traceStart { "$this#stop" }
         Log.info { "Stopping $this" }
-        graphState.stop()
+        graphController.stop()
         Debug.traceStop()
     }
 
@@ -84,7 +87,7 @@ class CameraGraphImpl @Inject constructor(
 
     override fun setSurface(stream: StreamId, surface: Surface?) {
         Debug.traceStart { "$stream#setSurface" }
-        streamMap[stream] = surface
+        streamGraph[stream] = surface
         Debug.traceStop()
     }
 
@@ -93,7 +96,7 @@ class CameraGraphImpl @Inject constructor(
         Log.info { "Closing $this" }
         sessionLock.close()
         graphProcessor.close()
-        graphState.stop()
+        graphController.stop()
         Debug.traceStop()
     }
 

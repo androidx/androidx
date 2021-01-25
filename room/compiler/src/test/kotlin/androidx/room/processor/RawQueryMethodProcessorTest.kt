@@ -25,6 +25,7 @@ import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.SupportDbTypeNames
+import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVED
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
@@ -219,7 +220,7 @@ class RawQueryMethodProcessorTest {
             val daoFunctionElement = daoElement.getDeclaredMethods().first()
             RawQueryMethodProcessor(
                 baseContext = invocation.context,
-                containing = daoElement.asDeclaredType(),
+                containing = daoElement.type,
                 executableElement = daoFunctionElement
             ).process()
         }.failsToCompile().withErrorContaining(
@@ -343,18 +344,18 @@ class RawQueryMethodProcessorTest {
                     )
                     .nextRunHandler { invocation ->
                         val (owner, methods) = invocation.roundEnv
-                            .getElementsAnnotatedWith(Dao::class.java)
+                            .getTypeElementsAnnotatedWith(Dao::class.java)
                             .map {
                                 Pair(
                                     it,
-                                    it.asTypeElement().getAllMethods().filter {
+                                    it.getAllMethods().filter {
                                         it.hasAnnotation(RawQuery::class)
                                     }
                                 )
                             }.first { it.second.isNotEmpty() }
                         val parser = RawQueryMethodProcessor(
                             baseContext = invocation.context,
-                            containing = owner.asDeclaredType(),
+                            containing = owner.type,
                             executableElement = methods.first()
                         )
                         val parsedQuery = parser.process()

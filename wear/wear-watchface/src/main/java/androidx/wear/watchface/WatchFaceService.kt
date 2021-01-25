@@ -60,7 +60,6 @@ import androidx.wear.watchface.control.data.ComplicationScreenshotParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
-import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.ComplicationStateWireFormat
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
@@ -260,6 +259,11 @@ public abstract class WatchFaceService : WallpaperService() {
 
         internal val mutableWatchState = getMutableWatchState().apply {
             isVisible.value = this@EngineWrapper.isVisible
+            // Watch faces with the old [onSetBinder] init flow don't know whether the system
+            // is ambient until they have received a background action wallpaper command.
+            // That's supposed to get sent very quickly, but in case it doesn't we initially
+            // assume we're not in ambient mode which should be correct most of the time.
+            isAmbient.value = false
         }
 
         /**
@@ -268,7 +272,7 @@ public abstract class WatchFaceService : WallpaperService() {
          */
         internal var allowWatchfaceToAnimate = allowWatchFaceToAnimate()
 
-        private var destroyed = false
+        internal var destroyed = false
 
         internal lateinit var ambientUpdateWakelock: PowerManager.WakeLock
 
@@ -294,7 +298,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         private val invalidateRunnable = Runnable(this::invalidate)
 
-        // TODO(alexclarke): Figure out if we can remove this.
+        // State to support the old WSL style initialzation flow.
         private var pendingBackgroundAction: Bundle? = null
         private var pendingProperties: Bundle? = null
         private var pendingSetWatchFaceStyle = false
@@ -499,14 +503,17 @@ public abstract class WatchFaceService : WallpaperService() {
             }
 
             val oldComplicationData =
-                watchFaceImpl.complicationsManager.complications.mapValues {
-                    it.value.renderer.idAndData?.complicationData ?: NoDataComplicationData()
+                watchFaceImpl.complicationsManager.complications.values.map {
+                    it.renderer.idAndData ?: IdAndComplicationData(it.id, NoDataComplicationData())
                 }
             params.idAndComplicationDatumWireFormats?.let {
                 for (idAndData in it) {
-                    watchFaceImpl.onComplicationDataUpdate(
-                        idAndData.id, idAndData.complicationData.asApiComplicationData()
-                    )
+                    watchFaceImpl.complicationsManager[idAndData.id]!!.renderer
+                        .setIdComplicationDataSync(
+                            IdAndComplicationData(
+                                idAndData.id, idAndData.complicationData.asApiComplicationData()
+                            )
+                        )
                 }
             }
 
@@ -523,8 +530,9 @@ public abstract class WatchFaceService : WallpaperService() {
             }
 
             if (params.idAndComplicationDatumWireFormats != null) {
-                for ((id, data) in oldComplicationData) {
-                    watchFaceImpl.onComplicationDataUpdate(id, data)
+                for (idAndData in oldComplicationData) {
+                    watchFaceImpl.complicationsManager[idAndData.complicationId]!!.renderer
+                        .setIdComplicationDataSync(idAndData)
                 }
             }
 
@@ -560,11 +568,12 @@ public abstract class WatchFaceService : WallpaperService() {
                 var screenshotComplicationData = params.complicationData
                 if (screenshotComplicationData != null) {
                     prevIdAndComplicationData = it.renderer.idAndData
-                    it.renderer.idAndData =
+                    it.renderer.setIdComplicationDataSync(
                         IdAndComplicationData(
                             params.complicationId,
                             screenshotComplicationData
                         )
+                    )
                 }
 
                 it.renderer.render(
@@ -576,7 +585,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
                 // Restore previous ComplicationData & style if required.
                 if (params.complicationData != null) {
-                    it.renderer.idAndData = prevIdAndComplicationData
+                    it.renderer.setIdComplicationDataSync(prevIdAndComplicationData)
                 }
 
                 if (newStyle != null) {
@@ -796,6 +805,8 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
             }
 
+            allowWatchfaceToAnimate = false
+            mutableWatchState.isHeadless = true
             val watchState = mutableWatchState.asWatchState()
             watchFaceImpl = WatchFaceImpl(
                 createWatchFace(fakeSurfaceHolder, watchState),
@@ -803,7 +814,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 watchState
             )
 
-            allowWatchfaceToAnimate = false
             mutableWatchState.isVisible.value = true
             mutableWatchState.isAmbient.value = false
 
@@ -1063,19 +1073,6 @@ public abstract class WatchFaceService : WallpaperService() {
             } catch (e: RemoteException) {
                 Log.e(TAG, "Failed to set accessibility labels: ", e)
             }
-        }
-
-        override fun setCurrentUserStyle(userStyle: UserStyleWireFormat) {
-            // TODO(alexclarke): Report programmatic style changes to WCS.
-        }
-
-        override fun setComplicationDetails(
-            complicationId: Int,
-            bounds: Rect,
-            @ComplicationBoundsType boundsType: Int,
-            types: IntArray
-        ) {
-            // TODO(alexclarke): Report programmatic complication details changes to WCS.
         }
     }
 }

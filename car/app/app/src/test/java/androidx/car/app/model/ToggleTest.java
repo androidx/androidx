@@ -24,7 +24,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import androidx.car.app.OnDoneCallback;
-import androidx.car.app.WrappedRuntimeException;
 import androidx.car.app.model.Toggle.OnCheckedChangeListener;
 
 import org.junit.Rule;
@@ -48,16 +47,16 @@ public class ToggleTest {
 
     @Test
     public void build_withValues_notCheckedByDefault() {
-        Toggle toggle = Toggle.builder(mMockOnCheckedChangeListener).build();
+        Toggle toggle = new Toggle.Builder(mMockOnCheckedChangeListener).build();
         assertThat(toggle.isChecked()).isFalse();
     }
 
     @Test
     public void build_checkedChange_sendsCheckedChangeCall() {
-        Toggle toggle = Toggle.builder(mMockOnCheckedChangeListener).setChecked(true).build();
+        Toggle toggle = new Toggle.Builder(mMockOnCheckedChangeListener).setChecked(true).build();
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
 
-        toggle.getOnCheckedChangeListener().onCheckedChange(false, onDoneCallback);
+        toggle.getOnCheckedChangeDelegate().sendCheckedChange(false, onDoneCallback);
         verify(mMockOnCheckedChangeListener).onCheckedChange(false);
         verify(onDoneCallback).onSuccess(null);
     }
@@ -68,12 +67,12 @@ public class ToggleTest {
         doThrow(new RuntimeException(testExceptionMessage)).when(
                 mMockOnCheckedChangeListener).onCheckedChange(false);
 
-        Toggle toggle = Toggle.builder(mMockOnCheckedChangeListener).setChecked(true).build();
+        Toggle toggle = new Toggle.Builder(mMockOnCheckedChangeListener).setChecked(true).build();
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
 
         try {
-            toggle.getOnCheckedChangeListener().onCheckedChange(false, onDoneCallback);
-        } catch (WrappedRuntimeException e) {
+            toggle.getOnCheckedChangeDelegate().sendCheckedChange(false, onDoneCallback);
+        } catch (RuntimeException e) {
             assertThat(e.getMessage()).contains(testExceptionMessage);
         }
         verify(mMockOnCheckedChangeListener).onCheckedChange(false);
@@ -82,16 +81,17 @@ public class ToggleTest {
 
     @Test
     public void equals() {
-        Toggle toggle = Toggle.builder(mMockOnCheckedChangeListener).setChecked(true).build();
+        Toggle toggle = new Toggle.Builder(mMockOnCheckedChangeListener).setChecked(true).build();
         assertThat(toggle)
-                .isEqualTo(Toggle.builder(mMockOnCheckedChangeListener).setChecked(true).build());
+                .isEqualTo(new Toggle.Builder(mMockOnCheckedChangeListener).setChecked(
+                        true).build());
     }
 
     @Test
     public void notEquals() {
-        Toggle toggle = Toggle.builder(mMockOnCheckedChangeListener).setChecked(true).build();
+        Toggle toggle = new Toggle.Builder(mMockOnCheckedChangeListener).setChecked(true).build();
         assertThat(toggle)
-                .isNotEqualTo(Toggle.builder(mMockOnCheckedChangeListener).setChecked(
+                .isNotEqualTo(new Toggle.Builder(mMockOnCheckedChangeListener).setChecked(
                         false).build());
     }
 }

@@ -65,6 +65,10 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
         }
     }
 
+    DeviceState getDeviceState() {
+        return mSidecarAdapter.translate(mSidecar.getDeviceState());
+    }
+
     @VisibleForTesting
     SidecarCompat(@NonNull SidecarInterface sidecar, SidecarAdapter sidecarAdapter) {
         // Empty implementation to avoid null checks.
@@ -122,8 +126,8 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
         });
     }
 
+    //TODO(b/173739071) reduce visibility to @VisibleForTesting
     @NonNull
-    @VisibleForTesting
     WindowLayoutInfo getWindowLayoutInfo(@NonNull Activity activity) {
         IBinder windowToken = getActivityWindowToken(activity);
 

@@ -24,10 +24,14 @@ import android.app.PendingIntent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.model.CarColor;
+import androidx.car.app.serialization.Bundler;
+import androidx.car.app.serialization.BundlerException;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -45,7 +49,7 @@ import java.util.List;
  *
  * <ol>
  *   <li>Create a {@link NotificationCompat.Builder}, setting any desired properties.
- *   <li>Create a {@link CarAppExtender.Builder} with {@link CarAppExtender#builder()}.
+ *   <li>Create a {@link CarAppExtender.Builder}.
  *   <li>Set car-specific properties using the {@code set} methods of {@link
  *       CarAppExtender.Builder}.
  *   <li>Create a {@link CarAppExtender} by calling {@link Builder#build()}.
@@ -58,7 +62,7 @@ import java.util.List;
  * <pre class="prettyprint">
  * Notification notification = new NotificationCompat.Builder(context)
  *         ...
- *         .extend(CarAppExtender.builder()
+ *         .extend(new CarAppExtender.Builder()
  *                 .set*(...)
  *                 .build())
  *         .build();
@@ -95,22 +99,29 @@ import java.util.List;
  * frequently with navigation information, the notification UI has a slightly different behavior.
  * The app can post a TBT notification by calling {@code
  * NotificationCompat.Builder#setOngoing(true)} and {@code
- * NotificationCompat.Builder#setCategory(NotificationCompat.CATEGORY_NAVIGATION)}. The car screen
- * UI is affected in the following ways:
- *
+ * NotificationCompat.Builder#setCategory(NotificationCompat.CATEGORY_NAVIGATION)}.
+ * <p>TBT notifications behave the same as regular notifications with the following
+ * exceptions:
  * <ul>
- *   <li>The same heads-up-notification (HUN) behavior as regular notifications.
- *   <li>A rail widget at the bottom of the screen will show when the navigation app is in the
- *       background.
+ *     <li>The notification will not be displayed if the navigation app is not the currently active
+ *     navigation app, or if the app is already displaying routing information in the navigation
+ *     template.
+ *     <li>The heads-up-notification (HUN) can be customized with a background color through
+ *     {@link Builder#setColor}.
+ *     <li>The notification will not be displayed in the notification center.
  * </ul>
+ * <p>In addition to that, the information in the navigation notification will be displayed in the
+ * rail widget at the bottom of the screen when the app is in the background.
  *
- * Note that frequent HUNs distract the driver. The recommended practice is to update the TBT
+ * <p>Note that frequent HUNs distract the driver. The recommended practice is to update the TBT
  * notification regularly on distance changes, which updates the rail widget, but call {@code
  * NotificationCompat.Builder#setOnlyAlertOnce(true)} unless there is a significant navigation turn
  * event.
  */
 public class CarAppExtender implements NotificationCompat.Extender {
-    private static final String EXTRA_CAR_EXTENDER = "android.car.EXTENSIONS";
+    private static final String TAG = "CarAppExtender";
+
+    private static final String EXTRA_CAR_EXTENDER = "android.car.app.EXTENSIONS";
     private static final String EXTRA_IS_EXTENDED = "android.car.app.EXTENDED";
     private static final String EXTRA_CONTENT_TITLE = "content_title";
     private static final String EXTRA_CONTENT_TEXT = "content_text";
@@ -120,6 +131,7 @@ public class CarAppExtender implements NotificationCompat.Extender {
     private static final String EXTRA_DELETE_INTENT = "delete_intent";
     private static final String EXTRA_ACTIONS = "actions";
     private static final String EXTRA_IMPORTANCE = "importance";
+    private static final String EXTRA_COLOR = "color";
 
     private boolean mIsExtended;
     @Nullable
@@ -135,8 +147,11 @@ public class CarAppExtender implements NotificationCompat.Extender {
     private PendingIntent mDeleteIntent;
     private ArrayList<Action> mActions;
     private int mImportance;
+    @Nullable
+    private CarColor mColor;
 
     /** Creates a {@link CarAppExtender.Builder}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @NonNull
     public static Builder builder() {
         return new Builder();
@@ -168,9 +183,18 @@ public class CarAppExtender implements NotificationCompat.Extender {
         mImportance =
                 carBundle.getInt(EXTRA_IMPORTANCE,
                         NotificationManagerCompat.IMPORTANCE_UNSPECIFIED);
+
+        Bundle colorBundle = carBundle.getBundle(EXTRA_COLOR);
+        if (colorBundle != null) {
+            try {
+                mColor = (CarColor) Bundler.fromBundle(colorBundle);
+            } catch (BundlerException e) {
+                Log.e(TAG, "Failed to deserialize the notification color", e);
+            }
+        }
     }
 
-    private CarAppExtender(Builder builder) {
+    CarAppExtender(Builder builder) {
         this.mContentTitle = builder.mContentTitle;
         this.mContentText = builder.mContentText;
         this.mSmallIconResId = builder.mSmallIconResId;
@@ -179,6 +203,7 @@ public class CarAppExtender implements NotificationCompat.Extender {
         this.mDeleteIntent = builder.mDeleteIntent;
         this.mActions = builder.mActions;
         this.mImportance = builder.mImportance;
+        this.mColor = builder.mColor;
     }
 
     /**
@@ -224,6 +249,15 @@ public class CarAppExtender implements NotificationCompat.Extender {
         }
 
         carExtensions.putInt(EXTRA_IMPORTANCE, mImportance);
+
+        if (mColor != null) {
+            try {
+                Bundle bundle = Bundler.toBundle(mColor);
+                carExtensions.putBundle(EXTRA_COLOR, bundle);
+            } catch (BundlerException e) {
+                Log.e(TAG, "Failed to serialize the notification color", e);
+            }
+        }
 
         builder.getExtras().putBundle(EXTRA_CAR_EXTENDER, carExtensions);
         return builder;
@@ -334,21 +368,33 @@ public class CarAppExtender implements NotificationCompat.Extender {
         return mImportance;
     }
 
+    /**
+     * Gets the background color of the notification.
+     *
+     * @see Builder#setColor(CarColor)
+     */
+    @Nullable
+    public CarColor getColor() {
+        return mColor;
+    }
+
     /** A builder of {@link CarAppExtender}. */
     public static final class Builder {
         @Nullable
-        private CharSequence mContentTitle;
+        CharSequence mContentTitle;
         @Nullable
-        private CharSequence mContentText;
-        private int mSmallIconResId;
+        CharSequence mContentText;
+        int mSmallIconResId;
         @Nullable
-        private Bitmap mLargeIconBitmap;
+        Bitmap mLargeIconBitmap;
         @Nullable
-        private PendingIntent mContentIntent;
+        PendingIntent mContentIntent;
         @Nullable
-        private PendingIntent mDeleteIntent;
-        private final ArrayList<Action> mActions = new ArrayList<>();
-        private int mImportance = NotificationManagerCompat.IMPORTANCE_UNSPECIFIED;
+        PendingIntent mDeleteIntent;
+        final ArrayList<Action> mActions = new ArrayList<>();
+        int mImportance = NotificationManagerCompat.IMPORTANCE_UNSPECIFIED;
+        @Nullable
+        CarColor mColor;
 
         /**
          * Sets the title of the notification in the car screen, or {@code null} to not override the
@@ -509,11 +555,31 @@ public class CarAppExtender implements NotificationCompat.Extender {
         }
 
         /**
+         * Sets the background color of the notification in the car screen, or {@code null} to not
+         * override the background color of the notification.
+         *
+         * <p>This method is equivalent to {@link NotificationCompat.Builder#setColor(int)} for
+         * the car screen.
+         *
+         * <p>This color is only used for navigation notifications. See the "Navigation" section
+         * of {@link CarAppExtender} for more details.
+         */
+        @NonNull
+        public Builder setColor(@Nullable CarColor color) {
+            this.mColor = color;
+            return this;
+        }
+
+        /**
          * Constructs the {@link CarAppExtender} defined by this builder.
          */
         @NonNull
         public CarAppExtender build() {
             return new CarAppExtender(this);
+        }
+
+        /** Creates an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

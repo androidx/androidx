@@ -24,7 +24,7 @@ import com.squareup.javapoet.TypeVariableName
 internal sealed class KspMethodType(
     val env: KspProcessingEnv,
     val origin: KspMethodElement,
-    val containing: KspDeclaredType
+    val containing: KspType
 ) : XMethodType {
     override val parameterTypes: List<XType> by lazy {
         origin.parameters.map {
@@ -56,11 +56,15 @@ internal sealed class KspMethodType(
     private class KspNormalMethodType(
         env: KspProcessingEnv,
         origin: KspMethodElement,
-        containing: KspDeclaredType
+        containing: KspType
     ) : KspMethodType(env, origin, containing) {
         override val returnType: XType by lazy {
+            // b/160258066
+            // we may need to box the return type if it is overriding a generic, hence, we should
+            // use the declaration of the overridee if available when deciding nullability
+            val overridee = origin.declaration.findOverridee()
             env.wrap(
-                originatingReference = origin.declaration.returnType!!,
+                originatingReference = (overridee?.returnType ?: origin.declaration.returnType)!!,
                 ksType = origin.declaration.returnTypeAsMemberOf(
                     resolver = env.resolver,
                     ksType = containing.ksType
@@ -72,7 +76,7 @@ internal sealed class KspMethodType(
     private class KspSuspendMethodType(
         env: KspProcessingEnv,
         origin: KspMethodElement,
-        containing: KspDeclaredType
+        containing: KspType
     ) : KspMethodType(env, origin, containing), XSuspendMethodType {
         override val returnType: XType
             // suspend functions always return Any?, no need to call asMemberOf
@@ -94,7 +98,7 @@ internal sealed class KspMethodType(
         fun create(
             env: KspProcessingEnv,
             origin: KspMethodElement,
-            containing: KspDeclaredType
+            containing: KspType
         ) = if (origin.isSuspendFunction()) {
             KspSuspendMethodType(env, origin, containing)
         } else {

@@ -66,12 +66,14 @@ class SyntheticKspProcessor(
         }
     }
 
-    override fun throwIfFailed() {
-        val result = checkNotNull(result) {
-            "did not compile"
+    override fun getProcessingException(): Throwable? {
+        val result = this.result ?: return AssertionError("processor didn't run")
+        result.exceptionOrNull()?.let {
+            return it
         }
         if (result.isFailure) {
-            throw result.exceptionOrNull()!!
+            return AssertionError("processor failed but no exception is reported")
         }
+        return null
     }
 }

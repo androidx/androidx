@@ -18,10 +18,11 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.utils.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +34,7 @@ import java.util.Objects;
  * homogeneous lists of {@link Action} items.
  */
 public class ActionList {
+    @Keep
     private final List<Action> mList;
 
     /**
@@ -82,7 +84,7 @@ public class ActionList {
     }
 
     private ActionList(List<Action> list) {
-        this.mList = new ArrayList<>(list);
+        this.mList = CollectionUtils.unmodifiableCopy(list);
     }
 
     /** For serialization. */

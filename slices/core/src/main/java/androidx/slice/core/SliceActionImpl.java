@@ -39,10 +39,12 @@ import static androidx.slice.core.SliceHints.LARGE_IMAGE;
 import static androidx.slice.core.SliceHints.RAW_IMAGE_LARGE;
 import static androidx.slice.core.SliceHints.RAW_IMAGE_SMALL;
 import static androidx.slice.core.SliceHints.SMALL_IMAGE;
+import static androidx.slice.core.SliceHints.SUBTYPE_ACTION_KEY;
 import static androidx.slice.core.SliceHints.SUBTYPE_DATE_PICKER;
 import static androidx.slice.core.SliceHints.SUBTYPE_TIME_PICKER;
 import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 
@@ -74,6 +76,7 @@ public class SliceActionImpl implements SliceAction {
     private long mDateTimeMillis = -1;
     private SliceItem mSliceItem;
     private SliceItem mActionItem;
+    private String mActionKey;
     private boolean mIsActivity;
 
     enum ActionType {
@@ -105,7 +108,6 @@ public class SliceActionImpl implements SliceAction {
      * @param isDatePicker   if it is a date picker, as opposed to a time picker.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     public SliceActionImpl(@NonNull PendingIntent action, @NonNull CharSequence actionTitle,
             long dateTimeMillis, boolean isDatePicker) {
         mAction = action;
@@ -182,6 +184,7 @@ public class SliceActionImpl implements SliceAction {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
+    @SuppressLint("InlinedApi")
     public SliceActionImpl(SliceItem slice) {
         mSliceItem = slice;
         SliceItem actionItem = SliceQuery.find(slice, FORMAT_ACTION);
@@ -238,6 +241,11 @@ public class SliceActionImpl implements SliceAction {
         SliceItem priority = SliceQuery.findSubtype(actionItem.getSlice(), FORMAT_INT,
                 SUBTYPE_PRIORITY);
         mPriority = priority != null ? priority.getInt() : -1;
+        SliceItem actionKeyItem = SliceQuery.findSubtype(actionItem.getSlice(), FORMAT_TEXT,
+                SUBTYPE_ACTION_KEY);
+        if (actionKeyItem != null) {
+            mActionKey = actionKeyItem.getText().toString();
+        }
     }
 
     /**
@@ -266,6 +274,16 @@ public class SliceActionImpl implements SliceAction {
     @Override
     public SliceActionImpl setPriority(@IntRange(from = 0) int priority) {
         mPriority = priority;
+        return this;
+    }
+
+    /**
+     * Sets the key for this action.
+     */
+    @Override
+    @NonNull
+    public SliceActionImpl setKey(@NonNull String key) {
+        mActionKey = key;
         return this;
     }
 
@@ -320,6 +338,15 @@ public class SliceActionImpl implements SliceAction {
     @Override
     public int getPriority() {
         return mPriority;
+    }
+
+    /**
+     * @return the key associated with this action.
+     */
+    @Nullable
+    @Override
+    public String getKey() {
+        return mActionKey;
     }
 
     /**
@@ -418,6 +445,9 @@ public class SliceActionImpl implements SliceAction {
         }
         if (mPriority != -1) {
             sb.addInt(mPriority, SUBTYPE_PRIORITY);
+        }
+        if (mActionKey != null) {
+            sb.addText(mActionKey, SUBTYPE_ACTION_KEY);
         }
         if (mIsActivity) {
             builder.addHints(SliceHints.HINT_ACTIVITY);

@@ -17,7 +17,12 @@
 package androidx.car.app.model.constraints;
 
 
+import static androidx.annotation.RestrictTo.Scope;
+
+import static java.util.Objects.requireNonNull;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.Action.ActionType;
@@ -30,13 +35,16 @@ import java.util.Set;
 
 /**
  * Encapsulates the constraints to apply when rendering a list of {@link Action}s on a template.
+ *
+ * @hide
  */
+@RestrictTo(Scope.LIBRARY)
 public class ActionsConstraints {
 
     /** Conservative constraints for most template types. */
     @NonNull
     private static final ActionsConstraints ACTIONS_CONSTRAINTS_CONSERVATIVE =
-            ActionsConstraints.builder().setMaxActions(2).build();
+            new ActionsConstraints.Builder().setMaxActions(2).build();
 
     /**
      * Constraints for template headers, where only the special-purpose back and app-icon standard
@@ -44,7 +52,7 @@ public class ActionsConstraints {
      */
     @NonNull
     public static final ActionsConstraints ACTIONS_CONSTRAINTS_HEADER =
-            ActionsConstraints.builder().setMaxActions(1).addDisallowedActionType(
+            new ActionsConstraints.Builder().setMaxActions(1).addDisallowedActionType(
                     Action.TYPE_CUSTOM).build();
 
     /**
@@ -53,13 +61,13 @@ public class ActionsConstraints {
      */
     @NonNull
     public static final ActionsConstraints ACTIONS_CONSTRAINTS_SIMPLE =
-            ACTIONS_CONSTRAINTS_CONSERVATIVE.newBuilder().setMaxCustomTitles(1).build();
+            new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_CONSERVATIVE).setMaxCustomTitles(
+                    1).build();
 
     /** Constraints for navigation templates. */
     @NonNull
     public static final ActionsConstraints ACTIONS_CONSTRAINTS_NAVIGATION =
-            ACTIONS_CONSTRAINTS_CONSERVATIVE
-                    .newBuilder()
+            new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_CONSERVATIVE)
                     .setMaxActions(4)
                     .setMaxCustomTitles(1)
                     .addRequiredActionType(Action.TYPE_CUSTOM)
@@ -71,20 +79,11 @@ public class ActionsConstraints {
     private final Set<Integer> mDisallowedActionTypes;
 
     /** Returns a builder of {@link ActionsConstraints}. */
+    // TODO(b/175827428): remove once host is changed to use new public ctor.
     @VisibleForTesting
     @NonNull
     public static Builder builder() {
         return new Builder();
-    }
-
-    /**
-     * Returns a new builder that contains the same data as this {@link ActionsConstraints}
-     * instance.
-     */
-    @VisibleForTesting
-    @NonNull
-    public Builder newBuilder() {
-        return new Builder(this);
     }
 
     /** Returns the max number of actions allowed. */
@@ -118,7 +117,7 @@ public class ActionsConstraints {
      * @throws IllegalArgumentException if the actions does not contain all required types.
      * @throws IllegalArgumentException if the actions contain any disallowed types.
      */
-    public void validateOrThrow(@NonNull List<Object> actions) {
+    public void validateOrThrow(@NonNull List<Action> actions) {
         int maxAllowedActions = mMaxActions;
         int maxAllowedCustomTitles = mMaxCustomTitles;
 
@@ -127,34 +126,27 @@ public class ActionsConstraints {
                         ? Collections.emptySet()
                         : new HashSet<>(this.mRequiredActionTypes);
 
-        for (Object object : actions) {
-            if (object instanceof Action) {
-                Action action = (Action) object;
+        for (Action action : actions) {
+            if (mDisallowedActionTypes.contains(action.getType())) {
+                throw new IllegalArgumentException(
+                        Action.typeToString(action.getType()) + " is disallowed");
+            }
 
-                if (mDisallowedActionTypes.contains(action.getType())) {
+            requiredTypes.remove(action.getType());
+
+            CarText title = action.getTitle();
+            if (title != null && !title.isEmpty()) {
+                if (--maxAllowedCustomTitles < 0) {
                     throw new IllegalArgumentException(
-                            Action.typeToString(action.getType()) + " is disallowed");
+                            "Action strip exceeded max number of "
+                                    + mMaxCustomTitles
+                                    + " actions with custom titles");
                 }
+            }
 
-                requiredTypes.remove(action.getType());
-
-                CarText title = action.getTitle();
-                if (title != null && !title.isEmpty()) {
-                    if (--maxAllowedCustomTitles < 0) {
-                        throw new IllegalArgumentException(
-                                "Action strip exceeded max number of "
-                                        + mMaxCustomTitles
-                                        + " actions with custom titles");
-                    }
-                }
-
-                if (--maxAllowedActions < 0) {
-                    throw new IllegalArgumentException(
-                            "Action strip exceeded max number of " + mMaxActions + " actions");
-                }
-
-            } else {
-                throw new IllegalArgumentException("Unsupported action: " + object);
+            if (--maxAllowedActions < 0) {
+                throw new IllegalArgumentException(
+                        "Action strip exceeded max number of " + mMaxActions + " actions");
             }
         }
 
@@ -168,7 +160,7 @@ public class ActionsConstraints {
         }
     }
 
-    private ActionsConstraints(Builder builder) {
+    ActionsConstraints(Builder builder) {
         mMaxActions = builder.mMaxActions;
         mMaxCustomTitles = builder.mMaxCustomTitles;
         mRequiredActionTypes = new HashSet<>(builder.mRequiredActionTypes);
@@ -194,10 +186,10 @@ public class ActionsConstraints {
      */
     @VisibleForTesting
     public static final class Builder {
-        private int mMaxActions = Integer.MAX_VALUE;
-        private int mMaxCustomTitles;
-        private final Set<Integer> mRequiredActionTypes = new HashSet<>();
-        private final Set<Integer> mDisallowedActionTypes = new HashSet<>();
+        int mMaxActions = Integer.MAX_VALUE;
+        int mMaxCustomTitles;
+        final Set<Integer> mRequiredActionTypes = new HashSet<>();
+        final Set<Integer> mDisallowedActionTypes = new HashSet<>();
 
         /** Sets the maximum number of actions allowed. */
         @NonNull
@@ -235,14 +227,22 @@ public class ActionsConstraints {
             return new ActionsConstraints(this);
         }
 
-        private Builder() {
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
 
-        private Builder(ActionsConstraints constraints) {
-            this.mMaxActions = constraints.mMaxActions;
-            this.mMaxCustomTitles = constraints.mMaxCustomTitles;
-            this.mRequiredActionTypes.addAll(constraints.mRequiredActionTypes);
-            this.mDisallowedActionTypes.addAll(constraints.mDisallowedActionTypes);
+        /**
+         * Returns a new builder that contains the same data as the given {@link ActionsConstraints}
+         * instance.
+         *
+         * @throws NullPointerException if {@code latLng} is {@code null}.
+         */
+        public Builder(@NonNull ActionsConstraints constraints) {
+            requireNonNull(constraints);
+            this.mMaxActions = constraints.getMaxActions();
+            this.mMaxCustomTitles = constraints.getMaxCustomTitles();
+            this.mRequiredActionTypes.addAll(constraints.getRequiredActionTypes());
+            this.mDisallowedActionTypes.addAll(constraints.getDisallowedActionTypes());
         }
     }
 }

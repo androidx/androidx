@@ -23,6 +23,7 @@ import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.util.FutureUtil;
 import androidx.core.util.Preconditions;
 
@@ -36,6 +37,11 @@ class SearchResultsImpl implements SearchResults {
 
     private final ExecutorService mExecutorService;
 
+    // The package name to search over. If null, this will search over all package names.
+    @Nullable
+    private final String mPackageName;
+
+    // The database name to search over. If null, this will search over all database names.
     @Nullable
     private final String mDatabaseName;
 
@@ -47,14 +53,18 @@ class SearchResultsImpl implements SearchResults {
 
     private boolean mIsFirstLoad = true;
 
+    private boolean mIsClosed = false;
+
     SearchResultsImpl(
             @NonNull AppSearchImpl appSearchImpl,
             @NonNull ExecutorService executorService,
+            @Nullable String packageName,
             @Nullable String databaseName,
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
         mExecutorService = Preconditions.checkNotNull(executorService);
+        mPackageName = packageName;
         mDatabaseName = databaseName;
         mQueryExpression = Preconditions.checkNotNull(queryExpression);
         mSearchSpec = Preconditions.checkNotNull(searchSpec);
@@ -62,40 +72,47 @@ class SearchResultsImpl implements SearchResults {
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchResult<List<SearchResult>>> getNextPage() {
+    public ListenableFuture<List<SearchResult>> getNextPage() {
+        Preconditions.checkState(!mIsClosed, "SearchResults has already been closed");
         return FutureUtil.execute(mExecutorService, () -> {
-            try {
-                SearchResultPage searchResultPage;
-                if (mIsFirstLoad) {
-                    mIsFirstLoad = false;
-                    if (mDatabaseName == null) {
-                        // Global query, there's no one database to check.
-                        searchResultPage = mAppSearchImpl.globalQuery(
-                                mQueryExpression, mSearchSpec);
-                    } else {
-                        // Normal local query, pass in specified database.
-                        searchResultPage = mAppSearchImpl.query(
-                                mDatabaseName, mQueryExpression, mSearchSpec);
-                    }
+            SearchResultPage searchResultPage;
+            if (mIsFirstLoad) {
+                mIsFirstLoad = false;
+                if (mDatabaseName == null && mPackageName == null) {
+                    // Global query, there's no one package-database combination to check.
+                    searchResultPage = mAppSearchImpl.globalQuery(mQueryExpression, mSearchSpec);
+                } else if (mPackageName == null) {
+                    throw new AppSearchException(
+                            AppSearchResult.RESULT_INVALID_ARGUMENT,
+                            "Invalid null package name for query");
+                } else if (mDatabaseName == null) {
+                    throw new AppSearchException(
+                            AppSearchResult.RESULT_INVALID_ARGUMENT,
+                            "Invalid null database name for query");
                 } else {
-                    searchResultPage = mAppSearchImpl.getNextPage(mNextPageToken);
+                    // Normal local query, pass in specified database.
+                    searchResultPage = mAppSearchImpl.query(
+                            mPackageName, mDatabaseName, mQueryExpression, mSearchSpec);
                 }
-                mNextPageToken = searchResultPage.getNextPageToken();
-                return AppSearchResult.newSuccessfulResult(
-                        searchResultPage.getResults());
-            } catch (Throwable t) {
-                return AppSearchResult.throwableToFailedResult(t);
+            } else {
+                searchResultPage = mAppSearchImpl.getNextPage(mNextPageToken);
             }
+            mNextPageToken = searchResultPage.getNextPageToken();
+            return searchResultPage.getResults();
         });
     }
 
     @Override
     @SuppressWarnings("FutureReturnValueIgnored")
     public void close() {
-        // No future is needed here since the method is void.
-        FutureUtil.execute(mExecutorService, () -> {
-            mAppSearchImpl.invalidateNextPageToken(mNextPageToken);
-            return null;
-        });
+        // Checking the future result is not needed here since this is a cleanup step which is not
+        // critical to the correct functioning of the system; also, the return value is void.
+        if (!mIsClosed) {
+            FutureUtil.execute(mExecutorService, () -> {
+                mAppSearchImpl.invalidateNextPageToken(mNextPageToken);
+                mIsClosed = true;
+                return null;
+            });
+        }
     }
 }

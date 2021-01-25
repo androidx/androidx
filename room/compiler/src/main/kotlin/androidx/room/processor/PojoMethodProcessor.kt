@@ -16,8 +16,8 @@
 
 package androidx.room.processor
 
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
 import androidx.room.vo.PojoMethod
 
 /**
@@ -26,7 +26,7 @@ import androidx.room.vo.PojoMethod
 class PojoMethodProcessor(
     private val context: Context,
     private val element: XMethodElement,
-    private val owner: XDeclaredType
+    private val owner: XType
 ) {
     fun process(): PojoMethod {
         val asMember = element.asMemberOf(owner)

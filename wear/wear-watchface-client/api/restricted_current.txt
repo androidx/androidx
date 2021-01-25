@@ -3,6 +3,7 @@ package androidx.wear.watchface.client {
 
   public final class ComplicationState {
     ctor public ComplicationState(android.graphics.Rect bounds, @androidx.wear.watchface.data.ComplicationBoundsType int boundsType, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.data.ComplicationType defaultProviderType, boolean isEnabled, androidx.wear.complications.data.ComplicationType currentType);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public ComplicationState(androidx.wear.watchface.data.ComplicationStateWireFormat complicationStateWireFormat);
     method public android.graphics.Rect getBounds();
     method public int getBoundsType();
     method public androidx.wear.complications.data.ComplicationType getCurrentType();
@@ -57,7 +58,7 @@ package androidx.wear.watchface.client {
     method public long getPreviewReferenceTimeMillis();
     method public void performAmbientTick();
     method public void sendTouchEvent(int xPosition, int yPosition, @androidx.wear.watchface.client.TapType int tapType);
-    method public void setSystemState(androidx.wear.watchface.data.SystemState systemState);
+    method public void setSystemState(androidx.wear.watchface.client.SystemState systemState);
     method @RequiresApi(27) public android.graphics.Bitmap takeWatchFaceScreenshot(androidx.wear.watchface.RenderParameters renderParameters, @IntRange(from=0, to=100) int compressionQuality, long calendarTimeMillis, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idAndComplicationData);
     property public abstract java.util.List<androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.ContentDescriptionLabel> contentDescriptionLabels;
     property public abstract String instanceId;
@@ -133,6 +134,10 @@ package androidx.wear.watchface.client {
 
   public static final class WatchFaceControlClient.ServiceNotBoundException extends java.lang.Exception {
     ctor public WatchFaceControlClient.ServiceNotBoundException();
+  }
+
+  public static final class WatchFaceControlClient.ServiceStartFailureException extends java.lang.Exception {
+    ctor public WatchFaceControlClient.ServiceStartFailureException();
   }
 
 }

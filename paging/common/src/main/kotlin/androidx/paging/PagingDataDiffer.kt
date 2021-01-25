@@ -24,7 +24,6 @@ import androidx.paging.LoadType.REFRESH
 import androidx.paging.PagePresenter.ProcessPageEventCallback
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
@@ -305,7 +304,6 @@ abstract class PagingDataDiffer<T : Any>(
      *
      * @sample androidx.paging.samples.loadStateFlowSample
      */
-    @OptIn(FlowPreview::class)
     val loadStateFlow: Flow<CombinedLoadStates>
         get() = _combinedLoadState
 

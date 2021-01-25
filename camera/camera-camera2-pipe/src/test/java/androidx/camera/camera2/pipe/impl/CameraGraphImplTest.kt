@@ -21,12 +21,11 @@ import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LE
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.Request
-import androidx.camera.camera2.pipe.RequestTemplate
-import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
+import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
-import androidx.camera.camera2.pipe.testing.FakeCameras
+import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
-import androidx.camera.camera2.pipe.testing.FakeGraphState
+import androidx.camera.camera2.pipe.testing.FakeGraphController
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -35,17 +34,17 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-@RunWith(CameraPipeRobolectricTestRunner::class)
+@RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class CameraGraphImplTest {
-    private val fakeCameraId = FakeCameras.create()
+internal class CameraGraphImplTest {
+    private val fakeCameraId = RobolectricCameras.create()
     private val fakeMetadata = FakeCameraMetadata(
         mapOf(INFO_SUPPORTED_HARDWARE_LEVEL to INFO_SUPPORTED_HARDWARE_LEVEL_FULL),
         cameraId = fakeCameraId
     )
     private val fakeGraphProcessor = FakeGraphProcessor()
-    private val fakeGraphState = FakeGraphState()
+    private val fakeGraphController = FakeGraphController()
     private lateinit var impl: CameraGraphImpl
 
     @Before
@@ -53,17 +52,16 @@ class CameraGraphImplTest {
         val config = CameraGraph.Config(
             camera = fakeCameraId,
             streams = listOf(),
-            template = RequestTemplate(0)
         )
         impl = CameraGraphImpl(
             config,
             fakeMetadata,
             fakeGraphProcessor,
-            StreamMap(
+            StreamGraphImpl(
                 fakeMetadata,
                 config
             ),
-            fakeGraphState,
+            fakeGraphController,
             GraphState3A(),
             Listener3A()
         )
@@ -115,7 +113,7 @@ class CameraGraphImplTest {
     fun sessionSetsRepeatingRequestOnGraphProcessor() {
         val session = checkNotNull(impl.acquireSessionOrNull())
         val request = Request(listOf())
-        session.setRepeating(request)
+        session.startRepeating(request)
 
         assertThat(fakeGraphProcessor.repeatingRequest).isSameInstanceAs(request)
     }
@@ -146,15 +144,15 @@ class CameraGraphImplTest {
 
     @Test
     fun stoppingCameraGraphStopsGraphProcessor() {
-        assertThat(fakeGraphState.active).isFalse()
+        assertThat(fakeGraphController.active).isFalse()
         impl.start()
-        assertThat(fakeGraphState.active).isTrue()
+        assertThat(fakeGraphController.active).isTrue()
         impl.stop()
-        assertThat(fakeGraphState.active).isFalse()
+        assertThat(fakeGraphController.active).isFalse()
         impl.start()
-        assertThat(fakeGraphState.active).isTrue()
+        assertThat(fakeGraphController.active).isTrue()
         impl.close()
         assertThat(fakeGraphProcessor.closed).isTrue()
-        assertThat(fakeGraphState.active).isFalse()
+        assertThat(fakeGraphController.active).isFalse()
     }
 }
