@@ -373,12 +373,14 @@ public abstract class Screen implements LifecycleOwner {
         if (mTemplateWrapper == null) {
             mTemplateWrapper = TemplateWrapper.wrap(onGetTemplate());
         }
-        return new TemplateInfo(mTemplateWrapper.getTemplate(), mTemplateWrapper.getId());
+        return new TemplateInfo(mTemplateWrapper.getTemplate().getClass(),
+                mTemplateWrapper.getId());
     }
 
     @NonNull
     private static TemplateInfo getLastTemplateInfo(TemplateWrapper lastTemplateWrapper) {
-        return new TemplateInfo(lastTemplateWrapper.getTemplate(), lastTemplateWrapper.getId());
+        return new TemplateInfo(lastTemplateWrapper.getTemplate().getClass(),
+                lastTemplateWrapper.getId());
     }
 
     /**

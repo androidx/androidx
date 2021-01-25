@@ -36,6 +36,8 @@ import java.util.UUID;
  * <p>This is what is sent to the host, so that the host can determine whether the template is a new
  * template (e.g. a step counts toward the task limit), or an existing template update (e.g. a
  * refresh that does not count towards the task limit), by checking whether the ID have changed.
+ *
+ * <p><strong>This class is for use by host implementations and not by apps.</strong>
  */
 public final class TemplateWrapper {
     @Keep
