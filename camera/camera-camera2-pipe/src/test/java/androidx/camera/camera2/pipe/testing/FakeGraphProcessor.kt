@@ -17,8 +17,8 @@
 package androidx.camera.camera2.pipe.testing
 
 import androidx.camera.camera2.pipe.Request
-import androidx.camera.camera2.pipe.impl.GraphProcessor
-import androidx.camera.camera2.pipe.impl.GraphState3A
+import androidx.camera.camera2.pipe.graph.GraphProcessor
+import androidx.camera.camera2.pipe.graph.GraphState3A
 import androidx.camera.camera2.pipe.RequestProcessor
 
 /**
