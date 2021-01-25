@@ -27,6 +27,8 @@ import java.util.Objects;
 /**
  * Stores information about {@link Template} returned from a {@link
  * androidx.car.app.Screen}.
+ *
+ * <p><strong>This class is for use by host implementations and not by apps.</strong>
  */
 public final class TemplateInfo {
     @Keep
@@ -36,6 +38,23 @@ public final class TemplateInfo {
     @Nullable
     private final String mTemplateId;
 
+    /**
+     * Constructs the info for the given template information provided.
+     *
+     * @param templateClass the class of the template this info is for
+     * @param templateId the unique id for the template
+     */
+    public TemplateInfo(@NonNull Class<? extends Template> templateClass,
+            @NonNull String templateId) {
+        this.mTemplateClass = templateClass;
+        this.mTemplateId = templateId;
+    }
+
+    /**
+     * @deprecated this constructor is deprecated.
+     */
+    // TODO(b/178104682): Remove this method.
+    @Deprecated
     public TemplateInfo(@NonNull Template template, @NonNull String templateId) {
         this.mTemplateClass = template.getClass();
         this.mTemplateId = templateId;
