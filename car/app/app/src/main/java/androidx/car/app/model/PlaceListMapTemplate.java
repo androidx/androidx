@@ -306,12 +306,12 @@ public final class PlaceListMapTemplate implements Template {
          *
          * <p>The anchor marker is displayed differently from other markers by the host.
          *
-         * <p>If not {@code null}, an anchor marker will be shown at the specified {@link LatLng}
-         * on the map. The camera will adapt to always have the anchor marker visible within its
-         * viewport, along with other places' markers from {@link Row} that are currently visible
-         * in the {@link Pane}. This can be used to provide a reference point on the map (e.g.
-         * the center of a search region) as the user pages through the {@link Pane}'s markers,
-         * for example.
+         * <p>If not {@code null}, an anchor marker will be shown at the specified
+         * {@link CarLocation} on the map. The camera will adapt to always have the anchor marker
+         * visible within its viewport, along with other places' markers from {@link Row} that
+         * are currently visible in the {@link Pane}. This can be used to provide a reference
+         * point on the map (e.g. the center of a search region) as the user pages through the
+         * {@link Pane}'s markers, for example.
          *
          * @throws NullPointerException if {@code anchor} is {@code null}
          */

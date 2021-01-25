@@ -393,13 +393,6 @@ package androidx.car.app.model {
     method public void onSelected(int);
   }
 
-  @Deprecated public final class LatLng {
-    method @Deprecated public static androidx.car.app.model.LatLng create(double, double);
-    method @Deprecated public static androidx.car.app.model.LatLng create(android.location.Location);
-    method @Deprecated public double getLatitude();
-    method @Deprecated public double getLongitude();
-  }
-
   public final class ListTemplate implements androidx.car.app.model.Template {
     method public static androidx.car.app.model.ListTemplate.Builder builder();
     method public androidx.car.app.model.ActionStrip? getActionStrip();
@@ -534,13 +527,11 @@ package androidx.car.app.model {
   }
 
   public final class Place {
-    method @Deprecated public androidx.car.app.model.LatLng getLatLng();
     method public androidx.car.app.model.CarLocation getLocation();
     method public androidx.car.app.model.PlaceMarker? getMarker();
   }
 
   public static final class Place.Builder {
-    ctor @Deprecated public Place.Builder(androidx.car.app.model.LatLng);
     ctor public Place.Builder(androidx.car.app.model.CarLocation);
     ctor public Place.Builder(androidx.car.app.model.Place);
     method public androidx.car.app.model.Place build();
