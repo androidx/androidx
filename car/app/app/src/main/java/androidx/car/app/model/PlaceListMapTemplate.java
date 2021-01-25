@@ -268,7 +268,7 @@ public final class PlaceListMapTemplate implements Template {
          */
         @NonNull
         public Builder setItemList(@NonNull ItemList itemList) {
-            List<Item> items = requireNonNull(itemList).getItemList();
+            List<Item> items = requireNonNull(itemList).getItems();
             ROW_LIST_CONSTRAINTS_SIMPLE.validateOrThrow(itemList);
             ModelUtils.validateAllNonBrowsableRowsHaveDistance(items);
             ModelUtils.validateAllRowsHaveOnlySmallImages(items);

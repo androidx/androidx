@@ -247,7 +247,7 @@ public final class GridTemplate implements Template {
             }
 
             if (mSingleList != null) {
-                for (Item gridItemObject : mSingleList.getItemList()) {
+                for (Item gridItemObject : mSingleList.getItems()) {
                     if (!(gridItemObject instanceof GridItem)) {
                         throw new IllegalArgumentException(
                                 "All the items in grid template's item list must be grid items");

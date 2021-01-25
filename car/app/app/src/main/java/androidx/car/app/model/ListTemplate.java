@@ -312,7 +312,7 @@ public final class ListTemplate implements Template {
             }
             mHasSelectableList = isSelectableList;
 
-            if (itemList.getItemList().isEmpty()) {
+            if (itemList.getItems().isEmpty()) {
                 throw new IllegalArgumentException("List cannot be empty");
             }
 

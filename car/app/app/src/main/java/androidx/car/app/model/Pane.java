@@ -62,21 +62,19 @@ public final class Pane {
 
     /**
      * Returns the list of {@link Row} objects that make up the {@link Pane}.
-     *
-     * @deprecated use {@link #getRowList()} ()} instead.
      */
-    // TODO(b/177591128): remove after host(s) no longer reference this.
-    @SuppressWarnings("unchecked")
-    @Deprecated
     @NonNull
-    public List<Object> getRows() {
-        return (List<Object>) (List<?>) mRows;
+    public List<Row> getRows() {
+        return mRows;
     }
 
     /**
      * Returns the list of {@link Row} objects that make up the {@link Pane}.
+     *
+     * @deprecated use {@link #getRows()} instead.
      */
-    // TODO(b/177591128): rename back to getRows after removal of the deprecated API.
+    // TODO(b/177591128): remove after host(s) no longer reference this.
+    @Deprecated
     @NonNull
     public List<Row> getRowList() {
         return mRows;

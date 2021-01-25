@@ -167,7 +167,7 @@ public class PlaceListNavigationTemplateTest {
                         .setTitle("Title")
                         .setItemList(new ItemList.Builder().build())
                         .build();
-        assertThat(template.getItemList().getItemList()).isEmpty();
+        assertThat(template.getItemList().getItems()).isEmpty();
         assertThat(template.getTitle().toString()).isEqualTo("Title");
         assertThat(template.getActionStrip()).isNull();
     }

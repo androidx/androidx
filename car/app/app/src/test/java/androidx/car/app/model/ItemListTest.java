@@ -66,7 +66,7 @@ public class ItemListTest {
     @Test
     public void createEmpty() {
         ItemList list = new ItemList.Builder().build();
-        assertThat(list.getItemList()).isEqualTo(Collections.emptyList());
+        assertThat(list.getItems()).isEqualTo(Collections.emptyList());
     }
 
     @Test
@@ -75,9 +75,9 @@ public class ItemListTest {
         Row row2 = new Row.Builder().setTitle("Row2").build();
         ItemList list = new ItemList.Builder().addItem(row1).addItem(row2).build();
 
-        assertThat(list.getItemList()).hasSize(2);
-        assertThat(list.getItemList().get(0)).isEqualTo(row1);
-        assertThat(list.getItemList().get(1)).isEqualTo(row2);
+        assertThat(list.getItems()).hasSize(2);
+        assertThat(list.getItems().get(0)).isEqualTo(row1);
+        assertThat(list.getItems().get(1)).isEqualTo(row2);
     }
 
     @Test
@@ -86,7 +86,7 @@ public class ItemListTest {
         GridItem gridItem2 = new GridItem.Builder().setTitle("title 2").setImage(BACK).build();
         ItemList list = new ItemList.Builder().addItem(gridItem1).addItem(gridItem2).build();
 
-        assertThat(list.getItemList()).containsExactly(gridItem1, gridItem2).inOrder();
+        assertThat(list.getItems()).containsExactly(gridItem1, gridItem2).inOrder();
     }
 
     @Test
