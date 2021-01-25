@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.graph
 
+import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
@@ -53,7 +54,10 @@ internal class GraphProcessorTest {
 
     private val graphConfig = CameraGraph.Config(
         camera = CameraId.fromCamera2Id("CameraId-Test"),
-        streams = listOf()
+        streams = listOf(),
+        requiredParameters = mapOf(
+            CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
+        )
     )
 
     @Test
@@ -76,6 +80,9 @@ internal class GraphProcessorTest {
             // Make sure the requests get submitted to the request processor
             val event = fakeProcessor1.nextEvent()
             assertThat(event.requestSequence!!.requests).containsExactly(request1)
+            assertThat(event.requestSequence!!.requiredParameters).containsEntry(
+                CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
+            )
         }
     }
 
@@ -246,7 +253,10 @@ internal class GraphProcessorTest {
             graphProcessor.onGraphStarted(fakeProcessor1)
             graphProcessor.startRepeating(request1)
             graphProcessor.startRepeating(request2)
-            awaitEvent(fakeProcessor1, request2) { it.startRepeating }
+            val event = awaitEvent(fakeProcessor1, request2) { it.startRepeating }
+            assertThat(event.requestSequence!!.requiredParameters).containsEntry(
+                CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
+            )
         }
     }
 

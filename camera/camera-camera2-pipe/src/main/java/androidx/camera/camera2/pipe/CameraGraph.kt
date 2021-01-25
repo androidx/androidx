@@ -88,7 +88,7 @@ public interface CameraGraph : Closeable {
      * @param defaultTemplate The default template to be used if a [Request] does not specify one.
      * @param defaultParameters The default parameters to be used for a [Request].
      * @param defaultListeners A default set of listeners that will be added to every [Request].
-     * @param requiredParameters Are will override any other configured parameter, and can be used
+     * @param requiredParameters Will override any other configured parameter, and can be used
      *   to enforce that specific keys are always set to specific value for every [CaptureRequest].
      */
     public data class Config(
@@ -102,7 +102,7 @@ public interface CameraGraph : Closeable {
         val defaultTemplate: RequestTemplate = RequestTemplate(1),
         val defaultParameters: Map<*, Any> = emptyMap<Any, Any>(),
         val defaultListeners: List<Request.Listener> = listOf(),
-        val requiredParameters: Map<*, Any> = emptyMap<Any, Any>(),
+        val requiredParameters: Map<Any, Any?> = emptyMap(),
 
         val metadataTransform: MetadataTransform = MetadataTransform(),
         val flags: Flags = Flags()

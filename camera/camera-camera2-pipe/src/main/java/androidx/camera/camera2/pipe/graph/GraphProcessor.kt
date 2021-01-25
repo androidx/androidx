@@ -40,7 +40,7 @@ import javax.inject.Inject
 internal interface GraphProcessor : GraphListener {
     fun submit(request: Request)
     fun submit(requests: List<Request>)
-    suspend fun submit(parameters: Map<*, Any>): Boolean
+    suspend fun <T : Any> submit(parameters: Map<T, Any?>): Boolean
 
     fun startRepeating(request: Request)
     fun stopRepeating()
@@ -216,18 +216,20 @@ internal class GraphProcessorImpl @Inject constructor(
     /**
      * Submit a request to the camera using only the current repeating request.
      */
-    override suspend fun submit(parameters: Map<*, Any>): Boolean =
+    override suspend fun <T : Any> submit(parameters: Map<T, Any?>): Boolean =
         withContext(threads.ioDispatcher) {
             val processor: RequestProcessor?
             val request: Request?
-            val requiredParameters: Map<*, Any>
+            val requiredParameters: MutableMap<Any, Any?> = mutableMapOf()
 
             synchronized(lock) {
                 if (closed) return@withContext false
                 processor = _requestProcessor
                 request = currentRepeatingRequest
-                requiredParameters =
-                    parameters.toMutableMap().also { it.putAll(graphState3A.readState()) }
+
+                requiredParameters.putAll(parameters.toMutableMap())
+                graphState3A.writeTo(requiredParameters)
+                requiredParameters.putAll(cameraGraphConfig.requiredParameters)
             }
 
             return@withContext when {
@@ -347,11 +349,14 @@ internal class GraphProcessorImpl @Inject constructor(
 
             Debug.traceStart { "$this#startRepeating" }
             synchronized(processor) {
+                val requiredParameters = mutableMapOf<Any, Any?>()
+                graphState3A.writeTo(requiredParameters)
+                requiredParameters.putAll(cameraGraphConfig.requiredParameters)
 
                 if (processor.startRepeating(
                         request,
                         defaultParameters = cameraGraphConfig.defaultParameters,
-                        requiredParameters = graphState3A.readState(),
+                        requiredParameters = requiredParameters,
                         defaultListeners = graphListeners
                     )
                 ) {
@@ -403,18 +408,22 @@ internal class GraphProcessorImpl @Inject constructor(
             Debug.traceStart { "$this#submit" }
             try {
                 submitted = synchronized(processor) {
+                    val requiredParameters = mutableMapOf<Any, Any?>()
+                    graphState3A.writeTo(requiredParameters)
+                    requiredParameters.putAll(cameraGraphConfig.requiredParameters)
+
                     if (burst.size == 1) {
                         processor.submit(
                             burst[0],
                             defaultParameters = cameraGraphConfig.defaultParameters,
-                            requiredParameters = graphState3A.readState(),
+                            requiredParameters = requiredParameters,
                             defaultListeners = graphListeners
                         )
                     } else {
                         processor.submit(
                             burst,
                             defaultParameters = cameraGraphConfig.defaultParameters,
-                            requiredParameters = graphState3A.readState(),
+                            requiredParameters = requiredParameters,
                             defaultListeners = graphListeners
                         )
                     }
