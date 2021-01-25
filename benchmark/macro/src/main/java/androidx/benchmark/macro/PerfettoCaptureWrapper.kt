@@ -58,6 +58,8 @@ class PerfettoCaptureWrapper {
     private fun stop(benchmarkName: String, iteration: Int): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val iterString = iteration.toString().padStart(3, '0')
+            // NOTE: macrobench still using legacy .trace name until
+            // Studio supports .perfetto-trace extension (b/171251272)
             val traceName = "${benchmarkName}_iter$iterString.trace"
             val destination = destinationPath(traceName).absolutePath
             capture?.stop(destination)
