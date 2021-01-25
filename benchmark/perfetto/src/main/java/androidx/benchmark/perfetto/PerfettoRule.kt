@@ -54,7 +54,7 @@ class PerfettoRule : TestRule {
     override fun apply(base: Statement, description: Description) = object : Statement() {
         override fun evaluate() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val traceName = description.className + "_" + description.methodName + ".trace"
+                val traceName = "${description.className}_${description.methodName}.perfetto-trace"
                 PerfettoCapture().recordAndReportFile(traceName) {
                     base.evaluate()
                 }
