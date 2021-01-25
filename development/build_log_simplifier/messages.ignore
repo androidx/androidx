@@ -1192,3 +1192,5 @@ No documentation for .*
 Unresolved link to .*
 Unresolved function .*
 at java.base.*
+# > Task :compose:ui:ui-inspection:externalNativeBuildDebug
+Build compose_inspection_jni_.*
