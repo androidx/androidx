@@ -52,22 +52,22 @@ public final class Trip {
 
     @NonNull
     public List<Destination> getDestinations() {
-        return mDestinations;
+        return CollectionUtils.emptyIfNull(mDestinations);
     }
 
     @NonNull
     public List<Step> getSteps() {
-        return mSteps;
+        return CollectionUtils.emptyIfNull(mSteps);
     }
 
     @NonNull
     public List<TravelEstimate> getDestinationTravelEstimates() {
-        return mDestinationTravelEstimates;
+        return CollectionUtils.emptyIfNull(mDestinationTravelEstimates);
     }
 
     @NonNull
     public List<TravelEstimate> getStepTravelEstimates() {
-        return mStepTravelEstimates;
+        return CollectionUtils.emptyIfNull(mStepTravelEstimates);
     }
 
     @Nullable

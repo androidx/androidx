@@ -78,8 +78,8 @@ public final class CarText {
      */
     @NonNull
     public CharSequence toCharSequence() {
-        SpannableString spannableString = new SpannableString(mText);
-        for (SpanWrapper spanWrapper : mSpans) {
+        SpannableString spannableString = new SpannableString(mText == null ? "" : mText);
+        for (SpanWrapper spanWrapper : CollectionUtils.emptyIfNull(mSpans)) {
             spannableString.setSpan(
                     spanWrapper.getCarSpan(),
                     spanWrapper.getStart(),

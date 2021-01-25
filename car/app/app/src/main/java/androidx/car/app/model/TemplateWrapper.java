@@ -22,8 +22,8 @@ import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,7 +98,7 @@ public final class TemplateWrapper {
     /** Returns the wrapped {@link Template}. */
     @NonNull
     public Template getTemplate() {
-        return requireNonNull(mTemplate);
+        return mTemplate;
     }
 
     /** Returns the ID associated with the wrapped {@link Template}. */
@@ -128,9 +128,9 @@ public final class TemplateWrapper {
      * n is
      * the bottom of the stack given n screens on the stack.
      */
-    @Nullable
+    @NonNull
     public List<TemplateInfo> getTemplateInfosForScreenStack() {
-        return mTemplateInfoForScreenStack;
+        return CollectionUtils.emptyIfNull(mTemplateInfoForScreenStack);
     }
 
     /**

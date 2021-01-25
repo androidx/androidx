@@ -114,16 +114,15 @@ public final class Row implements Item {
     private final int mRowImageType;
 
     /** Returns the title of the row. */
-    @NonNull
+    @Nullable
     public CarText getTitle() {
-        return requireNonNull(mTitle);
+        return mTitle;
     }
 
     /** Returns the list of text below the title. */
     @NonNull
     public List<CarText> getTexts() {
-        Objects.requireNonNull(mTexts);
-        return mTexts;
+        return CollectionUtils.emptyIfNull(mTexts);
     }
 
     /** Returns the image of the row. */
@@ -182,7 +181,7 @@ public final class Row implements Item {
     /**
      * Returns the {@link Metadata} associated with the row.
      */
-    @NonNull
+    @Nullable
     public Metadata getMetadata() {
         return mMetadata;
     }

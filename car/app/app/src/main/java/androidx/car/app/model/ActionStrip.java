@@ -62,7 +62,7 @@ public final class ActionStrip {
      */
     @NonNull
     public List<Action> getActions() {
-        return mActions;
+        return CollectionUtils.emptyIfNull(mActions);
     }
 
     /**
