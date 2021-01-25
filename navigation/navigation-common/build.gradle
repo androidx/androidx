@@ -51,9 +51,11 @@ dependencies {
 android.libraryVariants.all { variant ->
     def name = variant.name
     def suffix = name.capitalize()
-    project.tasks.create(name: "jar${suffix}", type: Jar){
-        dependsOn variant.javaCompileProvider.get()
-        from variant.javaCompileProvider.get().destinationDir
+    project.tasks.register("jar${suffix}", Copy).configure {
+        dependsOn ("assemble$suffix")
+        from(zipTree("${project.buildDir}/outputs/aar/navigation-common-${name}.aar")) {
+            include "classes.jar"
+        }
         destinationDir new File(project.buildDir, "libJar")
     }
 }
