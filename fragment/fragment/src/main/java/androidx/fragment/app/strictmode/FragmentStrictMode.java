@@ -57,6 +57,7 @@ public final class FragmentStrictMode {
      * When #{@link Policy.Builder#penaltyListener} is enabled, the listener is called when a
      * violation occurs.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY) // TODO: Make API public as soon as we have a few checks
     public interface OnViolationListener {
 
         /** Called on a VM policy violation. */
@@ -75,11 +76,13 @@ public final class FragmentStrictMode {
      * severe (logging before process death, for example). There's currently no mechanism to choose
      * different penalties for different detected actions.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY) // TODO: Make API public as soon as we have a few checks
     public static final class Policy {
         private final Set<Flag> flags;
         private final OnViolationListener listener;
 
         /** The default, lax policy which doesn't catch anything. */
+        @NonNull
         public static final Policy LAX = new Policy(new HashSet<Flag>(), null);
 
         private Policy(@NonNull Set<Flag> flags, @Nullable OnViolationListener listener) {
@@ -95,6 +98,7 @@ public final class FragmentStrictMode {
          * <p>You can call as many {@code detect} and {@code penalty} methods as you like. Currently
          * order is insignificant: all penalties apply to all detected problems.
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // TODO: Make API public as soon as we have a few checks
         public static final class Builder {
             private final Set<Flag> flags;
             private OnViolationListener listener;
@@ -106,6 +110,7 @@ public final class FragmentStrictMode {
 
             /** Log detected violations to the system log. */
             @NonNull
+            @SuppressLint("BuilderSetStyle")
             public Builder penaltyLog() {
                 flags.add(Flag.PENALTY_LOG);
                 return this;
@@ -117,6 +122,7 @@ public final class FragmentStrictMode {
              * dies.
              */
             @NonNull
+            @SuppressLint("BuilderSetStyle")
             public Builder penaltyDeath() {
                 flags.add(Flag.PENALTY_DEATH);
                 return this;
@@ -124,6 +130,7 @@ public final class FragmentStrictMode {
 
             /** Call #{@link OnViolationListener#onViolation} for every violation. */
             @NonNull
+            @SuppressLint("BuilderSetStyle")
             public Builder penaltyListener(@NonNull OnViolationListener listener) {
                 this.listener = listener;
                 return this;
