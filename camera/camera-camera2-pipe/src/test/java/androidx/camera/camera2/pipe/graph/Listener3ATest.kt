@@ -45,7 +45,7 @@ internal class Listener3ATest {
         listener3A.addListener(result3AStateListener)
 
         // The deferred result of 3a state listener shouldn't be complete right now.
-        assertThat(result3AStateListener.getDeferredResult().isCompleted).isFalse()
+        assertThat(result3AStateListener.result.isCompleted).isFalse()
         listener3A.onRequestSequenceCreated(
             FakeRequestMetadata(requestNumber = RequestNumber(1))
         )
@@ -60,7 +60,7 @@ internal class Listener3ATest {
         // Once the correct metadata is updated the listener3A should broadcast it to the
         // result3AState listener added to it, making the deferred result complete.
         listener3A.onPartialCaptureResult(requestMetadata, frameNumber, captureResult)
-        assertThat(result3AStateListener.getDeferredResult().isCompleted).isTrue()
+        assertThat(result3AStateListener.result.isCompleted).isTrue()
     }
 
     @Test

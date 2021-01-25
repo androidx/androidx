@@ -37,15 +37,9 @@ import androidx.camera.camera2.pipe.CameraGraph.Constants3A.FRAME_NUMBER_INVALID
 import androidx.camera.camera2.pipe.FlashMode
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
-import androidx.camera.camera2.pipe.Status3A
+import androidx.camera.camera2.pipe.Result3A.Status
 import androidx.camera.camera2.pipe.TorchState
 import androidx.camera.camera2.pipe.core.Log.debug
-import androidx.camera.camera2.pipe.shouldUnlockAe
-import androidx.camera.camera2.pipe.shouldUnlockAf
-import androidx.camera.camera2.pipe.shouldUnlockAwb
-import androidx.camera.camera2.pipe.shouldWaitForAeToConverge
-import androidx.camera.camera2.pipe.shouldWaitForAfToConverge
-import androidx.camera.camera2.pipe.shouldWaitForAwbToConverge
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.cancel
@@ -105,7 +99,7 @@ internal class Controller3A(
             CONTROL_AE_PRECAPTURE_TRIGGER to CONTROL_AE_PRECAPTURE_TRIGGER_START
         )
 
-        private val result3ASubmitFailed = Result3A(FRAME_NUMBER_INVALID, Status3A.SUBMIT_FAILED)
+        private val result3ASubmitFailed = Result3A(FRAME_NUMBER_INVALID, Status.SUBMIT_FAILED)
 
         private val aeUnlockedStateList = listOf(
             CaptureResult.CONTROL_AE_STATE_INACTIVE,
@@ -156,7 +150,7 @@ internal class Controller3A(
         // 3A state and corresponding listeners.
         graphProcessor.invalidate()
 
-        val result = listener.getDeferredResult()
+        val result = listener.result
         synchronized(this) {
             lastUpdate3AResult?.cancel("A newer call for 3A state update initiated.")
             lastUpdate3AResult = result
@@ -204,7 +198,7 @@ internal class Controller3A(
             graphListener3A.removeListener(listener)
             return CompletableDeferred(result3ASubmitFailed)
         }
-        return listener.getDeferredResult()
+        return listener.result
     }
 
     /**
@@ -283,15 +277,15 @@ internal class Controller3A(
                     (if (awbLockBehavior.shouldWaitForAwbToConverge()) " awb" else "") +
                     " to converge before locking them."
             }
-            val result = listener.getDeferredResult().await()
+            val result = listener.result.await()
             debug {
                 "lock3A - converged at frame number=${result.frameNumber.value}, status=${result
                     .status}"
             }
             // Return immediately if we encounter an error when unlocking and waiting for
             // convergence.
-            if (result.status != Status3A.OK) {
-                return CompletableDeferred(result)
+            if (result.status != Status.OK) {
+                return listener.result
             }
         }
 
@@ -342,7 +336,7 @@ internal class Controller3A(
             )
         }
         graphProcessor.invalidate()
-        return listener.getDeferredResult()
+        return listener.result
     }
 
     suspend fun lock3AForCapture(
@@ -370,7 +364,7 @@ internal class Controller3A(
         }
 
         graphProcessor.invalidate()
-        return listener.getDeferredResult()
+        return listener.result
     }
 
     suspend fun unlock3APostCapture(): Deferred<Result3A> {
@@ -411,7 +405,7 @@ internal class Controller3A(
             return CompletableDeferred(result3ASubmitFailed)
         }
 
-        return listener.getDeferredResult()
+        return listener.result
     }
 
     /**
@@ -447,7 +441,7 @@ internal class Controller3A(
         )
         graphListener3A.addListener(listener)
         graphProcessor.invalidate()
-        return listener.getDeferredResult()
+        return listener.result
     }
 
     fun setTorch(torchState: TorchState): Deferred<Result3A> {
@@ -489,7 +483,7 @@ internal class Controller3A(
                     "awbLock=$finalAwbLockValue"
             }
             graphProcessor.invalidate()
-            resultForLocked = listener.getDeferredResult()
+            resultForLocked = listener.result
         }
 
         if (afLockBehavior == null) {
@@ -593,3 +587,35 @@ internal class Controller3A(
         return Result3AStateListenerImpl(resultModesMap.toMap())
     }
 }
+
+internal fun Lock3ABehavior?.shouldUnlockAe(): Boolean =
+    this == Lock3ABehavior.AFTER_NEW_SCAN
+
+internal fun Lock3ABehavior?.shouldUnlockAf(): Boolean =
+    this == Lock3ABehavior.AFTER_NEW_SCAN
+
+internal fun Lock3ABehavior?.shouldUnlockAwb(): Boolean =
+    this == Lock3ABehavior.AFTER_NEW_SCAN
+
+// For ae and awb if we set the lock = true in the capture request the camera device
+// locks them immediately. So when we want to wait for ae to converge we have to explicitly
+// wait for it to converge.
+internal fun Lock3ABehavior?.shouldWaitForAeToConverge(): Boolean =
+    this != null && this != Lock3ABehavior.IMMEDIATE
+
+internal fun Lock3ABehavior?.shouldWaitForAwbToConverge(): Boolean =
+    this != null && this != Lock3ABehavior.IMMEDIATE
+
+// TODO(sushilnath@): add the optimization to not wait for af to converge before sending the
+// trigger for modes other than CONTINUOUS_VIDEO. The paragraph below explains the reasoning.
+//
+// For af, if the mode is MACRO, AUTO or CONTINUOUS_PICTURE and we send a capture request to
+// start an af trigger then camera device starts a new scan(for AUTO mode) or waits for the
+// current scan to finish(for CONTINUOUS_PICTURE) and then locks the auto-focus, so if we want
+// to wait for af to converge before locking it, we don't have to explicitly wait for
+// convergence, we can send the trigger right away, but if the mode is CONTINUOUS_VIDEO then
+// sending a request to start a trigger locks the auto focus immediately, so if we want af to
+// converge first then we have to explicitly wait for it.
+// Ref: https://developer.android.com/reference/android/hardware/camera2/CaptureResult#CONTROL_AF_STATE
+internal fun Lock3ABehavior?.shouldWaitForAfToConverge(): Boolean =
+    this != null && this != Lock3ABehavior.IMMEDIATE

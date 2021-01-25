@@ -23,7 +23,7 @@ import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestNumber
-import androidx.camera.camera2.pipe.Status3A
+import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
@@ -110,7 +110,7 @@ internal class Controller3ALock3ATest {
 
         val result3A = result.await()
         assertThat(result3A.frameNumber.value).isEqualTo(101L)
-        assertThat(result3A.status).isEqualTo(Status3A.OK)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // We not check if the correct sequence of requests were submitted by lock3A call. The
         // request should be a repeating request to lock AE.
@@ -200,7 +200,7 @@ internal class Controller3ALock3ATest {
 
         val result3A = result.await()
         assertThat(result3A.frameNumber.value).isEqualTo(101L)
-        assertThat(result3A.status).isEqualTo(Status3A.OK)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // A single request to lock AF must have been used as well.
         val request2 = requestProcessor.nextEvent().requestSequence
@@ -276,7 +276,7 @@ internal class Controller3ALock3ATest {
 
         val result3A = result.await()
         assertThat(result3A.frameNumber.value).isEqualTo(101L)
-        assertThat(result3A.status).isEqualTo(Status3A.OK)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // There should be one more request to lock AE after new scan is done.
         val request2 = requestProcessor.nextEvent().requestSequence
@@ -354,7 +354,7 @@ internal class Controller3ALock3ATest {
 
         val result3A = result.await()
         assertThat(result3A.frameNumber.value).isEqualTo(101L)
-        assertThat(result3A.status).isEqualTo(Status3A.OK)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // There should be one request to monitor AF to finish it's scan.
         requestProcessor.nextEvent()
@@ -434,7 +434,7 @@ internal class Controller3ALock3ATest {
 
         val result3A = result.await()
         assertThat(result3A.frameNumber.value).isEqualTo(101L)
-        assertThat(result3A.status).isEqualTo(Status3A.OK)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // One request to cancel AF to start a new scan.
         val request1 = requestProcessor.nextEvent().requestSequence
@@ -520,7 +520,7 @@ internal class Controller3ALock3ATest {
 
         val result3A = result.await()
         assertThat(result3A.frameNumber.value).isEqualTo(101L)
-        assertThat(result3A.status).isEqualTo(Status3A.OK)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // There should be one request to monitor AF to finish it's scan.
         val event = requestProcessor.nextEvent()
@@ -614,7 +614,7 @@ internal class Controller3ALock3ATest {
 
         val result3A = result.await()
         assertThat(result3A.frameNumber.value).isEqualTo(101L)
-        assertThat(result3A.status).isEqualTo(Status3A.OK)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // One request to cancel AF to start a new scan.
         val request1 = requestProcessor.nextEvent().requestSequence

@@ -20,7 +20,7 @@ import android.hardware.camera2.CaptureResult
 import android.os.Build
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
-import androidx.camera.camera2.pipe.Status3A
+import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
@@ -36,7 +36,7 @@ internal class Result3AStateListenerImplTest {
     @Test
     fun testWithEmptyExitConditionForKeys() {
         val listenerForKeys = Result3AStateListenerImpl(mapOf())
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isFalse()
+        assertThat(listenerForKeys.result.isCompleted).isFalse()
 
         val frameMetadata = FakeFrameMetadata()
 
@@ -45,12 +45,12 @@ internal class Result3AStateListenerImplTest {
         // Even though we received an update, the request number is not correct, so the listener
         // will not be completed.
         listenerForKeys.update(RequestNumber(1), frameMetadata)
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isFalse()
+        assertThat(listenerForKeys.result.isCompleted).isFalse()
 
         // Since the key set in listener is empty, any valid update will mark the listener as
         // completed.
         listenerForKeys.update(RequestNumber(2), frameMetadata)
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isTrue()
+        assertThat(listenerForKeys.result.isCompleted).isTrue()
     }
 
     @Test
@@ -63,7 +63,7 @@ internal class Result3AStateListenerImplTest {
                     )
             )
         )
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isFalse()
+        assertThat(listenerForKeys.result.isCompleted).isFalse()
     }
 
     @Test
@@ -85,7 +85,7 @@ internal class Result3AStateListenerImplTest {
         )
 
         listenerForKeys.update(RequestNumber(1), frameMetadata)
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isFalse()
+        assertThat(listenerForKeys.result.isCompleted).isFalse()
     }
 
     @Test
@@ -106,7 +106,7 @@ internal class Result3AStateListenerImplTest {
             )
         )
         listenerForKeys.update(RequestNumber(1), frameMetadata)
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isTrue()
+        assertThat(listenerForKeys.result.isCompleted).isTrue()
     }
 
     @Test
@@ -127,7 +127,7 @@ internal class Result3AStateListenerImplTest {
             )
         )
         listenerForKeys.update(RequestNumber(1), frameMetadata)
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isFalse()
+        assertThat(listenerForKeys.result.isCompleted).isFalse()
     }
 
     @Test
@@ -151,7 +151,7 @@ internal class Result3AStateListenerImplTest {
             )
         )
         listenerForKeys.update(RequestNumber(1), frameMetadata)
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isTrue()
+        assertThat(listenerForKeys.result.isCompleted).isTrue()
     }
 
     @Test
@@ -174,7 +174,7 @@ internal class Result3AStateListenerImplTest {
             )
         )
         listenerForKeys.update(RequestNumber(1), frameMetadata)
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isFalse()
+        assertThat(listenerForKeys.result.isCompleted).isFalse()
     }
 
     @Test
@@ -197,7 +197,7 @@ internal class Result3AStateListenerImplTest {
             )
         )
         listenerForKeys.update(RequestNumber(1), frameMetadata)
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isFalse()
+        assertThat(listenerForKeys.result.isCompleted).isFalse()
 
         val frameMetadata1 = FakeFrameMetadata(
             resultMetadata = mapOf(
@@ -206,7 +206,7 @@ internal class Result3AStateListenerImplTest {
             )
         )
         listenerForKeys.update(RequestNumber(1), frameMetadata1)
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isTrue()
+        assertThat(listenerForKeys.result.isCompleted).isTrue()
     }
 
     @Test
@@ -227,7 +227,7 @@ internal class Result3AStateListenerImplTest {
             )
         )
         listenerForKeys.update(RequestNumber(1), frameMetadata1)
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isFalse()
+        assertThat(listenerForKeys.result.isCompleted).isFalse()
 
         val frameMetadata2 = FakeFrameMetadata(
             resultMetadata = mapOf(
@@ -236,7 +236,7 @@ internal class Result3AStateListenerImplTest {
             )
         )
         listenerForKeys.update(RequestNumber(1), frameMetadata2)
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isFalse()
+        assertThat(listenerForKeys.result.isCompleted).isFalse()
 
         val frameMetadata3 = FakeFrameMetadata(
             resultMetadata = mapOf(
@@ -245,9 +245,10 @@ internal class Result3AStateListenerImplTest {
             )
         )
         listenerForKeys.update(RequestNumber(1), frameMetadata3)
-        val completedDeferred = listenerForKeys.getDeferredResult()
+        val completedDeferred = listenerForKeys.result
         assertThat(completedDeferred.isCompleted).isTrue()
-        assertThat(completedDeferred.getCompleted().status).isEqualTo(Status3A.TIME_LIMIT_REACHED)
+        assertThat(completedDeferred.getCompleted().status)
+            .isEqualTo(Result3A.Status.TIME_LIMIT_REACHED)
     }
 
     @Test
@@ -271,7 +272,7 @@ internal class Result3AStateListenerImplTest {
             frameNumber = FrameNumber(1)
         )
         listenerForKeys.update(RequestNumber(1), frameMetadata1)
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isFalse()
+        assertThat(listenerForKeys.result.isCompleted).isFalse()
 
         val frameMetadata2 = FakeFrameMetadata(
             resultMetadata = mapOf(
@@ -281,7 +282,7 @@ internal class Result3AStateListenerImplTest {
             frameNumber = FrameNumber(3)
         )
         listenerForKeys.update(RequestNumber(1), frameMetadata2)
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isFalse()
+        assertThat(listenerForKeys.result.isCompleted).isFalse()
 
         val frameMetadata3 = FakeFrameMetadata(
             resultMetadata = mapOf(
@@ -291,7 +292,7 @@ internal class Result3AStateListenerImplTest {
             frameNumber = FrameNumber(10)
         )
         listenerForKeys.update(RequestNumber(1), frameMetadata3)
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isFalse()
+        assertThat(listenerForKeys.result.isCompleted).isFalse()
 
         val frameMetadata4 = FakeFrameMetadata(
             resultMetadata = mapOf(
@@ -301,10 +302,11 @@ internal class Result3AStateListenerImplTest {
             frameNumber = FrameNumber(12)
         )
         listenerForKeys.update(RequestNumber(1), frameMetadata4)
-        val completedDeferred = listenerForKeys.getDeferredResult()
+        val completedDeferred = listenerForKeys.result
 
         assertThat(completedDeferred.isCompleted).isTrue()
-        assertThat(completedDeferred.getCompleted().status).isEqualTo(Status3A.FRAME_LIMIT_REACHED)
+        assertThat(completedDeferred.getCompleted().status)
+            .isEqualTo(Result3A.Status.FRAME_LIMIT_REACHED)
     }
 
     @Test
@@ -326,21 +328,21 @@ internal class Result3AStateListenerImplTest {
         // The reference request number of not yet set on the listener, so the update will be
         // ignored.
         listenerForKeys.update(RequestNumber(1), frameMetadata)
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isFalse()
+        assertThat(listenerForKeys.result.isCompleted).isFalse()
 
         // Update the reference request number for this listener.
         listenerForKeys.onRequestSequenceCreated(RequestNumber(3))
 
         // The update is coming from an earlier request so it will be ignored.
         listenerForKeys.update(RequestNumber(1), frameMetadata)
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isFalse()
+        assertThat(listenerForKeys.result.isCompleted).isFalse()
 
         // The update is coming from an earlier request so it will be ignored.
         listenerForKeys.update(RequestNumber(2), frameMetadata)
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isFalse()
+        assertThat(listenerForKeys.result.isCompleted).isFalse()
 
         // The update is from the same or later request number so it will be accepted.
         listenerForKeys.update(RequestNumber(3), frameMetadata)
-        assertThat(listenerForKeys.getDeferredResult().isCompleted).isTrue()
+        assertThat(listenerForKeys.result.isCompleted).isTrue()
     }
 }
