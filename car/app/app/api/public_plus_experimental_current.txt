@@ -365,8 +365,8 @@ package androidx.car.app.model {
   }
 
   public final class ItemList {
-    method public java.util.List<androidx.car.app.model.Item!> getItemList();
-    method @Deprecated public java.util.List<java.lang.Object!> getItems();
+    method @Deprecated public java.util.List<androidx.car.app.model.Item!> getItemList();
+    method public java.util.List<androidx.car.app.model.Item!> getItems();
     method public androidx.car.app.model.CarText? getNoItemsMessage();
     method public androidx.car.app.model.OnItemVisibilityChangedDelegate? getOnItemVisibilityChangedDelegate();
     method @Deprecated public androidx.car.app.model.OnItemVisibilityChangedListenerWrapper? getOnItemsVisibilityChangedListener();
@@ -491,8 +491,8 @@ package androidx.car.app.model {
   public final class Pane {
     method @Deprecated public java.util.List<androidx.car.app.model.Action!> getActionList();
     method public java.util.List<androidx.car.app.model.Action!> getActions();
-    method public java.util.List<androidx.car.app.model.Row!> getRowList();
-    method @Deprecated public java.util.List<java.lang.Object!> getRows();
+    method @Deprecated public java.util.List<androidx.car.app.model.Row!> getRowList();
+    method public java.util.List<androidx.car.app.model.Row!> getRows();
     method public boolean isLoading();
   }
 

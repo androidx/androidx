@@ -152,19 +152,19 @@ public final class ItemList {
 
     /**
      * Returns the list of items in this {@link ItemList}.
-     *
-     * @deprecated use {@link #getItemList()} instead.
      */
-    // TODO(b/177591128): remove after host(s) no longer reference this.
-    @SuppressWarnings("unchecked")
-    @Deprecated
     @NonNull
-    public List<Object> getItems() {
-        return (List<Object>) (List<? extends Object>) mItems;
+    public List<Item> getItems() {
+        return mItems;
     }
 
-    /** Returns the list of items in this {@link ItemList}. */
-    // TODO(b/177591128): rename back to getItems after removal of the deprecated API.
+    /**
+     * Returns the list of items in this {@link ItemList}.
+     *
+     * @deprecated use {@link #getItems()} instead.
+     */
+    // TODO(b/177591128): remove after host(s) no longer reference this.
+    @Deprecated
     @NonNull
     public List<Item> getItemList() {
         return mItems;
