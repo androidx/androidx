@@ -39,6 +39,7 @@ import androidx.wear.complications.ProviderInfoRetriever
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.CanvasComplication
 import androidx.wear.watchface.Complication
@@ -52,6 +53,7 @@ import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -68,9 +70,83 @@ private const val BACKGROUND_COMPLICATION_ID = 1111
 public class OnWatchFaceEditingTestActivity : ComponentActivity() {
     public lateinit var editorSession: EditorSession
 
+    public val providerIcon1: Icon =
+        Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
+    public val providerIcon2: Icon =
+        Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
+    public val provider1: ComponentName = ComponentName("provider.app1", "provider.class1")
+    public val provider2: ComponentName = ComponentName("provider.app2", "provider.class2")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        editorSession = EditorSession.createOnWatchEditingSession(this, intent!!)!!
+        editorSession = EditorSession.createOnWatchEditingSessionImpl(
+            this,
+            intent!!,
+            object : ProviderInfoRetrieverProvider {
+                override fun getProviderInfoRetriever() = ProviderInfoRetriever(
+                    FakeProviderInfoServiceV1(
+                        ComponentName("test.package", "test.class"),
+                        mapOf(
+                            LEFT_COMPLICATION_ID to ComplicationProviderInfo(
+                                "ProviderApp1",
+                                "Provider1",
+                                providerIcon1,
+                                ComplicationType.SHORT_TEXT.asWireComplicationType(),
+                                provider1
+                            ),
+                            RIGHT_COMPLICATION_ID to ComplicationProviderInfo(
+                                "ProviderApp2",
+                                "Provider2",
+                                providerIcon2,
+                                ComplicationType.LONG_TEXT.asWireComplicationType(),
+                                provider2
+                            )
+                        ),
+                        mapOf(
+                            provider1 to
+                                ShortTextComplicationData.Builder(ComplicationText.plain("Left"))
+                                    .build()
+                                    .asWireComplicationData(),
+                            provider2 to
+                                LongTextComplicationData.Builder(ComplicationText.plain("Right"))
+                                    .build()
+                                    .asWireComplicationData(),
+                        )
+                    )
+                )
+            }
+        )!!
+    }
+}
+
+private class FakeProviderInfoServiceV1(
+    private val watchFaceComponent: ComponentName,
+    private val providerData: Map<Int, ComplicationProviderInfo>,
+    private val previewData: Map<ComponentName, ComplicationData>
+) : IProviderInfoService.Stub() {
+    override fun getProviderInfos(
+        watchFaceComponent: ComponentName,
+        ids: IntArray
+    ): Array<ComplicationProviderInfo>? {
+        if (watchFaceComponent != this.watchFaceComponent) {
+            return null
+        }
+        return ArrayList<ComplicationProviderInfo>().apply {
+            for (id in ids) {
+                providerData[id]?.let { add(it) }
+            }
+        }.toTypedArray()
+    }
+
+    override fun getApiVersion() = 1
+
+    override fun requestPreviewComplicationData(
+        providerComponent: ComponentName,
+        complicationType: Int,
+        previewComplicationDataCallback: IPreviewComplicationDataCallback
+    ): Boolean {
+        previewComplicationDataCallback.updateComplicationData(previewData[providerComponent])
+        return true
     }
 }
 
@@ -484,10 +560,10 @@ public class EditorSessionTest {
     }
 
     @Test
-    public fun userStyleInActivityResult() {
+    public fun userStyleAndComplicationPreviewDataInActivityResult() {
         val scenario = createOnWatchFaceEditingTestActivity(
             listOf(colorStyleSetting, watchHandStyleSetting),
-            emptyList()
+            listOf(leftComplication, rightComplication)
         )
         scenario.onActivity { activity ->
             // Select [blueStyleOption] and [gothicStyleOption].
@@ -507,6 +583,41 @@ public class EditorSessionTest {
 
         assertThat(result.userStyle[colorStyleSetting.id]).isEqualTo(blueStyleOption.id)
         assertThat(result.userStyle[watchHandStyleSetting.id]).isEqualTo(gothicStyleOption.id)
+
+        assertThat(result.previewComplicationData.size).isEqualTo(2)
+        val leftComplicationData = result.previewComplicationData[LEFT_COMPLICATION_ID] as
+            ShortTextComplicationData
+        assertThat(
+            leftComplicationData.text.getTextAt(
+                ApplicationProvider.getApplicationContext<Context>().resources,
+                0
+            )
+        ).isEqualTo("Left")
+
+        val rightComplicationData = result.previewComplicationData[RIGHT_COMPLICATION_ID] as
+            LongTextComplicationData
+        assertThat(
+            rightComplicationData.text.getTextAt(
+                ApplicationProvider.getApplicationContext<Context>().resources,
+                0
+            )
+        ).isEqualTo("Right")
+    }
+
+    @Test
+    public fun emptyComplicationPreviewDataInActivityResult() {
+        val scenario = createOnWatchFaceEditingTestActivity(emptyList(), emptyList())
+        scenario.onActivity { activity ->
+            activity.setWatchRequestResult(activity.editorSession)
+            activity.finish()
+        }
+
+        assertTrue(
+            WatchFaceEditorContract().parseResult(
+                scenario.result.resultCode,
+                scenario.result.resultData
+            ).previewComplicationData.isEmpty()
+        )
     }
 
     @Test
