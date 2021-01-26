@@ -231,7 +231,6 @@ package androidx.car.app.model {
     field public static final androidx.car.app.model.CarIcon BACK;
     field public static final androidx.car.app.model.CarIcon ERROR;
     field public static final int TYPE_ALERT = 4; // 0x4
-    field @Deprecated public static final int TYPE_APP = 5; // 0x5
     field public static final int TYPE_APP_ICON = 5; // 0x5
     field public static final int TYPE_BACK = 3; // 0x3
     field public static final int TYPE_CUSTOM = 1; // 0x1
@@ -357,7 +356,6 @@ package androidx.car.app.model {
   }
 
   public final class ItemList {
-    method @Deprecated public java.util.List<androidx.car.app.model.Item!> getItemList();
     method public java.util.List<androidx.car.app.model.Item!> getItems();
     method public androidx.car.app.model.CarText? getNoItemsMessage();
     method public androidx.car.app.model.OnItemVisibilityChangedDelegate? getOnItemVisibilityChangedDelegate();
@@ -386,7 +384,6 @@ package androidx.car.app.model {
   public final class ListTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public androidx.car.app.model.Action? getHeaderAction();
-    method @Deprecated public java.util.List<androidx.car.app.model.SectionedItemList!> getSectionLists();
     method public java.util.List<androidx.car.app.model.SectionedItemList!> getSectionedLists();
     method public androidx.car.app.model.ItemList? getSingleList();
     method public androidx.car.app.model.CarText? getTitle();
@@ -395,7 +392,6 @@ package androidx.car.app.model {
 
   public static final class ListTemplate.Builder {
     ctor public ListTemplate.Builder();
-    method @Deprecated public androidx.car.app.model.ListTemplate.Builder addList(androidx.car.app.model.ItemList, CharSequence);
     method public androidx.car.app.model.ListTemplate.Builder addSectionedList(androidx.car.app.model.SectionedItemList);
     method public androidx.car.app.model.ListTemplate build();
     method public androidx.car.app.model.ListTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
@@ -460,7 +456,6 @@ package androidx.car.app.model {
 
   public final class Pane {
     method public java.util.List<androidx.car.app.model.Action!> getActions();
-    method @Deprecated public java.util.List<androidx.car.app.model.Row!> getRowList();
     method public java.util.List<androidx.car.app.model.Row!> getRows();
     method public boolean isLoading();
   }
@@ -607,7 +602,6 @@ package androidx.car.app.model {
   }
 
   public final class SectionedItemList {
-    method @Deprecated public static androidx.car.app.model.SectionedItemList create(androidx.car.app.model.ItemList, androidx.car.app.model.CarText);
     method public static androidx.car.app.model.SectionedItemList create(androidx.car.app.model.ItemList, CharSequence);
     method public androidx.car.app.model.CarText? getHeader();
     method public androidx.car.app.model.ItemList? getItemList();
@@ -750,14 +744,12 @@ package androidx.car.app.navigation.model {
     field public static final int TYPE_ON_RAMP_SLIGHT_RIGHT = 14; // 0xe
     field public static final int TYPE_ON_RAMP_U_TURN_LEFT = 19; // 0x13
     field public static final int TYPE_ON_RAMP_U_TURN_RIGHT = 20; // 0x14
-    field @Deprecated public static final int TYPE_ROUNDABOUT_ENTER = 30; // 0x1e
     field public static final int TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW = 34; // 0x22
     field public static final int TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW_WITH_ANGLE = 35; // 0x23
     field public static final int TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW = 32; // 0x20
     field public static final int TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW_WITH_ANGLE = 33; // 0x21
     field public static final int TYPE_ROUNDABOUT_ENTER_CCW = 45; // 0x2d
     field public static final int TYPE_ROUNDABOUT_ENTER_CW = 43; // 0x2b
-    field @Deprecated public static final int TYPE_ROUNDABOUT_EXIT = 31; // 0x1f
     field public static final int TYPE_ROUNDABOUT_EXIT_CCW = 46; // 0x2e
     field public static final int TYPE_ROUNDABOUT_EXIT_CW = 44; // 0x2c
     field public static final int TYPE_STRAIGHT = 36; // 0x24

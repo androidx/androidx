@@ -72,8 +72,6 @@ public final class Maneuver {
             TYPE_MERGE_LEFT,
             TYPE_MERGE_RIGHT,
             TYPE_MERGE_SIDE_UNSPECIFIED,
-            TYPE_ROUNDABOUT_ENTER,
-            TYPE_ROUNDABOUT_EXIT,
             TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW,
             TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW_WITH_ANGLE,
             TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW,
@@ -291,30 +289,6 @@ public final class Maneuver {
      */
     @Type
     public static final int TYPE_MERGE_SIDE_UNSPECIFIED = 29;
-
-    /**
-     * Roundabout entrance on which the current road ends.
-     *
-     * <p>For example, this is used to indicate "Enter the roundabout".
-     *
-     * @deprecated Use {@link #TYPE_ROUNDABOUT_ENTER_CW} or {@link #TYPE_ROUNDABOUT_ENTER_CCW}
-     * instead.
-     */
-    @Deprecated
-    @Type
-    public static final int TYPE_ROUNDABOUT_ENTER = 30;
-
-    /**
-     * Used when leaving a roundabout when the step starts in it.
-     *
-     * <p>For example, this is used to indicate "Exit the roundabout".
-     *
-     * @deprecated Use {@link #TYPE_ROUNDABOUT_EXIT_CW} or {@link #TYPE_ROUNDABOUT_EXIT_CCW}
-     * instead.
-     */
-    @Deprecated
-    @Type
-    public static final int TYPE_ROUNDABOUT_EXIT = 31;
 
     /**
      * Enter a clockwise roundabout and take the Nth exit.

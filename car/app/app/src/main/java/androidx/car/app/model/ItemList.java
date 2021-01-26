@@ -122,18 +122,6 @@ public final class ItemList {
         return CollectionUtils.emptyIfNull(mItems);
     }
 
-    /**
-     * Returns the list of items in this {@link ItemList}.
-     *
-     * @deprecated use {@link #getItems()} instead.
-     */
-    // TODO(b/177591128): remove after host(s) no longer reference this.
-    @Deprecated
-    @NonNull
-    public List<Item> getItemList() {
-        return CollectionUtils.emptyIfNull(mItems);
-    }
-
     @Override
     @NonNull
     public String toString() {
