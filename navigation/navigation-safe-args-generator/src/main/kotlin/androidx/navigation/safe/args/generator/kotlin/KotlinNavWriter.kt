@@ -267,6 +267,52 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
             addStatement("return·%T(${tempVariables.joinToString(", ") { it }})", className)
         }.build()
 
+        val fromSavedStateHandleFunSpec = FunSpec.builder("fromSavedStateHandle").apply {
+            addAnnotation(JvmStatic::class)
+            returns(className)
+            val savedStateParamName = "savedStateHandle"
+            addParameter(savedStateParamName, SAVED_STATE_HANDLE_CLASSNAME)
+            val tempVariables = destination.args.map { arg ->
+                val tempVal = "__${arg.sanitizedName}"
+                addStatement(
+                    "val %L : %T",
+                    tempVal,
+                    arg.type.typeName().copy(nullable = true)
+                )
+                beginControlFlow("if (%L.contains(%S))", savedStateParamName, arg.name)
+                addStatement("%L = %L[%S]", tempVal, savedStateParamName, arg.name)
+                if (!arg.isNullable) {
+                    beginControlFlow("if (%L == null)", tempVal)
+                    val errorMessage = if (arg.type.allowsNullable()) {
+                        "Argument \"${arg.name}\" is marked as non-null but was passed a null value"
+                    } else {
+                        "Argument \"${arg.name}\" of type ${arg.type} does not support null values"
+                    }
+                    addStatement(
+                        "throw·%T(%S)",
+                        IllegalArgumentException::class.asTypeName(),
+                        errorMessage
+                    )
+                    endControlFlow()
+                }
+                nextControlFlow("else")
+                val defaultValue = arg.defaultValue
+                if (defaultValue != null) {
+                    addStatement("%L = %L", tempVal, arg.defaultValue.write())
+                } else {
+                    addStatement(
+                        "throw·%T(%S)",
+                        IllegalArgumentException::class.asTypeName(),
+                        "Required argument \"${arg.name}\" is missing and does not have an " +
+                            "android:defaultValue"
+                    )
+                }
+                endControlFlow()
+                return@map tempVal
+            }
+            addStatement("return·%T(${tempVariables.joinToString(", ") { it }})", className)
+        }.build()
+
         val typeSpec = TypeSpec.classBuilder(className)
             .addSuperinterface(NAV_ARGS_CLASSNAME)
             .addModifiers(KModifier.DATA)
@@ -283,6 +329,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
             .addType(
                 TypeSpec.companionObjectBuilder()
                     .addFunction(fromBundleFunSpec)
+                    .addFunction(fromSavedStateHandleFunSpec)
                     .build()
             )
             .build()

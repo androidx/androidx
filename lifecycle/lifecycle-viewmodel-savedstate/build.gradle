@@ -58,6 +58,19 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RULES)
 }
 
+//used by testImplementation safe-args-generator
+android.libraryVariants.all { variant ->
+    def name = variant.name
+    def suffix = name.capitalize()
+    project.tasks.register("jar${suffix}", Copy).configure {
+        dependsOn ("assemble$suffix")
+        from(zipTree("${project.buildDir}/outputs/aar/lifecycle-viewmodel-savedstate-${name}.aar")) {
+            include "classes.jar"
+        }
+        destinationDir new File(project.buildDir, "libJar")
+    }
+}
+
 androidx {
     name = "Android Lifecycle ViewModel with SavedState"
     publish = Publish.SNAPSHOT_AND_RELEASE
