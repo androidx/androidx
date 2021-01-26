@@ -173,6 +173,16 @@ class DatabaseProcessorTest {
                 }
                 """
         )
+
+        val AUTOMIGRATION: JavaFileObject = JavaFileObjects.forSourceString(
+            "foo.bar.MyAutoMigration",
+            """
+                package foo.bar;
+                import androidx.room.AutoMigration;
+                @AutoMigration(from=41, to=42)
+                abstract class MyAutoMigration implements AutoMigration {}
+                """
+        )
     }
 
     @Test
@@ -1126,6 +1136,20 @@ class DatabaseProcessorTest {
                 TypeName.INT
             )
         )
+    }
+
+    @Test
+    fun autoMigrationDefinedButDatabaseSchemaExportOff() {
+        singleDb(
+            """
+                @Database(entities = {User.class}, version = 42, exportSchema = false,
+                autoMigrations = {MyAutoMigration.class})
+                public abstract class MyDb extends RoomDatabase {}
+                """,
+            USER, AUTOMIGRATION
+        ) { _, _ -> }
+            .failsToCompile()
+            .withErrorContaining(ProcessorErrors.AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF)
     }
 
     private fun resolveDatabaseViews(
