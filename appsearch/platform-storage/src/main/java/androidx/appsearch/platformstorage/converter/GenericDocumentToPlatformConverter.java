@@ -26,13 +26,12 @@ import androidx.core.util.Preconditions;
 
 /**
  * Translates between Platform and Jetpack versions of {@link GenericDocument}.
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
 public final class GenericDocumentToPlatformConverter {
-    private GenericDocumentToPlatformConverter() {}
-
     /**
      * Translates a jetpack {@link androidx.appsearch.app.GenericDocument} into a platform
      * {@link android.app.appsearch.GenericDocument}.
@@ -51,26 +50,19 @@ public final class GenericDocumentToPlatformConverter {
                 .setTtlMillis(jetpackDocument.getTtlMillis())
                 .setCreationTimestampMillis(jetpackDocument.getCreationTimestampMillis());
         for (String propertyName : jetpackDocument.getPropertyNames()) {
-            // TODO(b/174614009): This generates log spam from failed casts. Switch to getProperty
-            // API once it is submitted.
-            String[] stringValues = jetpackDocument.getPropertyStringArray(propertyName);
-            long[] longValues = jetpackDocument.getPropertyLongArray(propertyName);
-            double[] doubleValues = jetpackDocument.getPropertyDoubleArray(propertyName);
-            boolean[] booleanValues = jetpackDocument.getPropertyBooleanArray(propertyName);
-            byte[][] bytesValues = jetpackDocument.getPropertyBytesArray(propertyName);
-            GenericDocument[] documentValues =
-                    jetpackDocument.getPropertyDocumentArray(propertyName);
-            if (stringValues != null) {
-                platformBuilder.setPropertyString(propertyName, stringValues);
-            } else if (longValues != null) {
-                platformBuilder.setPropertyLong(propertyName, longValues);
-            } else if (doubleValues != null) {
-                platformBuilder.setPropertyDouble(propertyName, doubleValues);
-            } else if (booleanValues != null) {
-                platformBuilder.setPropertyBoolean(propertyName, booleanValues);
-            } else if (bytesValues != null) {
-                platformBuilder.setPropertyBytes(propertyName, bytesValues);
-            } else if (documentValues != null) {
+            Object property = jetpackDocument.getProperty(propertyName);
+            if (property instanceof String[]) {
+                platformBuilder.setPropertyString(propertyName, (String[]) property);
+            } else if (property instanceof long[]) {
+                platformBuilder.setPropertyLong(propertyName, (long[]) property);
+            } else if (property instanceof double[]) {
+                platformBuilder.setPropertyDouble(propertyName, (double[]) property);
+            } else if (property instanceof boolean[]) {
+                platformBuilder.setPropertyBoolean(propertyName, (boolean[]) property);
+            } else if (property instanceof byte[][]) {
+                platformBuilder.setPropertyBytes(propertyName, (byte[][]) property);
+            } else if (property instanceof GenericDocument[]) {
+                GenericDocument[] documentValues = (GenericDocument[]) property;
                 android.app.appsearch.GenericDocument[] platformSubDocuments =
                         new android.app.appsearch.GenericDocument[documentValues.length];
                 for (int j = 0; j < documentValues.length; j++) {
@@ -79,7 +71,8 @@ public final class GenericDocumentToPlatformConverter {
                 platformBuilder.setPropertyDocument(propertyName, platformSubDocuments);
             } else {
                 throw new IllegalStateException(
-                        "Property \"" + propertyName + "\" has unsupported value type");
+                        String.format("Property \"%s\" has unsupported value type %s", propertyName,
+                                property.getClass().toString()));
             }
         }
         return platformBuilder.build();
@@ -102,26 +95,20 @@ public final class GenericDocumentToPlatformConverter {
                 .setTtlMillis(platformDocument.getTtlMillis())
                 .setCreationTimestampMillis(platformDocument.getCreationTimestampMillis());
         for (String propertyName : platformDocument.getPropertyNames()) {
-            // TODO(b/174614009): This generates log spam from failed casts. Switch to getProperty
-            // API once it is submitted.
-            String[] stringValues = platformDocument.getPropertyStringArray(propertyName);
-            long[] longValues = platformDocument.getPropertyLongArray(propertyName);
-            double[] doubleValues = platformDocument.getPropertyDoubleArray(propertyName);
-            boolean[] booleanValues = platformDocument.getPropertyBooleanArray(propertyName);
-            byte[][] bytesValues = platformDocument.getPropertyBytesArray(propertyName);
-            android.app.appsearch.GenericDocument[] documentValues =
-                    platformDocument.getPropertyDocumentArray(propertyName);
-            if (stringValues != null) {
-                jetpackBuilder.setPropertyString(propertyName, stringValues);
-            } else if (longValues != null) {
-                jetpackBuilder.setPropertyLong(propertyName, longValues);
-            } else if (doubleValues != null) {
-                jetpackBuilder.setPropertyDouble(propertyName, doubleValues);
-            } else if (booleanValues != null) {
-                jetpackBuilder.setPropertyBoolean(propertyName, booleanValues);
-            } else if (bytesValues != null) {
-                jetpackBuilder.setPropertyBytes(propertyName, bytesValues);
-            } else if (documentValues != null) {
+            Object property = platformDocument.getProperty(propertyName);
+            if (property instanceof String[]) {
+                jetpackBuilder.setPropertyString(propertyName, (String[]) property);
+            } else if (property instanceof long[]) {
+                jetpackBuilder.setPropertyLong(propertyName, (long[]) property);
+            } else if (property instanceof double[]) {
+                jetpackBuilder.setPropertyDouble(propertyName, (double[]) property);
+            } else if (property instanceof boolean[]) {
+                jetpackBuilder.setPropertyBoolean(propertyName, (boolean[]) property);
+            } else if (property instanceof byte[][]) {
+                jetpackBuilder.setPropertyBytes(propertyName, (byte[][]) property);
+            } else if (property instanceof android.app.appsearch.GenericDocument[]) {
+                android.app.appsearch.GenericDocument[] documentValues =
+                        (android.app.appsearch.GenericDocument[]) property;
                 GenericDocument[] jetpackSubDocuments = new GenericDocument[documentValues.length];
                 for (int j = 0; j < documentValues.length; j++) {
                     jetpackSubDocuments[j] = toJetpackGenericDocument(documentValues[j]);
@@ -129,9 +116,12 @@ public final class GenericDocumentToPlatformConverter {
                 jetpackBuilder.setPropertyDocument(propertyName, jetpackSubDocuments);
             } else {
                 throw new IllegalStateException(
-                        "Property \"" + propertyName + "\" has unsupported value type");
+                        String.format("Property \"%s\" has unsupported value type %s", propertyName,
+                                property.getClass().toString()));
             }
         }
         return jetpackBuilder.build();
     }
+
+    private GenericDocumentToPlatformConverter() {}
 }
