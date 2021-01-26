@@ -165,20 +165,7 @@ fun runKspTest(
 fun compileFiles(
     sources: List<Source>
 ): File {
-    val compilation = KotlinCompilation()
-    sources.forEach {
-        compilation.workingDir.resolve("sources")
-            .resolve(it.relativePath())
-            .parentFile
-            .mkdirs()
-    }
-    compilation.sources = sources.map {
-        it.toKotlinSourceFile()
-    }
-    compilation.jvmDefault = "enable"
-    compilation.jvmTarget = "1.8"
-    compilation.inheritClassPath = true
-    compilation.verbose = false
+    val compilation = KotlinCompilationUtil.prepareCompilation(sources = sources)
     val result = compilation.compile()
     check(result.exitCode == KotlinCompilation.ExitCode.OK) {
         "compilation failed: ${result.messages}"
