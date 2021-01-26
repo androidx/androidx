@@ -53,9 +53,9 @@ android {
 }
 
 dependencies {
-    // Using -PuseMaxDepVersions does not use the right version of the annotation processor
+    // Using -Pandroidx.useMaxDepVersions does not use the right version of the annotation processor
     // Remove this workaround after b/127495641 is fixed
-    if (project.hasProperty('useMaxDepVersions')) {
+    if (project.hasProperty('androidx.useMaxDepVersions')) {
         annotationProcessor(projectOrArtifact(":room:room-compiler"))
         implementation(projectOrArtifact(":room:room-runtime"))
     } else {
