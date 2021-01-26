@@ -29,9 +29,10 @@ import org.junit.runners.Parameterized.Parameters
 import kotlin.random.Random
 
 @RunWith(Parameterized::class)
-class ArraySetBenchmarkTest(size: Int, sparse: Boolean) {
-    private val sourceSet = mutableSetOf<Int>().apply {
-        val valueFactory: () -> Int = if (sparse) {
+class SimpleArrayMapBenchmarkTest(size: Int, sparse: Boolean) {
+
+    private val sourceMap = mutableMapOf<Int, String>().apply {
+        val keyFactory: () -> Int = if (sparse) {
             // Despite the fixed seed, the algorithm which produces random values may vary across
             // OS versions. Since we're not doing cross-device comparison this is acceptable.
             val random = Random(0);
@@ -51,7 +52,8 @@ class ArraySetBenchmarkTest(size: Int, sparse: Boolean) {
             { value++ }
         }
         repeat(size) {
-            this.add(valueFactory())
+            val key = keyFactory()
+            this.put(key, "value of $key")
         }
         check(size == this.size)
     }
@@ -62,53 +64,37 @@ class ArraySetBenchmarkTest(size: Int, sparse: Boolean) {
     @Test
     fun create() {
         benchmark.measureRepeated {
-            val set = ArraySet(sourceSet)
+            val map = SimpleArrayMap<Int, String>()
+            for ((key, value) in sourceMap) {
+                map.put(key, value)
+            }
             runWithTimingDisabled {
-                assertEquals(sourceSet.size, set.size)
+                assertEquals(sourceMap.size, map.size())
             }
         }
     }
 
     @Test
-    fun containsElement() {
-        // Split the set into two lists, one with elements in the created set, one not.
-        val src = sourceSet.toList()
+    fun containsKey() {
+        // Split the source map into two lists, one with elements in the created map, one not.
+        val src = sourceMap.toList()
         val inList = src.slice(0 until src.size / 2)
-        val outList = src.slice(src.size / 2 until src.size)
+        val inListKeys = inList.map { it.first }
+        val outListKeys = src.slice(src.size / 2 until src.size).map { it.first }
 
-        val set = ArraySet(inList)
-        benchmark.measureRepeated {
-            for (e in inList) {
-                if (e !in set) {
-                    fail()
-                }
-            }
-
-            for (e in outList) {
-                if (e in set) {
-                    fail()
-                }
-            }
+        val map = SimpleArrayMap<Int, String>()
+        for ((key, value) in inList) {
+            map.put(key, value)
         }
-    }
-
-    @Test
-    fun indexOf() {
-        // Split the set into two lists, one with elements in the created set, one not.
-        val src = sourceSet.toList()
-        val inList = src.slice(0 until src.size / 2)
-        val outList = src.slice(src.size / 2 until src.size)
-
-        val set = ArraySet(inList)
         benchmark.measureRepeated {
-            for (e in inList) {
-                if (set.indexOf(e) < 0) {
+            for (key in inListKeys) {
+                if (!map.containsKey(key)) {
                     fail()
                 }
             }
 
-            for (e in outList) {
-                if (set.indexOf(e) >= 0) {
+            for (key in outListKeys) {
+                if (map.containsKey(key)) {
                     fail()
                 }
             }
@@ -117,18 +103,23 @@ class ArraySetBenchmarkTest(size: Int, sparse: Boolean) {
 
     @Test
     fun addAllThenRemoveIndividually() {
-        val set = ArraySet<Int>(sourceSet.size)
+        val sourceSimpleArrayMap = SimpleArrayMap<Int, String>(sourceMap.size)
+        for ((key, value) in sourceMap) {
+            sourceSimpleArrayMap.put(key, value)
+        }
+
+        var map = SimpleArrayMap<Int, String>(sourceSimpleArrayMap.size())
         benchmark.measureRepeated {
-            set.addAll(sourceSet)
+            map.putAll(sourceSimpleArrayMap)
             runWithTimingDisabled {
-                assertEquals(sourceSet.size, set.size)
+                assertEquals(sourceSimpleArrayMap.size(), map.size())
             }
 
-            for (e in sourceSet) {
-                set.remove(e)
+            for (key in sourceMap.keys) {
+                map.remove(key)
             }
             runWithTimingDisabled {
-                assertTrue(set.isEmpty())
+                assertTrue(map.isEmpty())
             }
         }
     }
