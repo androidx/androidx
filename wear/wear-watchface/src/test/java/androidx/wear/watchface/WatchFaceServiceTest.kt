@@ -285,6 +285,19 @@ class WatchFaceServiceTest {
     private var looperTimeMillis = 0L
     private val pendingTasks = PriorityQueue<Task>()
 
+    /**
+     * Runs any pending DispatchedContinuation tasks.  Care should be taken to ensure there's
+     * not other tasks in the queue ahead of these or they won't get run.
+     */
+    private fun runPendingPostedDispatchedContinuationTasks() {
+        while (pendingTasks.isNotEmpty() &&
+            pendingTasks.peek()!!.runTimeMillis <= looperTimeMillis &&
+            pendingTasks.peek()!!.runnable.toString().startsWith("DispatchedContinuation")
+        ) {
+            pendingTasks.remove().runnable.run()
+        }
+    }
+
     private fun runPostedTasksFor(durationMillis: Long) {
         looperTimeMillis += durationMillis
         while (pendingTasks.isNotEmpty() &&
@@ -377,6 +390,10 @@ class WatchFaceServiceTest {
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
 
+        // [WatchFaceService.createWatchFace] is a suspend function backed by a handler coroutine
+        // dispatcher. We need to execute posted tasks inorder for the engine to get created.
+        runPendingPostedDispatchedContinuationTasks()
+
         // The [SurfaceHolder] must be sent before binding.
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         watchFaceImpl = engineWrapper.watchFaceImpl
@@ -411,6 +428,12 @@ class WatchFaceServiceTest {
                 putBoolean(Constants.PROPERTY_BURN_IN_PROTECTION, hasBurnInProtection)
             }
         )
+
+        // [WatchFaceService.createWatchFace] is a suspend function backed by a handler coroutine
+        // dispatcher. We need to execute posted tasks for the engine to get created. We assume this
+        // is the last call made before the test needs to do something with the watch face, so we
+        // force execution here.
+        runPendingPostedDispatchedContinuationTasks()
     }
 
     private fun sendRequestStyle() {
@@ -1012,6 +1035,8 @@ class WatchFaceServiceTest {
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
+        // Flush pending tasks posted as a result of initEngine.
+        runPostedTasksFor(0)
         assertThat(complicationsManager.getBackgroundComplication()).isNull()
         engineWrapper.onDestroy()
 
@@ -1020,6 +1045,8 @@ class WatchFaceServiceTest {
             listOf(leftComplication),
             UserStyleSchema(emptyList())
         )
+        // Flush pending tasks posted as a result of initEngine.
+        runPostedTasksFor(0)
         assertThat(complicationsManager.getBackgroundComplication()).isNull()
         engineWrapper.onDestroy()
 
@@ -1056,6 +1083,9 @@ class WatchFaceServiceTest {
         val userStyleRepository2 = UserStyleRepository(
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting))
         )
+
+        // Flush pending tasks posted as a result of initEngine.
+        runPostedTasksFor(0)
 
         val testRenderer2 = TestRenderer(
             surfaceHolder,
