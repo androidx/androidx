@@ -17,11 +17,14 @@
 package androidx.room
 
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteException
+import android.os.Build
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -110,6 +113,7 @@ public class AutoClosingRoomOpenHelperTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     public fun enableWriteAheadLogging_onOpenHelper() {
         val autoClosingRoomOpenHelper = getAutoClosingRoomOpenHelper()
 
@@ -191,7 +195,7 @@ public class AutoClosingRoomOpenHelperTest {
 
         statement.executeInsert() // This should succeed
 
-        db.query("select * from user").use {
+        db.query("select * from user").useCursor {
             assertThat(it.count).isEqualTo(1)
         }
 
@@ -217,7 +221,7 @@ public class AutoClosingRoomOpenHelperTest {
 
         statement.executeInsert()
 
-        db.query("select * from users").use {
+        db.query("select * from users").useCursor {
             assertThat(it.moveToFirst()).isTrue()
             assertThat(it.getInt(0)).isEqualTo(123)
             assertThat(it.getDouble(1)).isWithin(.01).of(1.23)
@@ -230,7 +234,7 @@ public class AutoClosingRoomOpenHelperTest {
         statement.clearBindings()
         statement.executeInsert() // should insert with nulls
 
-        db.query("select * from users").use {
+        db.query("select * from users").useCursor {
             assertThat(it.moveToFirst()).isTrue()
             it.moveToNext()
             assertThat(it.isNull(0)).isTrue()
@@ -260,5 +264,14 @@ public class AutoClosingRoomOpenHelperTest {
         )
 
         assertThat(autoClosing.getDelegate()).isSameInstanceAs(delegateOpenHelper)
+    }
+
+    // Older API versions didn't have Cursor implement Closeable
+    private inline fun Cursor.useCursor(block: (Cursor) -> Unit) {
+        try {
+            block(this)
+        } finally {
+            this.close()
+        }
     }
 }
