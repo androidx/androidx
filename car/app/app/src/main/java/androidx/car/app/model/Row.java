@@ -43,6 +43,9 @@ import java.util.Objects;
  * or switch.
  */
 public final class Row implements Item {
+    /** A boat that belongs to you. */
+    private static final String YOUR_BOAT = "\uD83D\uDEA3"; // 🚣
+
     /**
      * The type of images supported within rows.
      *
@@ -193,7 +196,9 @@ public final class Row implements Item {
      * row.row().row().yourBoat(); // gently down the stream
      * }</pre>
      */
-    public void yourBoat() {
+    @NonNull
+    public CharSequence yourBoat() {
+        return YOUR_BOAT;
     }
 
     /** Returns a {@link Row} for rowing {@link #yourBoat()} */
