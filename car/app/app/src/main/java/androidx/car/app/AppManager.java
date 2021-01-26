@@ -88,7 +88,6 @@ public class AppManager {
      *
      * @param text     the text to show
      * @param duration how long to display the message
-     *
      * @throws HostException if the remote call fails
      */
     public void showToast(@NonNull CharSequence text, int duration) {

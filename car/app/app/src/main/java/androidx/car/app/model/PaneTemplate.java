@@ -59,24 +59,45 @@ public final class PaneTemplate implements Template {
     @Nullable
     private final ActionStrip mActionStrip;
 
+    /**
+     * Returns the title of the template or {@code null} if not set.
+     *
+     * @see Builder#setTitle(CharSequence)
+     */
     @Nullable
     public CarText getTitle() {
         return mTitle;
     }
 
+    /**
+     * Returns the {@link Action} that is set to be displayed in the header of the template, or
+     * {@code null} if not set.
+     *
+     * @see Builder#setHeaderAction(Action)
+     */
     @Nullable
     public Action getHeaderAction() {
         return mHeaderAction;
     }
 
-    @Nullable
-    public Pane getPane() {
-        return mPane;
-    }
-
+    /**
+     * Returns the {@link ActionStrip} for this template or {@code null} if not set.
+     *
+     * @see Builder#setActionStrip(ActionStrip)
+     */
     @Nullable
     public ActionStrip getActionStrip() {
         return mActionStrip;
+    }
+
+    /**
+     * Returns the {@link Pane} to display in the template or {@code null} if not set.
+     *
+     * @see Builder#Builder(Pane)
+     */
+    @Nullable
+    public Pane getPane() {
+        return mPane;
     }
 
     @NonNull
@@ -136,7 +157,7 @@ public final class PaneTemplate implements Template {
          *
          * <p>Unless set with this method, the template will not have a title.
          *
-         * @throws NullPointerException if {@code title} is null
+         * @throws NullPointerException if {@code title} is {@code null}
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
@@ -145,8 +166,7 @@ public final class PaneTemplate implements Template {
         }
 
         /**
-         * Sets the {@link Action} that will be displayed in the header of the template, or
-         * {@code null} to not display an action.
+         * Sets the {@link Action} that will be displayed in the header of the template.
          *
          * <p>Unless set with this method, the template will not have a header action.
          *
@@ -168,8 +188,7 @@ public final class PaneTemplate implements Template {
         }
 
         /**
-         * Sets the {@link ActionStrip} for this template, or {@code null} to not display an {@link
-         * ActionStrip}.
+         * Sets the {@link ActionStrip} for this template.
          *
          * <p>Unless set with this method, the template will not have an action strip.
          *
@@ -179,7 +198,7 @@ public final class PaneTemplate implements Template {
          * {@link Action}s, one of them can contain a title as set via
          * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
          *
-         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements.
+         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @NonNull
@@ -203,10 +222,9 @@ public final class PaneTemplate implements Template {
          *
          * <p>Either a header {@link Action} or title must be set on the template.
          *
-         * @throws IllegalArgumentException if the {@link Pane} does not meet the requirements.
+         * @throws IllegalArgumentException if the {@link Pane} does not meet the requirements
          * @throws IllegalStateException    if the template does not have either a title or header
-         *                                  {@link
-         *                                  Action} set.
+         *                                  {@link Action} set
          */
         @NonNull
         public PaneTemplate build() {

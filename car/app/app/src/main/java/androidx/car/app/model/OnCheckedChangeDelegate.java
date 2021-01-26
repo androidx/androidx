@@ -28,9 +28,9 @@ public interface OnCheckedChangeDelegate {
     /**
      * Notifies that checked state has changed.
      *
-     * @param isChecked the updated checked state.
+     * @param isChecked the updated checked state
      * @param callback  the {@link OnDoneCallback} to trigger when the client finishes handling
-     *                  the event.
+     *                  the event
      */
     // This mirrors the AIDL class and is not supported to support an executor as an input.
     @SuppressLint("ExecutorRegistration")

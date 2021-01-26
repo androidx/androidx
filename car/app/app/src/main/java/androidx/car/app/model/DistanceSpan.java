@@ -68,14 +68,10 @@ public final class DistanceSpan extends CarSpan {
         return new DistanceSpan(requireNonNull(distance));
     }
 
-    private DistanceSpan(Distance distance) {
-        this.mDistance = distance;
-    }
-
-    private DistanceSpan() {
-        mDistance = null;
-    }
-
+    /**
+     * Returns the {@link Distance} instance associated with this span or {@code null} if not
+     * set.
+     */
     @Nullable
     public Distance getDistance() {
         return mDistance;
@@ -103,5 +99,13 @@ public final class DistanceSpan extends CarSpan {
         DistanceSpan otherSpan = (DistanceSpan) other;
 
         return Objects.equals(mDistance, otherSpan.mDistance);
+    }
+
+    private DistanceSpan(Distance distance) {
+        this.mDistance = distance;
+    }
+
+    private DistanceSpan() {
+        mDistance = null;
     }
 }

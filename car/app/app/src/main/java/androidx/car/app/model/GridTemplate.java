@@ -59,28 +59,55 @@ public final class GridTemplate implements Template {
     @Nullable
     private final ActionStrip mActionStrip;
 
-    public boolean isLoading() {
-        return mIsLoading;
-    }
-
+    /**
+     * Returns the title of the template or {@code null} if not set.
+     *
+     * @see Builder#setTitle(CharSequence)
+     */
     @Nullable
     public CarText getTitle() {
         return mTitle;
     }
 
+    /**
+     * Returns the {@link Action} that is set to be displayed in the header of the template, or
+     * {@code null} if not set.
+     *
+     * @see Builder#setHeaderAction(Action)
+     */
     @Nullable
     public Action getHeaderAction() {
         return mHeaderAction;
     }
 
-    @Nullable
-    public ItemList getSingleList() {
-        return mSingleList;
-    }
-
+    /**
+     * Returns the {@link ActionStrip} for this template or {@code null} if not set.
+     *
+     * @see Builder#setActionStrip(ActionStrip)
+     */
     @Nullable
     public ActionStrip getActionStrip() {
         return mActionStrip;
+    }
+
+    /**
+     * Returns whether the template is loading.
+     *
+     * @see Builder#setLoading(boolean)
+     */
+    public boolean isLoading() {
+        return mIsLoading;
+    }
+
+    /**
+     * Returns the {@link ItemList} instance that contains the grid items to display or {@code
+     * null} if not set.
+     *
+     * @see Builder#setSingleList(ItemList)
+     */
+    @Nullable
+    public ItemList getSingleList() {
+        return mSingleList;
     }
 
     @NonNull
@@ -156,8 +183,7 @@ public final class GridTemplate implements Template {
         }
 
         /**
-         * Sets the {@link Action} that will be displayed in the header of the template, or
-         * {@code null} to not display an action.
+         * Sets the {@link Action} that will be displayed in the header of the template.
          *
          * <p>Unless set with this method, the template will not have a header action.
          *

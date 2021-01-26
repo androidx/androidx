@@ -61,31 +61,63 @@ public final class MessageTemplate implements Template {
     @Keep
     private final List<Action> mActionList;
 
+    /**
+     * Returns the title of the template or {@code null} if not set.
+     *
+     * @see Builder#setTitle(CharSequence)
+     */
     @Nullable
     public CarText getTitle() {
         return mTitle;
     }
 
+    /**
+     * Returns the {@link Action} that is set to be displayed in the header of the template, or
+     * {@code null} if not set.
+     *
+     * @see Builder#setHeaderAction(Action)
+     */
     @Nullable
     public Action getHeaderAction() {
         return mHeaderAction;
     }
 
+    /**
+     * Returns the message to display in the template.
+     *
+     * @see Builder#Builder(CharSequence)
+     */
     @Nullable
     public CarText getMessage() {
         return mMessage;
     }
 
+    /**
+     * Returns a debug message to display in the template or {@code null} if not set.
+     *
+     * @see Builder#setDebugMessage(Throwable)
+     * @see Builder#setDebugMessage(String)
+     */
     @Nullable
     public CarText getDebugMessage() {
         return mDebugMessage;
     }
 
+    /**
+     * Returns the icon to display in the template or {@code null} if not set.
+     *
+     * @see Builder#setIcon(CarIcon)
+     */
     @Nullable
     public CarIcon getIcon() {
         return mIcon;
     }
 
+    /**
+     * Returns the list of actions to display in the template.
+     *
+     * @see Builder#addAction(Action)
+     */
     @NonNull
     public List<Action> getActions() {
         return CollectionUtils.emptyIfNull(mActionList);
@@ -161,7 +193,7 @@ public final class MessageTemplate implements Template {
          *
          * <p>Unless set with this method, the template will not have a title.
          *
-         * @throws NullPointerException if {@code title} is null
+         * @throws NullPointerException if {@code title} is {@code null}
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
@@ -170,7 +202,7 @@ public final class MessageTemplate implements Template {
         }
 
         /**
-         * Sets a {@link Throwable} for debugging purposes, or {@code null} to not show it.
+         * Sets a {@link Throwable} for debugging purposes.
          *
          * <p>The cause will be displayed along with the message set in
          * {@link #setDebugMessage(String)}.
@@ -188,7 +220,7 @@ public final class MessageTemplate implements Template {
         }
 
         /**
-         * Sets a debug message for debugging purposes, or {@code null} to not show a debug message.
+         * Sets a debug message for debugging purposes.
          *
          * <p>The debug message will be displayed along with the cause set in
          * {@link #setDebugMessage}.
@@ -229,8 +261,7 @@ public final class MessageTemplate implements Template {
         }
 
         /**
-         * Sets the {@link Action} that will be displayed in the header of the template, or
-         * {@code null} to not display an action.
+         * Sets the {@link Action} that will be displayed in the header of the template.
          *
          * <p>Unless set with this method, the template will not have a header action.
          *
@@ -256,7 +287,7 @@ public final class MessageTemplate implements Template {
          *
          * <p>Any actions above the maximum limit of 2 will be ignored.
          *
-         * @throws NullPointerException if {@code action} is {@code null}.
+         * @throws NullPointerException if {@code action} is {@code null}
          */
         @NonNull
         public Builder addAction(@NonNull Action action) {
@@ -275,7 +306,7 @@ public final class MessageTemplate implements Template {
          * <p>Either a header {@link Action} or title must be set on the template.
          *
          * @throws IllegalStateException if the message is empty, or if the template does not have
-         *                               either a title or header {@link Action} set.
+         *                               either a title or header {@link Action} set
          */
         @NonNull
         public MessageTemplate build() {
@@ -302,8 +333,9 @@ public final class MessageTemplate implements Template {
         /**
          * Returns a {@link Builder} instance.
          *
-         * @param message the text message to display in the template.
-         * @throws NullPointerException if the {@code message} is {@code null}.
+         * @param message the text message to display in the template
+         *
+         * @throws NullPointerException if the {@code message} is {@code null}
          */
         public Builder(@NonNull CharSequence message) {
             this.mMessage = CarText.create(requireNonNull(message));

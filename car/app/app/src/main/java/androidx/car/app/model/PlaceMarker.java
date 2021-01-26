@@ -75,7 +75,7 @@ public final class PlaceMarker {
     private final int mIconType;
 
     /**
-     * Returns the {@link CarIcon} associated with this marker.
+     * Returns the {@link CarIcon} associated with this marker or {@code null} if not set.
      */
     @Nullable
     public CarIcon getIcon() {
@@ -91,11 +91,11 @@ public final class PlaceMarker {
     }
 
     /**
-     * If set, the text that should be rendered as the marker's content, {@code null} otherwise.
+     * Returns the text that should be rendered as the marker's content or {@code null} if one
+     * is not set.
      *
      * <p>Note that a {@link PlaceMarker} can only display either an icon or a text label. If
-     * both are
-     * set, then {@link #getIcon()} will take precedence.
+     * both are set, then {@link #getIcon()} will take precedence.
      */
     @Nullable
     public CarText getLabel() {
@@ -196,6 +196,7 @@ public final class PlaceMarker {
          *
          * @param icon     the {@link CarIcon} to display inside the marker
          * @param iconType one of {@link #TYPE_ICON} or {@link #TYPE_IMAGE}
+         *
          * @throws NullPointerException if the {@code icon} is {@code null}
          */
         @NonNull
@@ -215,7 +216,8 @@ public final class PlaceMarker {
          *
          * @param label the text to display inside of the marker. The string must have a maximum
          *              size of 3 characters. Set to {@code null} to let the host choose a
-         *              labelling scheme (for example, using a sequence of numbers).
+         *              labelling scheme (for example, using a sequence of numbers)
+         *
          * @throws NullPointerException if the {@code label} is {@code null}
          */
         @NonNull
@@ -239,7 +241,7 @@ public final class PlaceMarker {
          *   <li>When the {@link PlaceMarker} is displayed on the map, the pin enclosing the icon or
          *       label will be painted using the given color.
          *   <li>When the {@link PlaceMarker} is displayed on the list, the color will be applied
-         *       if the content is a label. A label rendered inside a map's pin cannot be color
+         *       if the content is a label. A label rendered inside a map's pin cannot be colored
          *       and will always use the default color as chosen by the host.
          * </ul>
          *
@@ -263,7 +265,7 @@ public final class PlaceMarker {
          * Constructs the {@link PlaceMarker} defined by this builder.
          *
          * @throws IllegalStateException if the icon is of the type {@link #TYPE_IMAGE} and a a
-         *                               color is set.
+         *                               color is set
          */
         @NonNull
         public PlaceMarker build() {

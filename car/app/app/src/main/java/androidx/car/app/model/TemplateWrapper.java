@@ -50,13 +50,10 @@ public final class TemplateWrapper {
     @Keep
     private List<TemplateInfo> mTemplateInfoForScreenStack = new ArrayList<>();
 
-    /** The current step in a task that the template is in. For internal, host-side use only. */
+    /** The current step in a task that the template is in. */
     private int mCurrentTaskStep;
 
-    /**
-     * Whether the template wrapper is a refresh of the current template. For internal, host-side
-     * use only.
-     */
+    /** Whether the template wrapper is a refresh of the current template. */
     private boolean mIsRefresh;
 
     /**
@@ -83,14 +80,12 @@ public final class TemplateWrapper {
      * Creates a {@link TemplateWrapper} instance with the given {@link Template} and ID.
      *
      * <p>The ID is primarily used to inform the host that the given {@link Template} shares the
-     * same
-     * ID as a previously sent {@link Template}, even though their contents differ. In such
-     * cases, the
-     * host will reset the task step to where the previous {@link Template} was.
+     * same ID as a previously sent {@link Template}, even though their contents differ. In such
+     * cases, the host will reset the task step to where the previous {@link Template} was.
      *
-     * <p>For example, the client sends Template A (task step 1), then move forwards a screen and
-     * sends Template B (task step 2). Now the client pops the screen and sends Template C. By
-     * assigning the ID of Template A to Template C, the client library informs the host that it
+     * <p>For example, the client sends template A (task step 1), then move forwards a screen and
+     * sends template B (task step 2). Now the client pops the screen and sends template C. By
+     * assigning the ID of template A to template C, the client library informs the host that it
      * is a back operation and the task step should be set to 1 again.
      */
     @NonNull
@@ -132,24 +127,19 @@ public final class TemplateWrapper {
      * screen stack managed by the screen manager.
      *
      * <p>The return values are in order, where position 0 is the top of the stack, and position
-     * n is
-     * the bottom of the stack given n screens on the stack.
+     * n is the bottom of the stack given n screens on the stack.
      */
     @NonNull
     public List<TemplateInfo> getTemplateInfosForScreenStack() {
         return CollectionUtils.emptyIfNull(mTemplateInfoForScreenStack);
     }
 
-    /**
-     * Retrieves the current task step that the template is in. For internal, host-side use only.
-     */
+    /** Retrieves the current task step that the template is in. */
     public int getCurrentTaskStep() {
         return mCurrentTaskStep;
     }
 
-    /**
-     * Sets the current task step that the template is in. For internal, host-side use only.
-     */
+    /** Sets the current task step that the template is in. */
     public void setCurrentTaskStep(int currentTaskStep) {
         this.mCurrentTaskStep = currentTaskStep;
     }
@@ -164,18 +154,12 @@ public final class TemplateWrapper {
         return mIsRefresh;
     }
 
-    /**
-     * Updates the {@link Template} this {@link TemplateWrapper} instance wraps. For internal,
-     * host-side use only.
-     */
+    /** Updates the {@link Template} this {@link TemplateWrapper} instance wraps. */
     public void setTemplate(@NonNull Template template) {
         this.mTemplate = template;
     }
 
-    /**
-     * Updates the ID associated with the wrapped {@link Template}. For internal, host-side use
-     * only.
-     */
+    /** Updates the ID associated with the wrapped {@link Template}. */
     public void setId(@NonNull String id) {
         this.mId = id;
     }

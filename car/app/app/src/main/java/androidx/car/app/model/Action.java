@@ -134,8 +134,10 @@ public final class Action {
     private final int mType;
 
     /**
-     * Returns the title displayed in the action, or {@code null} if the action does not have a
+     * Returns the title displayed in the action or {@code null} if the action does not have a
      * title.
+     *
+     * @see Builder#setTitle(CharSequence)
      */
     @Nullable
     public CarText getTitle() {
@@ -143,8 +145,10 @@ public final class Action {
     }
 
     /**
-     * Returns the {@link CarIcon} to displayed in the action, or {@code null} if the action does
+     * Returns the {@link CarIcon} to display in the action or {@code null} if the action does
      * not have an icon.
+     *
+     * @see Builder#setIcon(CarIcon)
      */
     @Nullable
     public CarIcon getIcon() {
@@ -153,6 +157,8 @@ public final class Action {
 
     /**
      * Returns the {@link CarColor} used for the background color of the action.
+     *
+     * @see Builder#setBackgroundColor(CarColor)
      */
     @Nullable
     public CarColor getBackgroundColor() {
@@ -338,7 +344,6 @@ public final class Action {
          *
          * @param backgroundColor the {@link CarColor} to set as background. Use {@link
          *                        CarColor#DEFAULT} to let the host pick a default
-         *
          * @throws IllegalArgumentException if {@code backgroundColor} is not a standard color
          * @throws NullPointerException     if {@code backgroundColor} is {@code null}
          */

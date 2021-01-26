@@ -70,33 +70,65 @@ public final class ListTemplate implements Template {
     @Nullable
     private final ActionStrip mActionStrip;
 
-    public boolean isLoading() {
-        return mIsLoading;
-    }
-
+    /**
+     * Returns the title of the template or {@code null} if not set.
+     *
+     * @see Builder#setTitle(CharSequence)
+     */
     @Nullable
     public CarText getTitle() {
         return mTitle;
     }
 
+    /**
+     * Returns the {@link Action} that is set to be displayed in the header of the template, or
+     * {@code null} if not set.
+     *
+     * @see Builder#setHeaderAction(Action)
+     */
     @Nullable
     public Action getHeaderAction() {
         return mHeaderAction;
     }
 
+    /**
+     * Returns the {@link ActionStrip} for this template or {@code null} if not set.
+     *
+     * @see Builder#setActionStrip(ActionStrip)
+     */
+    @Nullable
+    public ActionStrip getActionStrip() {
+        return mActionStrip;
+    }
+
+    /**
+     * Returns whether the template is loading.
+     *
+     * @see Builder#setLoading(boolean)
+     */
+    public boolean isLoading() {
+        return mIsLoading;
+    }
+
+    /**
+     * Returns the {@link ItemList} instance containing the list of items to display or {@code
+     * null} if one hasn't been set.
+     *
+     * @see Builder#setSingleList(ItemList)
+     */
     @Nullable
     public ItemList getSingleList() {
         return mSingleList;
     }
 
+    /**
+     * Returns the list of {@link SectionedItemList} instances to be displayed in the template.
+     *
+     * @see Builder#addSectionedList(SectionedItemList)
+     */
     @NonNull
     public List<SectionedItemList> getSectionedLists() {
         return CollectionUtils.emptyIfNull(mSectionedLists);
-    }
-
-    @Nullable
-    public ActionStrip getActionStrip() {
-        return mActionStrip;
     }
 
     @NonNull
@@ -221,8 +253,7 @@ public final class ListTemplate implements Template {
          * <p>Note that this list cannot be mixed with others added via {@link #addSectionedList}
          * . If multiple lists were previously added, they will be cleared.
          *
-         * @throws NullPointerException if {@code list} is null.
-         * @see #addSectionedList
+         * @throws NullPointerException if {@code list} is null
          */
         @NonNull
         public Builder setSingleList(@NonNull ItemList list) {
@@ -244,11 +275,11 @@ public final class ListTemplate implements Template {
          * {@link ItemList.OnSelectedListener}, then it cannot be added alongside other
          * {@link SectionedItemList}(s).
          *
-         * @throws NullPointerException     if {@code list} or {@code header} is {@code null}.
+         * @throws NullPointerException     if {@code list} or {@code header} is {@code null}
          * @throws IllegalArgumentException if {@code list} is empty, if {@code list}'s {@link
          *                                  ItemList.OnItemVisibilityChangedListener} is set, if
          *                                  {@code header} is empty, or if a selectable list is
-         *                                  added alongside other lists.
+         *                                  added alongside other lists
          */
         @NonNull
         public Builder addSectionedList(@NonNull SectionedItemList list) {
@@ -279,7 +310,7 @@ public final class ListTemplate implements Template {
         }
 
         /**
-         * Sets the {@link ActionStrip} for this template, or {@code null} to not display an {@link
+         * Sets the {@link ActionStrip} for this template or {@code null} to not display an {@link
          * ActionStrip}.
          *
          * <p>Unless set with this method, the template will not have an action strip.
@@ -290,7 +321,7 @@ public final class ListTemplate implements Template {
          * {@link Action}s, one of them can contain a title as set via
          * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
          *
-         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements.
+         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @NonNull
@@ -313,9 +344,9 @@ public final class ListTemplate implements Template {
          *
          * @throws IllegalStateException    if the template is in a loading state but there are
          *                                  lists added or vice versa, or if the template does
-         *                                  not have either a title or header {@link Action} set.
+         *                                  not have either a title or header {@link Action} set
          * @throws IllegalArgumentException if the added {@link ItemList}(s) do not meet the
-         *                                  template's requirements.
+         *                                  template's requirements
          */
         @NonNull
         public ListTemplate build() {

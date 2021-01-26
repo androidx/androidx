@@ -33,6 +33,11 @@ public final class Metadata {
     @Nullable
     private final Place mPlace;
 
+    /**
+     * Returns a {@link Place} instance set in the metadata.
+     *
+     * @see Builder#setPlace(Place)
+     */
     @Nullable
     public Place getPlace() {
         return mPlace;
@@ -72,7 +77,7 @@ public final class Metadata {
 
         /**
          * Sets a {@link Place} used for showing {@link Distance} and {@link PlaceMarker}
-         * information, or {@code null} if no {@link Place} information is available.
+         * information.
          *
          * @throws NullPointerException if {@code place} is {@code null}
          */
@@ -97,7 +102,7 @@ public final class Metadata {
         /**
          * Returns a new {@link Builder} with the data from the given {@link Metadata} instance.
          *
-         * @throws NullPointerException if {@code icon} is {@code null}.
+         * @throws NullPointerException if {@code icon} is {@code null}
          */
         public Builder(@NonNull Metadata metadata) {
             this.mPlace = requireNonNull(metadata).getPlace();

@@ -53,7 +53,7 @@ public final class SearchTemplate implements Template {
          * these updates is not guaranteed to be after every individual keystroke. The host may
          * decide to wait for several keystrokes before sending a single update.
          *
-         * @param searchText the current search text that the user has typed.
+         * @param searchText the current search text that the user has typed
          */
         void onSearchTextChanged(@NonNull String searchText);
 
@@ -61,7 +61,7 @@ public final class SearchTemplate implements Template {
          * Notifies that the user has submitted the search and the given {@code searchText} is
          * the final term.
          *
-         * @param searchText the search text that the user typed.
+         * @param searchText the search text that the user typed
          */
         void onSearchSubmitted(@NonNull String searchText);
     }
@@ -88,21 +88,34 @@ public final class SearchTemplate implements Template {
     @Nullable
     private final ActionStrip mActionStrip;
 
-    public boolean isLoading() {
-        return mIsLoading;
-    }
-
+    /**
+     * Returns the {@link Action} that is set to be displayed in the header of the template, or
+     * {@code null} if not set.
+     *
+     * @see Builder#setHeaderAction(Action)
+     */
     @Nullable
     public Action getHeaderAction() {
         return mHeaderAction;
     }
 
     /**
-     * Returns the {@link ActionStrip} instance set in the template.
+     * Returns the {@link ActionStrip} for this template or {@code null} if not set.
+     *
+     * @see Builder#setActionStrip(ActionStrip)
      */
     @Nullable
     public ActionStrip getActionStrip() {
         return mActionStrip;
+    }
+
+    /**
+     * Returns whether the template is loading.
+     *
+     * @see Builder#setLoading(boolean)
+     */
+    public boolean isLoading() {
+        return mIsLoading;
     }
 
     /**
@@ -126,7 +139,7 @@ public final class SearchTemplate implements Template {
     }
 
     /**
-     * Returns the optional {@link ItemList} for search results.
+     * Returns the {@link ItemList} for search results or {@code null} if not set.
      *
      * @see Builder#getItemList
      */
@@ -136,7 +149,8 @@ public final class SearchTemplate implements Template {
     }
 
     /**
-     * Returns the {@link SearchCallbackDelegate} for search callbacks.
+     * Returns the {@link SearchCallbackDelegate} for search callbacks or {@code null} if one is
+     * not set.
      */
     @Nullable
     public SearchCallbackDelegate getSearchCallbackDelegate() {
@@ -230,8 +244,7 @@ public final class SearchTemplate implements Template {
         ActionStrip mActionStrip;
 
         /**
-         * Sets the {@link Action} that will be displayed in the header of the template, or
-         * {@code null} to not display an action.
+         * Sets the {@link Action} that will be displayed in the header of the template.
          *
          * <p>Unless set with this method, the template will not have a header action.
          *
@@ -253,8 +266,7 @@ public final class SearchTemplate implements Template {
         }
 
         /**
-         * Sets the {@link ActionStrip} for this template, or {@code null} to not display an {@link
-         * ActionStrip}.
+         * Sets the {@link ActionStrip} for this template.
          *
          * <p>Unless set with this method, the template will not have an action strip.
          *
@@ -264,7 +276,7 @@ public final class SearchTemplate implements Template {
          * {@link Action}s, one of them can contain a title as set via
          * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
          *
-         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements.
+         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @NonNull
@@ -276,6 +288,7 @@ public final class SearchTemplate implements Template {
 
         /**
          * Sets the initial search text to display in the search box.
+         *
          * @throws NullPointerException if {@code initialSearchText} is {@code null}
          */
         @NonNull
@@ -287,7 +300,7 @@ public final class SearchTemplate implements Template {
         /**
          * Sets the text hint to display in the search box when it is empty.
          *
-         * <p>The host will use a default search hint if one is not set with this method.
+         * <p>The host will use a default search hint if not set with this method.
          *
          * <p>This is not the actual search text, and will disappear if user types any value into
          * the search.
@@ -358,7 +371,7 @@ public final class SearchTemplate implements Template {
          * Constructs the {@link SearchTemplate} model.
          *
          * @throws IllegalArgumentException if the template is in a loading state but the list is
-         *                                  set.
+         *                                  set
          */
         @NonNull
         public SearchTemplate build() {
@@ -377,7 +390,7 @@ public final class SearchTemplate implements Template {
          * using {@link Looper#getMainLooper()}.
          *
          * @param callback the callback to be invoked for events such as when the user types new
-         *                 text, or submits a search.
+         *                 text, or submits a search
          */
         @SuppressLint("ExecutorRegistration")
         public Builder(@NonNull SearchCallback callback) {
