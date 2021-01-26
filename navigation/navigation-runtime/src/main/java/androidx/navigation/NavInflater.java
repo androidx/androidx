@@ -244,9 +244,15 @@ public final class NavInflater {
                     default:
                         if (value.type >= TypedValue.TYPE_FIRST_INT
                                 && value.type <= TypedValue.TYPE_LAST_INT) {
-                            navType = checkNavType(value, navType, NavType.IntType,
-                                    argType, "integer");
-                            defaultValue = value.data;
+                            if (navType == NavType.FloatType) {
+                                navType = checkNavType(value, navType, NavType.FloatType,
+                                        argType, "float");
+                                defaultValue = (float) value.data;
+                            } else {
+                                navType = checkNavType(value, navType, NavType.IntType,
+                                        argType, "integer");
+                                defaultValue = value.data;
+                            }
                         } else {
                             throw new XmlPullParserException(
                                     "unsupported argument type " + value.type);
