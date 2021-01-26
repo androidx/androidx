@@ -62,10 +62,11 @@ public interface EditorSession {
     public val watchFaceComponentName: ComponentName
 
     /**
-     * The instance id of the watch face being edited. Note each distinct [ComponentName] can have
+     * Unique ID for the instance of the watch face being edited, only defined for Android R and
+     * beyond, it's `null` on Android P and earlier. Note each distinct [ComponentName] can have
      * multiple instances.
      */
-    public val instanceId: String
+    public val instanceId: String?
 
     /** The current [UserStyle]. Assigning to this will cause the style to update. */
     public var userStyle: UserStyle
@@ -398,7 +399,7 @@ internal abstract class BaseEditorSession(
 internal class OnWatchFaceEditorSessionImpl(
     activity: ComponentActivity,
     override val watchFaceComponentName: ComponentName,
-    override val instanceId: String,
+    override val instanceId: String?,
     initialEditorUserStyle: Map<String, String>?,
     private val editorDelegate: WatchFace.EditorDelegate,
     providerInfoRetrieverProvider: ProviderInfoRetrieverProvider
@@ -456,7 +457,7 @@ internal class HeadlessEditorSession(
     activity: ComponentActivity,
     private val headlessWatchFaceClient: HeadlessWatchFaceClient,
     override val watchFaceComponentName: ComponentName,
-    override val instanceId: String,
+    override val instanceId: String?,
     initialUserStyle: Map<String, String>,
     providerInfoRetrieverProvider: ProviderInfoRetrieverProvider
 ) : BaseEditorSession(activity, providerInfoRetrieverProvider) {
@@ -522,12 +523,12 @@ public fun Activity.setWatchRequestResult(editorSession: EditorSession) {
         Activity.RESULT_OK,
         Intent().apply {
             putExtra(
-                EditorResult.USER_STYLE_KEY,
+                USER_STYLE_KEY,
                 ParcelUtils.toParcelable(editorSession.userStyle.toWireFormat())
             )
             val data = editorSession.complicationPreviewData.get()
             putExtra(
-                EditorResult.PREVIEW_COMPLICATIONS_KEY,
+                PREVIEW_COMPLICATIONS_KEY,
                 data.map {
                     ParcelUtils.toParcelable(
                         IdAndComplicationDataWireFormat(
@@ -537,6 +538,7 @@ public fun Activity.setWatchRequestResult(editorSession: EditorSession) {
                     )
                 }.toTypedArray()
             )
+            putExtra(INSTANCE_ID_KEY, editorSession.instanceId)
         }
     )
 }
