@@ -109,7 +109,7 @@ fun runProcessorTest(
  */
 fun runJavaProcessorTest(
     sources: List<Source>,
-    classpath: List<File>,
+    classpath: List<File> = emptyList(),
     handler: (XTestInvocation) -> Unit
 ) {
     runTests(

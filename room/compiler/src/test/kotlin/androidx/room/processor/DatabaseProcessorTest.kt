@@ -20,7 +20,6 @@ import COMMON
 import androidx.room.RoomProcessor
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table

@@ -15,6 +15,7 @@
  */
 package androidx.room.compiler.processing
 
+import androidx.annotation.VisibleForTesting
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.javac.JavacRoundEnv
 import javax.annotation.processing.AbstractProcessor
@@ -27,6 +28,7 @@ import javax.lang.model.element.TypeElement
  * This is only used in tests, the main processor uses an API similar to the processing step
  * in Auto Common.
  */
+@VisibleForTesting
 abstract class JavacTestProcessor : AbstractProcessor() {
     val xProcessingEnv by lazy {
         // lazily create this as it is not available on construction time

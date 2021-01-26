@@ -25,7 +25,6 @@ import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.SupportDbTypeNames
-import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVED
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor

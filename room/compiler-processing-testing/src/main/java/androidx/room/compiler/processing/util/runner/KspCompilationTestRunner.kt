@@ -76,7 +76,11 @@ internal object KspCompilationTestRunner : CompilationTestRunner {
             delegate = result,
             processor = syntheticKspProcessor,
             successfulCompilation = result.exitCode == KotlinCompilation.ExitCode.OK &&
-                !hasErrorDiagnostics
+                !hasErrorDiagnostics,
+            outputSourceDirs = listOf(
+                kspCompilation.kspJavaSourceDir,
+                kspCompilation.kspKotlinSourceDir
+            )
         )
     }
 
