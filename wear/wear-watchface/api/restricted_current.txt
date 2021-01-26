@@ -235,12 +235,12 @@ package androidx.wear.watchface {
   public final class WatchFace {
     ctor public WatchFace(int watchFaceType, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.Renderer renderer, androidx.wear.watchface.ComplicationsManager complicationsManager);
     ctor public WatchFace(int watchFaceType, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.Renderer renderer);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.watchface.WatchFace.EditorDelegate? getEditorDelegate(android.content.ComponentName componentName);
     method public androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle getLegacyWatchFaceStyle();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread public static kotlinx.coroutines.CompletableDeferred<androidx.wear.watchface.WatchFace.EditorDelegate> getOrCreateEditorDelegate(android.content.ComponentName componentName);
     method public Long? getOverridePreviewReferenceTimeMillis();
     method public androidx.wear.watchface.style.UserStyleRepository getUserStyleRepository();
     method public static boolean isLegacyWatchFaceOverlayStyleSupported();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static void registerEditorDelegate(android.content.ComponentName componentName, androidx.wear.watchface.WatchFace.EditorDelegate editorDelegate);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread public static void registerEditorDelegate(android.content.ComponentName componentName, androidx.wear.watchface.WatchFace.EditorDelegate editorDelegate);
     method public androidx.wear.watchface.WatchFace setLegacyWatchFaceStyle(androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle);
     method public androidx.wear.watchface.WatchFace setOverridePreviewReferenceTimeMillis(@IntRange(from=0) long previewReferenceTimeMillis);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.watchface.WatchFace setSystemTimeProvider(androidx.wear.watchface.WatchFace.SystemTimeProvider systemTimeProvider);
@@ -252,9 +252,9 @@ package androidx.wear.watchface {
   }
 
   public static final class WatchFace.Companion {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.watchface.WatchFace.EditorDelegate? getEditorDelegate(android.content.ComponentName componentName);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread public kotlinx.coroutines.CompletableDeferred<androidx.wear.watchface.WatchFace.EditorDelegate> getOrCreateEditorDelegate(android.content.ComponentName componentName);
     method public boolean isLegacyWatchFaceOverlayStyleSupported();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void registerEditorDelegate(android.content.ComponentName componentName, androidx.wear.watchface.WatchFace.EditorDelegate editorDelegate);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @UiThread public void registerEditorDelegate(android.content.ComponentName componentName, androidx.wear.watchface.WatchFace.EditorDelegate editorDelegate);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface WatchFace.EditorDelegate {
@@ -262,6 +262,7 @@ package androidx.wear.watchface {
     method public long getPreviewReferenceTimeMillis();
     method public android.graphics.Rect getScreenBounds();
     method public androidx.wear.watchface.style.UserStyleRepository getUserStyleRepository();
+    method public void onDestroy();
     method public android.graphics.Bitmap takeScreenshot(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
     property public abstract androidx.wear.watchface.ComplicationsManager complicationsManager;
     property public abstract long previewReferenceTimeMillis;
