@@ -56,6 +56,8 @@ internal val ACTION_ONLY_NAV_DIRECTION_CLASSNAME: ClassName =
 internal val NAV_ARGS_CLASSNAME: ClassName = ClassName.get("androidx.navigation", "NavArgs")
 internal val HASHMAP_CLASSNAME: ClassName = ClassName.get("java.util", "HashMap")
 internal val BUNDLE_CLASSNAME: ClassName = ClassName.get("android.os", "Bundle")
+internal val SAVED_STATE_HANDLE_CLASSNAME: ClassName =
+    ClassName.get("androidx.lifecycle", "SavedStateHandle")
 internal val PARCELABLE_CLASSNAME = ClassName.get("android.os", "Parcelable")
 internal val SERIALIZABLE_CLASSNAME = ClassName.get("java.io", "Serializable")
 internal val SYSTEM_CLASSNAME = ClassName.get("java.lang", "System")
