@@ -20,8 +20,10 @@ package androidx.wear.watchface.editor {
   }
 
   public final class EditorResult {
-    ctor public EditorResult(java.util.Map<java.lang.String,java.lang.String> userStyle);
+    ctor public EditorResult(java.util.Map<java.lang.String,java.lang.String> userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData> previewComplicationData);
+    method public java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> getPreviewComplicationData();
     method public java.util.Map<java.lang.String,java.lang.String> getUserStyle();
+    property public final java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> previewComplicationData;
     property public final java.util.Map<java.lang.String,java.lang.String> userStyle;
   }
 

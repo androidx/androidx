@@ -45,6 +45,7 @@ import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.client.ComplicationState
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.data.ComplicationBoundsType
+import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import com.google.common.util.concurrent.ListenableFuture
@@ -131,6 +132,18 @@ public interface EditorSession {
 
             /** [Intent] sent by SysUI to launch the editing session. */
             editIntent: Intent
+        ): EditorSession? = createOnWatchEditingSessionImpl(
+            activity,
+            editIntent,
+            object : ProviderInfoRetrieverProvider {
+                override fun getProviderInfoRetriever() = ProviderInfoRetriever(activity)
+            }
+        )
+
+        internal fun createOnWatchEditingSessionImpl(
+            activity: ComponentActivity,
+            editIntent: Intent,
+            providerInfoRetrieverProvider: ProviderInfoRetrieverProvider
         ): EditorSession? =
             EditorRequest.createFromIntent(editIntent)?.let { editorRequest ->
                 WatchFace.getEditorDelegate(editorRequest.watchFaceComponentName)?.let {
@@ -139,7 +152,8 @@ public interface EditorSession {
                         editorRequest.watchFaceComponentName,
                         editorRequest.watchFaceInstanceId,
                         editorRequest.initialUserStyle,
-                        it
+                        it,
+                        providerInfoRetrieverProvider
                     )
                 }
             }
@@ -163,14 +177,23 @@ public interface EditorSession {
                     headlessWatchFaceClient,
                     it.watchFaceComponentName,
                     it.watchFaceInstanceId,
-                    it.initialUserStyle!!
+                    it.initialUserStyle!!,
+                    object : ProviderInfoRetrieverProvider {
+                        override fun getProviderInfoRetriever() = ProviderInfoRetriever(activity)
+                    }
                 )
             }
     }
 }
 
+// Helps inject mock ProviderInfoRetrievers for testing.
+internal interface ProviderInfoRetrieverProvider {
+    fun getProviderInfoRetriever(): ProviderInfoRetriever
+}
+
 internal abstract class BaseEditorSession(
     protected val activity: ComponentActivity,
+    protected val providerInfoRetrieverProvider: ProviderInfoRetrieverProvider
 ) : EditorSession {
 
     // NB this map is only modified on the UI thread.
@@ -178,11 +201,8 @@ internal abstract class BaseEditorSession(
 
     // This future is resolved when [fetchComplicationPreviewData] has called [getPreviewData] for
     // each complication and each of those future has been resolved.
-    private val complicationPreviewDataFuture =
-        ResolvableFuture.create<Map<Int, ComplicationData>>()
-
     override val complicationPreviewData: ResolvableFuture<Map<Int, ComplicationData>> =
-        complicationPreviewDataFuture
+        ResolvableFuture.create<Map<Int, ComplicationData>>()
 
     // The future returned by [launchComplicationProviderChooser].
     private var pendingFuture: ResolvableFuture<Boolean>? = null
@@ -205,7 +225,7 @@ internal abstract class BaseEditorSession(
         activity.registerForActivityResult(ComplicationProviderChooserContract()) {
             if (it != null) {
                 // Update preview data and then resolve [pendingFuture].
-                val providerInfoRetriever = ProviderInfoRetriever(activity)
+                val providerInfoRetriever = providerInfoRetrieverProvider.getProviderInfoRetriever()
                 val previewDataListener = getPreviewData(
                     providerInfoRetriever,
                     it.providerInfo
@@ -329,7 +349,7 @@ internal abstract class BaseEditorSession(
     }
 
     protected fun fetchComplicationPreviewData() {
-        val providerInfoRetriever = ProviderInfoRetriever(activity)
+        val providerInfoRetriever = providerInfoRetrieverProvider.getProviderInfoRetriever()
         val providerInfoFuture = providerInfoRetriever.retrieveProviderInfo(
             watchFaceComponentName,
             complicationState.keys.toIntArray()
@@ -337,32 +357,37 @@ internal abstract class BaseEditorSession(
         providerInfoFuture.addListener(
             {
                 providerInfoFuture.get()?.let {
-                    // We can use a regular int here because we use [mainThreadExecutor].
+                    // We can use a regular int here (instead of e.g. an atomic) because we use
+                    // [mainThreadExecutor].
                     var countDown = it.size
-                    for (providerInfo in it) {
-                        val previewDataListener = getPreviewData(
-                            providerInfoRetriever,
-                            providerInfo.info
-                        )
-                        previewDataListener.addListener(
-                            {
-                                previewDataListener.get()?.let { previewData ->
-                                    complicationPreviewDataInternal[
-                                        providerInfo.watchFaceComplicationId
-                                    ] = previewData
-                                }
-                                // If we've generated preview data for all the complications we can
-                                // resolve the future.
-                                if (--countDown == 0) {
-                                    complicationPreviewDataFuture.set(
-                                        complicationPreviewDataInternal
-                                    )
-                                }
-                            },
-                            mainThreadExecutor
-                        )
+                    if (countDown == 0) {
+                        complicationPreviewData.set(emptyMap())
+                    } else {
+                        for (providerInfo in it) {
+                            val previewDataListener = getPreviewData(
+                                providerInfoRetriever,
+                                providerInfo.info
+                            )
+                            previewDataListener.addListener(
+                                {
+                                    previewDataListener.get()?.let { previewData ->
+                                        complicationPreviewDataInternal[
+                                            providerInfo.watchFaceComplicationId
+                                        ] = previewData
+                                    }
+                                    // If we've generated preview data for all the complications we can
+                                    // resolve the future.
+                                    if (--countDown == 0) {
+                                        complicationPreviewData.set(
+                                            complicationPreviewDataInternal
+                                        )
+                                    }
+                                },
+                                mainThreadExecutor
+                            )
+                        }
                     }
-                }
+                } ?: complicationPreviewData.set(emptyMap())
                 providerInfoRetriever.close()
             },
             { runnable -> runnable.run() }
@@ -375,8 +400,9 @@ internal class OnWatchFaceEditorSessionImpl(
     override val watchFaceComponentName: ComponentName,
     override val instanceId: String,
     initialEditorUserStyle: Map<String, String>?,
-    private val editorDelegate: WatchFace.EditorDelegate
-) : BaseEditorSession(activity) {
+    private val editorDelegate: WatchFace.EditorDelegate,
+    providerInfoRetrieverProvider: ProviderInfoRetrieverProvider
+) : BaseEditorSession(activity, providerInfoRetrieverProvider) {
     override val userStyleSchema = editorDelegate.userStyleRepository.schema
 
     override val previewReferenceTimeMillis = editorDelegate.previewReferenceTimeMillis
@@ -431,8 +457,9 @@ internal class HeadlessEditorSession(
     private val headlessWatchFaceClient: HeadlessWatchFaceClient,
     override val watchFaceComponentName: ComponentName,
     override val instanceId: String,
-    initialUserStyle: Map<String, String>
-) : BaseEditorSession(activity) {
+    initialUserStyle: Map<String, String>,
+    providerInfoRetrieverProvider: ProviderInfoRetrieverProvider
+) : BaseEditorSession(activity, providerInfoRetrieverProvider) {
     override val userStyleSchema = headlessWatchFaceClient.userStyleSchema
 
     override var userStyle = UserStyle(initialUserStyle, userStyleSchema)
@@ -497,6 +524,18 @@ public fun Activity.setWatchRequestResult(editorSession: EditorSession) {
             putExtra(
                 EditorResult.USER_STYLE_KEY,
                 ParcelUtils.toParcelable(editorSession.userStyle.toWireFormat())
+            )
+            val data = editorSession.complicationPreviewData.get()
+            putExtra(
+                EditorResult.PREVIEW_COMPLICATIONS_KEY,
+                data.map {
+                    ParcelUtils.toParcelable(
+                        IdAndComplicationDataWireFormat(
+                            it.key,
+                            it.value.asWireComplicationData()
+                        )
+                    )
+                }.toTypedArray()
             )
         }
     )

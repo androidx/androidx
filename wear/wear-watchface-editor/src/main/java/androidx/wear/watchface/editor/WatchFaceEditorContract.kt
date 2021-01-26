@@ -23,6 +23,9 @@ import android.content.Intent
 import android.support.wearable.watchface.Constants
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.versionedparcelable.ParcelUtils
+import androidx.wear.complications.data.ComplicationData
+import androidx.wear.complications.data.asApiComplicationData
+import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 
@@ -89,10 +92,17 @@ public class EditorRequest(
  */
 public class EditorResult(
     /** The updated style, see [UserStyle]. */
-    public val userStyle: Map<String, String>
+    public val userStyle: Map<String, String>,
+
+    /**
+     * The preview [ComplicationData] used by the editor, which can be used by a headless client to
+     * take an updated screen shot.
+     */
+    public val previewComplicationData: Map<Int, ComplicationData>
 ) {
     internal companion object {
         internal const val USER_STYLE_KEY: String = "USER_STYLE_KEY"
+        internal const val PREVIEW_COMPLICATIONS_KEY: String = "PREVIEW_COMPLICATIONS_KEY"
     }
 }
 
@@ -122,9 +132,20 @@ public open class WatchFaceEditorContract : ActivityResultContract<EditorRequest
         val extras = intent!!.extras!!
         extras.classLoader = this::class.java.classLoader
         return EditorResult(
+            // Unmarshall the UserStyle.
             ParcelUtils.fromParcelable<UserStyleWireFormat>(
                 extras.getParcelable(EditorResult.USER_STYLE_KEY)!!
-            ).mUserStyle
+            ).mUserStyle,
+
+            // Unmarshall the preview Map<Int, ComplicationData>.
+            extras.getParcelableArray(EditorResult.PREVIEW_COMPLICATIONS_KEY)?.let {
+                it.map {
+                    ParcelUtils.fromParcelable<IdAndComplicationDataWireFormat>(it)
+                }.associateBy(
+                    { it.id },
+                    { it.complicationData.asApiComplicationData() }
+                )
+            } ?: emptyMap()
         )
     }
 }
