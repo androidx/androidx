@@ -674,6 +674,23 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     /**
+     * Save the back stack. While this functions similarly to
+     * {@link #popBackStack(String, int)}, it <strong>does not</strong> throw away the
+     * state of any fragments that were added through those transactions. Instead, the
+     * back stack that is saved by this method can later be restored with its state
+     * in tact.
+     * <p>
+     * This function is asynchronous -- it enqueues the
+     * request to pop, but the action will not be performed until the application
+     * returns to its event loop.
+     *
+     * @param name The name set by {@link FragmentTransaction#addToBackStack(String)}.
+     */
+    public void saveBackStack(@NonNull String name) {
+        enqueueAction(new SaveBackStackState(name), false);
+    }
+
+    /**
      * Pop the top state off the back stack. This function is asynchronous -- it enqueues the
      * request to pop, but the action will not be performed until the application
      * returns to its event loop.
@@ -2557,19 +2574,56 @@ public abstract class FragmentManager implements FragmentResultOwner {
         mBackStack.add(state);
     }
 
+    boolean saveBackStackState(@NonNull ArrayList<BackStackRecord> records,
+            @NonNull ArrayList<Boolean> isRecordPop, @NonNull String name) {
+        int index = findBackStackIndex(name, -1, true);
+        if (index < 0) {
+            return false;
+        }
+        for (int i = mBackStack.size() - 1; i >= index; i--) {
+            // TODO: Pre-process each BackStackRecord so that they actually save state
+            records.add(mBackStack.remove(i));
+            isRecordPop.add(true);
+        }
+        return true;
+    }
+
     @SuppressWarnings({"unused", "WeakerAccess"}) /* synthetic access */
     boolean popBackStackState(@NonNull ArrayList<BackStackRecord> records,
             @NonNull ArrayList<Boolean> isRecordPop, @Nullable String name, int id, int flags) {
-        if (mBackStack == null) {
+        int index = findBackStackIndex(name, id, (flags & POP_BACK_STACK_INCLUSIVE) != 0);
+        if (index < 0) {
             return false;
         }
-        if (name == null && id < 0 && (flags & POP_BACK_STACK_INCLUSIVE) == 0) {
-            int last = mBackStack.size() - 1;
-            if (last < 0) {
-                return false;
-            }
-            records.add(mBackStack.remove(last));
+        for (int i = mBackStack.size() - 1; i >= index; i--) {
+            records.add(mBackStack.remove(i));
             isRecordPop.add(true);
+        }
+        return true;
+    }
+
+    /**
+     * Find the index in the back stack associated with the given name / id.
+     * <p>
+     * When <code>inclusive</code> is <code>true</code>, the index of the matching record
+     * will be returned. When it is <code>false</code>, the index of the record directly
+     * after it will be returned. In cases where you are doing an inclusive search and
+     * multiple records have the same name / id, the index returned includes all
+     * consecutive matches following the first match.
+     *
+     * @param name The name set via {@link FragmentTransaction#addToBackStack(String)}. Use
+     *             <code>null</code> if you do not want to search by name.
+     * @param id The id returned by {@link FragmentTransaction#commit()}. Use
+     *           <code>-1</code> if you do not want to search by id.
+     * @param inclusive Whether to include the record specified by name or id.
+     * @return
+     */
+    private int findBackStackIndex(@Nullable String name, int id, boolean inclusive) {
+        if (mBackStack == null || mBackStack.isEmpty()) {
+            return -1;
+        }
+        if (name == null && id < 0 && !inclusive) {
+            return mBackStack.size() - 1;
         } else {
             int index = -1;
             if (name != null || id >= 0) {
@@ -2587,13 +2641,12 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     index--;
                 }
                 if (index < 0) {
-                    return false;
+                    return index;
                 }
-                if ((flags & POP_BACK_STACK_INCLUSIVE) != 0) {
-                    index--;
+                if (inclusive) {
                     // Consume all following entries that match.
-                    while (index >= 0) {
-                        BackStackRecord bss = mBackStack.get(index);
+                    while (index > 0) {
+                        BackStackRecord bss = mBackStack.get(index - 1);
                         if ((name != null && name.equals(bss.getName()))
                                 || (id >= 0 && id == bss.mIndex)) {
                             index--;
@@ -2601,17 +2654,18 @@ public abstract class FragmentManager implements FragmentResultOwner {
                         }
                         break;
                     }
+                } else if (index == mBackStack.size() - 1) {
+                    // For a non-inclusive search, finding the last record
+                    // is the same as finding nothing at all since the
+                    // matching record itself is not included
+                    return -1;
+                } else {
+                    // Non-inclusive, so skip the actual matching record
+                    index++;
                 }
             }
-            if (index == mBackStack.size() - 1) {
-                return false;
-            }
-            for (int i = mBackStack.size() - 1; i > index; i--) {
-                records.add(mBackStack.remove(i));
-                isRecordPop.add(true);
-            }
+            return index;
         }
-        return true;
     }
 
     /**
@@ -3514,6 +3568,21 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 }
             }
             return popBackStackState(records, isRecordPop, mName, mId, mFlags);
+        }
+    }
+
+    private class SaveBackStackState implements OpGenerator {
+
+        private final String mName;
+
+        SaveBackStackState(@NonNull String name) {
+            mName = name;
+        }
+
+        @Override
+        public boolean generateOps(@NonNull ArrayList<BackStackRecord> records,
+                @NonNull ArrayList<Boolean> isRecordPop) {
+            return saveBackStackState(records, isRecordPop, mName);
         }
     }
 
