@@ -51,15 +51,15 @@ public class TripTest {
     private final Destination mDestination =
             new Destination.Builder().setName("Google BVE").setAddress("1120 112th Ave NE").build();
     private final TravelEstimate mStepTravelEstimate =
-            TravelEstimate.create(
+            new TravelEstimate.Builder(
                     Distance.create(/* displayDistance= */ 10, Distance.UNIT_KILOMETERS),
-                    TimeUnit.HOURS.toSeconds(1),
-                    createDateTimeWithZone("2020-04-14T15:57:00", "US/Pacific"));
+                    createDateTimeWithZone("2020-04-14T15:57:00", "US/Pacific"))
+                    .setRemainingTimeSeconds(TimeUnit.HOURS.toSeconds(1)).build();
     private final TravelEstimate mDestinationTravelEstimate =
-            TravelEstimate.create(
+            new TravelEstimate.Builder(
                     Distance.create(/* displayDistance= */ 100, Distance.UNIT_KILOMETERS),
-                    TimeUnit.HOURS.toSeconds(1),
-                    createDateTimeWithZone("2020-04-14T16:57:00", "US/Pacific"));
+                    createDateTimeWithZone("2020-04-14T16:57:00", "US/Pacific"))
+                    .setRemainingTimeSeconds(TimeUnit.HOURS.toSeconds(1)).build();
     private static final String ROAD = "State St.";
 
     @Test

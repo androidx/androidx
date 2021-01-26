@@ -928,8 +928,6 @@ package androidx.car.app.navigation.model {
   }
 
   public final class TravelEstimate {
-    method public static androidx.car.app.navigation.model.TravelEstimate create(androidx.car.app.model.Distance, long, androidx.car.app.model.DateTimeWithZone);
-    method @RequiresApi(26) public static androidx.car.app.navigation.model.TravelEstimate create(androidx.car.app.model.Distance, java.time.Duration, java.time.ZonedDateTime);
     method public androidx.car.app.model.DateTimeWithZone? getArrivalTimeAtDestination();
     method public androidx.car.app.model.Distance getRemainingDistance();
     method public androidx.car.app.model.CarColor getRemainingDistanceColor();
