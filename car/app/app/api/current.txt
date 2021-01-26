@@ -190,13 +190,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Action.Builder setTitle(CharSequence);
   }
 
-  public final class ActionList {
-    method public static androidx.car.app.model.ActionList create(java.util.List<androidx.car.app.model.Action!>);
-    method public java.util.List<androidx.car.app.model.Action!> getList();
-  }
-
   public final class ActionStrip {
-    method @Deprecated public java.util.List<androidx.car.app.model.Action!> getActionList();
     method public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.Action? getFirstActionOfType(int);
   }
@@ -416,7 +410,6 @@ package androidx.car.app.model {
   }
 
   public final class MessageTemplate implements androidx.car.app.model.Template {
-    method @Deprecated public java.util.List<androidx.car.app.model.Action!> getActionList();
     method public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.CarText? getDebugMessage();
     method public androidx.car.app.model.Action? getHeaderAction();
@@ -429,7 +422,6 @@ package androidx.car.app.model {
     ctor public MessageTemplate.Builder(CharSequence);
     method public androidx.car.app.model.MessageTemplate.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.MessageTemplate build();
-    method @Deprecated public androidx.car.app.model.MessageTemplate.Builder setActionList(java.util.List<androidx.car.app.model.Action!>);
     method public androidx.car.app.model.MessageTemplate.Builder setDebugMessage(Throwable);
     method public androidx.car.app.model.MessageTemplate.Builder setDebugMessage(String);
     method public androidx.car.app.model.MessageTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
@@ -488,7 +480,6 @@ package androidx.car.app.model {
   }
 
   public final class Pane {
-    method @Deprecated public java.util.List<androidx.car.app.model.Action!> getActionList();
     method public java.util.List<androidx.car.app.model.Action!> getActions();
     method @Deprecated public java.util.List<androidx.car.app.model.Row!> getRowList();
     method public java.util.List<androidx.car.app.model.Row!> getRows();
@@ -500,7 +491,6 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Pane.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.Pane.Builder addRow(androidx.car.app.model.Row);
     method public androidx.car.app.model.Pane build();
-    method @Deprecated public androidx.car.app.model.Pane.Builder setActionList(java.util.List<androidx.car.app.model.Action!>);
     method public androidx.car.app.model.Pane.Builder setLoading(boolean);
   }
 

@@ -86,16 +86,6 @@ public final class MessageTemplate implements Template {
         return mIcon;
     }
 
-    /**
-     * @deprecated use {@link #getActions()} instead.
-     */
-    // TODO(b/177276260): remove once {@link #getActions()} is used in the host.
-    @Deprecated
-    @NonNull
-    public List<Action> getActionList() {
-        return getActions();
-    }
-
     @NonNull
     public List<Action> getActions() {
         return mActionList;
@@ -258,29 +248,6 @@ public final class MessageTemplate implements Template {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
                     Collections.singletonList(requireNonNull(headerAction)));
             this.mHeaderAction = headerAction;
-            return this;
-        }
-
-        /**
-         * Sets a list of {@link Action}s to display along with the message.
-         *
-         * <p>Any actions above the maximum limit of 2 will be ignored.
-         *
-         * @throws NullPointerException if {@code actions} is {@code null}.
-         * @deprecated use {@link #addAction(Action)} instead.
-         */
-        // TODO(b/177276260): remove once {@link #addAction(Action)} is used in the host.
-        @Deprecated
-        @NonNull
-        public Builder setActionList(@NonNull List<Action> actions) {
-            requireNonNull(actions);
-            for (Action action : actions) {
-                if (action == null) {
-                    throw new IllegalArgumentException(
-                            "Disallowed null action found in action list");
-                }
-                addAction(action);
-            }
             return this;
         }
 
