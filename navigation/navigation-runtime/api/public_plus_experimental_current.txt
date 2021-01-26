@@ -112,11 +112,11 @@ package androidx.navigation {
   }
 
   public class NavHostController extends androidx.navigation.NavController {
-    ctor public NavHostController(android.content.Context);
-    method public final void enableOnBackPressed(boolean);
-    method public final void setLifecycleOwner(androidx.lifecycle.LifecycleOwner);
-    method public final void setOnBackPressedDispatcher(androidx.activity.OnBackPressedDispatcher);
-    method public final void setViewModelStore(androidx.lifecycle.ViewModelStore);
+    ctor public NavHostController(android.content.Context context);
+    method public final void enableOnBackPressed(boolean enabled);
+    method public final void setLifecycleOwner(androidx.lifecycle.LifecycleOwner owner);
+    method public final void setOnBackPressedDispatcher(androidx.activity.OnBackPressedDispatcher dispatcher);
+    method public final void setViewModelStore(androidx.lifecycle.ViewModelStore viewModelStore);
   }
 
   public final class NavInflater {
