@@ -18,8 +18,17 @@ package androidx.media2.test.service.tests;
 
 import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS;
 
+import static androidx.media2.session.MediaConstants.MEDIA_URI_AUTHORITY;
+import static androidx.media2.session.MediaConstants.MEDIA_URI_PATH_SET_MEDIA_URI;
+import static androidx.media2.session.MediaConstants.MEDIA_URI_QUERY_ID;
+import static androidx.media2.session.MediaConstants.MEDIA_URI_QUERY_QUERY;
+import static androidx.media2.session.MediaConstants.MEDIA_URI_QUERY_URI;
+import static androidx.media2.session.MediaConstants.MEDIA_URI_SCHEME;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.PendingIntent;
@@ -467,6 +476,303 @@ public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSess
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertTrue(mSessionCallback.mOnSetRatingCalled);
         assertEquals(rating2, MediaUtils.convertToRating(mSessionCallback.mRating));
+    }
+
+    @Test
+    public void setMediaUri_ignored() throws Exception {
+        if (!MediaTestUtils.isClientToT()) {
+            return;
+        }
+        RemoteMediaController controller = createControllerAndWaitConnection();
+        mSessionCallback.reset(1);
+
+        controller.setMediaUri(Uri.parse("androidx://test?test=xx"), /* extras= */ null);
+
+        assertFalse(mSessionCallback.await(TIMEOUT_MS));
+    }
+
+    @Test
+    public void setMediaUri_followedByPrepare_callsPrepareFromMediaId() throws Exception {
+        if (!MediaTestUtils.isClientToT()) {
+            return;
+        }
+        String testMediaId = "anyMediaId";
+        Bundle testExtras = new Bundle();
+        testExtras.putString("testKey", "testValue");
+
+        RemoteMediaController controller = createControllerAndWaitConnection();
+        mSessionCallback.reset(1);
+
+        controller.setMediaUri(
+                new Uri.Builder()
+                        .scheme(MEDIA_URI_SCHEME)
+                        .authority(MEDIA_URI_AUTHORITY)
+                        .path(MEDIA_URI_PATH_SET_MEDIA_URI)
+                        .appendQueryParameter(MEDIA_URI_QUERY_ID, testMediaId).build(),
+                testExtras);
+        controller.prepare();
+
+        assertTrue(mSessionCallback.await(TIMEOUT_MS));
+        assertTrue(mSessionCallback.mOnPrepareFromMediaIdCalled);
+        assertEquals(testMediaId, mSessionCallback.mMediaId);
+        assertTrue(TestUtils.equals(testExtras, mSessionCallback.mExtras));
+        assertNull(mSessionCallback.mQuery);
+        assertNull(mSessionCallback.mUri);
+        assertFalse(mSessionCallback.mOnPrepareCalled);
+    }
+
+    @Test
+    public void setMediaUri_followedByPrepare_callsPrepareFromSearch() throws Exception {
+        if (!MediaTestUtils.isClientToT()) {
+            return;
+        }
+        String testSearchQuery = "anyQuery";
+        Bundle testExtras = new Bundle();
+        testExtras.putString("testKey", "testValue");
+
+        RemoteMediaController controller = createControllerAndWaitConnection();
+        mSessionCallback.reset(1);
+
+        controller.setMediaUri(
+                new Uri.Builder()
+                        .scheme(MEDIA_URI_SCHEME)
+                        .authority(MEDIA_URI_AUTHORITY)
+                        .path(MEDIA_URI_PATH_SET_MEDIA_URI)
+                        .appendQueryParameter(MEDIA_URI_QUERY_QUERY, testSearchQuery).build(),
+                testExtras);
+        controller.prepare();
+
+        assertTrue(mSessionCallback.await(TIMEOUT_MS));
+        assertTrue(mSessionCallback.mOnPrepareFromSearchCalled);
+        assertEquals(testSearchQuery, mSessionCallback.mQuery);
+        assertTrue(TestUtils.equals(testExtras, mSessionCallback.mExtras));
+        assertNull(mSessionCallback.mMediaId);
+        assertNull(mSessionCallback.mUri);
+        assertFalse(mSessionCallback.mOnPrepareCalled);
+    }
+
+    @Test
+    public void setMediaUri_followedByPrepare_callsPrepareFromUri() throws Exception {
+        if (!MediaTestUtils.isClientToT()) {
+            return;
+        }
+        Uri testMediaUri = Uri.parse("androidx://jetpack/test?query=android%20media");
+        Bundle testExtras = new Bundle();
+        testExtras.putString("testKey", "testValue");
+
+        RemoteMediaController controller = createControllerAndWaitConnection();
+        mSessionCallback.reset(1);
+
+        controller.setMediaUri(
+                new Uri.Builder()
+                        .scheme(MEDIA_URI_SCHEME)
+                        .authority(MEDIA_URI_AUTHORITY)
+                        .path(MEDIA_URI_PATH_SET_MEDIA_URI)
+                        .appendQueryParameter(
+                                MEDIA_URI_QUERY_URI, testMediaUri.toString()).build(),
+                testExtras);
+        controller.prepare();
+
+        assertTrue(mSessionCallback.await(TIMEOUT_MS));
+        assertTrue(mSessionCallback.mOnPrepareFromUriCalled);
+        assertEquals(testMediaUri, mSessionCallback.mUri);
+        assertNull(mSessionCallback.mMediaId);
+        assertNull(mSessionCallback.mQuery);
+        assertFalse(mSessionCallback.mOnPrepareCalled);
+    }
+
+    @Test
+    public void setMediaUri_withoutFormattingFollowedByPrepare_callsPrepareFromUri()
+            throws Exception {
+        if (!MediaTestUtils.isClientToT()) {
+            return;
+        }
+        Uri testMediaUri = Uri.parse("androidx://jetpack/test?query=android%20media");
+        Bundle testExtras = new Bundle();
+        testExtras.putString("testKey", "testValue");
+
+        RemoteMediaController controller = createControllerAndWaitConnection();
+        mSessionCallback.reset(1);
+
+        controller.setMediaUri(testMediaUri, testExtras);
+        controller.prepare();
+
+        assertTrue(mSessionCallback.await(TIMEOUT_MS));
+        assertTrue(mSessionCallback.mOnPrepareFromUriCalled);
+        assertEquals(testMediaUri, mSessionCallback.mUri);
+        assertNull(mSessionCallback.mMediaId);
+        assertNull(mSessionCallback.mQuery);
+        assertFalse(mSessionCallback.mOnPrepareCalled);
+    }
+
+    @Test
+    public void setMediaUri_followedByPlay_callsPlayFromMediaId() throws Exception {
+        if (!MediaTestUtils.isClientToT()) {
+            return;
+        }
+        String testMediaId = "anyMediaId";
+        Bundle testExtras = new Bundle();
+        testExtras.putString("testKey", "testValue");
+
+        RemoteMediaController controller = createControllerAndWaitConnection();
+        mSessionCallback.reset(1);
+
+        controller.setMediaUri(
+                new Uri.Builder()
+                        .scheme(MEDIA_URI_SCHEME)
+                        .authority(MEDIA_URI_AUTHORITY)
+                        .path(MEDIA_URI_PATH_SET_MEDIA_URI)
+                        .appendQueryParameter(MEDIA_URI_QUERY_ID, testMediaId).build(),
+                testExtras);
+        controller.play();
+
+        assertTrue(mSessionCallback.await(TIMEOUT_MS));
+        assertTrue(mSessionCallback.mOnPlayFromMediaIdCalled);
+        assertEquals(testMediaId, mSessionCallback.mMediaId);
+        assertTrue(TestUtils.equals(testExtras, mSessionCallback.mExtras));
+        assertNull(mSessionCallback.mQuery);
+        assertNull(mSessionCallback.mUri);
+        assertEquals(0, mSessionCallback.mOnPlayCalledCount);
+    }
+
+    @Test
+    public void setMediaUri_followedByPlay_callsPlayFromSearch() throws Exception {
+        if (!MediaTestUtils.isClientToT()) {
+            return;
+        }
+        String testSearchQuery = "anyQuery";
+        Bundle testExtras = new Bundle();
+        testExtras.putString("testKey", "testValue");
+
+        RemoteMediaController controller = createControllerAndWaitConnection();
+        mSessionCallback.reset(1);
+
+        controller.setMediaUri(
+                new Uri.Builder()
+                        .scheme(MEDIA_URI_SCHEME)
+                        .authority(MEDIA_URI_AUTHORITY)
+                        .path(MEDIA_URI_PATH_SET_MEDIA_URI)
+                        .appendQueryParameter(MEDIA_URI_QUERY_QUERY, testSearchQuery).build(),
+                testExtras);
+        controller.play();
+
+        assertTrue(mSessionCallback.await(TIMEOUT_MS));
+        assertTrue(mSessionCallback.mOnPlayFromSearchCalled);
+        assertEquals(testSearchQuery, mSessionCallback.mQuery);
+        assertTrue(TestUtils.equals(testExtras, mSessionCallback.mExtras));
+        assertNull(mSessionCallback.mMediaId);
+        assertNull(mSessionCallback.mUri);
+        assertEquals(0, mSessionCallback.mOnPlayCalledCount);
+    }
+
+    @Test
+    public void setMediaUri_followedByPlay_callsPlayFromUri() throws Exception {
+        if (!MediaTestUtils.isClientToT()) {
+            return;
+        }
+        Uri testMediaUri = Uri.parse("androidx://jetpack/test?query=android%20media");
+        Bundle testExtras = new Bundle();
+        testExtras.putString("testKey", "testValue");
+
+        RemoteMediaController controller = createControllerAndWaitConnection();
+        mSessionCallback.reset(1);
+
+        controller.setMediaUri(
+                new Uri.Builder()
+                        .scheme(MEDIA_URI_SCHEME)
+                        .authority(MEDIA_URI_AUTHORITY)
+                        .path(MEDIA_URI_PATH_SET_MEDIA_URI)
+                        .appendQueryParameter(
+                                MEDIA_URI_QUERY_URI, testMediaUri.toString()).build(),
+                testExtras);
+        controller.play();
+
+        assertTrue(mSessionCallback.await(TIMEOUT_MS));
+        assertTrue(mSessionCallback.mOnPlayFromUriCalled);
+        assertEquals(testMediaUri, mSessionCallback.mUri);
+        assertNull(mSessionCallback.mMediaId);
+        assertNull(mSessionCallback.mQuery);
+        assertEquals(0, mSessionCallback.mOnPlayCalledCount);
+    }
+
+    @Test
+    public void setMediaUri_withoutFormattingFollowedByPlay_callsPlayFromUri()
+            throws Exception {
+        if (!MediaTestUtils.isClientToT()) {
+            return;
+        }
+        Uri testMediaUri = Uri.parse("androidx://jetpack/test?query=android%20media");
+        Bundle testExtras = new Bundle();
+        testExtras.putString("testKey", "testValue");
+
+        RemoteMediaController controller = createControllerAndWaitConnection();
+        mSessionCallback.reset(1);
+
+        controller.setMediaUri(testMediaUri, testExtras);
+        controller.play();
+
+        assertTrue(mSessionCallback.await(TIMEOUT_MS));
+        assertTrue(mSessionCallback.mOnPlayFromUriCalled);
+        assertEquals(testMediaUri, mSessionCallback.mUri);
+        assertNull(mSessionCallback.mMediaId);
+        assertNull(mSessionCallback.mQuery);
+        assertEquals(0, mSessionCallback.mOnPlayCalledCount);
+    }
+
+    @Test
+    public void setMediaUri_followedByPrepareTwice_callsPrepareFromUriAndPrepare()
+            throws Exception {
+        if (!MediaTestUtils.isClientToT()) {
+            return;
+        }
+        RemoteMediaController controller = createControllerAndWaitConnection();
+        mSessionCallback.reset(2);
+
+        controller.setMediaUri(Uri.parse("androidx://test"), null);
+
+        controller.prepare();
+        controller.prepare();
+
+        assertTrue(mSessionCallback.await(TIMEOUT_MS));
+        assertTrue(mSessionCallback.mOnPrepareFromUriCalled);
+        assertTrue(mSessionCallback.mOnPrepareCalled);
+    }
+
+    @Test
+    public void setMediaUri_followedByPlayTwice_callsPlayFromUriAndPlay() throws Exception {
+        if (!MediaTestUtils.isClientToT()) {
+            return;
+        }
+        RemoteMediaController controller = createControllerAndWaitConnection();
+        mSessionCallback.reset(2);
+
+        controller.setMediaUri(Uri.parse("androidx://test"), /* extras= */ null);
+
+        controller.play();
+        controller.play();
+
+        assertTrue(mSessionCallback.await(TIMEOUT_MS));
+        assertTrue(mSessionCallback.mOnPlayFromUriCalled);
+        assertEquals(1, mSessionCallback.mOnPlayCalledCount);
+    }
+
+    @Test
+    public void setMediaUri_multipleCalls_skipped() throws Exception {
+        if (!MediaTestUtils.isClientToT()) {
+            return;
+        }
+        RemoteMediaController controller = createControllerAndWaitConnection();
+        mSessionCallback.reset(2);
+
+        Uri testUri1 = Uri.parse("androidx://test1");
+        Uri testUri2 = Uri.parse("androidx://test2");
+        controller.setMediaUri(testUri1, /* extras= */ null);
+        controller.setMediaUri(testUri2, /* extras= */ null);
+        controller.prepare();
+
+        assertFalse(mSessionCallback.await(TIMEOUT_MS));
+        assertTrue(mSessionCallback.mOnPrepareFromUriCalled);
+        assertEquals(testUri2, mSessionCallback.mUri);
     }
 
     private void setPlaybackState(int state) {
