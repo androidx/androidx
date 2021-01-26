@@ -80,10 +80,10 @@ public class NavigationTemplateTest {
                 "520").build();
 
         TravelEstimate travelEstimate =
-                TravelEstimate.create(
+                new TravelEstimate.Builder(
                         Distance.create(/* displayDistance= */ 20, Distance.UNIT_METERS),
-                        TimeUnit.HOURS.toSeconds(1),
-                        createDateTimeWithZone("2020-05-14T19:57:00-07:00", "US/Pacific"));
+                        createDateTimeWithZone("2020-05-14T19:57:00-07:00", "US/Pacific"))
+                        .setRemainingTimeSeconds(TimeUnit.HOURS.toSeconds(1)).build();
         NavigationTemplate template =
                 new NavigationTemplate.Builder()
                         .setNavigationInfo(
@@ -107,10 +107,10 @@ public class NavigationTemplateTest {
     @Test
     public void equals() {
         TravelEstimate travelEstimate =
-                TravelEstimate.create(
+                new TravelEstimate.Builder(
                         Distance.create(/* displayDistance= */ 20, Distance.UNIT_METERS),
-                        TimeUnit.HOURS.toSeconds(1),
-                        createDateTimeWithZone("2020-05-14T19:57:00-07:00", "US/Pacific"));
+                        createDateTimeWithZone("2020-05-14T19:57:00-07:00", "US/Pacific"))
+                        .setRemainingTimeSeconds(TimeUnit.HOURS.toSeconds(1)).build();
 
         Step currentStep =
                 new Step.Builder("Hop on a ferry")
@@ -169,10 +169,10 @@ public class NavigationTemplateTest {
     @Test
     public void notEquals_differentTravelEstimate() {
         TravelEstimate travelEstimate =
-                TravelEstimate.create(
+                new TravelEstimate.Builder(
                         Distance.create(/* displayDistance= */ 20, Distance.UNIT_METERS),
-                        TimeUnit.HOURS.toSeconds(1),
-                        createDateTimeWithZone("2020-05-14T19:57:00-07:00", "US/Pacific"));
+                        createDateTimeWithZone("2020-05-14T19:57:00-07:00", "US/Pacific"))
+                        .setRemainingTimeSeconds(TimeUnit.HOURS.toSeconds(1)).build();
 
         NavigationTemplate template =
                 new NavigationTemplate.Builder()
@@ -185,14 +185,12 @@ public class NavigationTemplateTest {
                         new NavigationTemplate.Builder()
                                 .setActionStrip(mActionStrip)
                                 .setDestinationTravelEstimate(
-                                        TravelEstimate.create(
+                                        new TravelEstimate.Builder(
                                                 Distance.create(/* displayDistance= */ 21000,
                                                         Distance.UNIT_METERS),
-                                                TimeUnit.HOURS.toSeconds(1),
                                                 createDateTimeWithZone("2020-05-14T19:57:00-07:00",
-                                                        "US/Pacific")))
-
-                                .build());
+                                                        "US/Pacific")).setRemainingTimeSeconds(
+                                                TimeUnit.HOURS.toSeconds(1)).build()).build());
     }
 
     @Test
