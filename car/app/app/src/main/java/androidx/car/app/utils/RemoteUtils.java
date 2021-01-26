@@ -67,7 +67,6 @@ public final class RemoteUtils {
      */
     @SuppressLint("LambdaLast")
     @Nullable
-    // TODO(rampara): Change method signature to change parameter order.
     public static <ReturnT> ReturnT call(@NonNull RemoteCall<ReturnT> remoteCall,
             @NonNull String callName) {
         try {
@@ -150,7 +149,6 @@ public final class RemoteUtils {
      * <p>If the app throws an exception, will call {@link IOnDoneCallback#onFailure} with a {@link
      * FailureResponse} including information from the caught exception.
      */
-    // TODO(rampara): Change method signature to change parameter order.
     @SuppressLint("LambdaLast")
     public static void dispatchHostCall(
             @NonNull HostCall hostCall, @NonNull IOnDoneCallback callback,

@@ -267,7 +267,6 @@ public final class ListTemplate implements Template {
         // TODO(b/177591128): remove after host(s) no longer reference this.
         @Deprecated
         @NonNull
-        // TODO(shiufai): consider rename to match getter's name.
         @SuppressLint("MissingGetterMatchingBuilder")
         public Builder addList(@NonNull ItemList list, @NonNull CharSequence header) {
             return addSectionedList(SectionedItemList.create(list, header));

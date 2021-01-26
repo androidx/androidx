@@ -65,7 +65,6 @@ public final class Action {
      *
      * @hide
      */
-    // TODO(shiufai): investigate how to expose IntDefs if needed.
     @RestrictTo(LIBRARY)
     @IntDef(
             value = {

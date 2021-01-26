@@ -63,7 +63,6 @@ public final class HostDispatcher {
     @Nullable
     @SuppressWarnings({"unchecked", "cast.unsafe"}) // Cannot check if instanceof ServiceT
     @SuppressLint("LambdaLast")
-    // TODO(rampara): Change method signature to change parameter order.
     public <ServiceT, ReturnT> ReturnT dispatch(
             @CarServiceType @NonNull String hostType, @NonNull HostCall<ServiceT, ReturnT> call,
             @NonNull String callName) {

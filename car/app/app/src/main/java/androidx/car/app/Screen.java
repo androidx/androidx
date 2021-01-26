@@ -217,8 +217,6 @@ public abstract class Screen implements LifecycleOwner {
         return mCarContext.getCarService(ScreenManager.class);
     }
 
-    // TODO(rampara): Replace code tags with link on submission of notification module
-
     /**
      * Returns the {@link Template} to present in the car screen.
      *
@@ -296,7 +294,7 @@ public abstract class Screen implements LifecycleOwner {
      * an app to begin a new task flow from notifications, and it holds true even if an app is
      * already bound and in the foreground.
      *
-     * <p>See {@code androidx.car.app.notification.CarAppExtender} for details on notifications.
+     * <p>See {@link androidx.car.app.notification.CarAppExtender} for details on notifications.
      */
     @NonNull
     public abstract Template onGetTemplate();

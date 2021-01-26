@@ -34,6 +34,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
@@ -85,18 +86,11 @@ public final class DateTimeWithZone {
 
     @Override
     @NonNull
-    @RequiresApi(26)
-    // TODO(shiufai): consider removing the @RequiresApi annotation for a toString method.
-    @SuppressLint("UnsafeNewApiCall")
     public String toString() {
-        return "[local: "
-                + LocalDateTime.ofEpochSecond(
-                mTimeSinceEpochMillis / 1000,
-                /* nanoOfSecond= */ 0,
-                ZoneOffset.ofTotalSeconds(mZoneOffsetSeconds))
-                + ", zone: "
-                + mZoneShortName
-                + "]";
+        return "[time since epoch (ms): " + mTimeSinceEpochMillis
+                + "( " + new Date(mTimeSinceEpochMillis) + ") "
+                + " zone offset (s): " + mZoneOffsetSeconds
+                + ", zone: " + mZoneShortName + "]";
     }
 
     @Override
