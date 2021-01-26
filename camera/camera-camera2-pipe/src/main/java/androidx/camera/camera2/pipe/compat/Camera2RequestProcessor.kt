@@ -66,6 +66,8 @@ internal val requestSequenceDebugIds = atomic(0L)
 internal val requestTags = atomic(0L)
 internal fun nextRequestTag(): RequestNumber = RequestNumber(requestTags.incrementAndGet())
 
+private const val REQUIRE_SURFACE_FOR_ALL_STREAMS = false
+
 /**
  * This class is designed to synchronously handle interactions with a [CameraCaptureSessionWrapper].
  */
@@ -186,8 +188,9 @@ internal class Camera2RequestProcessor(
                     surfaceToStreamMap[surface] = stream
                     streamToSurfaceMap[stream] = surface
                     hasSurface = true
-                } else {
+                } else if (REQUIRE_SURFACE_FOR_ALL_STREAMS) {
                     Log.info { "  Failed to bind surface to $stream" }
+
                     // If requireStreams is set we are required to map every stream to a valid
                     // Surface object for this request. If this condition is violated, then we
                     // return false because we cannot submit these request(s) until there is a valid
@@ -196,9 +199,10 @@ internal class Camera2RequestProcessor(
                 }
             }
 
-            // If there are no surfaces on a particular request, camera2 will now allow us to
+            // If there are no surfaces on a particular request, camera2 will not allow us to
             // submit it.
             if (!hasSurface) {
+                Log.info { "  Failed to bind any surfaces for $request!" }
                 return false
             }
 
@@ -209,6 +213,7 @@ internal class Camera2RequestProcessor(
             try {
                 requestBuilder = session.device.createCaptureRequest(requestTemplate)
             } catch (exception: ObjectUnavailableException) {
+                Log.info { "  Failed to create a CaptureRequest.Builder from $requestTemplate!" }
                 return false
             }
 
