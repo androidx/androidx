@@ -50,8 +50,10 @@ public class CoordinatorSnackbarWithButtonTest extends BaseDynamicCoordinatorLay
 
     @After
     @UiThreadTest
-    public void teardown() throws Throwable {
-        mCoordinatorLayout.removeView(mBar);
+    public void teardown() {
+        if (mCoordinatorLayout != null) {
+            mCoordinatorLayout.removeView(mBar);
+        }
     }
 
     /**
