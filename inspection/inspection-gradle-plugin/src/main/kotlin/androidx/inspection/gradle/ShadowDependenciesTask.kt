@@ -38,7 +38,7 @@ fun Project.registerShadowDependenciesTask(
     ) {
         it.dependsOn(uberJar)
         val fileTree = project.fileTree(zipTask.get().destinationDir)
-        fileTree.include("**/*.jar")
+        fileTree.include("**/*.jar", "**/*.so")
         it.from(fileTree)
         it.destinationDirectory.set(taskWorkingDir(variant, "shadowedJar"))
         it.archiveBaseName.set("${project.name}-shadowed")
