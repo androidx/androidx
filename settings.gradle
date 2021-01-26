@@ -163,8 +163,8 @@ includeProject(":biometric:biometric-ktx-samples", "biometric/biometric-ktx/samp
 includeProject(":biometric:integration-tests:testapp", "biometric/integration-tests/testapp", [BuildType.MAIN])
 includeProject(":browser:browser", "browser/browser", [BuildType.MAIN])
 includeProject(":buildSrc-tests", "buildSrc-tests", [BuildType.MAIN])
-// these projects intentionally fail to compile unless useMaxDepVersions is enabled
-if (startParameter.projectProperties.containsKey('useMaxDepVersions')) {
+// these projects intentionally fail to compile unless androidx.useMaxDepVersions is enabled
+if (startParameter.projectProperties.containsKey('androidx.useMaxDepVersions')) {
     includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-dep", "buildSrc-tests/max-dep-versions/buildSrc-tests-max-dep-versions-dep", [BuildType.MAIN])
     includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-main", "buildSrc-tests/max-dep-versions/buildSrc-tests-max-dep-versions-main", [BuildType.MAIN])
 }

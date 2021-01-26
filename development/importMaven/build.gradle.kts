@@ -253,8 +253,8 @@ fun licenseFor(pomFile: File): File? {
 /**
  * Transforms POM files so we automatically comment out nodes with <type>aar</type>.
  *
- * We are doing this for all internal libraries to account for -PuseMaxDepVersions which swaps out
- * the dependencies of all androidx libraries with their respective ToT versions.
+ * We are doing this for all internal libraries to account for -Pandroidx.useMaxDepVersions
+ * which swaps out the dependencies of all androidx libraries with their respective ToT versions.
  * For more information look at b/127495641.
  */
 fun transformInternalPomFile(file: File): File {
