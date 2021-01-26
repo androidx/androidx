@@ -127,10 +127,6 @@ public final class Action {
     private final CarIcon mIcon;
     @Keep
     private final CarColor mBackgroundColor;
-    @SuppressWarnings("deprecation")
-    @Keep
-    @Nullable
-    private final OnClickListenerWrapper mListener;
     @Keep
     @Nullable
     private final OnClickDelegate mOnClickDelegate;
@@ -176,17 +172,6 @@ public final class Action {
     }
 
     /**
-     * @deprecated use {@link #getOnClickDelegate} instead.
-     */
-    // TODO(b/177591476): remove after host references have been cleaned up.
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    @Nullable
-    public OnClickListenerWrapper getOnClickListener() {
-        return mListener;
-    }
-
-    /**
      * Returns the {@link OnClickDelegate} that should be used for this action.
      */
     @Nullable
@@ -228,7 +213,6 @@ public final class Action {
         mTitle = null;
         mIcon = null;
         mBackgroundColor = DEFAULT;
-        mListener = null;
         mOnClickDelegate = null;
         mType = type;
     }
@@ -237,7 +221,6 @@ public final class Action {
         mTitle = builder.mTitle;
         mIcon = builder.mIcon;
         mBackgroundColor = builder.mBackgroundColor;
-        mListener = builder.mListener;
         mOnClickDelegate = builder.mOnClickDelegate;
         mType = builder.mType;
     }
@@ -247,7 +230,6 @@ public final class Action {
         mTitle = null;
         mIcon = null;
         mBackgroundColor = DEFAULT;
-        mListener = null;
         mOnClickDelegate = null;
         mType = TYPE_CUSTOM;
     }
@@ -285,9 +267,6 @@ public final class Action {
         CarText mTitle;
         @Nullable
         CarIcon mIcon;
-        @SuppressWarnings("deprecation")
-        @Nullable
-        OnClickListenerWrapper mListener;
         @Nullable
         OnClickDelegate mOnClickDelegate;
         CarColor mBackgroundColor = DEFAULT;
@@ -341,9 +320,8 @@ public final class Action {
          * @throws NullPointerException if {@code listener} is {@code null}
          */
         @NonNull
-        @SuppressLint("ExecutorRegistration")
+        @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
         public Builder setOnClickListener(@NonNull OnClickListener listener) {
-            mListener = OnClickListenerWrapperImpl.create(requireNonNull(listener));
             mOnClickDelegate = OnClickDelegateImpl.create(listener);
             return this;
         }
@@ -389,7 +367,7 @@ public final class Action {
             }
 
             if ((mType == TYPE_APP_ICON || mType == TYPE_BACK)) {
-                if (mListener != null) {
+                if (mOnClickDelegate != null) {
                     throw new IllegalStateException(
                             "An on-click listener can't be set on the standard back or app-icon "
                                     + "action");
@@ -415,7 +393,6 @@ public final class Action {
          *
          * @throws NullPointerException if {@code icon} is {@code null}
          */
-        @SuppressWarnings("deprecation")
         Builder(@NonNull Action action) {
             // Note: at the moment, the only standard actions that exist (APP_ICON and BACK) can't
             // be customized with a title or a listener. For that reason, this constructor is not
@@ -424,7 +401,6 @@ public final class Action {
             mTitle = action.getTitle();
             mIcon = action.getIcon();
             mBackgroundColor = action.getBackgroundColor();
-            mListener = action.getOnClickListener();
             mOnClickDelegate = action.getOnClickDelegate();
             mType = action.getType();
         }

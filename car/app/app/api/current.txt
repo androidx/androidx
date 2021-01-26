@@ -169,7 +169,6 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarColor? getBackgroundColor();
     method public androidx.car.app.model.CarIcon? getIcon();
     method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
-    method @Deprecated public androidx.car.app.model.OnClickListenerWrapper? getOnClickListener();
     method public androidx.car.app.model.CarText? getTitle();
     method public int getType();
     method public boolean isStandard();
@@ -324,7 +323,6 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarIcon? getImage();
     method public int getImageType();
     method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
-    method @Deprecated public androidx.car.app.model.OnClickListenerWrapper? getOnClickListener();
     method public androidx.car.app.model.CarText? getText();
     method public androidx.car.app.model.CarText? getTitle();
     method public boolean isLoading();
@@ -369,9 +367,7 @@ package androidx.car.app.model {
     method public java.util.List<androidx.car.app.model.Item!> getItems();
     method public androidx.car.app.model.CarText? getNoItemsMessage();
     method public androidx.car.app.model.OnItemVisibilityChangedDelegate? getOnItemVisibilityChangedDelegate();
-    method @Deprecated public androidx.car.app.model.OnItemVisibilityChangedListenerWrapper? getOnItemsVisibilityChangedListener();
     method public androidx.car.app.model.OnSelectedDelegate? getOnSelectedDelegate();
-    method @Deprecated public androidx.car.app.model.OnSelectedListenerWrapper? getOnSelectedListener();
     method public int getSelectedIndex();
   }
 
@@ -453,10 +449,6 @@ package androidx.car.app.model {
     method public void sendCheckedChange(boolean, androidx.car.app.OnDoneCallback);
   }
 
-  @Deprecated public interface OnCheckedChangeListenerWrapper {
-    method @Deprecated public void onCheckedChange(boolean, androidx.car.app.OnDoneCallback);
-  }
-
   public interface OnClickDelegate {
     method public boolean isParkedOnly();
     method public void sendClick(androidx.car.app.OnDoneCallback);
@@ -466,25 +458,12 @@ package androidx.car.app.model {
     method public void onClick();
   }
 
-  @Deprecated public interface OnClickListenerWrapper {
-    method @Deprecated public boolean isParkedOnly();
-    method @Deprecated public void onClick(androidx.car.app.OnDoneCallback);
-  }
-
   public interface OnItemVisibilityChangedDelegate {
     method public void sendItemVisibilityChanged(int, int, androidx.car.app.OnDoneCallback);
   }
 
-  @Deprecated public interface OnItemVisibilityChangedListenerWrapper {
-    method @Deprecated public void onItemVisibilityChanged(int, int, androidx.car.app.OnDoneCallback);
-  }
-
   public interface OnSelectedDelegate {
     method public void sendSelected(int, androidx.car.app.OnDoneCallback);
-  }
-
-  @Deprecated public interface OnSelectedListenerWrapper {
-    method @Deprecated public void onSelected(int, androidx.car.app.OnDoneCallback);
   }
 
   public final class Pane {
@@ -579,7 +558,6 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarIcon? getImage();
     method public androidx.car.app.model.Metadata? getMetadata();
     method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
-    method @Deprecated public androidx.car.app.model.OnClickListenerWrapper? getOnClickListener();
     method public int getRowImageType();
     method public java.util.List<androidx.car.app.model.CarText!> getTexts();
     method public androidx.car.app.model.CarText? getTitle();
@@ -610,17 +588,11 @@ package androidx.car.app.model {
     method public void sendSearchTextChanged(String, androidx.car.app.OnDoneCallback);
   }
 
-  @Deprecated public interface SearchCallbackWrapper {
-    method @Deprecated public void onSearchSubmitted(String, androidx.car.app.OnDoneCallback);
-    method @Deprecated public void onSearchTextChanged(String, androidx.car.app.OnDoneCallback);
-  }
-
   public final class SearchTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public androidx.car.app.model.Action? getHeaderAction();
     method public String? getInitialSearchText();
     method public androidx.car.app.model.ItemList? getItemList();
-    method @Deprecated public androidx.car.app.model.SearchCallbackWrapper? getSearchCallback();
     method public androidx.car.app.model.SearchCallbackDelegate? getSearchCallbackDelegate();
     method public String? getSearchHint();
     method public boolean isLoading();
@@ -678,7 +650,6 @@ package androidx.car.app.model {
 
   public final class Toggle {
     method public androidx.car.app.model.OnCheckedChangeDelegate? getOnCheckedChangeDelegate();
-    method @Deprecated public androidx.car.app.model.OnCheckedChangeListenerWrapper? getOnCheckedChangeListener();
     method public boolean isChecked();
   }
 

@@ -75,17 +75,9 @@ public final class ItemList {
     private final int mSelectedIndex;
     @Keep
     private final List<Item> mItems;
-    @SuppressWarnings("deprecation")
-    @Keep
-    @Nullable
-    private final OnSelectedListenerWrapper mOnSelectedListener;
     @Keep
     @Nullable
     private final OnSelectedDelegate mOnSelectedDelegate;
-    @SuppressWarnings("deprecation")
-    @Keep
-    @Nullable
-    private final OnItemVisibilityChangedListenerWrapper mOnItemVisibilityChangedListener;
     @Keep
     @Nullable
     private final OnItemVisibilityChangedDelegate mOnItemVisibilityChangedDelegate;
@@ -99,21 +91,7 @@ public final class ItemList {
     }
 
     /**
-     * Returns the {@link OnSelectedListenerWrapper} to be called when when an item is selected
-     * by the user, or {@code null} is the list is non-selectable.
-     *
-     * @deprecated use {@link #getOnSelectedDelegate()} instead.
-     */
-    // TODO(b/177591476): remove after host references have been cleaned up.
-    @Deprecated
-    @SuppressWarnings("deprecation")
-    @Nullable
-    public OnSelectedListenerWrapper getOnSelectedListener() {
-        return mOnSelectedListener;
-    }
-
-    /**
-     * Returns the {@link OnSelectedListenerWrapper} to be called when when an item is selected
+     * Returns the {@link OnSelectedDelegate} to be called when when an item is selected
      * by the user, or {@code null} is the list is non-selectable.
      */
     @Nullable
@@ -125,20 +103,6 @@ public final class ItemList {
     @Nullable
     public CarText getNoItemsMessage() {
         return mNoItemsMessage;
-    }
-
-    /**
-     * Returns the {@link OnItemVisibilityChangedListenerWrapper} to be called when the visible
-     * items in the list changes.
-     *
-     * @deprecated use {@link #getOnItemVisibilityChangedDelegate()} instead.
-     */
-    // TODO(b/177591476): remove after host references have been cleaned up.
-    @Deprecated
-    @SuppressWarnings("deprecation")
-    @Nullable
-    public OnItemVisibilityChangedListenerWrapper getOnItemsVisibilityChangedListener() {
-        return mOnItemVisibilityChangedListener;
     }
 
     /**
@@ -215,9 +179,7 @@ public final class ItemList {
         mSelectedIndex = builder.mSelectedIndex;
         mItems = CollectionUtils.unmodifiableCopy(builder.mItems);
         mNoItemsMessage = builder.mNoItemsMessage;
-        mOnSelectedListener = builder.mOnSelectedListener;
         mOnSelectedDelegate = builder.mOnSelectedDelegate;
-        mOnItemVisibilityChangedListener = builder.mOnItemVisibilityChangedListener;
         mOnItemVisibilityChangedDelegate = builder.mOnItemVisibilityChangedDelegate;
     }
 
@@ -226,15 +188,13 @@ public final class ItemList {
         mSelectedIndex = 0;
         mItems = Collections.emptyList();
         mNoItemsMessage = null;
-        mOnSelectedListener = null;
         mOnSelectedDelegate = null;
-        mOnItemVisibilityChangedListener = null;
         mOnItemVisibilityChangedDelegate = null;
     }
 
 
     @Nullable
-    static OnClickDelegate getOnClickListener(Item item) {
+    static OnClickDelegate getOnClickDelegate(Item item) {
         if (item instanceof Row) {
             return ((Row) item).getOnClickDelegate();
         } else if (item instanceof GridItem) {
@@ -257,14 +217,8 @@ public final class ItemList {
     public static final class Builder {
         final List<Item> mItems = new ArrayList<>();
         int mSelectedIndex;
-        @SuppressWarnings("deprecation")
-        @Nullable
-        OnSelectedListenerWrapper mOnSelectedListener;
         @Nullable
         OnSelectedDelegate mOnSelectedDelegate;
-        @SuppressWarnings("deprecation")
-        @Nullable
-        OnItemVisibilityChangedListenerWrapper mOnItemVisibilityChangedListener;
         @Nullable
         OnItemVisibilityChangedDelegate mOnItemVisibilityChangedDelegate;
         @Nullable
@@ -280,11 +234,9 @@ public final class ItemList {
          * @throws NullPointerException if {@code itemVisibilityChangedListener} is {@code null}
          */
         @NonNull
-        @SuppressLint("ExecutorRegistration")
+        @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
         public Builder setOnItemsVisibilityChangedListener(
                 @NonNull OnItemVisibilityChangedListener itemVisibilityChangedListener) {
-            mOnItemVisibilityChangedListener = OnItemVisibilityChangedListenerWrapperImpl.create(
-                    requireNonNull(itemVisibilityChangedListener));
             mOnItemVisibilityChangedDelegate = OnItemVisibilityChangedDelegateImpl.create(
                     itemVisibilityChangedListener);
             return this;
@@ -308,10 +260,8 @@ public final class ItemList {
          * @see #setSelectedIndex(int)
          */
         @NonNull
-        @SuppressLint("ExecutorRegistration")
+        @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
         public Builder setOnSelectedListener(@NonNull OnSelectedListener onSelectedListener) {
-            mOnSelectedListener =
-                    OnSelectedListenerWrapperImpl.create(requireNonNull(onSelectedListener));
             mOnSelectedDelegate = OnSelectedDelegateImpl.create(onSelectedListener);
             return this;
         }
@@ -370,7 +320,7 @@ public final class ItemList {
          */
         @NonNull
         public ItemList build() {
-            if (mOnSelectedListener != null) {
+            if (mOnSelectedDelegate != null) {
                 int listSize = mItems.size();
                 if (listSize == 0) {
                     throw new IllegalStateException("A selectable list cannot be empty");
@@ -385,7 +335,7 @@ public final class ItemList {
 
                 // Check that no items have disallowed elements if the list is selectable.
                 for (Item item : mItems) {
-                    if (getOnClickListener(item) != null) {
+                    if (getOnClickDelegate(item) != null) {
                         throw new IllegalStateException(
                                 "Items that belong to selectable lists can't have an "
                                         + "onClickListener. Use the OnSelectedListener of the list "
