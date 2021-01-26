@@ -17,11 +17,11 @@
 package androidx.benchmark
 
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
+import java.lang.IllegalStateException
 
 /**
  * This allows tests to override arguments from code
@@ -43,14 +43,14 @@ internal object Arguments {
 
     var error: String? = null
 
-    val prefix = "androidx.benchmark."
+    const val prefix = "androidx.benchmark."
 
-    private fun Bundle.getArgument(key: String, defaultValue: String = "") =
+    private fun Bundle.getArgument(key: String, defaultValue: String? = null) =
         getString(prefix + key, defaultValue)
 
     private fun Bundle.getProfiler(outputIsEnabled: Boolean): Profiler? {
         val argumentName = "profiling.mode"
-        val argumentValue = getArgument(argumentName)
+        val argumentValue = getArgument(argumentName, "")
         val profiler = Profiler.getByName(argumentValue)
         if (profiler == null && argumentValue.isNotEmpty()) {
             error = "Could not parse $prefix$argumentName=$argumentValue"
@@ -73,7 +73,7 @@ internal object Arguments {
             (arguments.getArgument("startupMode.enable")?.toBoolean() ?: false)
 
         outputEnable = !dryRunMode &&
-            (arguments.getArgument("output.enable")?.toBoolean() ?: false)
+            (arguments.getArgument("output.enable")?.toBoolean() ?: true)
 
         // Transform comma-delimited list into set of suppressed errors
         // E.g. "DEBUGGABLE, UNLOCKED" -> setOf("DEBUGGABLE", "UNLOCKED")
@@ -99,8 +99,11 @@ internal object Arguments {
         }
 
         val additionalTestOutputDir = arguments.getString("additionalTestOutputDir")
-        @Suppress("DEPRECATION") // Legacy code path for versions of agp older than 3.6
         testOutputDir = additionalTestOutputDir?.let { File(it) }
-            ?: Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            ?: InstrumentationRegistry.getInstrumentation().context.externalCacheDir
+            ?: throw IllegalStateException(
+                "Unable to read externalCacheDir for writing files, " +
+                    "additionalTestOutputDir argument required to declare output dir."
+            )
     }
 }
