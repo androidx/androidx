@@ -192,6 +192,8 @@ Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/sli
 Note: \$SUPPORT/sharetarget/integration\-tests/testapp/src/main/java/androidx/sharetarget/testapp/MainActivity\.java uses or overrides a deprecated API\.
 # > Task :ads-identifier-provider:processDebugAndroidTestManifest
 # > Task :hilt:integration-tests:hilt-testapp-viewmodel:compileDebugJavaWithJavac
+\[ant\:jacocoReport\] Note\: \$OUT_DIR\/androidx\/hilt\/integration\-tests\/hilt\-testapp\-viewmodel\/build\/generated\/source\/kapt\/debug\/androidx\/hilt\/integration\/viewmodelapp\/Hilt_SimpleFragment\.java uses or overrides a deprecated API\.
+\[ant\:jacocoReport\] Note\: Recompile with \-Xlint\:deprecation for details\.
 Note: \$OUT_DIR/androidx/hilt/integration\-tests/hilt\-testapp\-viewmodel/build/generated/source/kapt/debug/androidx/hilt/integration/viewmodelapp/Hilt_SimpleFragment\.java uses or overrides a deprecated API\.
 # > Task :ads-identifier-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/ads\-identifier\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
