@@ -394,7 +394,6 @@ package androidx.car.app.model {
   }
 
   public final class ListTemplate implements androidx.car.app.model.Template {
-    method public static androidx.car.app.model.ListTemplate.Builder builder();
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public androidx.car.app.model.Action? getHeaderAction();
     method @Deprecated public java.util.List<androidx.car.app.model.SectionedItemList!> getSectionLists();
