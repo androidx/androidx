@@ -106,6 +106,6 @@ public abstract class ProtoParcelable implements Parcelable {
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(mContents);
+        return 31 * mVersion + Arrays.hashCode(mContents);
     }
 }

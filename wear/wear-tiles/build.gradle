@@ -38,11 +38,20 @@ dependencies {
     api(GUAVA_LISTENABLE_FUTURE)
     implementation(PROTOBUF_LITE)
     implementation 'androidx.annotation:annotation:1.2.0-alpha01'
+
+    testImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    testImplementation(ANDROIDX_TEST_EXT_TRUTH)
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation(ANDROIDX_TEST_RULES)
+    testImplementation(ROBOLECTRIC)
+    testImplementation(MOCKITO_CORE)
 }
 
 android {
     defaultConfig {
-        minSdkVersion 24
+        minSdkVersion 26
+        targetSdkVersion 28
     }
     buildFeatures {
         aidl = true
