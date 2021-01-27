@@ -71,7 +71,6 @@ public final class CarIconSpan extends CarSpan {
                     ALIGN_BASELINE,
             })
     @Retention(RetentionPolicy.SOURCE)
-    // TODO(shiufai): investigate how to expose IntDefs if needed.
     @RestrictTo(LIBRARY)
     public @interface Alignment {
     }

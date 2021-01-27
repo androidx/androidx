@@ -34,7 +34,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
 
 /** Information about a maneuver that the driver will be required to perform. */
-// TODO(rasekh): Update when host(s) updates or a scheme for auto sync is established.
+// TODO(b/154671667): Update when host(s) updates or a scheme for auto sync is established.
 public final class Maneuver {
     /**
      * Possible maneuver types.

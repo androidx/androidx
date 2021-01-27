@@ -104,7 +104,6 @@ public final class CarIcon {
      *
      * @hide
      */
-    // TODO(shiufai): investigate how to expose IntDefs if needed.
     @RestrictTo(LIBRARY)
     @SuppressLint("UniqueConstants") // TYPE_APP will be removed in a follow-up change.
     @IntDef(
@@ -145,7 +144,6 @@ public final class CarIcon {
      * @see #APP_ICON
      * @deprecated use {@link #TYPE_APP_ICON} instead.
      */
-    // TODO(b/176937077): remove after the host references TYPE_APP_ICON.
     @Deprecated
     public static final int TYPE_APP = 5;
 
@@ -260,7 +258,7 @@ public final class CarIcon {
             return false;
         }
 
-        // TODO(shiufai): Decide how/if we will diff bitmap type IconCompat
+        // TODO(b/146175636): Decide how/if we will diff bitmap type IconCompat
         if (type == TYPE_RESOURCE) {
             return Objects.equals(mIcon.getResPackage(), other.getResPackage())
                     && mIcon.getResId() == other.getResId();

@@ -28,7 +28,6 @@ import androidx.annotation.NonNull;
  * A class that serializes and stores an object for sending over IPC.
  */
 @SuppressWarnings("BanParcelableUsage")
-// TODO(rampara): Investigate transition to VersionedParcelable.
 public final class Bundleable implements Parcelable {
     private final Bundle mBundle;
 

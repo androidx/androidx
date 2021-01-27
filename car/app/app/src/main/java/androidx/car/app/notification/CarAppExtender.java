@@ -523,7 +523,6 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          *               widget.
          * @throws NullPointerException if {@code title} or {@code intent} are {@code null}.
          */
-        // TODO(rampara): Update to remove use of deprecated Action API
         @SuppressWarnings("deprecation")
         @NonNull
         public Builder addAction(

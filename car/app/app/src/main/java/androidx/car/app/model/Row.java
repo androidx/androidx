@@ -51,7 +51,6 @@ public final class Row implements Item {
      *
      * @hide
      */
-    // TODO(shiufai): investigate how to expose IntDefs if needed.
     @RestrictTo(LIBRARY)
     @IntDef(value = {IMAGE_TYPE_SMALL, IMAGE_TYPE_ICON, IMAGE_TYPE_LARGE})
     @Retention(RetentionPolicy.SOURCE)
