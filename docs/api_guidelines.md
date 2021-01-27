@@ -60,19 +60,20 @@ sub-module alongside the older top-level module. Consider the following
 scenario:
 
 *   `androidx.library:1.0.0`
-    *   contains classes `androidx.library.A` and `androidx.library.util.B`
+    *   contains class `androidx.library.A`
+    *   contains class `androidx.library.util.B`
 
 This module is split, moving `androidx.library.util.B` to a new module:
 
 *   `androidx.library:1.1.0`
     *   contains class `androidx.library.A`
-    *   depends on `androidx.library.util:1.0.0`
-*   `androidx.library.util:1.0.0`
-    *   depends on `androidx.library.util.B`
+    *   depends on `androidx.library.util:1.1.0`
+*   `androidx.library.util:1.1.0`
+    *   contains class `androidx.library.util.B`
 
-A developer writes an app that depends directly on `androidx.library.util:1.0.0`
-and transitively pulls in `androidx.library:1.0.0`. Their app will no longer
-compile due to class duplication of `androidx.library.util.B`.
+A developer writes an app that depends directly on `androidx.library.util:1.1.0`
+and also transitively pulls in `androidx.library:1.0.0`. Their app will no
+longer compile due to class duplication of `androidx.library.util.B`.
 
 While it is possible for the developer to fix this by manually specifying a
 dependency on `androidx.library:1.1.0`, there is no easy way for the developer
@@ -960,9 +961,16 @@ any dependency that negatively affects system health.
 
 ### Kotlin {#dependencies-kotlin}
 
-Kotlin is _recommended_ for new libraries; however, it's important to consider
-its size impact on clients. Currently, the Kotlin stdlib adds a minimum of 40kB
-post-optimization.
+Kotlin is _strongly recommended_ for new libraries; however, it's important to
+consider its size impact on clients. Currently, the Kotlin stdlib adds a minimum
+of 40kB post-optimization. It may not make sense to use Kotlin for a library
+that targets Java-only clients or space-constrained (ex. Android Go) clients.
+
+Existing Java-based libraries are _strongly discouraged_ from using Kotlin,
+primarily because our documentation system does not currently provide a
+Java-facing version of Kotlin API reference docs. Java-based libraries _may_
+migrate to Kotlin, but they must consider the docs usability and size impacts on
+existing Java-only and space-constrained clients.
 
 ### Kotlin coroutines {#dependencies-coroutines}
 
