@@ -25,7 +25,7 @@ dependencies {
     api("androidx.core:core:1.1.0")
     api(projectOrArtifact(":lifecycle:lifecycle-runtime"))
     api(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
-    api(projectOrArtifact(":savedstate:savedstate"))
+    api("androidx.savedstate:savedstate:1.1.0")
     api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate"))
     implementation("androidx.tracing:tracing:1.0.0")
 
