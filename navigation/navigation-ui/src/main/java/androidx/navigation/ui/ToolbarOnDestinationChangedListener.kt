@@ -51,7 +51,7 @@ internal class ToolbarOnDestinationChangedListener(
         super.onDestinationChanged(controller, destination, arguments)
     }
 
-    override fun setTitle(title: CharSequence) {
+    override fun setTitle(title: CharSequence?) {
         toolbarWeakReference.get()?.let { toolbar ->
             toolbar.title = title
         }

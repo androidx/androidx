@@ -58,7 +58,7 @@ internal class CollapsingToolbarOnDestinationChangedListener(
         super.onDestinationChanged(controller, destination, arguments)
     }
 
-    override fun setTitle(title: CharSequence) {
+    override fun setTitle(title: CharSequence?) {
         val collapsingToolbarLayout = mCollapsingToolbarLayoutWeakReference.get()
         if (collapsingToolbarLayout != null) {
             collapsingToolbarLayout.title = title
