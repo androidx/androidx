@@ -61,15 +61,15 @@ public final class SectionedItemList {
     }
 
     /** Returns the {@link ItemList} for the section. */
-    @NonNull
+    @Nullable
     public ItemList getItemList() {
-        return requireNonNull(mItemList);
+        return mItemList;
     }
 
     /** Returns the title of the section. */
-    @NonNull
+    @Nullable
     public CarText getHeader() {
-        return requireNonNull(mHeader);
+        return mHeader;
     }
 
     @Override

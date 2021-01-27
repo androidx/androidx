@@ -159,7 +159,7 @@ public final class Action {
     /**
      * Returns the {@link CarColor} used for the background color of the action.
      */
-    @NonNull
+    @Nullable
     public CarColor getBackgroundColor() {
         return mBackgroundColor;
     }

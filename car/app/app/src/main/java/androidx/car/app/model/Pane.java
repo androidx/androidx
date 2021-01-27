@@ -57,7 +57,7 @@ public final class Pane {
      */
     @NonNull
     public List<Action> getActions() {
-        return mActionList;
+        return CollectionUtils.emptyIfNull(mActionList);
     }
 
     /**
@@ -65,7 +65,7 @@ public final class Pane {
      */
     @NonNull
     public List<Row> getRows() {
-        return mRows;
+        return CollectionUtils.emptyIfNull(mRows);
     }
 
     /**
@@ -77,7 +77,7 @@ public final class Pane {
     @Deprecated
     @NonNull
     public List<Row> getRowList() {
-        return mRows;
+        return CollectionUtils.emptyIfNull(mRows);
     }
 
     /**

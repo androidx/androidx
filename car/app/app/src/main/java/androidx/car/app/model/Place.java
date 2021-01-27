@@ -41,9 +41,9 @@ public final class Place {
     /**
      * @return the {@link CarLocation} set for this Place instance.
      */
-    @NonNull
+    @Nullable
     public CarLocation getLocation() {
-        return requireNonNull(mLocation);
+        return mLocation;
     }
 
     @Override

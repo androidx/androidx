@@ -50,12 +50,12 @@ public final class RoutingInfo implements NavigationInfo {
 
     @Nullable
     public Step getCurrentStep() {
-        return requireNonNull(mCurrentStep);
+        return mCurrentStep;
     }
 
     @Nullable
     public Distance getCurrentDistance() {
-        return requireNonNull(mCurrentDistance);
+        return mCurrentDistance;
     }
 
     @Nullable

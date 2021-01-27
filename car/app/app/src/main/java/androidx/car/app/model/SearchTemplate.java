@@ -146,7 +146,7 @@ public final class SearchTemplate implements Template {
     // TODO(b/177591476): remove after host references have been cleaned up.
     @Deprecated
     @SuppressWarnings("deprecation")
-    @NonNull
+    @Nullable
     public SearchCallbackWrapper getSearchCallback() {
         return mSearchCallback;
     }
@@ -154,7 +154,7 @@ public final class SearchTemplate implements Template {
     /**
      * Returns the {@link SearchCallbackDelegate} for search callbacks.
      */
-    @NonNull
+    @Nullable
     public SearchCallbackDelegate getSearchCallbackDelegate() {
         return mSearchCallbackDelegate;
     }

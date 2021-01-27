@@ -69,9 +69,9 @@ public final class PaneTemplate implements Template {
         return mHeaderAction;
     }
 
-    @NonNull
+    @Nullable
     public Pane getPane() {
-        return requireNonNull(mPane);
+        return mPane;
     }
 
     @Nullable

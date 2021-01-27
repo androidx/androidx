@@ -99,9 +99,9 @@ public final class GridItem implements Item {
     }
 
     /** Returns the title of the grid item. */
-    @NonNull
+    @Nullable
     public CarText getTitle() {
-        return requireNonNull(mTitle);
+        return mTitle;
     }
 
     /** Returns the list of text below the title. */

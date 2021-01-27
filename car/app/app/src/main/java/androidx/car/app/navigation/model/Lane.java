@@ -40,7 +40,7 @@ public final class Lane {
 
     @NonNull
     public List<LaneDirection> getDirections() {
-        return mDirections;
+        return CollectionUtils.emptyIfNull(mDirections);
     }
 
     @Override

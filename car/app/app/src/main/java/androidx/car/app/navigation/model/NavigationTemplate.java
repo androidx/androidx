@@ -118,9 +118,9 @@ public final class NavigationTemplate implements Template {
     /**
      * Returns the {@link ActionStrip} with a list of the template-scoped actions for this template.
      */
-    @NonNull
+    @Nullable
     public ActionStrip getActionStrip() {
-        return requireNonNull(mActionStrip);
+        return mActionStrip;
     }
 
     @NonNull
