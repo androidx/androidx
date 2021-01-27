@@ -22,7 +22,6 @@
     <!-- Important: disable debuggable for accurate performance results -->
     <application
         android:name=".AdsIdentifierBenchmarkApplication"
-        android:requestLegacyExternalStorage="true"
         android:debuggable="false"
         tools:replace="android:debuggable">
         <!-- enable profileableByShell for non-intrusive profiling tools -->
