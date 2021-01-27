@@ -24,6 +24,7 @@
     <public type="attr" name="fontProviderCerts"/>
     <public type="attr" name="fontProviderFetchStrategy"/>
     <public type="attr" name="fontProviderFetchTimeout"/>
+    <public type="attr" name="fontProviderSystemFontFamily"/>
     <public type="attr" name="fontStyle"/>
     <public type="attr" name="font"/>
     <public type="attr" name="fontWeight"/>
