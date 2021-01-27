@@ -18,9 +18,7 @@
     <string name="main_activity_title">WebView AndroidX Demos</string>
     <string name="webkit_api_not_available">This feature is not available. This may be available if you update WebView.</string>
     <string name="safebrowsing_activity_title">Safe Browsing</string>
-    <string name="proxy_override_activity_title">Proxy Override</string>
     <string name="not_updateable_webview">not updatable</string>
-    <string name="proxy_override_requests_served">Requests served: %d</string>
     <string name="asset_loader_ajax_activity_title">Asset Loader AJAX Demo</string>
     <string name="asset_loader_internal_storage_activity_title">Load from internal storage</string>
     <string name="asset_loader_list_activity_title">WebView Asset Loader Demos</string>
@@ -82,4 +80,13 @@
         <item>Web theme darkening only</item>
         <item>Prefer Web theme over UA darkening</item>
     </string-array>
+
+    <!-- Proxy Override -->
+    <string name="proxy_override_activity_title">Proxy Override</string>
+    <string name="proxy_override_requests_served">Requests served: %d</string>
+    <string name="proxy_override_reverse_bypass">Reverse bypass</string>
+    <string name="proxy_override_set">Set proxy override</string>
+    <string name="proxy_override_load_url">Load URL</string>
+    <string name="proxy_override_load_bypass_url">Load bypass URL</string>
+
 </resources>
