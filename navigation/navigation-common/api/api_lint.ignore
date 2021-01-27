@@ -1,4 +1,28 @@
 // Baseline format: 1.0
+AllUpper: androidx.navigation.NavType#BoolArrayType:
+    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#BoolArrayType`, should be `BOOL_ARRAY_TYPE`?
+AllUpper: androidx.navigation.NavType#BoolType:
+    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#BoolType`, should be `BOOL_TYPE`?
+AllUpper: androidx.navigation.NavType#FloatArrayType:
+    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#FloatArrayType`, should be `FLOAT_ARRAY_TYPE`?
+AllUpper: androidx.navigation.NavType#FloatType:
+    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#FloatType`, should be `FLOAT_TYPE`?
+AllUpper: androidx.navigation.NavType#IntArrayType:
+    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#IntArrayType`, should be `INT_ARRAY_TYPE`?
+AllUpper: androidx.navigation.NavType#IntType:
+    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#IntType`, should be `INT_TYPE`?
+AllUpper: androidx.navigation.NavType#LongArrayType:
+    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#LongArrayType`, should be `LONG_ARRAY_TYPE`?
+AllUpper: androidx.navigation.NavType#LongType:
+    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#LongType`, should be `LONG_TYPE`?
+AllUpper: androidx.navigation.NavType#ReferenceType:
+    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#ReferenceType`, should be `REFERENCE_TYPE`?
+AllUpper: androidx.navigation.NavType#StringArrayType:
+    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#StringArrayType`, should be `STRING_ARRAY_TYPE`?
+AllUpper: androidx.navigation.NavType#StringType:
+    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#StringType`, should be `STRING_TYPE`?
+
+
 ArrayReturn: androidx.navigation.NavType.ParcelableArrayType#get(android.os.Bundle, String):
     Method should return Collection<D> (or subclass) instead of raw array; was `D[]`
 ArrayReturn: androidx.navigation.NavType.ParcelableArrayType#parseValue(String):
