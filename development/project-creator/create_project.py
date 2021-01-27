@@ -77,7 +77,7 @@ def rm(path):
         os.remove(path)
 
 def mv_dir(src_path_dir, dst_path_dir):
-    """Moves a direcotry from src_path_dir to dst_path_dir.
+    """Moves a directory from src_path_dir to dst_path_dir.
 
     Args:
         src_path_dir: the source directory, which must exist
@@ -87,16 +87,15 @@ def mv_dir(src_path_dir, dst_path_dir):
         print_e('rename error: Destination path %s already exists.' % dst_path_dir)
         return None
     # If moving to a new parent directory, create that directory
-    final_dir_length = len("/" + dst_path_dir.split('/')[-1])
-    parent_dst_path_dir = dst_path_dir[:-final_dir_length]
+    parent_dst_path_dir = os.path.dirname(dst_path_dir)
     if not os.path.exists(parent_dst_path_dir):
         os.makedirs(parent_dst_path_dir)
     if not os.path.exists(src_path_dir):
         print_e('mv error: Source path %s does not exist.' % src_path_dir)
         return None
-    try : 
-        os.rename(src_path_dir, dst_path_dir)  
-    except OSError as error: 
+    try:
+        os.rename(src_path_dir, dst_path_dir)
+    except OSError as error:
         print_e('FAIL: Unable to copy %s to destination %s' % (src_path_dir, dst_path_dir))
         print_e(error)
         return None
@@ -234,12 +233,12 @@ def create_directories(group_id, artifact_id):
     sed("<YEAR>", year, full_artifact_path + "/build.gradle")
     sed("<YEAR>", year, full_artifact_path + "/src/androidTest/AndroidManifest.xml")
     sed("<YEAR>", year, full_artifact_path + "/src/main/AndroidManifest.xml")
-    sed("0000", year, full_package_info_path)
+    sed("<YEAR>", year, full_package_info_path)
     # Populate the PACKAGE
     package = generate_package_name(group_id, artifact_id)
     sed("<PACKAGE>", package, full_artifact_path + "/src/androidTest/AndroidManifest.xml")
     sed("<PACKAGE>", package, full_artifact_path + "/src/main/AndroidManifest.xml")
-    sed("placeholder.package", package, full_package_info_path)
+    sed("<PACKAGE>", package, full_package_info_path)
     # Populate the VERSION macro
     group_id_version_macro = get_group_id_version_macro(group_id)
     sed("<GROUPID>", group_id_version_macro, full_artifact_path + "/build.gradle")
