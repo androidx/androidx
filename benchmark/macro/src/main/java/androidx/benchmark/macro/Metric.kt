@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,9 @@
 package androidx.benchmark.macro
 
 import android.util.Log
-import androidx.benchmark.perfetto.PerfettoResultsParser.parseResult
-import androidx.benchmark.perfetto.PerfettoTraceParser
+import androidx.annotation.RequiresApi
+import androidx.benchmark.macro.perfetto.PerfettoResultsParser.parseResult
+import androidx.benchmark.macro.perfetto.PerfettoTraceParser
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 
@@ -137,6 +138,7 @@ class FrameTimingMetric : Metric() {
 /**
  * Captures app startup metrics.
  */
+@RequiresApi(29)
 class StartupTimingMetric : Metric() {
     private lateinit var packageName: String
     private lateinit var device: UiDevice
