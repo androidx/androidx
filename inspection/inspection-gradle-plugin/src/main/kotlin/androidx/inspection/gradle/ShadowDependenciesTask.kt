@@ -40,6 +40,12 @@ fun Project.registerShadowDependenciesTask(
         val fileTree = project.fileTree(zipTask.get().destinationDir)
         fileTree.include("**/*.jar", "**/*.so")
         it.from(fileTree)
+        it.includeEmptyDirs = false
+        it.filesMatching("**/*.so") {
+            if (it.path.startsWith("jni")) {
+                it.path = "lib/${it.path.removePrefix("jni")}"
+            }
+        }
         it.destinationDirectory.set(taskWorkingDir(variant, "shadowedJar"))
         it.archiveBaseName.set("${project.name}-shadowed")
         it.dependsOn(zipTask)

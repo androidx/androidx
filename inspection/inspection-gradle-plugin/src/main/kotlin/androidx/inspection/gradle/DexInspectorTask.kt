@@ -73,12 +73,14 @@ fun Project.registerUnzipTask(variant: LibraryVariant): TaskProvider<Copy> {
 fun Project.registerDexInspectorTask(
     variant: BaseVariant,
     extension: BaseExtension,
+    jarName: String?,
     jar: TaskProvider<out Jar>
 ): TaskProvider<DexInspectorTask> {
     return tasks.register(variant.taskName("dexInspector"), DexInspectorTask::class.java) {
         it.setDx(extension.sdkDirectory, extension.buildToolsVersion)
         it.jars.from(jar.get().destinationDirectory)
-        val out = File(taskWorkingDir(variant, "dexedInspector"), "${project.name}.jar")
+        val name = jarName ?: "${project.name}.jar"
+        val out = File(taskWorkingDir(variant, "dexedInspector"), name)
         it.outputFile.set(out)
         it.dependsOn(jar)
     }
