@@ -155,12 +155,14 @@ class SearchSessionImpl implements AppSearchSession {
             SetSchemaResponse.Builder responseBuilder = new SetSchemaResponse.Builder();
 
             // 4. Trigger migration for all migrators.
+            List<String> migratedTypes = new ArrayList<>();
             for (Map.Entry<String, AppSearchSchema.Migrator> entry : migratorMap.entrySet()) {
                 if (triggerMigration(/*schemaType=*/entry.getKey(), /*migrator=*/entry.getValue(),
                         currentVersionMap, finalVersionMap, migrationHelper)) {
-                    responseBuilder.addMigratedType(/*migratedType=*/entry.getKey());
+                    migratedTypes.add(entry.getKey());
                 }
             }
+            responseBuilder.addMigratedType(migratedTypes);
 
             // 5. SetSchema a second time with forceOverride=true if the first attempted failed.
             if (setSchemaResult.getResultCode() != RESULT_OK) {

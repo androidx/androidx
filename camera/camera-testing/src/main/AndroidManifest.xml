@@ -16,7 +16,7 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.camera.testing">
-
+    <uses-permission android:name="android.permission.BROADCAST_CLOSE_SYSTEM_DIALOGS"/>
     <application>
         <activity
             android:name="androidx.camera.testing.activity.ForegroundTestActivity"

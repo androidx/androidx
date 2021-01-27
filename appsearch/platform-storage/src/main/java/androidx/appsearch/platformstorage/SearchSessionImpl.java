@@ -68,17 +68,23 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    // TODO(b/13362554) change to call platformSession.setSchema when it's ready.
     public ListenableFuture<SetSchemaResponse> setSchema(@NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
-        ResolvableFuture<Void> future = ResolvableFuture.create();
-        ResolvableFuture<SetSchemaResponse> fakeFuture = ResolvableFuture.create();
+        ResolvableFuture<SetSchemaResponse> future = ResolvableFuture.create();
         mPlatformSession.setSchema(
                 RequestToPlatformConverter.toPlatformSetSchemaRequest(request),
                 mExecutorService,
-                result -> AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
-                        result, future));
-        return fakeFuture;
+                result -> {
+                    if (result.isSuccess()) {
+                        SetSchemaResponse jetpackResponse =
+                                RequestToPlatformConverter.toJetpackSetSchemaResponse(
+                                        result.getResultValue());
+                        future.set(jetpackResponse);
+                    } else {
+                        handleFailedPlatformResult(result, future);
+                    }
+                });
+        return future;
     }
 
     @Override
@@ -199,7 +205,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     public void close() {
-        // TODO(b/175637134); Support close() once the method is exposed in the platform sdk
+        mPlatformSession.close();
     }
 
     private void handleFailedPlatformResult(

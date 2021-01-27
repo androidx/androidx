@@ -21,6 +21,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByUriRequest;
@@ -28,6 +29,7 @@ import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByUriRequest;
 import androidx.appsearch.app.SetSchemaRequest;
+import androidx.appsearch.app.SetSchemaResponse;
 import androidx.core.util.Preconditions;
 
 import java.util.Map;
@@ -73,6 +75,35 @@ public final class RequestToPlatformConverter {
         }
         platformBuilder.setForceOverride(jetpackRequest.isForceOverride());
         return platformBuilder.build();
+    }
+
+    /**
+     * Translates a platform {@link android.app.appsearch.SetSchemaResponse} into a jetpack
+     * {@link androidx.appsearch.app.SetSchemaResponse}.
+     */
+    @NonNull
+    public static SetSchemaResponse toJetpackSetSchemaResponse(
+            @NonNull android.app.appsearch.SetSchemaResponse platformResponse) {
+        Preconditions.checkNotNull(platformResponse);
+        SetSchemaResponse.Builder jetpackBuilder = new SetSchemaResponse.Builder()
+                // TODO(b/178060626): Populate the right result code once available in the platform
+                //  SDK
+                .setResultCode(
+                        platformResponse.isSuccess()
+                                ? AppSearchResult.RESULT_OK : AppSearchResult.RESULT_INTERNAL_ERROR)
+                .addDeletedType(platformResponse.getDeletedTypes())
+                .addIncompatibleType(platformResponse.getIncompatibleTypes())
+                .addMigratedType(platformResponse.getMigratedTypes());
+        for (android.app.appsearch.SetSchemaResponse.MigrationFailure migrationFailure :
+                platformResponse.getMigrationFailures()) {
+            jetpackBuilder.setFailure(
+                    migrationFailure.getSchemaType(),
+                    migrationFailure.getNamespace(),
+                    migrationFailure.getUri(),
+                    AppSearchResultToPlatformConverter.platformAppSearchResultToJetpack(
+                            migrationFailure.getAppSearchResult()));
+        }
+        return jetpackBuilder.build();
     }
 
     /**
