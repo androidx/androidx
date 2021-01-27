@@ -46,16 +46,6 @@ public final class TemplateInfo {
         this.mTemplateId = templateId;
     }
 
-    /**
-     * @deprecated this constructor is deprecated.
-     */
-    // TODO(b/178104682): Remove this method.
-    @Deprecated
-    public TemplateInfo(@NonNull Template template, @NonNull String templateId) {
-        this.mTemplateClass = template.getClass();
-        this.mTemplateId = templateId;
-    }
-
     private TemplateInfo() {
         this.mTemplateClass = null;
         this.mTemplateId = null;
