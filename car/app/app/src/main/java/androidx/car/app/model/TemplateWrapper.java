@@ -22,6 +22,7 @@ import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -41,8 +42,10 @@ import java.util.UUID;
  */
 public final class TemplateWrapper {
     @Keep
+    @Nullable
     private Template mTemplate;
     @Keep
+    @Nullable
     private String mId;
     @Keep
     private List<TemplateInfo> mTemplateInfoForScreenStack = new ArrayList<>();
@@ -98,13 +101,17 @@ public final class TemplateWrapper {
     /** Returns the wrapped {@link Template}. */
     @NonNull
     public Template getTemplate() {
-        return mTemplate;
+        // Intentionally kept as non-null because the library creates these classes internally after
+        // the app returns a non-null template, a null-value should not be expected here.
+        return requireNonNull(mTemplate);
     }
 
     /** Returns the ID associated with the wrapped {@link Template}. */
     @NonNull
     public String getId() {
-        return mId;
+        // Intentionally kept as non-null because the library creates these classes internally after
+        // the app returns a non-null template, a null-value should not be expected here.
+        return requireNonNull(mId);
     }
 
     /**
