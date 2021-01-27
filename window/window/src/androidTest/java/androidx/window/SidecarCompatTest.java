@@ -364,12 +364,13 @@ public final class SidecarCompatTest extends WindowTestBase
         mSidecarCompat.setExtensionCallback(listener);
         when(mSidecarCompat.mSidecar.getWindowLayoutInfo(any())).thenReturn(layoutInfo);
         View fakeView = mock(View.class);
+        Window fakeWindow = new TestWindow(mActivity, fakeView);
         doAnswer(invocation -> {
             View.OnAttachStateChangeListener stateChangeListener = invocation.getArgument(0);
+            fakeWindow.getAttributes().token = mock(IBinder.class);
             stateChangeListener.onViewAttachedToWindow(fakeView);
             return null;
         }).when(fakeView).addOnAttachStateChangeListener(any());
-        Window fakeWindow = new TestWindow(mActivity, fakeView);
         when(mActivity.getWindow()).thenReturn(fakeWindow);
 
         mSidecarCompat.onWindowLayoutChangeListenerAdded(mActivity);
