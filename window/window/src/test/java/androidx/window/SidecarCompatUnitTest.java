@@ -16,7 +16,7 @@
 
 package androidx.window;
 
-import static androidx.window.ActivityTestUtil.getActivityWindowToken;
+import static androidx.window.ActivityUtil.getActivityWindowToken;
 import static androidx.window.TestBoundsUtil.invalidFoldBounds;
 import static androidx.window.TestBoundsUtil.invalidHingeBounds;
 import static androidx.window.TestBoundsUtil.validFoldBound;
