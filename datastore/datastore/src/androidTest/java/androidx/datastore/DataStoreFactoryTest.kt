@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.datastore.core.DataStoreFactory
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -51,29 +52,34 @@ class DataStoreFactoryTest {
     @Test
     fun testCreateWithContextAndName() = runBlockingTest {
         val byte = 1
-
-        var store = context.createDataStore(
-            serializer = TestingSerializer(),
-            fileName = "my_settings.byte",
-            scope = dataStoreScope
-        )
-        store.updateData { 1 }
+        coroutineScope {
+            val store = context.createDataStore(
+                serializer = TestingSerializer(),
+                fileName = "my_settings.byte",
+                scope = this
+            )
+            store.updateData { 1 }
+        }
 
         // Create it again and confirm it's still there
-        store = context.createDataStore(
-            serializer = TestingSerializer(),
-            fileName = "my_settings.byte",
-            scope = dataStoreScope
-        )
-        assertThat(store.data.first()).isEqualTo(byte)
-
-        // Check that the file name is context.filesDir + fileName
-        store = DataStoreFactory.create(
-            serializer = TestingSerializer(),
-            scope = dataStoreScope
-        ) {
-            File(context.filesDir, "datastore/my_settings.byte")
+        coroutineScope {
+            val store = context.createDataStore(
+                serializer = TestingSerializer(),
+                fileName = "my_settings.byte",
+                scope = this
+            )
+            assertThat(store.data.first()).isEqualTo(byte)
         }
-        assertThat(store.data.first()).isEqualTo(byte)
+
+        coroutineScope {
+            // Check that the file name is context.filesDir + fileName
+            val store = DataStoreFactory.create(
+                serializer = TestingSerializer(),
+                scope = dataStoreScope
+            ) {
+                File(context.filesDir, "datastore/my_settings.byte")
+            }
+            assertThat(store.data.first()).isEqualTo(byte)
+        }
     }
 }
