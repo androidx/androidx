@@ -31,10 +31,6 @@ public final class Toggle {
         void onCheckedChange(boolean isChecked);
     }
 
-    @SuppressWarnings("deprecation")
-    @Keep
-    @Nullable
-    private final OnCheckedChangeListenerWrapper mOnCheckedChangeListener;
     @Keep
     @Nullable
     private final OnCheckedChangeDelegate mOnCheckedChangeDelegate;
@@ -46,20 +42,6 @@ public final class Toggle {
      */
     public boolean isChecked() {
         return mIsChecked;
-    }
-
-    /**
-     * Returns the {@link OnCheckedChangeListenerWrapper} that is called when the checked state of
-     * the {@link Toggle} is changed.
-     *
-     * @deprecated use {@link #getOnCheckedChangeDelegate} instead.
-     */
-    // TODO(b/177591476): remove after host references have been cleaned up.
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    @Nullable
-    public OnCheckedChangeListenerWrapper getOnCheckedChangeListener() {
-        return mOnCheckedChangeListener;
     }
 
     /**
@@ -98,21 +80,17 @@ public final class Toggle {
 
     Toggle(Builder builder) {
         mIsChecked = builder.mIsChecked;
-        mOnCheckedChangeListener = builder.mOnCheckedChangeListener;
         mOnCheckedChangeDelegate = builder.mOnCheckedChangeDelegate;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Toggle() {
-        mOnCheckedChangeListener = null;
         mOnCheckedChangeDelegate = null;
         mIsChecked = false;
     }
 
     /** A builder of {@link Toggle}. */
     public static final class Builder {
-        @SuppressWarnings("deprecation")
-        OnCheckedChangeListenerWrapper mOnCheckedChangeListener;
         OnCheckedChangeDelegate mOnCheckedChangeDelegate;
         boolean mIsChecked;
 
@@ -144,8 +122,6 @@ public final class Toggle {
          */
         @SuppressLint("ExecutorRegistration")
         public Builder(@NonNull OnCheckedChangeListener onCheckedChangeListener) {
-            mOnCheckedChangeListener =
-                    OnCheckedChangeListenerWrapperImpl.create(onCheckedChangeListener);
             mOnCheckedChangeDelegate = OnCheckedChangeDelegateImpl.create(onCheckedChangeListener);
         }
     }

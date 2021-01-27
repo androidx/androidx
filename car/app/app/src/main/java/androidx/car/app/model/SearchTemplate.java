@@ -68,9 +68,6 @@ public final class SearchTemplate implements Template {
 
     @Keep
     private final boolean mIsLoading;
-    @SuppressWarnings("deprecation")
-    @Keep
-    private final SearchCallbackWrapper mSearchCallback;
     @Keep
     private final SearchCallbackDelegate mSearchCallbackDelegate;
     @Keep
@@ -139,19 +136,6 @@ public final class SearchTemplate implements Template {
     }
 
     /**
-     * Returns the {@link SearchCallbackWrapper} for search callbacks.
-     *
-     * @deprecated use {@link #getSearchCallbackDelegate()} instead.
-     */
-    // TODO(b/177591476): remove after host references have been cleaned up.
-    @Deprecated
-    @SuppressWarnings("deprecation")
-    @Nullable
-    public SearchCallbackWrapper getSearchCallback() {
-        return mSearchCallback;
-    }
-
-    /**
      * Returns the {@link SearchCallbackDelegate} for search callbacks.
      */
     @Nullable
@@ -211,7 +195,6 @@ public final class SearchTemplate implements Template {
         mSearchHint = builder.mSearchHint;
         mIsLoading = builder.mIsLoading;
         mItemList = builder.mItemList;
-        mSearchCallback = builder.mSearchCallback;
         mSearchCallbackDelegate = builder.mSearchCallbackDelegate;
         mShowKeyboardByDefault = builder.mShowKeyboardByDefault;
         mHeaderAction = builder.mHeaderAction;
@@ -226,15 +209,12 @@ public final class SearchTemplate implements Template {
         mItemList = null;
         mHeaderAction = null;
         mActionStrip = null;
-        mSearchCallback = null;
         mSearchCallbackDelegate = null;
         mShowKeyboardByDefault = true;
     }
 
     /** A builder of {@link SearchTemplate}. */
     public static final class Builder {
-        @SuppressWarnings("deprecation")
-        final SearchCallbackWrapper mSearchCallback;
         final SearchCallbackDelegate mSearchCallbackDelegate;
         @Nullable
         String mInitialSearchText;
@@ -401,7 +381,6 @@ public final class SearchTemplate implements Template {
          */
         @SuppressLint("ExecutorRegistration")
         public Builder(@NonNull SearchCallback callback) {
-            mSearchCallback = SearchCallbackWrapperImpl.create(callback);
             mSearchCallbackDelegate = SearchCallbackDelegateImpl.create(callback);
         }
     }
