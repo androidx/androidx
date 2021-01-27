@@ -26,7 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.platform.AmbientContext
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -76,7 +76,7 @@ public fun NavController.currentBackStackEntryAsState(): State<NavBackStackEntry
  */
 @Composable
 public fun rememberNavController(): NavHostController {
-    val context = AmbientContext.current
+    val context = LocalContext.current
     return rememberSaveable(saver = NavControllerSaver(context)) {
         createNavController(context)
     }
