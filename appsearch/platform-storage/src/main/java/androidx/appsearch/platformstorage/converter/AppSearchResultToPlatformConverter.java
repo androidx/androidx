@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchBatchResult;
+import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.Preconditions;
@@ -38,6 +39,21 @@ import java.util.function.Function;
 @RequiresApi(Build.VERSION_CODES.S)
 public final class AppSearchResultToPlatformConverter {
     private AppSearchResultToPlatformConverter() {}
+
+    /**
+     * Converts an {@link android.app.appsearch.AppSearchResult} into a jetpack
+     * {@link androidx.appsearch.app.AppSearchResult}.
+     */
+    @NonNull
+    public static <T> AppSearchResult<T> platformAppSearchResultToJetpack(
+            @NonNull android.app.appsearch.AppSearchResult<T> platformResult) {
+        Preconditions.checkNotNull(platformResult);
+        if (platformResult.isSuccess()) {
+            return AppSearchResult.newSuccessfulResult(platformResult.getResultValue());
+        }
+        return AppSearchResult.newFailedResult(
+                platformResult.getResultCode(), platformResult.getErrorMessage());
+    }
 
     /**
      * Uses the given {@link android.app.appsearch.AppSearchResult} to populate the given
