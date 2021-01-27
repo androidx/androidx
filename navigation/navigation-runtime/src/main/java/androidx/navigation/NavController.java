@@ -626,7 +626,7 @@ public class NavController {
                 }
                 NavBackStackEntry entry = new NavBackStackEntry(mContext, node, args,
                         mLifecycleOwner, mViewModel,
-                        state.getUUID(), state.getSavedState());
+                        state.getUuid(), state.getSavedState());
                 mBackStack.add(entry);
             }
             updateOnBackPressedCallbackEnabled();
