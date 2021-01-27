@@ -36,10 +36,10 @@ dependencies {
     api("androidx.collection:collection-ktx:1.1.0") {
         because 'Mirror fragment dependency graph for -ktx artifacts'
     }
-    api(projectOrArtifact(":lifecycle:lifecycle-livedata-core-ktx")) {
+    api("androidx.lifecycle:lifecycle-livedata-core-ktx:2.3.0") {
         because 'Mirror fragment dependency graph for -ktx artifacts'
     }
-    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-ktx"))
+    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0")
     api("androidx.savedstate:savedstate-ktx:1.1.0") {
         because 'Mirror fragment dependency graph for -ktx artifacts'
     }
