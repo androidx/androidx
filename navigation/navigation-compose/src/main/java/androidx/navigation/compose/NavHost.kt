@@ -22,9 +22,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Providers
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.savedinstancestate.ExperimentalRestorableStateHolder
-import androidx.compose.runtime.savedinstancestate.RestorableStateHolder
-import androidx.compose.runtime.savedinstancestate.rememberRestorableStateHolder
+import androidx.compose.runtime.saveable.SaveableStateHolder
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.platform.AmbientContext
 import androidx.compose.ui.platform.AmbientLifecycleOwner
 import androidx.compose.ui.platform.AmbientViewModelStoreOwner
@@ -79,7 +78,6 @@ public fun NavHost(
  * @param navController the navController for this host
  * @param graph the graph for this host
  */
-@OptIn(ExperimentalRestorableStateHolder::class)
 @Composable
 public fun NavHost(navController: NavHostController, graph: NavGraph) {
     var context = AmbientContext.current
@@ -111,7 +109,7 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
         onDispose { }
     }
 
-    val restorableStateHolder = rememberRestorableStateHolder<UUID>()
+    val saveableStateHolder = rememberSaveableStateHolder()
 
     // state from the navController back stack
     val currentNavBackStackEntry = navController.currentBackStackEntryAsState().value
@@ -129,7 +127,7 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
                 AmbientViewModelStoreOwner provides currentNavBackStackEntry,
                 AmbientLifecycleOwner provides currentNavBackStackEntry
             ) {
-                restorableStateHolder.RestorableStateProvider {
+                saveableStateHolder.SaveableStateProvider {
                     destination.content(currentNavBackStackEntry)
                 }
             }
@@ -137,30 +135,28 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
     }
 }
 
-@OptIn(ExperimentalRestorableStateHolder::class)
 @Composable
-private fun RestorableStateHolder<UUID>.RestorableStateProvider(content: @Composable () -> Unit) {
+private fun SaveableStateHolder.SaveableStateProvider(content: @Composable () -> Unit) {
     val viewModel = viewModel<BackStackEntryIdViewModel>()
-    viewModel.restorableStateHolder = this
-    RestorableStateProvider(viewModel.id, content)
+    viewModel.saveableStateHolder = this
+    SaveableStateProvider(viewModel.id, content)
 }
 
-@OptIn(ExperimentalRestorableStateHolder::class)
 internal class BackStackEntryIdViewModel(handle: SavedStateHandle) : ViewModel() {
 
-    private val IdKey = "RestorableStateHolder_BackStackEntryKey"
+    private val IdKey = "SaveableStateHolder_BackStackEntryKey"
 
     // we create our own id for each back stack entry to support multiple entries of the same
     // destination. this id will be restored by SavedStateHandle
     val id: UUID = handle.get<UUID>(IdKey) ?: UUID.randomUUID().also { handle.set(IdKey, it) }
 
-    var restorableStateHolder: RestorableStateHolder<UUID>? = null
+    var saveableStateHolder: SaveableStateHolder? = null
 
     // onCleared will be called on the entries removed from the back stack. here we notify
     // RestorableStateHolder that we shouldn't save the state for this id, so when we open this
     // destination again the state will not be restored.
     override fun onCleared() {
         super.onCleared()
-        restorableStateHolder?.removeState(id)
+        saveableStateHolder?.removeState(id)
     }
 }
