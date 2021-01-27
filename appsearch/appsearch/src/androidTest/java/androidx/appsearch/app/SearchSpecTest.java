@@ -23,7 +23,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Bundle;
 
-import androidx.appsearch.annotation.AppSearchDocument;
+import androidx.appsearch.annotation.Document;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -96,12 +96,12 @@ public class SearchSpecTest {
     }
 
 // @exportToFramework:startStrip()
-    @AppSearchDocument
+    @Document
     static class King extends Card {
-        @AppSearchDocument.Uri
+        @Document.Uri
         String mUri;
 
-        @AppSearchDocument.Property
+        @Document.Property
                 (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
         String mString;
     }

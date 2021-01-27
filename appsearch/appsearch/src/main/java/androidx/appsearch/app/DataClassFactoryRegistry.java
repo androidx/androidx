@@ -111,9 +111,9 @@ public final class DataClassFactoryRegistry {
         }
 
         // Creates factory class name under the package.
-        // For a class Foo annotated with @AppSearchDocument, we will generated a
+        // For a class Foo annotated with @Document, we will generated a
         // $$__AppSearch__Foo.class under the package.
-        // For an inner class Foo.Bar annotated with @AppSearchDocument, we will generated a
+        // For an inner class Foo.Bar annotated with @Document, we will generated a
         // $$__AppSearch__Foo$$__Bar.class under the package.
         String packageName = "";
         if (pkg != null) {

@@ -23,7 +23,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import androidx.appsearch.annotation.AppSearchDocument;
+import androidx.appsearch.annotation.Document;
 import androidx.collection.ArrayMap;
 
 import com.google.common.collect.ImmutableSet;
@@ -38,12 +38,12 @@ import java.util.Set;
 
 public class SetSchemaRequestTest {
 // @exportToFramework:startStrip()
-    @AppSearchDocument
+    @Document
     static class Card {
-        @AppSearchDocument.Uri
+        @Document.Uri
         String mUri;
 
-        @AppSearchDocument.Property
+        @Document.Property
                 (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
         String mString;
 
@@ -63,22 +63,22 @@ public class SetSchemaRequestTest {
 
     static class Spade {}
 
-    @AppSearchDocument
+    @Document
     static class King extends Spade {
-        @AppSearchDocument.Uri
+        @Document.Uri
         String mUri;
 
-        @AppSearchDocument.Property
+        @Document.Property
                 (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
         String mString;
     }
 
-    @AppSearchDocument
+    @Document
     static class Queen extends Spade {
-        @AppSearchDocument.Uri
+        @Document.Uri
         String mUri;
 
-        @AppSearchDocument.Property
+        @Document.Property
                 (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
         String mString;
     }

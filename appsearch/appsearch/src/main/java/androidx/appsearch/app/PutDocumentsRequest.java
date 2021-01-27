@@ -19,6 +19,7 @@ package androidx.appsearch.app;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
+import androidx.appsearch.annotation.Document;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.core.util.Preconditions;
 
@@ -76,11 +77,11 @@ public final class PutDocumentsRequest {
 
 // @exportToFramework:startStrip()
         /**
-         * Adds one or more annotated {@link androidx.appsearch.annotation.AppSearchDocument}
+         * Adds one or more annotated {@link Document}
          * documents to the request.
          *
          * @param dataClasses annotated
-         *                    {@link androidx.appsearch.annotation.AppSearchDocument} documents.
+         *                    {@link Document} documents.
          * @throws AppSearchException if an error occurs converting a data class into a
          *                            {@link GenericDocument}.
          */
@@ -93,10 +94,10 @@ public final class PutDocumentsRequest {
 
         /**
          * Adds a collection of annotated
-         * {@link androidx.appsearch.annotation.AppSearchDocument} documents to the request.
+         * {@link Document} documents to the request.
          *
          * @param dataClasses annotated
-         *                    {@link androidx.appsearch.annotation.AppSearchDocument} documents.
+         *                    {@link Document} documents.
          * @throws AppSearchException if an error occurs converting a data class into a
          *                            {@link GenericDocument}.
          */

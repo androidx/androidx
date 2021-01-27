@@ -24,7 +24,7 @@ import static androidx.appsearch.app.util.AppSearchTestUtils.convertSearchResult
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.annotation.NonNull;
-import androidx.appsearch.annotation.AppSearchDocument;
+import androidx.appsearch.annotation.Document;
 import androidx.appsearch.localstorage.LocalStorage;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -63,11 +63,11 @@ public abstract class AnnotationProcessorTestBase {
         mSession.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()).get();
     }
 
-    @AppSearchDocument
+    @Document
     static class Card {
-        @AppSearchDocument.Uri
+        @Document.Uri
         String mUri;
-        @AppSearchDocument.Property
+        @Document.Property
                 (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
         String mString;        // 3a
 
@@ -85,85 +85,85 @@ public abstract class AnnotationProcessorTestBase {
         }
     }
 
-    @AppSearchDocument
+    @Document
     static class Gift {
-        @AppSearchDocument.Uri
+        @Document.Uri
         String mUri;
 
         // Collections
-        @AppSearchDocument.Property
+        @Document.Property
         Collection<Long> mCollectLong;         // 1a
-        @AppSearchDocument.Property
+        @Document.Property
         Collection<Integer> mCollectInteger;   // 1a
-        @AppSearchDocument.Property
+        @Document.Property
         Collection<Double> mCollectDouble;     // 1a
-        @AppSearchDocument.Property
+        @Document.Property
         Collection<Float> mCollectFloat;       // 1a
-        @AppSearchDocument.Property
+        @Document.Property
         Collection<Boolean> mCollectBoolean;   // 1a
-        @AppSearchDocument.Property
+        @Document.Property
         Collection<byte[]> mCollectByteArr;    // 1a
-        @AppSearchDocument.Property
+        @Document.Property
         Collection<String> mCollectString;     // 1b
-        @AppSearchDocument.Property
+        @Document.Property
         Collection<Card> mCollectCard;         // 1c
 
         // Arrays
-        @AppSearchDocument.Property
+        @Document.Property
         Long[] mArrBoxLong;         // 2a
-        @AppSearchDocument.Property
+        @Document.Property
         long[] mArrUnboxLong;       // 2b
-        @AppSearchDocument.Property
+        @Document.Property
         Integer[] mArrBoxInteger;   // 2a
-        @AppSearchDocument.Property
+        @Document.Property
         int[] mArrUnboxInt;         // 2a
-        @AppSearchDocument.Property
+        @Document.Property
         Double[] mArrBoxDouble;     // 2a
-        @AppSearchDocument.Property
+        @Document.Property
         double[] mArrUnboxDouble;   // 2b
-        @AppSearchDocument.Property
+        @Document.Property
         Float[] mArrBoxFloat;       // 2a
-        @AppSearchDocument.Property
+        @Document.Property
         float[] mArrUnboxFloat;     // 2a
-        @AppSearchDocument.Property
+        @Document.Property
         Boolean[] mArrBoxBoolean;   // 2a
-        @AppSearchDocument.Property
+        @Document.Property
         boolean[] mArrUnboxBoolean; // 2b
-        @AppSearchDocument.Property
+        @Document.Property
         byte[][] mArrUnboxByteArr;  // 2b
-        @AppSearchDocument.Property
+        @Document.Property
         Byte[] mBoxByteArr;         // 2a
-        @AppSearchDocument.Property
+        @Document.Property
         String[] mArrString;        // 2b
-        @AppSearchDocument.Property
+        @Document.Property
         Card[] mArrCard;            // 2c
 
         // Single values
-        @AppSearchDocument.Property
+        @Document.Property
         String mString;        // 3a
-        @AppSearchDocument.Property
+        @Document.Property
         Long mBoxLong;         // 3a
-        @AppSearchDocument.Property
+        @Document.Property
         long mUnboxLong;       // 3b
-        @AppSearchDocument.Property
+        @Document.Property
         Integer mBoxInteger;   // 3a
-        @AppSearchDocument.Property
+        @Document.Property
         int mUnboxInt;         // 3b
-        @AppSearchDocument.Property
+        @Document.Property
         Double mBoxDouble;     // 3a
-        @AppSearchDocument.Property
+        @Document.Property
         double mUnboxDouble;   // 3b
-        @AppSearchDocument.Property
+        @Document.Property
         Float mBoxFloat;       // 3a
-        @AppSearchDocument.Property
+        @Document.Property
         float mUnboxFloat;     // 3b
-        @AppSearchDocument.Property
+        @Document.Property
         Boolean mBoxBoolean;   // 3a
-        @AppSearchDocument.Property
+        @Document.Property
         boolean mUnboxBoolean; // 3b
-        @AppSearchDocument.Property
+        @Document.Property
         byte[] mUnboxByteArr;  // 3a
-        @AppSearchDocument.Property
+        @Document.Property
         Card mCard;            // 3c
 
         @Override
@@ -229,7 +229,7 @@ public abstract class AnnotationProcessorTestBase {
     @Test
     public void testAnnotationProcessor() throws Exception {
         //TODO(b/156296904) add test for int, float, GenericDocument, and class with
-        // @AppSearchDocument annotation
+        // @Document annotation
         mSession.setSchema(
                 new SetSchemaRequest.Builder().addDataClass(Card.class, Gift.class).build()).get();
 

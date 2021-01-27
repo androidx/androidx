@@ -24,6 +24,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.Document;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.util.BundleUtil;
 import androidx.core.util.Preconditions;
@@ -483,7 +484,7 @@ public class GenericDocument {
      * would be an empty or partially populated result.
      *
      * @param dataClass a class annotated with
-     *                  {@link androidx.appsearch.annotation.AppSearchDocument}.
+     *                  {@link Document}.
      */
     @NonNull
     public <T> T toDataClass(@NonNull Class<T> dataClass) throws AppSearchException {

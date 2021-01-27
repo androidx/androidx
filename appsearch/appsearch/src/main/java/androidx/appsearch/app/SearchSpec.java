@@ -23,6 +23,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.Document;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.exceptions.IllegalSearchSpecException;
 import androidx.collection.ArrayMap;
@@ -348,7 +349,7 @@ public final class SearchSpec {
          * <p>If unset, the query will search over all schema types.
          *
          * @param dataClasses classes annotated with
-         *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
+         *                    {@link Document}.
          */
         @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getSchemaTypes
         @NonNull
@@ -375,7 +376,7 @@ public final class SearchSpec {
          * <p>If unset, the query will search over all schema types.
          *
          * @param dataClasses classes annotated with
-         *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
+         *                    {@link Document}.
          */
         @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getSchemas()
         @NonNull

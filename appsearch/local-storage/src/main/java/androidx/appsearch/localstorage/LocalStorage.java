@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
+import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -40,7 +41,7 @@ import java.util.concurrent.Executors;
  *
  * <p>The search native library is an on-device searching library that allows apps to define
  * {@link androidx.appsearch.app.AppSearchSchema}s, save and query a variety of
- * {@link androidx.appsearch.annotation.AppSearchDocument}s. The library needs to be initialized
+ * {@link Document}s. The library needs to be initialized
  * before using, which will create a folder to save data in the app's storage space.
  *
  * <p>Queries are executed multi-threaded, but a single thread is used for mutate requests (put,

@@ -35,8 +35,8 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 
-/** Processes AppSearchDocument annotations. */
-@SupportedAnnotationTypes({IntrospectionHelper.APP_SEARCH_DOCUMENT_CLASS})
+/** Processes @Document annotations. */
+@SupportedAnnotationTypes({IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedOptions({AppSearchCompiler.OUTPUT_DIR_OPTION})
 public class AppSearchCompiler extends AbstractProcessor {
@@ -80,23 +80,23 @@ public class AppSearchCompiler extends AbstractProcessor {
             @NonNull RoundEnvironment roundEnvironment) throws ProcessingException {
         if (set.isEmpty()) return;
 
-        // Find the TypeElement corresponding to the @AppSearchDocument annotation. We can't use the
+        // Find the TypeElement corresponding to the @Document annotation. We can't use the
         // annotation class directly because the appsearch project compiles only on Android, but
         // this annotation processor runs on the host.
-        TypeElement appSearchDocument =
-                findAnnotation(set, IntrospectionHelper.APP_SEARCH_DOCUMENT_CLASS);
+        TypeElement documentAnnotation =
+                findAnnotation(set, IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS);
 
-        for (Element element : roundEnvironment.getElementsAnnotatedWith(appSearchDocument)) {
+        for (Element element : roundEnvironment.getElementsAnnotatedWith(documentAnnotation)) {
             if (element.getKind() != ElementKind.CLASS) {
                 throw new ProcessingException(
-                        "@AppSearchDocument annotation on something other than a class", element);
+                        "@Document annotation on something other than a class", element);
             }
-            processAppSearchDocument((TypeElement) element);
+            processDocument((TypeElement) element);
         }
     }
 
-    private void processAppSearchDocument(@NonNull TypeElement element) throws ProcessingException {
-        AppSearchDocumentModel model = AppSearchDocumentModel.create(processingEnv, element);
+    private void processDocument(@NonNull TypeElement element) throws ProcessingException {
+        DocumentModel model = DocumentModel.create(processingEnv, element);
         CodeGenerator generator = CodeGenerator.generate(processingEnv, model);
         String outputDir = processingEnv.getOptions().get(OUTPUT_DIR_OPTION);
         try {

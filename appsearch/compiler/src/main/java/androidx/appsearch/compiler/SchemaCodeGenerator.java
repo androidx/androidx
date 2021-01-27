@@ -42,17 +42,17 @@ import javax.lang.model.util.Types;
 class SchemaCodeGenerator {
     private final ProcessingEnvironment mEnv;
     private final IntrospectionHelper mHelper;
-    private final AppSearchDocumentModel mModel;
+    private final DocumentModel mModel;
 
     public static void generate(
             @NonNull ProcessingEnvironment env,
-            @NonNull AppSearchDocumentModel model,
+            @NonNull DocumentModel model,
             @NonNull TypeSpec.Builder classBuilder) throws ProcessingException {
         new SchemaCodeGenerator(env, model).generate(classBuilder);
     }
 
     private SchemaCodeGenerator(
-            @NonNull ProcessingEnvironment env, @NonNull AppSearchDocumentModel model) {
+            @NonNull ProcessingEnvironment env, @NonNull DocumentModel model) {
         mEnv = env;
         mHelper = new IntrospectionHelper(env);
         mModel = model;
