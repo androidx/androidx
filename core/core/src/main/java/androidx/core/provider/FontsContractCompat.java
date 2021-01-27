@@ -173,7 +173,7 @@ public class FontsContractCompat {
 
     private static final int BACKGROUND_THREAD_KEEP_ALIVE_DURATION_MS = 10000;
     private static final SelfDestructiveThread sBackgroundThread =
-            new SelfDestructiveThread("fonts", Process.THREAD_PRIORITY_BACKGROUND,
+            new SelfDestructiveThread("fonts-androidx", Process.THREAD_PRIORITY_BACKGROUND,
                     BACKGROUND_THREAD_KEEP_ALIVE_DURATION_MS);
 
     @NonNull
