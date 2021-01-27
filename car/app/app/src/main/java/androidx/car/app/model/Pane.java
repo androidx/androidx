@@ -42,18 +42,6 @@ public final class Pane {
 
     /**
      * Returns the list of {@link Action}s displayed alongside the {@link Row}s in this pane.
-     *
-     * @deprecated use {@link #getActions()} instead.
-     */
-    // TODO(b/177276260): remove once {@link #getActions()} is used in the host.
-    @Deprecated
-    @NonNull
-    public List<Action> getActionList() {
-        return getActions();
-    }
-
-    /**
-     * Returns the list of {@link Action}s displayed alongside the {@link Row}s in this pane.
      */
     @NonNull
     public List<Action> getActions() {
@@ -161,29 +149,6 @@ public final class Pane {
         @NonNull
         public Builder addRow(@NonNull Row row) {
             mRows.add(requireNonNull(row));
-            return this;
-        }
-
-        /**
-         * Sets multiple {@link Action}s to display alongside the rows in the pane.
-         *
-         * <p>By default, no actions are displayed.
-         *
-         * @throws NullPointerException if {@code actions} is {@code null}.
-         * @deprecated use {@link #addAction(Action)} instead.
-         */
-        // TODO(b/177276260): remove once {@link #addAction(Action)} is used in the host.
-        @Deprecated
-        @NonNull
-        public Builder setActionList(@NonNull List<Action> actions) {
-            requireNonNull(actions);
-            for (Action action : actions) {
-                if (action == null) {
-                    throw new IllegalArgumentException(
-                            "Disallowed null action found in action list");
-                }
-                addAction(action);
-            }
             return this;
         }
 
