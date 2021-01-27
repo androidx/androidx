@@ -47,18 +47,6 @@ public final class ActionStrip {
 
     /**
      * Returns the list of {@link Action}'s.
-     *
-     * @deprecated use {@link #getActions()} instead.
-     */
-    // TODO(b/177276260): remove once {@link #getActions()} is used in the host.
-    @Deprecated
-    @NonNull
-    public List<Action> getActionList() {
-        return getActions();
-    }
-
-    /**
-     * Returns the list of {@link Action}'s.
      */
     @NonNull
     public List<Action> getActions() {
