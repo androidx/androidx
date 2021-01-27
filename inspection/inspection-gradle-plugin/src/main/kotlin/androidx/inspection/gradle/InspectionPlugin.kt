@@ -27,6 +27,7 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.StopExecutionException
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getPlugin
 import java.io.File
@@ -44,6 +45,7 @@ class InspectionPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         var foundLibraryPlugin = false
         var foundReleaseVariant = false
+        val extension = project.extensions.create<InspectionExtension>(EXTENSION_NAME, project)
         project.pluginManager.withPlugin("com.android.library") {
             foundLibraryPlugin = true
             val libExtension = project.extensions.getByType(LibraryExtension::class.java)
@@ -53,7 +55,9 @@ class InspectionPlugin : Plugin<Project> {
                     foundReleaseVariant = true
                     val unzip = project.registerUnzipTask(variant)
                     val shadowJar = project.registerShadowDependenciesTask(variant, unzip)
-                    dexTask = project.registerDexInspectorTask(variant, libExtension, shadowJar)
+                    dexTask = project.registerDexInspectorTask(
+                        variant, libExtension, extension.name, shadowJar
+                    )
                 }
             }
             libExtension.sourceSets.findByName("main")!!.resources.srcDirs(
@@ -141,4 +145,13 @@ private fun generateProguardDetectionFile(libraryProject: Project) {
     libExtension.libraryVariants.all { variant ->
         libraryProject.registerGenerateProguardDetectionFileTask(variant)
     }
+}
+
+const val EXTENSION_NAME = "inspection"
+
+open class InspectionExtension(@Suppress("UNUSED_PARAMETER") project: Project) {
+    /**
+     * Name of built inspector artifact, if not provided it is equal to project's name.
+     */
+    var name: String? = null
 }
