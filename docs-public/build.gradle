@@ -129,6 +129,7 @@ dependencies {
     docs("androidx.lifecycle:lifecycle-reactivestreams-ktx:2.3.0")
     docs("androidx.lifecycle:lifecycle-runtime:2.3.0")
     docs("androidx.lifecycle:lifecycle-runtime-ktx:2.3.0")
+    docs("androidx.lifecycle:lifecycle-runtime-testing:2.3.0")
     docs("androidx.lifecycle:lifecycle-service:2.3.0")
     docs("androidx.lifecycle:lifecycle-viewmodel:2.3.0")
     docs("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0")
