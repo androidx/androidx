@@ -50,7 +50,7 @@ public final class ForegroundCarColorSpan extends CarSpan {
     @Keep
     private final CarColor mCarColor;
 
-    @NonNull
+    @Nullable
     public CarColor getColor() {
         return mCarColor;
     }

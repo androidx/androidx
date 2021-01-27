@@ -56,9 +56,9 @@ public final class TravelEstimate {
     @Keep
     private final CarColor mRemainingDistanceColor;
 
-    @NonNull
+    @Nullable
     public Distance getRemainingDistance() {
-        return requireNonNull(mRemainingDistance);
+        return mRemainingDistance;
     }
 
     // TODO(rampara): Returned time values must be in milliseconds
@@ -72,12 +72,12 @@ public final class TravelEstimate {
         return mArrivalTimeAtDestination;
     }
 
-    @NonNull
+    @Nullable
     public CarColor getRemainingTimeColor() {
         return mRemainingTimeColor;
     }
 
-    @NonNull
+    @Nullable
     public CarColor getRemainingDistanceColor() {
         return mRemainingDistanceColor;
     }

@@ -76,9 +76,9 @@ public final class DistanceSpan extends CarSpan {
         mDistance = null;
     }
 
-    @NonNull
+    @Nullable
     public Distance getDistance() {
-        return requireNonNull(mDistance);
+        return mDistance;
     }
 
     @NonNull

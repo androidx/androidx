@@ -40,9 +40,9 @@ public final class MessageInfo implements NavigationInfo {
     @Nullable
     private final CarIcon mImage;
 
-    @NonNull
+    @Nullable
     public CarText getTitle() {
-        return requireNonNull(mTitle);
+        return mTitle;
     }
 
     @Nullable

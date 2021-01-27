@@ -151,9 +151,9 @@ public final class CarIconSpan extends CarSpan {
         mAlignment = ALIGN_BASELINE;
     }
 
-    @NonNull
+    @Nullable
     public CarIcon getIcon() {
-        return requireNonNull(mIcon);
+        return mIcon;
     }
 
     @Alignment

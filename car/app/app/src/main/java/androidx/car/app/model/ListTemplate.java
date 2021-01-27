@@ -98,12 +98,12 @@ public final class ListTemplate implements Template {
     @Deprecated
     @NonNull
     public List<SectionedItemList> getSectionLists() {
-        return mSectionedLists;
+        return CollectionUtils.emptyIfNull(mSectionedLists);
     }
 
     @NonNull
     public List<SectionedItemList> getSectionedLists() {
-        return mSectionedLists;
+        return CollectionUtils.emptyIfNull(mSectionedLists);
     }
 
     @Nullable

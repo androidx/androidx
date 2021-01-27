@@ -71,9 +71,9 @@ public final class MessageTemplate implements Template {
         return mHeaderAction;
     }
 
-    @NonNull
+    @Nullable
     public CarText getMessage() {
-        return Objects.requireNonNull(mMessage);
+        return mMessage;
     }
 
     @Nullable
@@ -98,7 +98,7 @@ public final class MessageTemplate implements Template {
 
     @NonNull
     public List<Action> getActions() {
-        return mActionList;
+        return CollectionUtils.emptyIfNull(mActionList);
     }
 
     @NonNull

@@ -155,7 +155,7 @@ public final class ItemList {
      */
     @NonNull
     public List<Item> getItems() {
-        return mItems;
+        return CollectionUtils.emptyIfNull(mItems);
     }
 
     /**
@@ -167,7 +167,7 @@ public final class ItemList {
     @Deprecated
     @NonNull
     public List<Item> getItemList() {
-        return mItems;
+        return CollectionUtils.emptyIfNull(mItems);
     }
 
     @Override

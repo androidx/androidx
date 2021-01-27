@@ -16,8 +16,6 @@
 
 package androidx.car.app.model;
 
-import static java.util.Objects.requireNonNull;
-
 import android.annotation.SuppressLint;
 import android.os.Looper;
 
@@ -59,18 +57,18 @@ public final class Toggle {
     // TODO(b/177591476): remove after host references have been cleaned up.
     @SuppressWarnings("deprecation")
     @Deprecated
-    @NonNull
+    @Nullable
     public OnCheckedChangeListenerWrapper getOnCheckedChangeListener() {
-        return requireNonNull(mOnCheckedChangeListener);
+        return mOnCheckedChangeListener;
     }
 
     /**
      * Returns the {@link OnCheckedChangeDelegate} that is called when the checked state of
      * the {@link Toggle} is changed.
      */
-    @NonNull
+    @Nullable
     public OnCheckedChangeDelegate getOnCheckedChangeDelegate() {
-        return requireNonNull(mOnCheckedChangeDelegate);
+        return mOnCheckedChangeDelegate;
     }
 
     @Override
