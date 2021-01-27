@@ -34,7 +34,7 @@ internal class ActionBarOnDestinationChangedListener(
     activity.drawerToggleDelegate!!.actionBarThemedContext,
     configuration
 ) {
-    override fun setTitle(title: CharSequence) {
+    override fun setTitle(title: CharSequence?) {
         val actionBar = activity.supportActionBar
         require(actionBar != null) {
             "Activity $activity does not have an ActionBar set via setSupportActionBar()"
@@ -42,7 +42,7 @@ internal class ActionBarOnDestinationChangedListener(
         actionBar.setTitle(title)
     }
 
-    override fun setNavigationIcon(icon: Drawable, @StringRes contentDescription: Int) {
+    override fun setNavigationIcon(icon: Drawable?, @StringRes contentDescription: Int) {
         val actionBar = activity.supportActionBar
         require(actionBar != null) {
             "Activity $activity does not have an ActionBar set via setSupportActionBar()"
