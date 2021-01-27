@@ -25,7 +25,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.AmbientContext
@@ -206,7 +206,7 @@ class NavHostTest {
 
             NavHost(navController, startDestination = "First") {
                 composable("First") {
-                    numberOnScreen1 = rememberSavedInstanceState { increment++ }
+                    numberOnScreen1 = rememberSaveable { increment++ }
                 }
                 composable("Second") {}
             }
@@ -243,7 +243,7 @@ class NavHostTest {
                 composable("First") {
                 }
                 composable("Second") {
-                    numberOnScreen2 = rememberSavedInstanceState { increment++ }
+                    numberOnScreen2 = rememberSaveable { increment++ }
                 }
             }
         }
