@@ -110,13 +110,15 @@ public final class ProxyConfig {
     }
 
     /**
+     * Returns {@code true} if reverse bypass is enabled. Reverse bypass means that only URLs in the
+     * bypass list will use these proxy settings. {@link #getBypassRules()} returns the URL list.
+     *
+     * <p>See {@link Builder#setReverseBypassEnabled(boolean)} for a more detailed description.
+     *
      * @return reverseBypass
      *
-     * TODO(laisminchillo): unhide this when we're ready to expose this
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public boolean isReverseBypass() {
+    public boolean isReverseBypassEnabled() {
         return mReverseBypass;
     }
 
@@ -193,7 +195,7 @@ public final class ProxyConfig {
         public Builder(@NonNull ProxyConfig proxyConfig) {
             mProxyRules = proxyConfig.getProxyRules();
             mBypassRules = proxyConfig.getBypassRules();
-            mReverseBypass = proxyConfig.isReverseBypass();
+            mReverseBypass = proxyConfig.isReverseBypassEnabled();
         }
 
         /**
@@ -334,23 +336,26 @@ public final class ProxyConfig {
         }
 
         /**
-         * Reverse the bypass list, so only URLs in the bypass list will use these proxy settings.
+         * Reverse the bypass list.
          *
-         * <p>
-         * This method should only be called if
+         * <p>The default value is {@code false}, in which case all URLs will use proxy settings
+         * except the ones in the bypass list, which will be connected to directly instead.
+         *
+         * <p>If set to {@code true}, then only URLs in the bypass list will use these proxy
+         * settings, and all other URLs will be connected to directly.
+         *
+         * <p>Use {@link #addBypassRule(String)} to add bypass rules.
+         *
+         * <p>This method should only be called if
          * {@link WebViewFeature#isFeatureSupported(String)}
          * returns {@code true} for {@link WebViewFeature#PROXY_OVERRIDE_REVERSE_BYPASS}.
          *
          * @return This Builder object
-         *
-         * TODO(laisminchillo): unhide this when we're ready to expose this
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @RequiresFeature(name = WebViewFeature.PROXY_OVERRIDE_REVERSE_BYPASS,
                 enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
         @NonNull
-        public Builder setReverseBypass(boolean reverseBypass) {
+        public Builder setReverseBypassEnabled(boolean reverseBypass) {
             mReverseBypass = reverseBypass;
             return this;
         }

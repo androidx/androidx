@@ -8,6 +8,7 @@ package androidx.webkit {
   public final class ProxyConfig {
     method public java.util.List<java.lang.String!> getBypassRules();
     method public java.util.List<androidx.webkit.ProxyConfig.ProxyRule!> getProxyRules();
+    method public boolean isReverseBypassEnabled();
     field public static final String MATCH_ALL_SCHEMES = "*";
     field public static final String MATCH_HTTP = "http";
     field public static final String MATCH_HTTPS = "https";
@@ -24,6 +25,7 @@ package androidx.webkit {
     method public androidx.webkit.ProxyConfig build();
     method public androidx.webkit.ProxyConfig.Builder bypassSimpleHostnames();
     method public androidx.webkit.ProxyConfig.Builder removeImplicitRules();
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.PROXY_OVERRIDE_REVERSE_BYPASS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public androidx.webkit.ProxyConfig.Builder setReverseBypassEnabled(boolean);
   }
 
   public static final class ProxyConfig.ProxyRule {
@@ -225,6 +227,7 @@ package androidx.webkit {
     field public static final String OFF_SCREEN_PRERASTER = "OFF_SCREEN_PRERASTER";
     field public static final String POST_WEB_MESSAGE = "POST_WEB_MESSAGE";
     field public static final String PROXY_OVERRIDE = "PROXY_OVERRIDE";
+    field public static final String PROXY_OVERRIDE_REVERSE_BYPASS = "PROXY_OVERRIDE_REVERSE_BYPASS";
     field public static final String RECEIVE_HTTP_ERROR = "RECEIVE_HTTP_ERROR";
     field public static final String RECEIVE_WEB_RESOURCE_ERROR = "RECEIVE_WEB_RESOURCE_ERROR";
     field public static final String SAFE_BROWSING_ALLOWLIST = "SAFE_BROWSING_ALLOWLIST";

@@ -16,7 +16,6 @@
 
 package com.example.androidx.webkit;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
@@ -35,8 +34,6 @@ import androidx.webkit.WebViewFeature;
 /**
  * An {@link Activity} to exercise Proxy Override functionality.
  */
-//TODO(laisminchillo) remove when Reverse Bypass is launched
-@SuppressLint("RestrictedApi")
 public class ProxyOverrideActivity extends AppCompatActivity {
     private Proxy mProxy;
     private Button mSetProxyOverrideButton;
@@ -100,7 +97,7 @@ public class ProxyOverrideActivity extends AppCompatActivity {
                 .addBypassRule("www.anotherbypassurl.com")
                 // Set reverse bypass if the checkbox was checked. With reverse bypass, only
                 // the URLs in the bypass list will use the proxy settings.
-                .setReverseBypass(mReverseBypassCheckBox.isChecked())
+                .setReverseBypassEnabled(mReverseBypassCheckBox.isChecked())
                 .build();
 
         // Call setProxyOverride and specify a callback

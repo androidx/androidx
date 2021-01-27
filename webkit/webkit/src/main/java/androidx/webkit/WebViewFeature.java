@@ -456,12 +456,9 @@ public class WebViewFeature {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers {@link androidx.webkit.ProxyConfig.Builder.setReverseBypass(boolean)}
-     *
-     * TODO(laisminchillo): unhide when ready.
-     * @hide
+     * This feature covers
+     * {@link androidx.webkit.ProxyConfig.Builder#setReverseBypassEnabled(boolean)}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String PROXY_OVERRIDE_REVERSE_BYPASS = "PROXY_OVERRIDE_REVERSE_BYPASS";
 
     /**
