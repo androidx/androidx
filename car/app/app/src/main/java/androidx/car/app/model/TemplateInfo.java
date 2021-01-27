@@ -16,6 +16,8 @@
 
 package androidx.car.app.model;
 
+import static java.util.Objects.requireNonNull;
+
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,8 +32,10 @@ import java.util.Objects;
  */
 public final class TemplateInfo {
     @Keep
+    @Nullable
     private final Class<? extends Template> mTemplateClass;
     @Keep
+    @Nullable
     private final String mTemplateId;
 
     /**
@@ -63,12 +67,16 @@ public final class TemplateInfo {
 
     @NonNull
     public Class<? extends Template> getTemplateClass() {
-        return mTemplateClass;
+        // Intentionally kept as non-null because the library creates these classes internally after
+        // the app returns a non-null template, a null-value should not be expected here.
+        return requireNonNull(mTemplateClass);
     }
 
     @NonNull
     public String getTemplateId() {
-        return mTemplateId;
+        // Intentionally kept as non-null because the library creates these classes internally after
+        // the app returns a non-null template, a null-value should not be expected here.
+        return requireNonNull(mTemplateId);
     }
 
     @Override
