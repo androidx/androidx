@@ -58,6 +58,20 @@ class TestNewDirectory(unittest.TestCase):
         full_fp = get_full_artifact_path("androidx.foo.bar", "bar-qux")
         self.assertTrue(full_fp.endswith("frameworks/support/foo/bar/bar-qux"))
 
+    def test_get_package_info_file_dir(self):
+        package_info_dir_fp = get_package_info_file_dir("androidx.foo", "foo")
+        frameworks_support_fp = os.path.abspath(os.path.join(os.getcwd(), '..', '..'))
+        self.assertEqual(frameworks_support_fp + "/foo/foo/src/main/androidx/foo", package_info_dir_fp)
+
+        package_info_dir_fp = get_package_info_file_dir("androidx.foo", "foo-bar")
+        self.assertEqual(frameworks_support_fp + "/foo/foo-bar/src/main/androidx/foo", package_info_dir_fp)
+
+        package_info_dir_fp = get_package_info_file_dir("androidx.foo.bar", "bar")
+        self.assertEqual(frameworks_support_fp + "/foo/bar/bar/src/main/androidx/foo/bar", package_info_dir_fp)
+
+        package_info_dir_fp = get_package_info_file_dir("androidx.foo.bar", "bar-qux")
+        self.assertEqual(frameworks_support_fp + "/foo/bar/bar-qux/src/main/androidx/foo/bar", package_info_dir_fp)
+
     def test_group_id_directory_name(self):
         full_fp = get_group_id_path("androidx.foo")
         self.assertTrue(full_fp.endswith("frameworks/support/foo"))
@@ -70,6 +84,7 @@ class TestNewDirectory(unittest.TestCase):
 
         full_fp = get_group_id_path("androidx.foo.bar")
         self.assertTrue(full_fp.endswith("frameworks/support/foo/bar"))
+
 
 class TestSettingsGradle(unittest.TestCase):
 
@@ -147,7 +162,7 @@ class TestReplacements(unittest.TestCase):
         self.assertEqual("FOO", macro)
 
         macro = get_group_id_version_macro("androidx.foo.bar")
-        self.assertEqual("FOO-BAR", macro)
+        self.assertEqual("FOO_BAR", macro)
 
         macro = get_group_id_version_macro("androidx.compose.bar")
         self.assertEqual("COMPOSE", macro)
@@ -167,6 +182,43 @@ class TestReplacements(unittest.TestCase):
            file_contents = f.read()
         self.assertEqual("d\nb\nc", file_contents)
         rm(out_dir)
+
+    def test_mv_dir_within_same_dir(self):
+        src_out_dir = "./src_out"
+        test_src_file = src_out_dir + "/temp.txt"
+        test_file_contents = "a\nb\nc"
+        if not os.path.exists(src_out_dir):
+            os.makedirs(src_out_dir)
+        with open(test_src_file,"w") as f:
+           f.write("a\nb\nc")
+
+        dst_out_dir = "./dst_out"
+        mv_dir(src_out_dir, dst_out_dir)
+        # write back the file
+        with open(dst_out_dir + "/temp.txt") as f:
+           file_contents = f.read()
+        self.assertEqual("a\nb\nc", file_contents)
+        rm(src_out_dir)
+        rm(dst_out_dir)
+
+    def test_mv_dir_to_different_dir(self):
+        src_out_dir = "./src_out_2"
+        test_src_file = src_out_dir + "/temp.txt"
+        test_file_contents = "a\nb\nc"
+        if not os.path.exists(src_out_dir):
+            os.makedirs(src_out_dir)
+        with open(test_src_file,"w") as f:
+           f.write("a\nb\nc")
+
+        dst_out_dir_parent = "./dst_out_2"
+        dst_out_dir = dst_out_dir_parent + "/hello/world"
+        mv_dir(src_out_dir, dst_out_dir)
+        # write back the file
+        with open(dst_out_dir + "/temp.txt") as f:
+           file_contents = f.read()
+        self.assertEqual("a\nb\nc", file_contents)
+        rm(src_out_dir)
+        rm(dst_out_dir_parent)
 
 if __name__ == '__main__':
     unittest.main()
