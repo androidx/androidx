@@ -85,10 +85,6 @@ public final class GridItem implements Item {
     @Keep
     @GridItemImageType
     private final int mImageType;
-    @SuppressWarnings("deprecation")
-    @Keep
-    @Nullable
-    private final OnClickListenerWrapper mOnClickListener;
     @Keep
     @Nullable
     private final OnClickDelegate mOnClickDelegate;
@@ -120,20 +116,6 @@ public final class GridItem implements Item {
     @GridItemImageType
     public int getImageType() {
         return mImageType;
-    }
-
-    /**
-     * Returns the {@link OnClickListener} to be called back when the grid item is clicked, or
-     * {@code null} if the grid item is non-clickable.
-     *
-     * @deprecated use {@link #getOnClickDelegate} instead.
-     */
-    // TODO(b/177591476): remove after host references have been cleaned up.
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    @Nullable
-    public OnClickListenerWrapper getOnClickListener() {
-        return mOnClickListener;
     }
 
     /**
@@ -188,7 +170,6 @@ public final class GridItem implements Item {
         mText = builder.mText;
         mImage = builder.mImage;
         mImageType = builder.mImageType;
-        mOnClickListener = builder.mOnClickListener;
         mOnClickDelegate = builder.mOnClickDelegate;
     }
 
@@ -199,7 +180,6 @@ public final class GridItem implements Item {
         mText = null;
         mImage = null;
         mImageType = IMAGE_TYPE_LARGE;
-        mOnClickListener = null;
         mOnClickDelegate = null;
     }
 
@@ -213,9 +193,6 @@ public final class GridItem implements Item {
         CarIcon mImage;
         @GridItemImageType
         int mImageType = IMAGE_TYPE_LARGE;
-        @SuppressWarnings("deprecation")
-        @Nullable
-        OnClickListenerWrapper mOnClickListener;
         @Nullable
         OnClickDelegate mOnClickDelegate;
         boolean mIsLoading;
@@ -319,10 +296,8 @@ public final class GridItem implements Item {
          * @throws NullPointerException if {@code onClickListener} is {@code null}.
          */
         @NonNull
-        @SuppressLint("ExecutorRegistration")
+        @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
         public Builder setOnClickListener(@NonNull OnClickListener onClickListener) {
-            mOnClickListener =
-                    OnClickListenerWrapperImpl.create(requireNonNull(onClickListener));
             mOnClickDelegate = OnClickDelegateImpl.create(onClickListener);
             return this;
         }

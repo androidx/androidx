@@ -98,10 +98,6 @@ public final class Row implements Item {
     @Keep
     @Nullable
     private final Toggle mToggle;
-    @SuppressWarnings("deprecation")
-    @Keep
-    @Nullable
-    private final OnClickListenerWrapper mOnClickListener;
     @Keep
     @Nullable
     private final OnClickDelegate mOnClickDelegate;
@@ -153,20 +149,6 @@ public final class Row implements Item {
      */
     public boolean isBrowsable() {
         return mIsBrowsable;
-    }
-
-    /**
-     * Returns the {@link OnClickListener} to be called back when the row is clicked, or {@code
-     * null} if the row is non-clickable.
-     *
-     * @deprecated use {@link #getOnClickDelegate} instead.
-     */
-    // TODO(b/177591476): remove after host references have been cleaned up.
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    @Nullable
-    public OnClickListenerWrapper getOnClickListener() {
-        return mOnClickListener;
     }
 
     /**
@@ -259,7 +241,6 @@ public final class Row implements Item {
         mTexts = CollectionUtils.unmodifiableCopy(builder.mTexts);
         mImage = builder.mImage;
         mToggle = builder.mToggle;
-        mOnClickListener = builder.mOnClickListener;
         mOnClickDelegate = builder.mOnClickDelegate;
         mMetadata = builder.mMetadata;
         mIsBrowsable = builder.mIsBrowsable;
@@ -272,7 +253,6 @@ public final class Row implements Item {
         mTexts = null;
         mImage = null;
         mToggle = null;
-        mOnClickListener = null;
         mOnClickDelegate = null;
         mMetadata = EMPTY_METADATA;
         mIsBrowsable = false;
@@ -288,9 +268,6 @@ public final class Row implements Item {
         CarIcon mImage;
         @Nullable
         Toggle mToggle;
-        @SuppressWarnings("deprecation")
-        @Nullable
-        OnClickListenerWrapper mOnClickListener;
         @Nullable
         OnClickDelegate mOnClickDelegate;
         Metadata mMetadata = EMPTY_METADATA;
@@ -460,9 +437,8 @@ public final class Row implements Item {
          * @throws NullPointerException if {@code onClickListener} is {@code null}
          */
         @NonNull
-        @SuppressLint("ExecutorRegistration")
+        @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
         public Builder setOnClickListener(@NonNull OnClickListener onClickListener) {
-            mOnClickListener = OnClickListenerWrapperImpl.create(requireNonNull(onClickListener));
             mOnClickDelegate = OnClickDelegateImpl.create(onClickListener);
             return this;
         }
