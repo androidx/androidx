@@ -17,6 +17,7 @@
 package androidx.room
 
 import android.content.Context
+import android.os.Build.VERSION_CODES.JELLY_BEAN
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
@@ -83,11 +84,28 @@ public class AutoClosingRoomOpenHelperFactoryTest {
 
         autoClosingRoomOpenHelper.writableDatabase
 
-        assertEquals(3, callbackCount.get())
+        if (android.os.Build.VERSION.SDK_INT < JELLY_BEAN) {
+            // onConfigure does not exist before JELLY_BEAN
+            // onCreate + onOpen
+            assertEquals(2, callbackCount.get())
+        } else {
+            // onConfigure + onCreate + onOpen
+            assertEquals(3, callbackCount.get())
+        }
+
         Thread.sleep(100)
 
         autoClosingRoomOpenHelper.writableDatabase
-        assertEquals(5, callbackCount.get()) // onCreate won't be called the second time.
+
+        // onCreate won't be called the second time.
+        if (android.os.Build.VERSION.SDK_INT < JELLY_BEAN) {
+            // onConfigure does not exist before JELLY_BEAN
+            // onCreate + onOpen + onOpen
+            assertEquals(3, callbackCount.get())
+        } else {
+            // onConfigure + onCreate + onOpen + onConfigure + onOpen
+            assertEquals(5, callbackCount.get())
+        }
     }
 
     @Test
