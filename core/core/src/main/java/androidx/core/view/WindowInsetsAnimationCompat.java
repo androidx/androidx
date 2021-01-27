@@ -22,8 +22,9 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.os.Build;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewTreeObserver;
+import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.view.WindowInsetsAnimation;
 import android.view.animation.DecelerateInterpolator;
@@ -46,12 +47,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Class representing an animation of a set of windows that cause insets.
  */
 public final class WindowInsetsAnimationCompat {
-
+    private static final boolean DEBUG = false;
+    private static final String TAG = "WindowInsetsAnimCompat";
     private Impl mImpl;
 
     /**
@@ -344,6 +347,7 @@ public final class WindowInsetsAnimationCompat {
          * continue in the view hierarchy.
          */
         public static final int DISPATCH_MODE_CONTINUE_ON_SUBTREE = 1;
+        WindowInsets mDispachedInsets;
 
         /** @hide */
         @IntDef(value = {
@@ -694,7 +698,12 @@ public final class WindowInsetsAnimationCompat {
 
             Impl21OnApplyWindowInsetsListener(@NonNull View view, @NonNull Callback callback) {
                 mCallback = callback;
-                mLastInsets = ViewCompat.getRootWindowInsets(view);
+                WindowInsetsCompat rootWindowInsets = ViewCompat.getRootWindowInsets(view);
+                mLastInsets = rootWindowInsets != null
+                        // Insets are not immutable on SDK < 26 so we make copy to ensure it's not
+                        // changed until we need them.
+                        ? new WindowInsetsCompat.Builder(rootWindowInsets).build()
+                        : null;
             }
 
             @Override
@@ -709,6 +718,23 @@ public final class WindowInsetsAnimationCompat {
 
                 if (mLastInsets == null) {
                     mLastInsets = ViewCompat.getRootWindowInsets(v);
+                }
+
+                if (DEBUG) {
+                    int allTypes = WindowInsetsCompat.Type.all();
+                    Log.d(TAG,
+                            String.format("lastInsets: %s\ntargetInsets: %s",
+                                    mLastInsets != null ? mLastInsets.getInsets(allTypes) : null,
+                                    targetInsets.getInsets(allTypes)));
+                }
+
+
+                // When we start dispatching the insets animation, we save the instance of insets
+                // that have been dispatched first as a marker to avoid dispatching the callback
+                // in children.
+                Callback callback = getCallback(v);
+                if (callback != null && Objects.equals(callback.mDispachedInsets, insets)) {
+                    return forwardToViewIfNeeded(v, insets);
                 }
 
                 // We only run the animation when the some insets are animating
@@ -731,7 +757,7 @@ public final class WindowInsetsAnimationCompat {
                         startingInsets, animationMask
                 );
 
-                mCallback.onPrepare(anim);
+                dispatchOnPrepare(v, anim, insets, false);
 
                 animator.addUpdateListener(
                         new ValueAnimator.AnimatorUpdateListener() {
@@ -744,31 +770,29 @@ public final class WindowInsetsAnimationCompat {
                                         anim.getInterpolatedFraction(), animationMask);
                                 List<WindowInsetsAnimationCompat> runningAnimations =
                                         Collections.singletonList(anim);
-                                mCallback.onProgress(interpolateInsets, runningAnimations);
+                                dispatchOnProgress(v, interpolateInsets, runningAnimations);
                             }
                         });
 
                 animator.addListener(new AnimatorListenerAdapter() {
+
                     @Override
                     public void onAnimationEnd(Animator animator) {
                         anim.setFraction(1);
-                        mCallback.onEnd(anim);
+                        dispatchOnEnd(v, anim);
                     }
                 });
 
                 // We need to call onStart and start the animator before the next draw
                 // to ensure the animation starts before the relayout caused by the change of
                 // insets.
-                v.getViewTreeObserver().addOnPreDrawListener(
-                        new ViewTreeObserver.OnPreDrawListener() {
-                            @Override
-                            public boolean onPreDraw() {
-                                v.getViewTreeObserver().removeOnPreDrawListener(this);
-                                mCallback.onStart(anim, animationBounds);
-                                animator.start();
-                                return true;
-                            }
-                        });
+                OneShotPreDrawListener.add(v, new Runnable() {
+                    @Override
+                    public void run() {
+                        dispatchOnStart(v, anim, animationBounds);
+                        animator.start();
+                    }
+                });
                 this.mLastInsets = targetInsets;
 
                 return forwardToViewIfNeeded(v, insets);
@@ -786,10 +810,97 @@ public final class WindowInsetsAnimationCompat {
             if (v.getTag(R.id.tag_on_apply_window_listener) != null) {
                 return insets;
             }
-
-            // Otherwise, there is no listener set and we need to replicate the normal flow,
-            // which is to call the view's method.
             return v.onApplyWindowInsets(insets);
+        }
+
+        static void dispatchOnPrepare(View v, WindowInsetsAnimationCompat anim,
+                WindowInsets insets, boolean stopDispatch) {
+            final Callback callback = getCallback(v);
+            if (callback != null) {
+                callback.mDispachedInsets = insets;
+                if (!stopDispatch) {
+                    callback.onPrepare(anim);
+                    stopDispatch = callback.getDispatchMode() == Callback.DISPATCH_MODE_STOP;
+                }
+            }
+            // When stopDispatch is true, we don't call onPrepare but we still need to propagate
+            // the dispatched insets to the children to mark them with the latest dispatched
+            // insets so their compat callback in not called when onApplyWindowInsets is called.
+            if (v instanceof ViewGroup) {
+                ViewGroup viewGroup = (ViewGroup) v;
+                for (int i = 0; i < viewGroup.getChildCount(); i++) {
+                    View child = viewGroup.getChildAt(i);
+                    dispatchOnPrepare(child, anim, insets, stopDispatch);
+                }
+            }
+        }
+
+        static void dispatchOnStart(View v,
+                WindowInsetsAnimationCompat anim,
+                BoundsCompat animationBounds) {
+            final Callback callback = getCallback(v);
+            if (callback != null) {
+                callback.onStart(anim, animationBounds);
+                if (callback.getDispatchMode() == Callback.DISPATCH_MODE_STOP) {
+                    return;
+                }
+            }
+            if (v instanceof ViewGroup) {
+                ViewGroup viewGroup = (ViewGroup) v;
+                for (int i = 0; i < viewGroup.getChildCount(); i++) {
+                    View child = viewGroup.getChildAt(i);
+                    dispatchOnStart(child, anim, animationBounds);
+                }
+            }
+        }
+
+        static void dispatchOnProgress(@NonNull View v,
+                @NonNull WindowInsetsCompat interpolateInsets,
+                @NonNull List<WindowInsetsAnimationCompat> runningAnimations) {
+            final Callback callback = getCallback(v);
+            WindowInsetsCompat insets = interpolateInsets;
+            if (callback != null) {
+                insets = callback.onProgress(insets, runningAnimations);
+                if (callback.getDispatchMode() == Callback.DISPATCH_MODE_STOP) {
+                    return;
+                }
+            }
+            if (v instanceof ViewGroup) {
+                ViewGroup viewGroup = (ViewGroup) v;
+                for (int i = 0; i < viewGroup.getChildCount(); i++) {
+                    View child = viewGroup.getChildAt(i);
+                    dispatchOnProgress(child, insets, runningAnimations);
+                }
+            }
+        }
+
+        static void dispatchOnEnd(@NonNull View v,
+                @NonNull WindowInsetsAnimationCompat anim) {
+            final Callback callback = getCallback(v);
+            if (callback != null) {
+                callback.onEnd(anim);
+                if (callback.getDispatchMode() == Callback.DISPATCH_MODE_STOP) {
+                    return;
+                }
+            }
+            if (v instanceof ViewGroup) {
+                ViewGroup viewGroup = (ViewGroup) v;
+                for (int i = 0; i < viewGroup.getChildCount(); i++) {
+                    View child = viewGroup.getChildAt(i);
+                    dispatchOnEnd(child, anim);
+                }
+            }
+        }
+
+        @Nullable
+        static Callback getCallback(View child) {
+            Object listener = child.getTag(
+                    R.id.tag_window_insets_animation_callback);
+            Callback callback = null;
+            if (listener instanceof Impl21OnApplyWindowInsetsListener) {
+                callback = ((Impl21OnApplyWindowInsetsListener) listener).mCallback;
+            }
+            return callback;
         }
     }
 
