@@ -618,7 +618,6 @@ package androidx.car.app.model {
 
   public final class TemplateInfo {
     ctor public TemplateInfo(Class<? extends androidx.car.app.model.Template>, String);
-    ctor @Deprecated public TemplateInfo(androidx.car.app.model.Template, String);
     method public Class<? extends androidx.car.app.model.Template> getTemplateClass();
     method public String getTemplateId();
   }
