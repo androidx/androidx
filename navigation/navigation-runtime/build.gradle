@@ -28,9 +28,9 @@ plugins {
 }
 
 dependencies {
-    api(project(":navigation:navigation-common"))
-    api("androidx.activity:activity:1.1.0")
-    api("androidx.lifecycle:lifecycle-viewmodel:2.2.0")
+    api(project(":navigation:navigation-common-ktx"))
+    api("androidx.activity:activity-ktx:1.1.0")
+    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0")
     api("androidx.savedstate:savedstate:1.0.0")
     api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.2.0")
 
