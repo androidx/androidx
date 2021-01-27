@@ -61,7 +61,6 @@ public final class TravelEstimate {
         return mRemainingDistance;
     }
 
-    // TODO(rampara): Returned time values must be in milliseconds
     @SuppressWarnings("MethodNameUnits")
     public long getRemainingTimeSeconds() {
         return mRemainingTimeSeconds >= 0 ? mRemainingTimeSeconds : REMAINING_TIME_UNKNOWN;

@@ -29,8 +29,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
 
-// TODO(shiufai): Add link to color guidelines.
-
 /**
  * Represents a color to be used in a car app.
  *
@@ -93,7 +91,6 @@ public final class CarColor {
      *
      * @hide
      */
-    // TODO(shiufai): investigate how to expose IntDefs if needed.
     @IntDef(
             value = {
                     TYPE_CUSTOM,

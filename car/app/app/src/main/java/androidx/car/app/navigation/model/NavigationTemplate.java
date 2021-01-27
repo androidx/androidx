@@ -33,8 +33,6 @@ import androidx.car.app.model.Template;
 
 import java.util.Objects;
 
-// TODO(rampara): Update code reference to CarAppExtender is javadoc to link
-
 /**
  * A template for showing navigation information.
  *
@@ -51,7 +49,7 @@ import java.util.Objects;
  * <p>The template itself does not expose a drawing surface. In order to draw on the canvas, use
  * {@link androidx.car.app.AppManager#setSurfaceCallback(SurfaceCallback)}.
  *
- * <p>See {@code androidx.car.app.notification.CarAppExtender} for how to show
+ * <p>See {@link androidx.car.app.notification.CarAppExtender} for how to show
  * alerts with notifications. Frequent alert notifications distract the driver and are discouraged.
  *
  * <h4>Template Restrictions</h4>

@@ -46,7 +46,6 @@ public final class Distance {
             UNIT_MILES_P1
     })
     @Retention(RetentionPolicy.SOURCE)
-    // TODO(shiufai): investigate how to expose IntDefs if needed.
     @RestrictTo(LIBRARY)
     public @interface Unit {
     }
