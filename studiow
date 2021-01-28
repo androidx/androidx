@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
 
 function usage() {
-  echo "Usage: studiow [<project subset>]"
+  echo "Usage: studiow [--clean] [--reinstall] [<project subset>]"
+  echo
+  echo "OPTIONS"
+  echo " --clean"
+  echo "   Clear (with backup) generated files (settings, caches, etc) before launching"
+  echo
+  echo " --reinstall"
+  echo "   Remove and re-download Studio itself. Also implies --clean"
   echo
   echo "Project subsets:"
   echo " m, main"
@@ -19,30 +26,87 @@ function usage() {
   exit 1
 }
 
-subsetArg="$1"
-if [ "$subsetArg" == "" ]; then
-  usage
-fi
-if [ "$subsetArg" == "m" -o "$subsetArg" == "main" ]; then
-  export ANDROIDX_PROJECTS=MAIN
-fi
-if [ "$subsetArg" == "c" -o "$subsetArg" == "compose" ]; then
-  export ANDROIDX_PROJECTS=COMPOSE
-fi
-if [ "$subsetArg" == "f" -o "$subsetArg" == "flan" ]; then
-  export ANDROIDX_PROJECTS=FLAN
-fi
-if [ "$subsetArg" == "a" -o "$subsetArg" == "all" ]; then
-  export ANDROIDX_PROJECTS=ALL
-fi
-if [ "$ANDROIDX_PROJECTS" == "" ]; then
-  echo "Unrecognized project argument: '$subsetArg'"
+cd "$(dirname $0)"
+
+subsetArg=""
+clean=false
+reinstall=false
+projectSubset=""
+while [ "$1" != "" ]; do
+  arg="$1"
+  shift
+  # parse options
+  if [ "$arg" == "--clean" ]; then
+    clean=true
+    continue
+  fi
+  if [ "$arg" == "--reinstall" ]; then
+    clean=true
+    reinstall=true
+    continue
+  fi
+  # parse arguments
+  subsetArg="$arg"
+  newSubset=""
+  if [ "$subsetArg" == "m" -o "$subsetArg" == "main" ]; then
+    newSubset=MAIN
+  fi
+  if [ "$subsetArg" == "c" -o "$subsetArg" == "compose" ]; then
+    newSubset=COMPOSE
+  fi
+  if [ "$subsetArg" == "f" -o "$subsetArg" == "flan" ]; then
+    newSubset=FLAN
+  fi
+  if [ "$subsetArg" == "a" -o "$subsetArg" == "all" ]; then
+    newSubset=ALL
+  fi
+  if [ "$newSubset" == "" ]; then
+    echo "Unrecognized argument: '$subsetArg'"
+    usage
+  fi
+  if [ "$projectSubset" != "" ]; then
+    echo "Unrecognized argument '$subsetArg', cannot specify project subset more than once"
+    usage
+  fi
+  projectSubset=$newSubset
+done
+
+if [ "$projectSubset" == "" ]; then
+  echo "Project subset is required"
   usage
 fi
 
-shift
-if [ "$1" != "" ]; then
-  echo "Unrecognized argument: '$1'"
-  usage
+export ANDROIDX_PROJECTS=$projectSubset
+
+# ensures the nonexistence of a file or directory, and makes a backup
+function remove() {
+  path="$1"
+  backup="$(dirname $path)/studio-backup/$(basename $path)"
+  if [ -e "$path" ]; then
+    echo "Moving $path to $backup"
+    rm "$backup" -rf
+    mkdir -p "$(dirname $backup)"
+    mv "$path" "$backup"
+  fi
+}
+
+if [ "$reinstall" == "true" ]; then
+  # remove Studio itself so Gradle will re-download it
+  rm studio -rf
 fi
-source gradlew studio
+
+if [ "$clean" == "true" ]; then
+  # remove studio-specific caches
+
+  # make backups of files that users might have customized
+  remove ~/.AndroidStudioAndroidX
+  remove ~/.AndroidStudioAndroidXPlayground
+  remove ~/.android
+  # delete (without backup) files that users won't have customized
+  git clean -fdX .idea/
+  # remove gradle caches too and build
+  ./cleanBuild.sh -y studio
+else
+  # ask gradle to launch studio
+  ./gradlew studio
+fi
