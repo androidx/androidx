@@ -20,6 +20,7 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -65,10 +66,8 @@ public final class DurationSpan extends CarSpan {
     /** Creates a {@link DurationSpan} with the given duration. */
     @NonNull
     @RequiresApi(26)
-    // TODO(shiufai): revisit wrapping this method in a container class (e.g. Api26Impl).
-    @SuppressLint("UnsafeNewApiCall")
     public static DurationSpan create(@NonNull Duration duration) {
-        return new DurationSpan(requireNonNull(duration).getSeconds());
+        return Api26Impl.create(duration);
     }
 
     /** Returns the time duration associated with this span, in seconds. */
@@ -102,11 +101,27 @@ public final class DurationSpan extends CarSpan {
         return mDurationSeconds == otherSpan.mDurationSeconds;
     }
 
-    private DurationSpan(long durationSeconds) {
+    DurationSpan(long durationSeconds) {
         mDurationSeconds = durationSeconds;
     }
 
     private DurationSpan() {
         mDurationSeconds = 0;
+    }
+
+    /**
+     * Version-specific static inner class to avoid verification errors that negatively affect
+     * run-time performance.
+     */
+    @RequiresApi(26)
+    private static final class Api26Impl {
+        private Api26Impl() {
+        }
+
+        @DoNotInline
+        @NonNull
+        public static DurationSpan create(@NonNull Duration duration) {
+            return new DurationSpan(requireNonNull(duration).getSeconds());
+        }
     }
 }
