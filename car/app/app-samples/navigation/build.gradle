@@ -21,8 +21,9 @@ plugins {
 
 android {
     defaultConfig {
-        applicationId "androidx.car.app.samples.helloworld"
+        applicationId "androidx.car.app.samples.navigation"
         minSdkVersion 23
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
     }
@@ -31,6 +32,6 @@ android {
 dependencies {
     implementation(project(":car:app:app"))
 
+    implementation("androidx.core:core:1.5.0-alpha01")
     implementation("androidx.lifecycle:lifecycle-common-java8:2.2.0")
 }
-

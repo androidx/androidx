@@ -13,33 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.car.app.samples.helloworld;
+
+package androidx.car.app.samples.showcase.navigation;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
-import androidx.car.app.model.Pane;
-import androidx.car.app.model.PaneTemplate;
-import androidx.car.app.model.Row;
+import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.Template;
+import androidx.car.app.navigation.model.NavigationTemplate;
 
-/**
- * A screen that shows a simple "Hello World!" message.
- *
- * <p>See {@link HelloWorldService} for the app's entry point to Android Auto.
- */
-public class HelloWorldScreen extends Screen {
-    public HelloWorldScreen(@NonNull CarContext carContext) {
+/** Simple demo of how to present a navigation screen with only a map. */
+public final class NavigationMapOnlyScreen extends Screen {
+
+    public NavigationMapOnlyScreen(@NonNull CarContext carContext) {
         super(carContext);
     }
 
     @NonNull
     @Override
     public Template onGetTemplate() {
-        Row row = new Row.Builder().setTitle("Hello AndroidX!").build();
-        return new PaneTemplate.Builder(new Pane.Builder().addRow(row).build())
-                .setHeaderAction(Action.APP_ICON)
-                .build();
+        ActionStrip actionStrip =
+                new ActionStrip.Builder()
+                        .addAction(
+                                new Action.Builder()
+                                        .setTitle("BACK")
+                                        .setOnClickListener(() -> finish())
+                                        .build())
+                        .build();
+
+        return new NavigationTemplate.Builder().setActionStrip(actionStrip).build();
     }
 }

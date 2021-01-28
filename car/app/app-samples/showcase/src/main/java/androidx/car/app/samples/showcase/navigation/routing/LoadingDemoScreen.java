@@ -13,33 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.car.app.samples.helloworld;
+
+package androidx.car.app.samples.showcase.navigation.routing;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
-import androidx.car.app.model.Action;
-import androidx.car.app.model.Pane;
-import androidx.car.app.model.PaneTemplate;
-import androidx.car.app.model.Row;
+import androidx.car.app.model.CarColor;
 import androidx.car.app.model.Template;
+import androidx.car.app.navigation.model.NavigationTemplate;
+import androidx.car.app.navigation.model.RoutingInfo;
+import androidx.lifecycle.DefaultLifecycleObserver;
 
-/**
- * A screen that shows a simple "Hello World!" message.
- *
- * <p>See {@link HelloWorldService} for the app's entry point to Android Auto.
- */
-public class HelloWorldScreen extends Screen {
-    public HelloWorldScreen(@NonNull CarContext carContext) {
+/** A screen that shows the navigation template in loading state. */
+public final class LoadingDemoScreen extends Screen implements DefaultLifecycleObserver {
+    public LoadingDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
     }
 
     @NonNull
     @Override
     public Template onGetTemplate() {
-        Row row = new Row.Builder().setTitle("Hello AndroidX!").build();
-        return new PaneTemplate.Builder(new Pane.Builder().addRow(row).build())
-                .setHeaderAction(Action.APP_ICON)
+        return new NavigationTemplate.Builder()
+                .setNavigationInfo(new RoutingInfo.Builder().setLoading(true).build())
+                .setActionStrip(RoutingDemoModels.getActionStrip(getCarContext(), this::finish))
+                .setBackgroundColor(CarColor.SECONDARY)
                 .build();
     }
 }
