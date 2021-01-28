@@ -68,6 +68,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
@@ -87,7 +89,6 @@ import java.util.List;
 /**
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
 public class GridRowView extends SliceChildView implements View.OnClickListener,
         View.OnTouchListener {
@@ -103,32 +104,31 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     private static final int MAX_CELL_TEXT_SMALL = 1;
     // Max number of images that can show in a cell
     private static final int MAX_CELL_IMAGES = 1;
-
-    private int mRowIndex;
-    private int mRowCount;
-
-    private final int mLargeImageHeight;
-    private final int mSmallImageSize;
-    private final int mSmallImageMinWidth;
-    private final int mIconSize;
     private final int mGutter;
     private final int mTextPadding;
 
-    private GridContent mGridContent;
-    private final LinearLayout mViewContainer;
-    private final View mForeground;
-    int mMaxCells = -1;
     private final int[] mLoc = new int[2];
 
     boolean mMaxCellUpdateScheduled;
 
     private int mHiddenItemCount;
 
-    public GridRowView(Context context) {
+    protected final View mForeground;
+    protected int mRowIndex;
+    protected int mRowCount;
+    protected int mMaxCells = -1;
+    protected @Nullable GridContent mGridContent;
+    protected final int mLargeImageHeight;
+    protected final int mSmallImageSize;
+    protected final int mSmallImageMinWidth;
+    protected final int mIconSize;
+    protected final LinearLayout mViewContainer;
+
+    public GridRowView(@NonNull Context context) {
         this(context, null);
     }
 
-    public GridRowView(Context context, AttributeSet attrs) {
+    public GridRowView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         final Resources res = getContext().getResources();
         mViewContainer = new LinearLayout(getContext());
@@ -146,13 +146,17 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         addView(mForeground, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setInsets(int l, int t, int r, int b) {
         super.setInsets(l, t, r, b);
         mViewContainer.setPadding(l, t + getExtraTopPadding(), r, b + getExtraBottomPadding());
     }
 
-    private int getExtraTopPadding() {
+    protected int getExtraTopPadding() {
         if (mGridContent != null && mGridContent.isAllImages()) {
             // Might need to add padding if in first or last position
             if (mRowIndex == 0) {
@@ -162,7 +166,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         return 0;
     }
 
-    private int getExtraBottomPadding() {
+    protected int getExtraBottomPadding() {
         if (mGridContent != null && mGridContent.isAllImages()) {
             if (mRowIndex == mRowCount - 1 || getMode() == MODE_SMALL) {
                 return mSliceStyle != null ? mSliceStyle.getGridBottomPadding() : 0;
@@ -180,6 +184,10 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setTint(@ColorInt int tintColor) {
         super.setTint(tintColor);
@@ -194,8 +202,8 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
      * This is called when GridView is being used as a component in a larger template.
      */
     @Override
-    public void setSliceItem(SliceContent slice, boolean isHeader, int rowIndex,
-            int rowCount, SliceView.OnSliceActionListener observer) {
+    public void setSliceItem(@NonNull SliceContent slice, boolean isHeader, int rowIndex,
+            int rowCount, @Nullable SliceView.OnSliceActionListener observer) {
         resetView();
         setSliceActionListener(observer);
         mRowIndex = rowIndex;
@@ -214,7 +222,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
      *
      * @return true if update was scheduled, false if it wasn't needed
      */
-    private boolean scheduleMaxCellsUpdate() {
+    protected boolean scheduleMaxCellsUpdate() {
         if (mGridContent == null || !mGridContent.isValid()) {
             return true;
         }
@@ -229,7 +237,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         }
     }
 
-    int getMaxCells() {
+    protected int getMaxCells() {
         if (mGridContent == null || !mGridContent.isValid() || getWidth() == 0) {
             return -1;
         }
@@ -252,7 +260,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         }
     }
 
-    void populateViews() {
+    protected void populateViews() {
         if (mGridContent == null || !mGridContent.isValid()) {
             resetView();
             return;
@@ -501,8 +509,9 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
      * @param isSingle    whether this is the only item in the cell or not.
      * @return Whether an item was added.
      */
-    private boolean addImageItem(SliceItem item, SliceItem overlayItem, int color,
-            ViewGroup container, boolean isSingle) {
+    protected boolean addImageItem(@NonNull SliceItem item, @Nullable SliceItem overlayItem,
+            int color,
+            @NonNull ViewGroup container, boolean isSingle) {
         final String format = item.getFormat();
         final boolean hasRoundedImage =
                 mSliceStyle != null && mSliceStyle.getApplyCornerRadiusToLargeImages();
@@ -734,9 +743,13 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         layout.setClickable(isClickable);
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     @SuppressWarnings("unchecked")
-    public void onClick(View view) {
+    public void onClick(@NonNull View view) {
         Pair<SliceItem, EventInfo> tagItem = (Pair<SliceItem, EventInfo>) view.getTag();
         final SliceItem sliceItem = tagItem.first;
         final EventInfo info = tagItem.second;
@@ -756,8 +769,12 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         }
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
-    public boolean onTouch(View view, MotionEvent event) {
+    public boolean onTouch(@NonNull View view, @NonNull MotionEvent event) {
         onForegroundActivated(event);
         return false;
     }
@@ -790,6 +807,10 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         makeEntireGridClickable(false);
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public int getHiddenItemCount() {
         return mHiddenItemCount;
