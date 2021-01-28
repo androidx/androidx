@@ -53,7 +53,7 @@ import java.util.List;
 /** Tests for {@link HostValidator}. */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(sdk = 21)
+@Config(sdk = 23)
 public class HostValidatorTest {
     private static final String VALID_PACKAGE_NAME = "com.foo";
     private static final String ALTERNATIVE_VALID_PACKAGE_NAME = "com.bar";
