@@ -50,6 +50,7 @@ public final class ForegroundCarColorSpan extends CarSpan {
     @Keep
     private final CarColor mCarColor;
 
+    /** Returns the {@link CarColor} associated with this span or {@code null} if not set. */
     @Nullable
     public CarColor getColor() {
         return mCarColor;
@@ -60,8 +61,8 @@ public final class ForegroundCarColorSpan extends CarSpan {
      *
      * <p>Custom colors created with {@link CarColor#createCustom} are not supported in text spans.
      *
-     * @throws IllegalArgumentException if {@code carColor} contains a custom color.
-     * @throws NullPointerException     if {@code carColor} is {@code null}.
+     * @throws IllegalArgumentException if {@code carColor} contains a custom color
+     * @throws NullPointerException     if {@code carColor} is {@code null}
      */
     @NonNull
     public static ForegroundCarColorSpan create(@NonNull CarColor carColor) {

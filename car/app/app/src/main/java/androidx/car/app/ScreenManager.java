@@ -91,7 +91,6 @@ public class ScreenManager {
      * @param onScreenResultListener the listener that will be executed with the result pushed by
      *                               the {@code screen} through {@link Screen#setResult}. This
      *                               callback will be executed on the main thread
-     *
      * @throws NullPointerException  if either the {@code screen} or the {@code
      *                               onScreenResultCallback} are {@code null}
      * @throws IllegalStateException if the current thread is not the main thread
@@ -126,7 +125,6 @@ public class ScreenManager {
      *
      * @throws NullPointerException  if {@code marker} is {@code null}
      * @throws IllegalStateException if the current thread is not the main thread
-     *
      * @see Screen#setMarker
      */
     public void popTo(@NonNull String marker) {

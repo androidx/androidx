@@ -41,6 +41,15 @@ public final class Pane {
     private final boolean mIsLoading;
 
     /**
+     * Returns whether the pane is in a loading state.
+     *
+     * @see Builder#setLoading(boolean)
+     */
+    public boolean isLoading() {
+        return mIsLoading;
+    }
+
+    /**
      * Returns the list of {@link Action}s displayed alongside the {@link Row}s in this pane.
      */
     @NonNull
@@ -54,13 +63,6 @@ public final class Pane {
     @NonNull
     public List<Row> getRows() {
         return CollectionUtils.emptyIfNull(mRows);
-    }
-
-    /**
-     * Returns the {@code true} if the {@link Pane} is loading.*
-     */
-    public boolean isLoading() {
-        return mIsLoading;
     }
 
     @Override
@@ -132,7 +134,7 @@ public final class Pane {
         /**
          * Adds a row to display in the list.
          *
-         * @throws NullPointerException if {@code row} is {@code null}.
+         * @throws NullPointerException if {@code row} is {@code null}
          */
         @NonNull
         public Builder addRow(@NonNull Row row) {
@@ -145,7 +147,7 @@ public final class Pane {
          *
          * <p>By default, no actions are displayed.
          *
-         * @throws NullPointerException if {@code action} is {@code null}.
+         * @throws NullPointerException if {@code action} is {@code null}
          */
         @NonNull
         public Builder addAction(@NonNull Action action) {
@@ -158,7 +160,7 @@ public final class Pane {
          * Constructs the row list defined by this builder.
          *
          * @throws IllegalStateException if the pane is in loading state and also contains rows, or
-         *                               vice versa.
+         *                               vice versa
          */
         @NonNull
         public Pane build() {

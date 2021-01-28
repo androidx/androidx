@@ -71,14 +71,7 @@ public final class DurationSpan extends CarSpan {
         return new DurationSpan(requireNonNull(duration).getSeconds());
     }
 
-    private DurationSpan(long durationSeconds) {
-        this.mDurationSeconds = durationSeconds;
-    }
-
-    private DurationSpan() {
-        mDurationSeconds = 0;
-    }
-
+    /** Returns the time duration associated with this span, in seconds. */
     @SuppressLint("MethodNameUnits")
     public long getDurationSeconds() {
         return mDurationSeconds;
@@ -107,5 +100,13 @@ public final class DurationSpan extends CarSpan {
         DurationSpan otherSpan = (DurationSpan) other;
 
         return mDurationSeconds == otherSpan.mDurationSeconds;
+    }
+
+    private DurationSpan(long durationSeconds) {
+        this.mDurationSeconds = durationSeconds;
+    }
+
+    private DurationSpan() {
+        mDurationSeconds = 0;
     }
 }

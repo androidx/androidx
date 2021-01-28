@@ -117,19 +117,19 @@ public final class DateTimeWithZone {
      * Returns an instance of a {@link DateTimeWithZone}.
      *
      * @param timeSinceEpochMillis The number of milliseconds from the epoch of
-     *                             1970-01-01T00:00:00Z.
+     *                             1970-01-01T00:00:00Z
      * @param zoneOffsetSeconds    The offset of the time zone from UTC at the date specified by
      *                             {@code timeInUtcMillis}. This offset must be in the range
      *                             {@code -18:00} to {@code +18:00}, which corresponds to -64800
-     *                             to +64800.
+     *                             to +64800
      * @param zoneShortName        The abbreviated name of the time zone, for example, "PST" for
      *                             Pacific Standard Time. This string may be used to display to
      *                             the user along with the date when needed, for example, if this
-     *                             time zone is different than the current system time zone.
+     *                             time zone is different than the current system time zone
      * @throws IllegalArgumentException if {@code timeSinceEpochMillis} is a negative value, if
      *                                  {@code zoneOffsetSeconds} is not within the required range,
-     *                                  or if {@code zoneShortName} is empty.
-     * @throws NullPointerException     if {@code zoneShortName} is {@code null}.
+     *                                  or if {@code zoneShortName} is empty
+     * @throws NullPointerException     if {@code zoneShortName} is {@code null}
      */
     @NonNull
     public static DateTimeWithZone create(
@@ -152,14 +152,14 @@ public final class DateTimeWithZone {
      * Returns an instance of a {@link DateTimeWithZone}.
      *
      * @param timeSinceEpochMillis The number of milliseconds from the epoch of
-     *                             1970-01-01T00:00:00Z.
+     *                             1970-01-01T00:00:00Z
      * @param timeZone             The time zone at the date specified by {@code timeInUtcMillis}.
      *                             The abbreviated name of this time zone, formatted using the
      *                             default locale, may be displayed to the user when needed, for
      *                             example, if this time zone is different than the current
-     *                             system time zone.
-     * @throws IllegalArgumentException if {@code timeSinceEpochMillis} is a negative value.
-     * @throws NullPointerException     if {@code timeZone} is {@code null}.
+     *                             system time zone
+     * @throws IllegalArgumentException if {@code timeSinceEpochMillis} is a negative value
+     * @throws NullPointerException     if {@code timeZone} is {@code null}
      */
     @NonNull
     public static DateTimeWithZone create(long timeSinceEpochMillis, @NonNull TimeZone timeZone) {
@@ -180,8 +180,8 @@ public final class DateTimeWithZone {
      * @param zonedDateTime The time with a time zone. The abbreviated name of this time zone,
      *                      formatted using the default locale, may be displayed to the user when
      *                      needed, for example, if this time zone is different than the current
-     *                      system time zone.
-     * @throws NullPointerException if {@code zonedDateTime} is {@code null}.
+     *                      system time zone
+     * @throws NullPointerException if {@code zonedDateTime} is {@code null}
      */
     // TODO(shiufai): revisit wrapping this method in a container class (e.g. Api26Impl).
     @SuppressLint("UnsafeNewApiCall")

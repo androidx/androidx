@@ -48,6 +48,15 @@ public final class RoutingInfo implements NavigationInfo {
     @Keep
     private final boolean mIsLoading;
 
+    /**
+     * Returns whether the routing info is in a loading state.
+     *
+     * @see Builder#setLoading(boolean)
+     */
+    public boolean isLoading() {
+        return mIsLoading;
+    }
+
     @Nullable
     public Step getCurrentStep() {
         return mCurrentStep;
@@ -66,10 +75,6 @@ public final class RoutingInfo implements NavigationInfo {
     @Nullable
     public CarIcon getJunctionImage() {
         return mJunctionImage;
-    }
-
-    public boolean isLoading() {
-        return mIsLoading;
     }
 
     @NonNull

@@ -81,28 +81,55 @@ public final class PlaceListNavigationTemplate implements Template {
     @Nullable
     private final ActionStrip mActionStrip;
 
+    /**
+     * Returns the title of the template, or {@code null} if one is not set.
+     *
+     * @see Builder#setTitle(CharSequence)
+     */
     @Nullable
     public CarText getTitle() {
         return mTitle;
     }
 
-    public boolean isLoading() {
-        return mIsLoading;
-    }
-
-    @Nullable
-    public ItemList getItemList() {
-        return mItemList;
-    }
-
+    /**
+     * Returns the {@link Action} that is set to be displayed in the header of the template, or
+     * {@code null} if one is not set.
+     *
+     * @see Builder#setHeaderAction(Action)
+     */
     @Nullable
     public Action getHeaderAction() {
         return mHeaderAction;
     }
 
+    /**
+     * Returns the {@link ActionStrip} for this template, or {@code null} if one isn't set.
+     *
+     * @see Builder#setActionStrip(ActionStrip)
+     */
     @Nullable
     public ActionStrip getActionStrip() {
         return mActionStrip;
+    }
+
+    /**
+     * Returns whether the template is loading.
+     *
+     * @see Builder#setLoading(boolean)
+     */
+    public boolean isLoading() {
+        return mIsLoading;
+    }
+
+    /**
+     * Returns the list of items to display alongside the map or {@code null} if the list is not
+     * set.
+     *
+     * @see Builder#setItemList(ItemList)
+     */
+    @Nullable
+    public ItemList getItemList() {
+        return mItemList;
     }
 
     @NonNull

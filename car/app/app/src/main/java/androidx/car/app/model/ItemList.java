@@ -50,7 +50,7 @@ public final class ItemList {
          * <p>This event is called even if the selection did not change, for example, if the user
          * selected an already selected item.
          *
-         * @param selectedIndex the index of the newly selected item.
+         * @param selectedIndex the index of the newly selected item
          */
         void onSelected(int selectedIndex);
     }
@@ -64,9 +64,9 @@ public final class ItemList {
          * first item in a list is visible, the start and end indices would be 0 and 1,
          * respectively. If no items are visible, the indices will be set to -1.
          *
-         * @param startIndex the index of the first item that is visible.
+         * @param startIndex the index of the first item that is visible
          * @param endIndex   the index of the first item that is not visible after the visible
-         *                   range.
+         *                   range
          */
         void onItemVisibilityChanged(int startIndex, int endIndex);
     }
@@ -85,21 +85,32 @@ public final class ItemList {
     @Nullable
     private final CarText mNoItemsMessage;
 
-    /** Returns the index of the selected item of the list. */
+    /**
+     * Returns the index of the selected item of the list.
+     *
+     * @see Builder#setSelectedIndex(int)
+     */
     public int getSelectedIndex() {
         return mSelectedIndex;
     }
 
     /**
      * Returns the {@link OnSelectedDelegate} to be called when when an item is selected
-     * by the user, or {@code null} is the list is non-selectable.
+     * by the user or {@code null} is the list is non-selectable.
+     *
+     * @see Builder#setOnSelectedListener(OnSelectedListener)
      */
     @Nullable
     public OnSelectedDelegate getOnSelectedDelegate() {
         return mOnSelectedDelegate;
     }
 
-    /** Returns the text to be displayed if the list is empty. */
+    /**
+     * Returns the app-supplied text to be displayed if the list is empty or {@code null} if the
+     * default text will be used by the host.
+     *
+     * @see Builder#setNoItemsMessage(CharSequence)
+     */
     @Nullable
     public CarText getNoItemsMessage() {
         return mNoItemsMessage;
@@ -107,7 +118,9 @@ public final class ItemList {
 
     /**
      * Returns the {@link OnItemVisibilityChangedDelegate} to be called when the visible
-     * items in the list changes.
+     * items in the list changes or {@code null} if one hasn't been set.
+     *
+     * @see Builder#setOnItemsVisibilityChangedListener(OnItemVisibilityChangedListener)
      */
     @Nullable
     public OnItemVisibilityChangedDelegate getOnItemVisibilityChangedDelegate() {
@@ -116,6 +129,8 @@ public final class ItemList {
 
     /**
      * Returns the list of items in this {@link ItemList}.
+     *
+     * @see Builder#addItem(Item)
      */
     @NonNull
     public List<Item> getItems() {
@@ -245,6 +260,7 @@ public final class ItemList {
          * radio button group, while others may highlight the selected item's background.
          *
          * @throws NullPointerException if {@code onSelectedListener} is {@code null}
+         *
          * @see #setSelectedIndex(int)
          */
         @NonNull
@@ -289,7 +305,7 @@ public final class ItemList {
         /**
          * Adds an item to the list.
          *
-         * @throws NullPointerException if {@code item} is {@code null}.
+         * @throws NullPointerException if {@code item} is {@code null}
          */
         @NonNull
         public Builder addItem(@NonNull Item item) {
@@ -304,7 +320,7 @@ public final class ItemList {
          *                               the selected index is greater or equal to the size of the
          *                               list, or if the list is selectable and any items have
          *                               either one of their {@link OnClickListener} or
-         *                               {@link Toggle} set.
+         *                               {@link Toggle} set
          */
         @NonNull
         public ItemList build() {

@@ -55,7 +55,6 @@ public final class HostDispatcher {
      * @param hostType the service to dispatch to
      * @param call     the request to dispatch
      * @param callName the name of the call for logging purposes
-     *
      * @throws SecurityException if the host has thrown it
      * @throws HostException     if the host throws any exception other than
      *                           {@link SecurityException}

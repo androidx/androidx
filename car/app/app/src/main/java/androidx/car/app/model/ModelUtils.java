@@ -39,7 +39,7 @@ public final class ModelUtils {
      *
      * @throws IllegalArgumentException if the input list contains any non-Row instances, or if any
      *                                  non-browsable row does not have a {@link DistanceSpan}
-     *                                  instance.
+     *                                  instance
      */
     public static void validateAllNonBrowsableRowsHaveDistance(@NonNull List<Item> rows) {
         int spanSetCount = 0;
@@ -72,7 +72,7 @@ public final class ModelUtils {
      *
      * @throws IllegalArgumentException if the input list contains any non-Row instances, or if any
      *                                  non-browsable row does not have either a {@link
-     *                                  DurationSpan} or {@link DistanceSpan} instance.
+     *                                  DurationSpan} or {@link DistanceSpan} instance
      */
     public static void validateAllRowsHaveDistanceOrDuration(@NonNull List<Item> rows) {
         for (Item rowObj : rows) {
@@ -94,7 +94,7 @@ public final class ModelUtils {
      * Checks whether all rows have only small-sized images if they are set.
      *
      * @throws IllegalArgumentException if the input list contains any non-Row instances, or if an
-     *                                  image set in any rows is using {@link Row#IMAGE_TYPE_LARGE}.
+     *                                  image set in any rows is using {@link Row#IMAGE_TYPE_LARGE}
      */
     public static void validateAllRowsHaveOnlySmallImages(@NonNull List<Item> rows) {
         for (Item rowObj : rows) {
@@ -112,7 +112,7 @@ public final class ModelUtils {
      * Checks whether any rows have both a marker and an image.
      *
      * @throws IllegalArgumentException if the input list contains any non-Row instances, or if
-     *                                  both a marker and an image are set in a row.
+     *                                  both a marker and an image are set in a row
      */
     public static void validateNoRowsHaveBothMarkersAndImages(@NonNull List<Item> rows) {
         for (Item rowObj : rows) {

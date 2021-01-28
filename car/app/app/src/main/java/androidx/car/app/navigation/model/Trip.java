@@ -50,6 +50,15 @@ public final class Trip {
     @Keep
     private final boolean mIsLoading;
 
+    /**
+     * Returns whether the trip is in a loading state.
+     *
+     * @see Builder#setLoading(boolean)
+     */
+    public boolean isLoading() {
+        return mIsLoading;
+    }
+
     @NonNull
     public List<Destination> getDestinations() {
         return CollectionUtils.emptyIfNull(mDestinations);
@@ -73,10 +82,6 @@ public final class Trip {
     @Nullable
     public CarText getCurrentRoad() {
         return mCurrentRoad;
-    }
-
-    public boolean isLoading() {
-        return mIsLoading;
     }
 
     @Override

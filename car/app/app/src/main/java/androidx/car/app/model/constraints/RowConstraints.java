@@ -112,7 +112,7 @@ public final class RowConstraints {
     /**
      * Validates that the given row satisfies this {@link RowConstraints} instance.
      *
-     * @throws IllegalArgumentException if the constraints are not met.
+     * @throws IllegalArgumentException if the constraints are not met
      */
     public void validateOrThrow(@NonNull Row row) {
         if (!mIsOnClickListenerAllowed && row.getOnClickDelegate() != null) {
@@ -215,7 +215,7 @@ public final class RowConstraints {
          * Returns a new builder that contains the same data as the given {@link RowConstraints}
          * instance.
          *
-         * @throws NullPointerException if {@code latLng} is {@code null}.
+         * @throws NullPointerException if {@code latLng} is {@code null}
          */
         public Builder(@NonNull RowConstraints constraints) {
             requireNonNull(constraints);

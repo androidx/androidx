@@ -46,7 +46,7 @@ public final class Toggle {
 
     /**
      * Returns the {@link OnCheckedChangeDelegate} that is called when the checked state of
-     * the {@link Toggle} is changed.
+     * the {@link Toggle} is changed or {@code null} if not set.
      */
     @Nullable
     public OnCheckedChangeDelegate getOnCheckedChangeDelegate() {

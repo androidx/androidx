@@ -33,11 +33,11 @@ public interface OnItemVisibilityChangedDelegate {
      * respectively. If no items are visible, the indices will be set to -1.
      *
      * @param startIndex the index (inclusive) of the first visible element, or -1 if no items
-     *                   are visible.
+     *                   are visible
      * @param endIndex   the index (exclusive) of the last visible element, or -1 if no items
-     *                   are visible.
+     *                   are visible
      * @param callback   the {@link OnDoneCallback} to trigger when the client finishes handling
-     *                   the event.
+     *                   the event
      */
     // This mirrors the AIDL class and is not supported to support an executor as an input.
     @SuppressLint("ExecutorRegistration")

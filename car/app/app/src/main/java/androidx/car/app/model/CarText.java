@@ -58,6 +58,7 @@ public final class CarText {
         return new CarText(text);
     }
 
+    /** Returns whether the text string is empty. */
     public boolean isEmpty() {
         return mText.isEmpty();
     }

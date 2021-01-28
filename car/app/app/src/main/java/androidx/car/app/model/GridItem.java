@@ -54,8 +54,7 @@ public final class GridItem implements Item {
      * Represents an icon to be displayed in the grid item.
      *
      * <p>If necessary, icons will be scaled down to fit within a 64 x 64 dp bounding box,
-     * preserving
-     * their aspect ratios.
+     * preserving their aspect ratios.
      *
      * <p>A tint color is expected to be provided via {@link CarIcon.Builder#setTint}. Otherwise, a
      * default tint color as determined by the host will be applied.
@@ -88,24 +87,41 @@ public final class GridItem implements Item {
     @Nullable
     private final OnClickDelegate mOnClickDelegate;
 
-    /** Returns whether the grid item is loading. */
+    /**
+     * Returns whether the grid item is in a loading state.
+     *
+     * @see Builder#setLoading(boolean)
+     */
     public boolean isLoading() {
         return mIsLoading;
     }
 
-    /** Returns the title of the grid item. */
+    /**
+     * Returns the title of the grid item or {@code null} if not set.
+     *
+     * @see Builder#setTitle(CharSequence)
+     */
     @Nullable
     public CarText getTitle() {
         return mTitle;
     }
 
-    /** Returns the list of text below the title. */
+    /**
+     * Returns the text to display below the title or {@code null} if no text will be displayed
+     * below the title.
+     *
+     * @see Builder#setText(CharSequence)
+     */
     @Nullable
     public CarText getText() {
         return mText;
     }
 
-    /** Returns the image of the grid item. */
+    /**
+     * Returns the image of the grid item or {@code null} if not set.
+     *
+     * @see Builder#setImage(CarIcon)
+     */
     @Nullable
     public CarIcon getImage() {
         return mImage;
@@ -118,7 +134,7 @@ public final class GridItem implements Item {
     }
 
     /**
-     * Returns the {@link OnClickDelegate} to be called back when the grid item is clicked, or
+     * Returns the {@link OnClickDelegate} to be called back when the grid item is clicked or
      * {@code null} if the grid item is non-clickable.
      */
     @Nullable
@@ -215,8 +231,8 @@ public final class GridItem implements Item {
          *
          * <p>Unless set with this method, the grid item will not have an title.
          *
-         * @throws NullPointerException     if {@code title} is {@code null}.
-         * @throws IllegalArgumentException if {@code title} is empty.
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} is empty
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
@@ -235,9 +251,9 @@ public final class GridItem implements Item {
          *
          * <h2>Text Wrapping</h2>
          *
-         * This text is truncated at the end to fit in a single line below the title.
+         * This text is truncated at the end to fit in a single line below the title
          *
-         * @throws NullPointerException if {@code text} is {@code null}.
+         * @throws NullPointerException if {@code text} is {@code null}
          */
         @NonNull
         public Builder setText(@NonNull CharSequence text) {
@@ -248,7 +264,8 @@ public final class GridItem implements Item {
         /**
          * Sets an image to show in the grid item with the default size {@link #IMAGE_TYPE_LARGE}.
          *
-         * @throws NullPointerException if {@code image} is {@code null}.
+         * @throws NullPointerException if {@code image} is {@code null}
+         *
          * @see #setImage(CarIcon, int)
          */
         @NonNull
@@ -273,9 +290,10 @@ public final class GridItem implements Item {
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
          *
-         * @param image     the {@link CarIcon} to display.
-         * @param imageType one of {@link #IMAGE_TYPE_ICON} or {@link #IMAGE_TYPE_LARGE}.
-         * @throws NullPointerException if {@code image} is {@code null}.
+         * @param image     the {@link CarIcon} to display
+         * @param imageType one of {@link #IMAGE_TYPE_ICON} or {@link #IMAGE_TYPE_LARGE}
+         *
+         * @throws NullPointerException if {@code image} is {@code null}
          */
         @NonNull
         public Builder setImage(@NonNull CarIcon image, @GridItemImageType int imageType) {
@@ -290,9 +308,9 @@ public final class GridItem implements Item {
          * {@code null} to make the grid item non-clickable.
          *
          * <p>Note that the listener relates to UI events and will be executed on the main thread
-         * using {@link Looper#getMainLooper()}.
+         * using {@link Looper#getMainLooper()}
          *
-         * @throws NullPointerException if {@code onClickListener} is {@code null}.
+         * @throws NullPointerException if {@code onClickListener} is {@code null}
          */
         @NonNull
         @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
@@ -306,7 +324,7 @@ public final class GridItem implements Item {
          *
          * @throws IllegalStateException if the grid item's title is not set, if the grid item's
          *                               image is set when it is loading or vice versa, or if
-         *                               the grid item is loading but the click listener is set.
+         *                               the grid item is loading but the click listener is set
          */
         @NonNull
         public GridItem build() {

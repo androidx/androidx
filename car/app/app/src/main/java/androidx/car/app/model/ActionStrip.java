@@ -46,7 +46,9 @@ public final class ActionStrip {
     private final List<Action> mActions;
 
     /**
-     * Returns the list of {@link Action}'s.
+     * Returns the list of {@link Action}s in the strip.
+     *
+     * @see Builder#addAction(Action)
      */
     @NonNull
     public List<Action> getActions() {
@@ -54,7 +56,7 @@ public final class ActionStrip {
     }
 
     /**
-     * Returns the first {@link Action} associated with the input {@code actionType}, or {@code
+     * Returns the first {@link Action} associated with the input {@code actionType} or {@code
      * null} if no matching {@link Action} is found.
      */
     @Nullable
@@ -114,8 +116,8 @@ public final class ActionStrip {
          *
          * @throws IllegalArgumentException if the background color of the action is specified,
          *                                  or if {@code action} is a standard action and an
-         *                                  action of the same type has already been added.
-         * @throws NullPointerException     if {@code action} is {@code null}.
+         *                                  action of the same type has already been added
+         * @throws NullPointerException     if {@code action} is {@code null}
          */
         @NonNull
         public Builder addAction(@NonNull Action action) {
@@ -137,7 +139,7 @@ public final class ActionStrip {
         /**
          * Constructs the {@link ActionStrip} defined by this builder.
          *
-         * @throws IllegalStateException if the action strip is empty.
+         * @throws IllegalStateException if the action strip is empty
          */
         @NonNull
         public ActionStrip build() {
