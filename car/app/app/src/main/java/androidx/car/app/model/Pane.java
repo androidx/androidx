@@ -57,18 +57,6 @@ public final class Pane {
     }
 
     /**
-     * Returns the list of {@link Row} objects that make up the {@link Pane}.
-     *
-     * @deprecated use {@link #getRows()} instead.
-     */
-    // TODO(b/177591128): remove after host(s) no longer reference this.
-    @Deprecated
-    @NonNull
-    public List<Row> getRowList() {
-        return CollectionUtils.emptyIfNull(mRows);
-    }
-
-    /**
      * Returns the {@code true} if the {@link Pane} is loading.*
      */
     public boolean isLoading() {

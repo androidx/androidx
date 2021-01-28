@@ -38,20 +38,6 @@ public final class SectionedItemList {
     /**
      * Creates an instance of a {@link SectionedItemList} with the given {@code itemList} and
      * {@code sectionHeader}.
-     *
-     * @deprecated use {@link #create(ItemList, CharSequence)} ()} instead.
-     */
-    // TODO(b/177591128): remove after host(s) no longer reference this.
-    @Deprecated
-    @NonNull
-    public static SectionedItemList create(
-            @NonNull ItemList itemList, @NonNull CarText sectionHeader) {
-        return new SectionedItemList(requireNonNull(itemList), requireNonNull(sectionHeader));
-    }
-
-    /**
-     * Creates an instance of a {@link SectionedItemList} with the given {@code itemList} and
-     * {@code sectionHeader}.
      */
     @NonNull
     public static SectionedItemList create(
