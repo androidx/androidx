@@ -30,7 +30,6 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
-import androidx.concurrent.futures.ResolvableFuture
 import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.ProviderInfoRetriever
@@ -48,9 +47,11 @@ import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
-import com.google.common.util.concurrent.ListenableFuture
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.Executor
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 /**
  * Interface for manipulating watch face state during an editing session for a watch face editing
@@ -84,13 +85,13 @@ public interface EditorSession {
     public val complicationState: Map<Int, ComplicationState>
 
     /**
-     * [ListenableFuture] for a map of complication ids to preview [ComplicationData] suitable for
-     * use in rendering the watch face. Note if a slot is configured to be empty then it will not
-     * appear in the map, however disabled complications are included. Note also unlike live data
-     * this is static per provider, but it may change (on the UIThread) as a result of
+     * Returns a map of complication ids to preview [ComplicationData] suitable for use in rendering
+     * the watch face. Note if a slot is configured to be empty then it will not appear in the map,
+     * however disabled complications are included. Note also unlike live data this is static per
+     * provider, but it may change (on the UIThread) as a result of
      * [launchComplicationProviderChooser].
      */
-    public val complicationPreviewData: ListenableFuture<Map<Int, ComplicationData>>
+    public suspend fun getComplicationPreviewData(): Map<Int, ComplicationData>
 
     /** The ID of the background complication or `null` if there isn't one. */
     @get:SuppressWarnings("AutoBoxing")
@@ -116,11 +117,11 @@ public interface EditorSession {
     ): Bitmap
 
     /**
-     * Launches the complication provider chooser and returns a [ListenableFuture] which
-     * resolves with `true` if the user made a selection or `false` if the activity was canceled.
+     * Launches the complication provider chooser and returns `true` if the user made a selection or
+     * `false` if the activity was canceled.
      */
     @UiThread
-    public fun launchComplicationProviderChooser(complicationId: Int): ListenableFuture<Boolean>
+    public suspend fun launchComplicationProviderChooser(complicationId: Int): Boolean
 
     public companion object {
         /** Constructs an [EditorSession] for an on watch face editor. */
@@ -194,71 +195,57 @@ internal interface ProviderInfoRetrieverProvider {
 
 internal abstract class BaseEditorSession(
     protected val activity: ComponentActivity,
-    protected val providerInfoRetrieverProvider: ProviderInfoRetrieverProvider
+    protected val providerInfoRetrieverProvider: ProviderInfoRetrieverProvider,
+    mainThreadHandler: Handler = Handler(Looper.getMainLooper())
 ) : EditorSession {
-
-    // NB this map is only modified on the UI thread.
-    private val complicationPreviewDataInternal = HashMap<Int, ComplicationData>()
+    internal val coroutineScope = CoroutineScope(mainThreadHandler.asCoroutineDispatcher())
 
     // This future is resolved when [fetchComplicationPreviewData] has called [getPreviewData] for
     // each complication and each of those future has been resolved.
-    override val complicationPreviewData: ResolvableFuture<Map<Int, ComplicationData>> =
-        ResolvableFuture.create<Map<Int, ComplicationData>>()
+    private val deferredComplicationPreviewDataMap =
+        CompletableDeferred<MutableMap<Int, ComplicationData>>()
 
-    // The future returned by [launchComplicationProviderChooser].
-    private var pendingFuture: ResolvableFuture<Boolean>? = null
+    override suspend fun getComplicationPreviewData(): Map<Int, ComplicationData> {
+        return deferredComplicationPreviewDataMap.await()
+    }
+
+    // Pending result for [launchComplicationProviderChooser].
+    private var pendingComplicationProviderChooserResult: CompletableDeferred<Boolean>? = null
 
     // The id of the complication being configured due to [launchComplicationProviderChooser].
     private var pendingComplicationProviderId: Int = -1
 
-    private val mainThreadExecutor: Executor = object : Executor {
-        private val handler: Handler = Handler(Looper.getMainLooper())
-        override fun execute(command: Runnable) {
-            if (handler.looper !== Looper.myLooper()) {
-                handler.post(command)
-            } else {
-                command.run()
-            }
-        }
-    }
-
     private val chooseComplicationProvider =
         activity.registerForActivityResult(ComplicationProviderChooserContract()) {
             if (it != null) {
-                // Update preview data and then resolve [pendingFuture].
-                val providerInfoRetriever = providerInfoRetrieverProvider.getProviderInfoRetriever()
-                val previewDataListener = getPreviewData(
-                    providerInfoRetriever,
-                    it.providerInfo
-                )
-                previewDataListener.addListener(
-                    {
-                        val previewData = previewDataListener.get()
-                        if (previewData == null) {
-                            complicationPreviewDataInternal.remove(pendingComplicationProviderId)
-                        } else {
-                            complicationPreviewDataInternal[pendingComplicationProviderId] =
-                                previewData
-                        }
-                        providerInfoRetriever.close()
-                        pendingFuture!!.set(true)
-                    },
-                    mainThreadExecutor
-                )
+                coroutineScope.launch {
+                    // Update preview data and then resolve [pendingFuture].
+                    val providerInfoRetriever =
+                        providerInfoRetrieverProvider.getProviderInfoRetriever()
+                    val previewData = getPreviewData(providerInfoRetriever, it.providerInfo)
+                    val complicationPreviewDataMap = deferredComplicationPreviewDataMap.await()
+                    if (previewData == null) {
+                        complicationPreviewDataMap.remove(pendingComplicationProviderId)
+                    } else {
+                        complicationPreviewDataMap[pendingComplicationProviderId] = previewData
+                    }
+                    providerInfoRetriever.close()
+                    pendingComplicationProviderChooserResult!!.complete(true)
+                    pendingComplicationProviderChooserResult = null
+                }
             } else {
-                pendingFuture!!.set(false)
+                pendingComplicationProviderChooserResult!!.complete(false)
+                pendingComplicationProviderChooserResult = null
             }
-            pendingFuture = null
         }
 
-    override fun launchComplicationProviderChooser(complicationId: Int): ListenableFuture<Boolean> {
-        val future = ResolvableFuture.create<Boolean>()
-        pendingFuture = future
+    override suspend fun launchComplicationProviderChooser(complicationId: Int): Boolean {
+        pendingComplicationProviderChooserResult = CompletableDeferred<Boolean>()
         pendingComplicationProviderId = complicationId
         chooseComplicationProvider.launch(
             ComplicationProviderChooserRequest(this, complicationId)
         )
-        return future
+        return pendingComplicationProviderChooserResult!!.await()
     }
 
     override val backgroundComplicationId by lazy {
@@ -286,113 +273,59 @@ internal abstract class BaseEditorSession(
      * called pre R because providerInfo.providerComponentName is only non null from R onwards.
      */
     @SuppressLint("NewApi")
-    internal fun getPreviewData(
+    internal suspend fun getPreviewData(
         providerInfoRetriever: ProviderInfoRetriever,
         providerInfo: ComplicationProviderInfo?
-    ): ListenableFuture<ComplicationData?> {
-        val resultFuture = ResolvableFuture.create<ComplicationData>()
+    ): ComplicationData? {
         if (providerInfo == null) {
-            return resultFuture.apply {
-                set(null)
-            }
+            return null
         }
-
-        val providerComponentName = providerInfo.providerComponentName
-        if (providerComponentName != null) {
-            val future = providerInfoRetriever.requestPreviewComplicationData(
-                providerComponentName,
+        // Fetch preview ComplicationData if possible.
+        return providerInfo.providerComponentName?.let {
+            providerInfoRetriever.requestPreviewComplicationData(
+                it,
                 ComplicationType.fromWireType(providerInfo.complicationType)
             )
-            future.addListener(
-                {
-                    try {
-                        resultFuture.set(future.get())
-                    } catch (e: ExecutionException) {
-                        resultFuture.set(
-                            if (e.cause is ProviderInfoRetriever.PreviewNotAvailableException) {
-                                // Generate fallback preview data.
-                                generatePreviewFromComplicationProviderInfo(providerInfo)
-                            } else {
-                                null
-                            }
-                        )
-                    }
-                },
-                { runnable -> runnable.run() }
-            )
-        } else {
-            // Generate fallback preview data.
-            resultFuture.set(generatePreviewFromComplicationProviderInfo(providerInfo))
-        }
-        return resultFuture
+        } ?: makeFallbackPreviewData(providerInfo)
     }
 
-    private fun generatePreviewFromComplicationProviderInfo(
+    private fun makeFallbackPreviewData(
         providerInfo: ComplicationProviderInfo
-    ): ComplicationData? {
-        val providerIcon = providerInfo.providerIcon
-        val providerName = providerInfo.providerName
+    ) = when {
+        providerInfo.providerName == null -> null
 
-        return when {
-            providerName == null -> null
+        providerInfo.providerIcon == null ->
+            LongTextComplicationData.Builder(
+                ComplicationText.plain(providerInfo.providerName!!)
+            ).build()
 
-            providerIcon == null ->
-                LongTextComplicationData.Builder(ComplicationText.plain(providerName))
-                    .build()
-
-            else ->
-                ShortTextComplicationData.Builder(ComplicationText.plain(providerName))
-                    .setImage(
-                        MonochromaticImage.Builder(providerIcon).build()
-                    )
-                    .build()
-        }
+        else ->
+            ShortTextComplicationData.Builder(
+                ComplicationText.plain(providerInfo.providerName!!)
+            ).setImage(MonochromaticImage.Builder(providerInfo.providerIcon!!).build()).build()
     }
 
     protected fun fetchComplicationPreviewData() {
-        val providerInfoRetriever = providerInfoRetrieverProvider.getProviderInfoRetriever()
-        val providerInfoFuture = providerInfoRetriever.retrieveProviderInfo(
-            watchFaceComponentName,
-            complicationState.keys.toIntArray()
-        )
-        providerInfoFuture.addListener(
-            {
-                providerInfoFuture.get()?.let {
-                    // We can use a regular int here (instead of e.g. an atomic) because we use
-                    // [mainThreadExecutor].
-                    var countDown = it.size
-                    if (countDown == 0) {
-                        complicationPreviewData.set(emptyMap())
-                    } else {
-                        for (providerInfo in it) {
-                            val previewDataListener = getPreviewData(
-                                providerInfoRetriever,
-                                providerInfo.info
-                            )
-                            previewDataListener.addListener(
-                                {
-                                    previewDataListener.get()?.let { previewData ->
-                                        complicationPreviewDataInternal[
-                                            providerInfo.watchFaceComplicationId
-                                        ] = previewData
-                                    }
-                                    // If we've generated preview data for all the complications we can
-                                    // resolve the future.
-                                    if (--countDown == 0) {
-                                        complicationPreviewData.set(
-                                            complicationPreviewDataInternal
-                                        )
-                                    }
-                                },
-                                mainThreadExecutor
-                            )
-                        }
-                    }
-                } ?: complicationPreviewData.set(emptyMap())
-                providerInfoRetriever.close()
-            },
-            { runnable -> runnable.run() }
-        )
+        coroutineScope.launch {
+            val providerInfoRetriever = providerInfoRetrieverProvider.getProviderInfoRetriever()
+            val providerInfoArray = providerInfoRetriever.retrieveProviderInfo(
+                watchFaceComponentName,
+                complicationState.keys.toIntArray()
+            )
+            deferredComplicationPreviewDataMap.complete(
+                // Parallel fetch preview ComplicationData.
+                providerInfoArray?.associateBy(
+                    { it.watchFaceComplicationId },
+                    { async { getPreviewData(providerInfoRetriever, it.info) } }
+                    // Coerce to a Map<Int, ComplicationData> omitting null values.
+                )?.filterValues {
+                    it.await() != null
+                }?.mapValues {
+                    it.value.await()!!
+                }?.toMutableMap() ?: mutableMapOf()
+            )
+            providerInfoRetriever.close()
+        }
     }
 }
 
@@ -518,7 +451,7 @@ internal class ComplicationProviderChooserContract : ActivityResultContract<
 }
 
 /** Sets the [Activity]s result with [EditorResult]. */
-public fun Activity.setWatchRequestResult(editorSession: EditorSession) {
+public suspend fun Activity.setWatchRequestResult(editorSession: EditorSession) {
     setResult(
         Activity.RESULT_OK,
         Intent().apply {
@@ -526,10 +459,9 @@ public fun Activity.setWatchRequestResult(editorSession: EditorSession) {
                 USER_STYLE_KEY,
                 ParcelUtils.toParcelable(editorSession.userStyle.toWireFormat())
             )
-            val data = editorSession.complicationPreviewData.get()
             putExtra(
                 PREVIEW_COMPLICATIONS_KEY,
-                data.map {
+                editorSession.getComplicationPreviewData().map {
                     ParcelUtils.toParcelable(
                         IdAndComplicationDataWireFormat(
                             it.key,
