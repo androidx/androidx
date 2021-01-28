@@ -4,8 +4,8 @@ plugins {
 }
 
 dependencies {
-    docs("androidx.activity:activity:1.2.0-rc01")
-    docs("androidx.activity:activity-ktx:1.2.0-rc01")
+    docs("androidx.activity:activity:1.2.0")
+    docs("androidx.activity:activity-ktx:1.2.0")
     docs("androidx.ads:ads-identifier:1.0.0-alpha04")
     docs("androidx.ads:ads-identifier-provider:1.0.0-alpha04")
     docs("androidx.annotation:annotation:1.2.0-beta01")
