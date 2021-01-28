@@ -34,10 +34,10 @@ public final class SurfaceContainer {
     private final int mDpi;
 
     public SurfaceContainer(@Nullable Surface surface, int width, int height, int dpi) {
-        this.mSurface = surface;
-        this.mWidth = width;
-        this.mHeight = height;
-        this.mDpi = dpi;
+        mSurface = surface;
+        mWidth = width;
+        mHeight = height;
+        mDpi = dpi;
     }
 
     // No argument constructor needs for serialization.

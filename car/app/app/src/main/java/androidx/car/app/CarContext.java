@@ -497,7 +497,7 @@ public class CarContext extends ContextWrapper {
     protected CarContext(@NonNull Lifecycle lifecycle, @NonNull HostDispatcher hostDispatcher) {
         super(null);
 
-        this.mHostDispatcher = hostDispatcher;
+        mHostDispatcher = hostDispatcher;
         mAppManager = AppManager.create(this, hostDispatcher);
         mNavigationManager = NavigationManager.create(this, hostDispatcher);
         mScreenManager = ScreenManager.create(this, lifecycle);

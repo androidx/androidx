@@ -94,6 +94,6 @@ public final class CarIconConstraints {
     }
 
     private CarIconConstraints(int[] allowedCustomIconTypes) {
-        this.mAllowedTypes = allowedCustomIconTypes;
+        mAllowedTypes = allowedCustomIconTypes;
     }
 }

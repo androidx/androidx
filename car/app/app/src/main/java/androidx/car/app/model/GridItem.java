@@ -222,7 +222,7 @@ public final class GridItem implements Item {
          */
         @NonNull
         public Builder setLoading(boolean isLoading) {
-            this.mIsLoading = isLoading;
+            mIsLoading = isLoading;
             return this;
         }
 
@@ -240,7 +240,7 @@ public final class GridItem implements Item {
             if (titleText.isEmpty()) {
                 throw new IllegalArgumentException("The title cannot be null or empty");
             }
-            this.mTitle = titleText;
+            mTitle = titleText;
             return this;
         }
 
@@ -257,7 +257,7 @@ public final class GridItem implements Item {
          */
         @NonNull
         public Builder setText(@NonNull CharSequence text) {
-            this.mText = CarText.create(requireNonNull(text));
+            mText = CarText.create(requireNonNull(text));
             return this;
         }
 
@@ -298,8 +298,8 @@ public final class GridItem implements Item {
         @NonNull
         public Builder setImage(@NonNull CarIcon image, @GridItemImageType int imageType) {
             CarIconConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(image));
-            this.mImage = image;
-            this.mImageType = imageType;
+            mImage = image;
+            mImageType = imageType;
             return this;
         }
 

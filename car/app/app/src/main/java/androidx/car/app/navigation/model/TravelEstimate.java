@@ -154,11 +154,11 @@ public final class TravelEstimate {
     }
 
     TravelEstimate(Builder builder) {
-        this.mRemainingDistance = builder.mRemainingDistance;
-        this.mRemainingTimeSeconds = builder.mRemainingTimeSeconds;
-        this.mArrivalTimeAtDestination = builder.mArrivalTimeAtDestination;
-        this.mRemainingTimeColor = builder.mRemainingTimeColor;
-        this.mRemainingDistanceColor = builder.mRemainingDistanceColor;
+        mRemainingDistance = builder.mRemainingDistance;
+        mRemainingTimeSeconds = builder.mRemainingTimeSeconds;
+        mArrivalTimeAtDestination = builder.mArrivalTimeAtDestination;
+        mRemainingTimeColor = builder.mRemainingTimeColor;
+        mRemainingDistanceColor = builder.mRemainingDistanceColor;
     }
 
     /** A builder of {@link TravelEstimate}. */
@@ -183,8 +183,8 @@ public final class TravelEstimate {
         public Builder(
                 @NonNull Distance remainingDistance,
                 @NonNull DateTimeWithZone arrivalTimeAtDestination) {
-            this.mRemainingDistance = requireNonNull(remainingDistance);
-            this.mArrivalTimeAtDestination = requireNonNull(arrivalTimeAtDestination);
+            mRemainingDistance = requireNonNull(remainingDistance);
+            mArrivalTimeAtDestination = requireNonNull(arrivalTimeAtDestination);
         }
 
         /**
@@ -205,8 +205,8 @@ public final class TravelEstimate {
         public Builder(
                 @NonNull Distance remainingDistance,
                 @NonNull ZonedDateTime arrivalTimeAtDestination) {
-            this.mRemainingDistance = requireNonNull(remainingDistance);
-            this.mArrivalTimeAtDestination =
+            mRemainingDistance = requireNonNull(remainingDistance);
+            mArrivalTimeAtDestination =
                     DateTimeWithZone.create(requireNonNull(arrivalTimeAtDestination));
         }
 
@@ -220,7 +220,7 @@ public final class TravelEstimate {
          */
         @NonNull
         public Builder setRemainingTimeSeconds(@IntRange(from = -1) long remainingTimeSeconds) {
-            this.mRemainingTimeSeconds = validateRemainingTime(remainingTimeSeconds);
+            mRemainingTimeSeconds = validateRemainingTime(remainingTimeSeconds);
             return this;
         }
 
@@ -240,7 +240,7 @@ public final class TravelEstimate {
         @NonNull
         public Builder setRemainingTime(@NonNull Duration remainingTime) {
             requireNonNull(remainingTime);
-            this.mRemainingTimeSeconds = validateRemainingTime(remainingTime.getSeconds());
+            mRemainingTimeSeconds = validateRemainingTime(remainingTime.getSeconds());
             return this;
         }
 
@@ -259,7 +259,7 @@ public final class TravelEstimate {
         @NonNull
         public Builder setRemainingTimeColor(@NonNull CarColor remainingTimeColor) {
             CarColorConstraints.STANDARD_ONLY.validateOrThrow(requireNonNull(remainingTimeColor));
-            this.mRemainingTimeColor = remainingTimeColor;
+            mRemainingTimeColor = remainingTimeColor;
             return this;
         }
 
@@ -279,7 +279,7 @@ public final class TravelEstimate {
         public Builder setRemainingDistanceColor(@NonNull CarColor remainingDistanceColor) {
             CarColorConstraints.STANDARD_ONLY.validateOrThrow(
                     requireNonNull(remainingDistanceColor));
-            this.mRemainingDistanceColor = remainingDistanceColor;
+            mRemainingDistanceColor = remainingDistanceColor;
             return this;
         }
 

@@ -181,7 +181,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
         mContentIntent = carBundle.getParcelable(EXTRA_CONTENT_INTENT);
         mDeleteIntent = carBundle.getParcelable(EXTRA_DELETE_INTENT);
         ArrayList<Action> actions = carBundle.getParcelableArrayList(EXTRA_ACTIONS);
-        this.mActions = actions == null ? new ArrayList<>() : actions;
+        mActions = actions == null ? new ArrayList<>() : actions;
         mImportance =
                 carBundle.getInt(EXTRA_IMPORTANCE,
                         NotificationManagerCompat.IMPORTANCE_UNSPECIFIED);
@@ -197,15 +197,15 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     }
 
     CarAppExtender(Builder builder) {
-        this.mContentTitle = builder.mContentTitle;
-        this.mContentText = builder.mContentText;
-        this.mSmallIconResId = builder.mSmallIconResId;
-        this.mLargeIconBitmap = builder.mLargeIconBitmap;
-        this.mContentIntent = builder.mContentIntent;
-        this.mDeleteIntent = builder.mDeleteIntent;
-        this.mActions = builder.mActions;
-        this.mImportance = builder.mImportance;
-        this.mColor = builder.mColor;
+        mContentTitle = builder.mContentTitle;
+        mContentText = builder.mContentText;
+        mSmallIconResId = builder.mSmallIconResId;
+        mLargeIconBitmap = builder.mLargeIconBitmap;
+        mContentIntent = builder.mContentIntent;
+        mDeleteIntent = builder.mDeleteIntent;
+        mActions = builder.mActions;
+        mImportance = builder.mImportance;
+        mColor = builder.mColor;
     }
 
     /**
@@ -412,7 +412,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          */
         @NonNull
         public Builder setContentTitle(@NonNull CharSequence contentTitle) {
-            this.mContentTitle = requireNonNull(contentTitle);
+            mContentTitle = requireNonNull(contentTitle);
             return this;
         }
 
@@ -429,7 +429,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          */
         @NonNull
         public Builder setContentText(@NonNull CharSequence contentText) {
-            this.mContentText = requireNonNull(contentText);
+            mContentText = requireNonNull(contentText);
             return this;
         }
 
@@ -443,7 +443,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          */
         @NonNull
         public Builder setSmallIcon(int iconResId) {
-            this.mSmallIconResId = iconResId;
+            mSmallIconResId = iconResId;
             return this;
         }
 
@@ -463,7 +463,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          */
         @NonNull
         public Builder setLargeIcon(@NonNull Bitmap bitmap) {
-            this.mLargeIconBitmap = requireNonNull(bitmap);
+            mLargeIconBitmap = requireNonNull(bitmap);
             return this;
         }
 
@@ -484,7 +484,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          */
         @NonNull
         public Builder setContentIntent(@NonNull PendingIntent contentIntent) {
-            this.mContentIntent = requireNonNull(contentIntent);
+            mContentIntent = requireNonNull(contentIntent);
             return this;
         }
 
@@ -504,7 +504,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          */
         @NonNull
         public Builder setDeleteIntent(@NonNull PendingIntent deleteIntent) {
-            this.mDeleteIntent = requireNonNull(deleteIntent);
+            mDeleteIntent = requireNonNull(deleteIntent);
             return this;
         }
 
@@ -540,7 +540,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
         @NonNull
         public Builder addAction(
                 @DrawableRes int icon, @NonNull CharSequence title, @NonNull PendingIntent intent) {
-            this.mActions.add(new Action(icon, requireNonNull(title), requireNonNull(intent)));
+            mActions.add(new Action(icon, requireNonNull(title), requireNonNull(intent)));
             return this;
         }
 
@@ -556,7 +556,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          */
         @NonNull
         public Builder setImportance(int importance) {
-            this.mImportance = importance;
+            mImportance = importance;
             return this;
         }
 
@@ -573,7 +573,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          */
         @NonNull
         public Builder setColor(@NonNull CarColor color) {
-            this.mColor = requireNonNull(color);
+            mColor = requireNonNull(color);
             return this;
         }
 

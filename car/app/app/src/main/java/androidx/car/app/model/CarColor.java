@@ -319,8 +319,8 @@ public final class CarColor {
     }
 
     private CarColor(@CarColorType int type, @ColorInt int color, @ColorInt int colorDark) {
-        this.mType = type;
-        this.mColor = color;
-        this.mColorDark = colorDark;
+        mType = type;
+        mColor = color;
+        mColorDark = colorDark;
     }
 }

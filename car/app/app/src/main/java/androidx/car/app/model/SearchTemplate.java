@@ -261,7 +261,7 @@ public final class SearchTemplate implements Template {
         public Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
                     Collections.singletonList(requireNonNull(headerAction)));
-            this.mHeaderAction = headerAction;
+            mHeaderAction = headerAction;
             return this;
         }
 
@@ -282,7 +282,7 @@ public final class SearchTemplate implements Template {
         @NonNull
         public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
-            this.mActionStrip = actionStrip;
+            mActionStrip = actionStrip;
             return this;
         }
 
@@ -293,7 +293,7 @@ public final class SearchTemplate implements Template {
          */
         @NonNull
         public Builder setInitialSearchText(@NonNull String initialSearchText) {
-            this.mInitialSearchText = requireNonNull(initialSearchText);
+            mInitialSearchText = requireNonNull(initialSearchText);
             return this;
         }
 
@@ -312,7 +312,7 @@ public final class SearchTemplate implements Template {
          */
         @NonNull
         public Builder setSearchHint(@NonNull String searchHint) {
-            this.mSearchHint = requireNonNull(searchHint);
+            mSearchHint = requireNonNull(searchHint);
             return this;
         }
 
@@ -327,7 +327,7 @@ public final class SearchTemplate implements Template {
          */
         @NonNull
         public Builder setLoading(boolean isLoading) {
-            this.mIsLoading = isLoading;
+            mIsLoading = isLoading;
             return this;
         }
 
@@ -351,7 +351,7 @@ public final class SearchTemplate implements Template {
         @NonNull
         public Builder setItemList(@NonNull ItemList itemList) {
             ROW_LIST_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(itemList));
-            this.mItemList = itemList;
+            mItemList = itemList;
             return this;
         }
 
@@ -363,7 +363,7 @@ public final class SearchTemplate implements Template {
          */
         @NonNull
         public Builder setShowKeyboardByDefault(boolean showKeyboardByDefault) {
-            this.mShowKeyboardByDefault = showKeyboardByDefault;
+            mShowKeyboardByDefault = showKeyboardByDefault;
             return this;
         }
 

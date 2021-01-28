@@ -176,7 +176,7 @@ public final class RemoteUtils {
         private final SurfaceCallback mSurfaceCallback;
 
         SurfaceCallbackStub(SurfaceCallback surfaceCallback) {
-            this.mSurfaceCallback = surfaceCallback;
+            mSurfaceCallback = surfaceCallback;
         }
 
         @Override

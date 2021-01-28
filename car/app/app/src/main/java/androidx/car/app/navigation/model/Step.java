@@ -148,11 +148,11 @@ public final class Step {
             @Nullable CarIcon lanesImage,
             @Nullable CarText cue,
             @Nullable CarText road) {
-        this.mManeuver = maneuver;
-        this.mLanes = CollectionUtils.unmodifiableCopy(lanes);
-        this.mLanesImage = lanesImage;
-        this.mCue = cue;
-        this.mRoad = road;
+        mManeuver = maneuver;
+        mLanes = CollectionUtils.unmodifiableCopy(lanes);
+        mLanesImage = lanesImage;
+        mCue = cue;
+        mRoad = road;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -189,7 +189,7 @@ public final class Step {
          * @see Builder#setCue(CharSequence)
          */
         public Builder(@NonNull CharSequence cue) {
-            this.mCue = CarText.create(requireNonNull(cue));
+            mCue = CarText.create(requireNonNull(cue));
         }
 
         /**
@@ -199,7 +199,7 @@ public final class Step {
          */
         @NonNull
         public Builder setManeuver(@NonNull Maneuver maneuver) {
-            this.mManeuver = requireNonNull(maneuver);
+            mManeuver = requireNonNull(maneuver);
             return this;
         }
 
@@ -244,7 +244,7 @@ public final class Step {
          */
         @NonNull
         public Builder setLanesImage(@NonNull CarIcon lanesImage) {
-            this.mLanesImage = requireNonNull(lanesImage);
+            mLanesImage = requireNonNull(lanesImage);
             return this;
         }
 
@@ -287,7 +287,7 @@ public final class Step {
          */
         @NonNull
         public Builder setCue(@NonNull CharSequence cue) {
-            this.mCue = CarText.create(requireNonNull(cue));
+            mCue = CarText.create(requireNonNull(cue));
             return this;
         }
 
@@ -303,7 +303,7 @@ public final class Step {
          */
         @NonNull
         public Builder setRoad(@NonNull CharSequence road) {
-            this.mRoad = CarText.create(requireNonNull(road));
+            mRoad = CarText.create(requireNonNull(road));
             return this;
         }
 

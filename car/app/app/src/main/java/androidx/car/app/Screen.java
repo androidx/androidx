@@ -83,7 +83,7 @@ public abstract class Screen implements LifecycleOwner {
     private boolean mUseLastTemplateId;
 
     protected Screen(@NonNull CarContext carContext) {
-        this.mCarContext = requireNonNull(carContext);
+        mCarContext = requireNonNull(carContext);
     }
 
     /**
@@ -132,7 +132,7 @@ public abstract class Screen implements LifecycleOwner {
      *               pushing this screen onto the stack using {@link ScreenManager#pushForResult}
      */
     public void setResult(@Nullable Object result) {
-        this.mResult = result;
+        mResult = result;
     }
 
     /**
@@ -144,7 +144,7 @@ public abstract class Screen implements LifecycleOwner {
      * ScreenManager#popTo}.
      */
     public void setMarker(@Nullable String marker) {
-        this.mMarker = marker;
+        mMarker = marker;
     }
 
     /**
@@ -301,7 +301,7 @@ public abstract class Screen implements LifecycleOwner {
 
     /** Sets a {@link OnScreenResultListener} for this {@link Screen}. */
     void setOnScreenResultListener(OnScreenResultListener onScreenResultListener) {
-        this.mOnScreenResultListener = onScreenResultListener;
+        mOnScreenResultListener = onScreenResultListener;
     }
 
     /**
@@ -389,6 +389,6 @@ public abstract class Screen implements LifecycleOwner {
      * reset the task step to that point in time.
      */
     void setUseLastTemplateId(boolean useLastTemplateId) {
-        this.mUseLastTemplateId = useLastTemplateId;
+        mUseLastTemplateId = useLastTemplateId;
     }
 }

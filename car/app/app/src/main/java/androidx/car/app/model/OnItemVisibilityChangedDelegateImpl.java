@@ -78,7 +78,7 @@ public class OnItemVisibilityChangedDelegateImpl implements
 
         OnItemVisibilityChangedListenerStub(
                 OnItemVisibilityChangedListener listener) {
-            this.mListener = listener;
+            mListener = listener;
         }
 
         @Override

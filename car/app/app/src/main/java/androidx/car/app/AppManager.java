@@ -123,8 +123,8 @@ public class AppManager {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
     protected AppManager(@NonNull CarContext carContext, @NonNull HostDispatcher hostDispatcher) {
-        this.mCarContext = carContext;
-        this.mHostDispatcher = hostDispatcher;
+        mCarContext = carContext;
+        mHostDispatcher = hostDispatcher;
         mAppManager = new IAppManager.Stub() {
             @Override
             public void getTemplate(IOnDoneCallback callback) {

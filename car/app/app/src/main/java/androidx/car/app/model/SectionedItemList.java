@@ -84,12 +84,12 @@ public final class SectionedItemList {
     }
 
     private SectionedItemList(@Nullable ItemList itemList, @Nullable CarText header) {
-        this.mItemList = itemList;
-        this.mHeader = header;
+        mItemList = itemList;
+        mHeader = header;
     }
 
     private SectionedItemList() {
-        this.mItemList = null;
-        this.mHeader = null;
+        mItemList = null;
+        mHeader = null;
     }
 }
