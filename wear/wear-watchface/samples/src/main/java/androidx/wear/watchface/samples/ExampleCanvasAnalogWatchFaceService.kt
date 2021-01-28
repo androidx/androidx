@@ -89,7 +89,7 @@ private const val FRAME_PERIOD_MS: Long = 16L
 
 /** A simple example canvas based analog watch face. */
 open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
-    override fun createWatchFace(
+    override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState
     ) = createExampleCanvasAnalogWatchFaceBuilder(

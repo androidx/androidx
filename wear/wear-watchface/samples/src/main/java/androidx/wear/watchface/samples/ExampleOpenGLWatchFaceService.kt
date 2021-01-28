@@ -74,7 +74,7 @@ const val EXAMPLE_OPENGL_COMPLICATION_ID = 101
  * when the watch enters ambient mode.
  */
 class ExampleOpenGLWatchFaceService() : WatchFaceService() {
-    override fun createWatchFace(
+    override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState
     ) = createExampleOpenGLWatchFaceBuilder(

@@ -39,7 +39,7 @@ internal class TestGlesWatchFaceService(
         attachBaseContext(testContext)
     }
 
-    override fun createWatchFace(
+    override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState
     ): WatchFace {
