@@ -53,14 +53,16 @@ import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
+import org.mockito.Mockito.doAnswer
 
 private const val LEFT_COMPLICATION_ID = 1000
 private const val RIGHT_COMPLICATION_ID = 1001
@@ -377,15 +379,16 @@ public class EditorSessionTest {
             listOf(leftComplication, rightComplication, backgroundComplication)
         )
         scenario.onActivity {
-            val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
-            val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
+            runBlocking {
+                val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
+                val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
 
-            assertThat(
-                editorSession.getPreviewData(
-                    ProviderInfoRetriever(mockProviderInfoService),
-                    null
-                ).get()
-            ).isNull()
+                val providerInfoRetriever = ProviderInfoRetriever(mockProviderInfoService)
+                assertThat(
+                    editorSession.getPreviewData(providerInfoRetriever, null)
+                ).isNull()
+                providerInfoRetriever.close()
+            }
         }
     }
 
@@ -396,50 +399,55 @@ public class EditorSessionTest {
             listOf(leftComplication, rightComplication, backgroundComplication)
         )
         scenario.onActivity {
-            val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
-            val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
-            val providerComponentName = ComponentName("test.package", "test.class")
-            val complicationType = ComplicationData.TYPE_SHORT_TEXT
-            val providerIcon =
-                Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
-            val callbackCapture =
-                ArgumentCaptor.forClass(IPreviewComplicationDataCallback::class.java)
+            runBlocking {
+                val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
+                val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
+                val providerComponentName = ComponentName("test.package", "test.class")
+                val complicationType = ComplicationData.TYPE_SHORT_TEXT
+                val providerIcon =
+                    Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
+                val complicationText = "TestText"
 
-            `when`(mockProviderInfoService.apiVersion).thenReturn(1)
-            `when`(
-                mockProviderInfoService.requestPreviewComplicationData(
+                `when`(mockProviderInfoService.apiVersion).thenReturn(1)
+
+                doAnswer {
+                    val callback = it.arguments[2] as IPreviewComplicationDataCallback
+                    callback.updateComplicationData(
+                        ShortTextComplicationData.Builder(ComplicationText.plain(complicationText))
+                            .build().asWireComplicationData()
+                    )
+                    true
+                }.`when`(mockProviderInfoService).requestPreviewComplicationData(
                     eq(providerComponentName),
                     eq(complicationType),
-                    callbackCapture.capture()
+                    any()
                 )
-            ).thenReturn(true)
 
-            val future = editorSession.getPreviewData(
-                ProviderInfoRetriever(mockProviderInfoService),
-                ComplicationProviderInfo(
-                    "provider.app",
-                    "provider",
-                    providerIcon,
-                    complicationType,
-                    providerComponentName
-                )
-            )
+                val providerInfoRetriever = ProviderInfoRetriever(mockProviderInfoService)
+                val deferredPreviewData = async {
+                    editorSession.getPreviewData(
+                        providerInfoRetriever,
+                        ComplicationProviderInfo(
+                            "provider.app",
+                            "provider",
+                            providerIcon,
+                            complicationType,
+                            providerComponentName
+                        )
+                    )
+                }
 
-            val complicationText = "TestText"
-            val previewComplicationData =
-                ShortTextComplicationData.Builder(ComplicationText.plain(complicationText)).build()
-            callbackCapture.value.updateComplicationData(
-                previewComplicationData.asWireComplicationData()
-            )
+                val result = deferredPreviewData.await()
+                assertThat(result).isInstanceOf(ShortTextComplicationData::class.java)
+                assertThat(
+                    (result as ShortTextComplicationData).text.getTextAt(
+                        ApplicationProvider.getApplicationContext<Context>().resources,
+                        0
+                    )
+                ).isEqualTo(complicationText)
 
-            val result = future.get()
-            assertThat(result).isInstanceOf(ShortTextComplicationData::class.java)
-            assertThat(
-                (result as ShortTextComplicationData).text.getTextAt(
-                    ApplicationProvider.getApplicationContext<Context>().resources,
-                    0
-                )
-            ).isEqualTo(complicationText)
+                providerInfoRetriever.close()
+            }
         }
     }
 
@@ -450,36 +458,41 @@ public class EditorSessionTest {
             listOf(leftComplication, rightComplication, backgroundComplication)
         )
         scenario.onActivity {
-            val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
-            val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
-            val complicationType = ComplicationData.TYPE_SHORT_TEXT
-            val providerIcon =
-                Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
+            runBlocking {
+                val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
+                val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
+                val complicationType = ComplicationData.TYPE_SHORT_TEXT
+                val providerIcon =
+                    Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
 
-            val previewComplication = editorSession.getPreviewData(
-                ProviderInfoRetriever(mockProviderInfoService),
-                // Construct a ComplicationProviderInfo with null providerComponentName.
-                ComplicationProviderInfo(
-                    Parcel.obtain().apply {
-                        writeBundle(
-                            Bundle().apply {
-                                putString("app_name", "provider.app")
-                                putString("provider_name", "provider")
-                                putParcelable("provider_icon", providerIcon)
-                                putInt("complication_type", complicationType)
-                            }
-                        )
-                        setDataPosition(0)
-                    }
-                )
-            ).get() as ShortTextComplicationData
+                val providerInfoRetriever = ProviderInfoRetriever(mockProviderInfoService)
+                val previewComplication = editorSession.getPreviewData(
+                    providerInfoRetriever,
+                    // Construct a ComplicationProviderInfo with null providerComponentName.
+                    ComplicationProviderInfo(
+                        Parcel.obtain().apply {
+                            writeBundle(
+                                Bundle().apply {
+                                    putString("app_name", "provider.app")
+                                    putString("provider_name", "provider")
+                                    putParcelable("provider_icon", providerIcon)
+                                    putInt("complication_type", complicationType)
+                                }
+                            )
+                            setDataPosition(0)
+                        }
+                    )
+                ) as ShortTextComplicationData
 
-            assertThat(
-                previewComplication.text.getTextAt(
-                    ApplicationProvider.getApplicationContext<Context>().resources,
-                    0
-                )
-            ).isEqualTo("provider")
+                assertThat(
+                    previewComplication.text.getTextAt(
+                        ApplicationProvider.getApplicationContext<Context>().resources,
+                        0
+                    )
+                ).isEqualTo("provider")
+
+                providerInfoRetriever.close()
+            }
         }
     }
 
@@ -490,39 +503,41 @@ public class EditorSessionTest {
             listOf(leftComplication, rightComplication, backgroundComplication)
         )
         scenario.onActivity {
-            val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
-            val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
-            val providerComponentName = ComponentName("test.package", "test.class")
-            val complicationType = ComplicationData.TYPE_SHORT_TEXT
-            val providerIcon =
-                Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
+            runBlocking {
+                val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
+                val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
+                val providerComponentName = ComponentName("test.package", "test.class")
+                val complicationType = ComplicationData.TYPE_SHORT_TEXT
+                val providerIcon =
+                    Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
 
-            `when`(mockProviderInfoService.apiVersion).thenReturn(1)
-            `when`(
-                mockProviderInfoService.requestPreviewComplicationData(
-                    eq(providerComponentName),
-                    eq(complicationType),
-                    any(IPreviewComplicationDataCallback::class.java)
-                )
-            ).thenReturn(false) // Triggers the ExecutionException.
+                `when`(mockProviderInfoService.apiVersion).thenReturn(1)
+                `when`(
+                    mockProviderInfoService.requestPreviewComplicationData(
+                        eq(providerComponentName),
+                        eq(complicationType),
+                        any(IPreviewComplicationDataCallback::class.java)
+                    )
+                ).thenReturn(false) // Triggers the ExecutionException.
 
-            val previewComplication = editorSession.getPreviewData(
-                ProviderInfoRetriever(mockProviderInfoService),
-                ComplicationProviderInfo(
-                    "provider.app",
-                    "provider",
-                    providerIcon,
-                    complicationType,
-                    providerComponentName
-                )
-            ).get() as ShortTextComplicationData
+                val previewComplication = editorSession.getPreviewData(
+                    ProviderInfoRetriever(mockProviderInfoService),
+                    ComplicationProviderInfo(
+                        "provider.app",
+                        "provider",
+                        providerIcon,
+                        complicationType,
+                        providerComponentName
+                    )
+                ) as ShortTextComplicationData
 
-            assertThat(
-                previewComplication.text.getTextAt(
-                    ApplicationProvider.getApplicationContext<Context>().resources,
-                    0
-                )
-            ).isEqualTo("provider")
+                assertThat(
+                    previewComplication.text.getTextAt(
+                        ApplicationProvider.getApplicationContext<Context>().resources,
+                        0
+                    )
+                ).isEqualTo("provider")
+            }
         }
     }
 
@@ -576,14 +591,16 @@ public class EditorSessionTest {
             listOf(leftComplication, rightComplication)
         )
         scenario.onActivity { activity ->
-            // Select [blueStyleOption] and [gothicStyleOption].
-            val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
-            for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
-                styleMap[userStyleSetting] = userStyleSetting.options.last()
+            runBlocking {
+                // Select [blueStyleOption] and [gothicStyleOption].
+                val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
+                for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
+                    styleMap[userStyleSetting] = userStyleSetting.options.last()
+                }
+                activity.editorSession.userStyle = UserStyle(styleMap)
+                activity.setWatchRequestResult(activity.editorSession)
+                activity.finish()
             }
-            activity.editorSession.userStyle = UserStyle(styleMap)
-            activity.setWatchRequestResult(activity.editorSession)
-            activity.finish()
         }
 
         val result = WatchFaceEditorContract().parseResult(
@@ -623,9 +640,11 @@ public class EditorSessionTest {
             instanceId = null
         )
         scenario.onActivity { activity ->
-            assertThat(activity.editorSession.instanceId).isNull()
-            activity.setWatchRequestResult(activity.editorSession)
-            activity.finish()
+            runBlocking {
+                assertThat(activity.editorSession.instanceId).isNull()
+                activity.setWatchRequestResult(activity.editorSession)
+                activity.finish()
+            }
         }
         assertThat(
             WatchFaceEditorContractForTest().parseResult(
@@ -639,8 +658,10 @@ public class EditorSessionTest {
     public fun emptyComplicationPreviewDataInActivityResult() {
         val scenario = createOnWatchFaceEditingTestActivity(emptyList(), emptyList())
         scenario.onActivity { activity ->
-            activity.setWatchRequestResult(activity.editorSession)
-            activity.finish()
+            runBlocking {
+                activity.setWatchRequestResult(activity.editorSession)
+                activity.finish()
+            }
         }
 
         assertTrue(
@@ -653,16 +674,18 @@ public class EditorSessionTest {
 
     @Test
     public fun watchFaceEditorContract_createIntent() {
-        val intent = WatchFaceEditorContract().createIntent(
-            ApplicationProvider.getApplicationContext<Context>(),
-            EditorRequest(testComponentName, testEditorComponentName, testInstanceId, null)
-        )
-        assertThat(intent.component).isEqualTo(testEditorComponentName)
+        runBlocking {
+            val intent = WatchFaceEditorContract().createIntent(
+                ApplicationProvider.getApplicationContext<Context>(),
+                EditorRequest(testComponentName, testEditorComponentName, testInstanceId, null)
+            )
+            assertThat(intent.component).isEqualTo(testEditorComponentName)
 
-        val editorRequest = EditorRequest.createFromIntent(intent)!!
-        assertThat(editorRequest.editorComponentName).isEqualTo(testEditorComponentName)
-        assertThat(editorRequest.initialUserStyle).isNull()
-        assertThat(editorRequest.watchFaceComponentName).isEqualTo(testComponentName)
-        assertThat(editorRequest.watchFaceInstanceId).isEqualTo(testInstanceId)
+            val editorRequest = EditorRequest.createFromIntent(intent)!!
+            assertThat(editorRequest.editorComponentName).isEqualTo(testEditorComponentName)
+            assertThat(editorRequest.initialUserStyle).isNull()
+            assertThat(editorRequest.watchFaceComponentName).isEqualTo(testComponentName)
+            assertThat(editorRequest.watchFaceInstanceId).isEqualTo(testInstanceId)
+        }
     }
 }

@@ -201,20 +201,18 @@ package androidx.wear.complications {
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String EXTRA_WATCH_FACE_COMPONENT_NAME = "android.support.wearable.complications.EXTRA_WATCH_FACE_COMPONENT_NAME";
   }
 
-  public class ProviderInfoRetriever implements java.lang.AutoCloseable {
-    ctor public ProviderInfoRetriever(android.content.Context);
+  public final class ProviderInfoRetriever implements java.lang.AutoCloseable {
+    ctor public ProviderInfoRetriever(android.content.Context context);
     method public void close();
-    method @RequiresApi(android.os.Build.VERSION_CODES.R) public com.google.common.util.concurrent.ListenableFuture<androidx.wear.complications.data.ComplicationData!> requestPreviewComplicationData(android.content.ComponentName, androidx.wear.complications.data.ComplicationType);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.complications.ProviderInfoRetriever.ProviderInfo![]!> retrieveProviderInfo(android.content.ComponentName, int[]);
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) public suspend Object? requestPreviewComplicationData(android.content.ComponentName providerComponent, androidx.wear.complications.data.ComplicationType complicationType, kotlin.coroutines.Continuation<? super androidx.wear.complications.data.ComplicationData> p);
+    method public suspend Object? retrieveProviderInfo(android.content.ComponentName watchFaceComponent, int[] watchFaceComplicationIds, kotlin.coroutines.Continuation<? super androidx.wear.complications.ProviderInfoRetriever.ProviderInfo[]> p);
   }
 
-  public static class ProviderInfoRetriever.PreviewNotAvailableException extends java.lang.Exception {
-    ctor public ProviderInfoRetriever.PreviewNotAvailableException();
-  }
-
-  public static class ProviderInfoRetriever.ProviderInfo {
+  public static final class ProviderInfoRetriever.ProviderInfo {
     method public android.support.wearable.complications.ComplicationProviderInfo? getInfo();
     method public int getWatchFaceComplicationId();
+    property public final android.support.wearable.complications.ComplicationProviderInfo? info;
+    property public final int watchFaceComplicationId;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ProviderUpdateRequesterConstants {

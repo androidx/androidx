@@ -32,7 +32,9 @@ import androidx.wear.watchface.editor.EditorSession
 import androidx.wear.watchface.editor.setWatchRequestResult
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
-import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.launch
 
 /** @hide */
 @RestrictTo(LIBRARY)
@@ -54,7 +56,7 @@ internal interface FragmentController {
     )
 
     /** Lets the user configure the complication provider for a single complication slot. */
-    fun showComplicationConfig(complicationId: Int): ListenableFuture<Boolean>
+    suspend fun showComplicationConfig(complicationId: Int): Boolean
 }
 
 // Reference time for editor screenshots for analog watch faces.
@@ -75,6 +77,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
     internal lateinit var editorSession: EditorSession
     internal lateinit var fragmentController: FragmentController
     internal lateinit var handler: Handler
+    internal lateinit var coroutineScope: CoroutineScope
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,10 +114,9 @@ class WatchFaceConfigActivity : FragmentActivity() {
                  * complication.
                  */
                 @SuppressWarnings("deprecation")
-                override fun showComplicationConfig(
+                override suspend fun showComplicationConfig(
                     complicationId: Int
-                ): ListenableFuture<Boolean> =
-                    editorSession.launchComplicationProviderChooser(complicationId)
+                ) = editorSession.launchComplicationProviderChooser(complicationId)
             },
             Handler(Looper.getMainLooper())
         )
@@ -154,6 +156,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
         this.editorSession = editorSession
         this.fragmentController = fragmentController
         this.handler = handler
+        coroutineScope = CoroutineScope(handler.asCoroutineDispatcher())
 
         supportFragmentManager
             .addOnBackStackChangedListener {
@@ -184,7 +187,9 @@ class WatchFaceConfigActivity : FragmentActivity() {
             // For a single complication go directly to the provider selector.
             numComplications == 1 -> {
                 val onlyComplication = editorSession.complicationState.entries.first()
-                fragmentController.showComplicationConfig(onlyComplication.key)
+                coroutineScope.launch {
+                    fragmentController.showComplicationConfig(onlyComplication.key)
+                }
             }
 
             // For multiple complications select the complication to configure first.
@@ -205,6 +210,8 @@ class WatchFaceConfigActivity : FragmentActivity() {
 
     override fun onStop() {
         super.onStop()
-        setWatchRequestResult(editorSession)
+        coroutineScope.launch {
+            setWatchRequestResult(editorSession)
+        }
     }
 }

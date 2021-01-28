@@ -33,8 +33,8 @@ dependencies {
     api(project(":wear:wear-watchface-client"))
     api(project(":wear:wear-watchface-data"))
     api(KOTLIN_STDLIB)
+    api(KOTLIN_COROUTINES_ANDROID)
 
-    api("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.core:core:1.1.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
