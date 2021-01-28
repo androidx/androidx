@@ -70,9 +70,6 @@ public class LocalStorage {
 
         /**
          * Returns the name of the database to create or open.
-         *
-         * <p>Databases with different names are fully separate with distinct types, namespaces,
-         * and data.
          */
         @NonNull
         public String getDatabaseName() {
@@ -94,15 +91,16 @@ public class LocalStorage {
              *
              * <p>{@link AppSearchSession} will create or open a database under the given name.
              *
-             * <p>Databases with different names are fully separate with distinct types, namespaces,
-             * and data.
+             * <p>Databases with different names are fully separate with distinct schema types,
+             * namespaces, and documents.
              *
-             * <p>Database name cannot contain {@code '/'}.
+             * <p>The database name cannot contain {@code '/'}.
              *
-             * <p>If not specified, defaults to the empty string.
+             * <p>If not specified, the database name is set to an empty string.
              *
              * @param databaseName The name of the database.
              * @throws IllegalArgumentException if the databaseName contains {@code '/'}.
+             * @throws IllegalStateException if the builder has already been used.
              */
             @NonNull
             public Builder setDatabaseName(@NonNull String databaseName) {
