@@ -34,7 +34,7 @@ public final class Bundleable implements Parcelable {
     /**
      * Serializes the {@code objectToSerialize} into a {@link Bundleable} to send over IPC.
      *
-     * @throws BundlerException if serialization fails.
+     * @throws BundlerException if serialization fails
      */
     @NonNull
     public static Bundleable create(@NonNull Object objectToSerialize) throws BundlerException {
@@ -49,7 +49,7 @@ public final class Bundleable implements Parcelable {
     /**
      * De-serializes the object passed in for IPC communication.
      *
-     * @throws BundlerException if deserialization fails.
+     * @throws BundlerException if deserialization fails
      */
     @NonNull
     public Object get() throws BundlerException {

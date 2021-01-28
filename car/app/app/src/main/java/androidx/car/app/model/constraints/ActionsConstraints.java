@@ -161,14 +161,14 @@ public final class ActionsConstraints {
             disallowedActionTypes.retainAll(mRequiredActionTypes);
             if (!disallowedActionTypes.isEmpty()) {
                 throw new IllegalArgumentException(
-                        "Disallowed action types cannot also be in the required set.");
+                        "Disallowed action types cannot also be in the required set");
             }
         }
         mDisallowedActionTypes = new HashSet<>(builder.mDisallowedActionTypes);
 
         if (mRequiredActionTypes.size() > mMaxActions) {
             throw new IllegalArgumentException(
-                    "Required action types exceeded max allowed actions.");
+                    "Required action types exceeded max allowed actions");
         }
     }
 

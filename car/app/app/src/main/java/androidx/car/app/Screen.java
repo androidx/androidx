@@ -327,8 +327,7 @@ public abstract class Screen implements LifecycleOwner {
      * wrapped in a {@link TemplateWrapper}.
      *
      * <p>The {@link TemplateWrapper} attaches a unique ID to the wrapped template, which is used
-     * for
-     * implementing flow restrictions. The host keeps track of these IDs to detect push, pop, or
+     * for implementing flow restrictions. The host keeps track of these IDs to detect push, pop, or
      * refresh operations and handle the different cases accordingly. For example, when more than
      * a max limit of templates are pushed, the host may return an error.
      *

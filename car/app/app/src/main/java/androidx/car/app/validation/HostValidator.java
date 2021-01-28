@@ -89,7 +89,7 @@ public final class HostValidator {
             new HashMap<>(), true);
 
     /**
-     * @return true if the given host is allowed to bind to this client, or false otherwise
+     * Returns whether the given host is allowed to bind to this client.
      */
     public boolean isValidHost(@NonNull HostInfo hostInfo) {
         requireNonNull(hostInfo);
@@ -205,8 +205,8 @@ public final class HostValidator {
     }
 
     /**
-     * @return true if the host was already approved, false if it was previously rejected, and
-     * null if this is the first time this host is evaluated.
+     * Returns {@code true} if the host was already approved, {@code false} if it was previously
+     * rejected, and {@code null} if this is the first time this host is evaluated.
      */
     @Nullable
     private Boolean checkCache(@NonNull HostInfo hostInfo) {
@@ -296,7 +296,7 @@ public final class HostValidator {
 
     /**
      * Version-specific static inner classes to avoid verification errors that negatively affect
-     * run-time performance (per Jetpack coding guidelines)
+     * run-time performance.
      */
     @RequiresApi(28)
     private static final class Api28Impl {
@@ -321,7 +321,7 @@ public final class HostValidator {
     }
 
     /**
-     * Creates a new {@link HostValidator}.
+     * Builder of {@link HostValidator}.
      *
      * <p>Allows applications to customize the {@link HostValidator} that will be used to verify
      * whether a caller is a valid templates host.
@@ -367,7 +367,7 @@ public final class HostValidator {
         }
 
         /**
-         * Add a list of hosts to the allow list.
+         * Adds a hosts to the allow list.
          *
          * <p>Allow-listed hosts are retrieved from a string-array resource, encoded as
          * [digest,package-name] pairs separated by comma. See
@@ -375,8 +375,9 @@ public final class HostValidator {
          * package-name formatting.
          *
          * @param allowListedHostsRes string-array resource identifier
+         *
          * @throws IllegalArgumentException if the provided resource doesn't exist or if the entries
-         *                                  in the given resource are not formatted as expected.
+         *                                  in the given resource are not formatted as expected
          */
         @NonNull
         @SuppressLint("MissingGetterMatchingBuilder")
@@ -399,7 +400,7 @@ public final class HostValidator {
             return this;
         }
 
-        /** @return a new {@link HostValidator} */
+        /** Returns a new {@link HostValidator} */
         @NonNull
         public HostValidator build() {
             return new HostValidator(mContext.getPackageManager(), mAllowedHosts, false);

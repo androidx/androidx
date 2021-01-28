@@ -62,8 +62,8 @@ public final class RemoteUtils {
     /**
      * Performs the remote call and handles exceptions thrown by the host.
      *
-     * @throws SecurityException as a pass through from the host.
-     * @throws HostException     if the remote call fails with any other exception.
+     * @throws SecurityException as a pass through from the host
+     * @throws HostException     if the remote call fails with any other exception
      */
     @SuppressLint("LambdaLast")
     @Nullable
@@ -82,8 +82,9 @@ public final class RemoteUtils {
     }
 
     /**
-     * Returns an {@link ISurfaceCallback} stub that invokes the given {@link SurfaceCallback},
-     * if it is not {@code null}, otherwise returns {@code null}.
+     * Returns an {@link ISurfaceCallback} stub that invokes the input {@link SurfaceCallback}
+     * if it is not {@code null}, or {@code null} if the input {@link SurfaceCallback} is {@code
+     * null}
      */
     @Nullable
     public static ISurfaceCallback stubSurfaceCallback(@Nullable SurfaceCallback surfaceCallback) {
@@ -92,51 +93,6 @@ public final class RemoteUtils {
         }
 
         return new SurfaceCallbackStub(surfaceCallback);
-    }
-
-    private RemoteUtils() {
-    }
-
-    private static class SurfaceCallbackStub extends ISurfaceCallback.Stub {
-
-        private final SurfaceCallback mSurfaceCallback;
-
-        SurfaceCallbackStub(SurfaceCallback surfaceCallback) {
-            this.mSurfaceCallback = surfaceCallback;
-        }
-
-        @Override
-        public void onSurfaceAvailable(Bundleable surfaceContainer, IOnDoneCallback callback) {
-            dispatchHostCall(
-                    () -> mSurfaceCallback.onSurfaceAvailable(
-                            (SurfaceContainer) surfaceContainer.get()),
-                    callback,
-                    "onSurfaceAvailable");
-        }
-
-        @Override
-        public void onVisibleAreaChanged(Rect visibleArea, IOnDoneCallback callback) {
-            dispatchHostCall(
-                    () -> mSurfaceCallback.onVisibleAreaChanged(visibleArea),
-                    callback,
-                    "onVisibleAreaChanged");
-        }
-
-        @Override
-        public void onStableAreaChanged(Rect stableArea, IOnDoneCallback callback) {
-            dispatchHostCall(
-                    () -> mSurfaceCallback.onStableAreaChanged(stableArea), callback,
-                    "onStableAreaChanged");
-        }
-
-        @Override
-        public void onSurfaceDestroyed(Bundleable surfaceContainer, IOnDoneCallback callback) {
-            dispatchHostCall(
-                    () -> mSurfaceCallback.onSurfaceDestroyed(
-                            (SurfaceContainer) surfaceContainer.get()),
-                    callback,
-                    "onSurfaceDestroyed");
-        }
     }
 
     /**
@@ -214,5 +170,49 @@ public final class RemoteUtils {
                 callback.onFailure(failureResponse);
             }
         };
+    }
+
+    private static class SurfaceCallbackStub extends ISurfaceCallback.Stub {
+        private final SurfaceCallback mSurfaceCallback;
+
+        SurfaceCallbackStub(SurfaceCallback surfaceCallback) {
+            this.mSurfaceCallback = surfaceCallback;
+        }
+
+        @Override
+        public void onSurfaceAvailable(Bundleable surfaceContainer, IOnDoneCallback callback) {
+            dispatchHostCall(
+                    () -> mSurfaceCallback.onSurfaceAvailable(
+                            (SurfaceContainer) surfaceContainer.get()),
+                    callback,
+                    "onSurfaceAvailable");
+        }
+
+        @Override
+        public void onVisibleAreaChanged(Rect visibleArea, IOnDoneCallback callback) {
+            dispatchHostCall(
+                    () -> mSurfaceCallback.onVisibleAreaChanged(visibleArea),
+                    callback,
+                    "onVisibleAreaChanged");
+        }
+
+        @Override
+        public void onStableAreaChanged(Rect stableArea, IOnDoneCallback callback) {
+            dispatchHostCall(
+                    () -> mSurfaceCallback.onStableAreaChanged(stableArea), callback,
+                    "onStableAreaChanged");
+        }
+
+        @Override
+        public void onSurfaceDestroyed(Bundleable surfaceContainer, IOnDoneCallback callback) {
+            dispatchHostCall(
+                    () -> mSurfaceCallback.onSurfaceDestroyed(
+                            (SurfaceContainer) surfaceContainer.get()),
+                    callback,
+                    "onSurfaceDestroyed");
+        }
+    }
+
+    private RemoteUtils() {
     }
 }

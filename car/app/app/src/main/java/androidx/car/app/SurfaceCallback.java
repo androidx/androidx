@@ -30,7 +30,7 @@ public interface SurfaceCallback {
      *
      * <p>This method is guaranteed to be called before any other methods on this listener.
      *
-     * @param surfaceContainer The {@link SurfaceContainer} that is ready for drawing.
+     * @param surfaceContainer The {@link SurfaceContainer} that is ready for drawing
      */
     void onSurfaceAvailable(@NonNull SurfaceContainer surfaceContainer);
 
@@ -44,7 +44,7 @@ public interface SurfaceCallback {
      *
      * @param visibleArea The rectangle set to the surface area guaranteed to be visible. If {@link
      *                    Rect#isEmpty()} returns {@code true} for the visible area, then it is
-     *                    currently unknown.
+     *                    currently unknown
      */
     void onVisibleAreaChanged(@NonNull Rect visibleArea);
 
@@ -58,7 +58,7 @@ public interface SurfaceCallback {
      *
      * @param stableArea Inset rectangle of the surface space designated as stable. If {@link
      *                   Rect#isEmpty()} returns {@code true} for the stable area, then it is
-     *                   currently unknown.
+     *                   currently unknown
      */
     void onStableAreaChanged(@NonNull Rect stableArea);
 
@@ -66,7 +66,7 @@ public interface SurfaceCallback {
      * Indicates that the {@link SurfaceContainer} provided by the host will be destroyed after this
      * callback.
      *
-     * @param surfaceContainer The {@link SurfaceContainer} being destroyed.
+     * @param surfaceContainer the {@link SurfaceContainer} being destroyed
      */
     void onSurfaceDestroyed(@NonNull SurfaceContainer surfaceContainer);
 }

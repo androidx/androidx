@@ -46,8 +46,10 @@ public final class CarAppPermission {
     }
 
     /**
-     * Permission that apps can use to get access to a canvas surface. This surface can be used for
-     * drawing custom content like navigation apps can use it to draw a map.
+     * Permission that apps can use to get access to a canvas surface.
+     *
+     * <p>This surface can be used for drawing custom content like navigation apps can use it to
+     * draw a map.
      */
     public static final String ACCESS_SURFACE = "androidx.car.app.ACCESS_SURFACE";
 

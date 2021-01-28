@@ -252,7 +252,7 @@ public final class NavigationTemplate implements Template {
         @NonNull
         public NavigationTemplate build() {
             if (mActionStrip == null) {
-                throw new IllegalStateException("Action strip for this template must be set.");
+                throw new IllegalStateException("Action strip for this template must be set");
             }
             return new NavigationTemplate(this);
         }

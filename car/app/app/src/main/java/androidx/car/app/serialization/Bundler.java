@@ -52,6 +52,7 @@ import java.util.Set;
  * Utility class to serialize and deserialize objects to/from {@link Bundle}s.
  *
  * <p>Supported object types:
+ *
  * <li>{@link Boolean}
  * <li>{@link Byte}
  * <li>{@link Character}
@@ -115,7 +116,7 @@ public final class Bundler {
      * <p>All objects to serialize <strong>MUST</strong> have a default constructor, even if it is
      * marked as {@code private}, in order to deserialize.
      *
-     * @throws BundlerException if any exception is encountered attempting to bundle the object.
+     * @throws BundlerException if any exception is encountered attempting to bundle the object
      */
     @NonNull
     public static Bundle toBundle(@NonNull Object obj) throws BundlerException {
@@ -154,7 +155,7 @@ public final class Bundler {
                 return serializeClass((Class<?>) obj);
             } else if (obj.getClass().isArray()) {
                 throw new TracedBundlerException(
-                        "Object serializing contains an array, use a list or a set instead. ",
+                        "Object serializing contains an array, use a list or a set instead",
                         trace);
             } else {
                 return serializeObject(obj, trace);
@@ -168,6 +169,7 @@ public final class Bundler {
      *
      * <p>Possible versioning scenarios this de-serialization works with, and how it handles the
      * case:
+     *
      * <li>De-serializing an object of an unknown class: will throw a {@link BundlerException}.
      * <li>De-serializing an object which sent an unknown field: will store all other fields and
      * ignore the unknown field.
@@ -175,7 +177,7 @@ public final class Bundler {
      * leave default value for field not sent.
      *
      * @throws BundlerException if any exception is encountered attempting to reconstruct the
-     *                          object.
+     *                          object
      */
     @NonNull
     public static Object fromBundle(@NonNull Bundle bundle) throws BundlerException {
@@ -562,7 +564,6 @@ public final class Bundler {
             throw new TracedBundlerException(
                     "Constructor or field is not accessible: " + className, trace, e);
         } catch (IllegalArgumentException e) {
-            // TODO: There are more exceptions we may want to catch here.
             throw new TracedBundlerException("Failed to deserialize class: " + className, trace, e);
         }
     }

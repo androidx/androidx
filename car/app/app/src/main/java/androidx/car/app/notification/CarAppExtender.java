@@ -49,11 +49,16 @@ import java.util.List;
  *
  * <ol>
  *   <li>Create a {@link NotificationCompat.Builder}, setting any desired properties.
+ *
  *   <li>Create a {@link CarAppExtender.Builder}.
+ *
  *   <li>Set car-specific properties using the {@code set} methods of {@link
  *       CarAppExtender.Builder}.
+ *
  *   <li>Create a {@link CarAppExtender} by calling {@link Builder#build()}.
+ *
  *   <li>Call {@link NotificationCompat.Builder#extend} to apply the extensions to a notification.
+ *
  *   <li>Post the notification to the notification system with the {@code
  *       NotificationManagerCompat.notify(...)} methods and not the {@code
  *       NotificationManager.notify(...)} methods.
@@ -79,6 +84,7 @@ import java.util.List;
  *   <li>A heads-up-notification (HUN) will show if the importance is set to
  *   {@link NotificationManagerCompat#IMPORTANCE_HIGH}, or the priority is set
  *       to {@link NotificationCompat#PRIORITY_HIGH} or above.
+ *
  *   <li>The notification center icon, which opens a screen with all posted notifications when
  *       tapped, will show a badge for a new notification if the importance is set to
  *       {@link NotificationManagerCompat#IMPORTANCE_DEFAULT} or above, or the
@@ -102,14 +108,17 @@ import java.util.List;
  * NotificationCompat.Builder#setCategory(NotificationCompat.CATEGORY_NAVIGATION)}.
  * <p>TBT notifications behave the same as regular notifications with the following
  * exceptions:
+ *
  * <ul>
  *     <li>The notification will not be displayed if the navigation app is not the currently active
  *     navigation app, or if the app is already displaying routing information in the navigation
  *     template.
+ *
  *     <li>The heads-up-notification (HUN) can be customized with a background color through
  *     {@link Builder#setColor}.
  *     <li>The notification will not be displayed in the notification center.
  * </ul>
+ *
  * <p>In addition to that, the information in the navigation notification will be displayed in the
  * rail widget at the bottom of the screen when the app is in the background.
  *
@@ -200,10 +209,12 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     }
 
     /**
-     * Applies car extensions to a notification that is being built. This is typically called by
+     * Applies car extensions to a notification that is being built.
+     *
+     * <p>This is typically called by
      * {@link NotificationCompat.Builder#extend(NotificationCompat.Extender)}.
      *
-     * @throws NullPointerException if {@code builder} is {@code null}.
+     * @throws NullPointerException if {@code builder} is {@code null}
      */
     @NonNull
     @Override
@@ -257,18 +268,16 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     }
 
     /**
-     * Returns {@code true} if the notification was extended with {@link CarAppExtender}, {@code
-     * false} otherwise.
+     * Returns whether the notification was extended with {@link CarAppExtender}.
      */
     public boolean isExtended() {
         return mIsExtended;
     }
 
     /**
-     * Returns {@code true} if the notification was extended with {@link CarAppExtender}, {@code
-     * false} otherwise.
+     * Returns whether the given notification was extended with {@link CarAppExtender}.
      *
-     * @throws NullPointerException if {@code notification} is {@code null}.
+     * @throws NullPointerException if {@code notification} is {@code null}
      */
     public static boolean isExtended(@NonNull Notification notification) {
         Bundle extras = NotificationCompat.getExtras(requireNonNull(notification));
@@ -281,7 +290,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     }
 
     /**
-     * Gets the content title for the notification.
+     * Returns the content title for the notification or {@code null} if not set.
      *
      * @see Builder#setContentTitle
      */
@@ -291,7 +300,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     }
 
     /**
-     * Returns the content text of the notification.
+     * Returns the content text of the notification or {@code null} if not set.
      *
      * @see Builder#setContentText
      */
@@ -301,7 +310,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     }
 
     /**
-     * Gets the resource ID of the small icon drawable to use.
+     * Returns the resource ID of the small icon drawable to use.
      *
      * @see Builder#setSmallIcon(int)
      */
@@ -311,7 +320,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     }
 
     /**
-     * Gets the large icon bitmap to display in the notification.
+     * Returns the large icon bitmap to display in the notification or {@code null} if not set.
      *
      * @see Builder#setLargeIcon(Bitmap)
      */
@@ -321,8 +330,8 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     }
 
     /**
-     * Gets the {@link PendingIntent} to send when the notification is clicked in the car, or {@code
-     * null} if one is not set.
+     * Returns  the {@link PendingIntent} to send when the notification is clicked in the car or
+     * {@code null} if not set.
      *
      * @see Builder#setContentIntent(PendingIntent)
      */
@@ -332,8 +341,8 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     }
 
     /**
-     * Gets the {@link PendingIntent} to send when the notification is cleared by the user, or
-     * {@code null} if one is not set.
+     * Returns the {@link PendingIntent} to send when the notification is cleared by the user or
+     * {@code null} if not set.
      *
      * @see Builder#setDeleteIntent(PendingIntent)
      */
@@ -343,7 +352,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     }
 
     /**
-     * Gets the list of {@link Action} present on this car notification.
+     * Returns the list of {@link Action} present on this car notification.
      *
      * @see Builder#addAction(int, CharSequence, PendingIntent)
      */
@@ -353,7 +362,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     }
 
     /**
-     * Gets the importance of the notification in the car screen.
+     * Returns the importance of the notification in the car screen.
      *
      * @see Builder#setImportance(int)
      */
@@ -362,7 +371,8 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     }
 
     /**
-     * Gets the background color of the notification.
+     * Returns the background color of the notification or {@code null} if a default color is to
+     * be used.
      *
      * @see Builder#setColor(CarColor)
      */
@@ -413,7 +423,8 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * {@link NotificationCompat.Builder#setContentText(CharSequence)} for the car screen.
          *
          * @param contentText override for the notification's content text. If set to an empty
-         *                    string, it will be treated as if there is no context text.
+         *                    string, it will be treated as if there is no context text
+         *
          * @throws NullPointerException if {@code contentText} is {@code null}
          */
         @NonNull
@@ -423,8 +434,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
         }
 
         /**
-         * Sets the small icon of the notification in the car screen, or
-         * {@link Resources#ID_NULL} to not override the notification small icon.
+         * Sets the small icon of the notification in the car screen.
          *
          * <p>This is used as the primary icon to represent the notification.
          *
@@ -469,6 +479,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * {@link NotificationCompat.Builder#setContentIntent(PendingIntent)} for the car screen.
          *
          * @param contentIntent override for the notification's content intent.
+         *
          * @throws NullPointerException if {@code contentIntent} is {@code null}
          */
         @NonNull
@@ -487,7 +498,8 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * <p>This method is equivalent to
          * {@link NotificationCompat.Builder#setDeleteIntent(PendingIntent)} for the car screen.
          *
-         * @param deleteIntent override for the notification's delete intent.
+         * @param deleteIntent override for the notification's delete intent
+         *
          * @throws NullPointerException if {@code deleteIntent} is {@code null}
          */
         @NonNull
@@ -514,14 +526,15 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * car screen.
          *
          * @param icon   resource ID of a drawable that represents the action. In order to
-         *               display the
-         *               actions properly, a valid resource id for the icon must be provided.
-         * @param title  text describing the action.
+         *               display the actions properly, a valid resource id for the icon must be
+         *               provided
+         * @param title  text describing the action
          * @param intent {@link PendingIntent} to send when the action is invoked. In the case of
          *               navigation notifications in the rail widget, this intent will be sent
          *               when the user taps on the action icon in the rail
-         *               widget.
-         * @throws NullPointerException if {@code title} or {@code intent} are {@code null}.
+         *               widget
+         *
+         * @throws NullPointerException if {@code title} or {@code intent} are {@code null}
          */
         @SuppressWarnings("deprecation")
         @NonNull
@@ -539,8 +552,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * <p>The importance is used to determine whether the notification will show as a HUN on
          * the car screen. See the class description for more details.
          *
-         * <p>See {@link NotificationManagerCompat} for all supported importance
-         * values.
+         * <p>See {@link NotificationManagerCompat} for all supported importance values.
          */
         @NonNull
         public Builder setImportance(int importance) {

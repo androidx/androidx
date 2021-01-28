@@ -353,7 +353,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
             boolean hasList = mItemList != null;
             if (mIsLoading == hasList) {
                 throw new IllegalStateException(
-                        "Template is in a loading state but a list is set, or vice versa.");
+                        "Template is in a loading state but a list is set, or vice versa");
             }
 
             if (!mIsLoading) {
