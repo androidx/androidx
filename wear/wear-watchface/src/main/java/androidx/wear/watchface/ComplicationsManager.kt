@@ -146,8 +146,8 @@ public class ComplicationsManager(
         // Add a listener if we have a ComplicationsUserStyleSetting so we can track changes and
         // automatically apply them.
         if (complicationsStyleCategory != null) {
-            var previousOption =
-                userStyleRepository.userStyle[complicationsStyleCategory]?.toComplicationsOption()!!
+            // Ensure we apply any initial StyleCategoryOption overlay by initializing with null.
+            var previousOption: ComplicationsUserStyleSetting.ComplicationsOption? = null
             userStyleRepository.addUserStyleListener(
                 object : UserStyleRepository.UserStyleListener {
                     override fun onUserStyleChanged(userStyle: UserStyle) {
