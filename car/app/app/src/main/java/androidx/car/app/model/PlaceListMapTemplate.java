@@ -368,7 +368,7 @@ public final class PlaceListMapTemplate implements Template {
             boolean hasList = mItemList != null;
             if (mIsLoading == hasList) {
                 throw new IllegalArgumentException(
-                        "Template is in a loading state but a list is set, or vice versa.");
+                        "Template is in a loading state but a list is set, or vice versa");
             }
 
             if (CarText.isNullOrEmpty(mTitle) && mHeaderAction == null) {

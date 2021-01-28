@@ -46,7 +46,7 @@ public final class ModelUtils {
         int nonBrowsableRowCount = 0;
         for (Item rowObj : rows) {
             if (!(rowObj instanceof Row)) {
-                throw new IllegalArgumentException("Item in the list is not a Row.");
+                throw new IllegalArgumentException("Item in the list is not a Row");
             }
             Row row = (Row) rowObj;
 
@@ -77,15 +77,14 @@ public final class ModelUtils {
     public static void validateAllRowsHaveDistanceOrDuration(@NonNull List<Item> rows) {
         for (Item rowObj : rows) {
             if (!(rowObj instanceof Row)) {
-                throw new IllegalArgumentException("Item in the list is not a Row.");
+                throw new IllegalArgumentException("Item in the list is not a Row");
             }
             Row row = (Row) rowObj;
             if (!(checkRowHasSpanType(row, DistanceSpan.class)
                     || checkRowHasSpanType(row, DurationSpan.class))) {
                 throw new IllegalArgumentException(
                         "All rows must have either a distance or duration span attached to either"
-                                + " its title or"
-                                + " texts");
+                                + " its title or texts");
             }
         }
     }
@@ -99,7 +98,7 @@ public final class ModelUtils {
     public static void validateAllRowsHaveOnlySmallImages(@NonNull List<Item> rows) {
         for (Item rowObj : rows) {
             if (!(rowObj instanceof Row)) {
-                throw new IllegalArgumentException("Item in the list is not a Row.");
+                throw new IllegalArgumentException("Item in the list is not a Row");
             }
             Row row = (Row) rowObj;
             if (row.getImage() != null && row.getRowImageType() == Row.IMAGE_TYPE_LARGE) {
@@ -117,7 +116,7 @@ public final class ModelUtils {
     public static void validateNoRowsHaveBothMarkersAndImages(@NonNull List<Item> rows) {
         for (Item rowObj : rows) {
             if (!(rowObj instanceof Row)) {
-                throw new IllegalArgumentException("Item in the list is not a Row.");
+                throw new IllegalArgumentException("Item in the list is not a Row");
             }
             Row row = (Row) rowObj;
 

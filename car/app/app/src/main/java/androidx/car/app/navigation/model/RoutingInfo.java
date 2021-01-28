@@ -255,7 +255,7 @@ public final class RoutingInfo implements NavigationInfo {
                     // TODO(b/154660041): Remove restriction when lane image can be draw from
                     //  lane info.
                     throw new IllegalStateException(
-                            "Current step must have a lanes image if the lane information is set.");
+                            "Current step must have a lanes image if the lane information is set");
                 }
             }
             return new RoutingInfo(this);

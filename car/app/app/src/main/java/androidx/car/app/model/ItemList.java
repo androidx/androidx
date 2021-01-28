@@ -282,7 +282,7 @@ public final class ItemList {
         public Builder setSelectedIndex(@IntRange(from = 0) int selectedIndex) {
             if (selectedIndex < 0) {
                 throw new IllegalArgumentException(
-                        "The item index must be larger than or equal to 0.");
+                        "The item index must be larger than or equal to 0");
             }
             this.mSelectedIndex = selectedIndex;
             return this;

@@ -59,8 +59,9 @@ public final class CarToast {
     private int mDuration;
 
     /**
-     * Constructs an empty Toast object. You <strong>MUST</strong> call {@link #setText} before you
-     * can call {@link #show}.
+     * Constructs an empty toast.
+     *
+     * <p>You <strong>MUST</strong> call {@link #setText} before you can call {@link #show}.
      *
      * @throws NullPointerException if {@code carContext} is {@code null}
      */
@@ -76,6 +77,7 @@ public final class CarToast {
      *                  text will be set to empty
      * @param duration  how long to display the message. Either {@link #LENGTH_SHORT} or {@link
      *                  #LENGTH_LONG}
+     *
      * @throws NullPointerException if {@code carContext} is {@code null}
      */
     @NonNull
@@ -93,6 +95,7 @@ public final class CarToast {
      * @param text     the text to show
      * @param duration how long to display the message. Either {@link #LENGTH_SHORT} or {@link
      *                 #LENGTH_LONG}
+     *
      * @throws NullPointerException if either the {@code carContext} or the {@code text} are {@code
      *                              null}
      */
@@ -142,7 +145,7 @@ public final class CarToast {
     public void show() {
         CharSequence text = this.mText;
         if (text == null) {
-            throw new IllegalStateException("setText must have been called.");
+            throw new IllegalStateException("setText must have been called");
         }
 
         mCarContext.getCarService(AppManager.class).showToast(text, mDuration);

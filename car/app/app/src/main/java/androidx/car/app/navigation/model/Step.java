@@ -305,7 +305,7 @@ public final class Step {
         public Step build() {
             if (mLanesImage != null && mLanes.isEmpty()) {
                 throw new IllegalStateException(
-                        "A step must have lane data when the lanes image is set.");
+                        "A step must have lane data when the lanes image is set");
             }
             return new Step(mManeuver, mLanes, mLanesImage, mCue, mRoad);
         }

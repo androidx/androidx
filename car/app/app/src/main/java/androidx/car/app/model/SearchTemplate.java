@@ -377,7 +377,7 @@ public final class SearchTemplate implements Template {
         public SearchTemplate build() {
             if (mIsLoading && mItemList != null) {
                 throw new IllegalArgumentException(
-                        "Template is in a loading state but a list is set.");
+                        "Template is in a loading state but a list is set");
             }
 
             return new SearchTemplate(this);
