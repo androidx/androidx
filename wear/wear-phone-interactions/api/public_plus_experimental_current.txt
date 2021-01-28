@@ -16,3 +16,40 @@ package androidx.wear.phone.interactions {
 
 }
 
+package androidx.wear.phone.interactions.notifications {
+
+  public final class BridgingConfig {
+    method public java.util.Set<java.lang.String>? getExcludedTags();
+    method public boolean isBridgingEnabled();
+    property public final java.util.Set<java.lang.String>? excludedTags;
+    property public final boolean isBridgingEnabled;
+  }
+
+  public static final class BridgingConfig.Builder {
+    ctor public BridgingConfig.Builder(android.content.Context context, boolean isBridgingEnabled);
+    method public androidx.wear.phone.interactions.notifications.BridgingConfig.Builder addExcludedTag(String tag);
+    method public androidx.wear.phone.interactions.notifications.BridgingConfig.Builder addExcludedTags(java.util.Collection<java.lang.String> tags);
+    method public androidx.wear.phone.interactions.notifications.BridgingConfig build();
+  }
+
+  public interface BridgingConfigurationHandler {
+    method public void applyBridgingConfiguration(androidx.wear.phone.interactions.notifications.BridgingConfig bridgingConfig);
+  }
+
+  public final class BridgingManager {
+    method public static androidx.wear.phone.interactions.notifications.BridgingManager fromContext(android.content.Context context);
+    method public void setConfig(androidx.wear.phone.interactions.notifications.BridgingConfig bridgingConfig);
+    field public static final androidx.wear.phone.interactions.notifications.BridgingManager.Companion Companion;
+  }
+
+  public static final class BridgingManager.Companion {
+    method public androidx.wear.phone.interactions.notifications.BridgingManager fromContext(android.content.Context context);
+  }
+
+  public final class BridgingManagerServiceBinder {
+    ctor public BridgingManagerServiceBinder(android.content.Context context, androidx.wear.phone.interactions.notifications.BridgingConfigurationHandler bridgingConfigurationHandler);
+    method public android.os.IBinder? getBinder();
+  }
+
+}
+
