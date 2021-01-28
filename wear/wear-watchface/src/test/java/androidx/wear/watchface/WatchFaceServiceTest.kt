@@ -1794,6 +1794,44 @@ class WatchFaceServiceTest {
     }
 
     @Test
+    fun partialComplicationOverrideAppliedToInitialStyle() {
+        val bothComplicationsOption = ComplicationsOption(
+            LEFT_AND_RIGHT_COMPLICATIONS,
+            "Left And Right",
+            null,
+            // An empty list means use the initial config.
+            emptyList()
+        )
+        val leftOnlyComplicationsOption = ComplicationsOption(
+            LEFT_COMPLICATION,
+            "Left",
+            null,
+            listOf(ComplicationOverlay.Builder(RIGHT_COMPLICATION_ID).setEnabled(false).build())
+        )
+        val complicationsStyleSetting = ComplicationsUserStyleSetting(
+            "complications_style_setting",
+            "Complications",
+            "Number and position",
+            icon = null,
+            complicationConfig = listOf(
+                leftOnlyComplicationsOption, // The default value which should be applied.
+                bothComplicationsOption,
+            ),
+            affectsLayers = listOf(Layer.COMPLICATIONS)
+        )
+
+        initEngine(
+            WatchFaceType.DIGITAL,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(listOf(complicationsStyleSetting)),
+            apiVersion = 4
+        )
+
+        assertTrue(leftComplication.enabled)
+        assertFalse(rightComplication.enabled)
+    }
+
+    @Test
     fun observeComplicationData() {
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
