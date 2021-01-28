@@ -34,8 +34,8 @@ dependencies {
     api(project(":wear:wear-watchface-data"))
     api(project(":wear:wear-watchface-style"))
     api(KOTLIN_STDLIB)
+    api(KOTLIN_COROUTINES_ANDROID)
 
-    implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
 

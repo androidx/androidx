@@ -89,7 +89,7 @@ internal class TestWatchFaceService(
         attachBaseContext(ApplicationProvider.getApplicationContext())
     }
 
-    override fun createWatchFace(
+    override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState
     ) = WatchFace(
