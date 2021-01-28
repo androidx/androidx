@@ -21,8 +21,8 @@ import androidx.car.app.CarContext;
 
 /**
  * API levels supported by this library.
- * <p>
- * Each level denotes a set of elements (classes, fields and methods) known to both clients and
+ *
+ * <p>Each level denotes a set of elements (classes, fields and methods) known to both clients and
  * hosts.
  *
  * @see CarContext#getCarAppApiLevel()
@@ -31,15 +31,17 @@ public final class CarAppApiLevels {
 
     /**
      * Initial API level.
-     * <p>
-     * Includes core API services and managers, and templates for parking,
-     * charging, and navigation apps.
+     *
+     * <p>Includes core API services and managers, and templates for parking, charging, and
+     * navigation apps.
      */
     @CarAppApiLevel
     public static final int LEVEL_1 = 1;
 
     /**
-     * Unknown API level. Used when the API level hasn't been established yet
+     * Unknown API level.
+     *
+     * <p>Used when the API level hasn't been established yet
      *
      * @hide
      */
@@ -48,7 +50,8 @@ public final class CarAppApiLevels {
     public static final int UNKNOWN = 0;
 
     /**
-     * @return true if the given integer is a valid {@link CarAppApiLevel}
+     * Returns whether the given integer is a valid {@link CarAppApiLevel}
+     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -57,7 +60,7 @@ public final class CarAppApiLevels {
     }
 
     /**
-     * Highest API level implemented by this library.
+     * Returns the highest API level implemented by this library.
      */
     @CarAppApiLevel
     public static int getLatest() {
@@ -65,7 +68,7 @@ public final class CarAppApiLevels {
     }
 
     /**
-     * Lowest API level implement to this library
+     * Returns the lowest API level implemented by this library.
      */
     @CarAppApiLevel
     public static int getOldest() {

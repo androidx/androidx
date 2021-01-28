@@ -36,8 +36,8 @@ public final class HandshakeInfo {
     /**
      * Creates an instance of {@link HandshakeInfo}.
      *
-     * @param hostPackageName    the host package name.
-     * @param hostCarAppApiLevel the API level that should be used to communicate with the host.
+     * @param hostPackageName    the host package name
+     * @param hostCarAppApiLevel the API level that should be used to communicate with the host
      */
     public HandshakeInfo(@NonNull String hostPackageName, int hostCarAppApiLevel) {
         mHostPackageName = hostPackageName;

@@ -28,14 +28,14 @@ public interface OnDoneCallback {
      * Notifies that the request has been successfully processed the request and provides a
      * response.
      *
-     * @param response the {@link Bundleable} containing the success response.
+     * @param response the {@link Bundleable} containing the success response
      */
     void onSuccess(@Nullable Bundleable response);
 
     /**
      * Notifies that the request was not fulfilled successfully.
      *
-     * @param response the {@link Bundleable} containing the failure response.
+     * @param response the {@link Bundleable} containing the failure response
      */
     void onFailure(@NonNull Bundleable response);
 }

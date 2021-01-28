@@ -185,6 +185,7 @@ public abstract class CarAppService extends Service {
      * the hosts).
      *
      * <p>Below is an example of this method implementation:
+     *
      * <pre>
      * &#64;Override
      * &#64;NonNull
@@ -245,7 +246,7 @@ public abstract class CarAppService extends Service {
     }
 
     /**
-     * Retrieves information about the host attached to this service.
+     * Returns information about the host attached to this service.
      *
      * @see HostInfo
      */
@@ -259,9 +260,7 @@ public abstract class CarAppService extends Service {
     }
 
     /**
-     * Retrieves the current {@link Session} for this service.
-     *
-     * @see Session
+     * Returns the current {@link Session} for this service.
      */
     @Nullable
     public final Session getCurrentSession() {
@@ -502,7 +501,7 @@ public abstract class CarAppService extends Service {
 
     Session throwIfInvalid(Session session) {
         if (session == null) {
-            throw new IllegalStateException("Null session found when non-null expected.");
+            throw new IllegalStateException("Null session found when non-null expected");
         }
 
         return session;

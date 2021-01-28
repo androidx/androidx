@@ -45,11 +45,11 @@ public final class ThreadUtils {
     /**
      * Checks that currently running on the main thread.
      *
-     * @throws IllegalStateException if the current thread is not the main thread.
+     * @throws IllegalStateException if the current thread is not the main thread
      */
     public static void checkMainThread() {
         if (Looper.getMainLooper() != Looper.myLooper()) {
-            throw new IllegalStateException("Not running on main thread when it is required to.");
+            throw new IllegalStateException("Not running on main thread when it is required to");
         }
     }
 

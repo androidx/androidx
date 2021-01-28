@@ -39,20 +39,20 @@ public final class HostInfo {
     private final int mUid;
 
     /**
-     * Constructs an instance of the HostInfo from the required package name, uid and API level.
+     * Constructs an instance of the HostInfo from the required package name, UID and API level.
      */
     public HostInfo(@NonNull String packageName, int uid) {
         mPackageName = requireNonNull(packageName);
         mUid = uid;
     }
 
-    /** Retrieves the package name of the host. */
+    /** Returns the package name of the host. */
     @NonNull
     public String getPackageName() {
         return mPackageName;
     }
 
-    /** Retrieves the uid of the host. */
+    /** Returns the UID of the host. */
     public int getUid() {
         return mUid;
     }

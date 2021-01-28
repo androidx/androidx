@@ -42,7 +42,8 @@ public final class CollectionUtils {
     }
 
     /**
-     * Returns a copy of the input {@code map} if not {@code null}, or an {@code null} otherwise.
+     * Returns a copy of the input {@link Map} if it is not {@code null}, or {@code null} if the
+     * input {@link Map} is {@code null}.
      */
     @Nullable
     public static <K, V> Map<K, V> unmodifiableCopy(@Nullable Map<K, V> map) {
@@ -50,8 +51,8 @@ public final class CollectionUtils {
     }
 
     /**
-     * Returns a copy of the input {@code list} if not {@code null}, or an {@code null}
-     * otherwise.
+     * Returns a copy of the input {@link List} if it is not {@code null}, or {@code null} if the
+     * input {@link List} is {@code null}.
      */
     @Nullable
     public static <T> List<T> unmodifiableCopy(@Nullable List<T> list) {
