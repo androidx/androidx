@@ -58,6 +58,11 @@
               timeout and wait until a reply is received from the font provider. -->
             <enum name="forever" value="-1" />
         </attr>
+        <!-- Provides the system font family name to check before downloading the font. For
+        example if the fontProviderQuery asked for "Sans Serif", it is possible to define
+        fontProviderSystemFontFamily as "sans-serif" to tell the system to use "sans-serif" font
+        family if it exists on the system. -->
+        <attr name="fontProviderSystemFontFamily" format="string" />
     </declare-styleable>
 
     <!-- Attributes that are read when parsing a <font> tag, which is a child of
