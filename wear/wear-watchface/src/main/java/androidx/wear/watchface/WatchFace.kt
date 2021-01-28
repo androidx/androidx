@@ -546,14 +546,16 @@ internal class WatchFaceImpl(
     private val batteryLowAndNotChargingObserver = Observer<Boolean> {
         // To save power we request a lower hardware display frame rate when the battery is low
         // and not charging.
-        renderer.surfaceHolder.surface.setFrameRate(
-            if (it) {
-                1000f / MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS.toFloat()
-            } else {
-                SYSTEM_DECIDES_FRAME_RATE
-            },
-            FRAME_RATE_COMPATIBILITY_DEFAULT
-        )
+        if (renderer.surfaceHolder.surface.isValid) {
+            renderer.surfaceHolder.surface.setFrameRate(
+                if (it) {
+                    1000f / MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS.toFloat()
+                } else {
+                    SYSTEM_DECIDES_FRAME_RATE
+                },
+                FRAME_RATE_COMPATIBILITY_DEFAULT
+            )
+        }
     }
 
     init {
