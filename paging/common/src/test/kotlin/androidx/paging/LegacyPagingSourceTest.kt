@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.paging.PagingSource.LoadResult.Page
+import androidx.testutils.TestDispatcher
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -51,6 +52,37 @@ class LegacyPagingSourceTest {
         ),
         leadingPlaceholderCount = 0
     )
+
+    @Test
+    fun init_invalidateOnFetchDispatcher() {
+        val testDispatcher = TestDispatcher()
+        val dataSource = object : DataSource<Int, Int>(KeyType.ITEM_KEYED) {
+            var isInvalidCalls = 0
+
+            override val isInvalid: Boolean
+                get() {
+                    isInvalidCalls++
+                    return super.isInvalid
+                }
+
+            override suspend fun load(params: Params<Int>): BaseResult<Int> {
+                return BaseResult(listOf(), null, null)
+            }
+
+            override fun getKeyInternal(item: Int): Int = 0
+        }
+
+        // init will immediately trigger a call to DataSource.isInvalid, but if it's launched on
+        // fetchDispatcher, it should block on testDispatcher.executeAll().
+        LegacyPagingSource(
+            fetchDispatcher = testDispatcher,
+            dataSource = dataSource,
+        )
+
+        assertEquals(0, dataSource.isInvalidCalls)
+        testDispatcher.executeAll()
+        assertEquals(1, dataSource.isInvalidCalls)
+    }
 
     @Test
     fun item() {
@@ -330,17 +362,22 @@ class LegacyPagingSourceTest {
             }
         }
 
-        val pagingSourceFactory = dataSourceFactory.asPagingSourceFactory().let {
+        val testDispatcher = TestDispatcher()
+        val pagingSourceFactory = dataSourceFactory.asPagingSourceFactory(
+            fetchDispatcher = testDispatcher
+        ).let {
             { it() as LegacyPagingSource }
         }
 
         val pagingSource0 = pagingSourceFactory()
+        testDispatcher.executeAll()
         assertTrue { pagingSource0.dataSource.isInvalid }
         assertTrue { pagingSource0.invalid }
         assertTrue { dataSourceFactory.dataSources[0].isInvalid }
         assertEquals(dataSourceFactory.dataSources[0], pagingSource0.dataSource)
 
         val pagingSource1 = pagingSourceFactory()
+        testDispatcher.executeAll()
         assertFalse { pagingSource1.dataSource.isInvalid }
         assertFalse { pagingSource1.invalid }
         assertFalse { dataSourceFactory.dataSources[1].isInvalid }
