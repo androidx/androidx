@@ -38,6 +38,11 @@ public final class Lane {
     @Keep
     private final List<LaneDirection> mDirections;
 
+    /**
+     * Returns the list of directions a driver can take from this {@link Lane}.
+     *
+     * @see Builder#addDirection(LaneDirection)
+     */
     @NonNull
     public List<LaneDirection> getDirections() {
         return CollectionUtils.emptyIfNull(mDirections);
@@ -83,7 +88,7 @@ public final class Lane {
         /**
          * Adds a direction a driver can take from this lane.
          *
-         * @throws NullPointerException if {@code direction} is {@code null}.
+         * @throws NullPointerException if {@code direction} is {@code null}
          */
         @NonNull
         public Builder addDirection(@NonNull LaneDirection direction) {
