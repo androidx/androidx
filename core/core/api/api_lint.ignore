@@ -151,8 +151,6 @@ BuilderSetStyle: androidx.core.app.NotificationCompat.Builder#limitCharSequenceL
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.NotificationCompat.Builder.limitCharSequenceLength(CharSequence)
 BuilderSetStyle: androidx.core.app.ShareCompat.IntentBuilder#createChooserIntent():
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.ShareCompat.IntentBuilder.createChooserIntent()
-BuilderSetStyle: androidx.core.app.ShareCompat.IntentBuilder#from(android.app.Activity):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.ShareCompat.IntentBuilder.from(android.app.Activity)
 BuilderSetStyle: androidx.core.app.ShareCompat.IntentBuilder#startChooser():
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.ShareCompat.IntentBuilder.startChooser()
 BuilderSetStyle: androidx.core.app.TaskStackBuilder#create(android.content.Context):
@@ -207,6 +205,24 @@ GetterOnBuilder: androidx.core.app.TaskStackBuilder#getPendingIntent(int, int, a
     Getter should be on the built object, not the builder: method androidx.core.app.TaskStackBuilder.getPendingIntent(int,int,android.os.Bundle)
 
 
+GetterSetterNames: androidx.core.app.NotificationCompat.Action.WearableExtender#getHintDisplayActionInline():
+    Symmetric method for `setHintDisplayActionInline` must be named `isHintDisplayActionInline`; was `getHintDisplayActionInline`
+GetterSetterNames: androidx.core.app.NotificationCompat.Action.WearableExtender#getHintLaunchesActivity():
+    Symmetric method for `setHintLaunchesActivity` must be named `isHintLaunchesActivity`; was `getHintLaunchesActivity`
+GetterSetterNames: androidx.core.app.NotificationCompat.WearableExtender#getContentIntentAvailableOffline():
+    Symmetric method for `setContentIntentAvailableOffline` must be named `isContentIntentAvailableOffline`; was `getContentIntentAvailableOffline`
+GetterSetterNames: androidx.core.app.NotificationCompat.WearableExtender#getHintContentIntentLaunchesActivity():
+    Symmetric method for `setHintContentIntentLaunchesActivity` must be named `isHintContentIntentLaunchesActivity`; was `getHintContentIntentLaunchesActivity`
+GetterSetterNames: androidx.core.app.NotificationCompat.WearableExtender#getStartScrollBottom():
+    Symmetric method for `setStartScrollBottom` must be named `isStartScrollBottom`; was `getStartScrollBottom`
+GetterSetterNames: androidx.core.graphics.drawable.RoundedBitmapDrawable#setAntiAlias(boolean):
+    Symmetric method for `hasAntiAlias` must be named `setHasAntiAlias`; was `setAntiAlias`
+GetterSetterNames: androidx.core.graphics.drawable.RoundedBitmapDrawable#setMipMap(boolean):
+    Symmetric method for `hasMipMap` must be named `setHasMipMap`; was `setMipMap`
+GetterSetterNames: androidx.core.view.GestureDetectorCompat#setIsLongpressEnabled(boolean):
+    Symmetric method for `isLongpressEnabled` must be named `setLongpressEnabled`; was `setIsLongpressEnabled`
+
+
 KotlinOperator: androidx.core.os.LocaleListCompat#get(int):
     Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
 
@@ -237,8 +253,6 @@ MissingGetterMatchingBuilder: androidx.core.app.NotificationChannelCompat.Builde
     androidx.core.app.NotificationChannelCompat does not declare a `isShowBadge()` method matching method androidx.core.app.NotificationChannelCompat.Builder.setShowBadge(boolean)
 MissingGetterMatchingBuilder: androidx.core.app.NotificationChannelCompat.Builder#setVibrationEnabled(boolean):
     androidx.core.app.NotificationChannelCompat does not declare a `isVibrationEnabled()` method matching method androidx.core.app.NotificationChannelCompat.Builder.setVibrationEnabled(boolean)
-MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Action.Builder#addExtras(android.os.Bundle):
-    androidx.core.app.NotificationCompat.Action does not declare a `getExtrass()` method matching method androidx.core.app.NotificationCompat.Action.Builder.addExtras(android.os.Bundle)
 MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Action.Builder#setAllowGeneratedReplies(boolean):
     androidx.core.app.NotificationCompat.Action does not declare a `isAllowGeneratedReplies()` method matching method androidx.core.app.NotificationCompat.Action.Builder.setAllowGeneratedReplies(boolean)
 MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Action.Builder#setShowsUserInterface(boolean):
@@ -252,7 +266,7 @@ MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addAc
 MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addAction(int, CharSequence, android.app.PendingIntent):
     android.app.Notification does not declare a `getActions()` method matching method androidx.core.app.NotificationCompat.Builder.addAction(int,CharSequence,android.app.PendingIntent)
 MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addExtras(android.os.Bundle):
-    android.app.Notification does not declare a `getExtrass()` method matching method androidx.core.app.NotificationCompat.Builder.addExtras(android.os.Bundle)
+    android.app.Notification does not declare a getter method matching method androidx.core.app.NotificationCompat.Builder.addExtras(android.os.Bundle) (expected one of: [getExtras(), getExtrases()])
 MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addInvisibleAction(androidx.core.app.NotificationCompat.Action):
     android.app.Notification does not declare a `getInvisibleActions()` method matching method androidx.core.app.NotificationCompat.Builder.addInvisibleAction(androidx.core.app.NotificationCompat.Action)
 MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addInvisibleAction(int, CharSequence, android.app.PendingIntent):
@@ -341,8 +355,6 @@ MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setWh
     android.app.Notification does not declare a `getWhen()` method matching method androidx.core.app.NotificationCompat.Builder.setWhen(long)
 MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder#setReplyAction(android.app.PendingIntent, androidx.core.app.RemoteInput):
     androidx.core.app.NotificationCompat.CarExtender.UnreadConversation does not declare a `getReplyAction()` method matching method androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder.setReplyAction(android.app.PendingIntent,androidx.core.app.RemoteInput)
-MissingGetterMatchingBuilder: androidx.core.app.RemoteInput.Builder#addExtras(android.os.Bundle):
-    androidx.core.app.RemoteInput does not declare a `getExtrass()` method matching method androidx.core.app.RemoteInput.Builder.addExtras(android.os.Bundle)
 MissingGetterMatchingBuilder: androidx.core.app.RemoteInput.Builder#setAllowDataType(String, boolean):
     androidx.core.app.RemoteInput does not declare a `getAllowDataType()` method matching method androidx.core.app.RemoteInput.Builder.setAllowDataType(String,boolean)
 MissingGetterMatchingBuilder: androidx.core.app.RemoteInput.Builder#setAllowFreeFormInput(boolean):

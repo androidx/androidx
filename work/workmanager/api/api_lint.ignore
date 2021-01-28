@@ -69,14 +69,6 @@ MissingGetterMatchingBuilder: androidx.work.Constraints.Builder#setTriggerConten
     androidx.work.Constraints does not declare a `getTriggerContentUpdateDelay()` method matching method androidx.work.Constraints.Builder.setTriggerContentUpdateDelay(java.time.Duration)
 MissingGetterMatchingBuilder: androidx.work.Constraints.Builder#setTriggerContentUpdateDelay(long, java.util.concurrent.TimeUnit):
     androidx.work.Constraints does not declare a `getTriggerContentUpdateDelay()` method matching method androidx.work.Constraints.Builder.setTriggerContentUpdateDelay(long,java.util.concurrent.TimeUnit)
-MissingGetterMatchingBuilder: androidx.work.WorkQuery.Builder#addIds(java.util.List<java.util.UUID>):
-    androidx.work.WorkQuery does not declare a `getIdss()` method matching method androidx.work.WorkQuery.Builder.addIds(java.util.List<java.util.UUID>)
-MissingGetterMatchingBuilder: androidx.work.WorkQuery.Builder#addStates(java.util.List<androidx.work.WorkInfo.State>):
-    androidx.work.WorkQuery does not declare a `getStatess()` method matching method androidx.work.WorkQuery.Builder.addStates(java.util.List<androidx.work.WorkInfo.State>)
-MissingGetterMatchingBuilder: androidx.work.WorkQuery.Builder#addTags(java.util.List<java.lang.String>):
-    androidx.work.WorkQuery does not declare a `getTagss()` method matching method androidx.work.WorkQuery.Builder.addTags(java.util.List<java.lang.String>)
-MissingGetterMatchingBuilder: androidx.work.WorkQuery.Builder#addUniqueWorkNames(java.util.List<java.lang.String>):
-    androidx.work.WorkQuery does not declare a `getUniqueWorkNamess()` method matching method androidx.work.WorkQuery.Builder.addUniqueWorkNames(java.util.List<java.lang.String>)
 MissingGetterMatchingBuilder: androidx.work.WorkRequest.Builder#addTag(String):
     W does not declare a `getTags()` method matching method androidx.work.WorkRequest.Builder.addTag(String)
 MissingGetterMatchingBuilder: androidx.work.WorkRequest.Builder#setBackoffCriteria(androidx.work.BackoffPolicy, java.time.Duration):
