@@ -28,6 +28,8 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
     implementation 'androidx.annotation:annotation:1.1.0'
 
+    annotationProcessor(NULLAWAY)
+
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
