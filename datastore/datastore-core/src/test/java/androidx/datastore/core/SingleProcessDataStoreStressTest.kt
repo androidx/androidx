@@ -34,6 +34,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.io.DataInputStream
@@ -42,11 +43,15 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 @RunWith(JUnit4::class)
 class SingleProcessDataStoreStressTest {
     @get:Rule
     val tempFolder = TemporaryFolder()
+
+    @get:Rule
+    val timeout = Timeout(4, TimeUnit.MINUTES)
 
     @Test
     fun testManyConcurrentReadsAndWrites() = runBlocking<Unit> {
@@ -68,7 +73,7 @@ class SingleProcessDataStoreStressTest {
         repeat(100) {
             readers += myScope.async {
                 dataStore.data.takeWhile {
-                    it != 100_000L
+                    it != 50_000L
                 }.reduce { acc, value ->
                     assertThat(acc).isLessThan(value)
                     value
@@ -78,7 +83,7 @@ class SingleProcessDataStoreStressTest {
 
         repeat(1000) {
             writers += myScope.async {
-                repeat(100) {
+                repeat(50) {
                     dataStore.updateData {
                         it.inc()
                     }
@@ -112,7 +117,7 @@ class SingleProcessDataStoreStressTest {
         repeat(100) {
             readers += myScope.async {
                 dataStore.data.takeWhile {
-                    it != 100_000L
+                    it != 10_000L
                 }.reduce { acc, value ->
                     assertThat(acc).isLessThan(value)
                     value
@@ -122,7 +127,7 @@ class SingleProcessDataStoreStressTest {
 
         repeat(1000) {
             writers += myScope.async {
-                repeat(100) {
+                repeat(10) {
                     var success = false
                     while (!success) {
                         try {

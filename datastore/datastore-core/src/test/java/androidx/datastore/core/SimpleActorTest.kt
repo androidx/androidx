@@ -31,7 +31,9 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.Timeout
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
@@ -43,6 +45,9 @@ import kotlin.coroutines.coroutineContext
 
 @ExperimentalCoroutinesApi
 class SimpleActorTest {
+    @get:Rule
+    val timeout = Timeout(10, TimeUnit.SECONDS)
+
     @Test
     fun testSimpleActor() = runBlockingTest {
         val msgs = mutableListOf<Int>()
