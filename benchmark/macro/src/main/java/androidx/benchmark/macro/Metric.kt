@@ -147,10 +147,10 @@ class StartupTimingMetric : Metric() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         device = instrumentation.device()
         parser = PerfettoTraceParser()
+        parser.copyTraceProcessorShell()
     }
 
     override fun start() {
-        parser.copyTraceProcessorShell()
     }
 
     override fun stop() {
@@ -171,7 +171,7 @@ class StartupTimingMetric : Metric() {
     }
 
     companion object {
-        private const val TAG = "PerfettoMetric"
+        private const val TAG = "StartupTimingMetric"
         private const val METRICS = "android_startup"
     }
 }

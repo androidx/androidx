@@ -141,23 +141,24 @@ fun macrobenchmark(
         val metricResults = List(config.iterations) { iteration ->
             setupBlock(scope, isFirstRun)
             isFirstRun = false
-            perfettoCollector.captureTrace(uniqueName, iteration) { tracePath ->
-                try {
-                    config.metrics.forEach {
-                        it.start()
-                    }
-                    measureBlock(scope)
-                } finally {
-                    config.metrics.forEach {
-                        it.stop()
-                    }
+            perfettoCollector.start()
+
+            try {
+                config.metrics.forEach {
+                    it.start()
                 }
-                config.metrics
-                    // capture list of Map<String,Long> per metric
-                    .map { it.getMetrics(config.packageName, tracePath) }
-                    // merge into one map
-                    .reduce { sum, element -> sum + element }
+                measureBlock(scope)
+            } finally {
+                config.metrics.forEach {
+                    it.stop()
+                }
             }
+            val tracePath = perfettoCollector.stop(uniqueName, iteration)
+            config.metrics
+                // capture list of Map<String,Long> per metric
+                .map { it.getMetrics(config.packageName, tracePath!!) }
+                // merge into one map
+                .reduce { sum, element -> sum + element }
         }.mergeToMetricResults()
 
         InstrumentationResults.instrumentationReport {

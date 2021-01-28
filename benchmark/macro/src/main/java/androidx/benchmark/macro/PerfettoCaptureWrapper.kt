@@ -19,7 +19,6 @@ package androidx.benchmark.macro
 import android.os.Build
 import android.util.Log
 import androidx.benchmark.perfetto.PerfettoCapture
-import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.perfetto.destinationPath
 import androidx.benchmark.perfetto.reportAdditionalFileToCopy
 
@@ -34,20 +33,7 @@ class PerfettoCaptureWrapper {
         }
     }
 
-    fun <T> captureTrace(
-        benchmarkName: String,
-        iteration: Int,
-        block: (String) -> T
-    ): T {
-        try {
-            start()
-            return block(PerfettoHelper.getPerfettoTmpOutputFilePath())
-        } finally {
-            stop(benchmarkName, iteration)
-        }
-    }
-
-    private fun start(): Boolean {
+    fun start(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             Log.d(TAG, "Recording perfetto trace")
             capture?.start()
@@ -55,7 +41,7 @@ class PerfettoCaptureWrapper {
         return true
     }
 
-    private fun stop(benchmarkName: String, iteration: Int): Boolean {
+    fun stop(benchmarkName: String, iteration: Int): String? {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val iterString = iteration.toString().padStart(3, '0')
             // NOTE: macrobench still using legacy .trace name until
@@ -64,7 +50,8 @@ class PerfettoCaptureWrapper {
             val destination = destinationPath(traceName).absolutePath
             capture?.stop(destination)
             reportAdditionalFileToCopy("perfetto_trace_$iterString", destination)
+            return destination
         }
-        return true
+        return null
     }
 }
