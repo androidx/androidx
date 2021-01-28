@@ -40,16 +40,31 @@ public final class MessageInfo implements NavigationInfo {
     @Nullable
     private final CarIcon mImage;
 
+    /**
+     * Returns the title of the message or {@code null} if not set.
+     *
+     * @see Builder#setTitle(CharSequence)
+     */
     @Nullable
     public CarText getTitle() {
         return mTitle;
     }
 
+    /**
+     * Returns the text to display with the message or {@code null} if not set.
+     *
+     * @see Builder#setText(CharSequence)
+     */
     @Nullable
     public CarText getText() {
         return mText;
     }
 
+    /**
+     * Returns the image to display along with the message or {@code null} if not set.
+     *
+     * @see Builder#setImage(CarIcon)
+     */
     @Nullable
     public CarIcon getImage() {
         return mImage;
@@ -152,7 +167,7 @@ public final class MessageInfo implements NavigationInfo {
         /**
          * Returns a new instance of a {@link Builder}.
          *
-         * @throws NullPointerException if {@code title} is {@code null}.
+         * @throws NullPointerException if {@code title} is {@code null}
          */
         public Builder(@NonNull CharSequence title) {
             this.mTitle = CarText.create(requireNonNull(title));

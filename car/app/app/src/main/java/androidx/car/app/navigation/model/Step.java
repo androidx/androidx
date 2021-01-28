@@ -55,6 +55,8 @@ public final class Step {
     /**
      * Returns the maneuver to be performed on this step or {@code null} if this step doesn't
      * involve a maneuver.
+     *
+     * @see Builder#setManeuver(Maneuver)
      */
     @Nullable
     public Maneuver getManeuver() {
@@ -64,6 +66,8 @@ public final class Step {
     /**
      * Returns a list of {@link Lane} that contains information of the road lanes at the point
      * where the driver should execute this step.
+     *
+     * @see Builder#addLane(Lane)
      */
     @NonNull
     public List<Lane> getLanes() {
@@ -71,7 +75,9 @@ public final class Step {
     }
 
     /**
-     * Returns the image representing all the lanes or {@code null} if no lanes image is available.
+     * Returns the image representing all the lanes or {@code null} if not set.
+     *
+     * @see Builder#setLanesImage(CarIcon)
      */
     @Nullable
     public CarIcon getLanesImage() {
@@ -79,7 +85,9 @@ public final class Step {
     }
 
     /**
-     * Returns the text description of this maneuver.
+     * Returns the text description of this maneuver or {@code null} if not set.
+     *
+     * @see Builder#setCue(CharSequence)
      */
     @Nullable
     public CarText getCue() {
@@ -88,6 +96,8 @@ public final class Step {
 
     /**
      * Returns the text description of the road for the step or {@code null} if unknown.
+     *
+     * @see Builder#setRoad(CharSequence)
      */
     @Nullable
     public CarText getRoad() {
@@ -175,6 +185,7 @@ public final class Step {
          * unsupported characters will not be displayed properly.
          *
          * @throws NullPointerException if {@code cue} is {@code null}
+         *
          * @see Builder#setCue(CharSequence)
          */
         public Builder(@NonNull CharSequence cue) {
@@ -281,7 +292,7 @@ public final class Step {
         }
 
         /**
-         * Sets a text description of the road for the step or {@code null} if unknown.
+         * Sets a text description of the road for the step.
          *
          * <p>This value is primarily used for vehicle cluster and heads-up displays and may not
          * appear in the navigation template.
@@ -299,7 +310,7 @@ public final class Step {
         /**
          * Constructs the {@link Step} defined by this builder.
          *
-         * @throws IllegalStateException if {@code lanesImage} was set but no lanes were added.
+         * @throws IllegalStateException if {@code lanesImage} was set but no lanes were added
          */
         @NonNull
         public Step build() {

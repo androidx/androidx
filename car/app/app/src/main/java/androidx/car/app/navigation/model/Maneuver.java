@@ -100,7 +100,7 @@ public final class Maneuver {
     /**
      * Maneuver type is unknown, no maneuver information should be displayed.
      *
-     * <p>{@link #TYPE_UNKNOWN} may be interpreted differently depending on the consumer. In some
+     * <p>This type may be interpreted differently depending on the consumer. In some
      * cases the previous maneuver will continue to be shown while in others no maneuver will be
      * shown at all.
      */
@@ -586,8 +586,9 @@ public final class Maneuver {
          * more general type is preferred. Using {@link #TYPE_UNKNOWN} is allowed, but some head
          * units will not display any information in that case.
          *
-         * @param type one of the {@code TYPE_*} static constants defined in this class.
-         * @throws IllegalArgumentException if {@code type} is not a valid maneuver type.
+         * @param type one of the {@code TYPE_*} static constants defined in this class
+         *
+         * @throws IllegalArgumentException if {@code type} is not a valid maneuver type
          */
         public Builder(@Type int type) {
             if (!isValidType(type)) {
@@ -633,7 +634,7 @@ public final class Maneuver {
          *
          * @throws IllegalArgumentException if {@code type} does not include a exit number, or
          *                                  if {@code roundaboutExitNumber} is not greater than
-         *                                  zero.
+         *                                  zero
          */
         @NonNull
         public Builder setRoundaboutExitNumber(@IntRange(from = 1) int roundaboutExitNumber) {
@@ -662,7 +663,7 @@ public final class Maneuver {
          *
          * @throws IllegalArgumentException if {@code type} does not include a exit angle or if
          *                                  {@code roundaboutExitAngle} is not greater than zero
-         *                                  and less than or equal to 360 degrees.
+         *                                  and less than or equal to 360 degrees
          */
         @NonNull
         public Builder setRoundaboutExitAngle(
@@ -683,7 +684,7 @@ public final class Maneuver {
          *
          * @throws IllegalArgumentException if {@code type} includes an exit number and one has
          *                                  not been set, or if it includes an exit angle and one
-         *                                  has not been set.
+         *                                  has not been set
          */
         @NonNull
         public Maneuver build() {

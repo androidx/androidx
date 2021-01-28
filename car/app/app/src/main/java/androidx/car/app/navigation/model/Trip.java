@@ -59,26 +59,51 @@ public final class Trip {
         return mIsLoading;
     }
 
+    /**
+     * Returns the list of destinations for this trip.
+     *
+     * @see Builder#addDestination(Destination, TravelEstimate)
+     */
     @NonNull
     public List<Destination> getDestinations() {
         return CollectionUtils.emptyIfNull(mDestinations);
     }
 
+    /**
+     * Returns the list of steps for the trip.
+     *
+     * @see Builder#addStep(Step, TravelEstimate)
+     */
     @NonNull
     public List<Step> getSteps() {
         return CollectionUtils.emptyIfNull(mSteps);
     }
 
+    /**
+     * Returns the list of {@link TravelEstimate}s for the {@link Destination}s in the trip.
+     *
+     * @see Builder#addDestination(Destination, TravelEstimate)
+     */
     @NonNull
     public List<TravelEstimate> getDestinationTravelEstimates() {
         return CollectionUtils.emptyIfNull(mDestinationTravelEstimates);
     }
 
+    /**
+     * Returns the list of {@link TravelEstimate}s for the {@link Step}s in the trip.
+     *
+     * @see Builder#addDestination(Destination, TravelEstimate)
+     */
     @NonNull
     public List<TravelEstimate> getStepTravelEstimates() {
         return CollectionUtils.emptyIfNull(mStepTravelEstimates);
     }
 
+    /**
+     * Returns the text that describes the current road.
+     *
+     * @see Builder#setCurrentRoad(CharSequence)
+     */
     @Nullable
     public CarText getCurrentRoad() {
         return mCurrentRoad;
@@ -170,7 +195,7 @@ public final class Trip {
          * multiple destination travel estimates are added the display may only show information
          * about the first destination travel estimate.
          *
-         * @throws NullPointerException if {@code step} or {@code stepTravelEstiomate} are {@code
+         * @throws NullPointerException if {@code step} or {@code stepTravelEstimate} are {@code
          *                              null}
          */
         @NonNull
@@ -193,7 +218,7 @@ public final class Trip {
          * step travel estimates are added the display may only show information about the first
          * step travel estimate.
          *
-         * @throws NullPointerException if {@code step} or {@code stepTravelEstiomate} are {@code
+         * @throws NullPointerException if {@code step} or {@code stepTravelEstimate} are {@code
          *                              null}
          */
         @NonNull
@@ -204,7 +229,7 @@ public final class Trip {
         }
 
         /**
-         * Sets a text description of the current road.
+         * Sets a description of the current road.
          *
          * @throws NullPointerException if {@code currentRoad} is {@code null}
          */

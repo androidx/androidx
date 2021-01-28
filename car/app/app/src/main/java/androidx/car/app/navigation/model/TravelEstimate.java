@@ -61,21 +61,41 @@ public final class TravelEstimate {
         return mRemainingDistance;
     }
 
+    /**
+     * Returns the remaining time until arriving at the destination, in seconds.
+     *
+     * @see Builder#setRemainingTimeSeconds(long)
+     */
     @SuppressWarnings("MethodNameUnits")
     public long getRemainingTimeSeconds() {
         return mRemainingTimeSeconds >= 0 ? mRemainingTimeSeconds : REMAINING_TIME_UNKNOWN;
     }
 
+    /**
+     * Returns the arrival time until at the destination or {@code null} if not set.
+     *
+     * @see Builder#Builder(Distance, DateTimeWithZone)
+     */
     @Nullable
     public DateTimeWithZone getArrivalTimeAtDestination() {
         return mArrivalTimeAtDestination;
     }
 
+    /**
+     * Sets the color of the remaining time text or {@code null} if not set.
+     *
+     * @see Builder#setRemainingTimeColor(CarColor)
+     */
     @Nullable
     public CarColor getRemainingTimeColor() {
         return mRemainingTimeColor;
     }
 
+    /**
+     * Sets the color of the remaining distance text or {@code null} if not set.
+     *
+     * @see Builder#setRemainingDistanceColor(CarColor)
+     */
     @Nullable
     public CarColor getRemainingDistanceColor() {
         return mRemainingDistanceColor;
@@ -153,11 +173,10 @@ public final class TravelEstimate {
          * Constructs a new builder of {@link TravelEstimate}.
          *
          * @param remainingDistance        The estimated remaining {@link Distance} until
-         *                                 arriving at
-         *                                 the destination.
+         *                                 arriving at the destination
          * @param arrivalTimeAtDestination The arrival time with the time zone information
-         *                                 provided for
-         *                                 the destination.
+         *                                 provided for the destination
+         *
          * @throws NullPointerException if {@code remainingDistance} or
          *                              {@code arrivalTimeAtDestination} are {@code null}
          */
@@ -172,11 +191,10 @@ public final class TravelEstimate {
          * Constructs a new builder of {@link TravelEstimate}.
          *
          * @param remainingDistance        The estimated remaining {@link Distance} until
-         *                                 arriving at
-         *                                 the destination.
+         *                                 arriving at the destination
          * @param arrivalTimeAtDestination The arrival time with the time zone information
-         *                                 provided for
-         *                                 the destination.
+         *                                 provided for the destination
+         *
          * @throws NullPointerException if {@code remainingDistance} or
          *                              {@code arrivalTimeAtDestination} are {@code null}
          */
@@ -198,7 +216,7 @@ public final class TravelEstimate {
          * <p>If not set, {@link #REMAINING_TIME_UNKNOWN} will be used.
          *
          * @throws IllegalArgumentException if {@code remainingTimeSeconds} is a negative value
-         *                                  but not {@link #REMAINING_TIME_UNKNOWN}.
+         *                                  but not {@link #REMAINING_TIME_UNKNOWN}
          */
         @NonNull
         public Builder setRemainingTimeSeconds(@IntRange(from = -1) long remainingTimeSeconds) {
@@ -212,7 +230,7 @@ public final class TravelEstimate {
          * <p>If not set, {@link #REMAINING_TIME_UNKNOWN} will be used.
          *
          * @throws IllegalArgumentException if {@code remainingTime} is a negative duration
-         *                                  but not {@link #REMAINING_TIME_UNKNOWN}.
+         *                                  but not {@link #REMAINING_TIME_UNKNOWN}
          * @throws NullPointerException     if {@code remainingTime} is {@code null}
          */
         @SuppressLint({"MissingGetterMatchingBuilder", "UnsafeNewApiCall"})
@@ -235,7 +253,7 @@ public final class TravelEstimate {
          *
          * <p>Custom colors created with {@link CarColor#createCustom} are not supported.
          *
-         * @throws IllegalArgumentException if {@code remainingTimeColor} is not supported.
+         * @throws IllegalArgumentException if {@code remainingTimeColor} is not supported
          * @throws NullPointerException     if {@code remainingTimecolor} is {@code null}
          */
         @NonNull
@@ -254,8 +272,8 @@ public final class TravelEstimate {
          *
          * <p>Custom colors created with {@link CarColor#createCustom} are not supported.
          *
-         * @throws IllegalArgumentException if {@code remainingDistanceColor} is not supported.
-         * @throws NullPointerException     if {@code remainingDistanceColor} is {@code null}.
+         * @throws IllegalArgumentException if {@code remainingDistanceColor} is not supported
+         * @throws NullPointerException     if {@code remainingDistanceColor} is {@code null}
          */
         @NonNull
         public Builder setRemainingDistanceColor(@NonNull CarColor remainingDistanceColor) {
