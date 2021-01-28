@@ -26,6 +26,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
+import org.junit.Assume.assumeFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -35,9 +36,7 @@ class StartupTimingMetricTest {
     @LargeTest
     @Test
     fun noResults() {
-        if (Build.SUPPORTED_64_BIT_ABIS.isEmpty()) {
-            return
-        }
+        assumeFalse(Build.SUPPORTED_64_BIT_ABIS.isEmpty())
 
         val packageName = "fake.package.fiction.nostartups"
         val metrics = measureStartup(packageName) {
@@ -49,9 +48,7 @@ class StartupTimingMetricTest {
     @LargeTest
     @Test
     fun validateStartup() {
-        if (Build.SUPPORTED_64_BIT_ABIS.isEmpty()) {
-            return
-        }
+        assumeFalse(Build.SUPPORTED_64_BIT_ABIS.isEmpty())
 
         val packageName = "androidx.benchmark.integration.macrobenchmark.target"
         val scope = MacrobenchmarkScope(packageName = packageName, launchWithClearTask = true)
@@ -80,13 +77,8 @@ fun measureStartup(packageName: String, measureBlock: () -> Unit): Map<String, L
         metrics = listOf(metric)
     )
     metric.configure(config)
-    return wrapper.captureTrace(packageName, iteration = 1) { tracePath ->
-        try {
-            metric.start()
-            measureBlock()
-            metric.getMetrics(packageName, tracePath)
-        } finally {
-            metric.stop()
-        }
-    }
+    wrapper.start()
+    measureBlock()
+    val tracePath = wrapper.stop(packageName, 1)!!
+    return metric.getMetrics(packageName, tracePath)
 }
