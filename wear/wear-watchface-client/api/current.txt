@@ -117,15 +117,15 @@ package androidx.wear.watchface.client {
   }
 
   public interface WatchFaceControlClient extends java.lang.AutoCloseable {
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.client.HeadlessWatchFaceClient> createHeadlessWatchFaceClient(android.content.ComponentName watchFaceName, androidx.wear.watchface.client.DeviceConfig deviceConfig, int surfaceWidth, int surfaceHeight);
-    method public default static androidx.wear.watchface.client.WatchFaceControlClient createWatchFaceControlClient(android.content.Context context, String watchFacePackageName);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient> getInteractiveWatchFaceSysUiClientInstance(String instanceId);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.client.InteractiveWatchFaceWcsClient> getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(String id, androidx.wear.watchface.client.DeviceConfig deviceConfig, androidx.wear.watchface.client.SystemState systemState, java.util.Map<java.lang.String,java.lang.String>? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
+    method public androidx.wear.watchface.client.HeadlessWatchFaceClient? createHeadlessWatchFaceClient(android.content.ComponentName watchFaceName, androidx.wear.watchface.client.DeviceConfig deviceConfig, int surfaceWidth, int surfaceHeight);
+    method public default static suspend Object? createWatchFaceControlClient(android.content.Context p, String context, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceControlClient> watchFacePackageName);
+    method public androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient? getInteractiveWatchFaceSysUiClientInstance(String instanceId);
+    method public kotlinx.coroutines.Deferred<androidx.wear.watchface.client.InteractiveWatchFaceWcsClient> getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClientAsync(String id, androidx.wear.watchface.client.DeviceConfig deviceConfig, androidx.wear.watchface.client.SystemState systemState, java.util.Map<java.lang.String,java.lang.String>? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
     field public static final androidx.wear.watchface.client.WatchFaceControlClient.Companion Companion;
   }
 
   public static final class WatchFaceControlClient.Companion {
-    method public androidx.wear.watchface.client.WatchFaceControlClient createWatchFaceControlClient(android.content.Context context, String watchFacePackageName);
+    method public suspend Object? createWatchFaceControlClient(android.content.Context context, String watchFacePackageName, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceControlClient> p);
   }
 
   public static final class WatchFaceControlClient.ServiceNotBoundException extends java.lang.Exception {
