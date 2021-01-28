@@ -46,6 +46,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.io.File
@@ -54,6 +55,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.lang.IllegalStateException
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.AbstractCoroutineContextElement
@@ -64,6 +66,9 @@ import kotlin.coroutines.CoroutineContext
 class SingleProcessDataStoreTest {
     @get:Rule
     val tempFolder = TemporaryFolder()
+
+    @get:Rule
+    val timeout = Timeout(10, TimeUnit.SECONDS)
 
     private lateinit var store: DataStore<Byte>
     private lateinit var testingSerializer: TestingSerializer

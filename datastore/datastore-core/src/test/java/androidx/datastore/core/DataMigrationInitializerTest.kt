@@ -27,14 +27,19 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.junit.rules.Timeout
 import java.io.File
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 @kotlinx.coroutines.InternalCoroutinesApi
 @kotlinx.coroutines.ObsoleteCoroutinesApi
 @kotlinx.coroutines.FlowPreview
 class DataMigrationInitializerTest {
+    @get:Rule
+    val timeout = Timeout(10, TimeUnit.SECONDS)
+
     @get:Rule
     val tmp = TemporaryFolder()
 
