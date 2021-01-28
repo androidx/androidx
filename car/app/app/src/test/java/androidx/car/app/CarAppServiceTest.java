@@ -99,6 +99,8 @@ public final class CarAppServiceTest {
                     @NonNull
                     public Session onCreateSession() {
                         Session testSession = createTestSession();
+                        mCarContext = TestCarContext.createCarContext(
+                                ApplicationProvider.getApplicationContext());
                         CarAppServiceController.of(mCarContext, testSession, mCarAppService);
                         return testSession;
                     }
@@ -351,6 +353,8 @@ public final class CarAppServiceTest {
         HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName, hostApiLevel);
         carApp.onHandshakeCompleted(Bundleable.create(handshakeInfo), mock(IOnDoneCallback.class));
         carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
+
+        currentSession = mCarAppService.getCurrentSession();
         assertThat(currentSession.getCarContext().getCarService(
                 ScreenManager.class).getScreenStack()).hasSize(1);
     }
