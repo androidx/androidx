@@ -22,8 +22,6 @@ import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CON
 
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -89,16 +87,6 @@ public final class ListTemplate implements Template {
     @Nullable
     public ItemList getSingleList() {
         return mSingleList;
-    }
-
-    /**
-     * @deprecated use {@link #getSectionedLists()} instead.
-     */
-    // TODO(b/177591128): remove after host(s) no longer reference this.
-    @Deprecated
-    @NonNull
-    public List<SectionedItemList> getSectionLists() {
-        return CollectionUtils.emptyIfNull(mSectionedLists);
     }
 
     @NonNull
@@ -183,7 +171,7 @@ public final class ListTemplate implements Template {
          * to the host once the data is ready.
          *
          * <p>If set to {@code false}, the UI will display the contents of the {@link ItemList}
-         * instance(s) added via {@link #setSingleList} or {@link #addList}.
+         * instance(s) added via {@link #setSingleList} or {@link #addSectionedList}.
          */
         @NonNull
         public Builder setLoading(boolean isLoading) {
@@ -230,12 +218,11 @@ public final class ListTemplate implements Template {
         /**
          * Sets a single {@link ItemList} to show in the template.
          *
-         * <p>Note that this list cannot be mixed with others added via {@link #addList}. If
-         * multiple lists were previously added, they will be cleared.
+         * <p>Note that this list cannot be mixed with others added via {@link #addSectionedList}
+         * . If multiple lists were previously added, they will be cleared.
          *
          * @throws NullPointerException if {@code list} is null.
-         *
-         * @see #addList(ItemList, CharSequence)
+         * @see #addSectionedList
          */
         @NonNull
         public Builder setSingleList(@NonNull ItemList list) {
@@ -243,33 +230,6 @@ public final class ListTemplate implements Template {
             mSectionedLists.clear();
             mHasSelectableList = false;
             return this;
-        }
-
-        /**
-         * Adds an {@link ItemList} to display in the template.
-         *
-         * <p>Use this method to add multiple {@link ItemList}s to the template. Each
-         * {@link ItemList} will be grouped under the given {@code header}. These lists cannot be
-         * mixed with an {@link ItemList} added via {@link #setSingleList}. If a single list was
-         * previously added, it will be cleared.
-         *
-         * <p>If the added {@link ItemList} contains a {@link ItemList.OnSelectedListener}, then it
-         * cannot be added alongside other {@link ItemList}(s).
-         *
-         * @throws NullPointerException     if {@code list} or {@code header} is {@code null}.
-         * @throws IllegalArgumentException if {@code list} is empty, if {@code list}'s {@link
-         *                                  ItemList.OnItemVisibilityChangedListener} is set, if
-         *                                  {@code header} is empty, or if a selectable list is
-         *                                  added alongside other lists.
-         *
-         * @deprecated use {@link #addSectionedList}  instead.
-         */
-        // TODO(b/177591128): remove after host(s) no longer reference this.
-        @Deprecated
-        @NonNull
-        @SuppressLint("MissingGetterMatchingBuilder")
-        public Builder addList(@NonNull ItemList list, @NonNull CharSequence header) {
-            return addSectionedList(SectionedItemList.create(list, header));
         }
 
         /**

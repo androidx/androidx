@@ -111,7 +111,6 @@ public final class CarIcon {
                     TYPE_CUSTOM,
                     TYPE_BACK,
                     TYPE_ALERT,
-                    TYPE_APP,
                     TYPE_APP_ICON,
                     TYPE_ERROR,
             })
@@ -137,15 +136,6 @@ public final class CarIcon {
      * @see #ALERT
      */
     public static final int TYPE_ALERT = 4;
-
-    /**
-     * The app's icon.
-     *
-     * @see #APP_ICON
-     * @deprecated use {@link #TYPE_APP_ICON} instead.
-     */
-    @Deprecated
-    public static final int TYPE_APP = 5;
 
     /**
      * The app's icon.
