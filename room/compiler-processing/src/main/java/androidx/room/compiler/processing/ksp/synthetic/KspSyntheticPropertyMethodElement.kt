@@ -223,10 +223,15 @@ internal sealed class KspSyntheticPropertyMethodElement(
                 delegate = origin.field.declaration.setter?.parameter,
                 filter = NO_USE_SITE
             ) {
-            override val name: String
-                get() = origin.name
+
+            override val name: String by lazy {
+                origin.field.declaration.setter?.parameter?.name?.asString() ?: "value"
+            }
             override val type: XType
                 get() = origin.field.type
+
+            override val fallbackLocationText: String
+                get() = "$name in ${origin.fallbackLocationText}"
 
             override fun asMemberOf(other: XType): XType {
                 return origin.field.asMemberOf(other)

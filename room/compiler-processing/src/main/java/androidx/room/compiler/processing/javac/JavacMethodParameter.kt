@@ -22,6 +22,7 @@ import javax.lang.model.element.VariableElement
 
 internal class JavacMethodParameter(
     env: JavacProcessingEnv,
+    private val executable: JavacExecutableElement,
     containing: JavacTypeElement,
     element: VariableElement,
     val kotlinMetadata: KmValueParameter?
@@ -30,4 +31,12 @@ internal class JavacMethodParameter(
         get() = kotlinMetadata?.name ?: super.name
     override val kotlinType: KmType?
         get() = kotlinMetadata?.type
+    override val fallbackLocationText: String
+        get() = if (executable is JavacMethodElement && executable.isSuspendFunction() &&
+            this === executable.parameters.last()
+        ) {
+            "return type of ${executable.fallbackLocationText}"
+        } else {
+            "$name in ${executable.fallbackLocationText}"
+        }
 }

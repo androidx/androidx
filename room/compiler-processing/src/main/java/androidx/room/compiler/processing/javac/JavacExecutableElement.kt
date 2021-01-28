@@ -42,6 +42,7 @@ internal abstract class JavacExecutableElement(
         element.parameters.mapIndexed { index, variable ->
             JavacMethodParameter(
                 env = env,
+                executable = this,
                 containing = containing,
                 element = variable,
                 kotlinMetadata = kotlinMetadata?.parameters?.getOrNull(index)
