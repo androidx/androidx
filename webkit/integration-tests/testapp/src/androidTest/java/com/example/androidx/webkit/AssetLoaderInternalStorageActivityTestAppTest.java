@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Integeration test for AssetLoaderInternalStorageActivity demo activity.
+ * Integration test for AssetLoaderInternalStorageActivity demo activity.
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest

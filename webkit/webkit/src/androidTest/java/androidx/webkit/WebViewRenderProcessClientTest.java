@@ -54,7 +54,7 @@ public class WebViewRenderProcessClientTest {
     }
 
     private static class JSBlocker {
-        // A CoundDownLatch is used here, instead of a Future, because that makes it
+        // A CountDownLatch is used here, instead of a Future, because that makes it
         // easier to support requiring variable numbers of releaseBlock() calls
         // to unblock.
         private CountDownLatch mLatch;
