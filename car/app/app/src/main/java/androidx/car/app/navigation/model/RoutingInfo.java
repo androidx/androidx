@@ -171,8 +171,8 @@ public final class RoutingInfo implements NavigationInfo {
         @NonNull
         public Builder setCurrentStep(@NonNull Step currentStep,
                 @NonNull Distance currentDistance) {
-            this.mCurrentStep = requireNonNull(currentStep);
-            this.mCurrentDistance = requireNonNull(currentDistance);
+            mCurrentStep = requireNonNull(currentStep);
+            mCurrentDistance = requireNonNull(currentDistance);
             return this;
         }
 
@@ -194,7 +194,7 @@ public final class RoutingInfo implements NavigationInfo {
          */
         @NonNull
         public Builder setNextStep(@NonNull Step nextStep) {
-            this.mNextStep = requireNonNull(nextStep);
+            mNextStep = requireNonNull(nextStep);
             return this;
         }
 
@@ -219,7 +219,7 @@ public final class RoutingInfo implements NavigationInfo {
         @NonNull
         public Builder setJunctionImage(@NonNull CarIcon junctionImage) {
             CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(junctionImage));
-            this.mJunctionImage = junctionImage;
+            mJunctionImage = junctionImage;
             return this;
         }
 
@@ -234,7 +234,7 @@ public final class RoutingInfo implements NavigationInfo {
          */
         @NonNull
         public Builder setLoading(boolean isLoading) {
-            this.mIsLoading = isLoading;
+            mIsLoading = isLoading;
             return this;
         }
 

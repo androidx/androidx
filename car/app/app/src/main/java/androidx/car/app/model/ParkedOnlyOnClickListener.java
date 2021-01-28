@@ -71,6 +71,6 @@ public final class ParkedOnlyOnClickListener implements OnClickListener {
     }
 
     private ParkedOnlyOnClickListener(OnClickListener listener) {
-        this.mListener = listener;
+        mListener = listener;
     }
 }

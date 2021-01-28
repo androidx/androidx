@@ -102,7 +102,7 @@ public final class DistanceSpan extends CarSpan {
     }
 
     private DistanceSpan(Distance distance) {
-        this.mDistance = distance;
+        mDistance = distance;
     }
 
     private DistanceSpan() {

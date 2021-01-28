@@ -118,7 +118,7 @@ public final class Place {
          */
         @NonNull
         public Builder setMarker(@NonNull PlaceMarker marker) {
-            this.mMarker = requireNonNull(marker);
+            mMarker = requireNonNull(marker);
             return this;
         }
 

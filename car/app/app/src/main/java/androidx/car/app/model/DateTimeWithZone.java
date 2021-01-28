@@ -205,8 +205,8 @@ public final class DateTimeWithZone {
 
     private DateTimeWithZone(
             long timeSinceEpochMillis, int zoneOffsetSeconds, @Nullable String timeZoneShortName) {
-        this.mTimeSinceEpochMillis = timeSinceEpochMillis;
-        this.mZoneOffsetSeconds = zoneOffsetSeconds;
-        this.mZoneShortName = timeZoneShortName;
+        mTimeSinceEpochMillis = timeSinceEpochMillis;
+        mZoneOffsetSeconds = zoneOffsetSeconds;
+        mZoneShortName = timeZoneShortName;
     }
 }

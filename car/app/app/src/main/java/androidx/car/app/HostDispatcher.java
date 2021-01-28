@@ -74,7 +74,7 @@ public final class HostDispatcher {
         ThreadUtils.checkMainThread();
 
         resetHosts();
-        this.mCarHost = carHost;
+        mCarHost = carHost;
     }
 
     /** Removes references to remote services which are no longer valid. */

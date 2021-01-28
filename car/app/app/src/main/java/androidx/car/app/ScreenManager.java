@@ -341,8 +341,8 @@ public class ScreenManager {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
     protected ScreenManager(@NonNull CarContext carContext, @NonNull Lifecycle lifecycle) {
-        this.mCarContext = carContext;
-        this.mAppLifecycle = lifecycle;
+        mCarContext = carContext;
+        mAppLifecycle = lifecycle;
         mAppLifecycle.addObserver(new LifecycleObserverImpl());
     }
 

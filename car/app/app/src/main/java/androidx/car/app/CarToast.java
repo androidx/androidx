@@ -67,7 +67,7 @@ public final class CarToast {
      */
     @VisibleForTesting
     CarToast(@NonNull CarContext carContext) {
-        this.mCarContext = requireNonNull(carContext);
+        mCarContext = requireNonNull(carContext);
     }
 
     /**
@@ -124,7 +124,7 @@ public final class CarToast {
      * @throws NullPointerException if {@code text} is {@code null}
      */
     public void setText(@NonNull CharSequence text) {
-        this.mText = requireNonNull(text);
+        mText = requireNonNull(text);
     }
 
     /**
@@ -134,7 +134,7 @@ public final class CarToast {
      *                 #LENGTH_LONG}
      */
     public void setDuration(@Duration int duration) {
-        this.mDuration = duration;
+        mDuration = duration;
     }
 
     /**
@@ -143,7 +143,7 @@ public final class CarToast {
      * @throws HostException if the remote call fails
      */
     public void show() {
-        CharSequence text = this.mText;
+        CharSequence text = mText;
         if (text == null) {
             throw new IllegalStateException("setText must have been called");
         }

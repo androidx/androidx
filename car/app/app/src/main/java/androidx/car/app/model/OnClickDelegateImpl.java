@@ -69,8 +69,8 @@ public class OnClickDelegateImpl implements OnClickDelegate {
 
     private OnClickDelegateImpl(@NonNull OnClickListener listener,
             boolean isParkedOnly) {
-        this.mListener = new OnClickListenerStub(listener);
-        this.mIsParkedOnly = isParkedOnly;
+        mListener = new OnClickListenerStub(listener);
+        mIsParkedOnly = isParkedOnly;
     }
 
     /** For serialization. */
@@ -84,7 +84,7 @@ public class OnClickDelegateImpl implements OnClickDelegate {
         private final OnClickListener mOnClickListener;
 
         OnClickListenerStub(OnClickListener onClickListener) {
-            this.mOnClickListener = onClickListener;
+            mOnClickListener = onClickListener;
         }
 
         @Override

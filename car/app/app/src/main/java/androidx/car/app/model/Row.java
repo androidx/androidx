@@ -304,7 +304,7 @@ public final class Row implements Item {
             if (titleText.isEmpty()) {
                 throw new IllegalArgumentException("The title cannot be null or empty");
             }
-            this.mTitle = titleText;
+            mTitle = titleText;
             return this;
         }
 
@@ -375,7 +375,7 @@ public final class Row implements Item {
          */
         @NonNull
         public Builder addText(@NonNull CharSequence text) {
-            this.mTexts.add(CarText.create(requireNonNull(text)));
+            mTexts.add(CarText.create(requireNonNull(text)));
             return this;
         }
 
@@ -417,8 +417,8 @@ public final class Row implements Item {
         @NonNull
         public Builder setImage(@NonNull CarIcon image, @RowImageType int imageType) {
             CarIconConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(image));
-            this.mImage = image;
-            this.mRowImageType = imageType;
+            mImage = image;
+            mRowImageType = imageType;
             return this;
         }
 
@@ -429,7 +429,7 @@ public final class Row implements Item {
          */
         @NonNull
         public Builder setToggle(@NonNull Toggle toggle) {
-            this.mToggle = requireNonNull(toggle);
+            mToggle = requireNonNull(toggle);
             return this;
         }
 
@@ -443,7 +443,7 @@ public final class Row implements Item {
          */
         @NonNull
         public Builder setBrowsable(boolean isBrowsable) {
-            this.mIsBrowsable = isBrowsable;
+            mIsBrowsable = isBrowsable;
             return this;
         }
 
@@ -471,7 +471,7 @@ public final class Row implements Item {
          */
         @NonNull
         public Builder setMetadata(@NonNull Metadata metadata) {
-            this.mMetadata = metadata;
+            mMetadata = metadata;
             return this;
         }
 

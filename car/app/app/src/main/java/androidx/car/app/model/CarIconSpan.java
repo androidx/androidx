@@ -142,8 +142,8 @@ public final class CarIconSpan extends CarSpan {
     }
 
     private CarIconSpan(@Nullable CarIcon icon, @Alignment int alignment) {
-        this.mIcon = icon;
-        this.mAlignment = alignment;
+        mIcon = icon;
+        mAlignment = alignment;
     }
 
     private CarIconSpan() {

@@ -182,8 +182,8 @@ public final class Distance {
     }
 
     private Distance(double displayDistance, @Unit int displayUnit) {
-        this.mDisplayDistance = displayDistance;
-        this.mDisplayUnit = displayUnit;
+        mDisplayDistance = displayDistance;
+        mDisplayUnit = displayUnit;
     }
 
     /** Constructs an empty instance, used by serialization code. */

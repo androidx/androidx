@@ -80,9 +80,9 @@ public final class CarColorConstraints {
     }
 
     private CarColorConstraints(int[] allowedColorTypes) {
-        this.mAllowedTypes = new HashSet<>();
+        mAllowedTypes = new HashSet<>();
         for (int type : allowedColorTypes) {
-            this.mAllowedTypes.add(type);
+            mAllowedTypes.add(type);
         }
     }
 }

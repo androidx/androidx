@@ -82,7 +82,7 @@ public final class FailureResponse {
      * @param exception the originating cause of the failure
      */
     public FailureResponse(@NonNull Throwable exception) {
-        this.mStackTrace = Log.getStackTraceString(requireNonNull(exception));
+        mStackTrace = Log.getStackTraceString(requireNonNull(exception));
         if (exception instanceof BundlerException) {
             mErrorType = BUNDLER_EXCEPTION;
         } else if (exception instanceof IllegalStateException) {

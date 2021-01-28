@@ -103,7 +103,7 @@ public final class DurationSpan extends CarSpan {
     }
 
     private DurationSpan(long durationSeconds) {
-        this.mDurationSeconds = durationSeconds;
+        mDurationSeconds = durationSeconds;
     }
 
     private DurationSpan() {

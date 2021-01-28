@@ -163,8 +163,8 @@ public final class LaneDirection {
     }
 
     private LaneDirection(@Shape int shape, boolean isRecommended) {
-        this.mShape = shape;
-        this.mIsRecommended = isRecommended;
+        mShape = shape;
+        mIsRecommended = isRecommended;
     }
 
     /** Constructs an empty instance, used by serialization code. */

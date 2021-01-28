@@ -127,7 +127,7 @@ public final class MessageInfo implements NavigationInfo {
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
-            this.mTitle = CarText.create(requireNonNull(title));
+            mTitle = CarText.create(requireNonNull(title));
             return this;
         }
 
@@ -140,7 +140,7 @@ public final class MessageInfo implements NavigationInfo {
          */
         @NonNull
         public Builder setText(@NonNull CharSequence text) {
-            this.mText = CarText.create(requireNonNull(text));
+            mText = CarText.create(requireNonNull(text));
             return this;
         }
 
@@ -154,7 +154,7 @@ public final class MessageInfo implements NavigationInfo {
         @NonNull
         public Builder setImage(@NonNull CarIcon image) {
             CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(image));
-            this.mImage = image;
+            mImage = image;
             return this;
         }
 
@@ -170,7 +170,7 @@ public final class MessageInfo implements NavigationInfo {
          * @throws NullPointerException if {@code title} is {@code null}
          */
         public Builder(@NonNull CharSequence title) {
-            this.mTitle = CarText.create(requireNonNull(title));
+            mTitle = CarText.create(requireNonNull(title));
         }
     }
 }

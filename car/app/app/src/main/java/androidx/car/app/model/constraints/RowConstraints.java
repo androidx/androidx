@@ -160,42 +160,42 @@ public final class RowConstraints {
         /** Sets whether the row can have a click listener associated with it. */
         @NonNull
         public Builder setOnClickListenerAllowed(boolean isOnClickListenerAllowed) {
-            this.mIsOnClickListenerAllowed = isOnClickListenerAllowed;
+            mIsOnClickListenerAllowed = isOnClickListenerAllowed;
             return this;
         }
 
         /** Sets the maximum number lines of text, excluding the title, to render in the row. */
         @NonNull
         public Builder setMaxTextLinesPerRow(int maxTextLinesPerRow) {
-            this.mMaxTextLines = maxTextLinesPerRow;
+            mMaxTextLines = maxTextLinesPerRow;
             return this;
         }
 
         /** Sets the maximum number actions to allowed in a row that consists only of actions. */
         @NonNull
         public Builder setMaxActionsExclusive(int maxActionsExclusive) {
-            this.mMaxActionsExclusive = maxActionsExclusive;
+            mMaxActionsExclusive = maxActionsExclusive;
             return this;
         }
 
         /** Sets whether an image can be added to the row. */
         @NonNull
         public Builder setImageAllowed(boolean imageAllowed) {
-            this.mIsImageAllowed = imageAllowed;
+            mIsImageAllowed = imageAllowed;
             return this;
         }
 
         /** Sets whether a toggle can be added to the row. */
         @NonNull
         public Builder setToggleAllowed(boolean toggleAllowed) {
-            this.mIsToggleAllowed = toggleAllowed;
+            mIsToggleAllowed = toggleAllowed;
             return this;
         }
 
         /** Sets the {@link CarIconConstraints} enforced for the row images. */
         @NonNull
         public Builder setCarIconConstraints(@NonNull CarIconConstraints carIconConstraints) {
-            this.mCarIconConstraints = carIconConstraints;
+            mCarIconConstraints = carIconConstraints;
             return this;
         }
 

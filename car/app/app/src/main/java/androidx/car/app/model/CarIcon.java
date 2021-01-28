@@ -312,16 +312,16 @@ public final class CarIcon {
     }
 
     CarIcon(@Nullable IconCompat icon, @Nullable CarColor tint, @CarIconType int type) {
-        this.mType = type;
-        this.mIcon = icon;
-        this.mTint = tint;
+        mType = type;
+        mIcon = icon;
+        mTint = tint;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private CarIcon() {
-        this.mType = TYPE_CUSTOM;
-        this.mIcon = null;
-        this.mTint = null;
+        mType = TYPE_CUSTOM;
+        mIcon = null;
+        mTint = null;
     }
 
     /** A builder of {@link CarIcon}. */
@@ -352,7 +352,7 @@ public final class CarIcon {
         @NonNull
         public Builder setTint(@NonNull CarColor tint) {
             CarColorConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(tint));
-            this.mTint = tint;
+            mTint = tint;
             return this;
         }
 

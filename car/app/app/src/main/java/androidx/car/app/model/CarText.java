@@ -104,7 +104,7 @@ public final class CarText {
     }
 
     private CarText(CharSequence text) {
-        this.mText = text.toString();
+        mText = text.toString();
 
         List<SpanWrapper> spans = new ArrayList<>();
         if (text instanceof Spanned) {

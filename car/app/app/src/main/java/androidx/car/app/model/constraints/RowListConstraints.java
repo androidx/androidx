@@ -181,21 +181,21 @@ public final class RowListConstraints {
         /** Sets the maximum number of actions allowed to be added alongside the list. */
         @NonNull
         public Builder setMaxActions(int maxActions) {
-            this.mMaxActions = maxActions;
+            mMaxActions = maxActions;
             return this;
         }
 
         /** Sets the constraints to apply on individual rows. */
         @NonNull
         public Builder setRowConstraints(@NonNull RowConstraints rowConstraints) {
-            this.mRowConstraints = rowConstraints;
+            mRowConstraints = rowConstraints;
             return this;
         }
 
         /** Sets whether selectable lists are allowed. */
         @NonNull
         public Builder setAllowSelectableLists(boolean allowSelectableLists) {
-            this.mAllowSelectableLists = allowSelectableLists;
+            mAllowSelectableLists = allowSelectableLists;
             return this;
         }
 
@@ -218,9 +218,9 @@ public final class RowListConstraints {
          */
         public Builder(@NonNull RowListConstraints constraints) {
             requireNonNull(constraints);
-            this.mMaxActions = constraints.getMaxActions();
-            this.mRowConstraints = constraints.getRowConstraints();
-            this.mAllowSelectableLists = constraints.isAllowSelectableLists();
+            mMaxActions = constraints.getMaxActions();
+            mRowConstraints = constraints.getRowConstraints();
+            mAllowSelectableLists = constraints.isAllowSelectableLists();
         }
     }
 }

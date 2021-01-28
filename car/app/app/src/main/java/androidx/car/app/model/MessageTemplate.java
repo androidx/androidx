@@ -197,7 +197,7 @@ public final class MessageTemplate implements Template {
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
-            this.mTitle = CarText.create(requireNonNull(title));
+            mTitle = CarText.create(requireNonNull(title));
             return this;
         }
 
@@ -215,7 +215,7 @@ public final class MessageTemplate implements Template {
          */
         @NonNull
         public Builder setDebugMessage(@NonNull Throwable cause) {
-            this.mDebugCause = requireNonNull(cause);
+            mDebugCause = requireNonNull(cause);
             return this;
         }
 
@@ -233,7 +233,7 @@ public final class MessageTemplate implements Template {
          */
         @NonNull
         public Builder setDebugMessage(@NonNull String debugMessage) {
-            this.mDebugString = requireNonNull(debugMessage);
+            mDebugString = requireNonNull(debugMessage);
             return this;
         }
 
@@ -256,7 +256,7 @@ public final class MessageTemplate implements Template {
         @NonNull
         public Builder setIcon(@NonNull CarIcon icon) {
             CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(icon));
-            this.mIcon = icon;
+            mIcon = icon;
             return this;
         }
 
@@ -278,7 +278,7 @@ public final class MessageTemplate implements Template {
         public Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
                     Collections.singletonList(requireNonNull(headerAction)));
-            this.mHeaderAction = headerAction;
+            mHeaderAction = headerAction;
             return this;
         }
 
@@ -314,7 +314,7 @@ public final class MessageTemplate implements Template {
                 throw new IllegalStateException("Message cannot be empty");
             }
 
-            String debugString = this.mDebugString == null ? "" : this.mDebugString;
+            String debugString = mDebugString == null ? "" : mDebugString;
             if (!debugString.isEmpty() && mDebugCause != null) {
                 debugString += "\n";
             }
@@ -338,7 +338,7 @@ public final class MessageTemplate implements Template {
          * @throws NullPointerException if the {@code message} is {@code null}
          */
         public Builder(@NonNull CharSequence message) {
-            this.mMessage = CarText.create(requireNonNull(message));
+            mMessage = CarText.create(requireNonNull(message));
         }
     }
 }

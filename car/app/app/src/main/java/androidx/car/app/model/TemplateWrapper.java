@@ -119,7 +119,7 @@ public final class TemplateWrapper {
     @RestrictTo(LIBRARY)
     public void setTemplateInfosForScreenStack(
             @NonNull List<TemplateInfo> templateInfoForScreenStack) {
-        this.mTemplateInfoForScreenStack = templateInfoForScreenStack;
+        mTemplateInfoForScreenStack = templateInfoForScreenStack;
     }
 
     /**
@@ -141,12 +141,12 @@ public final class TemplateWrapper {
 
     /** Sets the current task step that the template is in. */
     public void setCurrentTaskStep(int currentTaskStep) {
-        this.mCurrentTaskStep = currentTaskStep;
+        mCurrentTaskStep = currentTaskStep;
     }
 
     /** Sets whether the template is a refresh of the current template. */
     public void setRefresh(boolean isRefresh) {
-        this.mIsRefresh = isRefresh;
+        mIsRefresh = isRefresh;
     }
 
     /** Returns {@code true} if the template is a refresh for the previous template. */
@@ -156,12 +156,12 @@ public final class TemplateWrapper {
 
     /** Updates the {@link Template} this {@link TemplateWrapper} instance wraps. */
     public void setTemplate(@NonNull Template template) {
-        this.mTemplate = template;
+        mTemplate = template;
     }
 
     /** Updates the ID associated with the wrapped {@link Template}. */
     public void setId(@NonNull String id) {
-        this.mId = id;
+        mId = id;
     }
 
     /** Creates a copy of the given {@link TemplateWrapper}. */
@@ -184,8 +184,8 @@ public final class TemplateWrapper {
     }
 
     private TemplateWrapper(Template template, String id) {
-        this.mTemplate = template;
-        this.mId = id;
+        mTemplate = template;
+        mId = id;
     }
 
     private TemplateWrapper() {
