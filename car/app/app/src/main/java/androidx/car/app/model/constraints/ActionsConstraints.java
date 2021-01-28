@@ -106,7 +106,7 @@ public final class ActionsConstraints {
      * @throws IllegalArgumentException if the actions has more actions than allowed, if it has
      *                                  more actions with custom titles than allowed, if the
      *                                  actions do not contain all required types, or if the
-     *                                  actions contain any disallowed types.
+     *                                  actions contain any disallowed types
      */
     public void validateOrThrow(@NonNull List<Action> actions) {
         int maxAllowedActions = mMaxActions;
@@ -226,7 +226,7 @@ public final class ActionsConstraints {
          * Returns a new builder that contains the same data as the given {@link ActionsConstraints}
          * instance.
          *
-         * @throws NullPointerException if {@code latLng} is {@code null}.
+         * @throws NullPointerException if {@code latLng} is {@code null}
          */
         public Builder(@NonNull ActionsConstraints constraints) {
             requireNonNull(constraints);

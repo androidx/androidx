@@ -107,7 +107,7 @@ public final class CarIconSpan extends CarSpan {
      * Creates a {@link CarIconSpan} from a {@link CarIcon} with a default alignment of {@link
      * #ALIGN_BASELINE}.
      *
-     * @throws NullPointerException if {@code icon} is {@code null}.
+     * @throws NullPointerException if {@code icon} is {@code null}
      * @see #create(CarIcon, int)
      */
     @NonNull
@@ -117,15 +117,16 @@ public final class CarIconSpan extends CarSpan {
 
     /**
      * Creates a {@link CarIconSpan} from a {@link CarIcon}, specifying the alignment of the icon
-     * with
-     * respect to its surrounding text.
+     * with respect to its surrounding text.
      *
-     * @param icon      the {@link CarIcon} to replace the text with.
+     * @param icon      the {@link CarIcon} to replace the text with
      * @param alignment the alignment of the {@link CarIcon} relative to the text. This should be
      *                  one of {@link #ALIGN_BASELINE}, {@link #ALIGN_BOTTOM} or
-     *                  {@link #ALIGN_CENTER}.
-     * @throws NullPointerException     if {@code icon} is {@code null}.
-     * @throws IllegalArgumentException if {@code alignment} is not a valid value.
+     *                  {@link #ALIGN_CENTER}
+     *
+     * @throws NullPointerException     if {@code icon} is {@code null}
+     * @throws IllegalArgumentException if {@code alignment} is not a valid value
+     *
      * @see #ALIGN_BASELINE
      * @see #ALIGN_BOTTOM
      * @see #ALIGN_CENTER

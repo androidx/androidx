@@ -74,30 +74,62 @@ public final class PlaceListMapTemplate implements Template {
         return mShowCurrentLocation;
     }
 
+    /**
+     * Returns the title of the template or {@code null} if not set.
+     *
+     * @see Builder#setTitle(CharSequence)
+     */
     @Nullable
     public CarText getTitle() {
         return mTitle;
     }
 
-    public boolean isLoading() {
-        return mIsLoading;
-    }
-
-    @Nullable
-    public ItemList getItemList() {
-        return mItemList;
-    }
-
+    /**
+     * Returns the {@link Action} that is set to be displayed in the header of the template, or
+     * {@code null} if not set.
+     *
+     * @see Builder#setHeaderAction(Action)
+     */
     @Nullable
     public Action getHeaderAction() {
         return mHeaderAction;
     }
 
+    /**
+     * Returns the {@link ActionStrip} for this template or {@code null} if not set.
+     *
+     * @see Builder#setActionStrip(ActionStrip)
+     */
     @Nullable
     public ActionStrip getActionStrip() {
         return mActionStrip;
     }
 
+    /**
+     * Returns whether the template is loading.
+     *
+     * @see Builder#setLoading(boolean)
+     */
+    public boolean isLoading() {
+        return mIsLoading;
+    }
+
+    /**
+     * Returns the {@link ItemList} instance with the list of items to display in the template,
+     * or {@code null} if not set.
+     *
+     * @see Builder#setItemList(ItemList)
+     */
+    @Nullable
+    public ItemList getItemList() {
+        return mItemList;
+    }
+
+    /**
+     * Returns the {@link Place} instance to display as an anchor in the map.
+     *
+     * @see Builder#setAnchor(Place)
+     */
     @Nullable
     public Place getAnchor() {
         return mAnchor;
@@ -202,8 +234,7 @@ public final class PlaceListMapTemplate implements Template {
         }
 
         /**
-         * Sets the {@link Action} that will be displayed in the header of the template, or
-         * {@code null} to not display an action.
+         * Sets the {@link Action} that will be displayed in the header of the template.
          *
          * <p>Unless set with this method, the template will not have a header action.
          *
@@ -229,7 +260,7 @@ public final class PlaceListMapTemplate implements Template {
          *
          * <p>Unless set with this method, the template will not have a title.
          *
-         * @throws NullPointerException if {@code title} is null
+         * @throws NullPointerException if {@code title} is {@code null}
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
@@ -278,8 +309,7 @@ public final class PlaceListMapTemplate implements Template {
         }
 
         /**
-         * Sets the {@link ActionStrip} for this template, or {@code null} to not display an {@link
-         * ActionStrip}.
+         * Sets the {@link ActionStrip} for this template.
          *
          * <p>Unless set with this method, the template will not have an action strip.
          *
@@ -289,7 +319,7 @@ public final class PlaceListMapTemplate implements Template {
          * {@link Action}s, one of them can contain a title as set via
          * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
          *
-         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements.
+         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @NonNull
@@ -329,9 +359,9 @@ public final class PlaceListMapTemplate implements Template {
          * Either a header {@link Action} or title must be set on the template.
          *
          * @throws IllegalArgumentException if the template is in a loading state but the list is
-         *                                  set, or vice versa.
+         *                                  set, or vice versa
          * @throws IllegalStateException    if the template does not have either a title or header
-         *                                  {@link Action} set.
+         *                                  {@link Action} set
          */
         @NonNull
         public PlaceListMapTemplate build() {

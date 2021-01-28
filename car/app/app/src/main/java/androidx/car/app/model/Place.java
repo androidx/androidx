@@ -33,13 +33,22 @@ public final class Place {
     @Nullable
     private final PlaceMarker mMarker;
 
+    /**
+     * Returns the {@link PlaceMarker} object associated with this place or {@code null} if one
+     * is not set.
+     *
+     * @see Builder#setMarker(PlaceMarker)
+     */
     @Nullable
     public PlaceMarker getMarker() {
         return mMarker;
     }
 
     /**
-     * @return the {@link CarLocation} set for this Place instance.
+     * Returns the {@link CarLocation} instance associated with this place or {@code null} if one
+     * is not set.
+     *
+     * @see Builder#Builder(CarLocation)
      */
     @Nullable
     public CarLocation getLocation() {
@@ -92,6 +101,7 @@ public final class Place {
          * Returns a builder instance for a {@link CarLocation}.
          *
          * @param location the geographical location associated with the place
+         *
          * @throws NullPointerException if {@code location} is {@code null}
          */
         public Builder(@NonNull CarLocation location) {

@@ -70,7 +70,7 @@ public final class CarColorConstraints {
     /**
      * Returns {@code true} if the {@link CarColor} meets the constraints' requirement.
      *
-     * @throws IllegalArgumentException if the color type is not allowed.
+     * @throws IllegalArgumentException if the color type is not allowed
      */
     public void validateOrThrow(@NonNull CarColor carColor) {
         @CarColorType int type = carColor.getType();

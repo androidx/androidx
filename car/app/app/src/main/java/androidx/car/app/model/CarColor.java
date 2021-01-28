@@ -173,15 +173,14 @@ public final class CarColor {
      * Indicates that a default color should be used.
      *
      * <p>This can be used for example to tell the host that the app has no preference for the
-     * tint of
-     * an icon, and it should use whatever default it finds appropriate.
+     * tint of an icon, and it should use whatever default it finds appropriate.
      */
     @NonNull
     public static final CarColor DEFAULT = create(TYPE_DEFAULT);
 
     /**
      * Indicates that the app primary color and its dark version should be used, as declared in the
-     * app manifest through the <code>carColorPrimary</code> and <code>carColorPrimaryDark</code>
+     * app manifest through the {@code carColorPrimary} and {@code carColorPrimaryDark}
      * theme attributes.
      */
     @NonNull
@@ -189,10 +188,8 @@ public final class CarColor {
 
     /**
      * Indicates that the app secondary color and its dark version should be used, as declared in
-     * the
-     * app manifest through the <code>carColorSecondary</code> and
-     * <code>carColorSecondaryDark</code>
-     * theme attributes.
+     * the app manifest through the <code>carColorSecondary</code> and {@code
+     * carColorSecondaryDark} theme attributes.
      */
     @NonNull
     public static final CarColor SECONDARY = create(TYPE_SECONDARY);
@@ -238,16 +235,25 @@ public final class CarColor {
         return new CarColor(TYPE_CUSTOM, color, colorDark);
     }
 
+    /** Returns the type of color for this instance. */
     @CarColorType
     public int getType() {
         return mType;
     }
 
+    /**
+     * Returns a packed color int for the light variant of the color, used when the type
+     * is {@link #TYPE_CUSTOM}.
+     */
     @ColorInt
     public int getColor() {
         return mColor;
     }
 
+    /**
+     * Returns a packed color int for the dark variant of the color, used when the type
+     * is {@link #TYPE_CUSTOM}.
+     */
     @ColorInt
     public int getColorDark() {
         return mColorDark;

@@ -87,6 +87,16 @@ public final class NavigationTemplate implements Template {
     private final ActionStrip mActionStrip;
 
     /**
+     * Returns the {@link ActionStrip} for this template, or {@code null} if one isn't set.
+     *
+     * @see Builder#setActionStrip(ActionStrip)
+     */
+    @Nullable
+    public ActionStrip getActionStrip() {
+        return requireNonNull(mActionStrip);
+    }
+
+    /**
      * Returns the navigation information displayed on the template, or {@code null} if there is no
      * navigation information on top of the map.
      */
@@ -111,14 +121,6 @@ public final class NavigationTemplate implements Template {
     @Nullable
     public TravelEstimate getDestinationTravelEstimate() {
         return mDestinationTravelEstimate;
-    }
-
-    /**
-     * Returns the {@link ActionStrip} with a list of the template-scoped actions for this template.
-     */
-    @Nullable
-    public ActionStrip getActionStrip() {
-        return mActionStrip;
     }
 
     @NonNull

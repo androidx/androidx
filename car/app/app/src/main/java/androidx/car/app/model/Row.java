@@ -77,8 +77,7 @@ public final class Row implements Item {
      * Represents a small image to be displayed in the row.
      *
      * <p>If necessary, icons will be scaled down to fit within a 44 x 44 dp bounding box,
-     * preserving
-     * their aspect ratios.
+     * preserving their aspect ratios.
      *
      * <p>A tint color is expected to be provided via {@link CarIcon.Builder#setTint}. Otherwise, a
      * default tint color as determined by the host will be applied.
@@ -108,19 +107,33 @@ public final class Row implements Item {
     @RowImageType
     private final int mRowImageType;
 
-    /** Returns the title of the row. */
+    /**
+     * Returns the title of the row or {@code null} if not set.
+     *
+     * @see Builder#setTitle(CharSequence)
+     */
     @Nullable
     public CarText getTitle() {
         return mTitle;
     }
 
-    /** Returns the list of text below the title. */
+    /**
+     * Returns the list of text below the title.
+     *
+     * @see Builder#addText(CharSequence)
+     */
     @NonNull
     public List<CarText> getTexts() {
         return CollectionUtils.emptyIfNull(mTexts);
     }
 
-    /** Returns the image of the row. */
+    /**
+     * Returns the image to display in the row or {@code null} if the row does not contain an
+     * image.
+     *
+     * @see Builder#setImage(CarIcon)
+     * @see Builder#setImage(CarIcon, int)
+     */
     @Nullable
     public CarIcon getImage() {
         return mImage;
@@ -135,6 +148,8 @@ public final class Row implements Item {
     /**
      * Returns the {@link Toggle} in the row or {@code null} if the row does not contain a
      * toggle.
+     *
+     * @see Builder#setToggle(Toggle)
      */
     @Nullable
     public Toggle getToggle() {
@@ -142,16 +157,18 @@ public final class Row implements Item {
     }
 
     /**
-     * Returns {@code true} if the row is browsable, {@code false} otherwise.
+     * Returns whether the row is browsable.
      *
      * <p>If a row is browsable, then no {@link Action} or {@link Toggle} can be added to it.
+     *
+     * @see Builder#isBrowsable()
      */
     public boolean isBrowsable() {
         return mIsBrowsable;
     }
 
     /**
-     * Returns the {@link OnClickListener} to be called back when the row is clicked, or {@code
+     * Returns the {@link OnClickListener} to be called back when the row is clicked or {@code
      * null} if the row is non-clickable.
      */
     @Nullable
@@ -160,7 +177,8 @@ public final class Row implements Item {
     }
 
     /**
-     * Returns the {@link Metadata} associated with the row.
+     * Returns the {@link Metadata} associated with the row or {@code null} if there is no
+     * metadata associated with the row.
      */
     @Nullable
     public Metadata getMetadata() {
@@ -277,8 +295,8 @@ public final class Row implements Item {
         /**
          * Sets the title of the row.
          *
-         * @throws NullPointerException     if {@code title} is {@code null}.
-         * @throws IllegalArgumentException if {@code title} is empty.
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} is empty
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
@@ -351,7 +369,8 @@ public final class Row implements Item {
          * of text
          * </pre>
          *
-         * @throws NullPointerException if {@code text} is {@code null}.
+         * @throws NullPointerException if {@code text} is {@code null}
+         *
          * @see ForegroundCarColorSpan
          */
         @NonNull
@@ -364,6 +383,7 @@ public final class Row implements Item {
          * Sets an image to show in the row with the default size {@link #IMAGE_TYPE_SMALL}.
          *
          * @throws NullPointerException if {@code image} is {@code null}
+         *
          * @see #setImage(CarIcon, int)
          */
         @NonNull
@@ -388,9 +408,10 @@ public final class Row implements Item {
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
          *
-         * @param image     the {@link CarIcon} to display, or {@code null} to not display one.
+         * @param image     the {@link CarIcon} to display or {@code null} to not display one
          * @param imageType one of {@link #IMAGE_TYPE_ICON}, {@link #IMAGE_TYPE_SMALL} or {@link
          *                  #IMAGE_TYPE_LARGE}
+         *
          * @throws NullPointerException if {@code image} is {@code null}
          */
         @NonNull
@@ -427,8 +448,7 @@ public final class Row implements Item {
         }
 
         /**
-         * Sets the {@link OnClickListener} to be called back when the row is clicked, or {@code
-         * null} to make the row non-clickable.
+         * Sets the {@link OnClickListener} to be called back when the row is clicked.
          *
          * <p>Note that the listener relates to UI events and will be executed on the main thread
          * using {@link Looper#getMainLooper()}.
@@ -447,7 +467,7 @@ public final class Row implements Item {
          * Sets the {@link Metadata} associated with the row.
          *
          * @param metadata The metadata to set with the row. Pass {@link Metadata#EMPTY_METADATA}
-         *                 to not associate any metadata with the row.
+         *                 to not associate any metadata with the row
          */
         @NonNull
         public Builder setMetadata(@NonNull Metadata metadata) {
@@ -462,7 +482,7 @@ public final class Row implements Item {
          *                               row and has a {@link Toggle}, if it is a browsable
          *                               row but does not have a {@link OnClickListener}, or if
          *                               it has both a {@link OnClickListener} and a {@link
-         *                               Toggle}.
+         *                               Toggle}
          */
         @NonNull
         public Row build() {

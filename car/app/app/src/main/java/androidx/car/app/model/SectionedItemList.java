@@ -46,13 +46,13 @@ public final class SectionedItemList {
                 CarText.create(requireNonNull(sectionHeader)));
     }
 
-    /** Returns the {@link ItemList} for the section. */
+    /** Returns the {@link ItemList} for the section or {@code null} if not set. */
     @Nullable
     public ItemList getItemList() {
         return mItemList;
     }
 
-    /** Returns the title of the section. */
+    /** Returns the title of the section or {@code null} if not set */
     @Nullable
     public CarText getHeader() {
         return mHeader;
@@ -88,7 +88,6 @@ public final class SectionedItemList {
         this.mHeader = header;
     }
 
-    /** For serialization. */
     private SectionedItemList() {
         this.mItemList = null;
         this.mHeader = null;

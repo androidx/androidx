@@ -107,7 +107,7 @@ public final class RowListConstraints {
      * Validates that the {@link ItemList} satisfies this {@link RowListConstraints} instance.
      *
      * @throws IllegalArgumentException if the constraints are not met, or if the list contains
-     *                                  non-Row instances.
+     *                                  non-row instances
      */
     public void validateOrThrow(@NonNull ItemList itemList) {
         if (itemList.getOnSelectedDelegate() != null && !mAllowSelectableLists) {
@@ -122,7 +122,7 @@ public final class RowListConstraints {
      * {@link RowListConstraints} instance.
      *
      * @throws IllegalArgumentException if the constraints are not met or if the lists contain
-     *                                  any non-Row instances.
+     *                                  any non-row instances
      */
     public void validateOrThrow(@NonNull List<SectionedItemList> sections) {
         List<Item> combinedLists = new ArrayList<>();
@@ -142,7 +142,7 @@ public final class RowListConstraints {
     /**
      * Validates that the {@link Pane} satisfies this {@link RowListConstraints} instance.
      *
-     * @throws IllegalArgumentException if the constraints are not met.
+     * @throws IllegalArgumentException if the constraints are not met
      */
     public void validateOrThrow(@NonNull Pane pane) {
         List<Action> actions = pane.getActions();
@@ -214,7 +214,7 @@ public final class RowListConstraints {
         /**
          * Return a a new builder for the given {@link RowListConstraints} instance.
          *
-         * @throws NullPointerException if {@code latLng} is {@code null}.
+         * @throws NullPointerException if {@code latLng} is {@code null}
          */
         public Builder(@NonNull RowListConstraints constraints) {
             requireNonNull(constraints);

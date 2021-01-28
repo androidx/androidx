@@ -31,9 +31,9 @@ public interface OnSelectedDelegate {
      * <p>This event is called even if the selection did not change, for example, if the user
      * selected an already selected item.
      *
-     * @param selectedIndex the index of the selected item.
+     * @param selectedIndex the index of the selected item
      * @param callback      the {@link OnDoneCallback} to trigger when the client finishes handling
-     *                      the event.
+     *                      the event
      */
     // This mirrors the AIDL class and is not supported to support an executor as an input.
     @SuppressLint("ExecutorRegistration")
