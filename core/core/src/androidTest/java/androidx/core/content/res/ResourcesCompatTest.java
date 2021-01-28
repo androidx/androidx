@@ -455,6 +455,13 @@ public class ResourcesCompatTest {
     }
 
     @Test
+    public void testSystemFontFamilyReturnsSystemFont() {
+        Typeface typeface = ResourcesCompat.getFont(mContext, R.font.samplexmldownloadedfont);
+        assertNotNull(typeface);
+        assertEquals(typeface,  Typeface.create("serif", Typeface.NORMAL));
+    }
+
+    @Test
     public void getFloatForFloat() {
         float value = ResourcesCompat.getFloat(mResources, R.dimen.twelve_point_five);
         assertEquals(12.5f, value, 0.01f);
