@@ -80,10 +80,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         val editorSession = EditorSession.createOnWatchEditingSession(
             this,
-            intent!!.apply {
-                // TODO(alexclarke): Remove this when SysUI creates compatible intents.
-                putExtra("INSTANCE_ID", "FakeID")
-            }
+            intent!!
         )!!
         init(
             editorSession,

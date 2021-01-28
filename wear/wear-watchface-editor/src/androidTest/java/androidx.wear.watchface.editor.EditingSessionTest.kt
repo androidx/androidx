@@ -150,6 +150,11 @@ private class FakeProviderInfoServiceV1(
     }
 }
 
+// Disables the requirement that watchFaceInstanceId has to be non-null on R and above.
+private class WatchFaceEditorContractForTest : WatchFaceEditorContract() {
+    override fun nullWatchFaceInstanceIdOK() = true
+}
+
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 public class EditorSessionTest {
@@ -246,6 +251,7 @@ public class EditorSessionTest {
     private fun createOnWatchFaceEditingTestActivity(
         userStyleSettings: List<UserStyleSetting>,
         complications: List<Complication>,
+        instanceId: String? = testInstanceId,
         previewReferenceTimeMillis: Long = 12345
     ): ActivityScenario<OnWatchFaceEditingTestActivity> {
         val userStyleRepository = UserStyleRepository(UserStyleSchema(userStyleSettings))
@@ -258,9 +264,9 @@ public class EditorSessionTest {
         `when`(editorDelegate.previewReferenceTimeMillis).thenReturn(previewReferenceTimeMillis)
 
         return ActivityScenario.launch(
-            WatchFaceEditorContract().createIntent(
+            WatchFaceEditorContractForTest().createIntent(
                 ApplicationProvider.getApplicationContext<Context>(),
-                EditorRequest(testComponentName, testEditorComponentName, testInstanceId, null)
+                EditorRequest(testComponentName, testEditorComponentName, instanceId, null)
             ).apply {
                 component = ComponentName(
                     ApplicationProvider.getApplicationContext<Context>(),
@@ -296,7 +302,11 @@ public class EditorSessionTest {
 
     @Test
     public fun previewReferenceTimeMillis() {
-        val scenario = createOnWatchFaceEditingTestActivity(emptyList(), emptyList(), 54321L)
+        val scenario = createOnWatchFaceEditingTestActivity(
+            emptyList(),
+            emptyList(),
+            previewReferenceTimeMillis = 54321L
+        )
         scenario.onActivity {
             assertThat(it.editorSession.previewReferenceTimeMillis).isEqualTo(54321L)
         }
@@ -583,6 +593,7 @@ public class EditorSessionTest {
 
         assertThat(result.userStyle[colorStyleSetting.id]).isEqualTo(blueStyleOption.id)
         assertThat(result.userStyle[watchHandStyleSetting.id]).isEqualTo(gothicStyleOption.id)
+        assertThat(result.watchFaceInstanceId).isEqualTo(testInstanceId)
 
         assertThat(result.previewComplicationData.size).isEqualTo(2)
         val leftComplicationData = result.previewComplicationData[LEFT_COMPLICATION_ID] as
@@ -605,6 +616,26 @@ public class EditorSessionTest {
     }
 
     @Test
+    public fun nullInstanceId() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            listOf(colorStyleSetting, watchHandStyleSetting),
+            emptyList(),
+            instanceId = null
+        )
+        scenario.onActivity { activity ->
+            assertThat(activity.editorSession.instanceId).isNull()
+            activity.setWatchRequestResult(activity.editorSession)
+            activity.finish()
+        }
+        assertThat(
+            WatchFaceEditorContractForTest().parseResult(
+                scenario.result.resultCode,
+                scenario.result.resultData
+            ).watchFaceInstanceId
+        ).isNull()
+    }
+
+    @Test
     public fun emptyComplicationPreviewDataInActivityResult() {
         val scenario = createOnWatchFaceEditingTestActivity(emptyList(), emptyList())
         scenario.onActivity { activity ->
@@ -621,7 +652,7 @@ public class EditorSessionTest {
     }
 
     @Test
-    fun watchFaceEditorContract_createIntent() {
+    public fun watchFaceEditorContract_createIntent() {
         val intent = WatchFaceEditorContract().createIntent(
             ApplicationProvider.getApplicationContext<Context>(),
             EditorRequest(testComponentName, testEditorComponentName, testInstanceId, null)

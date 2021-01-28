@@ -2,16 +2,16 @@
 package androidx.wear.watchface.editor {
 
   public final class EditorRequest {
-    ctor public EditorRequest(android.content.ComponentName watchFaceComponentName, android.content.ComponentName editorComponentName, String watchFaceInstanceId, java.util.Map<java.lang.String,java.lang.String>? initialUserStyle);
+    ctor public EditorRequest(android.content.ComponentName watchFaceComponentName, android.content.ComponentName editorComponentName, String? watchFaceInstanceId, java.util.Map<java.lang.String,java.lang.String>? initialUserStyle);
     method public static androidx.wear.watchface.editor.EditorRequest? createFromIntent(android.content.Intent intent);
     method public android.content.ComponentName getEditorComponentName();
     method public java.util.Map<java.lang.String,java.lang.String>? getInitialUserStyle();
     method public android.content.ComponentName getWatchFaceComponentName();
-    method public String getWatchFaceInstanceId();
+    method public String? getWatchFaceInstanceId();
     property public final android.content.ComponentName editorComponentName;
     property public final java.util.Map<java.lang.String,java.lang.String>? initialUserStyle;
     property public final android.content.ComponentName watchFaceComponentName;
-    property public final String watchFaceInstanceId;
+    property public final String? watchFaceInstanceId;
     field public static final androidx.wear.watchface.editor.EditorRequest.Companion Companion;
   }
 
@@ -20,11 +20,13 @@ package androidx.wear.watchface.editor {
   }
 
   public final class EditorResult {
-    ctor public EditorResult(java.util.Map<java.lang.String,java.lang.String> userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData> previewComplicationData);
+    ctor public EditorResult(java.util.Map<java.lang.String,java.lang.String> userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData> previewComplicationData, String? watchFaceInstanceId);
     method public java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> getPreviewComplicationData();
     method public java.util.Map<java.lang.String,java.lang.String> getUserStyle();
+    method public String? getWatchFaceInstanceId();
     property public final java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> previewComplicationData;
     property public final java.util.Map<java.lang.String,java.lang.String> userStyle;
+    property public final String? watchFaceInstanceId;
   }
 
   public interface EditorSession {
@@ -34,7 +36,7 @@ package androidx.wear.watchface.editor {
     method @UiThread public Integer? getComplicationIdAt(@Px int x, @Px int y);
     method public com.google.common.util.concurrent.ListenableFuture<java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData>> getComplicationPreviewData();
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationState();
-    method public String getInstanceId();
+    method public String? getInstanceId();
     method public long getPreviewReferenceTimeMillis();
     method public androidx.wear.watchface.style.UserStyle getUserStyle();
     method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
@@ -45,7 +47,7 @@ package androidx.wear.watchface.editor {
     property public abstract Integer? backgroundComplicationId;
     property public abstract com.google.common.util.concurrent.ListenableFuture<java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData>> complicationPreviewData;
     property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationState;
-    property public abstract String instanceId;
+    property public abstract String? instanceId;
     property public abstract long previewReferenceTimeMillis;
     property public abstract androidx.wear.watchface.style.UserStyle userStyle;
     property public abstract androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
@@ -71,6 +73,9 @@ package androidx.wear.watchface.editor {
   }
 
   public static final class WatchFaceEditorContract.Companion {
+  }
+
+  public final class WatchFaceEditorContractKt {
   }
 
 }
