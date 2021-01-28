@@ -103,9 +103,9 @@ public final class Destination {
     }
 
     Destination(Builder builder) {
-        this.mName = builder.mName;
-        this.mAddress = builder.mAddress;
-        this.mImage = builder.mImage;
+        mName = builder.mName;
+        mAddress = builder.mAddress;
+        mImage = builder.mImage;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -131,7 +131,7 @@ public final class Destination {
          */
         @NonNull
         public Builder setName(@NonNull CharSequence name) {
-            this.mName = CarText.create(requireNonNull(name));
+            mName = CarText.create(requireNonNull(name));
             return this;
         }
 
@@ -142,7 +142,7 @@ public final class Destination {
          */
         @NonNull
         public Builder setAddress(@NonNull CharSequence address) {
-            this.mAddress = CarText.create(requireNonNull(address));
+            mAddress = CarText.create(requireNonNull(address));
             return this;
         }
 
@@ -164,7 +164,7 @@ public final class Destination {
         @NonNull
         public Builder setImage(@NonNull CarIcon image) {
             CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(image));
-            this.mImage = image;
+            mImage = image;
             return this;
         }
 

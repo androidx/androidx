@@ -83,7 +83,7 @@ public final class Metadata {
          */
         @NonNull
         public Builder setPlace(@NonNull Place place) {
-            this.mPlace = requireNonNull(place);
+            mPlace = requireNonNull(place);
             return this;
         }
 
@@ -105,7 +105,7 @@ public final class Metadata {
          * @throws NullPointerException if {@code icon} is {@code null}
          */
         public Builder(@NonNull Metadata metadata) {
-            this.mPlace = requireNonNull(metadata).getPlace();
+            mPlace = requireNonNull(metadata).getPlace();
         }
     }
 }

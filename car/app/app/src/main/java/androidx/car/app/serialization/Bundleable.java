@@ -62,11 +62,11 @@ public final class Bundleable implements Parcelable {
     }
 
     private Bundleable(Object o) throws BundlerException {
-        this.mBundle = Bundler.toBundle(o);
+        mBundle = Bundler.toBundle(o);
     }
 
     Bundleable(Bundle bundle) {
-        this.mBundle = bundle;
+        mBundle = bundle;
     }
 
     @NonNull

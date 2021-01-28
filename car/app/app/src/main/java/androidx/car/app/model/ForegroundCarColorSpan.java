@@ -95,7 +95,7 @@ public final class ForegroundCarColorSpan extends CarSpan {
     }
 
     private ForegroundCarColorSpan(CarColor carColor) {
-        this.mCarColor = carColor;
+        mCarColor = carColor;
     }
 
     private ForegroundCarColorSpan() {

@@ -85,8 +85,8 @@ public final class CarLocation {
     }
 
     private CarLocation(double lat, double lng) {
-        this.mLat = lat;
-        this.mLng = lng;
+        mLat = lat;
+        mLng = lng;
     }
 
     /** Constructs an empty instance, used by serialization code. */

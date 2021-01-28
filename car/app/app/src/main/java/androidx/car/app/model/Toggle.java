@@ -101,7 +101,7 @@ public final class Toggle {
          */
         @NonNull
         public Builder setChecked(boolean checked) {
-            this.mIsChecked = checked;
+            mIsChecked = checked;
             return this;
         }
 

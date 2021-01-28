@@ -186,7 +186,7 @@ public final class NavigationTemplate implements Template {
          */
         @NonNull
         public Builder setNavigationInfo(@NonNull NavigationInfo navigationInfo) {
-            this.mNavigationInfo = requireNonNull(navigationInfo);
+            mNavigationInfo = requireNonNull(navigationInfo);
             return this;
         }
 
@@ -199,7 +199,7 @@ public final class NavigationTemplate implements Template {
         @NonNull
         public Builder setBackgroundColor(@NonNull CarColor backgroundColor) {
             UNCONSTRAINED.validateOrThrow(requireNonNull(backgroundColor));
-            this.mBackgroundColor = backgroundColor;
+            mBackgroundColor = backgroundColor;
             return this;
         }
 
@@ -218,7 +218,7 @@ public final class NavigationTemplate implements Template {
                         "The destination travel estimate's remaining time must be greater or "
                                 + "equal to zero");
             }
-            this.mDestinationTravelEstimate = destinationTravelEstimate;
+            mDestinationTravelEstimate = destinationTravelEstimate;
             return this;
         }
 
@@ -240,7 +240,7 @@ public final class NavigationTemplate implements Template {
         public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_NAVIGATION.validateOrThrow(
                     requireNonNull(actionStrip).getActions());
-            this.mActionStrip = actionStrip;
+            mActionStrip = actionStrip;
             return this;
         }
 

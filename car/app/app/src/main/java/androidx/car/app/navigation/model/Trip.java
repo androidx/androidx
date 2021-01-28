@@ -154,13 +154,13 @@ public final class Trip {
     }
 
     Trip(Builder builder) {
-        this.mDestinations = CollectionUtils.unmodifiableCopy(builder.mDestinations);
-        this.mSteps = CollectionUtils.unmodifiableCopy(builder.mSteps);
-        this.mDestinationTravelEstimates = CollectionUtils.unmodifiableCopy(
+        mDestinations = CollectionUtils.unmodifiableCopy(builder.mDestinations);
+        mSteps = CollectionUtils.unmodifiableCopy(builder.mSteps);
+        mDestinationTravelEstimates = CollectionUtils.unmodifiableCopy(
                 builder.mDestinationTravelEstimates);
-        this.mStepTravelEstimates = CollectionUtils.unmodifiableCopy(builder.mStepTravelEstimates);
-        this.mCurrentRoad = builder.mCurrentRoad;
-        this.mIsLoading = builder.mIsLoading;
+        mStepTravelEstimates = CollectionUtils.unmodifiableCopy(builder.mStepTravelEstimates);
+        mCurrentRoad = builder.mCurrentRoad;
+        mIsLoading = builder.mIsLoading;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -235,7 +235,7 @@ public final class Trip {
          */
         @NonNull
         public Builder setCurrentRoad(@NonNull CharSequence currentRoad) {
-            this.mCurrentRoad = CarText.create(requireNonNull(currentRoad));
+            mCurrentRoad = CarText.create(requireNonNull(currentRoad));
             return this;
         }
 
@@ -247,7 +247,7 @@ public final class Trip {
          */
         @NonNull
         public Builder setLoading(boolean isLoading) {
-            this.mIsLoading = isLoading;
+            mIsLoading = isLoading;
             return this;
         }
 

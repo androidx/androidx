@@ -178,7 +178,7 @@ public final class GridTemplate implements Template {
          */
         @NonNull
         public Builder setLoading(boolean isLoading) {
-            this.mIsLoading = isLoading;
+            mIsLoading = isLoading;
             return this;
         }
 
@@ -199,7 +199,7 @@ public final class GridTemplate implements Template {
         @NonNull
         public Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(Collections.singletonList(headerAction));
-            this.mHeaderAction = headerAction;
+            mHeaderAction = headerAction;
             return this;
         }
 
@@ -212,7 +212,7 @@ public final class GridTemplate implements Template {
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
-            this.mTitle = CarText.create(requireNonNull(title));
+            mTitle = CarText.create(requireNonNull(title));
             return this;
         }
 
@@ -244,7 +244,7 @@ public final class GridTemplate implements Template {
         @NonNull
         public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
-            this.mActionStrip = actionStrip;
+            mActionStrip = actionStrip;
             return this;
         }
 

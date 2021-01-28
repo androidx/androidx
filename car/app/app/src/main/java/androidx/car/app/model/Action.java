@@ -287,7 +287,7 @@ public final class Action {
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
-            this.mTitle = CarText.create(requireNonNull(title));
+            mTitle = CarText.create(requireNonNull(title));
             return this;
         }
 
@@ -310,7 +310,7 @@ public final class Action {
         @NonNull
         public Builder setIcon(@NonNull CarIcon icon) {
             CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(icon));
-            this.mIcon = icon;
+            mIcon = icon;
             return this;
         }
 
@@ -350,7 +350,7 @@ public final class Action {
         @NonNull
         public Builder setBackgroundColor(@NonNull CarColor backgroundColor) {
             STANDARD_ONLY.validateOrThrow(requireNonNull(backgroundColor));
-            this.mBackgroundColor = backgroundColor;
+            mBackgroundColor = backgroundColor;
             return this;
         }
 

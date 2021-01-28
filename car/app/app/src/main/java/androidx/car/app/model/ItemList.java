@@ -284,7 +284,7 @@ public final class ItemList {
                 throw new IllegalArgumentException(
                         "The item index must be larger than or equal to 0");
             }
-            this.mSelectedIndex = selectedIndex;
+            mSelectedIndex = selectedIndex;
             return this;
         }
 
@@ -298,7 +298,7 @@ public final class ItemList {
          */
         @NonNull
         public Builder setNoItemsMessage(@NonNull CharSequence noItemsMessage) {
-            this.mNoItemsMessage = CarText.create(requireNonNull(noItemsMessage));
+            mNoItemsMessage = CarText.create(requireNonNull(noItemsMessage));
             return this;
         }
 

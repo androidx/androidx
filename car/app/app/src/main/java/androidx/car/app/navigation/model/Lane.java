@@ -73,7 +73,7 @@ public final class Lane {
     }
 
     Lane(List<LaneDirection> directions) {
-        this.mDirections = CollectionUtils.unmodifiableCopy(directions);
+        mDirections = CollectionUtils.unmodifiableCopy(directions);
     }
 
     /** Constructs an empty instance, used by serialization code. */

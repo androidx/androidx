@@ -46,8 +46,8 @@ public final class TemplateInfo {
      */
     public TemplateInfo(@NonNull Class<? extends Template> templateClass,
             @NonNull String templateId) {
-        this.mTemplateClass = templateClass;
-        this.mTemplateId = templateId;
+        mTemplateClass = templateClass;
+        mTemplateId = templateId;
     }
 
     /**
@@ -94,7 +94,7 @@ public final class TemplateInfo {
     }
 
     private TemplateInfo() {
-        this.mTemplateClass = null;
-        this.mTemplateId = null;
+        mTemplateClass = null;
+        mTemplateId = null;
     }
 }

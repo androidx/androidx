@@ -202,8 +202,8 @@ public final class PlaceMarker {
         @NonNull
         public Builder setIcon(@NonNull CarIcon icon, @MarkerIconType int iconType) {
             CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(icon));
-            this.mIcon = icon;
-            this.mIconType = iconType;
+            mIcon = icon;
+            mIconType = iconType;
             return this;
         }
 
@@ -228,7 +228,7 @@ public final class PlaceMarker {
                                 + " characters");
             }
 
-            this.mLabel = CarText.create(label);
+            mLabel = CarText.create(label);
             return this;
         }
 
@@ -257,7 +257,7 @@ public final class PlaceMarker {
         @NonNull
         public Builder setColor(@NonNull CarColor color) {
             CarColorConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(color));
-            this.mColor = color;
+            mColor = color;
             return this;
         }
 

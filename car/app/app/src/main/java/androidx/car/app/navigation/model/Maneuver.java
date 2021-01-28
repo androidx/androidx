@@ -536,11 +536,11 @@ public final class Maneuver {
 
     Maneuver(@Type int type, int roundaboutExitNumber, int roundaboutExitAngle,
             @Nullable CarIcon icon) {
-        this.mType = type;
-        this.mRoundaboutExitNumber = roundaboutExitNumber;
-        this.mRoundaboutExitAngle = roundaboutExitAngle;
+        mType = type;
+        mRoundaboutExitNumber = roundaboutExitNumber;
+        mRoundaboutExitAngle = roundaboutExitAngle;
         CarIconConstraints.DEFAULT.validateOrThrow(icon);
-        this.mIcon = icon;
+        mIcon = icon;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -594,7 +594,7 @@ public final class Maneuver {
             if (!isValidType(type)) {
                 throw new IllegalArgumentException("Maneuver must have a valid type");
             }
-            this.mType = type;
+            mType = type;
         }
 
         /**
@@ -613,7 +613,7 @@ public final class Maneuver {
          */
         @NonNull
         public Builder setIcon(@NonNull CarIcon icon) {
-            this.mIcon = requireNonNull(icon);
+            mIcon = requireNonNull(icon);
             return this;
         }
 
@@ -645,8 +645,8 @@ public final class Maneuver {
             if (roundaboutExitNumber < 1) {
                 throw new IllegalArgumentException("Maneuver must include a valid exit number");
             }
-            this.mIsRoundaboutExitNumberSet = true;
-            this.mRoundaboutExitNumber = roundaboutExitNumber;
+            mIsRoundaboutExitNumberSet = true;
+            mRoundaboutExitNumber = roundaboutExitNumber;
             return this;
         }
 
@@ -674,8 +674,8 @@ public final class Maneuver {
             if (roundaboutExitAngle < 1 || roundaboutExitAngle > 360) {
                 throw new IllegalArgumentException("Maneuver must include a valid exit angle");
             }
-            this.mIsRoundaboutExitAngleSet = true;
-            this.mRoundaboutExitAngle = roundaboutExitAngle;
+            mIsRoundaboutExitAngleSet = true;
+            mRoundaboutExitAngle = roundaboutExitAngle;
             return this;
         }
 
