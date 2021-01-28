@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Integeration test for AssetLoaderAjaxActivity demo activity.
+ * Integration test for AssetLoaderAjaxActivity demo activity.
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
