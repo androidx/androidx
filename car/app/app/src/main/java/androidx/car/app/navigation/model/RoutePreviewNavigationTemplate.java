@@ -92,7 +92,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
     private final ActionStrip mActionStrip;
 
     /**
-     * Returns the title of the template, or {@code null} if one is not set.
+     * Returns the title of the template or {@code null} if not set.
      *
      * @see Builder#setTitle(CharSequence)
      */
@@ -102,8 +102,8 @@ public final class RoutePreviewNavigationTemplate implements Template {
     }
 
     /**
-     * Returns the {@link Action} that is set to be displayed in the header of the template, or
-     * {@code null} if one is not set.
+     * Returns the {@link Action} that is set to be displayed in the header of the template or
+     * {@code null} if not set.
      *
      * @see Builder#setHeaderAction(Action)
      */
@@ -113,7 +113,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
     }
 
     /**
-     * Returns the {@link ActionStrip} for this template, or {@code null} if one isn't set.
+     * Returns the {@link ActionStrip} for this template or {@code null} if not set.
      *
      * @see Builder#setActionStrip(ActionStrip)
      */
@@ -131,11 +131,23 @@ public final class RoutePreviewNavigationTemplate implements Template {
         return mIsLoading;
     }
 
+    /**
+     * Returns the {@link Action} to allow users to request navigation using the currently selected
+     * route or {@code null} if not set.
+     *
+     * @see Builder#setNavigateAction(Action)
+     */
     @Nullable
     public Action getNavigateAction() {
         return mNavigateAction;
     }
 
+    /**
+     * Returns the {@link ItemList} to show route options in a list view along with the map or
+     * {@code null} if not set.
+     *
+     * @see Builder#setItemList(ItemList)
+     */
     @Nullable
     public ItemList getItemList() {
         return mItemList;
@@ -223,9 +235,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
          * <p>If set to {@code true}, the UI will show a loading indicator where the list content
          * would be otherwise. The caller is expected to call
          * {@link androidx.car.app.Screen#invalidate()} and send the new template content to the
-         * host
-         * once the data is ready. If set to {@code false}, the UI shows the {@link ItemList}
-         * contents added via {@link #setItemList}.
+         * host once the data is ready.
          */
         @NonNull
         public Builder setLoading(boolean isLoading) {
@@ -263,9 +273,9 @@ public final class RoutePreviewNavigationTemplate implements Template {
          * <p>This should not be {@code null} if the template is not in a loading state (see
          * #setIsLoading}), and the {@link Action}'s title must be set.
          *
-         * @throws NullPointerException     if {@code navigateAction} is {@code null}.
+         * @throws NullPointerException     if {@code navigateAction} is {@code null}
          * @throws IllegalArgumentException if {@code navigateAction}'s title is {@code null} or
-         *                                  empty.
+         *                                  empty
          */
         @NonNull
         public Builder setNavigateAction(@NonNull Action navigateAction) {
@@ -290,14 +300,13 @@ public final class RoutePreviewNavigationTemplate implements Template {
          *
          * <p>Images of type {@link Row#IMAGE_TYPE_LARGE} are not allowed in this template.
          *
-         * <p>All rows must have either a {@link
-         * androidx.car.app.model.DistanceSpan} or a {@link
+         * <p>All rows must have either a {@link androidx.car.app.model.DistanceSpan} or a {@link
          * androidx.car.app.model.DurationSpan} attached to either its title or texts, to
          * indicate an estimate trip distance or duration for the route it represents. Where in
          * the title or text these spans are attached to is up to the app.
          *
          * @throws IllegalArgumentException if {@code itemList} does not meet the template's
-         *                                  requirements.
+         *                                  requirements
          * @throws NullPointerException     if {@code itemList} is {@code null}
          */
         @NonNull
@@ -326,7 +335,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
          * {@link Action}s, one of them can contain a title as set via
          * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
          *
-         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements.
+         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @NonNull
@@ -346,7 +355,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
          * @throws IllegalStateException if the template is in a loading state but the list is
          *                               set or vice versa, if the template is not loading and
          *                               the navigation action is not set, or if the template
-         *                               does not have either a title or header {@link Action} set.
+         *                               does not have either a title or header {@link Action} set
          */
         @NonNull
         public RoutePreviewNavigationTemplate build() {

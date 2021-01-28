@@ -87,7 +87,7 @@ public final class NavigationTemplate implements Template {
     private final ActionStrip mActionStrip;
 
     /**
-     * Returns the {@link ActionStrip} for this template, or {@code null} if one isn't set.
+     * Returns the {@link ActionStrip} for this template or {@code null} if not set.
      *
      * @see Builder#setActionStrip(ActionStrip)
      */
@@ -97,7 +97,7 @@ public final class NavigationTemplate implements Template {
     }
 
     /**
-     * Returns the navigation information displayed on the template, or {@code null} if there is no
+     * Returns the navigation information displayed on the template or {@code null} if there is no
      * navigation information on top of the map.
      */
     @Nullable
@@ -106,7 +106,7 @@ public final class NavigationTemplate implements Template {
     }
 
     /**
-     * Returns the background color used for the navigation information, or {@code null} if set to
+     * Returns the background color used for the navigation information or {@code null} if set to
      * the default value.
      */
     @Nullable
@@ -115,7 +115,7 @@ public final class NavigationTemplate implements Template {
     }
 
     /**
-     * Returns the {@link TravelEstimate} to the final destination, or {@code null} if there is no
+     * Returns the {@link TravelEstimate} to the final destination or {@code null} if there is no
      * travel estimate information.
      */
     @Nullable
@@ -233,8 +233,8 @@ public final class NavigationTemplate implements Template {
          * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
          *
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the template's
-         *                                  requirements.
-         * @throws NullPointerException     if {@code actionStrip} is {@code null}.
+         *                                  requirements
+         * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @NonNull
         public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
@@ -247,12 +247,12 @@ public final class NavigationTemplate implements Template {
         /**
          * Constructs the {@link NavigationTemplate} defined by this builder.
          *
-         * @throws IllegalStateException if an {@link ActionStrip} is not set on this template.
+         * @throws IllegalStateException if an {@link ActionStrip} is not set on this template
          */
         @NonNull
         public NavigationTemplate build() {
             if (mActionStrip == null) {
-                throw new IllegalStateException("Action strip for this template must be set.");
+                throw new IllegalStateException("Action strip for this template must be set");
             }
             return new NavigationTemplate(this);
         }

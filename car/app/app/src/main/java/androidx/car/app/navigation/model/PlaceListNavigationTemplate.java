@@ -82,7 +82,7 @@ public final class PlaceListNavigationTemplate implements Template {
     private final ActionStrip mActionStrip;
 
     /**
-     * Returns the title of the template, or {@code null} if one is not set.
+     * Returns the title of the template or {@code null} if not set.
      *
      * @see Builder#setTitle(CharSequence)
      */
@@ -92,8 +92,8 @@ public final class PlaceListNavigationTemplate implements Template {
     }
 
     /**
-     * Returns the {@link Action} that is set to be displayed in the header of the template, or
-     * {@code null} if one is not set.
+     * Returns the {@link Action} that is set to be displayed in the header of the template or
+     * {@code null} if not set.
      *
      * @see Builder#setHeaderAction(Action)
      */
@@ -103,7 +103,7 @@ public final class PlaceListNavigationTemplate implements Template {
     }
 
     /**
-     * Returns the {@link ActionStrip} for this template, or {@code null} if one isn't set.
+     * Returns the {@link ActionStrip} for this template or {@code null} if not set.
      *
      * @see Builder#setActionStrip(ActionStrip)
      */
@@ -208,8 +208,7 @@ public final class PlaceListNavigationTemplate implements Template {
          * <p>If set to {@code true}, the UI will show a loading indicator where the list content
          * would be otherwise. The caller is expected to call
          * {@link androidx.car.app.Screen#invalidate()} and send the new template content to the
-         * host
-         * once the data is ready. If set to {@code false}, the UI shows the {@link ItemList}
+         * host once the data is ready. If set to {@code false}, the UI shows the {@link ItemList}
          * contents added via {@link #setItemList}.
          */
         @NonNull
@@ -219,8 +218,7 @@ public final class PlaceListNavigationTemplate implements Template {
         }
 
         /**
-         * Sets the {@link Action} that will be displayed in the header of the template, or
-         * {@code null} to not display an action.
+         * Sets the {@link Action} that will be displayed in the header of the template.
          *
          * <p>Unless set with this method, the template will not have a header action.
          *
@@ -265,7 +263,7 @@ public final class PlaceListNavigationTemplate implements Template {
          * location. Where in the title or text the span is attached to is up to the app.
          *
          * @throws IllegalArgumentException if {@code itemList} does not meet the template's
-         *                                  requirements.
+         *                                  requirements
          * @throws NullPointerException     if {@code itemList} is {@code null}
          */
         @NonNull
@@ -291,7 +289,7 @@ public final class PlaceListNavigationTemplate implements Template {
          * {@link Action}s, one of them can contain a title as set via
          * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
          *
-         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements.
+         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @NonNull
@@ -309,16 +307,16 @@ public final class PlaceListNavigationTemplate implements Template {
          * Either a header {@link Action} or title must be set on the template.
          *
          * @throws IllegalArgumentException if the template is in a loading state but the list is
-         *                                  set, or vice versa.
+         *                                  set, or vice versa
          * @throws IllegalStateException    if the template does not have either a title or header
-         *                                  {@link Action} set.
+         *                                  {@link Action} set
          */
         @NonNull
         public PlaceListNavigationTemplate build() {
             boolean hasList = mItemList != null;
             if (mIsLoading == hasList) {
                 throw new IllegalArgumentException(
-                        "Template is in a loading state but a list is set, or vice versa.");
+                        "Template is in a loading state but a list is set, or vice versa");
             }
 
             if (CarText.isNullOrEmpty(mTitle) && mHeaderAction == null) {

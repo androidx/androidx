@@ -39,16 +39,31 @@ public final class Destination {
     @Nullable
     private final CarIcon mImage;
 
+    /**
+     * Returns the name of the destination or {@code null} if not set.
+     *
+     * @see Builder#setName(CharSequence)
+     */
     @Nullable
     public CarText getName() {
         return mName;
     }
 
+    /**
+     * Returns the address of the destination or {@code null} if not set.
+     *
+     * @see Builder#setAddress(CharSequence)
+     */
     @Nullable
     public CarText getAddress() {
         return mAddress;
     }
 
+    /**
+     * Returns an image to display with the destination or {@code null} if not set.
+     *
+     * @see Builder#setImage(CarIcon)
+     */
     @Nullable
     public CarIcon getImage() {
         return mImage;
@@ -159,6 +174,7 @@ public final class Destination {
          * <p>At least one of the name or the address must be set and not empty.
          *
          * @throws IllegalStateException if both the name and the address are {@code null} or empty.
+         *
          * @see #setName(CharSequence)
          * @see #setAddress(CharSequence)
          */
