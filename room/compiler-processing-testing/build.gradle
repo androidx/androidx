@@ -41,6 +41,34 @@ dependencies {
     implementation(KOTLIN_ANNOTATION_PROCESSING_EMBEDDABLE)
 }
 
+/**
+ * Create a properties file with versions that can be read from the test helper to setup test
+ * projects.
+ * see: b/178725084
+ */
+def testPropsOutDir = project.layout.buildDirectory.dir("test-config")
+def writeTestPropsTask = tasks.register("prepareTestConfiguration", WriteProperties.class) {
+    description = "Generates a properties file with the current environment for compilation tests"
+    setOutputFile(testPropsOutDir.map {
+        it.file("androidx.room.compiler.processing.util.CompilationTestCapabilities.Config" +
+                ".properties")
+    })
+    property("kotlinVersion", KOTLIN_VERSION)
+    property("kspVersion", KSP_VERSION)
+}
+
+java {
+    sourceSets {
+        main {
+            resources.srcDir(testPropsOutDir)
+        }
+    }
+}
+
+tasks.named("compileKotlin").configure {
+    dependsOn(writeTestPropsTask)
+}
+
 androidx {
     name = "AndroidX Room XProcessor Testing"
     type = LibraryType.ANNOTATION_PROCESSOR

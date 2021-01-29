@@ -51,8 +51,19 @@ private fun runTests(
             false
         }
     }
-    // make sure some tests did run
-    assertThat(runCount).isGreaterThan(0)
+    // make sure some tests did run. Ksp tests might be disabled so if it is the only test given,
+    // ignore the check
+    val minTestCount = when {
+        CompilationTestCapabilities.canTestWithKsp ||
+            (runners.toList() - KspCompilationTestRunner).isNotEmpty() -> {
+            1
+        }
+        else -> {
+            // is ok if we don't run any tests if ksp is disabled and it is the only test
+            0
+        }
+    }
+    assertThat(runCount).isAtLeast(minTestCount)
 }
 
 fun runProcessorTestWithoutKsp(
