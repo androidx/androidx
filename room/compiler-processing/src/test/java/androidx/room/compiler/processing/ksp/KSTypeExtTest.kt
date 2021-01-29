@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.safeTypeName
+import androidx.room.compiler.processing.util.CompilationTestCapabilities
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.kspResolver
@@ -167,6 +168,7 @@ class KSTypeExtTest {
      */
     @Test
     fun kaptGoldenTest() {
+        CompilationTestCapabilities.assumeKspIsEnabled()
         val src = Source.kotlin(
             "Foo.kt",
             """

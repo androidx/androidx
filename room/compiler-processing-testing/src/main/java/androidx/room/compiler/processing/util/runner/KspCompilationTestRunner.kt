@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.SyntheticKspProcessor
 import androidx.room.compiler.processing.util.CompilationResult
 import androidx.room.compiler.processing.util.KotlinCompilationUtil
 import androidx.room.compiler.processing.util.KotlinCompileTestingCompilationResult
+import androidx.room.compiler.processing.util.CompilationTestCapabilities
 import androidx.room.compiler.processing.util.Source
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
@@ -33,7 +34,7 @@ internal object KspCompilationTestRunner : CompilationTestRunner {
     override val name: String = "ksp"
 
     override fun canRun(params: TestCompilationParameters): Boolean {
-        return true
+        return CompilationTestCapabilities.canTestWithKsp
     }
 
     override fun compile(params: TestCompilationParameters): CompilationResult {
