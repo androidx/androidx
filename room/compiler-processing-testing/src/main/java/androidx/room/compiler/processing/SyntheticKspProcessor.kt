@@ -58,7 +58,8 @@ class SyntheticKspProcessor(
         result = kotlin.runCatching {
             handler(
                 XTestInvocation(
-                    processingEnv = xEnv
+                    processingEnv = xEnv,
+                    roundEnv = XRoundEnv.create(xEnv)
                 ).also {
                     invocationInstances.add(it)
                 }

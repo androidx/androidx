@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.util
 
 import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XRoundEnv
 import kotlin.reflect.KClass
 
 /**
@@ -24,6 +25,7 @@ import kotlin.reflect.KClass
  */
 class XTestInvocation(
     val processingEnv: XProcessingEnv,
+    val roundEnv: XRoundEnv
 ) {
     /**
      * Extension mechanism to allow putting objects into invocation that can be retrieved later.

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +14,27 @@
  * limitations under the License.
  */
 
-package androidx.room.compiler.processing.javac
+package androidx.room.compiler.processing.ksp
 
 import androidx.annotation.VisibleForTesting
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XRoundEnv
 import androidx.room.compiler.processing.XTypeElement
-import com.google.auto.common.MoreElements
-import javax.annotation.processing.RoundEnvironment
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 
-@Suppress("UnstableApiUsage")
 @VisibleForTesting
-internal class JavacRoundEnv(
-    private val env: JavacProcessingEnv,
-    val delegate: RoundEnvironment
+internal class KspRoundEnv(
+    private val env: KspProcessingEnv
 ) : XRoundEnv {
-    override val rootElements: Set<XElement> by lazy {
-        delegate.rootElements.map {
-            check(MoreElements.isType(it))
-            env.wrapTypeElement(MoreElements.asType(it))
-        }.toSet()
-    }
+    override val rootElements: Set<XElement>
+        get() = TODO("not supported")
 
-    // TODO this is only for tests but we may need to support more types of elements
     override fun getTypeElementsAnnotatedWith(klass: Class<out Annotation>): Set<XTypeElement> {
-        val result = delegate.getElementsAnnotatedWith(klass)
-        return result.filter {
-            MoreElements.isType(it)
-        }.map {
-            env.wrapTypeElement(MoreElements.asType(it))
-        }.toSet()
+        return env.resolver.getSymbolsWithAnnotation(
+            klass.canonicalName
+        ).filterIsInstance<KSClassDeclaration>()
+            .map {
+                env.wrapClassDeclaration(it)
+            }.toSet()
     }
 }

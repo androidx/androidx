@@ -19,6 +19,8 @@ package androidx.room.compiler.processing
 import androidx.annotation.VisibleForTesting
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.javac.JavacRoundEnv
+import androidx.room.compiler.processing.ksp.KspProcessingEnv
+import androidx.room.compiler.processing.ksp.KspRoundEnv
 import javax.annotation.processing.RoundEnvironment
 
 /**
@@ -36,7 +38,7 @@ interface XRoundEnv {
     /**
      * Returns the set of [XElement]s that are annotated with the given [klass].
      */
-    fun getElementsAnnotatedWith(klass: Class<out Annotation>): Set<XElement>
+    fun getTypeElementsAnnotatedWith(klass: Class<out Annotation>): Set<XTypeElement>
 
     companion object {
         /**
@@ -44,10 +46,18 @@ interface XRoundEnv {
          */
         fun create(
             processingEnv: XProcessingEnv,
-            roundEnvironment: RoundEnvironment
+            roundEnvironment: RoundEnvironment? = null
         ): XRoundEnv {
-            check(processingEnv is JavacProcessingEnv)
-            return JavacRoundEnv(processingEnv, roundEnvironment)
+            return when (processingEnv) {
+                is JavacProcessingEnv -> {
+                    checkNotNull(roundEnvironment)
+                    JavacRoundEnv(processingEnv, roundEnvironment)
+                }
+                is KspProcessingEnv -> {
+                    KspRoundEnv(processingEnv)
+                }
+                else -> error("invalid processing environment type: $processingEnv")
+            }
         }
     }
 }
