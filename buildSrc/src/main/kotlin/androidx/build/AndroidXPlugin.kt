@@ -413,7 +413,7 @@ class AndroidXPlugin : Plugin<Project> {
                     // Enforce the ban on declaring dependencies with version ranges.
                     // Note: In playground, this ban is exempted to allow unresolvable prebuilts
                     // to automatically get bumped to snapshot versions via version range
-                    // substituion.
+                    // substitution.
                     if (version != null && Version.isDependencyRange(version) &&
                         project.rootProject.rootDir == project.getSupportRootFolder()
                     ) {
