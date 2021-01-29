@@ -41,9 +41,9 @@ import java.util.Set;
  *
  * <p>Documents are constructed via {@link GenericDocument.Builder}.
  *
- * @see AppSearchSession#putDocuments
+ * @see AppSearchSession#put
  * @see AppSearchSession#getByUri
- * @see AppSearchSession#query
+ * @see AppSearchSession#search
  */
 public class GenericDocument {
     private static final String TAG = "AppSearchGenericDocumen";
@@ -608,8 +608,8 @@ public class GenericDocument {
          *                   {@link AppSearchSession#setSchema} prior
          *                   to inserting a document of this {@code schemaType} into the
          *                   AppSearch index using
-         *                   {@link AppSearchSession#putDocuments}. Otherwise, the document will be
-         *                   rejected by {@link AppSearchSession#putDocuments}.
+         *                   {@link AppSearchSession#put}. Otherwise, the document will be
+         *                   rejected by {@link AppSearchSession#put}.
          */
         @SuppressWarnings("unchecked")
         public Builder(@NonNull String uri, @NonNull String schemaType) {

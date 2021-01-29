@@ -159,11 +159,11 @@ package androidx.appsearch.app {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,androidx.appsearch.app.GenericDocument!>!> getByUri(androidx.appsearch.app.GetByUriRequest);
     method public com.google.common.util.concurrent.ListenableFuture<java.util.Set<androidx.appsearch.app.AppSearchSchema!>!> getSchema();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> maybeFlush();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> putDocuments(androidx.appsearch.app.PutDocumentsRequest);
-    method public androidx.appsearch.app.SearchResults query(String, androidx.appsearch.app.SearchSpec);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> removeByQuery(String, androidx.appsearch.app.SearchSpec);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> removeByUri(androidx.appsearch.app.RemoveByUriRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> put(androidx.appsearch.app.PutDocumentsRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> remove(androidx.appsearch.app.RemoveByUriRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> remove(String, androidx.appsearch.app.SearchSpec);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportUsage(androidx.appsearch.app.ReportUsageRequest);
+    method public androidx.appsearch.app.SearchResults search(String, androidx.appsearch.app.SearchSpec);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.SetSchemaResponse!> setSchema(androidx.appsearch.app.SetSchemaRequest);
   }
 
@@ -235,7 +235,7 @@ package androidx.appsearch.app {
 
   public interface GlobalSearchSession extends java.io.Closeable {
     method public void close();
-    method public androidx.appsearch.app.SearchResults query(String, androidx.appsearch.app.SearchSpec);
+    method public androidx.appsearch.app.SearchResults search(String, androidx.appsearch.app.SearchSpec);
   }
 
   public class PackageIdentifier {

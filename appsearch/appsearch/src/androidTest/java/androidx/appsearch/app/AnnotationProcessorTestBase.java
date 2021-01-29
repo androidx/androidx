@@ -281,9 +281,9 @@ public abstract class AnnotationProcessorTestBase {
         inputDataClass.mCard = card1;
 
         // Index the Gift document and query it.
-        checkIsBatchResultSuccess(mSession.putDocuments(
+        checkIsBatchResultSuccess(mSession.put(
                 new PutDocumentsRequest.Builder().addDataClass(inputDataClass).build()));
-        SearchResults searchResults = mSession.query("", new SearchSpec.Builder()
+        SearchResults searchResults = mSession.search("", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
@@ -319,13 +319,13 @@ public abstract class AnnotationProcessorTestBase {
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        checkIsBatchResultSuccess(mSession.putDocuments(
+        checkIsBatchResultSuccess(mSession.put(
                 new PutDocumentsRequest.Builder()
                         .addDataClass(inputDataClass1, inputDataClass2)
                         .addGenericDocument(email1).build()));
 
         // Query the documents by it's schema type.
-        SearchResults searchResults = mSession.query("",
+        SearchResults searchResults = mSession.search("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .addSchemaType("Gift", AppSearchEmail.SCHEMA_TYPE)
@@ -334,7 +334,7 @@ public abstract class AnnotationProcessorTestBase {
         assertThat(documents).hasSize(3);
 
         // Query the documents by it's class.
-        searchResults = mSession.query("",
+        searchResults = mSession.search("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .addSchemaByDataClass(Gift.class)
@@ -343,7 +343,7 @@ public abstract class AnnotationProcessorTestBase {
         assertThat(documents).hasSize(2);
 
         // Query the documents by schema type and class mix.
-        searchResults = mSession.query("",
+        searchResults = mSession.search("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .addSchemaType(AppSearchEmail.SCHEMA_TYPE)

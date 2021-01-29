@@ -114,7 +114,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> putDocuments(
+    public ListenableFuture<AppSearchBatchResult<String, Void>> put(
             @NonNull PutDocumentsRequest request) {
         Preconditions.checkNotNull(request);
         ResolvableFuture<AppSearchBatchResult<String, Void>> future = ResolvableFuture.create();
@@ -142,7 +142,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public SearchResults query(
+    public SearchResults search(
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec) {
         Preconditions.checkNotNull(queryExpression);
@@ -166,7 +166,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> removeByUri(
+    public ListenableFuture<AppSearchBatchResult<String, Void>> remove(
             @NonNull RemoveByUriRequest request) {
         Preconditions.checkNotNull(request);
         ResolvableFuture<AppSearchBatchResult<String, Void>> future = ResolvableFuture.create();
@@ -179,7 +179,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<Void> removeByQuery(
+    public ListenableFuture<Void> remove(
             @NonNull String queryExpression, @NonNull SearchSpec searchSpec) {
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
