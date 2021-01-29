@@ -27,6 +27,7 @@ import androidx.biometric.auth.Class2BiometricAuthPrompt
 import androidx.biometric.auth.Class2BiometricOrCredentialAuthPrompt
 import androidx.biometric.auth.Class3BiometricAuthPrompt
 import androidx.biometric.auth.Class3BiometricOrCredentialAuthPrompt
+import androidx.biometric.auth.CredentialAuthPrompt
 import androidx.biometric.auth.authenticate
 import androidx.fragment.app.Fragment
 import java.nio.charset.Charset
@@ -203,6 +204,64 @@ suspend fun Fragment.class3BiometricOrCredentialAuth() {
         setSubtitle(subtitle)
         setDescription(description)
         setConfirmationRequired(true)
+    }.build()
+
+    try {
+        val authResult = authPrompt.authenticate(AuthPromptHost(this), cryptoObject)
+
+        // Encrypt a payload using the result of crypto-based auth.
+        val encryptedPayload = authResult.cryptoObject?.cipher?.doFinal(payload)
+
+        // Use the encrypted payload somewhere interesting.
+        sendEncryptedPayload(encryptedPayload)
+    } catch (e: AuthPromptErrorException) {
+        // Handle irrecoverable error during authentication.
+        // Possible values for AuthPromptErrorException.errorCode are listed in the @IntDef,
+        // androidx.biometric.BiometricPrompt.AuthenticationError.
+    } catch (e: AuthPromptFailureException) {
+        // Handle auth failure due biometric credentials being rejected.
+    }
+}
+
+@Sampled
+@Suppress("UnsafeNewApiCall", "NewApi")
+suspend fun Fragment.credentialAuth() {
+    // To use credential authentication, we need to create a CryptoObject.
+    // First create a spec for the key to be generated.
+    val keyPurpose = KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+    val keySpec = KeyGenParameterSpec.Builder(KEY_NAME, keyPurpose).apply {
+        setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+        setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+        setUserAuthenticationRequired(true)
+
+        // Require authentication for each use of the key.
+        val timeout = 0
+        // Set the key type according to the allowed auth type.
+        val keyType = KeyProperties.AUTH_DEVICE_CREDENTIAL
+        setUserAuthenticationParameters(timeout, keyType)
+    }.build()
+
+    // Generate and store the key in the Android keystore.
+    KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_INSTANCE).run {
+        init(keySpec)
+        generateKey()
+    }
+
+    // Prepare the crypto object to use for authentication.
+    val cipher = Cipher.getInstance(
+        "${KeyProperties.KEY_ALGORITHM_AES}/${KeyProperties.BLOCK_MODE_CBC}/" +
+            KeyProperties.ENCRYPTION_PADDING_PKCS7
+    ).apply {
+        val keyStore = KeyStore.getInstance(KEYSTORE_INSTANCE).apply { load(null) }
+        init(Cipher.ENCRYPT_MODE, keyStore.getKey(KEY_NAME, null) as SecretKey)
+    }
+
+    val cryptoObject = BiometricPrompt.CryptoObject(cipher)
+    val payload = "A message to encrypt".toByteArray(Charset.defaultCharset())
+
+    // Construct AuthPrompt with localized Strings to be displayed to UI.
+    val authPrompt = CredentialAuthPrompt.Builder(title).apply {
+        setDescription(description)
     }.build()
 
     try {
