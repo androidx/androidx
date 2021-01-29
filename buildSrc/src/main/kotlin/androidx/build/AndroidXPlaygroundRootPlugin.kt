@@ -76,6 +76,7 @@ class AndroidXPlaygroundRootPlugin : Plugin<Project> {
         project.configurations.all { configuration ->
             configuration.resolutionStrategy.dependencySubstitution.all { substitution ->
                 substitution.replaceIfSnapshot()
+                substitution.allowAndroidxSnapshotReplacement()
             }
         }
     }
@@ -114,6 +115,15 @@ class AndroidXPlaygroundRootPlugin : Plugin<Project> {
             }
 
             throw GradleException("projectOrArtifact cannot find/replace project $path")
+        }
+    }
+
+    private fun DependencySubstitution.allowAndroidxSnapshotReplacement() {
+        val requested = this.requested
+        if (requested is ModuleComponentSelector && requested.group.startsWith("androidx") &&
+                requested.version.matches(Regex("^[0-9]+\\.[0-9]+\\.[0-9]+$"))
+        ) {
+            useTarget("${requested.group}:${requested.module}:${requested.version}+")
         }
     }
 
