@@ -216,6 +216,7 @@ includeProject(":compose:animation:animation:animation-samples", "compose/animat
 includeProject(":compose:compiler:compiler", "compose/compiler/compiler", [BuildType.COMPOSE])
 includeProject(":compose:compiler:compiler-hosted", "compose/compiler/compiler-hosted", [BuildType.COMPOSE])
 includeProject(":compose:compiler:compiler-hosted:integration-tests", "compose/compiler/compiler-hosted/integration-tests", [BuildType.COMPOSE])
+includeProject(":compose:compiler:compiler-hosted:integration-tests:kotlin-compiler-repackaged", "compose/compiler/compiler-hosted/integration-tests/kotlin-compiler-repackaged", [BuildType.COMPOSE])
 if (isMultiplatformEnabled()) {
     includeProject(":compose:desktop", "compose/desktop", [BuildType.COMPOSE])
     includeProject(":compose:desktop:desktop", "compose/desktop/desktop", [BuildType.COMPOSE])
