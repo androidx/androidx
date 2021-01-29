@@ -12,16 +12,16 @@ function usage() {
   echo
   echo "Project subsets:"
   echo " m, main"
-  echo "  Open the project subset MAIN: non-Compose Jetpack libraries"
+  echo "  Open the project subset main: non-Compose Jetpack libraries"
   echo
   echo " c, compose"
-  echo "  Open the project subset COMPOSE"
+  echo "  Open the project subset compose"
   echo
   echo " f, flan"
-  echo "  Open the project subset FLAN: Fragment, Lifecycle, Activity, and Navigation"
+  echo "  Open the project subset flan: Fragment, Lifecycle, Activity, and Navigation"
   echo
   echo " a, all"
-  echo "  Open the project subset ALL"
+  echo "  Open the project subset all"
   echo
   exit 1
 }
@@ -49,16 +49,16 @@ while [ "$1" != "" ]; do
   subsetArg="$arg"
   newSubset=""
   if [ "$subsetArg" == "m" -o "$subsetArg" == "main" ]; then
-    newSubset=MAIN
+    newSubset=main
   fi
   if [ "$subsetArg" == "c" -o "$subsetArg" == "compose" ]; then
-    newSubset=COMPOSE
+    newSubset=compose
   fi
   if [ "$subsetArg" == "f" -o "$subsetArg" == "flan" ]; then
-    newSubset=FLAN
+    newSubset=flan
   fi
   if [ "$subsetArg" == "a" -o "$subsetArg" == "all" ]; then
-    newSubset=ALL
+    newSubset=all
   fi
   if [ "$newSubset" == "" ]; then
     echo "Unrecognized argument: '$subsetArg'"
