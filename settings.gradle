@@ -333,7 +333,7 @@ includeProject(":hilt:integration-tests:hilt-testapp-viewmodel", "hilt/integrati
 includeProject(":hilt:integration-tests:hilt-testapp-worker", "hilt/integration-tests/workerapp", [BuildType.MAIN])
 includeProject(":inspection:inspection", "inspection/inspection", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":inspection:inspection-gradle-plugin", "inspection/inspection-gradle-plugin", [BuildType.MAIN])
-includeProject(":inspection:inspection-testing", "inspection/inspection-testing", [BuildType.MAIN])
+includeProject(":inspection:inspection-testing", "inspection/inspection-testing", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":interpolator:interpolator", "interpolator/interpolator", [BuildType.MAIN])
 includeProject(":ipc:ipc-annotations", "ipc/ipc-annotations", [BuildType.MAIN])
 includeProject(":ipc:ipc-compiler", "ipc/ipc-compiler", [BuildType.MAIN])
