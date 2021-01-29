@@ -123,7 +123,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
 
         // Schema registration
         checkIsSetSchemaResponseSuccess(mDb1.setSchema(
-                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()));
 
         // Index a document
         AppSearchEmail inEmail =
@@ -158,9 +158,9 @@ public abstract class GlobalSearchSessionCtsTestBase {
 
         // Schema registration
         checkIsSetSchemaResponseSuccess(mDb1.setSchema(
-                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()));
         checkIsSetSchemaResponseSuccess(mDb2.setSchema(
-                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()));
 
         // Index a document to instance 1.
         AppSearchEmail inEmail1 =
@@ -200,7 +200,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
 
         // Schema registration
         checkIsSetSchemaResponseSuccess(mDb1.setSchema(
-                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()));
         List<AppSearchEmail> emailList = new ArrayList<>();
         PutDocumentsRequest.Builder putDocumentsRequestBuilder = new PutDocumentsRequest.Builder();
 
@@ -279,11 +279,11 @@ public abstract class GlobalSearchSessionCtsTestBase {
         // db1 has both "Generic" and "builtin:Email"
         checkIsSetSchemaResponseSuccess(mDb1.setSchema(
                 new SetSchemaRequest.Builder()
-                        .addSchema(genericSchema).addSchema(AppSearchEmail.SCHEMA).build()));
+                        .addSchemas(genericSchema).addSchemas(AppSearchEmail.SCHEMA).build()));
 
         // db2 only has "builtin:Email"
         checkIsSetSchemaResponseSuccess(mDb2.setSchema(
-                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()));
 
         // Index a generic document into db1
         GenericDocument genericDocument = new GenericDocument.Builder<>("uri2", "Generic")
@@ -337,9 +337,9 @@ public abstract class GlobalSearchSessionCtsTestBase {
 
         // Schema registration
         checkIsSetSchemaResponseSuccess(mDb1.setSchema(
-                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()));
         checkIsSetSchemaResponseSuccess(mDb2.setSchema(
-                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()));
 
         // Index two documents
         AppSearchEmail document1 =
@@ -398,9 +398,9 @@ public abstract class GlobalSearchSessionCtsTestBase {
 
         // Schema registration
         checkIsSetSchemaResponseSuccess(mDb1.setSchema(
-                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()));
         checkIsSetSchemaResponseSuccess(mDb2.setSchema(
-                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()));
 
         // Index two documents
         AppSearchEmail document1 =
@@ -445,11 +445,11 @@ public abstract class GlobalSearchSessionCtsTestBase {
         // Schema registration
         checkIsSetSchemaResponseSuccess(mDb1.setSchema(
                 new SetSchemaRequest.Builder()
-                        .addSchema(AppSearchEmail.SCHEMA)
+                        .addSchemas(AppSearchEmail.SCHEMA)
                         .build()));
         checkIsSetSchemaResponseSuccess(mDb2.setSchema(
                 new SetSchemaRequest.Builder()
-                        .addSchema(AppSearchEmail.SCHEMA)
+                        .addSchemas(AppSearchEmail.SCHEMA)
                         .build()));
 
         // Index one document in each database.
@@ -511,11 +511,11 @@ public abstract class GlobalSearchSessionCtsTestBase {
         // Schema registration
         checkIsSetSchemaResponseSuccess(mDb1.setSchema(
                 new SetSchemaRequest.Builder()
-                        .addSchema(AppSearchEmail.SCHEMA)
+                        .addSchemas(AppSearchEmail.SCHEMA)
                         .build()));
         checkIsSetSchemaResponseSuccess(mDb2.setSchema(
                 new SetSchemaRequest.Builder()
-                        .addSchema(AppSearchEmail.SCHEMA)
+                        .addSchemas(AppSearchEmail.SCHEMA)
                         .build()));
 
         // Index one document in each database.
@@ -572,11 +572,11 @@ public abstract class GlobalSearchSessionCtsTestBase {
         // Schema registration
         checkIsSetSchemaResponseSuccess(mDb1.setSchema(
                 new SetSchemaRequest.Builder()
-                        .addSchema(AppSearchEmail.SCHEMA)
+                        .addSchemas(AppSearchEmail.SCHEMA)
                         .build()));
         checkIsSetSchemaResponseSuccess(mDb2.setSchema(
                 new SetSchemaRequest.Builder()
-                        .addSchema(AppSearchEmail.SCHEMA)
+                        .addSchemas(AppSearchEmail.SCHEMA)
                         .build()));
 
         // Index one document in each database.

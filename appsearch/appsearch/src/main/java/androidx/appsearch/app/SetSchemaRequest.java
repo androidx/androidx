@@ -134,9 +134,9 @@ public final class SetSchemaRequest {
          * <p>Any documents of these types will be visible on system UI surfaces by default.
          */
         @NonNull
-        public Builder addSchema(@NonNull AppSearchSchema... schemas) {
+        public Builder addSchemas(@NonNull AppSearchSchema... schemas) {
             Preconditions.checkNotNull(schemas);
-            return addSchema(Arrays.asList(schemas));
+            return addSchemas(Arrays.asList(schemas));
         }
 
         /**
@@ -145,7 +145,7 @@ public final class SetSchemaRequest {
          * <p>Any documents of these types will be visible on system UI surfaces by default.
          */
         @NonNull
-        public Builder addSchema(@NonNull Collection<AppSearchSchema> schemas) {
+        public Builder addSchemas(@NonNull Collection<AppSearchSchema> schemas) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(schemas);
             mSchemas.addAll(schemas);
@@ -158,17 +158,17 @@ public final class SetSchemaRequest {
          *
          * <p>Any documents of these types will be visible on system UI surfaces by default.
          *
-         * @param dataClasses classes annotated with
+         * @param documentClasses classes annotated with
          *                    {@link Document}.
          * @throws AppSearchException if {@code androidx.appsearch.compiler.AppSearchCompiler}
-         *                            has not generated a schema for the given data classes.
+         *                            has not generated a schema for the given document classes.
          */
         @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getSchemas()
         @NonNull
-        public Builder addDataClass(@NonNull Class<?>... dataClasses)
+        public Builder addDocumentClasses(@NonNull Class<?>... documentClasses)
                 throws AppSearchException {
-            Preconditions.checkNotNull(dataClasses);
-            return addDataClass(Arrays.asList(dataClasses));
+            Preconditions.checkNotNull(documentClasses);
+            return addDocumentClasses(Arrays.asList(documentClasses));
         }
 
         /**
@@ -176,24 +176,23 @@ public final class SetSchemaRequest {
          *
          * <p>Any documents of these types will be visible on system UI surfaces by default.
          *
-         * @param dataClasses classes annotated with
-         *                    {@link Document}.
+         * @param documentClasses classes annotated with {@link Document}.
          * @throws AppSearchException if {@code androidx.appsearch.compiler.AppSearchCompiler}
-         *                            has not generated a schema for the given data classes.
+         *                            has not generated a schema for the given document classes.
          */
         @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getSchemas()
         @NonNull
-        public Builder addDataClass(@NonNull Collection<? extends Class<?>> dataClasses)
+        public Builder addDocumentClasses(@NonNull Collection<? extends Class<?>> documentClasses)
                 throws AppSearchException {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(dataClasses);
-            List<AppSearchSchema> schemas = new ArrayList<>(dataClasses.size());
+            Preconditions.checkNotNull(documentClasses);
+            List<AppSearchSchema> schemas = new ArrayList<>(documentClasses.size());
             DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
-            for (Class<?> dataClass : dataClasses) {
-                DataClassFactory<?> factory = registry.getOrCreateFactory(dataClass);
+            for (Class<?> documentClass : documentClasses) {
+                DataClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
                 schemas.add(factory.getSchema());
             }
-            return addSchema(schemas);
+            return addSchemas(schemas);
         }
 // @exportToFramework:endStrip()
 
@@ -277,46 +276,46 @@ public final class SetSchemaRequest {
 
 // @exportToFramework:startStrip()
         /**
-         * Sets visibility on system UI surfaces for the given {@code dataClass}.
+         * Sets visibility on system UI surfaces for the given {@code documentClass}.
          *
-         * @param dataClass The schema to set visibility on.
+         * @param documentClass The schema to set visibility on.
          * @param visible   Whether the {@code schemaType} will be visible or not.
          * @return {@link SetSchemaRequest.Builder}
          * @throws AppSearchException if {@code androidx.appsearch.compiler.AppSearchCompiler}
-         *                            has not generated a schema for the given data classes.
+         *                            has not generated a schema for the given document class.
          */
         // Merged list available from getSchemasNotVisibleToSystemUi
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
-        public Builder setDataClassVisibilityForSystemUi(@NonNull Class<?> dataClass,
+        public Builder setDocumentClassVisibilityForSystemUi(@NonNull Class<?> documentClass,
                 boolean visible) throws AppSearchException {
-            Preconditions.checkNotNull(dataClass);
+            Preconditions.checkNotNull(documentClass);
 
             DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
-            DataClassFactory<?> factory = registry.getOrCreateFactory(dataClass);
+            DataClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
             return setSchemaTypeVisibilityForSystemUi(factory.getSchemaType(), visible);
         }
 
         /**
-         * Sets visibility for a package for the given {@code dataClass}.
+         * Sets visibility for a package for the given {@code documentClass}.
          *
-         * @param dataClass         The schema to set visibility on.
+         * @param documentClass         The schema to set visibility on.
          * @param visible           Whether the {@code schemaType} will be visible or not.
          * @param packageIdentifier Represents the package that will be granted visibility
          * @return {@link SetSchemaRequest.Builder}
          * @throws AppSearchException if {@code androidx.appsearch.compiler.AppSearchCompiler}
-         *                            has not generated a schema for the given data classes.
+         *                            has not generated a schema for the given document class.
          */
         // Merged list available from getSchemasVisibleToPackages
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
-        public Builder setDataClassVisibilityForPackage(@NonNull Class<?> dataClass,
+        public Builder setDocumentClassVisibilityForPackage(@NonNull Class<?> documentClass,
                 boolean visible, @NonNull PackageIdentifier packageIdentifier)
                 throws AppSearchException {
-            Preconditions.checkNotNull(dataClass);
+            Preconditions.checkNotNull(documentClass);
 
             DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
-            DataClassFactory<?> factory = registry.getOrCreateFactory(dataClass);
+            DataClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
             return setSchemaTypeVisibilityForPackage(factory.getSchemaType(), visible,
                     packageIdentifier);
         }

@@ -231,7 +231,8 @@ public abstract class AnnotationProcessorTestBase {
         //TODO(b/156296904) add test for int, float, GenericDocument, and class with
         // @Document annotation
         mSession.setSchema(
-                new SetSchemaRequest.Builder().addDataClass(Card.class, Gift.class).build()).get();
+                new SetSchemaRequest.Builder().addDocumentClasses(Card.class, Gift.class).build())
+                .get();
 
         // Create a Gift object and assign values.
         Gift inputDataClass = new Gift();
@@ -302,8 +303,8 @@ public abstract class AnnotationProcessorTestBase {
     public void testAnnotationProcessor_queryByType() throws Exception {
         mSession.setSchema(
                 new SetSchemaRequest.Builder()
-                        .addDataClass(Card.class, Gift.class)
-                        .addSchema(AppSearchEmail.SCHEMA).build())
+                        .addDocumentClasses(Card.class, Gift.class)
+                        .addSchemas(AppSearchEmail.SCHEMA).build())
                 .get();
 
         // Create documents and index them

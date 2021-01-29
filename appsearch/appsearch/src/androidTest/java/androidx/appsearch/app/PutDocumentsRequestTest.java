@@ -70,7 +70,7 @@ public class PutDocumentsRequestTest {
                         .setDatabaseName(LocalStorage.DEFAULT_DATABASE_NAME)
                         .build()
         ).get();
-        session.setSchema(new SetSchemaRequest.Builder().addDataClass(Card.class).build());
+        session.setSchema(new SetSchemaRequest.Builder().addDocumentClasses(Card.class).build());
 
         Set<Card> cards = ImmutableSet.of(new Card("cardUri", "cardProperty"));
         PutDocumentsRequest request = new PutDocumentsRequest.Builder().addDataClass(cards)
