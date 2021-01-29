@@ -26,6 +26,7 @@ dependencies {
     docs(project(":benchmark:benchmark-common"))
     docs(project(":benchmark:benchmark-junit4"))
     docs(project(":benchmark:benchmark-macro"))
+    docs(project(":benchmark:benchmark-macro-junit4"))
     docs(project(":biometric:biometric"))
     docs(project(":biometric:biometric-ktx"))
     samples(project(":biometric:biometric-ktx-samples"))

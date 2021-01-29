@@ -92,7 +92,8 @@ public object InstrumentationResults {
      * In am instrument terms, per-test results are printed with `INSTRUMENTATION_STATUS:`, and
      * per-run results are reported with `INSTRUMENTATION_RESULT:`.
      */
-    internal fun reportAdditionalFileToCopy(
+    @Suppress("MissingJvmstatic")
+    public fun reportAdditionalFileToCopy(
         key: String,
         absoluteFilePath: String,
         reportOnRunEndOnly: Boolean = false
