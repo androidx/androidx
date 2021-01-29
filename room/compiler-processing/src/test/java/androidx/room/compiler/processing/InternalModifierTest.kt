@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.processing.util.CompilationTestCapabilities
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runKspTest
@@ -26,6 +27,7 @@ class InternalModifierTest {
     @OptIn(ExperimentalStdlibApi::class)
     @Test
     fun testInternalsAndInlines() {
+        CompilationTestCapabilities.assumeKspIsEnabled()
         /**
          * parse same file w/ kapt and KSP and ensure results are the same.
          */
