@@ -23,7 +23,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.AmbientContext
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -35,7 +35,7 @@ import kotlin.random.Random
 
 @Composable
 fun PagingRoomDemo() {
-    val context = AmbientContext.current
+    val context = LocalContext.current
     val dao: UserDao = AppDatabase.getInstance(context).userDao()
     val scope = rememberCoroutineScope()
 
