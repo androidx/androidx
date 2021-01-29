@@ -553,7 +553,7 @@ public final class Preview extends UseCase {
          * <p>A request is considered active until it is
          *
          * {@linkplain SurfaceRequest#provideSurface(Surface, Executor, androidx.core.util.Consumer)
-         * fulfilled}, {@linkplain SurfaceRequest#willNotProvideSurface()} marked as 'will not
+         * fulfilled}, {@linkplain SurfaceRequest#willNotProvideSurface() marked as 'will not
          * complete'}, or
          * {@linkplain SurfaceRequest#addRequestCancellationListener(Executor, Runnable) cancelled
          * by the camera}. After one of these conditions occurs, a request is considered completed.
