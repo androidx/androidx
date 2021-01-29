@@ -2622,47 +2622,48 @@ public abstract class FragmentManager implements FragmentResultOwner {
         if (mBackStack == null || mBackStack.isEmpty()) {
             return -1;
         }
-        if (name == null && id < 0 && !inclusive) {
-            return mBackStack.size() - 1;
+        if (name == null && id < 0) {
+            if (inclusive) {
+                return 0;
+            } else {
+                return mBackStack.size() - 1;
+            }
         } else {
-            int index = -1;
-            if (name != null || id >= 0) {
-                // If a name or ID is specified, look for that place in
-                // the stack.
-                index = mBackStack.size() - 1;
-                while (index >= 0) {
-                    BackStackRecord bss = mBackStack.get(index);
-                    if (name != null && name.equals(bss.getName())) {
-                        break;
-                    }
-                    if (id >= 0 && id == bss.mIndex) {
-                        break;
-                    }
-                    index--;
+            // If a name or ID is specified, look for that place in
+            // the stack.
+            int index = mBackStack.size() - 1;
+            while (index >= 0) {
+                BackStackRecord bss = mBackStack.get(index);
+                if (name != null && name.equals(bss.getName())) {
+                    break;
                 }
-                if (index < 0) {
-                    return index;
+                if (id >= 0 && id == bss.mIndex) {
+                    break;
                 }
-                if (inclusive) {
-                    // Consume all following entries that match.
-                    while (index > 0) {
-                        BackStackRecord bss = mBackStack.get(index - 1);
-                        if ((name != null && name.equals(bss.getName()))
-                                || (id >= 0 && id == bss.mIndex)) {
-                            index--;
-                            continue;
-                        }
-                        break;
+                index--;
+            }
+            if (index < 0) {
+                return index;
+            }
+            if (inclusive) {
+                // Consume all following entries that match.
+                while (index > 0) {
+                    BackStackRecord bss = mBackStack.get(index - 1);
+                    if ((name != null && name.equals(bss.getName()))
+                            || (id >= 0 && id == bss.mIndex)) {
+                        index--;
+                        continue;
                     }
-                } else if (index == mBackStack.size() - 1) {
-                    // For a non-inclusive search, finding the last record
-                    // is the same as finding nothing at all since the
-                    // matching record itself is not included
-                    return -1;
-                } else {
-                    // Non-inclusive, so skip the actual matching record
-                    index++;
+                    break;
                 }
+            } else if (index == mBackStack.size() - 1) {
+                // For a non-inclusive search, finding the last record
+                // is the same as finding nothing at all since the
+                // matching record itself is not included
+                return -1;
+            } else {
+                // Non-inclusive, so skip the actual matching record
+                index++;
             }
             return index;
         }
