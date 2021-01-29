@@ -17,7 +17,6 @@
 package androidx.room.processor
 
 import androidx.room.compiler.processing.isTypeElement
-import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.parser.SqlParser
 import androidx.room.parser.expansion.ProjectionExpander
 import androidx.room.testing.TestInvocation

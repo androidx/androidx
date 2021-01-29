@@ -42,7 +42,8 @@ internal object KaptCompilationTestRunner : CompilationTestRunner {
             testRunner = this,
             delegate = result,
             processor = syntheticJavacProcessor,
-            successfulCompilation = result.exitCode == KotlinCompilation.ExitCode.OK
+            successfulCompilation = result.exitCode == KotlinCompilation.ExitCode.OK,
+            outputSourceDirs = listOf(compilation.kaptSourceDir, compilation.kaptKotlinGeneratedDir)
         )
     }
 }

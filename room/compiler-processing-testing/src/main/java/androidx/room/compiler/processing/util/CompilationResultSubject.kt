@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.util
 import androidx.room.compiler.processing.SyntheticJavacProcessor
 import androidx.room.compiler.processing.SyntheticProcessor
 import androidx.room.compiler.processing.util.runner.CompilationTestRunner
+import com.google.common.truth.Fact.fact
 import com.google.common.truth.Fact.simpleFact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
@@ -27,6 +28,7 @@ import com.google.common.truth.Truth
 import com.google.testing.compile.Compilation
 import com.google.testing.compile.CompileTester
 import com.tschuchort.compiletesting.KotlinCompilation
+import java.io.File
 import javax.tools.Diagnostic
 
 /**
@@ -46,6 +48,8 @@ abstract class CompilationResult internal constructor(
      */
     internal val successfulCompilation: Boolean,
 ) {
+    internal abstract val generatedSources: List<Source>
+
     private val diagnostics = processor.messageWatcher.diagnostics()
 
     fun diagnosticsOfKind(kind: Diagnostic.Kind) = diagnostics[kind].orEmpty()
@@ -68,6 +72,10 @@ abstract class CompilationResult internal constructor(
                     appendLine(it)
                 }
                 appendLine()
+            }
+            appendLine("Generated files:")
+            generatedSources.forEach {
+                appendLine(it.relativePath)
             }
             appendLine("RAW OUTPUT:")
             appendLine(rawOutput())
@@ -140,6 +148,33 @@ class CompilationResultSubject(
         if (actual().diagnosticsOfKind(Diagnostic.Kind.ERROR).isEmpty()) {
             failWithActual(
                 simpleFact("expected at least one failure message")
+            )
+        }
+    }
+
+    /**
+     * Asserts that the given source file is generated.
+     *
+     * Unlike Java compile testing, which does structural comparison, this method executes a line
+     * by line comparison and is only able to ignore spaces and empty lines.
+     */
+    fun generatedSource(source: Source) = chain {
+        val match = actual().generatedSources.firstOrNull {
+            it.relativePath == source.relativePath
+        }
+        if (match == null) {
+            failWithActual(
+                simpleFact("Didn't generate $source")
+            )
+            return@chain
+        }
+        val mismatch = source.findMismatch(match)
+        if (mismatch != null) {
+            failWithActual(
+                simpleFact("Generated code does not match expected"),
+                fact("mismatch", mismatch),
+                fact("expected", source.contents),
+                fact("actual", match.contents),
             )
         }
     }
@@ -219,6 +254,16 @@ internal class JavaCompileTestingCompilationResult(
     processor = processor,
     successfulCompilation = delegate.status() == Compilation.Status.SUCCESS
 ) {
+    override val generatedSources: List<Source> by lazy {
+        if (successfulCompilation) {
+            delegate.generatedSourceFiles().map(Source::fromJavaFileObject)
+        } else {
+            // java compile testing does not provide access to generated files when compilation
+            // fails
+            emptyList()
+        }
+    }
+
     override fun rawOutput(): String {
         return delegate.diagnostics().joinToString {
             it.toString()
@@ -231,12 +276,34 @@ internal class KotlinCompileTestingCompilationResult(
     @Suppress("unused")
     private val delegate: KotlinCompilation.Result,
     processor: SyntheticProcessor,
-    successfulCompilation: Boolean
+    successfulCompilation: Boolean,
+    outputSourceDirs: List<File>,
 ) : CompilationResult(
     testRunnerName = testRunner.name,
     processor = processor,
     successfulCompilation = successfulCompilation
 ) {
+    override val generatedSources: List<Source> by lazy {
+        outputSourceDirs.flatMap { srcRoot ->
+            srcRoot.walkTopDown().mapNotNull { sourceFile ->
+                when {
+                    sourceFile.name.endsWith(".java") -> {
+                        val qName = sourceFile.absolutePath.substringAfter(
+                            srcRoot.absolutePath
+                        ).dropWhile { it == '/' }
+                            .replace('/', '.')
+                            .dropLast(".java".length)
+                        Source.loadJavaSource(sourceFile, qName)
+                    }
+                    sourceFile.name.endsWith(".kt") -> {
+                        Source.loadKotlinSource(sourceFile)
+                    }
+                    else -> null
+                }
+            }
+        }
+    }
+
     override fun rawOutput(): String {
         return delegate.messages
     }

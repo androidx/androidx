@@ -418,7 +418,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                     )
                     .nextRunHandler { invocation ->
                         val dao = invocation.roundEnv
-                            .getElementsAnnotatedWith(
+                            .getTypeElementsAnnotatedWith(
                                 androidx.room.Dao::class.java
                             )
                             .first()

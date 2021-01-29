@@ -18,7 +18,6 @@ package androidx.room.processor
 
 import androidx.room.Entity
 import androidx.room.compiler.processing.XFieldElement
-import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.solver.types.ColumnTypeAdapter

@@ -27,7 +27,6 @@ import androidx.room.ext.typeName
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.processor.ProcessorErrors.cannotFindQueryResultAdapter
 import androidx.room.solver.query.result.DataSourceFactoryQueryResultBinder
 import androidx.room.solver.query.result.ListQueryResultAdapter
