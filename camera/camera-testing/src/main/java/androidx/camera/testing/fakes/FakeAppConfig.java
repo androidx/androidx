@@ -17,9 +17,12 @@
 package androidx.camera.testing.fakes;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
+import androidx.camera.core.ExperimentalAvailableCamerasLimiter;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
 
@@ -36,10 +39,21 @@ public final class FakeAppConfig {
     private static final String CAMERA_ID_1 = "1";
 
     /** Generates a fake {@link CameraXConfig}. */
+    @UseExperimental(markerClass = ExperimentalAvailableCamerasLimiter.class)
     @NonNull
     public static CameraXConfig create() {
-        CameraFactory.Provider cameraFactoryProvider = (ignored1, ignored2, ignored3) -> {
-            FakeCameraFactory cameraFactory = new FakeCameraFactory();
+        return create(null);
+    }
+
+    /**
+     * Generates a fake {@link CameraXConfig} with the provided {@linkplain CameraSelector
+     * available cameras limiter}.
+     */
+    @ExperimentalAvailableCamerasLimiter
+    @NonNull
+    public static CameraXConfig create(@Nullable CameraSelector availableCamerasSelector) {
+        final CameraFactory.Provider cameraFactoryProvider = (ignored1, ignored2, ignored3) -> {
+            final FakeCameraFactory cameraFactory = new FakeCameraFactory(availableCamerasSelector);
             cameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, CAMERA_ID_0,
                     () -> new FakeCamera(CAMERA_ID_0, null,
                             new FakeCameraInfoInternal(CAMERA_ID_0, 0,
@@ -51,14 +65,17 @@ public final class FakeAppConfig {
             return cameraFactory;
         };
 
-        CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
+        final CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
                 (ignored1, ignored2, ignored3) -> new FakeCameraDeviceSurfaceManager();
 
-        CameraXConfig.Builder appConfigBuilder =
-                new CameraXConfig.Builder()
-                        .setCameraFactoryProvider(cameraFactoryProvider)
-                        .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
-                        .setUseCaseConfigFactoryProvider(ignored -> new FakeUseCaseConfigFactory());
+        final CameraXConfig.Builder appConfigBuilder = new CameraXConfig.Builder()
+                .setCameraFactoryProvider(cameraFactoryProvider)
+                .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
+                .setUseCaseConfigFactoryProvider(ignored -> new FakeUseCaseConfigFactory());
+
+        if (availableCamerasSelector != null) {
+            appConfigBuilder.setAvailableCamerasLimiter(availableCamerasSelector);
+        }
 
         return appConfigBuilder.build();
     }

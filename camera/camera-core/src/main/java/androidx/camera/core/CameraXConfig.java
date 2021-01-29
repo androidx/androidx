@@ -344,21 +344,21 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
         }
 
         /**
-         * Sets a {@link CameraSelector} to determine the available cameras which defines
-         * which cameras can be used in the application.
+         * Sets a {@link CameraSelector} to determine the available cameras, thus defining which
+         * cameras can be used in the application.
          *
-         * <p>Only cameras selected by this CameraSelector can be used in the applications. If
-         * the application binds the use cases with a CameraSelector that selects a unavailable
-         * camera, a {@link IllegalArgumentException} will be thrown.
+         * <p>Only cameras selected by this CameraSelector can be used in the application. If the
+         * application binds use cases with a CameraSelector that selects an unavailable camera,
+         * an {@link IllegalArgumentException} will be thrown.
          *
          * <p>This configuration can help CameraX optimize the latency of CameraX initialization.
          * The tasks CameraX initialization performs include enumerating cameras, querying
-         * CameraCharacteristics and retrieving properties preparing for resolution determination.
-         * On some low end devices, these could take significant amount of time. Using the API
-         * can avoid the initialization of unnecessary cameras and speed up the time for camera
-         * start-up. For example, if the application uses only back cameras, it can set this
-         * configuration by CameraSelector.DEFAULT_BACK_CAMERA and then CameraX will avoid
-         * initializing front cameras to reduce the latency.
+         * camera characteristics and retrieving properties in preparation for resolution
+         * determination. On some low end devices, these tasks could take a significant amount of
+         * time. Using this method can avoid the initialization of unnecessary cameras and speed
+         * up the time for camera start-up. For example, if the application uses only back facing
+         * cameras, it can set this configuration with {@link CameraSelector#DEFAULT_BACK_CAMERA}
+         * and then CameraX will avoid initializing front facing cameras to reduce the latency.
          */
         @ExperimentalAvailableCamerasLimiter
         @NonNull
