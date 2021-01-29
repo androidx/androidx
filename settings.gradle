@@ -33,7 +33,7 @@ private static Set<BuildType> createRequestedFilter() {
     if (!System.getenv().containsKey("ANDROIDX_PROJECTS")) return null
     String[] requestedFilter = System.getenv("ANDROIDX_PROJECTS").split(",")
     for (String requestedType : requestedFilter) {
-        switch (requestedType) {
+        switch (requestedType.toUpperCase()) {
             case "MAIN":
                 filter.add(BuildType.MAIN)
                 break
