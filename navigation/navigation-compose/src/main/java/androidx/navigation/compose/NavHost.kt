@@ -24,9 +24,9 @@ import androidx.compose.runtime.Providers
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.ui.platform.AmbientContext
-import androidx.compose.ui.platform.AmbientLifecycleOwner
-import androidx.compose.ui.platform.AmbientViewModelStoreOwner
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalViewModelStoreOwner
 import androidx.compose.ui.viewinterop.viewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -80,9 +80,9 @@ public fun NavHost(
  */
 @Composable
 public fun NavHost(navController: NavHostController, graph: NavGraph) {
-    var context = AmbientContext.current
-    val lifecycleOwner = AmbientLifecycleOwner.current
-    val viewModelStore = AmbientViewModelStoreOwner.current.viewModelStore
+    var context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val viewModelStore = LocalViewModelStoreOwner.current.viewModelStore
     val rememberedGraph = remember { graph }
 
     // on successful recompose we setup the navController with proper inputs
@@ -124,8 +124,8 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
             // while in the scope of the composable, we provide the navBackStackEntry as the
             // ViewModelStoreOwner and LifecycleOwner
             Providers(
-                AmbientViewModelStoreOwner provides currentNavBackStackEntry,
-                AmbientLifecycleOwner provides currentNavBackStackEntry
+                LocalViewModelStoreOwner provides currentNavBackStackEntry,
+                LocalLifecycleOwner provides currentNavBackStackEntry
             ) {
                 saveableStateHolder.SaveableStateProvider {
                     destination.content(currentNavBackStackEntry)

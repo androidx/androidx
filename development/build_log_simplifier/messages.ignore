@@ -882,6 +882,7 @@ UI_MODE_TYPE_VR_HEADSET,
 \$SUPPORT/.*/build\.gradle: Ignore: Unknown issue id "ComposableNaming" \[UnknownIssueId\]
 \$SUPPORT/.*/build\.gradle: Ignore: Unknown issue id "ComposableLambdaParameterNaming" \[UnknownIssueId\]
 \$SUPPORT/.*/build\.gradle: Ignore: Unknown issue id "ComposableLambdaParameterPosition" \[UnknownIssueId\]
+\$SUPPORT/.*/build\.gradle: Ignore: Unknown issue id "CompositionLocalNaming" \[UnknownIssueId\]
 Explanation for issues of type "UnknownIssueId":
 Lint will report this issue if it is configured with an issue id it does
 not recognize in for example Gradle files or lint\.xml configuration files\.
