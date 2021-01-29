@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.text.TextUtils;
+import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
 
@@ -39,9 +40,10 @@ import androidx.annotation.RequiresPermission;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.testing.R;
+import androidx.core.util.Preconditions;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -50,6 +52,7 @@ public class Camera2TestActivity extends Activity {
 
     private static final String TAG = "Camera2TestActivity";
     private static final int FRAMES_UNTIL_VIEW_IS_READY = 5;
+    private static final Size GUARANTEED_RESOLUTION = new Size(640, 480);
     public static final String EXTRA_CAMERA_ID = "androidx.camera.cameraId";
 
     /**
@@ -232,11 +235,14 @@ public class Camera2TestActivity extends Activity {
      */
     @SuppressWarnings("deprecation") /* createCaptureSession */
     void createCameraPreviewSession() {
+        Preconditions.checkNotNull(mCameraDevice);
         try {
             SurfaceTexture texture = mTextureView.getSurfaceTexture();
 
-            // We configure the size of default buffer to be the size of camera preview we want.
-            texture.setDefaultBufferSize(mTextureView.getWidth(), mTextureView.getHeight());
+            // We configure the size of default buffer to be the size of the guaranteed supported
+            // resolution, which is 640x480.
+            texture.setDefaultBufferSize(GUARANTEED_RESOLUTION.getWidth(),
+                    GUARANTEED_RESOLUTION.getHeight());
 
             // This is the output Surface we need to start preview.
             Surface surface = new Surface(texture);
@@ -247,7 +253,7 @@ public class Camera2TestActivity extends Activity {
             mPreviewRequestBuilder.addTarget(surface);
 
             // Here, we create a CameraCaptureSession for camera preview.
-            mCameraDevice.createCaptureSession(Arrays.asList(surface),
+            mCameraDevice.createCaptureSession(Collections.singletonList(surface),
                     new CameraCaptureSession.StateCallback() {
 
                         @Override
@@ -300,7 +306,9 @@ public class Camera2TestActivity extends Activity {
      * Stops the background thread and its {@link Handler}.
      */
     private void stopBackgroundThread() {
-        mBackgroundThread.quitSafely();
+        if (mBackgroundThread != null) {
+            mBackgroundThread.quitSafely();
+        }
         try {
             mBackgroundThread.join();
             mBackgroundThread = null;
