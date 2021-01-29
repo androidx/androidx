@@ -32,7 +32,7 @@ import javax.lang.model.element.Modifier;
 
 /**
  * Generates java code for an {@link androidx.appsearch.app.AppSearchSchema} and a translator
- * between the data class and a {@link androidx.appsearch.app.GenericDocument}.
+ * between the document class and a {@link androidx.appsearch.app.GenericDocument}.
  */
 class CodeGenerator {
     @VisibleForTesting

@@ -39,7 +39,8 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 
 /**
- * Generates java code for a translator from a data class to a
+ * Generates java code for a translator from an instance of a class annotated with
+ * {@link androidx.appsearch.annotation.Document} into a
  * {@link androidx.appsearch.app.GenericDocument}.
  */
 class ToGenericDocumentCodeGenerator {
@@ -72,7 +73,7 @@ class ToGenericDocumentCodeGenerator {
                 .addModifiers(Modifier.PUBLIC)
                 .returns(mHelper.getAppSearchClass("GenericDocument"))
                 .addAnnotation(Override.class)
-                .addParameter(classType, "dataClass")
+                .addParameter(classType, "document")
                 .addException(mHelper.getAppSearchExceptionClass());
 
         // Construct a new GenericDocument.Builder with the schema type and URI
@@ -96,7 +97,7 @@ class ToGenericDocumentCodeGenerator {
     }
 
     /**
-     * Converts a field from a data class into a format suitable for one of the
+     * Converts a field from a document class into a format suitable for one of the
      * {@link androidx.appsearch.app.GenericDocument.Builder#setProperty} methods.
      */
     private void fieldToGenericDoc(
@@ -669,7 +670,7 @@ class ToGenericDocumentCodeGenerator {
                 DocumentModel.SpecialField.values()) {
             String fieldName = mModel.getSpecialFieldName(specialField);
             if (fieldName == null) {
-                continue;  // The data class doesn't have this field, so no need to set it.
+                continue;  // The document class doesn't have this field, so no need to set it.
             }
             switch (specialField) {
                 case URI:
@@ -704,10 +705,10 @@ class ToGenericDocumentCodeGenerator {
     private CodeBlock createAppSearchFieldRead(@NonNull String fieldName) {
         switch (mModel.getFieldReadKind(fieldName)) {
             case FIELD:
-                return CodeBlock.of("dataClass.$N", fieldName);
+                return CodeBlock.of("document.$N", fieldName);
             case GETTER:
                 String getter = mModel.getAccessorName(fieldName, /*get=*/ true);
-                return CodeBlock.of("dataClass.$N()", getter);
+                return CodeBlock.of("document.$N()", getter);
         }
         return null;
     }

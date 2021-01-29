@@ -323,7 +323,7 @@ public final class SearchSpec {
 
 // @exportToFramework:startStrip()
         /**
-         * Adds the Schema type of given data classes to the Schema type filter of
+         * Adds the Schema names of given document classes to the Schema type filter of
          * {@link SearchSpec} Entry. Only search for documents that have the specified schema types.
          *
          * <p>If unset, the query will search over all schema types.
@@ -350,21 +350,20 @@ public final class SearchSpec {
 
 // @exportToFramework:startStrip()
         /**
-         * Adds the Schema type of given data classes to the Schema type filter of
+         * Adds the Schema names of given document classes to the Schema type filter of
          * {@link SearchSpec} Entry. Only search for documents that have the specified schema types.
          *
          * <p>If unset, the query will search over all schema types.
          *
-         * @param dataClasses classes annotated with
-         *                    {@link Document}.
+         * @param documentClasses classes annotated with {@link Document}.
          */
         // Merged list available from getFilterSchemas()
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
-        public Builder addFilterDocumentClasses(@NonNull Class<?>... dataClasses)
+        public Builder addFilterDocumentClasses(@NonNull Class<?>... documentClasses)
                 throws AppSearchException {
-            Preconditions.checkNotNull(dataClasses);
-            return addFilterDocumentClasses(Arrays.asList(dataClasses));
+            Preconditions.checkNotNull(documentClasses);
+            return addFilterDocumentClasses(Arrays.asList(documentClasses));
         }
 // @exportToFramework:endStrip()
 

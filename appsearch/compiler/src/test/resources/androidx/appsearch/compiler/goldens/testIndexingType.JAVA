@@ -37,18 +37,18 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   }
 
   @Override
-  public GenericDocument toGenericDocument(Gift dataClass) throws AppSearchException {
+  public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(dataClass.uri, SCHEMA_NAME);
-    String indexNoneCopy = dataClass.indexNone;
+        new GenericDocument.Builder<>(document.uri, SCHEMA_NAME);
+    String indexNoneCopy = document.indexNone;
     if (indexNoneCopy != null) {
       builder.setPropertyString("indexNone", indexNoneCopy);
     }
-    String indexExactCopy = dataClass.indexExact;
+    String indexExactCopy = document.indexExact;
     if (indexExactCopy != null) {
       builder.setPropertyString("indexExact", indexExactCopy);
     }
-    String indexPrefixCopy = dataClass.indexPrefix;
+    String indexPrefixCopy = document.indexPrefix;
     if (indexPrefixCopy != null) {
       builder.setPropertyString("indexPrefix", indexPrefixCopy);
     }
@@ -73,11 +73,11 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     if (indexPrefixCopy != null && indexPrefixCopy.length != 0) {
       indexPrefixConv = indexPrefixCopy[0];
     }
-    Gift dataClass = new Gift();
-    dataClass.uri = uriConv;
-    dataClass.indexNone = indexNoneConv;
-    dataClass.indexExact = indexExactConv;
-    dataClass.indexPrefix = indexPrefixConv;
-    return dataClass;
+    Gift document = new Gift();
+    document.uri = uriConv;
+    document.indexNone = indexNoneConv;
+    document.indexExact = indexExactConv;
+    document.indexPrefix = indexPrefixConv;
+    return document;
   }
 }

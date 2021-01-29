@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a class as a data class known to AppSearch.
+ * Marks a class as an entity known to AppSearch containing a data record.
  *
  * <p>Each field annotated with {@link Property @Property} will become an AppSearch searchable
  * property. Fields annotated with other annotations included here (like {@link Uri @Uri}) will have

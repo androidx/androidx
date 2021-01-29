@@ -61,7 +61,7 @@ public class PutDocumentsRequestTest {
     }
 
     @Test
-    public void addDataClass_byCollection() throws Exception {
+    public void addDocumentClasses_byCollection() throws Exception {
         // A schema with Card must be set in order to be able to add a Card instance to
         // PutDocumentsRequest.
         Context context = ApplicationProvider.getApplicationContext();

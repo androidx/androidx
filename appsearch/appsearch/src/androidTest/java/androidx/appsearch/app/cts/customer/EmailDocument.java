@@ -20,7 +20,7 @@ import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 
 @Document
-public final class EmailDataClass {
+public final class EmailDocument {
     @Document.Uri
     public String uri;
 

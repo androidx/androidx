@@ -41,24 +41,24 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   }
 
   @Override
-  public GenericDocument toGenericDocument(Gift dataClass) throws AppSearchException {
+  public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(dataClass.uri, SCHEMA_NAME);
-    List<String> repeatReqCopy = dataClass.repeatReq;
+        new GenericDocument.Builder<>(document.uri, SCHEMA_NAME);
+    List<String> repeatReqCopy = document.repeatReq;
     if (repeatReqCopy != null) {
       String[] repeatReqConv = repeatReqCopy.toArray(new String[0]);
       builder.setPropertyString("repeatReq", repeatReqConv);
     }
-    List<String> repeatNoReqCopy = dataClass.repeatNoReq;
+    List<String> repeatNoReqCopy = document.repeatNoReq;
     if (repeatNoReqCopy != null) {
       String[] repeatNoReqConv = repeatNoReqCopy.toArray(new String[0]);
       builder.setPropertyString("repeatNoReq", repeatNoReqConv);
     }
-    Float reqCopy = dataClass.req;
+    Float reqCopy = document.req;
     if (reqCopy != null) {
       builder.setPropertyDouble("req", reqCopy);
     }
-    Float noReqCopy = dataClass.noReq;
+    Float noReqCopy = document.noReq;
     if (noReqCopy != null) {
       builder.setPropertyDouble("noReq", noReqCopy);
     }
@@ -88,12 +88,12 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     if (noReqCopy != null && noReqCopy.length != 0) {
       noReqConv = (float) noReqCopy[0];
     }
-    Gift dataClass = new Gift();
-    dataClass.uri = uriConv;
-    dataClass.repeatReq = repeatReqConv;
-    dataClass.repeatNoReq = repeatNoReqConv;
-    dataClass.req = reqConv;
-    dataClass.noReq = noReqConv;
-    return dataClass;
+    Gift document = new Gift();
+    document.uri = uriConv;
+    document.repeatReq = repeatReqConv;
+    document.repeatNoReq = repeatNoReqConv;
+    document.req = reqConv;
+    document.noReq = noReqConv;
+    return document;
   }
 }

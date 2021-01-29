@@ -46,7 +46,7 @@ import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
-import androidx.appsearch.app.cts.customer.EmailDataClass;
+import androidx.appsearch.app.cts.customer.EmailDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
@@ -258,9 +258,9 @@ public abstract class AppSearchSessionCtsTestBase {
 // @exportToFramework:startStrip()
 
     @Test
-    public void testSetSchema_dataClass() throws Exception {
+    public void testSetSchema_addDocumentClasses() throws Exception {
         checkIsSetSchemaResponseSuccess(mDb1.setSchema(
-                new SetSchemaRequest.Builder().addDocumentClasses(EmailDataClass.class).build()));
+                new SetSchemaRequest.Builder().addDocumentClasses(EmailDocument.class).build()));
     }
 // @exportToFramework:endStrip()
 
@@ -294,9 +294,9 @@ public abstract class AppSearchSessionCtsTestBase {
                 ).build();
 
         SetSchemaRequest request1 = new SetSchemaRequest.Builder()
-                .addSchemas(emailSchema1).addDocumentClasses(EmailDataClass.class).build();
+                .addSchemas(emailSchema1).addDocumentClasses(EmailDocument.class).build();
         SetSchemaRequest request2 = new SetSchemaRequest.Builder()
-                .addSchemas(emailSchema2).addDocumentClasses(EmailDataClass.class).build();
+                .addSchemas(emailSchema2).addDocumentClasses(EmailDocument.class).build();
 
         checkIsSetSchemaResponseSuccess(mDb1.setSchema(request1));
         checkIsSetSchemaResponseSuccess(mDb2.setSchema(request2));
@@ -332,13 +332,13 @@ public abstract class AppSearchSessionCtsTestBase {
 // @exportToFramework:startStrip()
 
     @Test
-    public void testPutDocuments_dataClass() throws Exception {
+    public void testPut_addDocumentClasses() throws Exception {
         // Schema registration
         checkIsSetSchemaResponseSuccess(mDb1.setSchema(
-                new SetSchemaRequest.Builder().addDocumentClasses(EmailDataClass.class).build()));
+                new SetSchemaRequest.Builder().addDocumentClasses(EmailDocument.class).build()));
 
         // Index a document
-        EmailDataClass email = new EmailDataClass();
+        EmailDocument email = new EmailDocument();
         email.uri = "uri1";
         email.subject = "testPut example";
         email.body = "This is the body of the testPut email";
@@ -592,13 +592,13 @@ public abstract class AppSearchSessionCtsTestBase {
 // @exportToFramework:startStrip()
 
     @Test
-    public void testGetDocuments_dataClass() throws Exception {
+    public void testGet_addDocumentClasses() throws Exception {
         // Schema registration
         checkIsSetSchemaResponseSuccess(mDb1.setSchema(
-                new SetSchemaRequest.Builder().addDocumentClasses(EmailDataClass.class).build()));
+                new SetSchemaRequest.Builder().addDocumentClasses(EmailDocument.class).build()));
 
         // Index a document
-        EmailDataClass inEmail = new EmailDataClass();
+        EmailDocument inEmail = new EmailDocument();
         inEmail.uri = "uri1";
         inEmail.subject = "testPut example";
         inEmail.body = "This is the body of the testPut inEmail";
@@ -608,7 +608,7 @@ public abstract class AppSearchSessionCtsTestBase {
         // Get the document
         List<GenericDocument> outDocuments = doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1");
         assertThat(outDocuments).hasSize(1);
-        EmailDataClass outEmail = outDocuments.get(0).toDataClass(EmailDataClass.class);
+        EmailDocument outEmail = outDocuments.get(0).toDocumentClass(EmailDocument.class);
         assertThat(inEmail.uri).isEqualTo(outEmail.uri);
         assertThat(inEmail.subject).isEqualTo(outEmail.subject);
         assertThat(inEmail.body).isEqualTo(outEmail.body);

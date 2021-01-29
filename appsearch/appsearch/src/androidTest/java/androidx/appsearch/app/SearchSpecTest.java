@@ -109,7 +109,7 @@ public class SearchSpecTest {
     static class Card {}
 
     @Test
-    public void testAddSchemaByDataClass_byCollection() throws Exception {
+    public void testFilterDocumentClasses_byCollection() throws Exception {
         Set<Class<King>> cardClassSet = ImmutableSet.of(King.class);
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)

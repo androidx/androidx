@@ -32,14 +32,14 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   }
 
   @Override
-  public GenericDocument toGenericDocument(Gift dataClass) throws AppSearchException {
+  public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(dataClass.uri, SCHEMA_NAME);
-    String tokNoneCopy = dataClass.tokNone;
+        new GenericDocument.Builder<>(document.uri, SCHEMA_NAME);
+    String tokNoneCopy = document.tokNone;
     if (tokNoneCopy != null) {
       builder.setPropertyString("tokNone", tokNoneCopy);
     }
-    String tokPlainCopy = dataClass.tokPlain;
+    String tokPlainCopy = document.tokPlain;
     if (tokPlainCopy != null) {
       builder.setPropertyString("tokPlain", tokPlainCopy);
     }
@@ -59,10 +59,10 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     if (tokPlainCopy != null && tokPlainCopy.length != 0) {
       tokPlainConv = tokPlainCopy[0];
     }
-    Gift dataClass = new Gift();
-    dataClass.uri = uriConv;
-    dataClass.tokNone = tokNoneConv;
-    dataClass.tokPlain = tokPlainConv;
-    return dataClass;
+    Gift document = new Gift();
+    document.uri = uriConv;
+    document.tokNone = tokNoneConv;
+    document.tokPlain = tokPlainConv;
+    return document;
   }
 }

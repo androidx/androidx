@@ -235,55 +235,55 @@ public abstract class AnnotationProcessorTestBase {
                 .get();
 
         // Create a Gift object and assign values.
-        Gift inputDataClass = new Gift();
-        inputDataClass.mUri = "gift.uri";
+        Gift inputDocument = new Gift();
+        inputDocument.mUri = "gift.uri";
 
-        inputDataClass.mArrBoxBoolean = new Boolean[]{true, false};
-        inputDataClass.mArrBoxDouble = new Double[]{0.0, 1.0};
-        inputDataClass.mArrBoxFloat = new Float[]{2.0F, 3.0F};
-        inputDataClass.mArrBoxInteger = new Integer[]{4, 5};
-        inputDataClass.mArrBoxLong = new Long[]{6L, 7L};
-        inputDataClass.mArrString = new String[]{"cat", "dog"};
-        inputDataClass.mBoxByteArr = new Byte[]{8, 9};
-        inputDataClass.mArrUnboxBoolean = new boolean[]{false, true};
-        inputDataClass.mArrUnboxByteArr = new byte[][]{{0, 1}, {2, 3}};
-        inputDataClass.mArrUnboxDouble = new double[]{1.0, 0.0};
-        inputDataClass.mArrUnboxFloat = new float[]{3.0f, 2.0f};
-        inputDataClass.mArrUnboxInt = new int[]{5, 4};
-        inputDataClass.mArrUnboxLong = new long[]{7, 6};
+        inputDocument.mArrBoxBoolean = new Boolean[]{true, false};
+        inputDocument.mArrBoxDouble = new Double[]{0.0, 1.0};
+        inputDocument.mArrBoxFloat = new Float[]{2.0F, 3.0F};
+        inputDocument.mArrBoxInteger = new Integer[]{4, 5};
+        inputDocument.mArrBoxLong = new Long[]{6L, 7L};
+        inputDocument.mArrString = new String[]{"cat", "dog"};
+        inputDocument.mBoxByteArr = new Byte[]{8, 9};
+        inputDocument.mArrUnboxBoolean = new boolean[]{false, true};
+        inputDocument.mArrUnboxByteArr = new byte[][]{{0, 1}, {2, 3}};
+        inputDocument.mArrUnboxDouble = new double[]{1.0, 0.0};
+        inputDocument.mArrUnboxFloat = new float[]{3.0f, 2.0f};
+        inputDocument.mArrUnboxInt = new int[]{5, 4};
+        inputDocument.mArrUnboxLong = new long[]{7, 6};
 
         Card card1 = new Card();
         card1.mUri = "card.uri1";
         Card card2 = new Card();
         card2.mUri = "card.uri2";
-        inputDataClass.mArrCard = new Card[]{card2, card2};
+        inputDocument.mArrCard = new Card[]{card2, card2};
 
-        inputDataClass.mCollectLong = Arrays.asList(inputDataClass.mArrBoxLong);
-        inputDataClass.mCollectInteger = Arrays.asList(inputDataClass.mArrBoxInteger);
-        inputDataClass.mCollectBoolean = Arrays.asList(inputDataClass.mArrBoxBoolean);
-        inputDataClass.mCollectString = Arrays.asList(inputDataClass.mArrString);
-        inputDataClass.mCollectDouble = Arrays.asList(inputDataClass.mArrBoxDouble);
-        inputDataClass.mCollectFloat = Arrays.asList(inputDataClass.mArrBoxFloat);
-        inputDataClass.mCollectByteArr = Arrays.asList(inputDataClass.mArrUnboxByteArr);
-        inputDataClass.mCollectCard = Arrays.asList(card2, card2);
+        inputDocument.mCollectLong = Arrays.asList(inputDocument.mArrBoxLong);
+        inputDocument.mCollectInteger = Arrays.asList(inputDocument.mArrBoxInteger);
+        inputDocument.mCollectBoolean = Arrays.asList(inputDocument.mArrBoxBoolean);
+        inputDocument.mCollectString = Arrays.asList(inputDocument.mArrString);
+        inputDocument.mCollectDouble = Arrays.asList(inputDocument.mArrBoxDouble);
+        inputDocument.mCollectFloat = Arrays.asList(inputDocument.mArrBoxFloat);
+        inputDocument.mCollectByteArr = Arrays.asList(inputDocument.mArrUnboxByteArr);
+        inputDocument.mCollectCard = Arrays.asList(card2, card2);
 
-        inputDataClass.mString = "String";
-        inputDataClass.mBoxLong = 1L;
-        inputDataClass.mUnboxLong = 2L;
-        inputDataClass.mBoxInteger = 3;
-        inputDataClass.mUnboxInt = 4;
-        inputDataClass.mBoxDouble = 5.0;
-        inputDataClass.mUnboxDouble = 6.0;
-        inputDataClass.mBoxFloat = 7.0F;
-        inputDataClass.mUnboxFloat = 8.0f;
-        inputDataClass.mBoxBoolean = true;
-        inputDataClass.mUnboxBoolean = false;
-        inputDataClass.mUnboxByteArr = new byte[]{1, 2, 3};
-        inputDataClass.mCard = card1;
+        inputDocument.mString = "String";
+        inputDocument.mBoxLong = 1L;
+        inputDocument.mUnboxLong = 2L;
+        inputDocument.mBoxInteger = 3;
+        inputDocument.mUnboxInt = 4;
+        inputDocument.mBoxDouble = 5.0;
+        inputDocument.mUnboxDouble = 6.0;
+        inputDocument.mBoxFloat = 7.0F;
+        inputDocument.mUnboxFloat = 8.0f;
+        inputDocument.mBoxBoolean = true;
+        inputDocument.mUnboxBoolean = false;
+        inputDocument.mUnboxByteArr = new byte[]{1, 2, 3};
+        inputDocument.mCard = card1;
 
         // Index the Gift document and query it.
         checkIsBatchResultSuccess(mSession.put(
-                new PutDocumentsRequest.Builder().addDocuments(inputDataClass).build()));
+                new PutDocumentsRequest.Builder().addDocuments(inputDocument).build()));
         SearchResults searchResults = mSession.search("", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
@@ -295,8 +295,8 @@ public abstract class AnnotationProcessorTestBase {
         DocumentClassFactory<Gift> factory = registry.getOrCreateFactory(Gift.class);
 
         // Convert GenericDocument to Gift and check values.
-        Gift outputDataClass = factory.fromGenericDocument(documents.get((0)));
-        assertThat(outputDataClass).isEqualTo(inputDataClass);
+        Gift outputDocument = factory.fromGenericDocument(documents.get((0)));
+        assertThat(outputDocument).isEqualTo(inputDocument);
     }
 
     @Test
@@ -308,10 +308,10 @@ public abstract class AnnotationProcessorTestBase {
                 .get();
 
         // Create documents and index them
-        Gift inputDataClass1 = new Gift();
-        inputDataClass1.mUri = "gift.uri1";
-        Gift inputDataClass2 = new Gift();
-        inputDataClass2.mUri = "gift.uri2";
+        Gift inputDocument1 = new Gift();
+        inputDocument1.mUri = "gift.uri1";
+        Gift inputDocument2 = new Gift();
+        inputDocument2.mUri = "gift.uri2";
         AppSearchEmail email1 =
                 new AppSearchEmail.Builder("uri3")
                         .setNamespace("namespace")
@@ -322,7 +322,7 @@ public abstract class AnnotationProcessorTestBase {
                         .build();
         checkIsBatchResultSuccess(mSession.put(
                 new PutDocumentsRequest.Builder()
-                        .addDocuments(inputDataClass1, inputDataClass2)
+                        .addDocuments(inputDocument1, inputDocument2)
                         .addGenericDocuments(email1).build()));
 
         // Query the documents by it's schema type.

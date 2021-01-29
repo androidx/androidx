@@ -31,12 +31,12 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   }
 
   @Override
-  public GenericDocument toGenericDocument(Gift dataClass) throws AppSearchException {
+  public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(dataClass.uri, SCHEMA_NAME);
-    builder.setPropertyLong("price", dataClass.price);
-    builder.setPropertyBoolean("cat", dataClass.cat);
-    builder.setPropertyBoolean("dog", dataClass.getDog());
+        new GenericDocument.Builder<>(document.uri, SCHEMA_NAME);
+    builder.setPropertyLong("price", document.price);
+    builder.setPropertyBoolean("cat", document.cat);
+    builder.setPropertyBoolean("dog", document.getDog());
     return builder.build();
   }
 
@@ -46,9 +46,9 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     int priceConv = (int) genericDoc.getPropertyLong("price");
     boolean catConv = genericDoc.getPropertyBoolean("cat");
     boolean dogConv = genericDoc.getPropertyBoolean("dog");
-    Gift dataClass = new Gift(dogConv, uriConv);
-    dataClass.price = priceConv;
-    dataClass.cat = catConv;
-    return dataClass;
+    Gift document = new Gift(dogConv, uriConv);
+    document.price = priceConv;
+    document.cat = catConv;
+    return document;
   }
 }

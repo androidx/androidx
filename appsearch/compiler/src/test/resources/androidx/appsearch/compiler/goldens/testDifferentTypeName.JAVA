@@ -22,17 +22,17 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   }
 
   @Override
-  public GenericDocument toGenericDocument(Gift dataClass) throws AppSearchException {
+  public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(dataClass.uri, SCHEMA_NAME);
+        new GenericDocument.Builder<>(document.uri, SCHEMA_NAME);
     return builder.build();
   }
 
   @Override
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
     String uriConv = genericDoc.getUri();
-    Gift dataClass = new Gift();
-    dataClass.uri = uriConv;
-    return dataClass;
+    Gift document = new Gift();
+    document.uri = uriConv;
+    return document;
   }
 }

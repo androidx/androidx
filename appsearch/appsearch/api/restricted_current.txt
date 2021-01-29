@@ -197,7 +197,7 @@ package androidx.appsearch.app {
     method public int getScore();
     method public long getTtlMillis();
     method public String getUri();
-    method public <T> T toDataClass(Class<T!>) throws androidx.appsearch.exceptions.AppSearchException;
+    method public <T> T toDocumentClass(Class<T!>) throws androidx.appsearch.exceptions.AppSearchException;
     field public static final String DEFAULT_NAMESPACE = "";
   }
 

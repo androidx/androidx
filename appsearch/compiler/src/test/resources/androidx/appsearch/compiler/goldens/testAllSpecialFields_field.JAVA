@@ -25,17 +25,17 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   }
 
   @Override
-  public GenericDocument toGenericDocument(Gift dataClass) throws AppSearchException {
+  public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(dataClass.uri, SCHEMA_NAME);
-    String namespaceCopy = dataClass.namespace;
+        new GenericDocument.Builder<>(document.uri, SCHEMA_NAME);
+    String namespaceCopy = document.namespace;
     if (namespaceCopy != null) {
       builder.setNamespace(namespaceCopy);
     }
-    builder.setCreationTimestampMillis(dataClass.creationTs);
-    builder.setTtlMillis(dataClass.ttlMs);
-    builder.setScore(dataClass.score);
-    builder.setPropertyLong("price", dataClass.price);
+    builder.setCreationTimestampMillis(document.creationTs);
+    builder.setTtlMillis(document.ttlMs);
+    builder.setScore(document.score);
+    builder.setPropertyLong("price", document.price);
     return builder.build();
   }
 
@@ -47,13 +47,13 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     long ttlMsConv = genericDoc.getTtlMillis();
     int scoreConv = genericDoc.getScore();
     int priceConv = (int) genericDoc.getPropertyLong("price");
-    Gift dataClass = new Gift();
-    dataClass.uri = uriConv;
-    dataClass.namespace = namespaceConv;
-    dataClass.creationTs = creationTsConv;
-    dataClass.ttlMs = ttlMsConv;
-    dataClass.price = priceConv;
-    dataClass.score = scoreConv;
-    return dataClass;
+    Gift document = new Gift();
+    document.uri = uriConv;
+    document.namespace = namespaceConv;
+    document.creationTs = creationTsConv;
+    document.ttlMs = ttlMsConv;
+    document.price = priceConv;
+    document.score = scoreConv;
+    return document;
   }
 }
