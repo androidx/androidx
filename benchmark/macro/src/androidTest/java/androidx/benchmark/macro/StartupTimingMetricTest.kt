@@ -68,12 +68,7 @@ class StartupTimingMetricTest {
 fun measureStartup(packageName: String, measureBlock: () -> Unit): Map<String, Long> {
     val wrapper = PerfettoCaptureWrapper()
     val metric = StartupTimingMetric()
-    val config = MacrobenchmarkConfig(
-        packageName = packageName,
-        iterations = 1,
-        metrics = listOf(metric)
-    )
-    metric.configure(config)
+    metric.configure(packageName)
     wrapper.start()
     measureBlock()
     val tracePath = wrapper.stop(packageName, 1)!!
