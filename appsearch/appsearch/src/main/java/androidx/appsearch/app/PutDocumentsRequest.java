@@ -43,7 +43,7 @@ public final class PutDocumentsRequest {
 
     /** Returns the documents that are part of this request. */
     @NonNull
-    public List<GenericDocument> getDocuments() {
+    public List<GenericDocument> getGenericDocuments() {
         return Collections.unmodifiableList(mDocuments);
     }
 
@@ -57,17 +57,15 @@ public final class PutDocumentsRequest {
         private boolean mBuilt = false;
 
         /** Adds one or more {@link GenericDocument} objects to the request. */
-        @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getDocuments()
         @NonNull
-        public Builder addGenericDocument(@NonNull GenericDocument... documents) {
+        public Builder addGenericDocuments(@NonNull GenericDocument... documents) {
             Preconditions.checkNotNull(documents);
-            return addGenericDocument(Arrays.asList(documents));
+            return addGenericDocuments(Arrays.asList(documents));
         }
 
         /** Adds a collection of {@link GenericDocument} objects to the request. */
-        @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getDocuments()
         @NonNull
-        public Builder addGenericDocument(
+        public Builder addGenericDocuments(
                 @NonNull Collection<? extends GenericDocument> documents) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(documents);
@@ -77,50 +75,47 @@ public final class PutDocumentsRequest {
 
 // @exportToFramework:startStrip()
         /**
-         * Adds one or more annotated {@link Document}
-         * documents to the request.
+         * Adds one or more annotated {@link Document} documents to the request.
          *
-         * @param dataClasses annotated
-         *                    {@link Document} documents.
-         * @throws AppSearchException if an error occurs converting a data class into a
+         * @param documents annotated {@link Document} documents.
+         * @throws AppSearchException if an error occurs converting the document into a
          *                            {@link GenericDocument}.
          */
-        @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getDocuments()
+        // Merged list available from getGenericDocuments()
+        @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
-        public Builder addDataClass(@NonNull Object... dataClasses) throws AppSearchException {
-            Preconditions.checkNotNull(dataClasses);
-            return addDataClass(Arrays.asList(dataClasses));
+        public Builder addDocuments(@NonNull Object... documents) throws AppSearchException {
+            Preconditions.checkNotNull(documents);
+            return addDocuments(Arrays.asList(documents));
         }
 
         /**
-         * Adds a collection of annotated
-         * {@link Document} documents to the request.
+         * Adds a collection of annotated {@link Document} documents to the request.
          *
-         * @param dataClasses annotated
-         *                    {@link Document} documents.
-         * @throws AppSearchException if an error occurs converting a data class into a
+         * @param documents annotated {@link Document} documents.
+         * @throws AppSearchException if an error occurs converting a document into a
          *                            {@link GenericDocument}.
          */
-        @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getDocuments()
+        // Merged list available from getGenericDocuments()
+        @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
-        public Builder addDataClass(@NonNull Collection<?> dataClasses)
-                throws AppSearchException {
+        public Builder addDocuments(@NonNull Collection<?> documents) throws AppSearchException {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(dataClasses);
-            List<GenericDocument> genericDocuments = new ArrayList<>(dataClasses.size());
-            for (Object dataClass : dataClasses) {
-                GenericDocument genericDocument = toGenericDocument(dataClass);
+            Preconditions.checkNotNull(documents);
+            List<GenericDocument> genericDocuments = new ArrayList<>(documents.size());
+            for (Object document : documents) {
+                GenericDocument genericDocument = toGenericDocument(document);
                 genericDocuments.add(genericDocument);
             }
-            return addGenericDocument(genericDocuments);
+            return addGenericDocuments(genericDocuments);
         }
 
         @NonNull
-        private static <T> GenericDocument toGenericDocument(@NonNull T dataClass)
+        private static <T> GenericDocument toGenericDocument(@NonNull T document)
                 throws AppSearchException {
             DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
-            DataClassFactory<T> factory = registry.getOrCreateFactory(dataClass);
-            return factory.toGenericDocument(dataClass);
+            DataClassFactory<T> factory = registry.getOrCreateFactory(document);
+            return factory.toGenericDocument(document);
         }
 // @exportToFramework:endStrip()
 

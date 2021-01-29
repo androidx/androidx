@@ -116,7 +116,7 @@ public final class RequestToPlatformConverter {
         Preconditions.checkNotNull(jetpackRequest);
         android.app.appsearch.PutDocumentsRequest.Builder platformBuilder =
                 new android.app.appsearch.PutDocumentsRequest.Builder();
-        for (GenericDocument jetpackDocument : jetpackRequest.getDocuments()) {
+        for (GenericDocument jetpackDocument : jetpackRequest.getGenericDocuments()) {
             platformBuilder.addGenericDocument(
                     GenericDocumentToPlatformConverter.toPlatformGenericDocument(jetpackDocument));
         }

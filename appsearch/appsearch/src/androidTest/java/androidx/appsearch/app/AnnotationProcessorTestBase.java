@@ -283,7 +283,7 @@ public abstract class AnnotationProcessorTestBase {
 
         // Index the Gift document and query it.
         checkIsBatchResultSuccess(mSession.put(
-                new PutDocumentsRequest.Builder().addDataClass(inputDataClass).build()));
+                new PutDocumentsRequest.Builder().addDocuments(inputDataClass).build()));
         SearchResults searchResults = mSession.search("", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
@@ -322,8 +322,8 @@ public abstract class AnnotationProcessorTestBase {
                         .build();
         checkIsBatchResultSuccess(mSession.put(
                 new PutDocumentsRequest.Builder()
-                        .addDataClass(inputDataClass1, inputDataClass2)
-                        .addGenericDocument(email1).build()));
+                        .addDocuments(inputDataClass1, inputDataClass2)
+                        .addGenericDocuments(email1).build()));
 
         // Query the documents by it's schema type.
         SearchResults searchResults = mSession.search("",

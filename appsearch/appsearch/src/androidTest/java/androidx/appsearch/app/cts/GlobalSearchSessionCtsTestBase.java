@@ -134,7 +134,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail).build()));
 
         // Query for the document
         List<GenericDocument> afterBodyDocuments = snapshotResults("body", exactSearchSpec);
@@ -171,7 +171,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(inEmail1).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail1).build()));
 
         // Index a document to instance 2.
         AppSearchEmail inEmail2 =
@@ -182,7 +182,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         checkIsBatchResultSuccess(mDb2.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(inEmail2).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail2).build()));
 
         // Query across all instances
         List<GenericDocument> afterBodyDocuments = snapshotResults("body", exactSearchSpec);
@@ -214,7 +214,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                             .setBody("This is the body of the testPut email")
                             .build();
             emailList.add(inEmail);
-            putDocumentsRequestBuilder.addGenericDocument(inEmail);
+            putDocumentsRequestBuilder.addGenericDocuments(inEmail);
         }
         checkIsBatchResultSuccess(mDb1.put(putDocumentsRequestBuilder.build()));
 
@@ -290,7 +290,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                 .setPropertyString("foo", "body").build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(genericDocument).build()));
+                        .addGenericDocuments(genericDocument).build()));
 
         AppSearchEmail email =
                 new AppSearchEmail.Builder("uri1")
@@ -303,9 +303,9 @@ public abstract class GlobalSearchSessionCtsTestBase {
 
         // Put the email in both databases
         checkIsBatchResultSuccess((mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email).build())));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email).build())));
         checkIsBatchResultSuccess(mDb2.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email).build()));
 
         // Query for all documents across types
         List<GenericDocument> afterBodyDocuments = snapshotResults("body", exactSearchSpec);
@@ -352,7 +352,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(document1).build()));
+                        .addGenericDocuments(document1).build()));
 
         AppSearchEmail document2 =
                 new AppSearchEmail.Builder("uri1")
@@ -363,7 +363,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         checkIsBatchResultSuccess(mDb2.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(document2).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(document2).build()));
 
         // Query for all namespaces
         List<GenericDocument> afterBodyDocuments = snapshotResults("body", exactSearchSpec);
@@ -413,7 +413,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(document1).build()));
+                        .addGenericDocuments(document1).build()));
 
         AppSearchEmail document2 =
                 new AppSearchEmail.Builder("uri1")
@@ -424,7 +424,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         checkIsBatchResultSuccess(mDb2.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(document2).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(document2).build()));
 
         // Query in some other package
         List<GenericDocument> afterOtherPackageDocuments = snapshotResults("body",
@@ -464,7 +464,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email1).build()));
+                        .addGenericDocuments(email1).build()));
 
         AppSearchEmail email2 =
                 new AppSearchEmail.Builder("uri2")
@@ -477,7 +477,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         .build();
         checkIsBatchResultSuccess(mDb2.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email2).build()));
+                        .addGenericDocuments(email2).build()));
 
         // Query with type property paths {"Email", ["subject", "to"]}
         List<GenericDocument> documents =
@@ -530,7 +530,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email1).build()));
+                        .addGenericDocuments(email1).build()));
 
         AppSearchEmail email2 =
                 new AppSearchEmail.Builder("uri2")
@@ -543,7 +543,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         .build();
         checkIsBatchResultSuccess(mDb2.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email2).build()));
+                        .addGenericDocuments(email2).build()));
 
         // Query with type property paths {"Email", []}
         List<GenericDocument> documents =
@@ -591,7 +591,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email1).build()));
+                        .addGenericDocuments(email1).build()));
 
         AppSearchEmail email2 =
                 new AppSearchEmail.Builder("uri2")
@@ -604,7 +604,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         .build();
         checkIsBatchResultSuccess(mDb2.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email2).build()));
+                        .addGenericDocuments(email2).build()));
 
         // Query with type property paths {"NonExistentType", []}, {"Email", ["subject", "to"]}
         List<GenericDocument> documents =

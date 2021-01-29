@@ -245,15 +245,15 @@ package androidx.appsearch.app {
   }
 
   public final class PutDocumentsRequest {
-    method public java.util.List<androidx.appsearch.app.GenericDocument!> getDocuments();
+    method public java.util.List<androidx.appsearch.app.GenericDocument!> getGenericDocuments();
   }
 
   public static final class PutDocumentsRequest.Builder {
     ctor public PutDocumentsRequest.Builder();
-    method public androidx.appsearch.app.PutDocumentsRequest.Builder addDataClass(java.lang.Object!...) throws androidx.appsearch.exceptions.AppSearchException;
-    method public androidx.appsearch.app.PutDocumentsRequest.Builder addDataClass(java.util.Collection<?>) throws androidx.appsearch.exceptions.AppSearchException;
-    method public androidx.appsearch.app.PutDocumentsRequest.Builder addGenericDocument(androidx.appsearch.app.GenericDocument!...);
-    method public androidx.appsearch.app.PutDocumentsRequest.Builder addGenericDocument(java.util.Collection<? extends androidx.appsearch.app.GenericDocument>);
+    method public androidx.appsearch.app.PutDocumentsRequest.Builder addDocuments(java.lang.Object!...) throws androidx.appsearch.exceptions.AppSearchException;
+    method public androidx.appsearch.app.PutDocumentsRequest.Builder addDocuments(java.util.Collection<?>) throws androidx.appsearch.exceptions.AppSearchException;
+    method public androidx.appsearch.app.PutDocumentsRequest.Builder addGenericDocuments(androidx.appsearch.app.GenericDocument!...);
+    method public androidx.appsearch.app.PutDocumentsRequest.Builder addGenericDocuments(java.util.Collection<? extends androidx.appsearch.app.GenericDocument>);
     method public androidx.appsearch.app.PutDocumentsRequest build();
   }
 

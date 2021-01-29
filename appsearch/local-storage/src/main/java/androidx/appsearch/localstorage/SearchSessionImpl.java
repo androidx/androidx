@@ -203,8 +203,8 @@ class SearchSessionImpl implements AppSearchSession {
         return execute(() -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
-            for (int i = 0; i < request.getDocuments().size(); i++) {
-                GenericDocument document = request.getDocuments().get(i);
+            for (int i = 0; i < request.getGenericDocuments().size(); i++) {
+                GenericDocument document = request.getGenericDocuments().get(i);
                 try {
                     mAppSearchImpl.putDocument(mPackageName, mDatabaseName, document);
                     resultBuilder.setSuccess(document.getUri(), /*result=*/ null);

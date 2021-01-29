@@ -38,11 +38,11 @@ public class PutDocumentsRequestTest {
     public void addGenericDocument_byCollection() {
         Set<AppSearchEmail> emails = ImmutableSet.of(new AppSearchEmail.Builder("test1").build(),
                 new AppSearchEmail.Builder("test2").build());
-        PutDocumentsRequest request = new PutDocumentsRequest.Builder().addGenericDocument(emails)
+        PutDocumentsRequest request = new PutDocumentsRequest.Builder().addGenericDocuments(emails)
                 .build();
 
-        assertThat(request.getDocuments().get(0).getUri()).isEqualTo("test1");
-        assertThat(request.getDocuments().get(1).getUri()).isEqualTo("test2");
+        assertThat(request.getGenericDocuments().get(0).getUri()).isEqualTo("test1");
+        assertThat(request.getGenericDocuments().get(1).getUri()).isEqualTo("test2");
     }
 
 // @exportToFramework:startStrip()
@@ -73,10 +73,10 @@ public class PutDocumentsRequestTest {
         session.setSchema(new SetSchemaRequest.Builder().addDocumentClasses(Card.class).build());
 
         Set<Card> cards = ImmutableSet.of(new Card("cardUri", "cardProperty"));
-        PutDocumentsRequest request = new PutDocumentsRequest.Builder().addDataClass(cards)
+        PutDocumentsRequest request = new PutDocumentsRequest.Builder().addDocuments(cards)
                 .build();
 
-        assertThat(request.getDocuments().get(0).getUri()).isEqualTo("cardUri");
+        assertThat(request.getGenericDocuments().get(0).getUri()).isEqualTo("cardUri");
     }
 // @exportToFramework:endStrip()
 }

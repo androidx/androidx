@@ -184,7 +184,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 .build();
 
         AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email1, email2).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email1, email2).build()));
         assertThat(result.getSuccesses()).containsExactly("uri1", null, "uri2", null);
         assertThat(result.getFailures()).isEmpty();
 
@@ -324,7 +324,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 .build();
 
         AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email).build()));
         assertThat(result.getSuccesses()).containsExactly("uri1", null);
         assertThat(result.getFailures()).isEmpty();
     }
@@ -344,7 +344,7 @@ public abstract class AppSearchSessionCtsTestBase {
         email.body = "This is the body of the testPut email";
 
         AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addDataClass(email).build()));
+                new PutDocumentsRequest.Builder().addDocuments(email).build()));
         assertThat(result.getSuccesses()).containsExactly("uri1", null);
         assertThat(result.getFailures()).isEmpty();
     }
@@ -385,7 +385,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 new GenericDocument.Builder<>("gift1", "Gift").setPropertyLong("price", 5).build();
         AppSearchBatchResult<String, Void> result =
                 mDb1.put(
-                        new PutDocumentsRequest.Builder().addGenericDocument(gift).build()).get();
+                        new PutDocumentsRequest.Builder().addGenericDocuments(gift).build()).get();
         assertThat(result.isSuccess()).isFalse();
         assertThat(result.getFailures().get("gift1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
@@ -398,7 +398,7 @@ public abstract class AppSearchSessionCtsTestBase {
         // Try to index the document again, which should now work
         checkIsBatchResultSuccess(
                 mDb1.put(
-                        new PutDocumentsRequest.Builder().addGenericDocument(gift).build()));
+                        new PutDocumentsRequest.Builder().addGenericDocuments(gift).build()));
 
         // Indexing an email with a body should also work
         AppSearchEmail email = new AppSearchEmail.Builder("email1")
@@ -407,7 +407,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 .build();
         checkIsBatchResultSuccess(
                 mDb1.put(
-                        new PutDocumentsRequest.Builder().addGenericDocument(email).build()));
+                        new PutDocumentsRequest.Builder().addGenericDocuments(email).build()));
     }
 
     @Test
@@ -429,7 +429,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 .build();
         checkIsBatchResultSuccess(
                 mDb1.put(
-                        new PutDocumentsRequest.Builder().addGenericDocument(email).build()));
+                        new PutDocumentsRequest.Builder().addGenericDocuments(email).build()));
         List<GenericDocument> outDocuments =
                 doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "email1");
         assertThat(outDocuments).hasSize(1);
@@ -465,7 +465,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 .setSubject("testPut example")
                 .build();
         AppSearchBatchResult<String, Void> failResult2 = mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email2).build()).get();
+                new PutDocumentsRequest.Builder().addGenericDocuments(email2).build()).get();
         assertThat(failResult2.isSuccess()).isFalse();
         assertThat(failResult2.getFailures().get("email2").getErrorMessage())
                 .isEqualTo("Schema type config 'androidx.appsearch.test$" + DB_NAME_1
@@ -493,7 +493,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 .build();
         checkIsBatchResultSuccess(
                 mDb1.put(
-                        new PutDocumentsRequest.Builder().addGenericDocument(email1).build()));
+                        new PutDocumentsRequest.Builder().addGenericDocuments(email1).build()));
         List<GenericDocument> outDocuments =
                 doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "email1");
         assertThat(outDocuments).hasSize(1);
@@ -506,7 +506,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 .build();
         checkIsBatchResultSuccess(
                 mDb2.put(
-                        new PutDocumentsRequest.Builder().addGenericDocument(email2).build()));
+                        new PutDocumentsRequest.Builder().addGenericDocuments(email2).build()));
         outDocuments = doGet(mDb2, GenericDocument.DEFAULT_NAMESPACE, "email2");
         assertThat(outDocuments).hasSize(1);
         outEmail = new AppSearchEmail(outDocuments.get(0));
@@ -540,7 +540,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 .setSubject("testPut example")
                 .build();
         AppSearchBatchResult<String, Void> failResult2 = mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email3).build()).get();
+                new PutDocumentsRequest.Builder().addGenericDocuments(email3).build()).get();
         assertThat(failResult2.isSuccess()).isFalse();
         assertThat(failResult2.getFailures().get("email3").getErrorMessage())
                 .isEqualTo("Schema type config 'androidx.appsearch.test$" + DB_NAME_1
@@ -555,7 +555,7 @@ public abstract class AppSearchSessionCtsTestBase {
         // Make sure email could still be indexed in database 2.
         checkIsBatchResultSuccess(
                 mDb2.put(
-                        new PutDocumentsRequest.Builder().addGenericDocument(email2).build()));
+                        new PutDocumentsRequest.Builder().addGenericDocuments(email2).build()));
     }
 
     @Test
@@ -573,7 +573,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail).build()));
 
         // Get the document
         List<GenericDocument> outDocuments = doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1");
@@ -603,7 +603,7 @@ public abstract class AppSearchSessionCtsTestBase {
         inEmail.subject = "testPut example";
         inEmail.body = "This is the body of the testPut inEmail";
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addDataClass(inEmail).build()));
+                new PutDocumentsRequest.Builder().addDocuments(inEmail).build()));
 
         // Get the document
         List<GenericDocument> outDocuments = doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1");
@@ -645,7 +645,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email1, email2).build()));
+                        .addGenericDocuments(email1, email2).build()));
 
         // Get with type property paths {"Email", ["subject", "to"]}
         GetByUriRequest request = new GetByUriRequest.Builder().setNamespace("namespace").addUri(
@@ -701,7 +701,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email1, email2).build()));
+                        .addGenericDocuments(email1, email2).build()));
 
         // Get with type property paths {"Email", ["subject", "to"]}
         GetByUriRequest request = new GetByUriRequest.Builder().setNamespace("namespace").addUri(
@@ -752,7 +752,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email1, email2).build()));
+                        .addGenericDocuments(email1, email2).build()));
 
         // Get with type property paths {"Email", ["subject", "to"]}
         GetByUriRequest request = new GetByUriRequest.Builder().setNamespace("namespace").addUri(
@@ -809,7 +809,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email1, email2).build()));
+                        .addGenericDocuments(email1, email2).build()));
 
         // Get with type property paths {"Email", ["subject", "to"]}
         GetByUriRequest request = new GetByUriRequest.Builder().setNamespace("namespace").addUri(
@@ -866,7 +866,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email1, email2).build()));
+                        .addGenericDocuments(email1, email2).build()));
 
         // Get with type property paths {"Email", ["subject", "to"]}
         GetByUriRequest request = new GetByUriRequest.Builder().setNamespace("namespace").addUri(
@@ -918,7 +918,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email1, email2).build()));
+                        .addGenericDocuments(email1, email2).build()));
 
         // Get with type property paths {"Email", ["subject", "to"]}
         GetByUriRequest request = new GetByUriRequest.Builder().setNamespace("namespace").addUri(
@@ -962,7 +962,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail).build()));
 
         // Query for the document
         SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
@@ -998,7 +998,7 @@ public abstract class AppSearchSessionCtsTestBase {
                             .setBody("This is the body of the testPut email")
                             .build();
             emailSet.add(inEmail);
-            putDocumentsRequestBuilder.addGenericDocument(inEmail);
+            putDocumentsRequestBuilder.addGenericDocuments(inEmail);
         }
         checkIsBatchResultSuccess(mDb1.put(putDocumentsRequestBuilder.build()));
 
@@ -1056,7 +1056,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email1, email2).build()));
+                        .addGenericDocuments(email1, email2).build()));
 
         // Query for "little". It should match both emails.
         SearchResults searchResults = mDb1.search("little", new SearchSpec.Builder()
@@ -1108,7 +1108,7 @@ public abstract class AppSearchSessionCtsTestBase {
         GenericDocument inDoc = new GenericDocument.Builder<>("uri2", "Generic")
                 .setPropertyString("foo", "body").build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(inEmail, inDoc).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail, inDoc).build()));
 
         // Query for the documents
         SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
@@ -1143,7 +1143,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email).build()));
 
         // Query for the document within our package
         SearchResults searchResults = mDb1.search("foo", new SearchSpec.Builder()
@@ -1187,7 +1187,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(expectedEmail, unexpectedEmail).build()));
+                        .addGenericDocuments(expectedEmail, unexpectedEmail).build()));
 
         // Query for all namespaces
         SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
@@ -1223,7 +1223,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail).build()));
 
         // Query for the document
         SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
@@ -1260,7 +1260,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail).build()));
 
         // Query for the document
         SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
@@ -1285,7 +1285,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()));
 
         checkIsBatchResultSuccess(mDb2.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail).build()));
 
         // Query for the document
         searchResults = mDb2.search("body", new SearchSpec.Builder()
@@ -1347,7 +1347,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setPropertyString("body", "Note body").build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email, note).build()));
+                        .addGenericDocuments(email, note).build()));
 
         // Query with type property paths {"Email", ["body", "to"]}
         SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
@@ -1416,7 +1416,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setPropertyString("body", "Note body").build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email, note).build()));
+                        .addGenericDocuments(email, note).build()));
 
         // Query with type property paths {"Email", []}
         SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
@@ -1483,7 +1483,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setPropertyString("body", "Note body").build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email, note).build()));
+                        .addGenericDocuments(email, note).build()));
 
         // Query with type property paths {"NonExistentType", []}, {"Email", ["body", "to"]}
         SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
@@ -1552,7 +1552,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setPropertyString("body", "Note body").build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email, note).build()));
+                        .addGenericDocuments(email, note).build()));
 
         // Query with type property paths {"*", ["body", "to"]}
         SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
@@ -1617,7 +1617,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setPropertyString("body", "Note body").build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email, note).build()));
+                        .addGenericDocuments(email, note).build()));
 
         // Query with type property paths {"*", []}
         SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
@@ -1681,7 +1681,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setPropertyString("body", "Note body").build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder()
-                        .addGenericDocument(email, note).build()));
+                        .addGenericDocuments(email, note).build()));
 
         // Query with type property paths {"NonExistentType", []}, {"*", ["body", "to"]}
         SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
@@ -1725,7 +1725,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(inEmail1).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail1).build()));
 
         // Index a document to instance 2.
         AppSearchEmail inEmail2 =
@@ -1736,7 +1736,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         checkIsBatchResultSuccess(mDb2.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(inEmail2).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail2).build()));
 
         // Query for instance 1.
         SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
@@ -1777,7 +1777,7 @@ public abstract class AppSearchSessionCtsTestBase {
                                 + "Another nonsense word that’s used a lot is bar")
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(document).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(document).build()));
 
         // Query for the document
         SearchResults searchResults = mDb1.search("foo",
@@ -1827,7 +1827,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut second email")
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email1, email2).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email1, email2).build()));
 
         // Check the presence of the documents
         assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
@@ -1876,7 +1876,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut second email")
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email1, email2).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email1, email2).build()));
 
         // Check the presence of the documents
         assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
@@ -1919,7 +1919,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email).build()));
 
         // Check the presence of the documents
         assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
@@ -1959,7 +1959,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email1).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email1).build()));
 
         // Check the presence of the documents
         assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
@@ -2015,7 +2015,7 @@ public abstract class AppSearchSessionCtsTestBase {
         GenericDocument document1 =
                 new GenericDocument.Builder<>("uri3", "Generic").build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email1, email2, document1)
+                new PutDocumentsRequest.Builder().addGenericDocuments(email1, email2, document1)
                         .build()));
 
         // Check the presence of the documents
@@ -2066,9 +2066,9 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut second email")
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email1).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email1).build()));
         checkIsBatchResultSuccess(mDb2.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email2).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email2).build()));
 
         // Check the presence of the documents
         assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
@@ -2132,7 +2132,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setNamespace("document")
                         .setPropertyString("foo", "bar").build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email1, email2, document1)
+                new PutDocumentsRequest.Builder().addGenericDocuments(email1, email2, document1)
                         .build()));
 
         // Check the presence of the documents
@@ -2189,9 +2189,9 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut second email")
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email1).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email1).build()));
         checkIsBatchResultSuccess(mDb2.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email2).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email2).build()));
 
         // Check the presence of the documents
         assertThat(doGet(mDb1, /*namespace=*/"email", "uri1")).hasSize(1);
@@ -2245,9 +2245,9 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut second email")
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email1).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email1).build()));
         checkIsBatchResultSuccess(mDb2.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email2).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email2).build()));
 
         // Check the presence of the documents
         assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
@@ -2312,9 +2312,9 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut second email")
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email1, email2).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email1, email2).build()));
         checkIsBatchResultSuccess(mDb2.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email3, email4).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email3, email4).build()));
 
         // Check the presence of the documents
         SearchResults searchResults = mDb1.search("", new SearchSpec.Builder()
@@ -2369,7 +2369,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email1).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email1).build()));
 
         // Check the presence of the documents
         assertThat(doGet(mDb1, "namespace", "uri1")).hasSize(1);
@@ -2414,7 +2414,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail).build()));
 
         // close and re-open the appSearchSession
         mDb1.close();
@@ -2470,7 +2470,7 @@ public abstract class AppSearchSessionCtsTestBase {
         AppSearchEmail email1 = new AppSearchEmail.Builder("uri1").build();
         AppSearchEmail email2 = new AppSearchEmail.Builder("uri2").build();
         checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email1, email2).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email1, email2).build()));
 
         // Email 1 has more usages, but email 2 has more recent usages.
         mDb1.reportUsage(new ReportUsageRequest.Builder()
@@ -2516,7 +2516,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 .build();
 
         AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb1.put(
-                new PutDocumentsRequest.Builder().addGenericDocument(email).build()));
+                new PutDocumentsRequest.Builder().addGenericDocuments(email).build()));
         assertThat(result.getSuccesses()).containsExactly("uri1", null);
         assertThat(result.getFailures()).isEmpty();
 
