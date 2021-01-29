@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -55,6 +56,7 @@ class SingleProcessDataStoreStressTest {
     val timeout = Timeout(4, TimeUnit.MINUTES)
 
     @Test
+    @Ignore // TODO(b/178641154): Replace with tests that do not time out.
     fun testManyConcurrentReadsAndWrites() = runBlocking<Unit> {
         val myScope = CoroutineScope(
             Job() + Executors.newFixedThreadPool(4).asCoroutineDispatcher()
@@ -102,6 +104,7 @@ class SingleProcessDataStoreStressTest {
     }
 
     @Test
+    @Ignore // TODO(b/178641154): Replace with tests that do not time out.
     fun testManyConcurrentReadsAndWrites_withIntermittentWriteFailures() = runBlocking<Unit> {
         val myScope = CoroutineScope(
             Job() + Executors.newFixedThreadPool(4).asCoroutineDispatcher()
