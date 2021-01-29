@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2020 The Android Open Source Project
+  Copyright 2021 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.datastore.datastore">
+    package="androidx.datastore.preferences.rxjava3">
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="18" />
 </manifest>
