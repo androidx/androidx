@@ -57,7 +57,7 @@ public class AppSearchCompilerTest {
     @Test
     public void testNonClass() {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public interface Gift {}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "annotation on something other than a class");
@@ -68,7 +68,7 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "Wrapper",
                 "public class Wrapper {\n"
-                        + "@AppSearchDocument\n"
+                        + "@Document\n"
                         + "private class Gift {}\n"
                         + "}  // Wrapper\n"
         );
@@ -79,7 +79,7 @@ public class AppSearchCompilerTest {
     @Test
     public void testNoUri() {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "must have exactly one field annotated with @Uri");
@@ -88,10 +88,10 @@ public class AppSearchCompilerTest {
     @Test
     public void testManyUri() {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri1;\n"
-                        + "  @AppSearchDocument.Uri String uri2;\n"
+                        + "  @Document.Uri String uri1;\n"
+                        + "  @Document.Uri String uri2;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "contains multiple fields annotated @Uri");
@@ -100,11 +100,11 @@ public class AppSearchCompilerTest {
     @Test
     public void testManyCreationTimestamp() {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.CreationTimestampMillis long ts1;\n"
-                        + "  @AppSearchDocument.CreationTimestampMillis long ts2;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.CreationTimestampMillis long ts1;\n"
+                        + "  @Document.CreationTimestampMillis long ts2;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "contains multiple fields annotated @CreationTimestampMillis");
@@ -113,11 +113,11 @@ public class AppSearchCompilerTest {
     @Test
     public void testManyNamespace() {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Namespace String ns1;\n"
-                        + "  @AppSearchDocument.Namespace String ns2;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Namespace String ns1;\n"
+                        + "  @Document.Namespace String ns2;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "contains multiple fields annotated @Namespace");
@@ -126,11 +126,11 @@ public class AppSearchCompilerTest {
     @Test
     public void testManyTtlMillis() {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.TtlMillis long ts1;\n"
-                        + "  @AppSearchDocument.TtlMillis long ts2;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.TtlMillis long ts1;\n"
+                        + "  @Document.TtlMillis long ts2;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "contains multiple fields annotated @TtlMillis");
@@ -139,11 +139,11 @@ public class AppSearchCompilerTest {
     @Test
     public void testManyScore() {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Score int score1;\n"
-                        + "  @AppSearchDocument.Score int score2;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Score int score1;\n"
+                        + "  @Document.Score int score2;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "contains multiple fields annotated @Score");
@@ -152,10 +152,10 @@ public class AppSearchCompilerTest {
     @Test
     public void testPropertyOnField() {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property private int getPrice() { return 0; }\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Property private int getPrice() { return 0; }\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "annotation type not applicable to this kind of declaration");
@@ -164,10 +164,10 @@ public class AppSearchCompilerTest {
     @Test
     public void testCantRead_noGetter() {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property private int price;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Property private int price;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "Field cannot be read: it is private and we failed to find a suitable getter "
@@ -177,10 +177,10 @@ public class AppSearchCompilerTest {
     @Test
     public void testCantRead_privateGetter() {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property private int price;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Property private int price;\n"
                         + "  private int getPrice() { return 0; }\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
@@ -193,10 +193,10 @@ public class AppSearchCompilerTest {
     @Test
     public void testCantRead_wrongParamGetter() {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property private int price;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Property private int price;\n"
                         + "  int getPrice(int n) { return 0; }\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
@@ -209,10 +209,10 @@ public class AppSearchCompilerTest {
     @Test
     public void testRead_MultipleGetters() throws Exception {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property private int price;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Property private int price;\n"
                         + "  int getPrice(int n) { return 0; }\n"
                         + "  int getPrice() { return 0; }\n"
                         + "  void setPrice(int n) {}\n"
@@ -224,10 +224,10 @@ public class AppSearchCompilerTest {
     @Test
     public void testCantWrite_noSetter() {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property private int price;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Property private int price;\n"
                         + "  int getPrice() { return price; }\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
@@ -242,10 +242,10 @@ public class AppSearchCompilerTest {
     @Test
     public void testCantWrite_privateSetter() {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property private int price;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Property private int price;\n"
                         + "  int getPrice() { return price; }\n"
                         + "  private void setPrice(int n) {}\n"
                         + "}\n");
@@ -263,10 +263,10 @@ public class AppSearchCompilerTest {
     @Test
     public void testCantWrite_wrongParamSetter() {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property private int price;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Property private int price;\n"
                         + "  int getPrice() { return price; }\n"
                         + "  void setPrice() {}\n"
                         + "}\n");
@@ -284,10 +284,10 @@ public class AppSearchCompilerTest {
     @Test
     public void testWrite_multipleSetters() throws Exception {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property private int price;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Property private int price;\n"
                         + "  int getPrice() { return price; }\n"
                         + "  void setPrice() {}\n"
                         + "  void setPrice(int n) {}\n"
@@ -299,11 +299,11 @@ public class AppSearchCompilerTest {
     @Test
     public void testWrite_privateConstructor() {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
                         + "  private Gift() {}\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property int price;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Property int price;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "Failed to find any suitable constructors to build this class");
@@ -314,11 +314,11 @@ public class AppSearchCompilerTest {
     @Test
     public void testWrite_constructorMissingParams() {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
                         + "  Gift(int price) {}\n"
-                        + "  @AppSearchDocument.Uri final String uri;\n"
-                        + "  @AppSearchDocument.Property int price;\n"
+                        + "  @Document.Uri final String uri;\n"
+                        + "  @Document.Property int price;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "Failed to find any suitable constructors to build this class");
@@ -329,14 +329,14 @@ public class AppSearchCompilerTest {
     @Test
     public void testWrite_constructorExtraParams() {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
                         + "  Gift(int price, String uri, int unknownParam) {\n"
                         + "    this.uri = uri;\n"
                         + "    this.price = price;\n"
                         + "  }\n"
-                        + "  @AppSearchDocument.Uri final String uri;\n"
-                        + "  @AppSearchDocument.Property int price;\n"
+                        + "  @Document.Uri final String uri;\n"
+                        + "  @Document.Property int price;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "Failed to find any suitable constructors to build this class");
@@ -348,17 +348,17 @@ public class AppSearchCompilerTest {
     @Test
     public void testSuccessSimple() throws Exception {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
                         + "  Gift(boolean dog, String uri) {\n"
                         + "    this.uri = uri;\n"
                         + "    this.dog = dog;\n"
                         + "  }\n"
-                        + "  @AppSearchDocument.Uri final String uri;\n"
-                        + "  @AppSearchDocument.Property int price;\n"
-                        + "  @AppSearchDocument.Property boolean cat = false;\n"
+                        + "  @Document.Uri final String uri;\n"
+                        + "  @Document.Property int price;\n"
+                        + "  @Document.Property boolean cat = false;\n"
                         + "  public void setCat(boolean cat) {}\n"
-                        + "  @AppSearchDocument.Property private final boolean dog;\n"
+                        + "  @Document.Property private final boolean dog;\n"
                         + "  public boolean getDog() { return dog; }\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
@@ -368,9 +368,9 @@ public class AppSearchCompilerTest {
     @Test
     public void testDifferentTypeName() throws Exception {
         Compilation compilation = compile(
-                "@AppSearchDocument(name=\"DifferentType\")\n"
+                "@Document(name=\"DifferentType\")\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
+                        + "  @Document.Uri String uri;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
@@ -380,13 +380,13 @@ public class AppSearchCompilerTest {
     public void testRepeatedFields() throws Exception {
         Compilation compilation = compile(
                 "import java.util.*;\n"
-                        + "@AppSearchDocument\n"
+                        + "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property List<String> listOfString;\n"
-                        + "  @AppSearchDocument.Property Collection<Integer> setOfInt;\n"
-                        + "  @AppSearchDocument.Property byte[][] repeatedByteArray;\n"
-                        + "  @AppSearchDocument.Property byte[] byteArray;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Property List<String> listOfString;\n"
+                        + "  @Document.Property Collection<Integer> setOfInt;\n"
+                        + "  @Document.Property byte[][] repeatedByteArray;\n"
+                        + "  @Document.Property byte[] byteArray;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
@@ -396,13 +396,13 @@ public class AppSearchCompilerTest {
     public void testCardinality() throws Exception {
         Compilation compilation = compile(
                 "import java.util.*;\n"
-                        + "@AppSearchDocument\n"
+                        + "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property(required=true) List<String> repeatReq;\n"
-                        + " @AppSearchDocument.Property(required=false) List<String> repeatNoReq;\n"
-                        + "  @AppSearchDocument.Property(required=true) Float req;\n"
-                        + "  @AppSearchDocument.Property(required=false) Float noReq;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Property(required=true) List<String> repeatReq;\n"
+                        + " @Document.Property(required=false) List<String> repeatNoReq;\n"
+                        + "  @Document.Property(required=true) Float req;\n"
+                        + "  @Document.Property(required=false) Float noReq;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
@@ -413,17 +413,17 @@ public class AppSearchCompilerTest {
         // TODO(b/156296904): Uncomment Gift in this test when it's supported
         Compilation compilation = compile(
                 "import java.util.*;\n"
-                        + "@AppSearchDocument\n"
+                        + "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property String stringProp;\n"
-                        + "  @AppSearchDocument.Property Integer integerProp;\n"
-                        + "  @AppSearchDocument.Property Long longProp;\n"
-                        + "  @AppSearchDocument.Property Float floatProp;\n"
-                        + "  @AppSearchDocument.Property Double doubleProp;\n"
-                        + "  @AppSearchDocument.Property Boolean booleanProp;\n"
-                        + "  @AppSearchDocument.Property byte[] bytesProp;\n"
-                        //+ "  @AppSearchDocument.Property Gift documentProp;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Property String stringProp;\n"
+                        + "  @Document.Property Integer integerProp;\n"
+                        + "  @Document.Property Long longProp;\n"
+                        + "  @Document.Property Float floatProp;\n"
+                        + "  @Document.Property Double doubleProp;\n"
+                        + "  @Document.Property Boolean booleanProp;\n"
+                        + "  @Document.Property byte[] bytesProp;\n"
+                        //+ "  @Document.Property Gift documentProp;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
@@ -435,11 +435,11 @@ public class AppSearchCompilerTest {
         // by using the integer constants directly.
         Compilation compilation = compile(
                 "import java.util.*;\n"
-                        + "@AppSearchDocument\n"
+                        + "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property(tokenizerType=0) String tokNone;\n"
-                        + "  @AppSearchDocument.Property(tokenizerType=1) String tokPlain;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Property(tokenizerType=0) String tokNone;\n"
+                        + "  @Document.Property(tokenizerType=1) String tokPlain;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
@@ -451,10 +451,10 @@ public class AppSearchCompilerTest {
         // by using the integer constants directly.
         Compilation compilation = compile(
                 "import java.util.*;\n"
-                        + "@AppSearchDocument\n"
+                        + "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property(indexingType=1, tokenizerType=100)\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Property(indexingType=1, tokenizerType=100)\n"
                         + "  String str;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining("Unknown tokenizer type 100");
@@ -466,12 +466,12 @@ public class AppSearchCompilerTest {
         // by using the integer constants directly.
         Compilation compilation = compile(
                 "import java.util.*;\n"
-                        + "@AppSearchDocument\n"
+                        + "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property(indexingType=0) String indexNone;\n"
-                        + "  @AppSearchDocument.Property(indexingType=1) String indexExact;\n"
-                        + "  @AppSearchDocument.Property(indexingType=2) String indexPrefix;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Property(indexingType=0) String indexNone;\n"
+                        + "  @Document.Property(indexingType=1) String indexExact;\n"
+                        + "  @Document.Property(indexingType=2) String indexPrefix;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
@@ -483,10 +483,10 @@ public class AppSearchCompilerTest {
         // by using the integer constants directly.
         Compilation compilation = compile(
                 "import java.util.*;\n"
-                        + "@AppSearchDocument\n"
+                        + "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property(indexingType=100, tokenizerType=1)\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Property(indexingType=100, tokenizerType=1)\n"
                         + "  String str;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining("Unknown indexing type 100");
@@ -496,10 +496,10 @@ public class AppSearchCompilerTest {
     public void testPropertyName() throws Exception {
         Compilation compilation = compile(
                 "import java.util.*;\n"
-                        + "@AppSearchDocument\n"
+                        + "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property(name=\"newName\") String oldName;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Property(name=\"newName\") String oldName;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
@@ -511,7 +511,7 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "import java.util.*;\n"
                         + "import androidx.appsearch.app.GenericDocument;\n"
-                        + "@AppSearchDocument\n"
+                        + "@Document\n"
                         + "public class Gift {\n"
                         + "  @Uri String uri;\n"
                         + "\n"
@@ -564,7 +564,7 @@ public class AppSearchCompilerTest {
     public void testToGenericDocument_invalidTypes() {
         Compilation compilation = compile(
                 "import java.util.*;\n"
-                        + "@AppSearchDocument\n"
+                        + "@Document\n"
                         + "public class Gift {\n"
                         + "  @Uri String uri;\n"
                         + "  @Property Collection<Byte[]> collectBoxByteArr;\n" // 1x
@@ -574,7 +574,7 @@ public class AppSearchCompilerTest {
 
         compilation = compile(
                 "import java.util.*;\n"
-                        + "@AppSearchDocument\n"
+                        + "@Document\n"
                         + "public class Gift {\n"
                         + "  @Uri String uri;\n"
                         + "  @Property Collection<Byte> collectByte;\n" // 1x
@@ -584,7 +584,7 @@ public class AppSearchCompilerTest {
 
         compilation = compile(
                 "import java.util.*;\n"
-                        + "@AppSearchDocument\n"
+                        + "@Document\n"
                         + "public class Gift {\n"
                         + "  @Uri String uri;\n"
                         + "  @Property Collection<Object> collectObject;\n" // 1x
@@ -594,7 +594,7 @@ public class AppSearchCompilerTest {
 
         compilation = compile(
                 "import java.util.*;\n"
-                        + "@AppSearchDocument\n"
+                        + "@Document\n"
                         + "public class Gift {\n"
                         + "  @Uri String uri;\n"
                         + "  @Property Byte[][] arrBoxByteArr;\n" // 2x
@@ -604,7 +604,7 @@ public class AppSearchCompilerTest {
 
         compilation = compile(
                 "import java.util.*;\n"
-                        + "@AppSearchDocument\n"
+                        + "@Document\n"
                         + "public class Gift {\n"
                         + "  @Uri String uri;\n"
                         + "  @Property Object[] arrObject;\n" // 2x
@@ -614,7 +614,7 @@ public class AppSearchCompilerTest {
 
         compilation = compile(
                 "import java.util.*;\n"
-                        + "@AppSearchDocument\n"
+                        + "@Document\n"
                         + "public class Gift {\n"
                         + "  @Uri String uri;\n"
                         + "  @Property Object object;\n" // 3x
@@ -626,14 +626,14 @@ public class AppSearchCompilerTest {
     @Test
     public void testAllSpecialFields_field() throws Exception {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Namespace String namespace;\n"
-                        + "  @AppSearchDocument.CreationTimestampMillis long creationTs;\n"
-                        + "  @AppSearchDocument.TtlMillis int ttlMs;\n"
-                        + "  @AppSearchDocument.Property int price;\n"
-                        + "  @AppSearchDocument.Score int score;\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.CreationTimestampMillis long creationTs;\n"
+                        + "  @Document.TtlMillis int ttlMs;\n"
+                        + "  @Document.Property int price;\n"
+                        + "  @Document.Score int score;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
@@ -642,13 +642,13 @@ public class AppSearchCompilerTest {
     @Test
     public void testAllSpecialFields_getter() throws Exception {
         Compilation compilation = compile(
-                "@AppSearchDocument\n"
+                "@Document\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument.Uri private String uri;\n"
-                        + "  @AppSearchDocument.Score private int score;\n"
-                        + "  @AppSearchDocument.CreationTimestampMillis private long creationTs;\n"
-                        + "  @AppSearchDocument.TtlMillis private int ttlMs;\n"
-                        + "  @AppSearchDocument.Property private int price;\n"
+                        + "  @Document.Uri private String uri;\n"
+                        + "  @Document.Score private int score;\n"
+                        + "  @Document.CreationTimestampMillis private long creationTs;\n"
+                        + "  @Document.TtlMillis private int ttlMs;\n"
+                        + "  @Document.Property private int price;\n"
                         + "  public String getUri() { return uri; }\n"
                         + "  public void setUri(String uri) { this.uri = uri; }\n"
                         + "  public int getScore() { return score; }\n"
@@ -672,9 +672,9 @@ public class AppSearchCompilerTest {
                 "import java.util.*;\n"
                         + "import androidx.appsearch.app.GenericDocument;\n"
                         + "public class Gift {\n"
-                        + "  @AppSearchDocument\n"
+                        + "  @Document\n"
                         + "  public static class InnerGift{\n"
-                        + "    @AppSearchDocument.Uri String uri;\n"
+                        + "    @Document.Uri String uri;\n"
                         + "    @Property String[] arrString;\n"        // 2b
                         + "  }\n"
                         + "}\n");
@@ -688,8 +688,8 @@ public class AppSearchCompilerTest {
 
     private Compilation compile(String classSimpleName, String classBody) {
         String src = "package com.example.appsearch;\n"
-                + "import androidx.appsearch.annotation.AppSearchDocument;\n"
-                + "import androidx.appsearch.annotation.AppSearchDocument.*;\n"
+                + "import androidx.appsearch.annotation.Document;\n"
+                + "import androidx.appsearch.annotation.Document.*;\n"
                 + classBody;
         JavaFileObject jfo = JavaFileObjects.forSourceString(
                 "com.example.appsearch." + classSimpleName,

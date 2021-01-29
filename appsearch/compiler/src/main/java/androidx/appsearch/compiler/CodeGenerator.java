@@ -40,19 +40,19 @@ class CodeGenerator {
 
     private final ProcessingEnvironment mEnv;
     private final IntrospectionHelper mHelper;
-    private final AppSearchDocumentModel mModel;
+    private final DocumentModel mModel;
 
     private final String mOutputPackage;
     private final TypeSpec mOutputClass;
 
     public static CodeGenerator generate(
-            @NonNull ProcessingEnvironment env, @NonNull AppSearchDocumentModel model)
+            @NonNull ProcessingEnvironment env, @NonNull DocumentModel model)
             throws ProcessingException {
         return new CodeGenerator(env, model);
     }
 
     private CodeGenerator(
-            @NonNull ProcessingEnvironment env, @NonNull AppSearchDocumentModel model)
+            @NonNull ProcessingEnvironment env, @NonNull DocumentModel model)
             throws ProcessingException {
         // Prepare constants needed for processing
         mEnv = env;
@@ -74,12 +74,12 @@ class CodeGenerator {
 
     /**
      * Creates factory class for any class annotated with
-     * {@link androidx.appsearch.annotation.AppSearchDocument}
+     * {@link androidx.appsearch.annotation.Document}
      * <p>Class Example 1:
-     *   For a class Foo annotated with @AppSearchDocument, we will generated a
+     *   For a class Foo annotated with @Document, we will generated a
      *   $$__AppSearch__Foo.class under the output package.
      * <p>Class Example 2:
-     *   For an inner class Foo.Bar annotated with @AppSearchDocument, we will generated a
+     *   For an inner class Foo.Bar annotated with @Document, we will generated a
      *   $$__AppSearch__Foo$$__Bar.class under the output package.
      */
     private TypeSpec createClass() throws ProcessingException {

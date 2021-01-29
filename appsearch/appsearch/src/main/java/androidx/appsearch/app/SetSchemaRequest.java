@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.Document;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
@@ -158,7 +159,7 @@ public final class SetSchemaRequest {
          * <p>Any documents of these types will be visible on system UI surfaces by default.
          *
          * @param dataClasses classes annotated with
-         *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
+         *                    {@link Document}.
          * @throws AppSearchException if {@code androidx.appsearch.compiler.AppSearchCompiler}
          *                            has not generated a schema for the given data classes.
          */
@@ -176,7 +177,7 @@ public final class SetSchemaRequest {
          * <p>Any documents of these types will be visible on system UI surfaces by default.
          *
          * @param dataClasses classes annotated with
-         *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
+         *                    {@link Document}.
          * @throws AppSearchException if {@code androidx.appsearch.compiler.AppSearchCompiler}
          *                            has not generated a schema for the given data classes.
          */

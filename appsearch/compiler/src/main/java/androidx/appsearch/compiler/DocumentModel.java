@@ -40,11 +40,11 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
 /**
- * Processes AppSearchDocument annotations.
+ * Processes @Document annotations.
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class AppSearchDocumentModel {
+class DocumentModel {
 
     /** Enumeration of fields that must be handled specially (i.e. are not properties) */
     enum SpecialField { URI, NAMESPACE, CREATION_TIMESTAMP_MILLIS, TTL_MILLIS, SCORE }
@@ -55,7 +55,7 @@ class AppSearchDocumentModel {
 
     private final IntrospectionHelper mIntrospectionHelper;
     private final TypeElement mClass;
-    private final AnnotationMirror mAppSearchDocumentAnnotation;
+    private final AnnotationMirror mDocumentAnnotation;
     private final Set<ExecutableElement> mConstructors = new LinkedHashSet<>();
     private final Set<ExecutableElement> mMethods = new LinkedHashSet<>();
     private final Map<String, VariableElement> mAllAppSearchFields = new LinkedHashMap<>();
@@ -66,18 +66,18 @@ class AppSearchDocumentModel {
     private final Map<VariableElement, ProcessingException> mWriteWhyConstructor = new HashMap<>();
     private List<String> mChosenConstructorParams = null;
 
-    private AppSearchDocumentModel(
+    private DocumentModel(
             @NonNull ProcessingEnvironment env,
             @NonNull TypeElement clazz)
             throws ProcessingException {
         mIntrospectionHelper = new IntrospectionHelper(env);
         mClass = clazz;
         if (mClass.getModifiers().contains(Modifier.PRIVATE)) {
-            throw new ProcessingException("@AppSearchDocument annotated class is private", mClass);
+            throw new ProcessingException("@Document annotated class is private", mClass);
         }
 
-        mAppSearchDocumentAnnotation = mIntrospectionHelper.getAnnotation(
-                mClass, IntrospectionHelper.APP_SEARCH_DOCUMENT_CLASS);
+        mDocumentAnnotation = mIntrospectionHelper.getAnnotation(
+                mClass, IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS);
 
         // Scan methods and constructors. AppSearch doesn't define any annotations that apply to
         // these, but we will need this info when processing fields to make sure the fields can
@@ -102,7 +102,7 @@ class AppSearchDocumentModel {
     @NonNull
     public String getSchemaName() {
         Map<String, Object> params =
-                mIntrospectionHelper.getAnnotationParams(mAppSearchDocumentAnnotation);
+                mIntrospectionHelper.getAnnotationParams(mDocumentAnnotation);
         String name = params.get("name").toString();
         if (name.isEmpty()) {
             return mClass.getSimpleName().toString();
@@ -231,8 +231,8 @@ class AppSearchDocumentModel {
         // Every document must always have a URI
         if (uriField == null) {
             throw new ProcessingException(
-                    "All @AppSearchDocument classes must have exactly one field annotated with "
-                            + "@Uri", mClass);
+                    "All @Document classes must have exactly one field annotated with @Uri",
+                    mClass);
         }
 
         for (VariableElement appSearchField : mAllAppSearchFields.values()) {
@@ -430,13 +430,13 @@ class AppSearchDocumentModel {
     }
 
     /**
-     * Tries to create an {@link AppSearchDocumentModel} from the given {@link Element}.
+     * Tries to create an {@link DocumentModel} from the given {@link Element}.
      *
-     * @throws ProcessingException if the @{@code AppSearchDocument}-annotated class is invalid.
+     * @throws ProcessingException if the @{@code Document}-annotated class is invalid.
      */
-    public static AppSearchDocumentModel create(
+    public static DocumentModel create(
             @NonNull ProcessingEnvironment env, @NonNull TypeElement clazz)
             throws ProcessingException {
-        return new AppSearchDocumentModel(env, clazz);
+        return new DocumentModel(env, clazz);
     }
 }

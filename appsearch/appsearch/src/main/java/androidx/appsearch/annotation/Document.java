@@ -57,7 +57,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.TYPE)
-public @interface AppSearchDocument {
+public @interface Document {
     /**
      * Marks a member field of a document as the document's URI.
      *
@@ -67,7 +67,7 @@ public @interface AppSearchDocument {
      * <p>A document must have exactly one such field, and it must be of type {@link String} or
      * {@link android.net.Uri}.
      *
-     * <p>See the class description of {@link AppSearchDocument} for other requirements (i.e. it
+     * <p>See the class description of {@link Document} for other requirements (i.e. it
      * must be visible, or have a visible getter and setter, or be exposed through a visible
      * constructor).
      */
@@ -88,7 +88,7 @@ public @interface AppSearchDocument {
      *
      * <p>If present, the field must be of type {@code String}.
      *
-     * <p>See the class description of {@link AppSearchDocument} for other requirements (i.e. if
+     * <p>See the class description of {@link Document} for other requirements (i.e. if
      * present it must be visible, or have a visible getter and setter, or be exposed through a
      * visible constructor).
      */
@@ -108,7 +108,7 @@ public @interface AppSearchDocument {
      *
      * <p>If present, the field must be of type {@code long} or {@link Long}.
      *
-     * <p>See the class description of {@link AppSearchDocument} for other requirements (i.e. if
+     * <p>See the class description of {@link Document} for other requirements (i.e. if
      * present it must be visible, or have a visible getter and setter, or be exposed through a
      * visible constructor).
      */
@@ -127,7 +127,7 @@ public @interface AppSearchDocument {
      *
      * <p>If present, the field must be of type {@code long} or {@link Long}.
      *
-     * <p>See the class description of {@link AppSearchDocument} for other requirements (i.e. if
+     * <p>See the class description of {@link Document} for other requirements (i.e. if
      * present it must be visible, or have a visible getter and setter, or be exposed through a
      * visible constructor).
      */
@@ -147,7 +147,7 @@ public @interface AppSearchDocument {
      *
      * <p>If present, the field must be of type {@code int} or {@link Integer}.
      *
-     * <p>See the class description of {@link AppSearchDocument} for other requirements (i.e. if
+     * <p>See the class description of {@link Document} for other requirements (i.e. if
      * present it must be visible, or have a visible getter and setter, or be exposed through a
      * visible constructor).
      */

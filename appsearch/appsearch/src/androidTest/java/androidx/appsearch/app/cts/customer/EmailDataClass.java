@@ -16,17 +16,17 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.app.cts.customer;
 
-import androidx.appsearch.annotation.AppSearchDocument;
+import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 
-@AppSearchDocument
+@Document
 public final class EmailDataClass {
-    @AppSearchDocument.Uri
+    @Document.Uri
     public String uri;
 
-    @AppSearchDocument.Property(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+    @Document.Property(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
     public String subject;
 
-    @AppSearchDocument.Property(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+    @Document.Property(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
     public String body;
 }

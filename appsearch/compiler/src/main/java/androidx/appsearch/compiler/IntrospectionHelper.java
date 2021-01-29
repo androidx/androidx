@@ -44,20 +44,14 @@ class IntrospectionHelper {
     static final String APPSEARCH_PKG = "androidx.appsearch.app";
     static final String APPSEARCH_EXCEPTION_PKG = "androidx.appsearch.exceptions";
     static final String APPSEARCH_EXCEPTION_SIMPLE_NAME = "AppSearchException";
-    static final String APP_SEARCH_DOCUMENT_CLASS =
-            "androidx.appsearch.annotation.AppSearchDocument";
-    static final String URI_CLASS =
-            "androidx.appsearch.annotation.AppSearchDocument.Uri";
-    static final String NAMESPACE_CLASS =
-            "androidx.appsearch.annotation.AppSearchDocument.Namespace";
+    static final String DOCUMENT_ANNOTATION_CLASS = "androidx.appsearch.annotation.Document";
+    static final String URI_CLASS = "androidx.appsearch.annotation.Document.Uri";
+    static final String NAMESPACE_CLASS = "androidx.appsearch.annotation.Document.Namespace";
     static final String CREATION_TIMESTAMP_MILLIS_CLASS =
-            "androidx.appsearch.annotation.AppSearchDocument.CreationTimestampMillis";
-    static final String TTL_MILLIS_CLASS =
-            "androidx.appsearch.annotation.AppSearchDocument.TtlMillis";
-    static final String SCORE_CLASS =
-            "androidx.appsearch.annotation.AppSearchDocument.Score";
-    static final String PROPERTY_CLASS =
-            "androidx.appsearch.annotation.AppSearchDocument.Property";
+            "androidx.appsearch.annotation.Document.CreationTimestampMillis";
+    static final String TTL_MILLIS_CLASS = "androidx.appsearch.annotation.Document.TtlMillis";
+    static final String SCORE_CLASS = "androidx.appsearch.annotation.Document.Score";
+    static final String PROPERTY_CLASS = "androidx.appsearch.annotation.Document.Property";
 
     final TypeMirror mCollectionType;
     final TypeMirror mListType;

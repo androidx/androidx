@@ -45,17 +45,17 @@ import javax.lang.model.util.Types;
 class ToGenericDocumentCodeGenerator {
     private final ProcessingEnvironment mEnv;
     private final IntrospectionHelper mHelper;
-    private final AppSearchDocumentModel mModel;
+    private final DocumentModel mModel;
 
     public static void generate(
             @NonNull ProcessingEnvironment env,
-            @NonNull AppSearchDocumentModel model,
+            @NonNull DocumentModel model,
             @NonNull TypeSpec.Builder classBuilder) throws ProcessingException {
         new ToGenericDocumentCodeGenerator(env, model).generate(classBuilder);
     }
 
     private ToGenericDocumentCodeGenerator(
-            @NonNull ProcessingEnvironment env, @NonNull AppSearchDocumentModel model) {
+            @NonNull ProcessingEnvironment env, @NonNull DocumentModel model) {
         mEnv = env;
         mHelper = new IntrospectionHelper(env);
         mModel = model;
@@ -82,7 +82,7 @@ class ToGenericDocumentCodeGenerator {
                         WildcardTypeName.subtypeOf(Object.class)),
                 mHelper.getAppSearchClass("GenericDocument", "Builder"),
                 createAppSearchFieldRead(
-                        mModel.getSpecialFieldName(AppSearchDocumentModel.SpecialField.URI)));
+                        mModel.getSpecialFieldName(DocumentModel.SpecialField.URI)));
 
         setSpecialFields(methodBuilder);
 
@@ -117,7 +117,7 @@ class ToGenericDocumentCodeGenerator {
         //       this.
         //
         //   1c: CollectionForLoopCallToGenericDocument
-        //       Collection contains a class which is annotated with @AppSearchDocument.
+        //       Collection contains a class which is annotated with @Document.
         //       We have to convert this into an array of GenericDocument[], by reading each element
         //       one-by-one and converting it through the standard conversion machinery.
         //
@@ -141,7 +141,7 @@ class ToGenericDocumentCodeGenerator {
         //       We can directly use this field with no conversion.
         //
         //   2c: ArrayForLoopCallToGenericDocument
-        //       Array is of a class which is annotated with @AppSearchDocument.
+        //       Array is of a class which is annotated with @Document.
         //       We have to convert this into an array of GenericDocument[], by reading each element
         //       one-by-one and converting it through the standard conversion machinery.
         //
@@ -164,7 +164,7 @@ class ToGenericDocumentCodeGenerator {
         //       We can use this field directly without testing for null.
         //
         //   3c: FieldCallToGenericDocument
-        //       Field is of a class which is annotated with @AppSearchDocument.
+        //       Field is of a class which is annotated with @Document.
         //       We have to convert this into a GenericDocument through the standard conversion
         //       machinery.
         //
@@ -304,7 +304,7 @@ class ToGenericDocumentCodeGenerator {
     }
 
     //   1c: CollectionForLoopCallToGenericDocument
-    //       Collection contains a class which is annotated with @AppSearchDocument.
+    //       Collection contains a class which is annotated with @Document.
     //       We have to convert this into an array of GenericDocument[], by reading each element
     //       one-by-one and converting it through the standard conversion machinery.
     private boolean tryCollectionForLoopCallToGenericDocument(
@@ -322,9 +322,9 @@ class ToGenericDocumentCodeGenerator {
             return false;
         }
         try {
-            mHelper.getAnnotation(element, IntrospectionHelper.APP_SEARCH_DOCUMENT_CLASS);
+            mHelper.getAnnotation(element, IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS);
         } catch (ProcessingException e) {
-            // The propertyType doesn't have @AppSearchDocument annotation, this is not a type 1c
+            // The propertyType doesn't have @Document annotation, this is not a type 1c
             // list.
             return false;
         }
@@ -483,7 +483,7 @@ class ToGenericDocumentCodeGenerator {
     }
 
     //   2c: ArrayForLoopCallToGenericDocument
-    //       Array is of a class which is annotated with @AppSearchDocument.
+    //       Array is of a class which is annotated with @Document.
     //       We have to convert this into an array of GenericDocument[], by reading each element
     //       one-by-one and converting it through the standard conversion machinery.
     private boolean tryArrayForLoopCallToGenericDocument(
@@ -501,9 +501,9 @@ class ToGenericDocumentCodeGenerator {
             return false;
         }
         try {
-            mHelper.getAnnotation(element, IntrospectionHelper.APP_SEARCH_DOCUMENT_CLASS);
+            mHelper.getAnnotation(element, IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS);
         } catch (ProcessingException e) {
-            // The propertyType doesn't have @AppSearchDocument annotation, this is not a type 1c
+            // The propertyType doesn't have @Document annotation, this is not a type 1c
             // list.
             return false;
         }
@@ -627,7 +627,7 @@ class ToGenericDocumentCodeGenerator {
     }
 
     //   3c: FieldCallToGenericDocument
-    //       Field is of a class which is annotated with @AppSearchDocument.
+    //       Field is of a class which is annotated with @Document.
     //       We have to convert this into a GenericDocument through the standard conversion
     //       machinery.
     private boolean tryFieldCallToGenericDocument(
@@ -643,9 +643,9 @@ class ToGenericDocumentCodeGenerator {
             return false;
         }
         try {
-            mHelper.getAnnotation(element, IntrospectionHelper.APP_SEARCH_DOCUMENT_CLASS);
+            mHelper.getAnnotation(element, IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS);
         } catch (ProcessingException e) {
-            // The propertyType doesn't have @AppSearchDocument annotation, this is not a type 3c
+            // The propertyType doesn't have @Document annotation, this is not a type 3c
             // field.
             return false;
         }
@@ -665,8 +665,8 @@ class ToGenericDocumentCodeGenerator {
     }
 
     private void setSpecialFields(MethodSpec.Builder method) {
-        for (AppSearchDocumentModel.SpecialField specialField :
-                AppSearchDocumentModel.SpecialField.values()) {
+        for (DocumentModel.SpecialField specialField :
+                DocumentModel.SpecialField.values()) {
             String fieldName = mModel.getSpecialFieldName(specialField);
             if (fieldName == null) {
                 continue;  // The data class doesn't have this field, so no need to set it.

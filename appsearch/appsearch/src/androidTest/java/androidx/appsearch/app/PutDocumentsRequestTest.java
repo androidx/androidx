@@ -22,7 +22,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 
-import androidx.appsearch.annotation.AppSearchDocument;
+import androidx.appsearch.annotation.Document;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -46,12 +46,12 @@ public class PutDocumentsRequestTest {
     }
 
 // @exportToFramework:startStrip()
-    @AppSearchDocument
+    @Document
     static class Card {
-        @AppSearchDocument.Uri
+        @Document.Uri
         String mUri;
 
-        @AppSearchDocument.Property(indexingType = INDEXING_TYPE_PREFIXES)
+        @Document.Property(indexingType = INDEXING_TYPE_PREFIXES)
         String mString;
 
         Card(String mUri, String mString) {
