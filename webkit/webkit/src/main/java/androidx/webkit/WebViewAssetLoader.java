@@ -62,18 +62,16 @@ import java.util.List;
  *          .addPathHandler("/assets/", new AssetsPathHandler(this))
  *          .build();
  *
- * webView.setWebViewClient(new WebViewClient() {
+ * webView.setWebViewClient(new WebViewClientCompat() {
  *     {@literal @}Override
  *     {@literal @}RequiresApi(21)
- *     public WebResourceResponse shouldInterceptRequest(WebView view,
- *                                      WebResourceRequest request) {
+ *     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
  *         return assetLoader.shouldInterceptRequest(request.getUrl());
  *     }
  *
  *     {@literal @}Override
  *     {@literal @}SuppressWarnings("deprecation") // for API < 21
- *     public WebResourceResponse shouldInterceptRequest(WebView view,
- *                                      WebResourceRequest request) {
+ *     public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
  *         return assetLoader.shouldInterceptRequest(Uri.parse(request));
  *     }
  * });
