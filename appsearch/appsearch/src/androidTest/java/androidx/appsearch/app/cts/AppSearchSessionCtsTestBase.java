@@ -1120,7 +1120,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Query only for Document
         searchResults = mDb1.search("body", new SearchSpec.Builder()
-                .addSchemaType("Generic", "Generic") // duplicate type in filter won't matter.
+                .addFilterSchemas("Generic", "Generic") // duplicate type in filter won't matter.
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         documents = convertSearchResultsToDocuments(searchResults);
@@ -1200,7 +1200,7 @@ public abstract class AppSearchSessionCtsTestBase {
         // Query only for expectedNamespace
         searchResults = mDb1.search("body",
                 new SearchSpec.Builder()
-                        .addNamespace("expectedNamespace")
+                        .addFilterNamespaces("expectedNamespace")
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build());
         documents = convertSearchResultsToDocuments(searchResults);
@@ -1782,7 +1782,7 @@ public abstract class AppSearchSessionCtsTestBase {
         // Query for the document
         SearchResults searchResults = mDb1.search("foo",
                 new SearchSpec.Builder()
-                        .addSchemaType("Generic")
+                        .addFilterSchemas("Generic")
                         .setSnippetCount(1)
                         .setSnippetCountPerProperty(1)
                         .setMaxSnippetSize(10)
@@ -2026,7 +2026,7 @@ public abstract class AppSearchSessionCtsTestBase {
         mDb1.remove("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                        .addSchemaType(AppSearchEmail.SCHEMA_TYPE)
+                        .addFilterSchemas(AppSearchEmail.SCHEMA_TYPE)
                         .build())
                 .get();
 
@@ -2078,7 +2078,7 @@ public abstract class AppSearchSessionCtsTestBase {
         mDb1.remove("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                        .addSchemaType(AppSearchEmail.SCHEMA_TYPE)
+                        .addFilterSchemas(AppSearchEmail.SCHEMA_TYPE)
                         .build())
                 .get();
 
@@ -2143,7 +2143,7 @@ public abstract class AppSearchSessionCtsTestBase {
         mDb1.remove("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                        .addNamespace("email")
+                        .addFilterNamespaces("email")
                         .build())
                 .get();
 
@@ -2201,7 +2201,7 @@ public abstract class AppSearchSessionCtsTestBase {
         mDb1.remove("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                        .addNamespace("email")
+                        .addFilterNamespaces("email")
                         .build())
                 .get();
 

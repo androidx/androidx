@@ -260,7 +260,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
         SearchSpec exactEmailSearchSpec =
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                        .addSchemaType(AppSearchEmail.SCHEMA_TYPE)
+                        .addFilterSchemas(AppSearchEmail.SCHEMA_TYPE)
                         .build();
         List<GenericDocument> beforeBodyEmailDocuments = snapshotResults("body",
                 exactEmailSearchSpec);
@@ -330,7 +330,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
         SearchSpec exactNamespace1SearchSpec =
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                        .addNamespace("namespace1")
+                        .addFilterNamespaces("namespace1")
                         .build();
         List<GenericDocument> beforeBodyNamespace1Documents = snapshotResults("body",
                 exactNamespace1SearchSpec);

@@ -571,13 +571,13 @@ public class AppSearchImplTest {
     @Test
     public void testRemoveEmptyDatabase_noExceptionThrown() throws Exception {
         SearchSpec searchSpec =
-                new SearchSpec.Builder().addSchemaType("FakeType").setTermMatch(
+                new SearchSpec.Builder().addFilterSchemas("FakeType").setTermMatch(
                         TermMatchType.Code.PREFIX_VALUE).build();
         mAppSearchImpl.removeByQuery("package", "EmptyDatabase",
                 "", searchSpec);
 
         searchSpec =
-                new SearchSpec.Builder().addNamespace("FakeNamespace").setTermMatch(
+                new SearchSpec.Builder().addFilterNamespaces("FakeNamespace").setTermMatch(
                         TermMatchType.Code.PREFIX_VALUE).build();
         mAppSearchImpl.removeByQuery("package", "EmptyDatabase",
                 "", searchSpec);

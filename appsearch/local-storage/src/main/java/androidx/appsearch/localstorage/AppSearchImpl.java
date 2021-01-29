@@ -497,8 +497,8 @@ public final class AppSearchImpl {
             @NonNull String databaseName,
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec) throws AppSearchException {
-        if (!searchSpec.getPackageNames().isEmpty() && !searchSpec.getPackageNames().contains(
-                packageName)) {
+        List<String> filterPackageNames = searchSpec.getFilterPackageNames();
+        if (!filterPackageNames.isEmpty() && !filterPackageNames.contains(packageName)) {
             // Client wanted to query over some packages that weren't its own. This isn't
             // allowed through local query so we can return early with no results.
             return new SearchResultPage(Bundle.EMPTY);
@@ -540,7 +540,7 @@ public final class AppSearchImpl {
             int callerUid) throws AppSearchException {
         mReadWriteLock.readLock().lock();
         try {
-            Set<String> packageFilters = new ArraySet<>(searchSpec.getPackageNames());
+            Set<String> packageFilters = new ArraySet<>(searchSpec.getFilterPackageNames());
             Set<String> prefixFilters = new ArraySet<>();
             Set<String> allPrefixes = mNamespaceMapLocked.keySet();
             if (packageFilters.isEmpty()) {
@@ -560,7 +560,7 @@ public final class AppSearchImpl {
 
             // Find which schemas the client is allowed to query over.
             Set<String> allowedPrefixedSchemas = new ArraySet<>();
-            List<String> schemaFilters = searchSpec.getSchemaTypes();
+            List<String> schemaFilters = searchSpec.getFilterSchemas();
             for (String prefix : prefixFilters) {
                 String packageName = getPackageName(prefix);
 
@@ -732,8 +732,8 @@ public final class AppSearchImpl {
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec)
             throws AppSearchException {
-        if (!searchSpec.getPackageNames().isEmpty() && !searchSpec.getPackageNames().contains(
-                packageName)) {
+        List<String> filterPackageNames = searchSpec.getFilterPackageNames();
+        if (!filterPackageNames.isEmpty() && !filterPackageNames.contains(packageName)) {
             // We're only removing documents within the parameter `packageName`. If we're not
             // restricting our remove-query to this package name, then there's nothing for us to
             // remove.
@@ -1063,7 +1063,7 @@ public final class AppSearchImpl {
         Set<String> allowedPrefixedSchemas = new ArraySet<>();
 
         // Add all the schema filters the client specified.
-        List<String> schemaFilters = searchSpec.getSchemaTypes();
+        List<String> schemaFilters = searchSpec.getFilterSchemas();
         for (int i = 0; i < schemaFilters.size(); i++) {
             allowedPrefixedSchemas.add(prefix + schemaFilters.get(i));
         }

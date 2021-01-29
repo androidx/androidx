@@ -28,7 +28,7 @@ public class SearchSpecCtsTest {
     @Test
     public void buildSearchSpecWithoutTermMatchType() {
         RuntimeException e = assertThrows(RuntimeException.class, () -> new SearchSpec.Builder()
-                .addSchemaType("testSchemaType")
+                .addFilterSchemas("testSchemaType")
                 .build());
         assertThat(e).hasMessageThat().contains("Missing termMatchType field");
     }
@@ -37,8 +37,8 @@ public class SearchSpecCtsTest {
     public void testBuildSearchSpec() {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                .addNamespace("namespace1", "namespace2")
-                .addSchemaType("schemaTypes1", "schemaTypes2")
+                .addFilterNamespaces("namespace1", "namespace2")
+                .addFilterSchemas("schemaTypes1", "schemaTypes2")
                 .addFilterPackageNames("package1", "package2")
                 .setSnippetCount(5)
                 .setSnippetCountPerProperty(10)
@@ -49,11 +49,11 @@ public class SearchSpecCtsTest {
                 .build();
 
         assertThat(searchSpec.getTermMatch()).isEqualTo(SearchSpec.TERM_MATCH_PREFIX);
-        assertThat(searchSpec.getNamespaces())
+        assertThat(searchSpec.getFilterNamespaces())
                 .containsExactly("namespace1", "namespace2").inOrder();
-        assertThat(searchSpec.getSchemaTypes())
+        assertThat(searchSpec.getFilterSchemas())
                 .containsExactly("schemaTypes1", "schemaTypes2").inOrder();
-        assertThat(searchSpec.getPackageNames())
+        assertThat(searchSpec.getFilterPackageNames())
                 .containsExactly("package1", "package2").inOrder();
         assertThat(searchSpec.getSnippetCount()).isEqualTo(5);
         assertThat(searchSpec.getSnippetCountPerProperty()).isEqualTo(10);

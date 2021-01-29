@@ -42,8 +42,8 @@ public final class SearchSpecToPlatformConverter {
                 new android.app.appsearch.SearchSpec.Builder();
         platformBuilder
                 .setTermMatch(jetpackSearchSpec.getTermMatch())
-                .addSchemaType(jetpackSearchSpec.getSchemaTypes())
-                .addNamespace(jetpackSearchSpec.getNamespaces())
+                .addSchemaType(jetpackSearchSpec.getFilterSchemas())
+                .addNamespace(jetpackSearchSpec.getFilterNamespaces())
                 .setResultCountPerPage(jetpackSearchSpec.getResultCountPerPage())
                 .setRankingStrategy(jetpackSearchSpec.getRankingStrategy())
                 .setOrder(jetpackSearchSpec.getOrder())

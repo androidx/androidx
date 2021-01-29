@@ -79,7 +79,7 @@ class AppSearchMigrationHelperImpl implements AppSearchMigrationHelper {
             SearchResultPage searchResultPage = mAppSearchImpl.query(mPackageName, mDatabaseName,
                     /*queryExpression=*/"",
                     new SearchSpec.Builder()
-                            .addSchemaType(schemaType)
+                            .addFilterSchemas(schemaType)
                             .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
                             .build());
             while (!searchResultPage.getResults().isEmpty()) {

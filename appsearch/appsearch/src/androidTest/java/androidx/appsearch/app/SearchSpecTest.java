@@ -39,8 +39,8 @@ public class SearchSpecTest {
     public void testGetBundle() {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                .addNamespace("namespace1", "namespace2")
-                .addSchemaType("schemaTypes1", "schemaTypes2")
+                .addFilterNamespaces("namespace1", "namespace2")
+                .addFilterSchemas("schemaTypes1", "schemaTypes2")
                 .addFilterPackageNames("package1", "package2")
                 .setSnippetCount(5)
                 .setSnippetCountPerProperty(10)
@@ -55,7 +55,7 @@ public class SearchSpecTest {
                 .isEqualTo(SearchSpec.TERM_MATCH_PREFIX);
         assertThat(bundle.getStringArrayList(SearchSpec.NAMESPACE_FIELD)).containsExactly(
                 "namespace1", "namespace2");
-        assertThat(bundle.getStringArrayList(SearchSpec.SCHEMA_TYPE_FIELD)).containsExactly(
+        assertThat(bundle.getStringArrayList(SearchSpec.SCHEMA_FIELD)).containsExactly(
                 "schemaTypes1", "schemaTypes2");
         assertThat(bundle.getStringArrayList(SearchSpec.PACKAGE_NAME_FIELD)).containsExactly(
                 "package1", "package2");
@@ -113,11 +113,11 @@ public class SearchSpecTest {
         Set<Class<King>> cardClassSet = ImmutableSet.of(King.class);
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                .addSchemaByDataClass(cardClassSet)
+                .addFilterDocumentClasses(cardClassSet)
                 .build();
 
         Bundle bundle = searchSpec.getBundle();
-        assertThat(bundle.getStringArrayList(SearchSpec.SCHEMA_TYPE_FIELD)).containsExactly(
+        assertThat(bundle.getStringArrayList(SearchSpec.SCHEMA_FIELD)).containsExactly(
                 "King");
     }
 // @exportToFramework:endStrip()

@@ -244,7 +244,8 @@ public interface AppSearchSession extends Closeable {
     /**
      * Removes {@link GenericDocument}s from the index by Query. Documents will be removed if they
      * match the {@code queryExpression} in given namespaces and schemaTypes which is set via
-     * {@link SearchSpec.Builder#addNamespace} and {@link SearchSpec.Builder#addSchemaType}.
+     * {@link SearchSpec.Builder#addFilterNamespaces} and
+     * {@link SearchSpec.Builder#addFilterSchemas}.
      *
      * <p> An empty {@code queryExpression} matches all documents.
      *
