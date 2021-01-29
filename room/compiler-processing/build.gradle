@@ -53,6 +53,10 @@ tasks.withType(KotlinCompile).configureEach {
     }
 }
 
+tasks.withType(Test).configureEach {
+   it.systemProperty("androidx.room.compiler.processing.strict", "true")
+}
+
 androidx {
     name = "AndroidX Room XProcessor"
     type = LibraryType.ANNOTATION_PROCESSOR
