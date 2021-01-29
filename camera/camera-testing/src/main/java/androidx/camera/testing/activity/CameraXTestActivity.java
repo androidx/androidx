@@ -17,13 +17,11 @@
 package androidx.camera.testing.activity;
 
 
-import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider;
-
 import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.util.Size;
+import android.view.Surface;
 import android.view.TextureView;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,10 +32,10 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.R;
-import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
 import java.util.Collections;
@@ -49,17 +47,15 @@ public class CameraXTestActivity extends AppCompatActivity {
 
     private static final String TAG = "CameraXTestActivity";
     private static final int FRAMES_UNTIL_VIEW_IS_READY = 5;
+
     @Nullable
     private Preview mPreview;
     @Nullable
-    public String mCameraId = null;
-    @CameraSelector.LensFacing
-    public int mLensFacing = CameraSelector.LENS_FACING_BACK;
-
-    CameraUseCaseAdapter mCameraUseCaseAdapter = null;
-
-    @VisibleForTesting
-    public final CountingIdlingResource mPreviewReady = new CountingIdlingResource("PreviewReady");
+    private String mCameraId = null;
+    @Nullable
+    private CameraUseCaseAdapter mCameraUseCaseAdapter = null;
+    @NonNull
+    final CountingIdlingResource mPreviewReady = new CountingIdlingResource("PreviewReady");
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -85,7 +81,7 @@ public class CameraXTestActivity extends AppCompatActivity {
         }
     }
 
-    void enablePreview() {
+    private void enablePreview() {
         for (int i = 0; i < FRAMES_UNTIL_VIEW_IS_READY; i++) {
             mPreviewReady.increment();
         }
@@ -95,42 +91,56 @@ public class CameraXTestActivity extends AppCompatActivity {
             return;
         }
 
+        int lensFacing;
         if (CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK)) {
-            mLensFacing = CameraSelector.LENS_FACING_BACK;
+            lensFacing = CameraSelector.LENS_FACING_BACK;
         } else if (CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT)) {
-            mLensFacing = CameraSelector.LENS_FACING_FRONT;
+            lensFacing = CameraSelector.LENS_FACING_FRONT;
         } else {
             throw new IllegalArgumentException("Cannot find camera to use");
         }
+        final CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(
+                lensFacing).build();
 
         mPreview = new Preview.Builder()
                 .setTargetName("Preview")
                 .build();
-        TextureView textureView = findViewById(R.id.textureView);
-        mPreview.setSurfaceProvider(createSurfaceTextureProvider(
-                new SurfaceTextureProvider.SurfaceTextureCallback() {
+
+        final TextureView textureView = findViewById(R.id.textureView);
+        textureView.setSurfaceTextureListener(
+                new TextureView.SurfaceTextureListener() {
                     @Override
-                    public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
-                            @NonNull Size resolution) {
-                        ViewGroup viewGroup = (ViewGroup) textureView.getParent();
-                        viewGroup.removeView(textureView);
-                        viewGroup.addView(textureView);
-                        textureView.setSurfaceTexture(surfaceTexture);
+                    public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surfaceTexture,
+                            int width, int height) {
+                        Logger.d(TAG, "SurfaceTexture available");
+                        setSurfaceProvider(surfaceTexture);
                     }
 
                     @Override
-                    public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
-                        surfaceTexture.release();
+                    public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture surfaceTexture,
+                            int width, int height) {
+                        Logger.d(TAG, "SurfaceTexture size changed " + width + "x" + height);
                     }
-                }));
 
+                    @Override
+                    public boolean onSurfaceTextureDestroyed(
+                            @NonNull SurfaceTexture surfaceTexture) {
+                        Logger.d(TAG, "SurfaceTexture destroyed");
+                        return true;
+                    }
 
-        CameraSelector cameraSelector =
-                new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
+                    @Override
+                    public void onSurfaceTextureUpdated(@NonNull SurfaceTexture surfaceTexture) {
+                        // Wait until surface texture receives enough updates.
+                        if (!mPreviewReady.isIdleNow()) {
+                            mPreviewReady.decrement();
+                        }
+                    }
+                });
 
         try {
-            CameraX cameraX = CameraX.getOrCreateInstance(this).get();
-            LinkedHashSet<CameraInternal> cameras =
+            final CameraX cameraX = CameraX.getOrCreateInstance(this).get();
+            final LinkedHashSet<CameraInternal> cameras =
                     cameraSelector.filter(cameraX.getCameraRepository().getCameras());
             mCameraUseCaseAdapter = new CameraUseCaseAdapter(cameras,
                     cameraX.getCameraDeviceSurfaceManager(), cameraX.getDefaultConfigFactory());
@@ -146,33 +156,35 @@ public class CameraXTestActivity extends AppCompatActivity {
 
         mCameraId = CameraX.getCameraWithCameraSelector(
                 cameraSelector).getCameraInfoInternal().getCameraId();
-
-        textureView.setSurfaceTextureListener(
-                new TextureView.SurfaceTextureListener() {
-                    @Override
-                    public void onSurfaceTextureAvailable(
-                            @NonNull SurfaceTexture surfaceTexture, int i, int i1) {
-                    }
-
-                    @Override
-                    public void onSurfaceTextureSizeChanged(
-                            @NonNull SurfaceTexture surfaceTexture, int i, int i1) {
-                    }
-
-                    @Override
-                    public boolean onSurfaceTextureDestroyed(
-                            @NonNull SurfaceTexture surfaceTexture) {
-                        return true;
-                    }
-
-                    @Override
-                    public void onSurfaceTextureUpdated(@NonNull SurfaceTexture surfaceTexture) {
-                        // Wait until surface texture receives enough updates.
-                        if (!mPreviewReady.isIdleNow()) {
-                            mPreviewReady.decrement();
-                        }
-                    }
-                });
     }
 
+    void setSurfaceProvider(@NonNull SurfaceTexture surfaceTexture) {
+        if (mPreview == null) {
+            return;
+        }
+        mPreview.setSurfaceProvider((surfaceRequest) -> {
+            final Size resolution = surfaceRequest.getResolution();
+            surfaceTexture.setDefaultBufferSize(resolution.getWidth(), resolution.getHeight());
+
+            final Surface surface = new Surface(surfaceTexture);
+            surfaceRequest.provideSurface(
+                    surface,
+                    CameraXExecutors.directExecutor(),
+                    (surfaceResponse) -> {
+                        surface.release();
+                        surfaceTexture.release();
+                    });
+        });
+    }
+
+    @Nullable
+    public String getCameraId() {
+        return mCameraId;
+    }
+
+    @VisibleForTesting
+    @NonNull
+    public CountingIdlingResource getPreviewReady() {
+        return mPreviewReady;
+    }
 }
