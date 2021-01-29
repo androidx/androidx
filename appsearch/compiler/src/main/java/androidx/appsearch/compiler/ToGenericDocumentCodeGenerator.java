@@ -76,7 +76,7 @@ class ToGenericDocumentCodeGenerator {
                 .addException(mHelper.getAppSearchExceptionClass());
 
         // Construct a new GenericDocument.Builder with the schema type and URI
-        methodBuilder.addStatement("$T builder =\nnew $T<>($L, SCHEMA_TYPE)",
+        methodBuilder.addStatement("$T builder =\nnew $T<>($L, SCHEMA_NAME)",
                 ParameterizedTypeName.get(
                         mHelper.getAppSearchClass("GenericDocument", "Builder"),
                         WildcardTypeName.subtypeOf(Object.class)),
@@ -332,9 +332,9 @@ class ToGenericDocumentCodeGenerator {
         body.addStatement("GenericDocument[] $NConv = new GenericDocument[$NCopy.size()]",
                 fieldName, fieldName);
         body.addStatement("$T factory = $T.getInstance().getOrCreateFactory($T.class)",
-                ParameterizedTypeName.get(mHelper.getAppSearchClass("DataClassFactory"),
+                ParameterizedTypeName.get(mHelper.getAppSearchClass("DocumentClassFactory"),
                         TypeName.get(propertyType)),
-                mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType);
+                mHelper.getAppSearchClass("DocumentClassFactoryRegistry"), propertyType);
 
         body.addStatement("int i = 0");
         body.add("for ($T item : $NCopy) {\n", propertyType, fieldName).indent();
@@ -511,9 +511,9 @@ class ToGenericDocumentCodeGenerator {
         body.addStatement("GenericDocument[] $NConv = new GenericDocument[$NCopy.length]",
                 fieldName, fieldName);
         body.addStatement("$T factory = $T.getInstance().getOrCreateFactory($T.class)",
-                ParameterizedTypeName.get(mHelper.getAppSearchClass("DataClassFactory"),
+                ParameterizedTypeName.get(mHelper.getAppSearchClass("DocumentClassFactory"),
                         TypeName.get(propertyType)),
-                mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType);
+                mHelper.getAppSearchClass("DocumentClassFactoryRegistry"), propertyType);
         body.add("for (int i = 0; i < $NConv.length; i++) {\n", fieldName).indent();
         body.addStatement("$NConv[i] = factory.toGenericDocument($NCopy[i])",
                 fieldName, fieldName);
@@ -656,7 +656,7 @@ class ToGenericDocumentCodeGenerator {
 
         method.addStatement("GenericDocument $NConv = $T.getInstance().getOrCreateFactory($T.class)"
                         + ".toGenericDocument($NCopy)", fieldName,
-                mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType,
+                mHelper.getAppSearchClass("DocumentClassFactoryRegistry"), propertyType,
                 propertyName);
         method.addStatement("builder.setPropertyDocument($S, $NConv)", propertyName, fieldName);
 

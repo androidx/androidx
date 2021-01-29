@@ -338,10 +338,10 @@ public final class SearchSpec {
             Preconditions.checkNotNull(documentClasses);
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             List<String> schemas = new ArrayList<>(documentClasses.size());
-            DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
             for (Class<?> documentClass : documentClasses) {
-                DataClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
-                schemas.add(factory.getSchemaType());
+                DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+                schemas.add(factory.getSchemaName());
             }
             addFilterSchemas(schemas);
             return this;

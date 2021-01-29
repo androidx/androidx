@@ -94,7 +94,7 @@ class CodeGenerator {
 
         TypeName genClassType = TypeName.get(mModel.getClassElement().asType());
         TypeName factoryType = ParameterizedTypeName.get(
-                mHelper.getAppSearchClass("DataClassFactory"),
+                mHelper.getAppSearchClass("DocumentClassFactory"),
                 genClassType);
 
         TypeSpec.Builder genClass = TypeSpec

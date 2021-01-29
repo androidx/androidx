@@ -187,9 +187,9 @@ public final class SetSchemaRequest {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(documentClasses);
             List<AppSearchSchema> schemas = new ArrayList<>(documentClasses.size());
-            DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
             for (Class<?> documentClass : documentClasses) {
-                DataClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+                DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
                 schemas.add(factory.getSchema());
             }
             return addSchemas(schemas);
@@ -291,9 +291,9 @@ public final class SetSchemaRequest {
                 boolean visible) throws AppSearchException {
             Preconditions.checkNotNull(documentClass);
 
-            DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
-            DataClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
-            return setSchemaTypeVisibilityForSystemUi(factory.getSchemaType(), visible);
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+            DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+            return setSchemaTypeVisibilityForSystemUi(factory.getSchemaName(), visible);
         }
 
         /**
@@ -314,9 +314,9 @@ public final class SetSchemaRequest {
                 throws AppSearchException {
             Preconditions.checkNotNull(documentClass);
 
-            DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
-            DataClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
-            return setSchemaTypeVisibilityForPackage(factory.getSchemaType(), visible,
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+            DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+            return setSchemaTypeVisibilityForPackage(factory.getSchemaName(), visible,
                     packageIdentifier);
         }
 // @exportToFramework:endStrip()

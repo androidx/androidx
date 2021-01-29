@@ -357,9 +357,9 @@ class FromGenericDocumentCodeGenerator {
         // If not null, iterate and assign
         body.add("if ($NCopy != null) {\n", fieldName).indent();
         body.addStatement("$T factory = $T.getInstance().getOrCreateFactory($T.class)",
-                ParameterizedTypeName.get(mHelper.getAppSearchClass("DataClassFactory"),
+                ParameterizedTypeName.get(mHelper.getAppSearchClass("DocumentClassFactory"),
                         TypeName.get(propertyType)),
-                mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType);
+                mHelper.getAppSearchClass("DocumentClassFactoryRegistry"), propertyType);
         body.addStatement("$NConv = new $T<>($NCopy.length)", fieldName, ArrayList.class,
                 fieldName);
 
@@ -563,9 +563,9 @@ class FromGenericDocumentCodeGenerator {
         body.add("if ($NCopy != null) {\n", fieldName).indent();
         body.addStatement("$NConv = new $T[$NCopy.length]", fieldName, propertyType, fieldName);
         body.addStatement("$T factory = $T.getInstance().getOrCreateFactory($T.class)",
-                ParameterizedTypeName.get(mHelper.getAppSearchClass("DataClassFactory"),
+                ParameterizedTypeName.get(mHelper.getAppSearchClass("DocumentClassFactory"),
                         TypeName.get(propertyType)),
-                mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType);
+                mHelper.getAppSearchClass("DocumentClassFactoryRegistry"), propertyType);
 
         body.add("for (int i = 0; i < $NCopy.length; i++) {\n", fieldName).indent();
         body.addStatement("$NConv[i] = factory.fromGenericDocument($NCopy[i])", fieldName,
@@ -749,7 +749,7 @@ class FromGenericDocumentCodeGenerator {
 
         body.addStatement("$NConv = $T.getInstance().getOrCreateFactory($T.class)"
                         + ".fromGenericDocument($NCopy)", fieldName,
-                mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType,
+                mHelper.getAppSearchClass("DocumentClassFactoryRegistry"), propertyType,
                 fieldName);
 
         body.unindent().add("}\n");

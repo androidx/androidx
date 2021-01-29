@@ -495,8 +495,8 @@ public class GenericDocument {
     @NonNull
     public <T> T toDataClass(@NonNull Class<T> dataClass) throws AppSearchException {
         Preconditions.checkNotNull(dataClass);
-        DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
-        DataClassFactory<T> factory = registry.getOrCreateFactory(dataClass);
+        DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+        DocumentClassFactory<T> factory = registry.getOrCreateFactory(dataClass);
         return factory.fromGenericDocument(this);
     }
 // @exportToFramework:endStrip()

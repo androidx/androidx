@@ -167,10 +167,10 @@ package androidx.appsearch.app {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.SetSchemaResponse!> setSchema(androidx.appsearch.app.SetSchemaRequest);
   }
 
-  public interface DataClassFactory<T> {
+  public interface DocumentClassFactory<T> {
     method public T fromGenericDocument(androidx.appsearch.app.GenericDocument) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.AppSearchSchema getSchema() throws androidx.appsearch.exceptions.AppSearchException;
-    method public String getSchemaType();
+    method public String getSchemaName();
     method public androidx.appsearch.app.GenericDocument toGenericDocument(T) throws androidx.appsearch.exceptions.AppSearchException;
   }
 

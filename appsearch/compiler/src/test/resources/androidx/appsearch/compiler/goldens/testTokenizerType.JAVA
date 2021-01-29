@@ -1,23 +1,23 @@
 package com.example.appsearch;
 
 import androidx.appsearch.app.AppSearchSchema;
-import androidx.appsearch.app.DataClassFactory;
+import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Override;
 import java.lang.String;
 
-public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
-  private static final String SCHEMA_TYPE = "Gift";
+public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
+  private static final String SCHEMA_NAME = "Gift";
 
   @Override
-  public String getSchemaType() {
-    return SCHEMA_TYPE;
+  public String getSchemaName() {
+    return SCHEMA_NAME;
   }
 
   @Override
   public AppSearchSchema getSchema() throws AppSearchException {
-    return new AppSearchSchema.Builder(SCHEMA_TYPE)
+    return new AppSearchSchema.Builder(SCHEMA_NAME)
           .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("tokNone")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
@@ -34,7 +34,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
   @Override
   public GenericDocument toGenericDocument(Gift dataClass) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
+        new GenericDocument.Builder<>(dataClass.uri, SCHEMA_NAME);
     String tokNoneCopy = dataClass.tokNone;
     if (tokNoneCopy != null) {
       builder.setPropertyString("tokNone", tokNoneCopy);

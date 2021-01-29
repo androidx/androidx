@@ -290,9 +290,9 @@ public abstract class AnnotationProcessorTestBase {
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).hasSize(1);
 
-        // Create DataClassFactory for Gift.
-        DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
-        DataClassFactory<Gift> factory = registry.getOrCreateFactory(Gift.class);
+        // Create DocumentClassFactory for Gift.
+        DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+        DocumentClassFactory<Gift> factory = registry.getOrCreateFactory(Gift.class);
 
         // Convert GenericDocument to Gift and check values.
         Gift outputDataClass = factory.fromGenericDocument(documents.get((0)));

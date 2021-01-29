@@ -26,27 +26,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A registry which maintains instances of {@link androidx.appsearch.app.DataClassFactory}.
+ * A registry which maintains instances of {@link DocumentClassFactory}.
  * @hide
  */
 @AnyThread
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class DataClassFactoryRegistry {
+public final class DocumentClassFactoryRegistry {
     private static final String GEN_CLASS_PREFIX = "$$__AppSearch__";
 
-    private static volatile DataClassFactoryRegistry sInstance = null;
+    private static volatile DocumentClassFactoryRegistry sInstance = null;
 
-    private final Map<Class<?>, DataClassFactory<?>> mFactories = new HashMap<>();
+    private final Map<Class<?>, DocumentClassFactory<?>> mFactories = new HashMap<>();
 
-    private DataClassFactoryRegistry() {}
+    private DocumentClassFactoryRegistry() {}
 
-    /** Returns the singleton instance of {@link DataClassFactoryRegistry}. */
+    /** Returns the singleton instance of {@link DocumentClassFactoryRegistry}. */
     @NonNull
-    public static DataClassFactoryRegistry getInstance() {
+    public static DocumentClassFactoryRegistry getInstance() {
         if (sInstance == null) {
-            synchronized (DataClassFactoryRegistry.class) {
+            synchronized (DocumentClassFactoryRegistry.class) {
                 if (sInstance == null) {
-                    sInstance = new DataClassFactoryRegistry();
+                    sInstance = new DocumentClassFactoryRegistry();
                 }
             }
         }
@@ -54,59 +54,61 @@ public final class DataClassFactoryRegistry {
     }
 
     /**
-     * Gets the {@link DataClassFactory} instance that can convert to and from objects of type
+     * Gets the {@link DocumentClassFactory} instance that can convert to and from objects of type
      * {@code T}.
      *
-     * @throws AppSearchException if no factory for this data class could be found on the classpath
+     * @throws AppSearchException if no factory for this document class could be found on the
+     * classpath
      */
     @NonNull
     @SuppressWarnings("unchecked")
-    public <T> DataClassFactory<T> getOrCreateFactory(@NonNull Class<T> dataClass)
+    public <T> DocumentClassFactory<T> getOrCreateFactory(@NonNull Class<T> documentClass)
             throws AppSearchException {
-        Preconditions.checkNotNull(dataClass);
-        DataClassFactory<?> factory;
+        Preconditions.checkNotNull(documentClass);
+        DocumentClassFactory<?> factory;
         synchronized (this) {
-            factory = mFactories.get(dataClass);
+            factory = mFactories.get(documentClass);
         }
         if (factory == null) {
-            factory = loadFactoryByReflection(dataClass);
+            factory = loadFactoryByReflection(documentClass);
             synchronized (this) {
-                DataClassFactory<?> racingFactory = mFactories.get(dataClass);
+                DocumentClassFactory<?> racingFactory = mFactories.get(documentClass);
                 if (racingFactory == null) {
-                    mFactories.put(dataClass, factory);
+                    mFactories.put(documentClass, factory);
                 } else {
                     // Another thread beat us to it
                     factory = racingFactory;
                 }
             }
         }
-        return (DataClassFactory<T>) factory;
+        return (DocumentClassFactory<T>) factory;
     }
 
     /**
-     * Gets the {@link DataClassFactory} instance that can convert to and from objects of type
+     * Gets the {@link DocumentClassFactory} instance that can convert to and from objects of type
      * {@code T}.
      *
-     * @throws AppSearchException if no factory for this data class could be found on the classpath
+     * @throws AppSearchException if no factory for this document class could be found on the
+     * classpath
      */
     @NonNull
     @SuppressWarnings("unchecked")
-    public <T> DataClassFactory<T> getOrCreateFactory(@NonNull T dataClass)
+    public <T> DocumentClassFactory<T> getOrCreateFactory(@NonNull T documentClass)
             throws AppSearchException {
-        Preconditions.checkNotNull(dataClass);
-        Class<?> clazz = dataClass.getClass();
-        DataClassFactory<?> factory = getOrCreateFactory(clazz);
-        return (DataClassFactory<T>) factory;
+        Preconditions.checkNotNull(documentClass);
+        Class<?> clazz = documentClass.getClass();
+        DocumentClassFactory<?> factory = getOrCreateFactory(clazz);
+        return (DocumentClassFactory<T>) factory;
     }
 
-    private DataClassFactory<?> loadFactoryByReflection(@NonNull Class<?> dataClass)
+    private DocumentClassFactory<?> loadFactoryByReflection(@NonNull Class<?> documentClass)
             throws AppSearchException {
-        Package pkg = dataClass.getPackage();
-        String simpleName = dataClass.getCanonicalName();
+        Package pkg = documentClass.getPackage();
+        String simpleName = documentClass.getCanonicalName();
         if (simpleName == null) {
             throw new AppSearchException(
                     AppSearchResult.RESULT_INTERNAL_ERROR,
-                    "Failed to find simple name for data class \"" + dataClass
+                    "Failed to find simple name for document class \"" + documentClass
                             + "\". Perhaps it is anonymous?");
         }
 
@@ -128,7 +130,7 @@ public final class DataClassFactoryRegistry {
         } catch (ClassNotFoundException e) {
             throw new AppSearchException(
                     AppSearchResult.RESULT_INTERNAL_ERROR,
-                    "Failed to find data class converter \"" + factoryClassName
+                    "Failed to find document class converter \"" + factoryClassName
                             + "\". Perhaps the annotation processor was not run or the class was "
                             + "proguarded out?",
                     e);
@@ -139,9 +141,9 @@ public final class DataClassFactoryRegistry {
         } catch (Exception e) {
             throw new AppSearchException(
                     AppSearchResult.RESULT_INTERNAL_ERROR,
-                    "Failed to construct data class converter \"" + factoryClassName + "\"",
+                    "Failed to construct document class converter \"" + factoryClassName + "\"",
                     e);
         }
-        return (DataClassFactory<?>) instance;
+        return (DocumentClassFactory<?>) instance;
     }
 }
