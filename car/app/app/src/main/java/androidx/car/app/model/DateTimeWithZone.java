@@ -23,6 +23,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
@@ -183,18 +184,10 @@ public final class DateTimeWithZone {
      *                      system time zone
      * @throws NullPointerException if {@code zonedDateTime} is {@code null}
      */
-    // TODO(shiufai): revisit wrapping this method in a container class (e.g. Api26Impl).
-    @SuppressLint("UnsafeNewApiCall")
     @RequiresApi(26)
     @NonNull
     public static DateTimeWithZone create(@NonNull ZonedDateTime zonedDateTime) {
-        LocalDateTime localDateTime = requireNonNull(zonedDateTime).toLocalDateTime();
-        ZoneId zoneId = zonedDateTime.getZone();
-        ZoneOffset zoneOffset = zoneId.getRules().getOffset(localDateTime);
-        return create(
-                SECONDS.toMillis(localDateTime.toEpochSecond(zoneOffset)),
-                zoneOffset.getTotalSeconds(),
-                zoneId.getDisplayName(TextStyle.SHORT, Locale.getDefault()));
+        return Api26Impl.create(zonedDateTime);
     }
 
     private DateTimeWithZone() {
@@ -208,5 +201,27 @@ public final class DateTimeWithZone {
         mTimeSinceEpochMillis = timeSinceEpochMillis;
         mZoneOffsetSeconds = zoneOffsetSeconds;
         mZoneShortName = timeZoneShortName;
+    }
+
+    /**
+     * Version-specific static inner class to avoid verification errors that negatively affect
+     * run-time performance.
+     */
+    @RequiresApi(26)
+    private static final class Api26Impl {
+        private Api26Impl() {
+        }
+
+        @DoNotInline
+        @NonNull
+        public static DateTimeWithZone create(@NonNull ZonedDateTime zonedDateTime) {
+            LocalDateTime localDateTime = requireNonNull(zonedDateTime).toLocalDateTime();
+            ZoneId zoneId = zonedDateTime.getZone();
+            ZoneOffset zoneOffset = zoneId.getRules().getOffset(localDateTime);
+            return DateTimeWithZone.create(
+                    SECONDS.toMillis(localDateTime.toEpochSecond(zoneOffset)),
+                    zoneOffset.getTotalSeconds(),
+                    zoneId.getDisplayName(TextStyle.SHORT, Locale.getDefault()));
+        }
     }
 }
