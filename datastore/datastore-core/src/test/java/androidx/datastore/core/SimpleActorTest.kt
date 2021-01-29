@@ -234,6 +234,41 @@ class SimpleActorTest {
         sender.await()
     }
 
+    @Test
+    fun testAllMessagesAreRespondedTo() = runBlocking<Unit> {
+        val myScope =
+            CoroutineScope(Job() + Executors.newFixedThreadPool(4).asCoroutineDispatcher())
+
+        val actorScope = CoroutineScope(Job())
+        val actor = SimpleActor<CompletableDeferred<Unit?>>(
+            actorScope,
+            onComplete = {},
+            onUndeliveredElement = { msg, _ ->
+                msg.complete(null)
+            }
+        ) {
+            it.complete(Unit)
+        }
+
+        val waiters = myScope.async {
+            repeat(100_000) { _ ->
+                launch {
+                    try {
+                        CompletableDeferred<Unit?>().also {
+                            actor.offer(it)
+                        }.await()
+                    } catch (cancelled: CancellationException) {
+                        // This is OK
+                    }
+                }
+            }
+        }
+
+        delay(100)
+        actorScope.coroutineContext.job.cancelAndJoin()
+        waiters.await()
+    }
+
     class TestElement(val name: String) : AbstractCoroutineContextElement(Key) {
         companion object Key : CoroutineContext.Key<TestElement>
     }
