@@ -16,30 +16,35 @@
 
 package com.example.androidx.webkit;
 
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.webkit.WebViewFeature;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+/**
+ * Integration test for {@link ProxyOverrideActivity}.
+ */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class ProxyOverrideTestAppTest {
     @Rule
-    public IntegrationAppTestRule mRule = new IntegrationAppTestRule();
+    public ActivityScenarioRule<MainActivity> mRule =
+            new ActivityScenarioRule<>(MainActivity.class);
 
     @Before
     public void setUp() {
-        mRule.getActivity();
-        mRule.clickMenuListItem(R.string.proxy_override_activity_title);
-        mRule.assumeFeature(androidx.webkit.WebViewFeature.PROXY_OVERRIDE);
+        WebkitTestHelpers.assumeFeature(WebViewFeature.PROXY_OVERRIDE);
     }
 
     @Test
     public void testProxyOverride() {
-        mRule.assertViewHasText(R.id.proxy_override_textview,
-                                R.string.proxy_override_requests_served, 1);
+        WebkitTestHelpers.clickMenuListItemWithString(R.string.proxy_override_activity_title);
+        WebkitTestHelpers.assertViewHasText(R.id.proxy_override_textview,
+                R.string.proxy_override_requests_served, 1);
     }
 }
