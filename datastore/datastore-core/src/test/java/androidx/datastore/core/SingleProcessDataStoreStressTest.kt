@@ -23,14 +23,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.reduce
 import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.flow.takeWhile
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -44,8 +42,11 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.time.ExperimentalTime
+import kotlin.time.seconds
 
 @RunWith(JUnit4::class)
+@ExperimentalTime
 class SingleProcessDataStoreStressTest {
     @get:Rule
     val tempFolder = TemporaryFolder()
@@ -91,8 +92,13 @@ class SingleProcessDataStoreStressTest {
             }
         }
 
-        readers.awaitAll()
         writers.awaitAll()
+
+        // There's no reason this should take more than a few seconds once writers complete and
+        // there's no reason writers won't complete.
+        withTimeout(10.seconds) {
+            readers.awaitAll()
+        }
     }
 
     @Test
@@ -140,18 +146,22 @@ class SingleProcessDataStoreStressTest {
             }
         }
 
-        val intermittentWriteFailures = myScope.launch {
-            while (true) {
-                ensureActive()
-                delay(10)
-                serializer.failWrites = !serializer.failWrites
-            }
+        serializer.failWrites = true
+
+        repeat(10) {
+            delay(10)
+            serializer.failWrites = !serializer.failWrites
         }
 
-        readers.awaitAll()
+        serializer.failWrites = false
+
         writers.awaitAll()
 
-        intermittentWriteFailures.cancelAndJoin()
+        // There's no reason this should take more than a few seconds once writers complete and
+        // there's no reason writers won't complete.
+        withTimeout(10.seconds) {
+            readers.awaitAll()
+        }
     }
 
     @Test
@@ -205,8 +215,13 @@ class SingleProcessDataStoreStressTest {
         delay(100)
         serializer.failReads = false
 
-        readers.awaitAll()
         writers.awaitAll()
+
+        // There's no reason this should take more than a few seconds once writers complete and
+        // there's no reason writers won't complete.
+        withTimeout(10.seconds) {
+            readers.awaitAll()
+        }
     }
 
     private class LongSerializer(
