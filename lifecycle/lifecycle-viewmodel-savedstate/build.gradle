@@ -47,6 +47,8 @@ dependencies {
         exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel'
     }
     androidTestImplementation project(":internal-testutils-runtime"), {
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-runtime'
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-livedata-core'
         exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel-savedstate'
         exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel'
     }
