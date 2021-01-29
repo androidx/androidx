@@ -20,6 +20,7 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
@@ -101,19 +102,13 @@ public final class TravelEstimate {
         return mRemainingDistanceColor;
     }
 
-    @SuppressLint("UnsafeNewApiCall")
-    // TODO(rampara): Move API 26 calls into separate class.
     @Override
     @NonNull
-    @RequiresApi(26)
-    @SuppressWarnings("AndroidJdkLibsChecker")
     public String toString() {
         return "[ remaining distance: "
                 + mRemainingDistance
-                + ", time: "
-                + Duration.ofSeconds(mRemainingTimeSeconds)
-                + ", ETA: "
-                + mArrivalTimeAtDestination
+                + ", time (s): " + mRemainingTimeSeconds
+                + ", ETA: " + mArrivalTimeAtDestination
                 + "]";
     }
 
@@ -198,7 +193,6 @@ public final class TravelEstimate {
          * @throws NullPointerException if {@code remainingDistance} or
          *                              {@code arrivalTimeAtDestination} are {@code null}
          */
-        // TODO(rampara): Move API 26 calls into separate class.
         @SuppressLint("UnsafeNewApiCall")
         @RequiresApi(26)
         @SuppressWarnings("AndroidJdkLibsChecker")
@@ -233,15 +227,11 @@ public final class TravelEstimate {
          *                                  but not {@link #REMAINING_TIME_UNKNOWN}
          * @throws NullPointerException     if {@code remainingTime} is {@code null}
          */
-        @SuppressLint({"MissingGetterMatchingBuilder", "UnsafeNewApiCall"})
-        // TODO(rampara): Move API 26 calls into separate class.
+        @SuppressLint({"MissingGetterMatchingBuilder"})
         @RequiresApi(26)
-        @SuppressWarnings("AndroidJdkLibsChecker")
         @NonNull
         public Builder setRemainingTime(@NonNull Duration remainingTime) {
-            requireNonNull(remainingTime);
-            mRemainingTimeSeconds = validateRemainingTime(remainingTime.getSeconds());
-            return this;
+            return Api26Impl.setRemainingTime(this, remainingTime);
         }
 
         /**
@@ -289,13 +279,33 @@ public final class TravelEstimate {
             return new TravelEstimate(this);
         }
 
-        private static long validateRemainingTime(long remainingTimeSeconds) {
+        static long validateRemainingTime(long remainingTimeSeconds) {
             if (remainingTimeSeconds < 0 && remainingTimeSeconds != REMAINING_TIME_UNKNOWN) {
                 throw new IllegalArgumentException(
                         "Remaining time must be a larger than or equal to zero, or set to"
                                 + " REMAINING_TIME_UNKNOWN");
             }
             return remainingTimeSeconds;
+        }
+
+        /**
+         * Version-specific static inner class to avoid verification errors that negatively affect
+         * run-time performance.
+         */
+        @RequiresApi(26)
+        private static final class Api26Impl {
+            private Api26Impl() {
+            }
+
+            @DoNotInline
+            @NonNull
+            public static Builder setRemainingTime(Builder builder,
+                    @NonNull Duration remainingTime) {
+                requireNonNull(remainingTime);
+                builder.mRemainingTimeSeconds =
+                        Builder.validateRemainingTime(remainingTime.getSeconds());
+                return builder;
+            }
         }
     }
 }
