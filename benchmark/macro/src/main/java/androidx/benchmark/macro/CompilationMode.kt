@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro
+package androidx.benchmark.macro/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import androidx.test.platform.app.InstrumentationRegistry
 
@@ -30,15 +44,16 @@ sealed class CompilationMode(
     }
 
     object None : CompilationMode(null) {
-        override fun toString() = "CompilationMode.None"
+        override fun toString() = "androidx.benchmark.macro.CompilationMode.None"
     }
 
     class SpeedProfile(val warmupIterations: Int = 3) : CompilationMode("speed-profile") {
-        override fun toString() = "CompilationMode.SpeedProfile(iterations=$warmupIterations)"
+        override fun toString() =
+            "androidx.benchmark.macro.CompilationMode.SpeedProfile(iterations=$warmupIterations)"
     }
 
     object Speed : CompilationMode("speed") {
-        override fun toString() = "CompilationMode.Speed"
+        override fun toString() = "androidx.benchmark.macro.CompilationMode.Speed"
     }
 }
 

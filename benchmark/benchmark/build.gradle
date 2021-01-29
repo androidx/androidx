@@ -24,14 +24,14 @@ plugins {
 
 android {
     defaultConfig {
-        // 18 needed for UI automator dependency, via benchmark-perfetto
+        // 18 needed for UI automator dependency, via benchmark-macro-junit4
         minSdkVersion 18
     }
 }
 
 dependencies {
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
-    androidTestImplementation(project(":benchmark:benchmark-perfetto"))
+    androidTestImplementation(project(":benchmark:benchmark-macro-junit4"))
     androidTestImplementation(project(":tracing:tracing-ktx"))
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
