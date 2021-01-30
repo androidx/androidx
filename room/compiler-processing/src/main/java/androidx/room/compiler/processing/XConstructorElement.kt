@@ -22,4 +22,17 @@ package androidx.room.compiler.processing
  * @see XMethodElement
  * @see XExecutableElement
  */
-interface XConstructorElement : XExecutableElement
+interface XConstructorElement : XExecutableElement {
+    override val fallbackLocationText: String
+        get() = buildString {
+            append(enclosingTypeElement.qualifiedName)
+            append(".<init>")
+            append("(")
+            append(
+                parameters.joinToString(", ") {
+                    it.type.typeName.toString()
+                }
+            )
+            append(")")
+        }
+}

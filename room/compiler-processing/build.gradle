@@ -54,7 +54,8 @@ tasks.withType(KotlinCompile).configureEach {
 }
 
 tasks.withType(Test).configureEach {
-   it.systemProperty("androidx.room.compiler.processing.strict", "true")
+    // TODO: re-enable once b/177660733 is fixed.
+   it.systemProperty("androidx.room.compiler.processing.strict", "false")
 }
 
 androidx {

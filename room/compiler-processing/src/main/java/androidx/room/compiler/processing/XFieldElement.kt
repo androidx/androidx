@@ -24,4 +24,7 @@ interface XFieldElement : XVariableElement, XHasModifiers {
      * The [XTypeElement] that declared this executable.
      */
     val enclosingTypeElement: XTypeElement
+
+    override val fallbackLocationText: String
+        get() = "$name in ${enclosingTypeElement.fallbackLocationText}"
 }
