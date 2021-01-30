@@ -16,6 +16,7 @@
 
 package androidx.room.testing
 
+import androidx.room.compiler.processing.util.CompilationTestCapabilities
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
@@ -44,9 +45,15 @@ class InProcessorTest {
             ).isNotNull()
             runCount++
         }
-        // run 3 times: javac, kapt, ksp
+        // run 3 times: javac, kapt, ksp (if enabled)
         assertThat(
             runCount
-        ).isEqualTo(3)
+        ).isEqualTo(
+            2 + if (CompilationTestCapabilities.canTestWithKsp) {
+                1
+            } else {
+                0
+            }
+        )
     }
 }

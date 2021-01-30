@@ -117,15 +117,19 @@ class GeneratedCodeMatchTest internal constructor(
     companion object {
         @JvmStatic
         @Parameterized.Parameters
-        fun runners(): List<TestRunner> = listOf(
+        fun runners(): List<TestRunner> = listOfNotNull(
             { block: (XTestInvocation) -> Unit ->
                 runJavaProcessorTest(sources = emptyList(), handler = block)
             },
             { block: (XTestInvocation) -> Unit ->
                 runKaptTest(sources = emptyList(), handler = block)
             },
-            { block: (XTestInvocation) -> Unit ->
-                runKspTest(sources = emptyList(), handler = block)
+            if (CompilationTestCapabilities.canTestWithKsp) {
+                { block: (XTestInvocation) -> Unit ->
+                    runKspTest(sources = emptyList(), handler = block)
+                }
+            } else {
+                null
             }
         )
     }
