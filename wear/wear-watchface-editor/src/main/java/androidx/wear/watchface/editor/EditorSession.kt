@@ -302,7 +302,9 @@ internal abstract class BaseEditorSession(
         else ->
             ShortTextComplicationData.Builder(
                 ComplicationText.plain(providerInfo.providerName!!)
-            ).setImage(MonochromaticImage.Builder(providerInfo.providerIcon!!).build()).build()
+            ).setMonochromaticImage(
+                MonochromaticImage.Builder(providerInfo.providerIcon!!).build()
+            ).build()
     }
 
     protected fun fetchComplicationPreviewData() {
