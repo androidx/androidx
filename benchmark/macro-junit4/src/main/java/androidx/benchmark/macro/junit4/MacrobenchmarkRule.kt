@@ -18,7 +18,6 @@ package androidx.benchmark.macro.junit4
 
 import androidx.annotation.IntRange
 import androidx.benchmark.macro.CompilationMode
-import androidx.benchmark.macro.MacrobenchmarkConfig
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.Metric
 import androidx.benchmark.macro.StartupMode
@@ -62,9 +61,10 @@ class MacrobenchmarkRule : TestRule {
             uniqueName = currentDescription.toUniqueName(),
             className = currentDescription.className,
             testName = currentDescription.methodName,
-            config = MacrobenchmarkConfig(
-                packageName, metrics, compilationMode, iterations
-            ),
+            packageName = packageName,
+            metrics = metrics,
+            compilationMode = compilationMode,
+            iterations = iterations,
             startupMode = startupMode,
             setupBlock = setupBlock,
             measureBlock = measureBlock
@@ -78,5 +78,5 @@ class MacrobenchmarkRule : TestRule {
         }
     }
 
-    internal fun Description.toUniqueName() = testClass.simpleName + "_" + methodName
+    private fun Description.toUniqueName() = testClass.simpleName + "_" + methodName
 }

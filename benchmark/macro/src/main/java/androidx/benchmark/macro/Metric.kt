@@ -27,7 +27,7 @@ import androidx.test.uiautomator.UiDevice
  * Metric interface.
  */
 sealed class Metric {
-    abstract fun configure(config: MacrobenchmarkConfig)
+    abstract fun configure(packageName: String)
 
     abstract fun start()
 
@@ -45,8 +45,8 @@ class FrameTimingMetric : Metric() {
     private lateinit var packageName: String
     private val helper = JankCollectionHelper()
 
-    override fun configure(config: MacrobenchmarkConfig) {
-        packageName = config.packageName
+    override fun configure(packageName: String) {
+        this.packageName = packageName
         helper.addTrackedPackages(packageName)
     }
 
@@ -144,8 +144,8 @@ class StartupTimingMetric : Metric() {
     private lateinit var device: UiDevice
     private lateinit var parser: PerfettoTraceParser
 
-    override fun configure(config: MacrobenchmarkConfig) {
-        packageName = config.packageName
+    override fun configure(packageName: String) {
+        this.packageName = packageName
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         device = instrumentation.device()
         parser = PerfettoTraceParser()
