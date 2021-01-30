@@ -16,5 +16,6 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.datastore.preferences">
-
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="18" />
 </manifest>
