@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"使用密码"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"未设置 PIN 码、解锁图案或密码。"</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"此设备不支持 PIN 码、解锁图案或密码。"</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"指纹图标"</string>
 </resources>

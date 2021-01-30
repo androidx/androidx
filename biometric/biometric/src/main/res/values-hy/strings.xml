@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Օգտագործել գաղտնաբառ"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Ավելացրեք PIN կոդ, նախշ կամ գաղտնաբառ։"</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Այս սարքը չի աջակցում PIN կոդ, նախշ կամ գաղտնաբառ։"</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Մատնահետքի պատկերակ"</string>
 </resources>

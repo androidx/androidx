@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Usar contrasinal"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Non se estableceu ningún PIN, padrón nin contrasinal."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Este dispositivo non permite usar un PIN, padrón ou contrasinal."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Icona de impresión dixital"</string>
 </resources>

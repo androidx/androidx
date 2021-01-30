@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"పాస్‌వర్డ్‌ను ఉపయోగించు"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"పిన్‌ను గానీ, ఆకృతిని గానీ, పాస్‌వర్డ్‌ను గానీ‌ సెట్ చేయలేదు."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"ఈ పరికరం పిన్, ఆకృతి లేదా పాస్‌వర్డ్‌‌ను సపోర్ట్ చేయదు."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"వేలిముద్ర చిహ్నం"</string>
 </resources>
