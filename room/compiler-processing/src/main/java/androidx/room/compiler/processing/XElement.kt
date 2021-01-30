@@ -31,6 +31,11 @@ interface XElement : XAnnotated {
      * Returns the string representation of the Element's kind.
      */
     fun kindName(): String
+    /**
+     * When the location of an element is unknown, this String is appended to the diagnostic
+     * message. Without this information, developer gets no clue on where the error is.
+     */
+    val fallbackLocationText: String
 }
 
 /**

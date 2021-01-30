@@ -79,6 +79,9 @@ internal class KspSyntheticContinuationParameterElement(
         )
     }
 
+    override val fallbackLocationText: String
+        get() = "return type of ${containing.fallbackLocationText}"
+
     override fun asMemberOf(other: XType): XType {
         check(other is KspType)
         val continuation = env.resolver.requireContinuationClass()
