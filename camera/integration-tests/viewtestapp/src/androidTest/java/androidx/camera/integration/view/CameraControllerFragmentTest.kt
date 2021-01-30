@@ -38,6 +38,7 @@ import androidx.camera.view.PreviewView
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
+import androidx.test.annotation.UiThreadTest
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -113,6 +114,21 @@ class CameraControllerFragmentTest {
             fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
             CameraX.shutdown().get(10, TimeUnit.SECONDS)
         }
+    }
+
+    @Test
+    fun controllerBound_canGetCameraInfo() {
+        fragment.assertPreviewIsStreaming()
+        instrumentation.runOnMainSync {
+            assertThat(fragment.cameraController.cameraInfo).isNotNull()
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun controllerNotBound_cameraInfoIsNull() {
+        fragment.previewView.controller = null
+        assertThat(fragment.cameraController.cameraInfo).isNull()
     }
 
     @Test
