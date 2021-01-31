@@ -217,7 +217,7 @@ public abstract class ComplicationProviderService extends Service {
      *
      * <p>The configuration activity must reside in the same package as the provider, and must
      * register an intent filter for the action specified here, including {@link
-     * #CATEGORY_PROVIDER_CONFIG_ACTION} as well as {@link Intent#CATEGORY_DEFAULT} as categories.
+     * #CATEGORY_PROVIDER_CONFIG} as well as {@link Intent#CATEGORY_DEFAULT} as categories.
      *
      * <p>The complication id being configured will be included in the intent that starts the config
      * activity using the extra key {@link #EXTRA_CONFIG_COMPLICATION_ID}.
@@ -244,7 +244,7 @@ public abstract class ComplicationProviderService extends Service {
      * @see #METADATA_KEY_PROVIDER_CONFIG_ACTION
      */
     @SuppressLint("IntentName")
-    public static final String CATEGORY_PROVIDER_CONFIG_ACTION =
+    public static final String CATEGORY_PROVIDER_CONFIG =
             "android.support.wearable.complications.category.PROVIDER_CONFIG";
 
     /** Extra used to supply the complication id to a provider configuration activity. */
