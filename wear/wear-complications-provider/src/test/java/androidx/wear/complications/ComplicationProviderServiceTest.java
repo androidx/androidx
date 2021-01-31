@@ -31,9 +31,9 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.wear.complications.data.ComplicationData;
-import androidx.wear.complications.data.ComplicationText;
 import androidx.wear.complications.data.ComplicationType;
 import androidx.wear.complications.data.LongTextComplicationData;
+import androidx.wear.complications.data.PlainComplicationText;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -75,7 +75,7 @@ public class ComplicationProviderServiceTest {
             try {
                 callback.onUpdateComplication(
                         new LongTextComplicationData.Builder(
-                                ComplicationText.plain("hello " + complicationId)
+                                new PlainComplicationText.Builder("hello " + complicationId).build()
                         ).build()
                 );
             } catch (RemoteException e) {
@@ -90,7 +90,7 @@ public class ComplicationProviderServiceTest {
                 return null;
             }
             return new LongTextComplicationData.Builder(
-                    ComplicationText.plain("hello preview")
+                    new PlainComplicationText.Builder("hello preview").build()
             ).build();
         }
     };
@@ -114,7 +114,7 @@ public class ComplicationProviderServiceTest {
         @Override
         public ComplicationData getPreviewData(@NonNull ComplicationType type) {
             return new LongTextComplicationData.Builder(
-                    ComplicationText.plain("hello preview")
+                    new PlainComplicationText.Builder("hello preview").build()
             ).build();
         }
     };

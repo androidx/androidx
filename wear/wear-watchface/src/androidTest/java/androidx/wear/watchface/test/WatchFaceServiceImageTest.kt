@@ -34,7 +34,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.complications.SystemProviders
-import androidx.wear.complications.data.ComplicationText
+import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.LayerMode
@@ -82,13 +82,13 @@ class WatchFaceServiceImageTest {
 
     private val complicationProviders = mapOf(
         SystemProviders.DAY_OF_WEEK to
-            ShortTextComplicationData.Builder(ComplicationText.plain("Mon"))
-                .setTitle(ComplicationText.plain("23rd"))
+            ShortTextComplicationData.Builder(PlainComplicationText.Builder("Mon").build())
+                .setTitle(PlainComplicationText.Builder("23rd").build())
                 .build()
                 .asWireComplicationData(),
         SystemProviders.STEP_COUNT to
-            ShortTextComplicationData.Builder(ComplicationText.plain("100"))
-                .setTitle(ComplicationText.plain("Steps"))
+            ShortTextComplicationData.Builder(PlainComplicationText.Builder("100").build())
+                .setTitle(PlainComplicationText.Builder("Steps").build())
                 .build()
                 .asWireComplicationData()
     )
@@ -416,15 +416,15 @@ class WatchFaceServiceImageTest {
         val previewComplicationData = listOf(
             IdAndComplicationDataWireFormat(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                ShortTextComplicationData.Builder(ComplicationText.plain("A"))
-                    .setTitle(ComplicationText.plain("Preview"))
+                ShortTextComplicationData.Builder(PlainComplicationText.Builder("A").build())
+                    .setTitle(PlainComplicationText.Builder("Preview").build())
                     .build()
                     .asWireComplicationData()
             ),
             IdAndComplicationDataWireFormat(
                 EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
-                ShortTextComplicationData.Builder(ComplicationText.plain("B"))
-                    .setTitle(ComplicationText.plain("Preview"))
+                ShortTextComplicationData.Builder(PlainComplicationText.Builder("B").build())
+                    .setTitle(PlainComplicationText.Builder("Preview").build())
                     .build()
                     .asWireComplicationData()
             )

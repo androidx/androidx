@@ -33,10 +33,10 @@ import androidx.annotation.UiThread
 import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.ProviderInfoRetriever
 import androidx.wear.complications.data.ComplicationData
-import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.MonochromaticImage
+import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchFace
@@ -348,12 +348,12 @@ public abstract class BaseEditorSession internal constructor(
 
         providerInfo.providerIcon == null ->
             LongTextComplicationData.Builder(
-                ComplicationText.plain(providerInfo.providerName!!)
+                PlainComplicationText.Builder(providerInfo.providerName!!).build()
             ).build()
 
         else ->
             ShortTextComplicationData.Builder(
-                ComplicationText.plain(providerInfo.providerName!!)
+                PlainComplicationText.Builder(providerInfo.providerName!!).build()
             ).setMonochromaticImage(
                 MonochromaticImage.Builder(providerInfo.providerIcon!!).build()
             ).build()

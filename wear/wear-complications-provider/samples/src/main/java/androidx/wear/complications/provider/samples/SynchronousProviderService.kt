@@ -17,7 +17,6 @@
 package androidx.wear.complications.provider.samples
 
 import androidx.wear.complications.ComplicationProviderService
-import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
@@ -33,14 +32,10 @@ class SynchronousProviderService : ComplicationProviderService() {
         callback.onUpdateComplication(
             when (type) {
                 ComplicationType.SHORT_TEXT ->
-                    ShortTextComplicationData.Builder(
-                        ComplicationText.plain("# $complicationId")
-                    ).build()
+                    ShortTextComplicationData.Builder(plainText("# $complicationId")).build()
 
                 ComplicationType.LONG_TEXT ->
-                    LongTextComplicationData.Builder(
-                        ComplicationText.plain("hello $complicationId")
-                    ).build()
+                    LongTextComplicationData.Builder(plainText("hello $complicationId")).build()
 
                 else -> null
             }
@@ -49,12 +44,10 @@ class SynchronousProviderService : ComplicationProviderService() {
 
     override fun getPreviewData(type: ComplicationType) = when (type) {
         ComplicationType.SHORT_TEXT ->
-            ShortTextComplicationData.Builder(ComplicationText.plain("# 123"))
-                .build()
+            ShortTextComplicationData.Builder(plainText("# 123")).build()
 
         ComplicationType.LONG_TEXT ->
-            LongTextComplicationData.Builder(ComplicationText.plain("hello 123"))
-                .build()
+            LongTextComplicationData.Builder(plainText("hello 123")).build()
 
         else -> null
     }
