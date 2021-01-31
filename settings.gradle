@@ -267,6 +267,7 @@ includeProject(":compose:ui:ui-test-junit4", "compose/ui/ui-test-junit4", [Build
 includeProject(":compose:ui:ui-text", "compose/ui/ui-text", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-text:ui-text-samples", "compose/ui/ui-text/samples", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-tooling", "compose/ui/ui-tooling", [BuildType.COMPOSE])
+includeProject(":compose:ui:ui-tooling-data", "compose/ui/ui-tooling-data", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-unit", "compose/ui/ui-unit", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-unit:ui-unit-samples", "compose/ui/ui-unit/samples", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-util", "compose/ui/ui-util", [BuildType.COMPOSE])
