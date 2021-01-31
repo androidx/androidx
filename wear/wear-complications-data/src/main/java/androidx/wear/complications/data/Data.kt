@@ -17,6 +17,7 @@
 package androidx.wear.complications.data
 
 import android.app.PendingIntent
+import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
 
 /** The wire format for [ComplicationData]. */
@@ -560,7 +561,9 @@ public class SmallImageComplicationData internal constructor(
 }
 
 /**
- * Type used for complications which consist only of a [PhotoImage].
+ * Type used for complications which consist only of an image that is expected to fill a large part
+ * of the watch face, large enough to be shown as either a background or as part of a high
+ * resolution complication.
  *
  * The image is expected to always be displayed. The image may be shown as the background, any
  * other part of the watch face or within a complication. The image is large enough to be cover
@@ -572,7 +575,7 @@ public class SmallImageComplicationData internal constructor(
  * description will be used instead.
  */
 public class PhotoImageComplicationData internal constructor(
-    public val photoImage: PhotoImage,
+    public val photoImage: Icon,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
     public val validTimeRange: TimeRange?
@@ -584,9 +587,9 @@ public class PhotoImageComplicationData internal constructor(
     /**
      * Builder for [PhotoImageComplicationData].
      *
-     * You must at a minimum set the [icon] field.
+     * You must at a minimum set the [photoImage] field.
      */
-    public class Builder(private val icon: PhotoImage) {
+    public class Builder(private val photoImage: Icon) {
         private var tapAction: PendingIntent? = null
         private var validTimeRange: TimeRange? = null
         private var contentDescription: ComplicationText? = null
@@ -610,13 +613,13 @@ public class PhotoImageComplicationData internal constructor(
 
         /** Builds the [PhotoImageComplicationData]. */
         public fun build(): PhotoImageComplicationData =
-            PhotoImageComplicationData(icon, contentDescription, tapAction, validTimeRange)
+            PhotoImageComplicationData(photoImage, contentDescription, tapAction, validTimeRange)
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun asWireComplicationData(): WireComplicationData =
         WireComplicationDataBuilder(TYPE.asWireComplicationType()).apply {
-            photoImage.addToWireComplicationData(this)
+            setLargeImage(photoImage)
             setContentDescription(contentDescription?.asWireComplicationText())
         }.build()
 
@@ -751,7 +754,7 @@ public fun WireComplicationData.asApiComplicationData(): ComplicationData =
             }.build()
 
         PhotoImageComplicationData.TYPE.asWireComplicationType() ->
-            PhotoImageComplicationData.Builder(parseLargeImage()!!).apply {
+            PhotoImageComplicationData.Builder(largeImage!!).apply {
                 setValidTimeRange(parseTimeRange())
                 setContentDescription(contentDescription?.asApiComplicationText())
             }.build()
@@ -791,9 +794,6 @@ private fun WireComplicationData.parseSmallImage() =
             setAmbientImage(burnInProtectionSmallImage)
         }.build()
     }
-
-private fun WireComplicationData.parseLargeImage() =
-    largeImage?.let { PhotoImage.Builder(it).build() }
 
 /** Some of the types, do not have any fields. This method provides a shorthard for that case. */
 internal fun asPlainWireComplicationData(type: ComplicationType) =
