@@ -767,22 +767,6 @@ public final class ImageCapture extends UseCase {
      * set, or {@link #setCropAspectRatio} is used, the image may be cropped before saving to
      * disk which causes an additional latency.
      *
-     * <p> Before triggering the image capture pipeline, if the save location is a {@link File} or
-     * {@link MediaStore}, it is first verified to ensure it's valid and writable. A {@link File}
-     * is verified by attempting to open a {@link java.io.FileOutputStream} to it, whereas a
-     * location in {@link MediaStore} is validated by
-     * {@linkplain ContentResolver#insert(Uri, ContentValues) creating a new row} in the user
-     * defined table, retrieving a {@link Uri} pointing to it, then attempting to open an
-     * {@link OutputStream} to it. The newly created row is
-     * {@linkplain ContentResolver#delete(Uri, String, String[]) deleted}
-     * at the end of the verification. On Huawei devices, this deletion results in the system
-     * displaying a notification informing the user that a photo has been deleted. In order to
-     * avoid this, validating the image capture save location in
-     * {@link android.provider.MediaStore} is skipped on Huawei devices.
-     *
-     * <p> If the validation of the save location fails, {@link OnImageSavedCallback}'s error
-     * callback is invoked with an {@link ImageCaptureException}.
-     *
      * @param outputFileOptions  Options to store the newly captured image.
      * @param executor           The executor in which the callback methods will be run.
      * @param imageSavedCallback Callback to be called for the newly captured image.
@@ -792,30 +776,11 @@ public final class ImageCapture extends UseCase {
             final @NonNull OutputFileOptions outputFileOptions,
             final @NonNull Executor executor,
             final @NonNull OnImageSavedCallback imageSavedCallback) {
-        mSequentialIoExecutor.execute(() -> {
-            if (!ImageSaveLocationValidator.isValid(outputFileOptions)) {
-                // Check whether the captured image can be saved. If it cannot, fail fast and
-                // notify user.
-                executor.execute(() -> imageSavedCallback.onError(
-                        new ImageCaptureException(ERROR_FILE_IO,
-                                "Cannot save capture result to specified location", null)));
-            } else {
-                CameraXExecutors.mainThreadExecutor().execute(
-                        () -> takePictureAfterValidation(outputFileOptions, executor,
-                                imageSavedCallback));
-            }
-        });
-    }
-
-    /**
-     * Takes picture after the output file options is validated.
-     */
-    @UiThread
-    private void takePictureAfterValidation(
-            final @NonNull OutputFileOptions outputFileOptions,
-            final @NonNull Executor executor,
-            final @NonNull OnImageSavedCallback imageSavedCallback) {
-        Threads.checkMainThread();
+        if (Looper.getMainLooper() != Looper.myLooper()) {
+            CameraXExecutors.mainThreadExecutor().execute(
+                    () -> takePicture(outputFileOptions, executor, imageSavedCallback));
+            return;
+        }
         /*
          * We need to chain the following callbacks to save the image to disk:
          *
