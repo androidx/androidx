@@ -519,6 +519,7 @@ includeProject(":wear:wear-tiles", "wear/wear-tiles", [BuildType.MAIN])
 includeProject(":wear:wear-tiles:wear-tiles-proto", "wear/wear-tiles/wear-tiles-proto",
         [BuildType.MAIN])
 includeProject(":wear:wear-tiles-data", "wear/wear-tiles-data", [BuildType.MAIN])
+includeProject(":wear:wear-tiles-renderer", "wear/wear-tiles-renderer", [BuildType.MAIN])
 includeProject(":wear:wear-watchface", "wear/wear-watchface", [BuildType.MAIN])
 includeProject(":wear:wear-watchface-complications-rendering", "wear/wear-watchface-complications-rendering", [BuildType.MAIN])
 includeProject(":wear:wear-watchface-client", "wear/wear-watchface-client", [BuildType.MAIN])
