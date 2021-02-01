@@ -14,8 +14,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.wear.watchface.client.guava">
-    <uses-permission android:name="com.google.android.wearable.permission.BIND_WATCH_FACE_CONTROL"/>
+    package="androidx.wear.watchface.client.guava.test">
+    <application android:requestLegacyExternalStorage="true">
+        <service android:name="androidx.wear.watchface.TestWatchFaceControlService">
+            <intent-filter>
+                <action android:name="com.google.android.wearable.action.WATCH_FACE_CONTROL"/>
+            </intent-filter>
+        </service>
+    </application>
 </manifest>
