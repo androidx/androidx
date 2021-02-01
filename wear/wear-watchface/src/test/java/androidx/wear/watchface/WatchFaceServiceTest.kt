@@ -715,6 +715,41 @@ class WatchFaceServiceTest {
     }
 
     @Test
+    fun doubleTap_onFixedComplication_ignored() {
+        val fixedLeftComplication =
+            Complication.createRoundRectComplicationBuilder(
+                LEFT_COMPLICATION_ID,
+                CanvasComplicationDrawable(
+                    complicationDrawableLeft,
+                    watchState.asWatchState()
+                ).apply {
+                    idAndData = createIdAndComplicationData(LEFT_COMPLICATION_ID)
+                },
+                listOf(
+                    ComplicationType.RANGED_VALUE,
+                    ComplicationType.LONG_TEXT,
+                    ComplicationType.SHORT_TEXT,
+                    ComplicationType.MONOCHROMATIC_IMAGE,
+                    ComplicationType.SMALL_IMAGE
+                ),
+                DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET),
+                ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+            ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+                .setFixedComplicationProvider(true)
+                .build()
+
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(fixedLeftComplication, rightComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        // Double tap left complication.
+        doubleTapAt(30, 50, ViewConfiguration.getDoubleTapTimeout().toLong() / 2)
+        assertThat(testWatchFaceService.complicationDoubleTapped).isNull()
+    }
+
+    @Test
     fun fastTap_onDifferentComplications_ignored() {
         initEngine(
             WatchFaceType.ANALOG,
