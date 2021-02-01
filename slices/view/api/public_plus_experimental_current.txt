@@ -124,6 +124,7 @@ package androidx.slice.widget {
   @RequiresApi(19) public class RowView extends androidx.slice.widget.SliceChildView implements android.widget.AdapterView.OnItemSelectedListener android.view.View.OnClickListener {
     ctor public RowView(android.content.Context);
     method protected java.util.List<java.lang.String!> getEndItemKeys();
+    method protected androidx.slice.SliceItem? getPrimaryActionItem();
     method protected String? getPrimaryActionKey();
     method public void onClick(android.view.View);
     method public void onItemSelected(android.widget.AdapterView<?>, android.view.View, int, long);
