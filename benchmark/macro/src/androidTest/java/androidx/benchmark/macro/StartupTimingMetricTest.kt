@@ -33,8 +33,7 @@ class StartupTimingMetricTest {
     @LargeTest
     @Test
     fun noResults() {
-        assumeFalse(Build.SUPPORTED_64_BIT_ABIS.isEmpty())
-
+        assumeFalse(Build.SUPPORTED_64_BIT_ABIS.isEmpty() or Build.SUPPORTED_32_BIT_ABIS.isEmpty())
         val packageName = "fake.package.fiction.nostartups"
         val metrics = measureStartup(packageName) {
             // Do nothing

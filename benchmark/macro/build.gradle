@@ -32,10 +32,16 @@ android {
         minSdkVersion 18
     }
     sourceSets {
-        main.assets.srcDirs += new File(
-                SupportConfigKt.getPrebuiltsRoot(project),
-                "androidx/traceprocessor/trace_processor_shell"
-        )
+        main.assets.srcDirs += [
+                new File(
+                        SupportConfigKt.getPrebuiltsRoot(project),
+                        "androidx/traceprocessor/trace_processor_shell_aarch64"
+                ),
+                new File(
+                        SupportConfigKt.getPrebuiltsRoot(project),
+                        "androidx/traceprocessor/trace_processor_shell_arm32"
+                )
+        ]
     }
 }
 
