@@ -23,6 +23,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -55,6 +56,44 @@ class SaveRestoreBackStackTest {
 
             // Saved Fragments should be destroyed
             assertThat(fragmentReplacement.calledOnDestroy).isTrue()
+        }
+    }
+
+    @Test
+    fun savePreviouslyReferencedFragment() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentBase = StrictFragment()
+            val fragmentReplacement = StrictFragment()
+
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .remove(fragmentBase)
+                .add(R.id.content, fragmentReplacement)
+                .addToBackStack("replacement")
+                .commit()
+            executePendingTransactions()
+
+            try {
+                withActivity {
+                    fm.saveBackStack("replacement")
+                    fm.executePendingTransactions()
+                }
+                fail("executePendingTransactions() should fail with an IllegalArgumentException")
+            } catch (e: IllegalArgumentException) {
+                assertThat(e)
+                    .hasMessageThat()
+                    .startsWith(
+                        "saveBackStack(\"replacement\") must be self contained and not " +
+                            "reference fragments from non-saved FragmentTransactions."
+                    )
+            }
         }
     }
 }
