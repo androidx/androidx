@@ -288,8 +288,8 @@ public final class CameraUseCaseAdapter implements Camera {
     public void detachUseCases() {
         synchronized (mLock) {
             if (mAttached) {
-                cacheInteropConfig();
                 mCameraInternal.detachUseCases(new ArrayList<>(mUseCases));
+                cacheInteropConfig();
                 mAttached = false;
             }
         }
