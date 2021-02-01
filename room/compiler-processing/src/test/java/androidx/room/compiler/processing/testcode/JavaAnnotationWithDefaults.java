@@ -25,6 +25,7 @@ public @interface JavaAnnotationWithDefaults {
     Class<?> typeVal() default HashMap.class;
     Class[] typeArrayVal() default {LinkedHashMap.class};
     int intVal() default 3;
+    int[] intArrayVal() default {1, 3, 5};
     JavaEnum enumVal() default JavaEnum.DEFAULT;
     JavaEnum[] enumArrayVal() default {JavaEnum.VAL1, JavaEnum.VAL2};
     OtherAnnotation otherAnnotationVal() default @OtherAnnotation("def");

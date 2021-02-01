@@ -124,7 +124,7 @@ internal class KspAnnotationBox<T : Annotation>(
 private fun <R> Any.readAs(returnType: Class<R>): R? {
     return when {
         returnType.isArray -> {
-            val values = when (this) {
+            val values: List<Any?> = when (this) {
                 is List<*> -> {
                     // KSP might return list for arrays. convert it back.
                     this.mapNotNull {
@@ -139,14 +139,27 @@ private fun <R> Any.readAs(returnType: Class<R>): R? {
                     listOf(this.readAs(returnType.componentType))
                 }
             }
-            val resultArray = java.lang.reflect.Array.newInstance(
-                returnType.componentType,
-                values.size
-            ) as Array<Any?>
-            values.forEachIndexed { index, value ->
-                resultArray[index] = value
+            if (returnType.componentType.isPrimitive) {
+                when (returnType) {
+                    IntArray::class.java ->
+                        (values as Collection<Int>).toIntArray()
+                    else -> {
+                        // We don't have the use case for these yet but could be implemented in
+                        // the future. Also need to implement them in JavacAnnotationBox
+                        // b/179081610
+                        error("Unsupported primitive array type: $returnType")
+                    }
+                }
+            } else {
+                val resultArray = java.lang.reflect.Array.newInstance(
+                    returnType.componentType,
+                    values.size
+                ) as Array<Any?>
+                values.forEachIndexed { index, value ->
+                    resultArray[index] = value
+                }
+                resultArray
             }
-            resultArray
         }
         returnType.isEnum -> {
             this.readAsEnum(returnType)
