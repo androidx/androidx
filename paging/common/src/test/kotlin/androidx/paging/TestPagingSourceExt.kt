@@ -62,6 +62,22 @@ internal fun createAppend(
     combinedLoadStates = localLoadStatesOf(prependLocal = startState, appendLocal = endState)
 )
 
+internal fun createCombinedLoadStates(
+    loadType: LoadType,
+    fromMediator: Boolean,
+    loadState: LoadState
+): CombinedLoadStates {
+    val source = LoadStates.IDLE.modifyState(loadType, loadState)
+
+    return CombinedLoadStates(
+        refresh = source.refresh,
+        prepend = source.prepend,
+        append = source.append,
+        source = source,
+        mediator = null
+    )
+}
+
 private fun pages(
     pageOffset: Int,
     range: IntRange

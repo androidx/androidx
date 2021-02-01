@@ -27,6 +27,7 @@ import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
+import androidx.paging.PageEvent.LegacyLoadStateUpdate
 import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.TestPagingSource.Companion.LOAD_ERROR
@@ -93,7 +94,12 @@ class PageFetcherSnapshotTest {
 
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                localLoadStatesOf(
+                    refreshLocal = Loading
+                )
+            ),
             createRefresh(1..2)
         )
 
@@ -109,7 +115,12 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(PREPEND, false, Loading),
+            // LegacyLoadStateUpdate<Int>(PREPEND, false, Loading),
+            LoadStateUpdate<Int>(
+                localLoadStatesOf(
+                    prependLocal = Loading
+                )
+            ),
             createPrepend(
                 pageOffset = -1,
                 range = 0..0,
@@ -127,7 +138,10 @@ class PageFetcherSnapshotTest {
 
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(1..2)
         )
 
@@ -143,7 +157,10 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(PREPEND, false, Loading),
+            // LegacyLoadStateUpdate<Int>(PREPEND, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(PREPEND, false, Loading)
+            ),
             createPrepend(
                 pageOffset = -1,
                 range = 0..0,
@@ -163,7 +180,10 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(APPEND, false, Loading),
+            // LegacyLoadStateUpdate<Int>(APPEND, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(APPEND, false, Loading)
+            ),
             Drop<Int>(
                 loadType = PREPEND,
                 minPageOffset = -1,
@@ -188,7 +208,10 @@ class PageFetcherSnapshotTest {
 
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(range = 97..98)
         )
 
@@ -204,7 +227,10 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(APPEND, false, Loading),
+            // LegacyLoadStateUpdate<Int>(APPEND, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(APPEND, false, Loading)
+            ),
             createAppend(pageOffset = 1, range = 99..99, endState = NotLoading.Complete)
         )
 
@@ -218,7 +244,10 @@ class PageFetcherSnapshotTest {
 
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(range = 97..98)
 
         )
@@ -235,7 +264,10 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(APPEND, false, Loading),
+            // LegacyLoadStateUpdate<Int>(APPEND, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(APPEND, false, Loading)
+            ),
             createAppend(
                 pageOffset = 1,
                 range = 99..99,
@@ -256,7 +288,10 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(PREPEND, false, Loading),
+            // LegacyLoadStateUpdate<Int>(PREPEND, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(PREPEND, false, Loading)
+            ),
             Drop<Int>(
                 loadType = APPEND,
                 minPageOffset = 1,
@@ -282,7 +317,10 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         assertThat(fetcherState.pageEventLists[0]).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(
                 range = 0..1,
                 startState = NotLoading.Complete,
@@ -301,7 +339,10 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         assertThat(fetcherState.pageEventLists[0]).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(
                 range = 98..99,
                 startState = NotLoading.Incomplete,
@@ -320,7 +361,10 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         assertThat(fetcherState.pageEventLists[0]).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(range = 50..51)
         )
 
@@ -345,9 +389,15 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         assertThat(fetcherState.pageEventLists[0]).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(range = 50..51),
-            LoadStateUpdate<Int>(PREPEND, false, Loading),
+            // LegacyLoadStateUpdate<Int>(PREPEND, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(PREPEND, false, Loading)
+            ),
             createPrepend(pageOffset = -1, range = 49..49)
         )
 
@@ -361,7 +411,10 @@ class PageFetcherSnapshotTest {
 
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(range = 50..51)
         )
 
@@ -377,7 +430,10 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(PREPEND, false, Loading),
+            // LegacyLoadStateUpdate<Int>(PREPEND, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(PREPEND, false, Loading)
+            ),
             createPrepend(pageOffset = -1, range = 49..49)
         )
 
@@ -401,7 +457,10 @@ class PageFetcherSnapshotTest {
             // Make sure the job didn't complete exceptionally
             assertFalse { fetcherState.job.isCancelled }
             assertThat(fetcherState.newEvents()).containsExactly(
-                LoadStateUpdate<Int>(REFRESH, false, Loading),
+                // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+                LoadStateUpdate<Int>(
+                    createCombinedLoadStates(REFRESH, false, Loading)
+                ),
                 createRefresh(range = 50..51)
             )
 
@@ -418,7 +477,10 @@ class PageFetcherSnapshotTest {
             advanceUntilIdle()
             assertFalse { fetcherState.job.isCancelled }
             assertThat(fetcherState.newEvents()).containsExactly(
-                LoadStateUpdate<Int>(PREPEND, false, Loading),
+                // LegacyLoadStateUpdate<Int>(PREPEND, false, Loading),
+                LoadStateUpdate<Int>(
+                    createCombinedLoadStates(PREPEND, false, Loading)
+                ),
                 createPrepend(pageOffset = -1, range = 48..49)
             )
 
@@ -435,7 +497,10 @@ class PageFetcherSnapshotTest {
             advanceUntilIdle()
             assertFalse { fetcherState.job.isCancelled }
             assertThat(fetcherState.newEvents()).containsExactly(
-                LoadStateUpdate<Int>(PREPEND, false, Loading),
+                // LegacyLoadStateUpdate<Int>(PREPEND, false, Loading),
+                LoadStateUpdate<Int>(
+                    createCombinedLoadStates(PREPEND, false, Loading)
+                ),
                 Drop<Int>(
                     loadType = APPEND,
                     minPageOffset = 0,
@@ -467,10 +532,15 @@ class PageFetcherSnapshotTest {
 
             advanceUntilIdle()
             assertThat(fetcherState.newEvents()).containsExactly(
-                LoadStateUpdate<Int>(
+                /*
+                LegacyLoadStateUpdate<Int>(
                     loadType = REFRESH,
                     fromMediator = false,
                     loadState = Loading
+                ),
+                */
+                LoadStateUpdate<Int>(
+                    createCombinedLoadStates(REFRESH, false, Loading)
                 ),
                 createRefresh(range = 50..54)
             )
@@ -487,10 +557,15 @@ class PageFetcherSnapshotTest {
             )
             advanceUntilIdle()
             assertThat(fetcherState.newEvents()).containsExactly(
-                LoadStateUpdate<Int>(
+                /*
+                LegacyLoadStateUpdate<Int>(
                     loadType = PREPEND,
                     fromMediator = false,
                     loadState = Loading
+                ),
+                 */
+                LoadStateUpdate<Int>(
+                    createCombinedLoadStates(PREPEND, false, Loading)
                 ),
                 createPrepend(
                     pageOffset = -1,
@@ -522,7 +597,10 @@ class PageFetcherSnapshotTest {
 
             advanceUntilIdle()
             assertThat(fetcherState.newEvents()).containsExactly(
-                LoadStateUpdate<Int>(REFRESH, false, Loading),
+                // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+                LoadStateUpdate<Int>(
+                    createCombinedLoadStates(REFRESH, false, Loading)
+                ),
                 createRefresh(range = 50..51)
             )
 
@@ -538,7 +616,10 @@ class PageFetcherSnapshotTest {
             )
             advanceUntilIdle()
             assertThat(fetcherState.newEvents()).containsExactly(
-                LoadStateUpdate<Int>(PREPEND, false, Loading),
+                // LegacyLoadStateUpdate<Int>(PREPEND, false, Loading),
+                LoadStateUpdate<Int>(
+                    createCombinedLoadStates(PREPEND, false, Loading)
+                ),
                 createPrepend(pageOffset = -1, range = 48..49)
             )
 
@@ -566,8 +647,14 @@ class PageFetcherSnapshotTest {
             )
             advanceUntilIdle()
             assertThat(fetcherState.newEvents()).containsExactly(
-                LoadStateUpdate<Int>(PREPEND, false, Loading),
-                LoadStateUpdate<Int>(APPEND, false, Loading),
+                // LegacyLoadStateUpdate<Int>(PREPEND, false, Loading),
+                // LegacyLoadStateUpdate<Int>(APPEND, false, Loading),
+                LoadStateUpdate<Int>(
+                    createCombinedLoadStates(PREPEND, false, Loading)
+                ),
+                LoadStateUpdate<Int>(
+                    createCombinedLoadStates(APPEND, false, Loading)
+                ),
                 Drop<Int>(
                     loadType = APPEND,
                     minPageOffset = 0,
@@ -595,7 +682,10 @@ class PageFetcherSnapshotTest {
 
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(50..52)
         )
 
@@ -611,7 +701,7 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(PREPEND, false, Loading),
+            LegacyLoadStateUpdate<Int>(PREPEND, false, Loading),
             createPrepend(pageOffset = -1, range = 49..49, startState = Loading),
             createPrepend(pageOffset = -2, range = 48..48)
         )
@@ -633,7 +723,7 @@ class PageFetcherSnapshotTest {
 
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(
+            LegacyLoadStateUpdate<Int>(
                 loadType = REFRESH,
                 fromMediator = false,
                 loadState = Loading
@@ -654,7 +744,7 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(
+            LegacyLoadStateUpdate<Int>(
                 loadType = PREPEND,
                 fromMediator = false,
                 loadState = Loading
@@ -676,7 +766,7 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(
+            LegacyLoadStateUpdate<Int>(
                 loadType = APPEND,
                 fromMediator = false,
                 loadState = Loading
@@ -710,7 +800,7 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(
+            LegacyLoadStateUpdate<Int>(
                 loadType = PREPEND,
                 fromMediator = false,
                 loadState = Loading
@@ -734,7 +824,10 @@ class PageFetcherSnapshotTest {
 
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(50..51)
         )
 
@@ -750,7 +843,10 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(APPEND, false, Loading),
+            // LegacyLoadStateUpdate<Int>(APPEND, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(APPEND, false, Loading)
+            ),
             createAppend(1, 52..52)
         )
 
@@ -771,7 +867,10 @@ class PageFetcherSnapshotTest {
 
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(50..52)
         )
 
@@ -787,7 +886,10 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(APPEND, false, Loading),
+            // LegacyLoadStateUpdate<Int>(APPEND, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(APPEND, false, Loading)
+            ),
             createAppend(
                 pageOffset = 1,
                 range = 53..53,
@@ -814,7 +916,10 @@ class PageFetcherSnapshotTest {
 
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(range = 50..51)
         )
 
@@ -830,7 +935,10 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(APPEND, false, Loading),
+            // LegacyLoadStateUpdate<Int>(APPEND, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(APPEND, false, Loading)
+            ),
             createAppend(pageOffset = 1, range = 52..53)
         )
 
@@ -846,7 +954,10 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(APPEND, false, Loading),
+            // LegacyLoadStateUpdate<Int>(APPEND, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(APPEND, false, Loading)
+            ),
             Drop<Int>(
                 loadType = PREPEND,
                 minPageOffset = 0,
@@ -877,7 +988,10 @@ class PageFetcherSnapshotTest {
 
             advanceUntilIdle()
             assertThat(fetcherState.newEvents()).containsExactly(
-                LoadStateUpdate<Int>(REFRESH, false, Loading),
+                // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+                LoadStateUpdate<Int>(
+                    createCombinedLoadStates(REFRESH, false, Loading)
+                ),
                 createRefresh(range = 50..54)
             )
 
@@ -893,7 +1007,10 @@ class PageFetcherSnapshotTest {
             )
             advanceUntilIdle()
             assertThat(fetcherState.newEvents()).containsExactly(
-                LoadStateUpdate<Int>(APPEND, false, Loading),
+                // LegacyLoadStateUpdate<Int>(APPEND, false, Loading),
+                LoadStateUpdate<Int>(
+                    createCombinedLoadStates(APPEND, false, Loading)
+                ),
                 createAppend(
                     pageOffset = 1,
                     range = 55..55,
@@ -921,7 +1038,10 @@ class PageFetcherSnapshotTest {
 
             advanceUntilIdle()
             assertThat(fetcherState.newEvents()).containsExactly(
-                LoadStateUpdate<Int>(REFRESH, false, Loading),
+                // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+                LoadStateUpdate<Int>(
+                    createCombinedLoadStates(REFRESH, false, Loading)
+                ),
                 createRefresh(range = 50..51)
             )
 
@@ -937,7 +1057,10 @@ class PageFetcherSnapshotTest {
             )
             advanceUntilIdle()
             assertThat(fetcherState.newEvents()).containsExactly(
-                LoadStateUpdate<Int>(APPEND, false, Loading),
+                // LegacyLoadStateUpdate<Int>(APPEND, false, Loading),
+                LoadStateUpdate<Int>(
+                    createCombinedLoadStates(APPEND, false, Loading)
+                ),
                 createAppend(pageOffset = 1, range = 52..53)
             )
 
@@ -965,8 +1088,14 @@ class PageFetcherSnapshotTest {
             )
             advanceUntilIdle()
             assertThat(fetcherState.newEvents()).containsExactly(
-                LoadStateUpdate<Int>(APPEND, false, Loading),
-                LoadStateUpdate<Int>(PREPEND, false, Loading),
+                // LegacyLoadStateUpdate<Int>(APPEND, false, Loading),
+                // LegacyLoadStateUpdate<Int>(PREPEND, false, Loading),
+                LoadStateUpdate<Int>(
+                    createCombinedLoadStates(APPEND, false, Loading)
+                ),
+                LoadStateUpdate<Int>(
+                    createCombinedLoadStates(PREPEND, false, Loading)
+                ),
                 Drop<Int>(
                     loadType = PREPEND,
                     minPageOffset = 0,
@@ -999,10 +1128,15 @@ class PageFetcherSnapshotTest {
 
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(
+            /*
+            LegacyLoadStateUpdate<Int>(
                 loadType = REFRESH,
                 fromMediator = false,
                 loadState = Loading
+            ),
+             */
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
             ),
             createRefresh(range = 50..52)
         )
@@ -1020,10 +1154,15 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(
+            /*
+            LegacyLoadStateUpdate<Int>(
                 loadType = APPEND,
                 fromMediator = false,
                 loadState = Loading
+            ),
+             */
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(APPEND, false, Loading)
             ),
             createAppend(pageOffset = 1, range = 53..53, endState = Loading),
             createAppend(pageOffset = 2, range = 54..54)
@@ -1042,10 +1181,15 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(
+            /*
+            LegacyLoadStateUpdate<Int>(
                 loadType = PREPEND,
                 fromMediator = false,
                 loadState = Loading
+            ),
+             */
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(PREPEND, false, Loading)
             ),
             Drop<Int>(
                 loadType = APPEND,
@@ -1076,10 +1220,15 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(
+            /*
+            LegacyLoadStateUpdate<Int>(
                 loadType = APPEND,
                 fromMediator = false,
                 loadState = Loading
+            ),
+             */
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(APPEND, false, Loading)
             ),
             Drop<Int>(
                 loadType = PREPEND,
@@ -1100,14 +1249,20 @@ class PageFetcherSnapshotTest {
 
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(50..51)
         )
 
         pageFetcher.refresh()
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(50..51)
         )
 
@@ -1121,7 +1276,10 @@ class PageFetcherSnapshotTest {
 
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(50..51)
         )
 
@@ -1138,7 +1296,10 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(APPEND, false, Loading),
+            // LegacyLoadStateUpdate<Int>(APPEND, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(APPEND, false, Loading)
+            ),
             createAppend(1, 52..52)
         )
 
@@ -1146,7 +1307,10 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(51..52)
         )
 
@@ -1188,10 +1352,15 @@ class PageFetcherSnapshotTest {
             collectSnapshotData(pager) { state, _ ->
                 advanceUntilIdle()
                 assertThat(state.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(
+                    /*
+                    LegacyLoadStateUpdate<Int>(
                         loadType = REFRESH,
                         fromMediator = false,
                         loadState = Loading
+                    ),
+                     */
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(REFRESH, false, Loading)
                     ),
                     createRefresh(range = 50..51)
                 )
@@ -1209,25 +1378,38 @@ class PageFetcherSnapshotTest {
                 )
                 advanceUntilIdle()
                 assertThat(state.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(
+                    /*
+                    LegacyLoadStateUpdate<Int>(
                         loadType = APPEND,
                         fromMediator = false,
                         loadState = Loading
                     ),
-                    LoadStateUpdate<Int>(
+                    LegacyLoadStateUpdate<Int>(
                         loadType = APPEND,
                         fromMediator = false,
                         loadState = Error(LOAD_ERROR)
-                    )
+                    ),
+                     */
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(APPEND, false, Loading)
+                    ),
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(APPEND, false, Error(LOAD_ERROR))
+                    ),
                 )
 
                 retryBus.send(Unit)
                 advanceUntilIdle()
                 assertThat(state.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(
+                    /*
+                    LegacyLoadStateUpdate<Int>(
                         loadType = APPEND,
                         fromMediator = false,
                         loadState = Loading
+                    ),
+                     */
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(APPEND, false, Loading)
                     ),
                     createAppend(pageOffset = 1, range = 52..52)
                 )
@@ -1245,10 +1427,15 @@ class PageFetcherSnapshotTest {
 
                 advanceUntilIdle()
                 assertThat(state.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(
+                    /*
+                    LegacyLoadStateUpdate<Int>(
                         loadType = REFRESH,
                         fromMediator = false,
                         loadState = Loading
+                    ),
+                     */
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(REFRESH, false, Loading)
                     ),
                     createRefresh(range = 50..51)
                 )
@@ -1265,10 +1452,15 @@ class PageFetcherSnapshotTest {
                 )
                 advanceUntilIdle()
                 assertThat(state.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(
+                    /*
+                    LegacyLoadStateUpdate<Int>(
                         loadType = APPEND,
                         fromMediator = false,
                         loadState = Loading
+                    ),
+                     */
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(APPEND, false, Loading)
                     ),
                     createAppend(pageOffset = 1, range = 52..52)
                 )
@@ -1289,10 +1481,15 @@ class PageFetcherSnapshotTest {
 
                 advanceUntilIdle()
                 assertThat(state.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(
+                    /*
+                    LegacyLoadStateUpdate<Int>(
                         loadType = REFRESH,
                         fromMediator = false,
                         loadState = Loading
+                    ),
+                     */
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(REFRESH, false, Loading)
                     ),
                     createRefresh(range = 50..51)
                 )
@@ -1309,24 +1506,37 @@ class PageFetcherSnapshotTest {
                 )
                 advanceUntilIdle()
                 assertThat(state.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(
+                    /*
+                    LegacyLoadStateUpdate<Int>(
                         loadType = APPEND,
                         fromMediator = false,
                         loadState = Loading
                     ),
-                    LoadStateUpdate<Int>(
+                    LegacyLoadStateUpdate<Int>(
                         loadType = APPEND,
                         fromMediator = false,
                         loadState = Error(LOAD_ERROR)
+                    )
+                     */
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(APPEND, false, Loading)
+                    ),
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(APPEND, false, Error(LOAD_ERROR))
                     )
                 )
                 retryBus.send(Unit)
                 advanceUntilIdle()
                 assertThat(state.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(
+                    /*
+                    LegacyLoadStateUpdate<Int>(
                         loadType = APPEND,
                         fromMediator = false,
                         loadState = Loading
+                    ),
+                     */
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(APPEND, false, Loading)
                     ),
                     createAppend(pageOffset = 1, range = 52..52)
                 )
@@ -1354,10 +1564,15 @@ class PageFetcherSnapshotTest {
                 // Initial REFRESH
                 advanceUntilIdle()
                 assertThat(state.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(
+                    /*
+                    LegacyLoadStateUpdate<Int>(
                         loadType = REFRESH,
                         fromMediator = false,
                         loadState = Loading
+                    ),
+                     */
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(REFRESH, false, Loading)
                     ),
                     createRefresh(range = 50..51)
                 )
@@ -1376,15 +1591,22 @@ class PageFetcherSnapshotTest {
                 )
                 advanceUntilIdle()
                 assertThat(state.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(
+                    /*
+                    LegacyLoadStateUpdate<Int>(
                         loadType = APPEND,
                         fromMediator = false,
                         loadState = Loading
                     ),
-                    LoadStateUpdate<Int>(
+                    LegacyLoadStateUpdate<Int>(
                         loadType = APPEND,
                         fromMediator = false,
                         loadState = Error(LOAD_ERROR)
+                    )*/
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(APPEND, false, Loading)
+                    ),
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(APPEND, false, Error(LOAD_ERROR))
                     )
                 )
 
@@ -1402,15 +1624,23 @@ class PageFetcherSnapshotTest {
                 )
                 advanceUntilIdle()
                 assertThat(state.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(
+                    /*
+                    LegacyLoadStateUpdate<Int>(
                         loadType = PREPEND,
                         fromMediator = false,
                         loadState = Loading
                     ),
-                    LoadStateUpdate<Int>(
+                    LegacyLoadStateUpdate<Int>(
                         loadType = PREPEND,
                         fromMediator = false,
                         loadState = Error(LOAD_ERROR)
+                    )
+                     */
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(PREPEND, false, Loading)
+                    ),
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(PREPEND, false, Error(LOAD_ERROR))
                     )
                 )
 
@@ -1418,15 +1648,23 @@ class PageFetcherSnapshotTest {
                 retryBus.send(Unit)
                 advanceUntilIdle()
                 assertThat(state.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(
+                    /*
+                    LegacyLoadStateUpdate<Int>(
                         loadType = PREPEND,
                         fromMediator = false,
                         loadState = Loading
                     ),
-                    LoadStateUpdate<Int>(
+                    LegacyLoadStateUpdate<Int>(
                         loadType = APPEND,
                         fromMediator = false,
                         loadState = Loading
+                    ),
+                     */
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(PREPEND, false, Loading)
+                    ),
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(APPEND, false, Loading)
                     ),
                     createPrepend(
                         pageOffset = -1,
@@ -1466,7 +1704,10 @@ class PageFetcherSnapshotTest {
                 )
                 advanceUntilIdle()
                 assertThat(pageEvents.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(REFRESH, false, Loading),
+                    // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(REFRESH, false, Loading)
+                    ),
                     Refresh(
                         pages = listOf(TransformablePage(listOf(0, 1))),
                         placeholdersBefore = 50,
@@ -1488,17 +1729,28 @@ class PageFetcherSnapshotTest {
                 )
                 advanceUntilIdle()
                 assertThat(pageEvents.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(APPEND, false, Loading),
-                    LoadStateUpdate<Int>(APPEND, false, Error(LOAD_ERROR))
+                    // LegacyLoadStateUpdate<Int>(APPEND, false, Loading),
+                    // LegacyLoadStateUpdate<Int>(APPEND, false, Error(LOAD_ERROR))
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(APPEND, false, Loading)
+                    ),
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(APPEND, false, Error(LOAD_ERROR))
+                    ),
                 )
 
                 // Retry failed APPEND
                 retryBus.send(Unit)
                 advanceUntilIdle()
                 assertThat(pageEvents.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(APPEND, false, Loading),
-                    LoadStateUpdate<Int>(APPEND, false, Error(LOAD_ERROR))
-
+                    // LegacyLoadStateUpdate<Int>(APPEND, false, Loading),
+                    // LegacyLoadStateUpdate<Int>(APPEND, false, Error(LOAD_ERROR))
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(APPEND, false, Loading)
+                    ),
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(APPEND, false, Error(LOAD_ERROR))
+                    ),
                 )
 
                 // This hint should be ignored even though in the non-error state it would
@@ -1529,18 +1781,36 @@ class PageFetcherSnapshotTest {
                 )
                 advanceUntilIdle()
                 assertThat(pageEvents.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(PREPEND, false, Loading),
-                    LoadStateUpdate<Int>(PREPEND, false, Error(LOAD_ERROR))
+                    // LegacyLoadStateUpdate<Int>(PREPEND, false, Loading),
+                    // LegacyLoadStateUpdate<Int>(PREPEND, false, Error(LOAD_ERROR))
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(PREPEND, false, Loading)
+                    ),
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(PREPEND, false, Error(LOAD_ERROR))
+                    )
                 )
 
                 // Retry failed hints, both PREPEND and APPEND should trigger.
                 retryBus.send(Unit)
                 advanceUntilIdle()
                 assertThat(pageEvents.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(PREPEND, false, Loading),
-                    LoadStateUpdate<Int>(APPEND, false, Loading),
-                    LoadStateUpdate<Int>(PREPEND, false, Error(LOAD_ERROR)),
-                    LoadStateUpdate<Int>(APPEND, false, Error(LOAD_ERROR))
+                    // LegacyLoadStateUpdate<Int>(PREPEND, false, Loading),
+                    // LegacyLoadStateUpdate<Int>(APPEND, false, Loading),
+                    // LegacyLoadStateUpdate<Int>(PREPEND, false, Error(LOAD_ERROR)),
+                    // LegacyLoadStateUpdate<Int>(APPEND, false, Error(LOAD_ERROR))
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(PREPEND, false, Loading)
+                    ),
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(APPEND, false, Loading)
+                    ),
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(PREPEND, false, Error(LOAD_ERROR))
+                    ),
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(APPEND, false, Error(LOAD_ERROR))
+                    )
                 )
 
                 // This hint should be ignored even though in the non-error state it would
@@ -1572,14 +1842,23 @@ class PageFetcherSnapshotTest {
                 pageSource.errorNextLoad = true
                 advanceUntilIdle()
                 assertThat(state.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(REFRESH, false, Loading),
-                    LoadStateUpdate<Int>(REFRESH, false, Error(LOAD_ERROR))
+                    // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+                    // LegacyLoadStateUpdate<Int>(REFRESH, false, Error(LOAD_ERROR))
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(REFRESH, false, Loading)
+                    ),
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(REFRESH, false, Error(LOAD_ERROR))
+                    )
                 )
 
                 retryBus.send(Unit)
                 advanceUntilIdle()
                 assertThat(state.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(REFRESH, false, Loading),
+                    // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(REFRESH, false, Loading)
+                    ),
                     createRefresh(50..51)
                 )
             }
@@ -1595,15 +1874,23 @@ class PageFetcherSnapshotTest {
                 pageSource.errorNextLoad = true
                 advanceUntilIdle()
                 assertThat(state.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(
+                    /*
+                    LegacyLoadStateUpdate<Int>(
                         loadType = REFRESH,
                         fromMediator = false,
                         loadState = Loading
                     ),
-                    LoadStateUpdate<Int>(
+                    LegacyLoadStateUpdate<Int>(
                         loadType = REFRESH,
                         fromMediator = false,
                         loadState = Error(LOAD_ERROR)
+                    )
+                     */
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(REFRESH, false, Loading)
+                    ),
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(REFRESH, false, Error(LOAD_ERROR))
                     )
                 )
                 pager.accessHint(
@@ -1622,16 +1909,26 @@ class PageFetcherSnapshotTest {
                 retryBus.send(Unit)
                 advanceUntilIdle()
                 assertThat(state.newEvents()).containsExactly(
-                    LoadStateUpdate<Int>(
+                    /*
+                    LegacyLoadStateUpdate<Int>(
                         loadType = REFRESH,
                         fromMediator = false,
                         loadState = Loading
                     ),
-                    createRefresh(range = 50..51),
+                     */
                     LoadStateUpdate<Int>(
+                        createCombinedLoadStates(REFRESH, false, Loading)
+                    ),
+                    createRefresh(range = 50..51),
+                    /*
+                    LegacyLoadStateUpdate<Int>(
                         loadType = PREPEND,
                         fromMediator = false,
                         loadState = Loading
+                    ),
+                     */
+                    LoadStateUpdate<Int>(
+                        createCombinedLoadStates(PREPEND, false, Loading)
                     ),
                     createPrepend(pageOffset = -1, range = 49..49)
                 )
@@ -1753,7 +2050,10 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         assertThat(fetcherState.pageEventLists[0]).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(range = 50..51).let { Refresh(it.pages, 0, 0, it.combinedLoadStates) }
         )
 
@@ -1774,7 +2074,10 @@ class PageFetcherSnapshotTest {
 
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(range = 50..51).let { Refresh(it.pages, 0, 0, it.combinedLoadStates) }
         )
         fetcherState.pagingDataList[0].receiver.accessHint(
@@ -1789,7 +2092,10 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(PREPEND, false, Loading),
+            // LegacyLoadStateUpdate<Int>(PREPEND, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(PREPEND, false, Loading)
+            ),
             createPrepend(-1, 49..49).let { Prepend(it.pages, 0, it.combinedLoadStates) }
         )
 
@@ -1810,7 +2116,10 @@ class PageFetcherSnapshotTest {
 
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(range = 50..51).let { Refresh(it.pages, 0, 0, it.combinedLoadStates) }
         )
 
@@ -1826,7 +2135,10 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(APPEND, false, Loading),
+            // LegacyLoadStateUpdate<Int>(APPEND, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(APPEND, false, Loading)
+            ),
             createAppend(1, 52..52).let { Append(it.pages, 0, it.combinedLoadStates) }
         )
 
@@ -1847,7 +2159,10 @@ class PageFetcherSnapshotTest {
 
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(REFRESH, false, Loading)
+            ),
             createRefresh(range = 50..52)
         )
         fetcherState.pagingDataList[0].receiver.accessHint(
@@ -1862,7 +2177,10 @@ class PageFetcherSnapshotTest {
         )
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(APPEND, false, Loading),
+            // LegacyLoadStateUpdate<Int>(APPEND, false, Loading),
+            LoadStateUpdate<Int>(
+                createCombinedLoadStates(APPEND, false, Loading)
+            ),
             createAppend(pageOffset = 1, range = 53..53)
         )
 
@@ -2028,8 +2346,14 @@ class PageFetcherSnapshotTest {
             pagingSource.errorNextLoad = true
             advanceUntilIdle()
             assertThat(state.newEvents()).containsExactly(
-                LoadStateUpdate<Int>(REFRESH, false, Loading),
-                LoadStateUpdate<Int>(REFRESH, false, Error(LOAD_ERROR))
+                // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+                // LegacyLoadStateUpdate<Int>(REFRESH, false, Error(LOAD_ERROR))
+                LoadStateUpdate<Int>(
+                    createCombinedLoadStates(REFRESH, false, Loading)
+                ),
+                LoadStateUpdate<Int>(
+                    createCombinedLoadStates(REFRESH, false, Error(LOAD_ERROR))
+                )
             )
 
             pagingSource.errorNextLoad = true
@@ -2038,8 +2362,14 @@ class PageFetcherSnapshotTest {
             retryBus.send(Unit)
             advanceUntilIdle()
             assertThat(state.newEvents()).containsExactly(
-                LoadStateUpdate<Int>(REFRESH, false, Loading),
-                LoadStateUpdate<Int>(REFRESH, false, Error(LOAD_ERROR))
+                // LegacyLoadStateUpdate<Int>(REFRESH, false, Loading),
+                // LegacyLoadStateUpdate<Int>(REFRESH, false, Error(LOAD_ERROR))
+                LoadStateUpdate<Int>(
+                    createCombinedLoadStates(REFRESH, false, Loading)
+                ),
+                LoadStateUpdate<Int>(
+                    createCombinedLoadStates(REFRESH, false, Error(LOAD_ERROR))
+                )
             )
         }
     }
@@ -2149,9 +2479,10 @@ class PageFetcherSnapshotTest {
 
         val expected = listOf(
             listOf(
-                LoadStateUpdate(REFRESH, true, Loading),
-                LoadStateUpdate(REFRESH, false, Loading),
-                LoadStateUpdate(REFRESH, true, Error(EXCEPTION)),
+                // TODO: Deal with legacy load states that are from mediator
+                LegacyLoadStateUpdate(REFRESH, true, Loading),
+                LegacyLoadStateUpdate(REFRESH, false, Loading),
+                LegacyLoadStateUpdate(REFRESH, true, Error(EXCEPTION)),
                 createRefresh(
                     range = 0..2,
                     remoteLoadStatesOf(
@@ -2264,27 +2595,27 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         assertThat(state.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(
+            LegacyLoadStateUpdate<Int>(
                 loadType = REFRESH,
                 fromMediator = true,
                 loadState = Loading
             ),
-            LoadStateUpdate<Int>(
+            LegacyLoadStateUpdate<Int>(
                 loadType = REFRESH,
                 fromMediator = false,
                 loadState = Loading
             ),
-            LoadStateUpdate<PageEvent<Int>>(
+            LegacyLoadStateUpdate<PageEvent<Int>>(
                 loadType = REFRESH,
                 fromMediator = true,
                 loadState = NotLoading(endOfPaginationReached = true)
             ),
-            LoadStateUpdate<Int>(
+            LegacyLoadStateUpdate<Int>(
                 loadType = PREPEND,
                 fromMediator = true,
                 loadState = NotLoading(endOfPaginationReached = true)
             ),
-            LoadStateUpdate<Int>(
+            LegacyLoadStateUpdate<Int>(
                 loadType = APPEND,
                 fromMediator = true,
                 loadState = NotLoading(endOfPaginationReached = true)
@@ -2347,10 +2678,17 @@ class PageFetcherSnapshotTest {
 
         val expected: List<List<PageEvent<Int>>> = listOf(
             listOf(
-                LoadStateUpdate(
+                /*
+                LegacyLoadStateUpdate(
                     loadType = REFRESH,
                     fromMediator = false,
                     loadState = Loading
+                ),
+                 */
+                LoadStateUpdate(
+                    localLoadStatesOf(
+                        refreshLocal = Loading
+                    )
                 ),
                 Refresh(
                     pages = listOf(
@@ -2365,17 +2703,33 @@ class PageFetcherSnapshotTest {
                         prependLocal = NotLoading.Complete
                     )
                 ),
-                LoadStateUpdate(
+                /*
+                LegacyLoadStateUpdate(
                     loadType = PREPEND,
                     fromMediator = true,
                     loadState = Loading
                 ),
+                 */
+                LoadStateUpdate(
+                    remoteLoadStatesOf(
+                        prepend = Loading,
+                        prependLocal = NotLoading.Complete,
+                        prependRemote = Loading,
+                    )
+                )
             ),
             listOf(
-                LoadStateUpdate(
+                /*
+                LegacyLoadStateUpdate(
                     loadType = REFRESH,
                     fromMediator = false,
                     loadState = Loading
+                ),
+                 */
+                LoadStateUpdate(
+                    localLoadStatesOf(
+                        refreshLocal = Loading
+                    )
                 ),
                 Refresh(
                     pages = listOf(
@@ -2426,10 +2780,17 @@ class PageFetcherSnapshotTest {
         fetcher.assertEventByGeneration(
             listOf(
                 listOf(
-                    LoadStateUpdate(
+                    /*
+                    LegacyLoadStateUpdate(
                         loadType = REFRESH,
                         fromMediator = false,
                         loadState = Loading
+                    ),
+                     */
+                    LoadStateUpdate(
+                        localLoadStatesOf(
+                            refreshLocal = Loading
+                        )
                     ),
                     Refresh(
                         pages = listOf(
@@ -2444,16 +2805,32 @@ class PageFetcherSnapshotTest {
                             prependLocal = NotLoading.Complete,
                         )
                     ),
-                    LoadStateUpdate(
+                    /*
+                    LegacyLoadStateUpdate(
                         loadType = PREPEND,
                         fromMediator = true,
                         loadState = Loading
                     ),
-                    LoadStateUpdate(
+                    LegacyLoadStateUpdate(
                         loadType = PREPEND,
                         fromMediator = true,
                         loadState = NotLoading.Complete
                     ),
+                     */
+                    LoadStateUpdate(
+                        remoteLoadStatesOf(
+                            prepend = Loading,
+                            prependLocal = NotLoading.Complete,
+                            prependRemote = Loading
+                        )
+                    ),
+                    LoadStateUpdate(
+                        remoteLoadStatesOf(
+                            prepend = NotLoading.Complete,
+                            prependLocal = NotLoading.Complete,
+                            prependRemote = NotLoading.Complete
+                        )
+                    )
                 )
             )
         )
@@ -2489,7 +2866,7 @@ class PageFetcherSnapshotTest {
         fetcher.collectEvents {
             awaitEventCount(2)
             val refreshEvents = listOf(
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = REFRESH,
                     fromMediator = false,
                     loadState = Loading
@@ -2518,7 +2895,7 @@ class PageFetcherSnapshotTest {
                 )
             )
             val postHintEvents = listOf(
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = PREPEND,
                     fromMediator = false,
                     loadState = Loading
@@ -2535,12 +2912,12 @@ class PageFetcherSnapshotTest {
                         prependLocal = NotLoading.Complete
                     )
                 ),
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = PREPEND,
                     fromMediator = true,
                     loadState = Loading
                 ),
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = PREPEND,
                     fromMediator = true,
                     loadState = NotLoading.Complete
@@ -2584,7 +2961,7 @@ class PageFetcherSnapshotTest {
         fetcher.assertEventByGeneration(
             listOf(
                 listOf(
-                    LoadStateUpdate(
+                    LegacyLoadStateUpdate(
                         loadType = REFRESH,
                         fromMediator = false,
                         loadState = Loading
@@ -2602,14 +2979,14 @@ class PageFetcherSnapshotTest {
                             appendLocal = NotLoading.Complete,
                         )
                     ),
-                    LoadStateUpdate(
+                    LegacyLoadStateUpdate(
                         loadType = APPEND,
                         fromMediator = true,
                         loadState = Loading
                     ),
                 ),
                 listOf(
-                    LoadStateUpdate(
+                    LegacyLoadStateUpdate(
                         loadType = REFRESH,
                         fromMediator = false,
                         loadState = Loading
@@ -2661,7 +3038,7 @@ class PageFetcherSnapshotTest {
 
         val expected: List<List<PageEvent<Int>>> = listOf(
             listOf(
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = REFRESH,
                     fromMediator = false,
                     loadState = Loading
@@ -2679,12 +3056,12 @@ class PageFetcherSnapshotTest {
                         appendLocal = NotLoading.Complete,
                     )
                 ),
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = APPEND,
                     fromMediator = true,
                     loadState = Loading
                 ),
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = APPEND,
                     fromMediator = true,
                     loadState = NotLoading.Complete
@@ -2722,7 +3099,7 @@ class PageFetcherSnapshotTest {
         )
         pager.collectEvents {
             val initialEvents = listOf<PageEvent<Int>>(
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = REFRESH,
                     fromMediator = false,
                     loadState = Loading
@@ -2752,7 +3129,7 @@ class PageFetcherSnapshotTest {
                 )
             )
             val postHintEvents = listOf<PageEvent<Int>>(
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = APPEND,
                     fromMediator = false,
                     loadState = Loading
@@ -2769,12 +3146,12 @@ class PageFetcherSnapshotTest {
                         appendLocal = NotLoading.Complete
                     )
                 ),
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = APPEND,
                     fromMediator = true,
                     loadState = Loading
                 ),
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = APPEND,
                     fromMediator = true,
                     loadState = NotLoading.Complete
@@ -2820,19 +3197,19 @@ class PageFetcherSnapshotTest {
         pager.assertEventByGeneration(
             listOf(
                 listOf<PageEvent<Int>>(
-                    LoadStateUpdate(
+                    LegacyLoadStateUpdate(
                         loadType = REFRESH,
                         fromMediator = true,
                         loadState = Loading
                     ),
-                    LoadStateUpdate(
+                    LegacyLoadStateUpdate(
                         loadType = REFRESH,
                         fromMediator = true,
                         loadState = NotLoading.Incomplete
                     ),
                 ),
                 listOf(
-                    LoadStateUpdate(
+                    LegacyLoadStateUpdate(
                         loadType = REFRESH,
                         fromMediator = false,
                         loadState = Loading
@@ -2900,12 +3277,12 @@ class PageFetcherSnapshotTest {
         advanceTimeBy(1000)
 
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(
+            LegacyLoadStateUpdate<Int>(
                 loadType = REFRESH,
                 fromMediator = true,
                 loadState = Loading,
             ),
-            LoadStateUpdate<Int>(
+            LegacyLoadStateUpdate<Int>(
                 loadType = REFRESH,
                 fromMediator = false,
                 loadState = Loading,
@@ -2931,17 +3308,17 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(
+            LegacyLoadStateUpdate<Int>(
                 loadType = REFRESH,
                 fromMediator = true,
                 loadState = NotLoading.Complete,
             ),
-            LoadStateUpdate<Int>(
+            LegacyLoadStateUpdate<Int>(
                 loadType = PREPEND,
                 fromMediator = true,
                 loadState = NotLoading.Complete
             ),
-            LoadStateUpdate<Int>(
+            LegacyLoadStateUpdate<Int>(
                 loadType = APPEND,
                 fromMediator = true,
                 loadState = NotLoading.Complete
@@ -3203,7 +3580,7 @@ class PageFetcherSnapshotTest {
         collectSnapshotData(pageFetcherSnapshot) { state, _ ->
             advanceUntilIdle()
             assertThat(state.newEvents()).containsExactly(
-                LoadStateUpdate<Int>(
+                LegacyLoadStateUpdate<Int>(
                     loadType = REFRESH,
                     fromMediator = false,
                     loadState = Loading
@@ -3214,12 +3591,12 @@ class PageFetcherSnapshotTest {
             pageFetcherSnapshot.accessHint(ViewportHint.Initial(0, 0, 0, 0))
             advanceUntilIdle()
             assertThat(state.newEvents()).containsExactly(
-                LoadStateUpdate<Int>(
+                LegacyLoadStateUpdate<Int>(
                     loadType = PREPEND,
                     fromMediator = false,
                     loadState = Loading
                 ),
-                LoadStateUpdate<Int>(
+                LegacyLoadStateUpdate<Int>(
                     loadType = APPEND,
                     fromMediator = false,
                     loadState = Loading

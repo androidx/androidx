@@ -24,7 +24,7 @@ import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
-import androidx.paging.PageEvent.LoadStateUpdate
+import androidx.paging.PageEvent.LegacyLoadStateUpdate
 import androidx.paging.TerminalSeparatorType.FULLY_COMPLETE
 import androidx.paging.TerminalSeparatorType.SOURCE_COMPLETE
 import com.google.common.truth.Truth.assertThat
@@ -1062,12 +1062,12 @@ class SeparatorsTest {
     fun remoteRefreshEndOfPaginationReached_fullyComplete() = runBlockingTest {
         assertThat(
             flowOf(
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = REFRESH,
                     fromMediator = true,
                     loadState = LoadState.Loading
                 ),
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = REFRESH,
                     fromMediator = false,
                     loadState = LoadState.Loading
@@ -1081,17 +1081,17 @@ class SeparatorsTest {
                         prependLocal = NotLoading.Complete,
                     )
                 ),
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = REFRESH,
                     fromMediator = true,
                     loadState = NotLoading(endOfPaginationReached = true)
                 ),
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = PREPEND,
                     fromMediator = true,
                     loadState = NotLoading(endOfPaginationReached = true)
                 ),
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = APPEND,
                     fromMediator = true,
                     loadState = NotLoading(endOfPaginationReached = true)
@@ -1102,12 +1102,12 @@ class SeparatorsTest {
             ).toList()
         ).isEqualTo(
             listOf(
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = REFRESH,
                     fromMediator = true,
                     loadState = LoadState.Loading
                 ),
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = REFRESH,
                     fromMediator = false,
                     loadState = LoadState.Loading
@@ -1121,7 +1121,7 @@ class SeparatorsTest {
                         prependLocal = NotLoading.Complete,
                     )
                 ),
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = REFRESH,
                     fromMediator = true,
                     loadState = NotLoading(endOfPaginationReached = true)
@@ -1174,12 +1174,12 @@ class SeparatorsTest {
     fun remoteRefreshEndOfPaginationReached_sourceComplete() = runBlockingTest {
         assertThat(
             flowOf(
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = REFRESH,
                     fromMediator = true,
                     loadState = LoadState.Loading
                 ),
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = REFRESH,
                     fromMediator = false,
                     loadState = LoadState.Loading
@@ -1193,17 +1193,17 @@ class SeparatorsTest {
                         prependLocal = NotLoading.Complete,
                     )
                 ),
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = REFRESH,
                     fromMediator = true,
                     loadState = NotLoading(endOfPaginationReached = true)
                 ),
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = PREPEND,
                     fromMediator = true,
                     loadState = NotLoading(endOfPaginationReached = true)
                 ),
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = APPEND,
                     fromMediator = true,
                     loadState = NotLoading(endOfPaginationReached = true)
@@ -1214,12 +1214,12 @@ class SeparatorsTest {
             ).toList()
         ).isEqualTo(
             listOf(
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = REFRESH,
                     fromMediator = true,
                     loadState = LoadState.Loading
                 ),
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = REFRESH,
                     fromMediator = false,
                     loadState = LoadState.Loading
@@ -1250,7 +1250,7 @@ class SeparatorsTest {
                         prependLocal = NotLoading.Complete,
                     )
                 ),
-                LoadStateUpdate(
+                LegacyLoadStateUpdate(
                     loadType = REFRESH,
                     fromMediator = true,
                     loadState = NotLoading(endOfPaginationReached = true)
@@ -1299,7 +1299,7 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote prepend is done triggers the header to resolve.
-                LoadStateUpdate(PREPEND, true, NotLoading.Complete),
+                LegacyLoadStateUpdate(PREPEND, true, NotLoading.Complete),
             ).insertEventSeparators(
                 terminalSeparatorType = FULLY_COMPLETE,
                 generator = LETTER_SEPARATOR_GENERATOR
@@ -1350,7 +1350,7 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote prepend is done triggers the header to resolve.
-                LoadStateUpdate(PREPEND, true, NotLoading.Complete),
+                LegacyLoadStateUpdate(PREPEND, true, NotLoading.Complete),
             ).insertEventSeparators(
                 terminalSeparatorType = SOURCE_COMPLETE,
                 generator = LETTER_SEPARATOR_GENERATOR
@@ -1424,7 +1424,7 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote prepend is done triggers the header to resolve.
-                LoadStateUpdate(PREPEND, true, NotLoading.Complete),
+                LegacyLoadStateUpdate(PREPEND, true, NotLoading.Complete),
                 // Drop the first page, header and separator between "b1" and "a1"
                 Drop(
                     loadType = PREPEND,
@@ -1562,7 +1562,7 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote prepend is done triggers the header to resolve.
-                LoadStateUpdate(PREPEND, true, NotLoading.Complete),
+                LegacyLoadStateUpdate(PREPEND, true, NotLoading.Complete),
                 // Drop the first page, header and separator between "b1" and "a1"
                 Drop(
                     loadType = PREPEND,
@@ -1697,7 +1697,7 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote append is done triggers the footer to resolve.
-                LoadStateUpdate(APPEND, true, NotLoading.Complete),
+                LegacyLoadStateUpdate(APPEND, true, NotLoading.Complete),
             ).insertEventSeparators(
                 terminalSeparatorType = FULLY_COMPLETE,
                 generator = LETTER_SEPARATOR_GENERATOR
@@ -1748,7 +1748,7 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote append is done triggers the footer to resolve.
-                LoadStateUpdate(APPEND, true, NotLoading.Complete),
+                LegacyLoadStateUpdate(APPEND, true, NotLoading.Complete),
             ).insertEventSeparators(
                 terminalSeparatorType = SOURCE_COMPLETE,
                 generator = LETTER_SEPARATOR_GENERATOR
@@ -1822,7 +1822,7 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote append is done triggers the footer to resolve.
-                LoadStateUpdate(APPEND, true, NotLoading.Complete),
+                LegacyLoadStateUpdate(APPEND, true, NotLoading.Complete),
                 // Drop the last page, footer and separator between "b1" and "c1"
                 Drop(
                     loadType = APPEND,
@@ -1960,7 +1960,7 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote append is done triggers the footer to resolve.
-                LoadStateUpdate(APPEND, true, NotLoading.Complete),
+                LegacyLoadStateUpdate(APPEND, true, NotLoading.Complete),
                 // Drop the last page, footer and separator between "b1" and "c1"
                 Drop(
                     loadType = APPEND,

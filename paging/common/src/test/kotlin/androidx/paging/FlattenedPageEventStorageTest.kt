@@ -276,7 +276,7 @@ class FlattenedPageEventStorageTest {
                 is Drop -> {
                     throw IllegalStateException("shouldn't have any drops")
                 }
-                is PageEvent.LoadStateUpdate -> {
+                is PageEvent.LegacyLoadStateUpdate, is PageEvent.LoadStateUpdate -> {
                     throw IllegalStateException("shouldn't have any state updates")
                 }
             }

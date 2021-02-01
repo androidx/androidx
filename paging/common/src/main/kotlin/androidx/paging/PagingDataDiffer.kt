@@ -77,6 +77,7 @@ abstract class PagingDataDiffer<T : Any>(
             differCallback.onRemoved(position, count)
         }
 
+        /*
         override fun onStateUpdate(
             loadType: LoadType,
             fromMediator: Boolean,
@@ -90,6 +91,14 @@ abstract class PagingDataDiffer<T : Any>(
             combinedLoadStates.set(loadType, fromMediator, loadState)
             val newLoadStates = combinedLoadStates.snapshot()
             loadStateListeners.forEach { it(newLoadStates) }
+        }
+         */
+
+        override fun onStateUpdate(newCombinedLoadStates: CombinedLoadStates) {
+            // No change, skip update + dispatch
+            if (newCombinedLoadStates == combinedLoadStates.snapshot()) return
+            combinedLoadStates.set(newCombinedLoadStates)
+            loadStateListeners.forEach { it(newCombinedLoadStates) }
         }
     }
 

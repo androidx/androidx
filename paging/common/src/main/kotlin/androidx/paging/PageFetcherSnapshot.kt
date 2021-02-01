@@ -332,7 +332,9 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             is LoadResult.Error -> stateHolder.withLock { state ->
                 val loadState = Error(result.throwable)
                 if (state.setSourceLoadState(REFRESH, loadState)) {
-                    pageEventCh.send(LoadStateUpdate(REFRESH, false, loadState))
+                    pageEventCh.send(
+                        LoadStateUpdate(state.combinedLoadStates)
+                    )
                 }
             }
         }
@@ -440,7 +442,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     stateHolder.withLock { state ->
                         val loadState = Error(result.throwable)
                         if (state.setSourceLoadState(loadType, loadState)) {
-                            pageEventCh.send(LoadStateUpdate(loadType, false, loadState))
+                            pageEventCh.send(LoadStateUpdate(state.combinedLoadStates))
                         }
 
                         // Save the hint for retry on incoming retry signal, typically sent from
@@ -509,7 +511,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     private suspend fun PageFetcherSnapshotState<Key, Value>.setLoading(loadType: LoadType) {
         if (setSourceLoadState(loadType, Loading)) {
             pageEventCh.send(
-                LoadStateUpdate(loadType, fromMediator = false, Loading)
+                LoadStateUpdate(combinedLoadStates)
             )
         }
     }

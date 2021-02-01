@@ -420,7 +420,10 @@ class PageFetcherTest {
             advanceUntilIdle()
             assertThat(fetcherState.newEvents()).isEqualTo(
                 listOf<PageEvent<Int>>(
-                    LoadStateUpdate(REFRESH, false, Loading),
+                    // LegacyLoadStateUpdate(REFRESH, false, Loading),
+                    LoadStateUpdate(
+                        createCombinedLoadStates(REFRESH, false, Loading)
+                    ),
                     createRefresh(range = 50..51)
                 )
             )
@@ -443,7 +446,10 @@ class PageFetcherTest {
             assertEquals(2, fetcherState.pageEventLists[0].size)
             assertThat(fetcherState.newEvents()).isEqualTo(
                 listOf<PageEvent<Int>>(
-                    LoadStateUpdate(REFRESH, false, Loading),
+                    // LegacyLoadStateUpdate(REFRESH, false, Loading),
+                    LoadStateUpdate(
+                        createCombinedLoadStates(REFRESH, false, Loading)
+                    ),
                     createRefresh(range = 50..51)
                 )
             )
@@ -466,7 +472,10 @@ class PageFetcherTest {
             assertEquals(2, fetcherState.pageEventLists[1].size)
             assertThat(fetcherState.newEvents()).isEqualTo(
                 listOf<PageEvent<Int>>(
-                    LoadStateUpdate(REFRESH, false, Loading),
+                    // LegacyLoadStateUpdate(REFRESH, false, Loading),
+                    LoadStateUpdate(
+                        createCombinedLoadStates(REFRESH, false, Loading)
+                    ),
                     createRefresh(range = 50..51)
                 )
             )

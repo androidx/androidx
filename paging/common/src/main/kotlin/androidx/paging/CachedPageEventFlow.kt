@@ -218,6 +218,7 @@ internal class FlattenedPageEventStorage<T : Any> {
         when (event) {
             is PageEvent.Insert<T> -> handleInsert(event)
             is PageEvent.Drop<T> -> handlePageDrop(event)
+            is PageEvent.LegacyLoadStateUpdate<T> -> handleLoadStateUpdate(event)
             is PageEvent.LoadStateUpdate<T> -> handleLoadStateUpdate(event)
         }
     }
@@ -263,8 +264,13 @@ internal class FlattenedPageEventStorage<T : Any> {
         }
     }
 
-    private fun handleLoadStateUpdate(event: PageEvent.LoadStateUpdate<T>) {
+    // TODO: Cleanup, no need for this
+    private fun handleLoadStateUpdate(event: PageEvent.LegacyLoadStateUpdate<T>) {
         loadStates.set(event.loadType, event.fromMediator, event.loadState)
+    }
+
+    private fun handleLoadStateUpdate(event: PageEvent.LoadStateUpdate<T>) {
+        loadStates.set(event.combinedLoadStates)
     }
 
     fun getAsEvents(): List<PageEvent<T>> {
@@ -279,10 +285,16 @@ internal class FlattenedPageEventStorage<T : Any> {
                 )
             )
         } else {
+            /*
             loadStates.forEach { type, fromMediator, state ->
                 if (PageEvent.LoadStateUpdate.canDispatchWithoutInsert(state, fromMediator)) {
-                    events.add(PageEvent.LoadStateUpdate(type, fromMediator, state))
+                    events.add(PageEvent.LegacyLoadStateUpdate(type, fromMediator, state))
                 }
+            }
+            */
+            // TODO: not sure if this is correct
+            if (PageEvent.LoadStateUpdate.canDispatchWithoutInsert(loadStates.snapshot())) {
+                events.add(PageEvent.LoadStateUpdate(loadStates.snapshot()))
             }
         }
 

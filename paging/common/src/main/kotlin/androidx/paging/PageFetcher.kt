@@ -127,12 +127,17 @@ internal class PageFetcher<Key : Any, Value : Any>(
                         fromMediator = true
                     )
                 ) {
+//                    send(
+//                        PageEvent.LegacyLoadStateUpdate<Value>(
+//                            loadType = type,
+//                            fromMediator = true,
+//                            loadState = state
+//                        )
+//                    )
+
+                    loadStates.set(type, false, state)
                     send(
-                        PageEvent.LoadStateUpdate<Value>(
-                            loadType = type,
-                            fromMediator = true,
-                            loadState = state
-                        )
+                        PageEvent.LoadStateUpdate(loadStates.snapshot())
                     )
                 } else {
                     // Wait for invalidation to set state to NotLoading via Insert to prevent any
@@ -175,12 +180,16 @@ internal class PageFetcher<Key : Any, Value : Any>(
                         )
                         send(event)
                     }
-                    is PageEvent.LoadStateUpdate -> {
+                    is PageEvent.LegacyLoadStateUpdate -> {
                         loadStates.set(
                             type = event.loadType,
                             remote = event.fromMediator,
                             state = event.loadState
                         )
+                        send(event)
+                    }
+                    is PageEvent.LoadStateUpdate -> {
+                        loadStates.set(event.combinedLoadStates)
                         send(event)
                     }
                 }

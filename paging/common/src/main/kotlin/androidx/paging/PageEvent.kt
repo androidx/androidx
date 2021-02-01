@@ -187,7 +187,7 @@ internal sealed class PageEvent<T : Any> {
         val pageCount get() = maxPageOffset - minPageOffset + 1
     }
 
-    data class LoadStateUpdate<T : Any>(
+    data class LegacyLoadStateUpdate<T : Any>(
         val loadType: LoadType,
         val fromMediator: Boolean,
         val loadState: LoadState // TODO: consider using full state object here
@@ -216,6 +216,35 @@ internal sealed class PageEvent<T : Any> {
              */
             internal fun canDispatchWithoutInsert(loadState: LoadState, fromMediator: Boolean) =
                 loadState is LoadState.Loading || loadState is LoadState.Error || fromMediator
+        }
+    }
+
+    data class LoadStateUpdate<T : Any>(
+        val combinedLoadStates: CombinedLoadStates
+    ) : PageEvent<T>() {
+        // TODO: Add init check?
+        companion object {
+            /**
+             * DataSource loads with no more to load must carry LoadState.NotLoading with them,
+             * to ensure content appears in the same frame as e.g. a load state spinner is removed.
+             *
+             * This prevents multiple related RV animations from happening simultaneously
+             */
+            internal fun canDispatchWithoutInsert(loadState: LoadState, fromMediator: Boolean) =
+                loadState is LoadState.Loading || loadState is LoadState.Error || fromMediator
+
+            // TODO: Double check this is actually right
+            internal fun canDispatchWithoutInsert(combinedLoadStates: CombinedLoadStates): Boolean {
+                var canDispatch = true
+
+                combinedLoadStates.forEach { _, fromMediator, loadState ->
+                    if (!canDispatchWithoutInsert(loadState, fromMediator)) {
+                        canDispatch = false
+                    }
+                }
+
+                return canDispatch
+            }
         }
     }
 
