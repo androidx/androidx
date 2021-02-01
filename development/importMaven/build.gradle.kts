@@ -102,6 +102,16 @@ repositories {
         }
     }
 
+    val allowJetbrainsDev: String? = findProperty("allowJetbrainsDev") as String?
+    if (allowJetbrainsDev != null) {
+        maven {
+            url = uri("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
+            metadataSources {
+                artifact()
+            }
+        }
+    }
+
     ivy {
         setUrl("https://download.jetbrains.com/kotlin/native/builds/releases")
         patternLayout {
