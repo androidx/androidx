@@ -135,16 +135,17 @@ public interface AppSearchSession extends Closeable {
     ListenableFuture<Set<AppSearchSchema>> getSchema();
 
     /**
-     * Indexes documents into AppSearch.
+     * Indexes documents into the {@link AppSearchSession} database.
      *
-     * <p>Each {@link GenericDocument}'s {@code schemaType} field must be set to the name of a
-     * schema type previously registered via the {@link #setSchema} method.
+     * <p>Each {@link GenericDocument} object must have a {@code schemaType} field set to an
+     * {@link AppSearchSchema} type that has been previously registered by calling the
+     * {@link #setSchema} method.
      *
-     * @param request {@link PutDocumentsRequest} containing documents to be indexed
-     * @return The pending result of performing this operation. The keys of the returned
-     * {@link AppSearchBatchResult} are the URIs of the input documents. The values are
-     * {@code null} if they were successfully indexed, or a failed {@link AppSearchResult}
-     * otherwise.
+     * @param request containing documents to be indexed.
+     * @return a {@link ListenableFuture} which resolves to an {@link AppSearchBatchResult}.
+     * The keys of the returned {@link AppSearchBatchResult} are the URIs of the input documents.
+     * The values are either {@code null} if the corresponding document was successfully indexed,
+     * or a failed {@link AppSearchResult} otherwise.
      */
     @NonNull
     ListenableFuture<AppSearchBatchResult<String, Void>> put(@NonNull PutDocumentsRequest request);
