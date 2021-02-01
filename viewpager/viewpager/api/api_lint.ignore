@@ -5,6 +5,10 @@ ConcreteCollection: androidx.viewpager.widget.ViewPager#addTouchables(java.util.
     Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
 
 
+GetterSetterNames: androidx.viewpager.widget.PagerTabStrip#getDrawFullUnderline():
+    Symmetric method for `setDrawFullUnderline` must be named `isDrawFullUnderline`; was `getDrawFullUnderline`
+
+
 ListenerInterface: androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener:
     Listeners should be an interface, or otherwise renamed Callback: SimpleOnPageChangeListener
 

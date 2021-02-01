@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+GetterSetterNames: androidx.cardview.widget.CardView#getPreventCornerOverlap():
+    Symmetric method for `setPreventCornerOverlap` must be named `isPreventCornerOverlap`; was `getPreventCornerOverlap`
+GetterSetterNames: androidx.cardview.widget.CardView#getUseCompatPadding():
+    Symmetric method for `setUseCompatPadding` must be named `isUseCompatPadding`; was `getUseCompatPadding`

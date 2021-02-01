@@ -59,6 +59,14 @@ GetterOnBuilder: androidx.navigation.PopUpToBuilder#getInclusive():
     Getter should be on the built object, not the builder: method androidx.navigation.PopUpToBuilder.getInclusive()
 
 
+GetterSetterNames: androidx.navigation.NavArgumentBuilder#getNullable():
+    Symmetric method for `setNullable` must be named `isNullable`; was `getNullable`
+GetterSetterNames: androidx.navigation.NavOptionsBuilder#getLaunchSingleTop():
+    Symmetric method for `setLaunchSingleTop` must be named `isLaunchSingleTop`; was `getLaunchSingleTop`
+GetterSetterNames: androidx.navigation.PopUpToBuilder#getInclusive():
+    Symmetric method for `setInclusive` must be named `isInclusive`; was `getInclusive`
+
+
 MissingBuildMethod: androidx.navigation.AnimBuilder:
     androidx.navigation.AnimBuilder does not declare a `build()` method, but builder classes are expected to
 MissingBuildMethod: androidx.navigation.NavActionBuilder:
