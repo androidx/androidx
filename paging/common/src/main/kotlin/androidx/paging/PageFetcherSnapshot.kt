@@ -351,15 +351,31 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         stateHolder.withLock { state ->
             when (loadType) {
                 PREPEND -> {
-                    val firstPageIndex =
+                    var firstPageIndex =
                         state.initialPageIndex + generationalHint.hint.originalPageOffsetFirst - 1
+
+                    // If the pages before the first page in presenter have been dropped in
+                    // fetcher, then we cannot count them towards loadedItems.
+                    if (firstPageIndex > state.pages.lastIndex) {
+                        itemsLoaded += config.pageSize * (firstPageIndex - state.pages.lastIndex)
+                        firstPageIndex = state.pages.lastIndex
+                    }
+
                     for (pageIndex in 0..firstPageIndex) {
                         itemsLoaded += state.pages[pageIndex].data.size
                     }
                 }
                 APPEND -> {
-                    val lastPageIndex =
+                    var lastPageIndex =
                         state.initialPageIndex + generationalHint.hint.originalPageOffsetLast + 1
+
+                    // If the pages after the last page in presenter have been dropped in
+                    // fetcher, then we cannot count them towards loadedItems.
+                    if (lastPageIndex < 0) {
+                        itemsLoaded += config.pageSize * -lastPageIndex
+                        lastPageIndex = 0
+                    }
+
                     for (pageIndex in lastPageIndex..state.pages.lastIndex) {
                         itemsLoaded += state.pages[pageIndex].data.size
                     }
