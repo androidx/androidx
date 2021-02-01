@@ -23,6 +23,8 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Icon
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.Parcel
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationProviderInfo
@@ -53,7 +55,10 @@ import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -81,43 +86,48 @@ public class OnWatchFaceEditingTestActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        editorSession = EditorSession.createOnWatchEditingSessionImpl(
-            this,
-            intent!!,
-            object : ProviderInfoRetrieverProvider {
-                override fun getProviderInfoRetriever() = ProviderInfoRetriever(
-                    FakeProviderInfoServiceV1(
-                        ComponentName("test.package", "test.class"),
-                        mapOf(
-                            LEFT_COMPLICATION_ID to ComplicationProviderInfo(
-                                "ProviderApp1",
-                                "Provider1",
-                                providerIcon1,
-                                ComplicationType.SHORT_TEXT.asWireComplicationType(),
-                                provider1
+        val deferredEditorSession =
+            EditorSession.createOnWatchEditingSessionAsyncImpl(
+                this@OnWatchFaceEditingTestActivity,
+                intent!!,
+                object : ProviderInfoRetrieverProvider {
+                    override fun getProviderInfoRetriever() = ProviderInfoRetriever(
+                        FakeProviderInfoServiceV1(
+                            ComponentName("test.package", "test.class"),
+                            mapOf(
+                                LEFT_COMPLICATION_ID to ComplicationProviderInfo(
+                                    "ProviderApp1",
+                                    "Provider1",
+                                    providerIcon1,
+                                    ComplicationType.SHORT_TEXT.asWireComplicationType(),
+                                    provider1
+                                ),
+                                RIGHT_COMPLICATION_ID to ComplicationProviderInfo(
+                                    "ProviderApp2",
+                                    "Provider2",
+                                    providerIcon2,
+                                    ComplicationType.LONG_TEXT.asWireComplicationType(),
+                                    provider2
+                                )
                             ),
-                            RIGHT_COMPLICATION_ID to ComplicationProviderInfo(
-                                "ProviderApp2",
-                                "Provider2",
-                                providerIcon2,
-                                ComplicationType.LONG_TEXT.asWireComplicationType(),
-                                provider2
+                            mapOf(
+                                provider1 to
+                                    ShortTextComplicationData.Builder(
+                                        ComplicationText.plain("Left")
+                                    ).build().asWireComplicationData(),
+                                provider2 to
+                                    LongTextComplicationData.Builder(
+                                        ComplicationText.plain("Right")
+                                    ).build().asWireComplicationData(),
                             )
-                        ),
-                        mapOf(
-                            provider1 to
-                                ShortTextComplicationData.Builder(ComplicationText.plain("Left"))
-                                    .build()
-                                    .asWireComplicationData(),
-                            provider2 to
-                                LongTextComplicationData.Builder(ComplicationText.plain("Right"))
-                                    .build()
-                                    .asWireComplicationData(),
                         )
                     )
-                )
-            }
-        )!!
+                }
+            )
+
+        CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher()).launch {
+            editorSession = deferredEditorSession.await()!!
+        }
     }
 }
 

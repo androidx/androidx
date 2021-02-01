@@ -81,45 +81,53 @@ class WatchFaceConfigActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val editorSession = EditorSession.createOnWatchEditingSession(
-            this,
+        handler = Handler(Looper.getMainLooper())
+        coroutineScope = CoroutineScope(handler.asCoroutineDispatcher())
+        val deferredEditorSession = EditorSession.createOnWatchEditingSessionAsync(
+            this@WatchFaceConfigActivity,
             intent!!
-        )!!
-        init(
-            editorSession,
-            object : FragmentController {
-                @SuppressLint("SyntheticAccessor")
-                override fun showConfigFragment() {
-                    showFragment(ConfigFragment())
-                }
-
-                @SuppressLint("SyntheticAccessor")
-                override fun showComplicationConfigSelectionFragment() {
-                    showFragment(ComplicationConfigFragment())
-                }
-
-                @SuppressLint("SyntheticAccessor")
-                override fun showStyleConfigFragment(
-                    settingId: String,
-                    styleSchema: UserStyleSchema,
-                    userStyle: UserStyle
-                ) {
-                    showFragment(
-                        StyleConfigFragment.newInstance(settingId, styleSchema, userStyle)
-                    )
-                }
-
-                /**
-                 * Displays a config screen which allows the user to select the data source for the
-                 * complication.
-                 */
-                @SuppressWarnings("deprecation")
-                override suspend fun showComplicationConfig(
-                    complicationId: Int
-                ) = editorSession.launchComplicationProviderChooser(complicationId)
-            },
-            Handler(Looper.getMainLooper())
         )
+        coroutineScope.launch {
+            init(
+                deferredEditorSession.await()!!,
+                object : FragmentController {
+                    @SuppressLint("SyntheticAccessor")
+                    override fun showConfigFragment() {
+                        showFragment(ConfigFragment())
+                    }
+
+                    @SuppressLint("SyntheticAccessor")
+                    override fun showComplicationConfigSelectionFragment() {
+                        showFragment(ComplicationConfigFragment())
+                    }
+
+                    @SuppressLint("SyntheticAccessor")
+                    override fun showStyleConfigFragment(
+                        settingId: String,
+                        styleSchema: UserStyleSchema,
+                        userStyle: UserStyle
+                    ) {
+                        showFragment(
+                            StyleConfigFragment.newInstance(settingId, styleSchema, userStyle)
+                        )
+                    }
+
+                    /**
+                     * Displays a config screen which allows the user to select the data source for the
+                     * complication.
+                     */
+                    @SuppressWarnings("deprecation")
+                    override suspend fun showComplicationConfig(
+                        complicationId: Int
+                    ) = editorSession.launchComplicationProviderChooser(complicationId)
+                }
+            )
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        editorSession.onDestroy()
     }
 
     private fun focusCurrentFragment() {
@@ -150,13 +158,10 @@ class WatchFaceConfigActivity : FragmentActivity() {
     @VisibleForTesting
     internal fun init(
         editorSession: EditorSession,
-        fragmentController: FragmentController,
-        handler: Handler
+        fragmentController: FragmentController
     ) {
         this.editorSession = editorSession
         this.fragmentController = fragmentController
-        this.handler = handler
-        coroutineScope = CoroutineScope(handler.asCoroutineDispatcher())
 
         supportFragmentManager
             .addOnBackStackChangedListener {

@@ -49,6 +49,7 @@ import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -123,18 +124,25 @@ public interface EditorSession {
     @UiThread
     public suspend fun launchComplicationProviderChooser(complicationId: Int): Boolean
 
+    /** Should be called when the activity is going away so we can release resources. */
+    public fun onDestroy()
+
     public companion object {
-        /** Constructs an [EditorSession] for an on watch face editor. */
+        /**
+         * Constructs an [EditorSession] for an on watch face editor. This registers an activity
+         * result handler and so it must be called during an Activity or Fragment initialization
+         * path.
+         */
         @SuppressWarnings("ExecutorRegistration")
         @JvmStatic
         @UiThread
-        public fun createOnWatchEditingSession(
+        public fun createOnWatchEditingSessionAsync(
             /** The [ComponentActivity] associated with the EditorSession. */
             activity: ComponentActivity,
 
             /** [Intent] sent by SysUI to launch the editing session. */
             editIntent: Intent
-        ): EditorSession? = createOnWatchEditingSessionImpl(
+        ): Deferred<EditorSession?> = createOnWatchEditingSessionAsyncImpl(
             activity,
             editIntent,
             object : ProviderInfoRetrieverProvider {
@@ -142,23 +150,39 @@ public interface EditorSession {
             }
         )
 
-        internal fun createOnWatchEditingSessionImpl(
+        // Used by tests.
+        internal fun createOnWatchEditingSessionAsyncImpl(
             activity: ComponentActivity,
             editIntent: Intent,
             providerInfoRetrieverProvider: ProviderInfoRetrieverProvider
-        ): EditorSession? =
-            EditorRequest.createFromIntent(editIntent)?.let { editorRequest ->
-                WatchFace.getEditorDelegate(editorRequest.watchFaceComponentName)?.let {
-                    OnWatchFaceEditorSessionImpl(
-                        activity,
-                        editorRequest.watchFaceComponentName,
-                        editorRequest.watchFaceInstanceId,
-                        editorRequest.initialUserStyle,
-                        it,
-                        providerInfoRetrieverProvider
+        ): Deferred<EditorSession?> {
+            val coroutineScope =
+                CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher())
+            return EditorRequest.createFromIntent(editIntent)?.let { editorRequest ->
+                // We need to respect the lifecycle and register the ActivityResultListener now.
+                val session = OnWatchFaceEditorSessionImpl(
+                    activity,
+                    editorRequest.watchFaceComponentName,
+                    editorRequest.watchFaceInstanceId,
+                    editorRequest.initialUserStyle,
+                    providerInfoRetrieverProvider,
+                    coroutineScope
+                )
+
+                // But full initialization has to be deferred because
+                // [WatchFace.getOrCreateEditorDelegate] is async.
+                coroutineScope.async {
+                    session.setEditorDelegate(
+                        WatchFace.getOrCreateEditorDelegate(
+                            editorRequest.watchFaceComponentName
+                        ).await()!!
                     )
+
+                    // Resolve the Deferred<EditorSession?> only after init has been completed.
+                    session
                 }
-            }
+            } ?: CompletableDeferred(null)
+        }
 
         /** Constructs an [EditorSession] for a remote watch face editor. */
         @JvmStatic
@@ -182,7 +206,8 @@ public interface EditorSession {
                     it.initialUserStyle!!,
                     object : ProviderInfoRetrieverProvider {
                         override fun getProviderInfoRetriever() = ProviderInfoRetriever(activity)
-                    }
+                    },
+                    CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher())
                 )
             }
     }
@@ -196,12 +221,10 @@ internal interface ProviderInfoRetrieverProvider {
 internal abstract class BaseEditorSession(
     protected val activity: ComponentActivity,
     protected val providerInfoRetrieverProvider: ProviderInfoRetrieverProvider,
-    mainThreadHandler: Handler = Handler(Looper.getMainLooper())
+    internal val coroutineScope: CoroutineScope
 ) : EditorSession {
-    internal val coroutineScope = CoroutineScope(mainThreadHandler.asCoroutineDispatcher())
-
-    // This future is resolved when [fetchComplicationPreviewData] has called [getPreviewData] for
-    // each complication and each of those future has been resolved.
+    // This is completed when [fetchComplicationPreviewData] has called [getPreviewData] for
+    // each complication and each of those have been completed.
     private val deferredComplicationPreviewDataMap =
         CompletableDeferred<MutableMap<Int, ComplicationData>>()
 
@@ -219,7 +242,7 @@ internal abstract class BaseEditorSession(
         activity.registerForActivityResult(ComplicationProviderChooserContract()) {
             if (it != null) {
                 coroutineScope.launch {
-                    // Update preview data and then resolve [pendingFuture].
+                    // Update preview data.
                     val providerInfoRetriever =
                         providerInfoRetrieverProvider.getProviderInfoRetriever()
                     val previewData = getPreviewData(providerInfoRetriever, it.providerInfo)
@@ -265,9 +288,9 @@ internal abstract class BaseEditorSession(
         }?.key
 
     /**
-     * Returns a future that resolves with the provider's preview [ComplicationData] if possible or
-     * fallback preview data based on provider icon and name if not. If the slot is configured to be
-     * empty then the future will resolve to `null`.
+     * Returns the provider's preview [ComplicationData] if possible or fallback preview data based
+     * on provider icon and name if not. If the slot is configured to be empty then it will return
+     * `null`.
      *
      * Note providerInfoRetriever.requestPreviewComplicationData which requires R will never be
      * called pre R because providerInfo.providerComponentName is only non null from R onwards.
@@ -318,6 +341,7 @@ internal abstract class BaseEditorSession(
                     { it.watchFaceComplicationId },
                     { async { getPreviewData(providerInfoRetriever, it.info) } }
                     // Coerce to a Map<Int, ComplicationData> omitting null values.
+                    // If mapNotNullValues existed we would use it here.
                 )?.filterValues {
                     it.await() != null
                 }?.mapValues {
@@ -333,13 +357,17 @@ internal class OnWatchFaceEditorSessionImpl(
     activity: ComponentActivity,
     override val watchFaceComponentName: ComponentName,
     override val instanceId: String?,
-    initialEditorUserStyle: Map<String, String>?,
-    private val editorDelegate: WatchFace.EditorDelegate,
-    providerInfoRetrieverProvider: ProviderInfoRetrieverProvider
-) : BaseEditorSession(activity, providerInfoRetrieverProvider) {
-    override val userStyleSchema = editorDelegate.userStyleRepository.schema
+    private val initialEditorUserStyle: Map<String, String>?,
+    providerInfoRetrieverProvider: ProviderInfoRetrieverProvider,
+    coroutineScope: CoroutineScope
+) : BaseEditorSession(activity, providerInfoRetrieverProvider, coroutineScope) {
+    private lateinit var editorDelegate: WatchFace.EditorDelegate
 
-    override val previewReferenceTimeMillis = editorDelegate.previewReferenceTimeMillis
+    override val userStyleSchema by lazy {
+        editorDelegate.userStyleRepository.schema
+    }
+
+    override val previewReferenceTimeMillis by lazy { editorDelegate.previewReferenceTimeMillis }
 
     override val complicationState
         get() = editorDelegate.complicationsManager.complications.mapValues {
@@ -355,11 +383,19 @@ internal class OnWatchFaceEditorSessionImpl(
             )
         }
 
+    private var _userStyle: UserStyle? = null
+
     // We make a deep copy of the style because assigning to it can otherwise have unexpected
     // side effects (it would apply to the active watch face).
-    override var userStyle = UserStyle(editorDelegate.userStyleRepository.userStyle)
+    override var userStyle: UserStyle
+        get() {
+            if (_userStyle == null) {
+                _userStyle = UserStyle(editorDelegate.userStyleRepository.userStyle)
+            }
+            return _userStyle!!
+        }
         set(value) {
-            field = value
+            _userStyle = value
             editorDelegate.userStyleRepository.userStyle = UserStyle(value)
         }
 
@@ -373,7 +409,13 @@ internal class OnWatchFaceEditorSessionImpl(
         idToComplicationData
     )
 
-    init {
+    override fun onDestroy() {
+        editorDelegate.onDestroy()
+    }
+
+    fun setEditorDelegate(editorDelegate: WatchFace.EditorDelegate) {
+        this.editorDelegate = editorDelegate
+
         // Apply any initial style from the intent.  Note we don't restore the previous style at
         // the end since we assume we're editing the current active watchface.
         if (initialEditorUserStyle != null) {
@@ -392,8 +434,9 @@ internal class HeadlessEditorSession(
     override val watchFaceComponentName: ComponentName,
     override val instanceId: String?,
     initialUserStyle: Map<String, String>,
-    providerInfoRetrieverProvider: ProviderInfoRetrieverProvider
-) : BaseEditorSession(activity, providerInfoRetrieverProvider) {
+    providerInfoRetrieverProvider: ProviderInfoRetrieverProvider,
+    coroutineScope: CoroutineScope
+) : BaseEditorSession(activity, providerInfoRetrieverProvider, coroutineScope) {
     override val userStyleSchema = headlessWatchFaceClient.userStyleSchema
 
     override var userStyle = UserStyle(initialUserStyle, userStyleSchema)
@@ -413,6 +456,10 @@ internal class HeadlessEditorSession(
         userStyle,
         idToComplicationData
     )
+
+    override fun onDestroy() {
+        headlessWatchFaceClient.close()
+    }
 
     init {
         fetchComplicationPreviewData()
