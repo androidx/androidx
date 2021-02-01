@@ -121,6 +121,24 @@ ConcreteCollection: androidx.recyclerview.widget.RecyclerView.LayoutManager#onAd
     Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
 
 
+GetterSetterNames: androidx.recyclerview.widget.LinearLayoutManager#getRecycleChildrenOnDetach():
+    Symmetric method for `setRecycleChildrenOnDetach` must be named `isRecycleChildrenOnDetach`; was `getRecycleChildrenOnDetach`
+GetterSetterNames: androidx.recyclerview.widget.LinearLayoutManager#getReverseLayout():
+    Symmetric method for `setReverseLayout` must be named `isReverseLayout`; was `getReverseLayout`
+GetterSetterNames: androidx.recyclerview.widget.LinearLayoutManager#getStackFromEnd():
+    Symmetric method for `setStackFromEnd` must be named `isStackFromEnd`; was `getStackFromEnd`
+GetterSetterNames: androidx.recyclerview.widget.RecyclerView#getClipToPadding():
+    Symmetric method for `setClipToPadding` must be named `isClipToPadding`; was `getClipToPadding`
+GetterSetterNames: androidx.recyclerview.widget.RecyclerView#getPreserveFocusAfterLayout():
+    Symmetric method for `setPreserveFocusAfterLayout` must be named `isPreserveFocusAfterLayout`; was `getPreserveFocusAfterLayout`
+GetterSetterNames: androidx.recyclerview.widget.RecyclerView.ViewHolder#setIsRecyclable(boolean):
+    Symmetric method for `isRecyclable` must be named `setRecyclable`; was `setIsRecyclable`
+GetterSetterNames: androidx.recyclerview.widget.SimpleItemAnimator#getSupportsChangeAnimations():
+    Symmetric method for `setSupportsChangeAnimations` must be named `isSupportsChangeAnimations`; was `getSupportsChangeAnimations`
+GetterSetterNames: androidx.recyclerview.widget.StaggeredGridLayoutManager#getReverseLayout():
+    Symmetric method for `setReverseLayout` must be named `isReverseLayout`; was `getReverseLayout`
+
+
 InternalField: androidx.recyclerview.widget.LinearLayoutManager.LayoutChunkResult#mConsumed:
     Internal field mConsumed must not be exposed
 InternalField: androidx.recyclerview.widget.LinearLayoutManager.LayoutChunkResult#mFinished:

@@ -15,6 +15,14 @@ ForbiddenSuperClass: androidx.fragment.app.FragmentActivity:
     FragmentActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
 
 
+GetterSetterNames: androidx.fragment.app.DialogFragment#getShowsDialog():
+    Symmetric method for `setShowsDialog` must be named `isShowsDialog`; was `getShowsDialog`
+GetterSetterNames: androidx.fragment.app.Fragment#getAllowEnterTransitionOverlap():
+    Symmetric method for `setAllowEnterTransitionOverlap` must be named `isAllowEnterTransitionOverlap`; was `getAllowEnterTransitionOverlap`
+GetterSetterNames: androidx.fragment.app.Fragment#getAllowReturnTransitionOverlap():
+    Symmetric method for `setAllowReturnTransitionOverlap` must be named `isAllowReturnTransitionOverlap`; was `getAllowReturnTransitionOverlap`
+
+
 MissingNullability: androidx.fragment.app.Fragment#startActivity(android.content.Intent) parameter #0:
     Missing nullability on parameter `intent` in method `startActivity`
 MissingNullability: androidx.fragment.app.Fragment#startActivity(android.content.Intent, android.os.Bundle) parameter #0:

@@ -38,7 +38,7 @@ MissingGetterMatchingBuilder: androidx.media2.session.MediaSession.Builder#setSe
 MissingGetterMatchingBuilder: androidx.media2.session.MediaSession.Builder#setSessionCallback(java.util.concurrent.Executor, androidx.media2.session.MediaSession.SessionCallback):
     androidx.media2.session.MediaSession does not declare a `getSessionCallback()` method matching method androidx.media2.session.MediaSession.Builder.setSessionCallback(java.util.concurrent.Executor,androidx.media2.session.MediaSession.SessionCallback)
 MissingGetterMatchingBuilder: androidx.media2.session.SessionCommandGroup.Builder#addAllPredefinedCommands(int):
-    androidx.media2.session.SessionCommandGroup does not declare a `getAllPredefinedCommandss()` method matching method androidx.media2.session.SessionCommandGroup.Builder.addAllPredefinedCommands(int)
+    androidx.media2.session.SessionCommandGroup does not declare a getter method matching method androidx.media2.session.SessionCommandGroup.Builder.addAllPredefinedCommands(int) (expected one of: [getAllPredefinedCommands(), getAllPredefinedCommandses()])
 
 
 MissingNullability: androidx.media2.session.MediaLibraryService#onBind(android.content.Intent):
