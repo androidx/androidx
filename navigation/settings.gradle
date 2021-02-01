@@ -23,6 +23,7 @@ selectProjectsFromAndroidX({ name ->
     if (name.startsWith(":navigation")) return true
     if (name == ":annotation:annotation-sampled") return true
     if (name == ":compose:integration-tests:demos:common") return true
+    if (name == ":lifecycle:lifecycle-viewmodel-savedstate") return true
     if (name.startsWith(":internal-testutils-navigation")) return true
     if (name.startsWith(":internal-testutils-runtime")) return true
     if (name.startsWith(":internal-testutils-truth")) return true
