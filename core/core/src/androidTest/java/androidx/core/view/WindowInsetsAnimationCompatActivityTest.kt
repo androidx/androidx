@@ -18,6 +18,8 @@ package androidx.core.view
 
 import android.os.Build
 import android.view.View
+import android.view.ViewGroup
+import android.view.WindowInsets
 import androidx.annotation.RequiresApi
 import androidx.core.test.R
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
@@ -384,6 +386,26 @@ public class WindowInsetsAnimationCompatActivityTest {
                 "$childListenerCalledCount times",
             1,
             childListenerCalledCount
+        )
+    }
+
+    @Test
+    public fun check_view_on_apply_called() {
+        val container = scenario.withActivity { findViewById(R.id.container) }
+        val onApplyLatch = CountDownLatch(1)
+        val customView = object : View(scenario.withActivity { this }) {
+            override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
+                onApplyLatch.countDown()
+                return insets
+            }
+        }
+        scenario.onActivity { (container as ViewGroup).addView(customView) }
+        val stopCallback = createCallback()
+        ViewCompat.setWindowInsetsAnimationCallback(customView, stopCallback)
+        triggerInsetAnimation(container)
+        assertTrue(
+            "The View.onApplyWindowInsets has not been called",
+            onApplyLatch.await(2, TimeUnit.SECONDS)
         )
     }
 

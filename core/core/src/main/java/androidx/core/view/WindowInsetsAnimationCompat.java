@@ -700,7 +700,7 @@ public final class WindowInsetsAnimationCompat {
                 // We cannot rely on the compat insets value until the view is laid out.
                 if (!v.isLaidOut()) {
                     mLastInsets = toWindowInsetsCompat(insets);
-                    return insets;
+                    return forwardToViewIfNeeded(v, insets);
                 }
 
                 final WindowInsetsCompat targetInsets = toWindowInsetsCompat(insets);
@@ -712,7 +712,7 @@ public final class WindowInsetsAnimationCompat {
                 // We only run the animation when the some insets are animating
                 final int animationMask = buildAnimationMask(targetInsets, mLastInsets);
                 if (animationMask == 0) {
-                    return insets;
+                    return forwardToViewIfNeeded(v, insets);
                 }
 
                 final WindowInsetsCompat startingInsets = this.mLastInsets;
@@ -769,14 +769,25 @@ public final class WindowInsetsAnimationCompat {
                         });
                 this.mLastInsets = targetInsets;
 
-                // If the app set an on apply window listener, it will be called after this
-                // and will decide whether to call the view's onApplyWindowInsets.
-                if (v.getTag(R.id.tag_on_apply_window_listener) == null) {
-                    return insets;
-                }
-
-                return v.onApplyWindowInsets(insets);
+                return forwardToViewIfNeeded(v, insets);
             }
+        }
+
+        /**
+         * Forward the call to view.onApplyWindowInsets if there is no other listener attached to
+         * the view.
+         */
+        @NonNull
+        static WindowInsets forwardToViewIfNeeded(@NonNull View v, @NonNull WindowInsets insets) {
+            // If the app set an on apply window listener, it will be called after this
+            // and will decide whether to call the view's onApplyWindowInsets.
+            if (v.getTag(R.id.tag_on_apply_window_listener) != null) {
+                return insets;
+            }
+
+            // Otherwise, there is no listener set and we need to replicate the normal flow,
+            // which is to call the view's method.
+            return v.onApplyWindowInsets(insets);
         }
     }
 
