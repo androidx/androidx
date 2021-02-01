@@ -300,14 +300,14 @@ package androidx.wear.complications.data {
 
   public final class MonochromaticImageComplicationData extends androidx.wear.complications.data.ComplicationData {
     method public androidx.wear.complications.data.ComplicationText? getContentDescription();
-    method public androidx.wear.complications.data.MonochromaticImage getImage();
+    method public androidx.wear.complications.data.MonochromaticImage getMonochromaticImage();
     property public final androidx.wear.complications.data.ComplicationText? contentDescription;
-    property public final androidx.wear.complications.data.MonochromaticImage image;
+    property public final androidx.wear.complications.data.MonochromaticImage monochromaticImage;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
   public static final class MonochromaticImageComplicationData.Builder {
-    ctor public MonochromaticImageComplicationData.Builder(androidx.wear.complications.data.MonochromaticImage image);
+    ctor public MonochromaticImageComplicationData.Builder(androidx.wear.complications.data.MonochromaticImage monochromaticImage);
     method public androidx.wear.complications.data.MonochromaticImageComplicationData build();
     method public androidx.wear.complications.data.MonochromaticImageComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.MonochromaticImageComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
@@ -320,10 +320,10 @@ package androidx.wear.complications.data {
   }
 
   public final class NoPermissionComplicationData extends androidx.wear.complications.data.ComplicationData {
-    method public androidx.wear.complications.data.MonochromaticImage? getImage();
+    method public androidx.wear.complications.data.MonochromaticImage? getMonochromaticImage();
     method public androidx.wear.complications.data.ComplicationText? getText();
     method public androidx.wear.complications.data.ComplicationText? getTitle();
-    property public final androidx.wear.complications.data.MonochromaticImage? image;
+    property public final androidx.wear.complications.data.MonochromaticImage? monochromaticImage;
     property public final androidx.wear.complications.data.ComplicationText? text;
     property public final androidx.wear.complications.data.ComplicationText? title;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
@@ -332,7 +332,7 @@ package androidx.wear.complications.data {
   public static final class NoPermissionComplicationData.Builder {
     ctor public NoPermissionComplicationData.Builder();
     method public androidx.wear.complications.data.NoPermissionComplicationData build();
-    method public androidx.wear.complications.data.NoPermissionComplicationData.Builder setImage(androidx.wear.complications.data.MonochromaticImage? image);
+    method public androidx.wear.complications.data.NoPermissionComplicationData.Builder setMonochromaticImage(androidx.wear.complications.data.MonochromaticImage? monochromaticImage);
     method public androidx.wear.complications.data.NoPermissionComplicationData.Builder setText(androidx.wear.complications.data.ComplicationText? text);
     method public androidx.wear.complications.data.NoPermissionComplicationData.Builder setTitle(androidx.wear.complications.data.ComplicationText? title);
   }
@@ -354,9 +354,9 @@ package androidx.wear.complications.data {
 
   public final class PhotoImageComplicationData extends androidx.wear.complications.data.ComplicationData {
     method public androidx.wear.complications.data.ComplicationText? getContentDescription();
-    method public androidx.wear.complications.data.PhotoImage getImage();
+    method public androidx.wear.complications.data.PhotoImage getPhotoImage();
     property public final androidx.wear.complications.data.ComplicationText? contentDescription;
-    property public final androidx.wear.complications.data.PhotoImage image;
+    property public final androidx.wear.complications.data.PhotoImage photoImage;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
@@ -370,16 +370,16 @@ package androidx.wear.complications.data {
 
   public final class RangedValueComplicationData extends androidx.wear.complications.data.ComplicationData {
     method public androidx.wear.complications.data.ComplicationText? getContentDescription();
-    method public androidx.wear.complications.data.MonochromaticImage? getImage();
     method public float getMax();
     method public float getMin();
+    method public androidx.wear.complications.data.MonochromaticImage? getMonochromaticImage();
     method public androidx.wear.complications.data.ComplicationText? getText();
     method public androidx.wear.complications.data.ComplicationText? getTitle();
     method public float getValue();
     property public final androidx.wear.complications.data.ComplicationText? contentDescription;
-    property public final androidx.wear.complications.data.MonochromaticImage? image;
     property public final float max;
     property public final float min;
+    property public final androidx.wear.complications.data.MonochromaticImage? monochromaticImage;
     property public final androidx.wear.complications.data.ComplicationText? text;
     property public final androidx.wear.complications.data.ComplicationText? title;
     property public final float value;
@@ -390,7 +390,7 @@ package androidx.wear.complications.data {
     ctor public RangedValueComplicationData.Builder(float value, float min, float max);
     method public androidx.wear.complications.data.RangedValueComplicationData build();
     method public androidx.wear.complications.data.RangedValueComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
-    method public androidx.wear.complications.data.RangedValueComplicationData.Builder setImage(androidx.wear.complications.data.MonochromaticImage? image);
+    method public androidx.wear.complications.data.RangedValueComplicationData.Builder setMonochromaticImage(androidx.wear.complications.data.MonochromaticImage? monochromaticImage);
     method public androidx.wear.complications.data.RangedValueComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.RangedValueComplicationData.Builder setText(androidx.wear.complications.data.ComplicationText? text);
     method public androidx.wear.complications.data.RangedValueComplicationData.Builder setTitle(androidx.wear.complications.data.ComplicationText? title);
@@ -399,11 +399,11 @@ package androidx.wear.complications.data {
 
   public final class ShortTextComplicationData extends androidx.wear.complications.data.ComplicationData {
     method public androidx.wear.complications.data.ComplicationText? getContentDescription();
-    method public androidx.wear.complications.data.MonochromaticImage? getImage();
+    method public androidx.wear.complications.data.MonochromaticImage? getMonochromaticImage();
     method public androidx.wear.complications.data.ComplicationText getText();
     method public androidx.wear.complications.data.ComplicationText? getTitle();
     property public final androidx.wear.complications.data.ComplicationText? contentDescription;
-    property public final androidx.wear.complications.data.MonochromaticImage? image;
+    property public final androidx.wear.complications.data.MonochromaticImage? monochromaticImage;
     property public final androidx.wear.complications.data.ComplicationText text;
     property public final androidx.wear.complications.data.ComplicationText? title;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
@@ -413,7 +413,7 @@ package androidx.wear.complications.data {
     ctor public ShortTextComplicationData.Builder(androidx.wear.complications.data.ComplicationText text);
     method public androidx.wear.complications.data.ShortTextComplicationData build();
     method public androidx.wear.complications.data.ShortTextComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
-    method public androidx.wear.complications.data.ShortTextComplicationData.Builder setImage(androidx.wear.complications.data.MonochromaticImage? image);
+    method public androidx.wear.complications.data.ShortTextComplicationData.Builder setMonochromaticImage(androidx.wear.complications.data.MonochromaticImage? monochromaticImage);
     method public androidx.wear.complications.data.ShortTextComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.ShortTextComplicationData.Builder setTitle(androidx.wear.complications.data.ComplicationText? title);
     method public androidx.wear.complications.data.ShortTextComplicationData.Builder setValidTimeRange(androidx.wear.complications.data.TimeRange? validTimeRange);
@@ -436,14 +436,14 @@ package androidx.wear.complications.data {
 
   public final class SmallImageComplicationData extends androidx.wear.complications.data.ComplicationData {
     method public androidx.wear.complications.data.ComplicationText? getContentDescription();
-    method public androidx.wear.complications.data.SmallImage getImage();
+    method public androidx.wear.complications.data.SmallImage getSmallImage();
     property public final androidx.wear.complications.data.ComplicationText? contentDescription;
-    property public final androidx.wear.complications.data.SmallImage image;
+    property public final androidx.wear.complications.data.SmallImage smallImage;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
   public static final class SmallImageComplicationData.Builder {
-    ctor public SmallImageComplicationData.Builder(androidx.wear.complications.data.SmallImage image);
+    ctor public SmallImageComplicationData.Builder(androidx.wear.complications.data.SmallImage smallImage);
     method public androidx.wear.complications.data.SmallImageComplicationData build();
     method public androidx.wear.complications.data.SmallImageComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.SmallImageComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
