@@ -228,14 +228,21 @@ public interface AppSearchSession extends Closeable {
     ListenableFuture<Void> reportUsage(@NonNull ReportUsageRequest request);
 
     /**
-     * Removes {@link GenericDocument}s from the index by URI.
+     * Removes {@link GenericDocument} objects by URIs and namespace from the
+     * {@link AppSearchSession} database.
      *
-     * @param request Request containing URIs to be removed.
-     * @return The pending result of performing this operation. The keys of the returned
-     * {@link AppSearchBatchResult} are the input URIs. The values are {@code null} on success,
-     * or a failed {@link AppSearchResult} otherwise. URIs that are not found will return a
-     * failed {@link AppSearchResult} with a result code of
-     * {@link AppSearchResult#RESULT_NOT_FOUND}.
+     * <p>Removed documents will no longer be surfaced by {@link #search} or {@link #getByUri}
+     * calls.
+     * <p><b>NOTE:</b>By default, documents are removed via a soft delete operation. Once the
+     * document crosses the count threshold or byte usage threshold, the documents will be
+     * removed from disk.
+     *
+     * @param request {@link RemoveByUriRequest} with URIs and namespace to remove from the index.
+     * @return a {@link ListenableFuture} which resolves to an {@link AppSearchBatchResult}.
+     * The keys of the {@link AppSearchBatchResult} represent the input URIs from the
+     * {@link RemoveByUriRequest} object. The values are either {@code null} on success,
+     * or a failed {@link AppSearchResult} otherwise. URIs that are not found will return a failed
+     * {@link AppSearchResult} with a result code of {@link AppSearchResult#RESULT_NOT_FOUND}.
      */
     @NonNull
     ListenableFuture<AppSearchBatchResult<String, Void>> remove(
