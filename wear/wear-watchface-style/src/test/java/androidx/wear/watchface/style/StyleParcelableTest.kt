@@ -20,6 +20,7 @@ import android.graphics.drawable.Icon
 import android.os.Parcel
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting
@@ -142,12 +143,17 @@ class StyleParcelableTest {
             true,
             listOf(Layer.BASE_LAYER)
         )
+        val styleSetting4 = CustomValueUserStyleSetting(
+            "default",
+            listOf(Layer.BASE_LAYER)
+        )
 
         val srcSchema = UserStyleSchema(
             listOf(
                 styleSetting1,
                 styleSetting2,
-                styleSetting3
+                styleSetting3,
+                styleSetting4
             )
         )
 
@@ -203,6 +209,11 @@ class StyleParcelableTest {
         assertThat(schema.userStyleSettings[2].icon).isEqualTo(null)
         assertThat(schema.userStyleSettings[2].affectsLayers.size).isEqualTo(1)
         assertThat(schema.userStyleSettings[2].affectsLayers.first()).isEqualTo(Layer.BASE_LAYER)
+
+        assert(schema.userStyleSettings[3] is CustomValueUserStyleSetting)
+        assertThat(schema.userStyleSettings[3].getDefaultOption().id).isEqualTo("default")
+        assertThat(schema.userStyleSettings[3].affectsLayers.size).isEqualTo(1)
+        assertThat(schema.userStyleSettings[3].affectsLayers.first()).isEqualTo(Layer.BASE_LAYER)
     }
 
     @Test

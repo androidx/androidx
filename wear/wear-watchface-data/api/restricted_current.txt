@@ -297,6 +297,14 @@ package androidx.wear.watchface.style.data {
     field @androidx.versionedparcelable.ParcelField(3) public android.graphics.drawable.Icon? mIcon;
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class CustomValueUserStyleSettingWireFormat extends androidx.wear.watchface.style.data.UserStyleSettingWireFormat {
+    ctor public CustomValueUserStyleSettingWireFormat(String, CharSequence, CharSequence, android.graphics.drawable.Icon?, java.util.List<androidx.wear.watchface.style.data.UserStyleSettingWireFormat.OptionWireFormat!>, java.util.List<java.lang.Integer!>);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public static class CustomValueUserStyleSettingWireFormat.CustomValueOptionWireFormat extends androidx.wear.watchface.style.data.UserStyleSettingWireFormat.OptionWireFormat {
+    ctor public CustomValueUserStyleSettingWireFormat.CustomValueOptionWireFormat(String);
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class DoubleRangeUserStyleSettingWireFormat extends androidx.wear.watchface.style.data.UserStyleSettingWireFormat {
     ctor public DoubleRangeUserStyleSettingWireFormat(String, CharSequence, CharSequence, android.graphics.drawable.Icon?, java.util.List<androidx.wear.watchface.style.data.UserStyleSettingWireFormat.OptionWireFormat!>, int, java.util.List<java.lang.Integer!>);
   }
