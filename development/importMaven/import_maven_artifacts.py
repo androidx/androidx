@@ -33,6 +33,11 @@ ALLOW_BINTRAY_HELP = '''
   E.g. https://dl.bintray.com/kotlin/kotlin-dev/ and https://dl.bintray.com/kotlin/kotlinx/
 '''
 
+ALLOW_JETBRAINS_DEV_HELP = '''
+  Whether or not to allow artifacts to be fetched from Jetbrains' dev repository
+  E.g. https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev
+'''
+
 if sys.version_info[0] < 3: raise Exception("Python 2 is not supported by this script. If your system python calls python 2 after python 2 end-of-life on Jan 1 2020, you should probably change it.")
 
 def main():
@@ -48,6 +53,8 @@ def main():
                         required=False, dest='metalava_build_id')
     parser.add_argument('-ab', '--allow-bintray', help=ALLOW_BINTRAY_HELP,
                         required=False, action='store_true')
+    parser.add_argument('-ajd', '--allow-jetbrains-dev', help=ALLOW_JETBRAINS_DEV_HELP,
+                        required=False, action='store_true')
     parse_result = parser.parse_args()
     artifact_name = parse_result.name
     if ("kotlin-native-linux" in artifact_name): artifact_name = fix_kotlin_native(artifact_name)
@@ -60,6 +67,8 @@ def main():
       command = command + ' -PmetalavaBuildId=%s' % (metalava_build_id)
     if (parse_result.allow_bintray):
       command = command + ' -PallowBintray'
+    if (parse_result.allow_jetbrains_dev):
+      command = command + ' -PallowJetbrainsDev'
 
     process = subprocess.Popen(command,
                                shell=True,
