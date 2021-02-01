@@ -29,8 +29,7 @@ internal typealias WireComplicationDataBuilder =
 /** Base type for all different types of [ComplicationData] types. */
 public sealed class ComplicationData constructor(
     public val type: ComplicationType,
-    public val tapAction: PendingIntent?,
-    private val validTimeRange: TimeRange?
+    public val tapAction: PendingIntent?
 ) {
     /**
      * Converts this value to [WireComplicationData] object used for serialization.
@@ -48,8 +47,7 @@ public sealed class ComplicationData constructor(
      *
      * This must be checked for any time for which the complication will be displayed.
      */
-    public fun isActiveAt(dateTimeMillis: Long): Boolean =
-        validTimeRange?.contains(dateTimeMillis) ?: true
+    public abstract fun isActiveAt(dateTimeMillis: Long): Boolean
 }
 
 /** A pair of id and [ComplicationData]. */
@@ -72,7 +70,9 @@ public class IdAndComplicationData(
  * has no data to be displayed. Watch faces may choose whether to render this in some way or
  * leave the slot empty.
  */
-public class NoDataComplicationData : ComplicationData(TYPE, null, TimeRange.ALWAYS) {
+public class NoDataComplicationData : ComplicationData(TYPE, null) {
+    override fun isActiveAt(dateTimeMillis: Long): Boolean = true
+
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
@@ -90,7 +90,9 @@ public class NoDataComplicationData : ComplicationData(TYPE, null, TimeRange.ALW
  * i.e. when the user has chosen "Empty" in the provider chooser. Providers cannot send data of
  * this type.
  */
-public class EmptyComplicationData : ComplicationData(TYPE, null, TimeRange.ALWAYS) {
+public class EmptyComplicationData : ComplicationData(TYPE, null) {
+    override fun isActiveAt(dateTimeMillis: Long): Boolean = true
+
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
@@ -109,8 +111,9 @@ public class EmptyComplicationData : ComplicationData(TYPE, null, TimeRange.ALWA
  * complication, and the watch face has not set a default provider. Providers cannot send data
  * of this type.
  */
-public class NotConfiguredComplicationData :
-    ComplicationData(TYPE, null, TimeRange.ALWAYS) {
+public class NotConfiguredComplicationData : ComplicationData(TYPE, null) {
+    override fun isActiveAt(dateTimeMillis: Long): Boolean = true
+
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
@@ -137,8 +140,12 @@ public class ShortTextComplicationData internal constructor(
     public val monochromaticImage: MonochromaticImage?,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
-    validTimeRange: TimeRange?
-) : ComplicationData(TYPE, tapAction, validTimeRange) {
+    public val validTimeRange: TimeRange?
+) : ComplicationData(TYPE, tapAction) {
+
+    public override fun isActiveAt(dateTimeMillis: Long): Boolean =
+        validTimeRange?.contains(dateTimeMillis) ?: true
+
     /**
      * Builder for [ShortTextComplicationData].
      *
@@ -224,8 +231,12 @@ public class LongTextComplicationData internal constructor(
     public val smallImage: SmallImage?,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
-    validTimeRange: TimeRange?
-) : ComplicationData(TYPE, tapAction, validTimeRange) {
+    public val validTimeRange: TimeRange?
+) : ComplicationData(TYPE, tapAction) {
+
+    public override fun isActiveAt(dateTimeMillis: Long): Boolean =
+        validTimeRange?.contains(dateTimeMillis) ?: true
+
     /**
      * Builder for [LongTextComplicationData].
      *
@@ -321,8 +332,12 @@ public class RangedValueComplicationData internal constructor(
     public val text: ComplicationText?,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
-    validTimeRange: TimeRange?
-) : ComplicationData(TYPE, tapAction, validTimeRange) {
+    public val validTimeRange: TimeRange?
+) : ComplicationData(TYPE, tapAction) {
+
+    public override fun isActiveAt(dateTimeMillis: Long): Boolean =
+        validTimeRange?.contains(dateTimeMillis) ?: true
+
     /**
      * Builder for [RangedValueComplicationData].
      *
@@ -421,8 +436,12 @@ public class MonochromaticImageComplicationData internal constructor(
     public val monochromaticImage: MonochromaticImage,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
-    validTimeRange: TimeRange?
-) : ComplicationData(TYPE, tapAction, validTimeRange) {
+    public val validTimeRange: TimeRange?
+) : ComplicationData(TYPE, tapAction) {
+
+    public override fun isActiveAt(dateTimeMillis: Long): Boolean =
+        validTimeRange?.contains(dateTimeMillis) ?: true
+
     /**
      * Builder for [MonochromaticImageComplicationData].
      *
@@ -488,8 +507,12 @@ public class SmallImageComplicationData internal constructor(
     public val smallImage: SmallImage,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
-    validTimeRange: TimeRange?
-) : ComplicationData(TYPE, tapAction, validTimeRange) {
+    public val validTimeRange: TimeRange?
+) : ComplicationData(TYPE, tapAction) {
+
+    public override fun isActiveAt(dateTimeMillis: Long): Boolean =
+        validTimeRange?.contains(dateTimeMillis) ?: true
+
     /**
      * Builder for [SmallImageComplicationData].
      *
@@ -552,8 +575,12 @@ public class PhotoImageComplicationData internal constructor(
     public val photoImage: PhotoImage,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
-    validTimeRange: TimeRange?
-) : ComplicationData(TYPE, tapAction, validTimeRange) {
+    public val validTimeRange: TimeRange?
+) : ComplicationData(TYPE, tapAction) {
+
+    public override fun isActiveAt(dateTimeMillis: Long): Boolean =
+        validTimeRange?.contains(dateTimeMillis) ?: true
+
     /**
      * Builder for [PhotoImageComplicationData].
      *
@@ -615,7 +642,10 @@ public class NoPermissionComplicationData internal constructor(
     public val text: ComplicationText?,
     public val title: ComplicationText?,
     public val monochromaticImage: MonochromaticImage?,
-) : ComplicationData(TYPE, null, TimeRange.ALWAYS) {
+) : ComplicationData(TYPE, null) {
+
+    override fun isActiveAt(dateTimeMillis: Long): Boolean = true
+
     /**
      * Builder for [NoPermissionComplicationData].
      *
