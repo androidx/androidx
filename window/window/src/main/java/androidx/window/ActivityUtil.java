@@ -21,6 +21,9 @@ import android.os.IBinder;
 
 import androidx.annotation.Nullable;
 
+/**
+ * A class to contain utility methods related to an {@link Activity}.
+ */
 final class ActivityUtil {
 
     private ActivityUtil() {}

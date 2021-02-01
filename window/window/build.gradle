@@ -41,6 +41,15 @@ android {
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }
+    sourceSets {
+        String testUtilDir = 'src/testUtil/java'
+        test {
+            java.srcDir testUtilDir
+        }
+        androidTest {
+            java.srcDir testUtilDir
+        }
+    }
 }
 
 dependencies {
