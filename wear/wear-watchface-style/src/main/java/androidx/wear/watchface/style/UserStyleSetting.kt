@@ -21,8 +21,10 @@ import androidx.annotation.RestrictTo
 import androidx.wear.complications.ComplicationBounds
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
+import androidx.wear.watchface.style.UserStyleSetting.Option.Companion.maxIdLength
 import androidx.wear.watchface.style.data.BooleanUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.ComplicationsUserStyleSettingWireFormat
+import androidx.wear.watchface.style.data.CustomValueUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.DoubleRangeUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.ListUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.LongRangeUserStyleSettingWireFormat
@@ -36,9 +38,16 @@ import java.security.InvalidParameterException
  *
  * A UserStyleSetting represents one of these dimensions. See also [UserStyleSchema] which defines
  * the list of UserStyleSettings provided by the watch face.
+ *
+ * Styling data gets shared with the companion phone to support editors (typically over bluetooth),
+ * as a result the size of serialized UserStyleSettings could become an issue if large.
  */
 public sealed class UserStyleSetting(
-    /** Identifier for the element, must be unique. */
+    /**
+     * Identifier for the element, must be unique. Styling data gets shared with the companion
+     * (typically via bluetooth) so size is a consideration and short ids are encouraged. There is a
+     * maximum length see [maxIdLength].
+     */
     public val id: String,
 
     /** Localized human readable name for the element, used in the userStyle selection UI. */
@@ -67,7 +76,11 @@ public sealed class UserStyleSetting(
      */
     public val affectsLayers: Collection<Layer>
 ) {
-    internal companion object {
+    public companion object {
+        /** Maximum length of the [id] field. */
+        @JvmField
+        public val maxIdLength: Int = 40
+
         internal fun createFromWireFormat(
             wireFormat: UserStyleSettingWireFormat
         ): UserStyleSetting = when (wireFormat) {
@@ -75,6 +88,8 @@ public sealed class UserStyleSetting(
 
             is ComplicationsUserStyleSettingWireFormat ->
                 ComplicationsUserStyleSetting(wireFormat)
+
+            is CustomValueUserStyleSettingWireFormat -> CustomValueUserStyleSetting(wireFormat)
 
             is DoubleRangeUserStyleSettingWireFormat -> DoubleRangeUserStyleSetting(wireFormat)
 
@@ -91,6 +106,10 @@ public sealed class UserStyleSetting(
     init {
         require(defaultOptionIndex >= 0 && defaultOptionIndex < options.size) {
             "defaultOptionIndex must be in the range [0 .. options.size)"
+        }
+
+        require(id.length <= maxIdLength) {
+            "UserStyleSetting id length must not exceed $maxIdLength"
         }
     }
 
@@ -124,15 +143,29 @@ public sealed class UserStyleSetting(
     public fun getDefaultOption(): Option = options[defaultOptionIndex]
 
     /**
-     * Represents a choice within a style setting.
+     * Represents a choice within a style setting which can either be an option from the list or a
+     * an arbitrary value depending on the nature of the style setting.
      *
      * @property id Machine readable identifier for the style setting.
      */
     public abstract class Option(
-        /** Identifier for the option, must be unique within the UserStyleSetting. */
+        /**
+         * Identifier for the option (or the option itself for
+         * [CustomValueUserStyleSetting.CustomValueOption]), must be unique within the
+         * UserStyleSetting. Short ids are encouraged. There is a maximum length see [maxIdLength].
+         */
         public val id: String
     ) {
+        init {
+            require(id.length <= maxIdLength) {
+                "UserStyleSetting.Option id length must not exceed $maxIdLength"
+            }
+        }
+
         public companion object {
+            /** Maximum length of the [id] field. */
+            @JvmField
+            public val maxIdLength: Int = 1024
 
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -145,6 +178,9 @@ public sealed class UserStyleSetting(
 
                     is ComplicationsUserStyleSettingWireFormat.ComplicationsOptionWireFormat ->
                         ComplicationsUserStyleSetting.ComplicationsOption(wireFormat)
+
+                    is CustomValueUserStyleSettingWireFormat.CustomValueOptionWireFormat ->
+                        CustomValueUserStyleSetting.CustomValueOption(wireFormat)
 
                     is DoubleRangeUserStyleSettingWireFormat.DoubleRangeOptionWireFormat ->
                         DoubleRangeUserStyleSetting.DoubleRangeOption(wireFormat)
@@ -176,6 +212,13 @@ public sealed class UserStyleSetting(
 
         public fun toComplicationsOption(): ComplicationsUserStyleSetting.ComplicationsOption? =
             if (this is ComplicationsUserStyleSetting.ComplicationsOption) {
+                this
+            } else {
+                null
+            }
+
+        public fun toCustomValueOption(): CustomValueUserStyleSetting.CustomValueOption? =
+            if (this is CustomValueUserStyleSetting.CustomValueOption) {
                 this
             } else {
                 null
@@ -854,5 +897,70 @@ public sealed class UserStyleSetting(
                 options[defaultOptionIndex] as LongRangeOption
             }
         }
+    }
+
+    /**
+     * An application specific style setting. This style is ignored by the system editor. This is
+     * expected to be used in conjunction with an on watch face editor.
+     */
+    public class CustomValueUserStyleSetting : UserStyleSetting {
+        internal companion object {
+            internal const val CUSTOM_VALUE_USER_STYLE_SETTING_ID = "CustomValue"
+        }
+
+        public constructor (
+            /** The default value. */
+            defaultValue: String,
+
+            /**
+             * Used by the style configuration UI. Describes which rendering layers this style
+             * affects.
+             */
+            affectsLayers: Collection<Layer>
+        ) : super(
+            CUSTOM_VALUE_USER_STYLE_SETTING_ID,
+            "",
+            "",
+            null,
+            listOf(CustomValueOption(defaultValue)),
+            0,
+            affectsLayers
+        )
+
+        internal constructor(wireFormat: CustomValueUserStyleSettingWireFormat) : super(wireFormat)
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        override fun toWireFormat(): CustomValueUserStyleSettingWireFormat =
+            CustomValueUserStyleSettingWireFormat(
+                id,
+                displayName,
+                description,
+                icon,
+                getWireFormatOptionsList(),
+                affectsLayers.map { it.ordinal }
+            )
+
+        /** An application specific custom value.  */
+        public class CustomValueOption : Option {
+            /* The value for this option. */
+            public val customValue: String
+                get() = id
+
+            public constructor(customValue: String) : super(customValue)
+
+            internal constructor(
+                wireFormat: CustomValueUserStyleSettingWireFormat.CustomValueOptionWireFormat
+            ) : super(wireFormat.mId)
+
+            /** @hide */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            override fun toWireFormat():
+                CustomValueUserStyleSettingWireFormat.CustomValueOptionWireFormat =
+                    CustomValueUserStyleSettingWireFormat.CustomValueOptionWireFormat(id)
+        }
+
+        override fun getOptionForId(optionId: String): Option =
+            options.find { it.id == optionId } ?: CustomValueOption(optionId)
     }
 }
