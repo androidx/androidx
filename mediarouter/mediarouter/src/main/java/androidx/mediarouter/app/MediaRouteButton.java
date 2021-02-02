@@ -468,6 +468,19 @@ public class MediaRouteButton extends View {
         // are implementation details here. Checkable is used to express the connecting
         // drawable state and it's mutually exclusive with check for the purposes
         // of state selection here.
+        if (mRouter == null) {
+            return drawableState;
+        }
+        MediaRouterParams params = mRouter.getRouterParams();
+        boolean fixedIcon = false;
+        if (params != null) {
+            fixedIcon = params.getExtras()
+                    .getBoolean(MediaRouterParams.EXTRAS_KEY_FIXED_CAST_ICON);
+        }
+        if (fixedIcon) {
+            return drawableState;
+        }
+
         switch (mConnectionState) {
             case CONNECTION_STATE_CONNECTING:
                 mergeDrawableStates(drawableState, CHECKABLE_STATE_SET);
