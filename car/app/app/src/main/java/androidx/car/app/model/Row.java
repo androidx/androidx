@@ -311,7 +311,8 @@ public final class Row implements Item {
         /**
          * Adds a text string to the row below the title.
          *
-         * <p>The text's color can be customized with {@link ForegroundCarColorSpan} instances.
+         * <p>The text's color can be customized with {@link ForegroundCarColorSpan} instances, any
+         * other spans will be ignored by the host.
          *
          * <p>Most templates allow up to 2 text strings, but this may vary. This limit is
          * documented in each individual template.

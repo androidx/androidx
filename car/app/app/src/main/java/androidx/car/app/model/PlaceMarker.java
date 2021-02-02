@@ -214,11 +214,15 @@ public final class PlaceMarker {
          *
          * <p>If an icon is specified with {@link #setIcon}, the icon will take precedence.
          *
+         * <p>Spans are not supported in the input string.
+         *
          * @param label the text to display inside of the marker. The string must have a maximum
          *              size of 3 characters. Set to {@code null} to let the host choose a
          *              labelling scheme (for example, using a sequence of numbers)
          *
          * @throws NullPointerException if the {@code label} is {@code null}
+         *
+         * @see CarText for details on text handling and span support.
          */
         @NonNull
         public Builder setLabel(@NonNull CharSequence label) {
