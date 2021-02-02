@@ -39,7 +39,7 @@ import kotlin.reflect.jvm.isAccessible
 
 class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleScanner {
     companion object {
-        const val FRAGMENT_VERSION = "1.3.0-beta02"
+        const val FRAGMENT_VERSION = "1.3.0"
 
         val ISSUE = Issue.create(
             id = "InvalidFragmentVersionForActivityResult",
@@ -193,14 +193,15 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
             value
         }
 
-        if (library.isNotEmpty() &&
-            library.substringAfter("androidx.fragment:fragment:") < FRAGMENT_VERSION
-        ) {
-            locations.forEach { location ->
-                context.report(
-                    ISSUE, expression, location,
-                    "Upgrade Fragment version to at least $FRAGMENT_VERSION."
-                )
+        if (library.isNotEmpty()) {
+            val currentVersion = library.substringAfter("androidx.fragment:fragment:")
+            if (library != currentVersion && FRAGMENT_VERSION.compareVersions(currentVersion)) {
+                locations.forEach { location ->
+                    context.report(
+                        ISSUE, expression, location,
+                        "Upgrade Fragment version to at least $FRAGMENT_VERSION."
+                    )
+                }
             }
         }
     }
@@ -219,5 +220,13 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
             return value.substring(1, value.length - 1)
         }
         return ""
+    }
+
+    private fun String.compareVersions(other: String): Boolean {
+        return when {
+            length < other.length -> true
+            length > other.length -> false
+            else -> this < other
+        }
     }
 }
