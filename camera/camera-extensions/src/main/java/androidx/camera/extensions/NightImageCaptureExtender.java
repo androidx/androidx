@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
-import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
 
 /**
@@ -69,7 +68,7 @@ public class NightImageCaptureExtender extends ImageCaptureExtender {
 
         VendorNightImageCaptureExtender(ImageCapture.Builder builder) {
             mImpl = new NightImageCaptureExtenderImpl();
-            init(builder, mImpl, EffectMode.NIGHT);
+            init(builder, mImpl, Extensions.EXTENSION_MODE_NIGHT);
         }
     }
 
