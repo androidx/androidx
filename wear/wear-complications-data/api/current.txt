@@ -352,29 +352,19 @@ package androidx.wear.complications.data {
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
-  public final class PhotoImage {
-    method public android.graphics.drawable.Icon getImage();
-    property public final android.graphics.drawable.Icon image;
-  }
-
-  public static final class PhotoImage.Builder {
-    ctor public PhotoImage.Builder(android.graphics.drawable.Icon image);
-    method public androidx.wear.complications.data.PhotoImage build();
-  }
-
   public final class PhotoImageComplicationData extends androidx.wear.complications.data.ComplicationData {
     method public androidx.wear.complications.data.ComplicationText? getContentDescription();
-    method public androidx.wear.complications.data.PhotoImage getPhotoImage();
+    method public android.graphics.drawable.Icon getPhotoImage();
     method public androidx.wear.complications.data.TimeRange? getValidTimeRange();
     method public boolean isActiveAt(long dateTimeMillis);
     property public final androidx.wear.complications.data.ComplicationText? contentDescription;
-    property public final androidx.wear.complications.data.PhotoImage photoImage;
+    property public final android.graphics.drawable.Icon photoImage;
     property public final androidx.wear.complications.data.TimeRange? validTimeRange;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
   public static final class PhotoImageComplicationData.Builder {
-    ctor public PhotoImageComplicationData.Builder(androidx.wear.complications.data.PhotoImage icon);
+    ctor public PhotoImageComplicationData.Builder(android.graphics.drawable.Icon photoImage);
     method public androidx.wear.complications.data.PhotoImageComplicationData build();
     method public androidx.wear.complications.data.PhotoImageComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.PhotoImageComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
