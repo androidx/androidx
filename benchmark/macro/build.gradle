@@ -53,6 +53,7 @@ dependencies {
     androidTestImplementation(project(":tracing:tracing-ktx"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(KOTLIN_TEST)
 }
 
 androidx {
