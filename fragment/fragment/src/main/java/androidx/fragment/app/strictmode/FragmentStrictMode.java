@@ -65,7 +65,7 @@ public final class FragmentStrictMode {
     }
 
     /**
-     * {@link FragmentStrictMode} policy applied to a certain thread.
+     * {@link FragmentStrictMode} policy applied to a certain {@link FragmentManager} (or globally).
      *
      * <p>This policy can either be enabled globally using {@link #setDefaultPolicy} or for a
      * specific {@link FragmentManager} using {@link FragmentManager#setStrictModePolicy(Policy)}.

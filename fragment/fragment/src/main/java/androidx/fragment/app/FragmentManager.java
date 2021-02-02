@@ -3477,8 +3477,9 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
     /**
      * Sets the policy for what actions should be detected, as well as the penalty if such actions
-     * occur. This policy is specific to this FragmentManager and all children of it. Pass null to
-     * clear the policy for this FragmentManager.
+     * occur. The {@link Fragment#getChildFragmentManager() child FragmentManager} of all Fragments
+     * in this FragmentManager will also use this policy if one is not explicitly set. Pass null to
+     * clear the policy.
      *
      * @param policy the policy to put into place
      */
