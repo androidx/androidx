@@ -477,7 +477,7 @@ package androidx.fragment.app.strictmode {
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyLog();
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public abstract class Violation extends java.lang.Throwable {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public abstract class Violation extends java.lang.RuntimeException {
     ctor public Violation();
   }
 
