@@ -6,7 +6,7 @@ package androidx.activity.compose {
   }
 
   public final class ComponentActivityKt {
-    method public static void setContent(androidx.activity.ComponentActivity, optional androidx.compose.runtime.CompositionReference? parent, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public static void setContent(androidx.activity.ComponentActivity, optional androidx.compose.runtime.CompositionContext? parent, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   public final class LocalOnBackPressedDispatcherOwner {
