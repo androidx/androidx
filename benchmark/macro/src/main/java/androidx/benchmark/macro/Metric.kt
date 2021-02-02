@@ -16,10 +16,9 @@
 
 package androidx.benchmark.macro
 
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.benchmark.macro.perfetto.PerfettoResultsParser.parseResult
-import androidx.benchmark.macro.perfetto.PerfettoTraceParser
+import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 
@@ -136,20 +135,12 @@ class FrameTimingMetric : Metric() {
 }
 
 /**
- * Captures app startup metrics.
+ * Captures app startup timing metrics.
  */
+@Suppress("CanSealedSubClassBeObject")
 @RequiresApi(29)
 class StartupTimingMetric : Metric() {
-    private lateinit var packageName: String
-    private lateinit var device: UiDevice
-    private lateinit var parser: PerfettoTraceParser
-
     override fun configure(packageName: String) {
-        this.packageName = packageName
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        device = instrumentation.device()
-        parser = PerfettoTraceParser()
-        parser.copyTraceProcessorShell()
     }
 
     override fun start() {
@@ -159,21 +150,7 @@ class StartupTimingMetric : Metric() {
     }
 
     override fun getMetrics(packageName: String, tracePath: String): Map<String, Long> {
-        val path = parser.shellFile?.absolutePath
-        return if (path != null) {
-            // TODO: Construct `METRICS` based on the config.
-            val command = "$path --run-metric $METRICS $tracePath --metrics-output=json"
-            Log.d(TAG, "Executing command $command")
-            val json = device.executeShellCommand(command)
-            Log.d(TAG, "Trace Processor result \n\n $json")
-            parseResult(json, packageName)
-        } else {
-            emptyMap()
-        }
-    }
-
-    companion object {
-        private const val TAG = "StartupTimingMetric"
-        private const val METRICS = "android_startup"
+        val json = PerfettoTraceProcessor.getJsonMetrics(tracePath, "android_startup")
+        return parseResult(json, packageName)
     }
 }
