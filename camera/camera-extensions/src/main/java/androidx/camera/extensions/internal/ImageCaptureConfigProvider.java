@@ -18,13 +18,9 @@ package androidx.camera.extensions.internal;
 
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
-import android.util.Pair;
-import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.experimental.UseExperimental;
-import androidx.camera.camera2.impl.Camera2ImplConfig;
-import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
@@ -37,12 +33,9 @@ import androidx.camera.extensions.ImageCaptureExtender;
 import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.BokehImageCaptureExtenderImpl;
-import androidx.camera.extensions.impl.CaptureProcessorImpl;
 import androidx.camera.extensions.impl.HdrImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
-
-import java.util.List;
 
 /**
  * Provides extensions related configs for image capture
@@ -50,6 +43,8 @@ import java.util.List;
 public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureConfig> {
     private ImageCaptureExtenderImpl mImpl;
     private Context mContext;
+    @Extensions.ExtensionMode
+    private int mEffectMode;
 
     @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     public ImageCaptureConfigProvider(@Extensions.ExtensionMode int mode,
@@ -78,6 +73,7 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
         } catch (NoClassDefFoundError e) {
             throw new IllegalArgumentException("Extension mode does not exist: " + mode);
         }
+        mEffectMode = mode;
         mContext = context;
 
         String cameraId = Camera2CameraInfo.from(cameraInfo).getCameraId();
@@ -94,26 +90,7 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
 
         ImageCapture.Builder builder = new ImageCapture.Builder();
 
-        CaptureProcessorImpl captureProcessor = mImpl.getCaptureProcessor();
-        if (captureProcessor != null) {
-            builder.setCaptureProcessor(new AdaptingCaptureProcessor(captureProcessor));
-        }
-
-        if (mImpl.getMaxCaptureStage() > 0) {
-            builder.setMaxCaptureStages(mImpl.getMaxCaptureStage());
-        }
-
-        ImageCaptureExtender.ImageCaptureAdapter
-                imageCaptureAdapter = new ImageCaptureExtender.ImageCaptureAdapter(mImpl, mContext);
-        new Camera2ImplConfig.Extender<>(builder).setCameraEventCallback(
-                new CameraEventCallbacks(imageCaptureAdapter));
-        builder.setUseCaseEventCallback(imageCaptureAdapter);
-        builder.setCaptureBundle(imageCaptureAdapter);
-        List<Pair<Integer, Size[]>> supportedResolutions =
-                ImageCaptureExtender.getSupportedResolutions(mImpl);
-        if (supportedResolutions != null) {
-            builder.setSupportedResolutions(supportedResolutions);
-        }
+        ImageCaptureExtender.updateBuilderConfig(builder, mEffectMode, mImpl, mContext);
 
         return builder.getUseCaseConfig();
     }

@@ -47,6 +47,7 @@ import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 import androidx.camera.extensions.internal.AdaptingCaptureStage;
 import androidx.camera.extensions.internal.AdaptingPreviewProcessor;
 import androidx.camera.extensions.internal.AdaptingRequestUpdateProcessor;
+import androidx.core.util.Consumer;
 
 import java.util.Collection;
 import java.util.List;
@@ -137,36 +138,61 @@ public abstract class PreviewExtender {
         CameraCharacteristics cameraCharacteristics = CameraUtil.getCameraCharacteristics(cameraId);
         mImpl.init(cameraId, cameraCharacteristics);
 
-        PreviewExtenderAdapter previewExtenderAdapter;
         // TODO(b/161302102): Remove usage of deprecated CameraX.getContext()
         @SuppressWarnings("deprecation")
         Context context = CameraX.getContext();
-        switch (mImpl.getProcessorType()) {
+        updateBuilderConfig(mBuilder, mEffectMode, mImpl, context);
+    }
+
+    /**
+     * Update extension related configs to the builder.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void updateBuilderConfig(@NonNull Preview.Builder builder,
+            @Extensions.ExtensionMode int effectMode, @NonNull PreviewExtenderImpl impl,
+            @NonNull Context context) {
+        PreviewExtenderAdapter previewExtenderAdapter;
+
+        switch (impl.getProcessorType()) {
             case PROCESSOR_TYPE_REQUEST_UPDATE_ONLY:
                 AdaptingRequestUpdateProcessor adaptingRequestUpdateProcessor =
-                        new AdaptingRequestUpdateProcessor(mImpl);
-                mBuilder.setImageInfoProcessor(adaptingRequestUpdateProcessor);
-                previewExtenderAdapter = new PreviewExtenderAdapter(mImpl,
-                        context, adaptingRequestUpdateProcessor);
+                        new AdaptingRequestUpdateProcessor(impl);
+                builder.setImageInfoProcessor(adaptingRequestUpdateProcessor);
+                previewExtenderAdapter = new PreviewExtenderAdapter(impl, context,
+                        adaptingRequestUpdateProcessor);
                 break;
             case PROCESSOR_TYPE_IMAGE_PROCESSOR:
                 AdaptingPreviewProcessor adaptingPreviewProcessor = new
-                        AdaptingPreviewProcessor((PreviewImageProcessorImpl) mImpl.getProcessor());
-                mBuilder.setCaptureProcessor(adaptingPreviewProcessor);
-                previewExtenderAdapter = new PreviewExtenderAdapter(mImpl,
-                        context, adaptingPreviewProcessor);
+                        AdaptingPreviewProcessor((PreviewImageProcessorImpl) impl.getProcessor());
+                builder.setCaptureProcessor(adaptingPreviewProcessor);
+                previewExtenderAdapter = new PreviewExtenderAdapter(impl, context,
+                        adaptingPreviewProcessor);
                 break;
             default:
-                previewExtenderAdapter = new PreviewExtenderAdapter(mImpl, context, null);
+                previewExtenderAdapter = new PreviewExtenderAdapter(impl, context, null);
         }
 
-        new Camera2ImplConfig.Extender<>(mBuilder).setCameraEventCallback(
+        new Camera2ImplConfig.Extender<>(builder).setCameraEventCallback(
                 new CameraEventCallbacks(previewExtenderAdapter));
-        mBuilder.setUseCaseEventCallback(previewExtenderAdapter);
-        mBuilder.getMutableConfig().insertOption(OPTION_PREVIEW_EXTENDER_MODE, mEffectMode);
-        List<Pair<Integer, Size[]>> supportedResolutions = getSupportedResolutions(mImpl);
+        builder.setUseCaseEventCallback(previewExtenderAdapter);
+
+        try {
+            Consumer<Collection<UseCase>> attachedUseCasesUpdateListener =
+                    useCases -> checkImageCaptureEnabled(effectMode, useCases);
+            builder.setAttachedUseCasesUpdateListener(attachedUseCasesUpdateListener);
+        } catch (NoSuchMethodError e) {
+            // setAttachedUseCasesUpdateListener function may not exist in the used core library.
+            // Catches the NoSuchMethodError and make the extensions be able to be enabled but
+            // only the ExtensionsErrorListener does not work.
+            Logger.e(TAG, "Can't set attached use cases update listener.");
+        }
+
+        builder.getMutableConfig().insertOption(OPTION_PREVIEW_EXTENDER_MODE, effectMode);
+        List<Pair<Integer, Size[]>> supportedResolutions = getSupportedResolutions(impl);
         if (supportedResolutions != null) {
-            mBuilder.setSupportedResolutions(supportedResolutions);
+            builder.setSupportedResolutions(supportedResolutions);
         }
     }
 
