@@ -16,7 +16,6 @@
 
 package androidx.fragment.app.strictmode
 
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.StrictFragment
 import androidx.fragment.app.executePendingTransactions
 import androidx.fragment.app.test.FragmentTestActivity
@@ -73,13 +72,13 @@ public class FragmentStrictModeTest {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
 
-            val parentFragment = Fragment()
+            val parentFragment = StrictFragment()
             fragmentManager.beginTransaction()
                 .add(parentFragment, "parentFragment")
                 .commit()
             executePendingTransactions()
 
-            val childFragment = Fragment()
+            val childFragment = StrictFragment()
             parentFragment.childFragmentManager.beginTransaction()
                 .add(childFragment, "childFragment")
                 .commit()
