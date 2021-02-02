@@ -29,7 +29,7 @@ dependencies {
     api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.0")
     implementation("androidx.tracing:tracing:1.0.0")
 
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.0")
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(LEAKCANARY)
     androidTestImplementation(LEAKCANARY_INSTRUMENTATION)
