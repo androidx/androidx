@@ -127,7 +127,10 @@ public final class FragmentStrictMode {
                 return this;
             }
 
-            /** Call #{@link OnViolationListener#onViolation} for every violation. */
+            /**
+             * Call #{@link OnViolationListener#onViolation} for every violation. The listener will
+             * be called on the thread which caused the violation.
+             */
             @NonNull
             @SuppressLint("BuilderSetStyle")
             public Builder penaltyListener(@NonNull OnViolationListener listener) {
