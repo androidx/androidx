@@ -42,16 +42,9 @@ class PerfettoTraceParser {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context: Context = instrumentation.context
         shellFile = File(context.cacheDir, "trace_processor_shell")
-        val suffix = when {
-            Build.SUPPORTED_64_BIT_ABIS.isNotEmpty() -> {
-                "aarch64"
-            }
-            Build.SUPPORTED_32_BIT_ABIS.isNotEmpty() -> {
-                "arm32"
-            }
-            else -> {
-                throw IllegalStateException("Unsupported ABI")
-            }
+        // TODO: support other ABIs
+        if (Build.SUPPORTED_64_BIT_ABIS.isEmpty()) {
+            throw IllegalStateException("Unsupported ABI")
         }
         // Write the trace_processor_shell to the external directory so we can process
         // perfetto metrics on device.
@@ -64,7 +57,8 @@ class PerfettoTraceParser {
                 throw IllegalStateException("Unable to create new file $shellFile")
             }
             shellFile.outputStream().use {
-                context.assets.open("trace_processor_shell_$suffix").copyTo(it)
+                // TODO: Copy the file based on the ABI
+                context.assets.open("trace_processor_shell_aarch64").copyTo(it)
             }
         }
     }
