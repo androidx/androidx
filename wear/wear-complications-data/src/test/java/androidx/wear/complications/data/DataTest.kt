@@ -138,15 +138,14 @@ public class AsWireComplicationDataTest {
 
     @Test
     public fun backgroundImageComplicationData() {
-        val icon = Icon.createWithContentUri("someuri")
-        val image = PhotoImage.Builder(icon).build()
-        val data = PhotoImageComplicationData.Builder(image)
+        val photoImage = Icon.createWithContentUri("someuri")
+        val data = PhotoImageComplicationData.Builder(photoImage)
             .setContentDescription("content description".complicationText)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_LARGE_IMAGE)
-                    .setLargeImage(icon)
+                    .setLargeImage(photoImage)
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .build()
             )
