@@ -221,7 +221,11 @@ public final class RoutePreviewNavigationTemplate implements Template {
          *
          * <p>Unless set with this method, the template will not have a title.
          *
+         * <p>Spans are not supported in the input string.
+         *
          * @throws NullPointerException if {@code title} is null
+         *
+         * @see CarText for details on text handling and span support.
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {

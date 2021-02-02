@@ -231,6 +231,8 @@ public final class GridItem implements Item {
          *
          * <p>Unless set with this method, the grid item will not have an title.
          *
+         * <p>Spans are not supported in the input string.
+         *
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} is empty
          */
@@ -248,6 +250,9 @@ public final class GridItem implements Item {
          * Sets a secondary text string to the grid item that is displayed below the title.
          *
          * <p>Unless set with this method, the grid item will not have a secondary text string.
+         *
+         * <p>The text's color can be customized with {@link ForegroundCarColorSpan} instances, any
+         * other spans will be ignored by the host.
          *
          * <h2>Text Wrapping</h2>
          *
