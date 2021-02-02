@@ -20,5 +20,5 @@ import androidx.annotation.RestrictTo;
 
 /** Root class for all FragmentStrictMode violations. */
 @RestrictTo(RestrictTo.Scope.LIBRARY) // TODO: Make API public as soon as we have a few checks
-public abstract class Violation extends Throwable {
+public abstract class Violation extends RuntimeException {
 }

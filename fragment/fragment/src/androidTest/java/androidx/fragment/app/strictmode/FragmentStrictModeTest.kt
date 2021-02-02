@@ -17,6 +17,7 @@
 package androidx.fragment.app.strictmode
 
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.StrictFragment
 import androidx.fragment.app.executePendingTransactions
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.test.core.app.ActivityScenario
@@ -24,6 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -42,6 +44,21 @@ public class FragmentStrictModeTest {
     @After
     public fun teardown() {
         FragmentStrictMode.setDefaultPolicy(originalPolicy)
+    }
+
+    @Test
+    public fun penaltyDeath() {
+        FragmentStrictMode.setDefaultPolicy(FragmentStrictMode.Policy.Builder()
+            .penaltyDeath()
+            .build())
+
+        var violation: Violation? = null
+        try {
+            FragmentStrictMode.onPolicyViolation(StrictFragment(), object : Violation() {})
+        } catch (thrown: Violation) {
+            violation = thrown
+        }
+        assertWithMessage("No exception thrown on policy violation").that(violation).isNotNull()
     }
 
     @Test

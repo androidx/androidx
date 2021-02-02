@@ -17,7 +17,6 @@
 package androidx.fragment.app.strictmode;
 
 import android.annotation.SuppressLint;
-import android.os.Process;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -117,9 +116,9 @@ public final class FragmentStrictMode {
             }
 
             /**
-             * Crash the whole process on violation. This penalty runs at the end of all enabled
-             * penalties so you'll still get to see logging or other violations before the process
-             * dies.
+             * Throws an exception on violation. This penalty runs at the end of all enabled
+             * penalties so you'll still get to see logging or other violations before the exception
+             * is thrown.
              */
             @NonNull
             @SuppressLint("BuilderSetStyle")
@@ -197,8 +196,7 @@ public final class FragmentStrictMode {
 
         if (policy.flags.contains(Flag.PENALTY_DEATH)) {
             Log.e(TAG, "FragmentStrictMode policy violation with PENALTY_DEATH - shutting down.");
-            Process.killProcess(Process.myPid());
-            System.exit(10);
+            throw violation;
         }
     }
 }
