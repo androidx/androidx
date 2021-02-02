@@ -231,7 +231,11 @@ public final class Trip {
         /**
          * Sets a description of the current road.
          *
+         * <p>Spans are not supported in the input string.
+         *
          * @throws NullPointerException if {@code currentRoad} is {@code null}
+         *
+         * @see CarText for details on text handling and span support.
          */
         @NonNull
         public Builder setCurrentRoad(@NonNull CharSequence currentRoad) {
