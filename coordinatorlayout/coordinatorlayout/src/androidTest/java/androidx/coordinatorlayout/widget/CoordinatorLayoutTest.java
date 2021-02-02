@@ -25,6 +25,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -459,7 +460,8 @@ public class CoordinatorLayoutTest {
             @Override
             public void run() {
                 List<View> depsA = col.getDependencies(viewA);
-                assertEquals("A has no dependencies", null, depsA);
+                assertNotNull("getDependencies is non-null", depsA);
+                assertThat("A has no dependencies", depsA.isEmpty());
 
                 List<View> depsB = col.getDependencies(viewB);
                 assertEquals("B depends only on A", 1, depsB.size());
@@ -504,7 +506,8 @@ public class CoordinatorLayoutTest {
                 assertThat("A is depended upon only by B", depsA.contains(viewB));
 
                 List<View> depsB = col.getDependents(viewB);
-                assertEquals("B has no dependents", null, depsB);
+                assertNotNull("getDependents is non-null", depsB);
+                assertThat("B has no dependents", depsB.isEmpty());
 
                 assertThat("getDependents returns a new list",
                         depsA != col.getDependents(viewA));
