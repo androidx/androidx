@@ -190,6 +190,11 @@ internal sealed class KspTypeElement(
                 }
                 it.declaration.isPrivate() -> false
                 setter != null -> !setter.modifiers.contains(Modifier.PRIVATE)
+                it.declaration.origin != Origin.KOTLIN -> {
+                    // no reason to generate synthetics non kotlin code. If it had a setter, that
+                    // would show up as a setter
+                    false
+                }
                 else -> it.declaration.isMutable
             }
             if (needsSetter) {
@@ -216,6 +221,11 @@ internal sealed class KspTypeElement(
                 }
                 it.declaration.isPrivate() -> false
                 getter != null -> !getter.modifiers.contains(Modifier.PRIVATE)
+                it.declaration.origin != Origin.KOTLIN -> {
+                    // no reason to generate synthetics non kotlin code. If it had a getter, that
+                    // would show up as a getter
+                    false
+                }
                 else -> true
             }
 
