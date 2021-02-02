@@ -1904,7 +1904,8 @@ public class MediaSessionCompat {
                 synchronized (mLock) {
                     sessionImpl = (MediaSessionImplApi21) mSessionImpl.get();
                 }
-                return MediaSessionCompat.Callback.this == sessionImpl.getCallback()
+                return sessionImpl != null
+                        && MediaSessionCompat.Callback.this == sessionImpl.getCallback()
                         ? sessionImpl : null;
             }
         }
