@@ -25,7 +25,8 @@ boolean isMultiplatformEnabled() {
 enum BuildType {
     MAIN,
     COMPOSE,
-    FLAN
+    FLAN,
+    MEDIA
 }
 
 private static Set<BuildType> createRequestedFilter() {
@@ -43,6 +44,9 @@ private static Set<BuildType> createRequestedFilter() {
             case "FLAN":
                 filter.add(BuildType.FLAN)
                 break
+            case "MEDIA":
+                filter.add(BuildType.MEDIA)
+                break
             case "ALL":
                 // Return null so that no filtering is done
                 return null
@@ -53,7 +57,8 @@ private static Set<BuildType> createRequestedFilter() {
                         "ALL     - all androidx projects\n" +
                         "COMPOSE - compose projects\n" +
                         "MAIN    - androidx projects that are not compose\n" +
-                        "FLAN    - fragment, lifecycle, activity, and navigation projects")
+                        "FLAN    - fragment, lifecycle, activity, and navigation projects\n" +
+                        "MEDIA   - media, media2, and mediarouter projects")
         }
     }
     return filter
@@ -384,14 +389,14 @@ includeProject(":lint-demos:lint-demo-appcompat", "lint-demos/lint-demo-appcompa
 includeProject(":loader:loader", "loader/loader", [BuildType.MAIN])
 includeProject(":loader:loader-ktx", "loader/loader-ktx", [BuildType.MAIN])
 includeProject(":localbroadcastmanager:localbroadcastmanager", "localbroadcastmanager/localbroadcastmanager", [BuildType.MAIN])
-includeProject(":media2:integration-tests:testapp", "media2/integration-tests/testapp", [BuildType.MAIN])
-includeProject(":media2:media2-common", "media2/media2-common", [BuildType.MAIN])
-includeProject(":media2:media2-exoplayer", "media2/media2-exoplayer", [BuildType.MAIN])
-includeProject(":media2:media2-player", "media2/media2-player", [BuildType.MAIN])
-includeProject(":media2:media2-session", "media2/media2-session", [BuildType.MAIN])
-includeProject(":media2:media2-widget", "media2/media2-widget", [BuildType.MAIN])
-includeProject(":media:media", "media/media", [BuildType.MAIN])
-includeProject(":mediarouter:mediarouter", "mediarouter/mediarouter", [BuildType.MAIN])
+includeProject(":media2:integration-tests:testapp", "media2/integration-tests/testapp", [BuildType.MAIN, BuildType.MEDIA])
+includeProject(":media2:media2-common", "media2/media2-common", [BuildType.MAIN, BuildType.MEDIA])
+includeProject(":media2:media2-exoplayer", "media2/media2-exoplayer", [BuildType.MAIN, BuildType.MEDIA])
+includeProject(":media2:media2-player", "media2/media2-player", [BuildType.MAIN, BuildType.MEDIA])
+includeProject(":media2:media2-session", "media2/media2-session", [BuildType.MAIN, BuildType.MEDIA])
+includeProject(":media2:media2-widget", "media2/media2-widget", [BuildType.MAIN, BuildType.MEDIA])
+includeProject(":media:media", "media/media", [BuildType.MAIN, BuildType.MEDIA])
+includeProject(":mediarouter:mediarouter", "mediarouter/mediarouter", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":navigation:navigation-benchmark", "navigation/benchmark", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":navigation:navigation-common", "navigation/navigation-common", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":navigation:navigation-common-ktx", "navigation/navigation-common-ktx", [BuildType.MAIN, BuildType.FLAN])
@@ -509,7 +514,7 @@ includeProject(":vectordrawable:vectordrawable", "vectordrawable/vectordrawable"
 includeProject(":vectordrawable:vectordrawable-animated", "vectordrawable/vectordrawable-animated", [BuildType.MAIN])
 includeProject(":vectordrawable:vectordrawable-seekable", "vectordrawable/vectordrawable-seekable", [BuildType.MAIN])
 includeProject(":versionedparcelable:versionedparcelable", "versionedparcelable/versionedparcelable", [BuildType.MAIN])
-includeProject(":versionedparcelable:versionedparcelable-compiler", "versionedparcelable/versionedparcelable-compiler", [BuildType.MAIN])
+includeProject(":versionedparcelable:versionedparcelable-compiler", "versionedparcelable/versionedparcelable-compiler", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":viewpager2:integration-tests:testapp", "viewpager2/integration-tests/testapp", [BuildType.MAIN])
 includeProject(":viewpager2:viewpager2", "viewpager2/viewpager2", [BuildType.MAIN])
 includeProject(":viewpager:viewpager", "viewpager/viewpager", [BuildType.MAIN])
@@ -590,7 +595,7 @@ includeProject(":support-wear-demos", new File(samplesRoot, "SupportWearDemos"),
 /////////////////////////////
 
 includeProject(":internal-testutils-common", "testutils/testutils-common", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":internal-testutils-runtime", "testutils/testutils-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":internal-testutils-runtime", "testutils/testutils-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.MEDIA])
 includeProject(":internal-testutils-appcompat", "testutils/testutils-appcompat", [BuildType.MAIN])
 includeProject(":internal-testutils-espresso", "testutils/testutils-espresso", [BuildType.MAIN])
 includeProject(":internal-testutils-truth", "testutils/testutils-truth", [BuildType.MAIN, BuildType.FLAN])
@@ -606,26 +611,26 @@ includeProject(":internal-testutils-mockito", "testutils/testutils-mockito", [Bu
 //
 /////////////////////////////
 includeProject(":media:version-compat-tests:client",
-        "media/version-compat-tests/current/client", [BuildType.MAIN])
+        "media/version-compat-tests/current/client", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":media:version-compat-tests:client-previous",
-        "media/version-compat-tests/previous/client", [BuildType.MAIN])
+        "media/version-compat-tests/previous/client", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":media:version-compat-tests:service",
-        "media/version-compat-tests/current/service", [BuildType.MAIN])
+        "media/version-compat-tests/current/service", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":media:version-compat-tests:service-previous",
-        "media/version-compat-tests/previous/service", [BuildType.MAIN])
+        "media/version-compat-tests/previous/service", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":media:version-compat-tests:lib", "media/version-compat-tests/lib",
-        [BuildType.MAIN])
+        [BuildType.MAIN, BuildType.MEDIA])
 
 includeProject(":media2:media2-session:version-compat-tests:client",
-        "media2/media2-session/version-compat-tests/current/client", [BuildType.MAIN])
+        "media2/media2-session/version-compat-tests/current/client", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":media2:media2-session:version-compat-tests:client-previous",
-        "media2/media2-session/version-compat-tests/previous/client", [BuildType.MAIN])
+        "media2/media2-session/version-compat-tests/previous/client", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":media2:media2-session:version-compat-tests:service",
-        "media2/media2-session/version-compat-tests/current/service", [BuildType.MAIN])
+        "media2/media2-session/version-compat-tests/current/service", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":media2:media2-session:version-compat-tests:service-previous",
-        "media2/media2-session/version-compat-tests/previous/service", [BuildType.MAIN])
+        "media2/media2-session/version-compat-tests/previous/service", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":media2:media2-session:version-compat-tests:common",
-        "media2/media2-session/version-compat-tests/common", [BuildType.MAIN])
+        "media2/media2-session/version-compat-tests/common", [BuildType.MAIN, BuildType.MEDIA])
 
 /////////////////////////////
 //

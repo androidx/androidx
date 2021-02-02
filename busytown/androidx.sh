@@ -8,7 +8,7 @@ cd "$(dirname $0)"
 # Run Gradle
 impl/build.sh listTaskOutputs "$@"
 impl/build.sh allProperties -Pandroidx.validateNoUnrecognizedMessages=false "$@" >/dev/null
-subsets="MAIN COMPOSE FLAN"
+subsets="MAIN COMPOSE FLAN MEDIA"
 for subset in $subsets; do
   ANDROIDX_PROJECTS=$subset impl/build.sh tasks -Pandroidx.validateNoUnrecognizedMessages=false >/dev/null
 done
