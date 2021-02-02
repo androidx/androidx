@@ -62,7 +62,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
     public Camera2DeviceSurfaceManager(@NonNull Context context,
             @Nullable Object cameraManager, @NonNull Set<String> availableCameraIds)
             throws CameraUnavailableException {
-        this(context, CamcorderProfile::hasProfile, cameraManager, availableCameraIds);
+        this(context, CamcorderProfile::get, cameraManager, availableCameraIds);
     }
 
     Camera2DeviceSurfaceManager(@NonNull Context context,
