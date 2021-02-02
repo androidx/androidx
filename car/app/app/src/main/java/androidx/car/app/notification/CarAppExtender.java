@@ -130,8 +130,7 @@ import java.util.List;
 public final class CarAppExtender implements NotificationCompat.Extender {
     private static final String TAG = "CarAppExtender";
 
-    private static final String EXTRA_CAR_EXTENDER = "android.car.app.EXTENSIONS";
-    private static final String EXTRA_IS_EXTENDED = "android.car.app.EXTENDED";
+    private static final String EXTRA_CAR_EXTENDER = "androidx.car.app.EXTENSIONS";
     private static final String EXTRA_CONTENT_TITLE = "content_title";
     private static final String EXTRA_CONTENT_TEXT = "content_text";
     private static final String EXTRA_SMALL_RES_ID = "small_res_id";
@@ -142,7 +141,6 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     private static final String EXTRA_IMPORTANCE = "importance";
     private static final String EXTRA_COLOR = "color";
 
-    private boolean mIsExtended;
     @Nullable
     private CharSequence mContentTitle;
     @Nullable
@@ -173,7 +171,6 @@ public final class CarAppExtender implements NotificationCompat.Extender {
             return;
         }
 
-        mIsExtended = carBundle.getBoolean(EXTRA_IS_EXTENDED);
         mContentTitle = carBundle.getCharSequence(EXTRA_CONTENT_TITLE);
         mContentText = carBundle.getCharSequence(EXTRA_CONTENT_TEXT);
         mSmallIconResId = carBundle.getInt(EXTRA_SMALL_RES_ID);
@@ -222,8 +219,6 @@ public final class CarAppExtender implements NotificationCompat.Extender {
         requireNonNull(builder);
         Bundle carExtensions = new Bundle();
 
-        carExtensions.putBoolean(EXTRA_IS_EXTENDED, true);
-
         if (mContentTitle != null) {
             carExtensions.putCharSequence(EXTRA_CONTENT_TITLE, mContentTitle);
         }
@@ -268,13 +263,6 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     }
 
     /**
-     * Returns whether the notification was extended with {@link CarAppExtender}.
-     */
-    public boolean isExtended() {
-        return mIsExtended;
-    }
-
-    /**
      * Returns whether the given notification was extended with {@link CarAppExtender}.
      *
      * @throws NullPointerException if {@code notification} is {@code null}
@@ -285,8 +273,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
             return false;
         }
 
-        extras = extras.getBundle(EXTRA_CAR_EXTENDER);
-        return extras != null && extras.getBoolean(EXTRA_IS_EXTENDED);
+        return extras.getBundle(EXTRA_CAR_EXTENDER) != null;
     }
 
     /**

@@ -931,7 +931,6 @@ package androidx.car.app.notification {
     method public int getImportance();
     method public android.graphics.Bitmap? getLargeIcon();
     method @DrawableRes public int getSmallIcon();
-    method public boolean isExtended();
     method public static boolean isExtended(android.app.Notification);
   }
 
