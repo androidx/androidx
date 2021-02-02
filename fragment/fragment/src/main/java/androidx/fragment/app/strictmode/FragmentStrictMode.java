@@ -180,14 +180,13 @@ public final class FragmentStrictMode {
         return defaultPolicy;
     }
 
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    @VisibleForTesting
     static void onPolicyViolation(@NonNull Fragment fragment, @NonNull Violation violation) {
-        onPolicyViolation(getNearestPolicy(fragment), violation);
-    }
+        Policy policy = getNearestPolicy(fragment);
+        String fragmentName = fragment.getClass().getName();
 
-    private static void onPolicyViolation(@NonNull Policy policy, @NonNull Violation violation) {
         if (policy.flags.contains(Flag.PENALTY_LOG)) {
-            Log.d(TAG, "FragmentStrictMode policy violation: ", violation);
+            Log.d(TAG, "Policy violation in " + fragmentName, violation);
         }
 
         if (policy.listener != null) {
@@ -195,7 +194,7 @@ public final class FragmentStrictMode {
         }
 
         if (policy.flags.contains(Flag.PENALTY_DEATH)) {
-            Log.e(TAG, "FragmentStrictMode policy violation with PENALTY_DEATH - shutting down.");
+            Log.e(TAG, "Policy violation with PENALTY_DEATH in " + fragmentName, violation);
             throw violation;
         }
     }
