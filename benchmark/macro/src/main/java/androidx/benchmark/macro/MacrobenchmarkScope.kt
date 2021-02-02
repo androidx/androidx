@@ -88,8 +88,9 @@ public class MacrobenchmarkScope(
         val result = device.executeShellScript(
             "echo 3 > /proc/sys/vm/drop_caches && echo Success || echo Failure"
         ).trim()
-        check(result == "Success") {
-            "Failed to drop kernel page cache, result: '$result'"
+        // User builds don't allow drop caches yet.
+        if (result != "Success") {
+            Log.w(TAG, "Failed to drop kernel page cache, result: '$result'")
         }
     }
 }

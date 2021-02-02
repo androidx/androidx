@@ -45,7 +45,10 @@ class PerfettoCaptureWrapper {
             val iterString = iteration.toString().padStart(3, '0')
             // NOTE: macrobench still using legacy .trace name until
             // Studio supports .perfetto-trace extension (b/171251272)
-            val traceName = "${benchmarkName}_iter$iterString.trace"
+            val traceName = "${benchmarkName}_iter$iterString.trace".replace(
+                oldValue = " ",
+                newValue = ""
+            )
             val destination = capture!!.destinationPath(traceName)
             capture!!.stop(destination)
             InstrumentationResults.reportAdditionalFileToCopy(
