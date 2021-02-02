@@ -135,7 +135,6 @@ internal class PageFetcher<Key : Any, Value : Any>(
 //                        )
 //                    )
 
-                    loadStates.set(type, false, state)
                     send(
                         PageEvent.LoadStateUpdate(loadStates.snapshot())
                     )
