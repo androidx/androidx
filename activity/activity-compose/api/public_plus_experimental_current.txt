@@ -1,1 +1,9 @@
 // Signature format: 4.0
+package androidx.activity.compose {
+
+  public final class ComponentActivityKt {
+    method public static void setContent(androidx.activity.ComponentActivity, optional androidx.compose.runtime.CompositionReference? parent, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+}
+

@@ -32,6 +32,9 @@ plugins {
 dependencies {
     kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
 
+    api "androidx.activity:activity:1.2.0-alpha02"
+    api(projectOrArtifact(":compose:ui:ui"))
+
     implementation(KOTLIN_STDLIB)
 }
 
