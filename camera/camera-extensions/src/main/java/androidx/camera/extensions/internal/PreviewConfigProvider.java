@@ -18,13 +18,9 @@ package androidx.camera.extensions.internal;
 
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
-import android.util.Pair;
-import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.experimental.UseExperimental;
-import androidx.camera.camera2.impl.Camera2ImplConfig;
-import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
@@ -40,9 +36,6 @@ import androidx.camera.extensions.impl.BokehPreviewExtenderImpl;
 import androidx.camera.extensions.impl.HdrPreviewExtenderImpl;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
-import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
-
-import java.util.List;
 
 /**
  * For providing extensions config for preview.
@@ -50,6 +43,8 @@ import java.util.List;
 public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
     private PreviewExtenderImpl mImpl;
     private Context mContext;
+    @Extensions.ExtensionMode
+    private int mEffectMode;
 
     @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     public PreviewConfigProvider(@Extensions.ExtensionMode int mode,
@@ -78,6 +73,7 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
         } catch (NoClassDefFoundError e) {
             throw new IllegalArgumentException("Extension mode does not exist: " + mode);
         }
+        mEffectMode = mode;
         mContext = context;
 
         String cameraId = Camera2CameraInfo.from(cameraInfo).getCameraId();
@@ -94,35 +90,7 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
         }
         Preview.Builder builder = new Preview.Builder();
 
-        PreviewExtender.PreviewExtenderAdapter previewExtenderAdapter;
-        switch (mImpl.getProcessorType()) {
-            case PROCESSOR_TYPE_REQUEST_UPDATE_ONLY:
-                AdaptingRequestUpdateProcessor adaptingRequestUpdateProcessor =
-                        new AdaptingRequestUpdateProcessor(mImpl);
-                builder.setImageInfoProcessor(adaptingRequestUpdateProcessor);
-                previewExtenderAdapter = new PreviewExtender.PreviewExtenderAdapter(mImpl,
-                        mContext, adaptingRequestUpdateProcessor);
-                break;
-            case PROCESSOR_TYPE_IMAGE_PROCESSOR:
-                AdaptingPreviewProcessor adaptingPreviewProcessor = new
-                        AdaptingPreviewProcessor((PreviewImageProcessorImpl) mImpl.getProcessor());
-                builder.setCaptureProcessor(adaptingPreviewProcessor);
-                previewExtenderAdapter = new PreviewExtender.PreviewExtenderAdapter(mImpl,
-                        mContext, adaptingPreviewProcessor);
-                break;
-            default:
-                previewExtenderAdapter = new PreviewExtender.PreviewExtenderAdapter(mImpl,
-                        mContext, null);
-        }
-
-        new Camera2ImplConfig.Extender<>(builder).setCameraEventCallback(
-                new CameraEventCallbacks(previewExtenderAdapter));
-        builder.setUseCaseEventCallback(previewExtenderAdapter);
-        List<Pair<Integer, Size[]>> supportedResolutions =
-                PreviewExtender.getSupportedResolutions(mImpl);
-        if (supportedResolutions != null) {
-            builder.setSupportedResolutions(supportedResolutions);
-        }
+        PreviewExtender.updateBuilderConfig(builder, mEffectMode, mImpl, mContext);
 
         return builder.getUseCaseConfig();
     }

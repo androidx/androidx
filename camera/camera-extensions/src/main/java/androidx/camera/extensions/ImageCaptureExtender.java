@@ -48,6 +48,7 @@ import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.internal.AdaptingCaptureProcessor;
 import androidx.camera.extensions.internal.AdaptingCaptureStage;
+import androidx.core.util.Consumer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -140,28 +141,52 @@ public abstract class ImageCaptureExtender {
         CameraCharacteristics cameraCharacteristics = CameraUtil.getCameraCharacteristics(cameraId);
         mImpl.init(cameraId, cameraCharacteristics);
 
-        CaptureProcessorImpl captureProcessor = mImpl.getCaptureProcessor();
-        if (captureProcessor != null) {
-            mBuilder.setCaptureProcessor(new AdaptingCaptureProcessor(captureProcessor));
-        }
-
-        if (mImpl.getMaxCaptureStage() > 0) {
-            mBuilder.setMaxCaptureStages(mImpl.getMaxCaptureStage());
-        }
-
         // TODO(b/161302102): Remove usage of deprecated CameraX.getContext()
         @SuppressWarnings("deprecation")
-        ImageCaptureAdapter imageCaptureAdapter = new ImageCaptureAdapter(mImpl,
-                CameraX.getContext());
-        new Camera2ImplConfig.Extender<>(mBuilder).setCameraEventCallback(
-                new CameraEventCallbacks(imageCaptureAdapter));
-        mBuilder.setUseCaseEventCallback(imageCaptureAdapter);
-        mBuilder.setCaptureBundle(imageCaptureAdapter);
-        mBuilder.getMutableConfig().insertOption(OPTION_IMAGE_CAPTURE_EXTENDER_MODE, mEffectMode);
+        Context context = CameraX.getContext();
+        updateBuilderConfig(mBuilder, mEffectMode, mImpl, context);
+    }
 
-        List<Pair<Integer, Size[]>> supportedResolutions = getSupportedResolutions(mImpl);
+    /**
+     * Update extension related configs to the builder.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void updateBuilderConfig(@NonNull ImageCapture.Builder builder,
+            @Extensions.ExtensionMode int effectMode, @NonNull ImageCaptureExtenderImpl impl,
+            @NonNull Context context) {
+        CaptureProcessorImpl captureProcessor = impl.getCaptureProcessor();
+        if (captureProcessor != null) {
+            builder.setCaptureProcessor(new AdaptingCaptureProcessor(captureProcessor));
+        }
+
+        if (impl.getMaxCaptureStage() > 0) {
+            builder.setMaxCaptureStages(impl.getMaxCaptureStage());
+        }
+
+        ImageCaptureAdapter imageCaptureAdapter = new ImageCaptureAdapter(impl, context);
+        new Camera2ImplConfig.Extender<>(builder).setCameraEventCallback(
+                new CameraEventCallbacks(imageCaptureAdapter));
+        builder.setUseCaseEventCallback(imageCaptureAdapter);
+
+        try {
+            Consumer<Collection<UseCase>> attachedUseCasesUpdateListener =
+                    useCases -> checkPreviewEnabled(effectMode, useCases);
+            builder.setAttachedUseCasesUpdateListener(attachedUseCasesUpdateListener);
+        } catch (NoSuchMethodError e) {
+            // setAttachedUseCasesUpdateListener function may not exist in the used core library.
+            // Catches the NoSuchMethodError and make the extensions be able to be enabled but
+            // only the ExtensionsErrorListener does not work.
+            Logger.e(TAG, "Can't set attached use cases update listener.");
+        }
+
+        builder.setCaptureBundle(imageCaptureAdapter);
+        builder.getMutableConfig().insertOption(OPTION_IMAGE_CAPTURE_EXTENDER_MODE, effectMode);
+
+        List<Pair<Integer, Size[]>> supportedResolutions = getSupportedResolutions(impl);
         if (supportedResolutions != null) {
-            mBuilder.setSupportedResolutions(supportedResolutions);
+            builder.setSupportedResolutions(supportedResolutions);
         }
     }
 
