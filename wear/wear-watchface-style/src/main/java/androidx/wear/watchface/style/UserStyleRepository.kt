@@ -72,6 +72,11 @@ public class UserStyle(
     /** Returns the [UserStyleSetting.Option] for [setting] if there is one or `null` otherwise. */
     public operator fun get(setting: UserStyleSetting): UserStyleSetting.Option? =
         selectedOptions[setting]
+
+    override fun toString(): String =
+        "[" + selectedOptions.entries.joinToString(
+            transform = { it.key.id + " -> " + it.value.id }
+        ) + "]"
 }
 
 /** Describes the list of [UserStyleSetting]s the user can configure. */
@@ -109,6 +114,8 @@ public class UserStyleSchema(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public fun toWireFormat(): UserStyleSchemaWireFormat =
         UserStyleSchemaWireFormat(userStyleSettings.map { it.toWireFormat() })
+
+    override fun toString(): String = "[" + userStyleSettings.joinToString() + "]"
 }
 
 /**
