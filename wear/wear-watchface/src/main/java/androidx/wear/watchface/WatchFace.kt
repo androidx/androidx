@@ -626,7 +626,7 @@ internal class WatchFaceImpl(
         }
 
         watchState.isAmbient.addObserver(ambientObserver)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !watchState.isHeadless) {
             watchState.isBatteryLowAndNotCharging.addObserver(batteryLowAndNotChargingObserver)
         }
         watchState.interruptionFilter.addObserver(interruptionFilterObserver)
@@ -723,7 +723,7 @@ internal class WatchFaceImpl(
         pendingPostDoubleTap.cancel()
         renderer.onDestroy()
         watchState.isAmbient.removeObserver(ambientObserver)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !watchState.isHeadless) {
             watchState.isBatteryLowAndNotCharging.removeObserver(batteryLowAndNotChargingObserver)
         }
         watchState.interruptionFilter.removeObserver(interruptionFilterObserver)
