@@ -1577,7 +1577,8 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
      */
     @NonNull
     public List<View> getDependencies(@NonNull View child) {
-        return mChildDag.getOutgoingEdges(child);
+        List<View> result = mChildDag.getOutgoingEdges(child);
+        return result == null ? Collections.<View>emptyList() : result;
     }
 
     /**
@@ -1588,7 +1589,8 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
      */
     @NonNull
     public List<View> getDependents(@NonNull View child) {
-        return mChildDag.getIncomingEdges(child);
+        List<View> result = mChildDag.getIncomingEdges(child);
+        return result == null ? Collections.<View>emptyList() : result;
     }
 
     @VisibleForTesting
