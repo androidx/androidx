@@ -230,7 +230,7 @@ dependencies {
     docs("androidx.wear:wear-input:1.1.0-alpha01")
     docs("androidx.wear:wear-input-testing:1.1.0-alpha01")
     docs("androidx.webkit:webkit:1.4.0")
-    docs("androidx.window:window:1.0.0-alpha01")
+    docs("androidx.window:window:1.0.0-alpha02")
     stubs(fileTree(dir: '../window/stubs/', include: ['window-sidecar-release-0.1.0-alpha01.aar']))
     stubs(project(":window:window-extensions"))
     docs("androidx.work:work-gcm:2.5.0")
