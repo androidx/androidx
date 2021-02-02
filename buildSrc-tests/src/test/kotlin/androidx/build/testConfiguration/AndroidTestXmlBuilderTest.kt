@@ -18,6 +18,7 @@ package androidx.build.testConfiguration
 
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
+import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,7 +32,7 @@ import javax.xml.parsers.SAXParserFactory
  * Simple check that the test config templates are able to be parsed as valid xml.
  */
 @RunWith(JUnit4::class)
-class XmlTestConfigVerificationTest {
+class AndroidTestXmlBuilderTest {
 
     private lateinit var builder: ConfigBuilder
     private lateinit var mediaBuilder: MediaConfigBuilder
@@ -53,6 +54,7 @@ class XmlTestConfigVerificationTest {
             .serviceApkName("servicePlaceholder.apk")
             .minSdk("15")
             .tag("placeholder_tag")
+            .tag("media_compat")
             .testRunner("com.example.Runner")
             .isClientPrevious(true)
             .isServicePrevious(false)
@@ -95,6 +97,13 @@ class XmlTestConfigVerificationTest {
     fun testValidTestConfigXml_presubmitWithAppApk() {
         builder.isPostsubmit(false)
             .appApkName("Placeholder.apk")
+        validate(builder.build())
+    }
+
+    @Test
+    fun testMultipleTags() {
+        builder.tag("another_tag")
+        MatcherAssert.assertThat(builder.tags.size, CoreMatchers.`is`(2))
         validate(builder.build())
     }
 
