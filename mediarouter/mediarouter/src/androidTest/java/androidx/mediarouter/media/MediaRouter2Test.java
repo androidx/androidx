@@ -57,8 +57,9 @@ public class MediaRouter2Test {
     private static final String TAG = "MR2Test";
     private static final int TIMEOUT_MS = 5_000;
 
-    Context mContext;
-    MediaRouter mRouter;
+    private Context mContext;
+    private MediaRouter mRouter;
+    private MediaRouter.Callback mPlaceholderCallback = new MediaRouter.Callback() { };
     StubMediaRouteProviderService mService;
     StubMediaRouteProviderService.StubMediaRouteProvider mProvider;
     MediaRouteProviderService.MediaRouteProviderServiceImplApi30 mServiceImpl;
@@ -80,6 +81,14 @@ public class MediaRouter2Test {
         mSelector = new MediaRouteSelector.Builder()
                 .addControlCategory(StubMediaRouteProviderService.CATEGORY_TEST)
                 .build();
+        MediaRouter2TestActivity.startActivity(mContext);
+
+        getInstrumentation().runOnMainSync(() -> {
+            MediaRouteSelector placeholderSelector = new MediaRouteSelector.Builder()
+                    .addControlCategory("placeholder category").build();
+            mRouter.addCallback(placeholderSelector, mPlaceholderCallback,
+                    MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
+        });
 
         new PollingCheck(TIMEOUT_MS) {
             @Override
@@ -105,11 +114,13 @@ public class MediaRouter2Test {
     @After
     public void tearDown() {
         getInstrumentation().runOnMainSync(() -> {
+            mRouter.removeCallback(mPlaceholderCallback);
             for (MediaRouter.Callback callback : mCallbacks) {
                 mRouter.removeCallback(callback);
             }
             mCallbacks.clear();
         });
+        MediaRouter2TestActivity.finishActivity();
     }
 
     @Test
