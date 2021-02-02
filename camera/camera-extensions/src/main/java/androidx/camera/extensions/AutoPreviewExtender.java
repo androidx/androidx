@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
-import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
 
 /**
@@ -69,7 +68,7 @@ public class AutoPreviewExtender extends PreviewExtender {
 
         VendorAutoPreviewExtender(Preview.Builder builder) {
             mImpl = new AutoPreviewExtenderImpl();
-            init(builder, mImpl, EffectMode.AUTO);
+            init(builder, mImpl, Extensions.EXTENSION_MODE_AUTO);
         }
     }
 

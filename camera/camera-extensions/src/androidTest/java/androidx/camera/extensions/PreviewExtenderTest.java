@@ -52,7 +52,6 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.CameraRepository;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
-import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
@@ -402,7 +401,7 @@ public class PreviewExtenderTest {
 
     private class FakePreviewExtender extends PreviewExtender {
         FakePreviewExtender(Preview.Builder builder, PreviewExtenderImpl impl) {
-            init(builder, impl, EffectMode.NORMAL);
+            init(builder, impl, Extensions.EXTENSION_MODE_NONE);
         }
     }
 

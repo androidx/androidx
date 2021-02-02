@@ -41,7 +41,6 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.extensions.ExtensionsErrorListener.ExtensionsErrorCode;
-import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
@@ -57,17 +56,18 @@ import java.util.List;
  */
 public abstract class PreviewExtender {
     private static final String TAG = "PreviewExtender";
-    static final Config.Option<EffectMode> OPTION_PREVIEW_EXTENDER_MODE = Config.Option.create(
-            "camerax.extensions.previewExtender.mode", EffectMode.class);
+    static final Config.Option<Integer> OPTION_PREVIEW_EXTENDER_MODE = Config.Option.create(
+            "camerax.extensions.previewExtender.mode", Integer.class);
 
     private Preview.Builder mBuilder;
     private PreviewExtenderImpl mImpl;
-    private EffectMode mEffectMode;
+    @Extensions.ExtensionMode
+    private int mEffectMode;
     private ExtensionCameraFilter mExtensionCameraFilter;
 
     @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     void init(Preview.Builder builder, PreviewExtenderImpl implementation,
-            EffectMode effectMode) {
+            @Extensions.ExtensionMode int effectMode) {
         mBuilder = builder;
         mImpl = implementation;
         mEffectMode = effectMode;
@@ -191,7 +191,7 @@ public abstract class PreviewExtender {
         }
     }
 
-    static void checkImageCaptureEnabled(EffectMode effectMode,
+    static void checkImageCaptureEnabled(@Extensions.ExtensionMode int effectMode,
             Collection<UseCase> activeUseCases) {
         boolean isImageCaptureExtenderEnabled = false;
         boolean isMismatched = false;
@@ -202,12 +202,13 @@ public abstract class PreviewExtender {
         }
 
         for (UseCase useCase : activeUseCases) {
-            EffectMode imageCaptureExtenderMode = useCase.getCurrentConfig().retrieveOption(
-                    ImageCaptureExtender.OPTION_IMAGE_CAPTURE_EXTENDER_MODE, null);
+            int imageCaptureExtenderMode = useCase.getCurrentConfig().retrieveOption(
+                    ImageCaptureExtender.OPTION_IMAGE_CAPTURE_EXTENDER_MODE,
+                    Extensions.EXTENSION_MODE_NONE);
 
             if (effectMode == imageCaptureExtenderMode) {
                 isImageCaptureExtenderEnabled = true;
-            } else if (imageCaptureExtenderMode != null) {
+            } else if (imageCaptureExtenderMode != Extensions.EXTENSION_MODE_NONE) {
                 isMismatched = true;
             }
         }
