@@ -2542,12 +2542,17 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 return false;
             }
 
-            final int numActions = mPendingActions.size();
-            for (int i = 0; i < numActions; i++) {
-                didSomething |= mPendingActions.get(i).generateOps(records, isPop);
+            try {
+                final int numActions = mPendingActions.size();
+                for (int i = 0; i < numActions; i++) {
+                    didSomething |= mPendingActions.get(i).generateOps(records, isPop);
+                }
+            } finally {
+                // Whether generateOps succeeds or not, we clear the pending actions
+                // to avoid re-processing the same set of actions a second time
+                mPendingActions.clear();
+                mHost.getHandler().removeCallbacks(mExecCommit);
             }
-            mPendingActions.clear();
-            mHost.getHandler().removeCallbacks(mExecCommit);
         }
         return didSomething;
     }
@@ -2580,6 +2585,39 @@ public abstract class FragmentManager implements FragmentResultOwner {
         if (index < 0) {
             return false;
         }
+
+        // Assert that the set of affected fragments are entirely self contained within
+        // the set of transactions being saved by ensuring that the first transaction including
+        // that fragment includes an OP_ADD
+        HashSet<Fragment> allFragments = new HashSet<>();
+        for (int i = index; i < mBackStack.size(); i++) {
+            BackStackRecord record = mBackStack.get(index);
+            HashSet<Fragment> affectedFragments = new HashSet<>();
+            HashSet<Fragment> addedFragments = new HashSet<>();
+            for (FragmentTransaction.Op op : record.mOps) {
+                Fragment f = op.mFragment;
+                if (f != null && !op.mTopmostFragment && !allFragments.contains(f)) {
+                    allFragments.add(f);
+                    affectedFragments.add(f);
+                    if (op.mCmd == FragmentTransaction.OP_ADD) {
+                        addedFragments.add(f);
+                    }
+                }
+            }
+            affectedFragments.removeAll(addedFragments);
+            if (!affectedFragments.isEmpty()) {
+                throwException(new IllegalArgumentException("saveBackStack(\"" + name + "\") "
+                        + "must be self contained and not reference fragments from "
+                        + "non-saved FragmentTransactions. Found reference to fragment"
+                        + (affectedFragments.size() == 1
+                        ? " " + affectedFragments.iterator().next()
+                        : "s " + affectedFragments)
+                        + " in " + record + " that were previously "
+                        + "added to the FragmentManager through a separate FragmentTransaction."));
+            }
+        }
+
+        // Now actually record each save
         for (int i = mBackStack.size() - 1; i >= index; i--) {
             // TODO: Pre-process each BackStackRecord so that they actually save state
             records.add(mBackStack.remove(i));
