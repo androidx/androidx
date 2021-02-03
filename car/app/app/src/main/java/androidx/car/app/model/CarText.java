@@ -16,12 +16,15 @@
 
 package androidx.car.app.model;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import android.text.SpannableString;
 import android.text.Spanned;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.utils.CollectionUtils;
 import androidx.car.app.utils.StringUtils;
 
@@ -121,7 +124,10 @@ public final class CarText {
 
     /**
      * Returns a shortened string from the input {@code text}.
+     *
+     * @hide
      */
+    @RestrictTo(LIBRARY)
     @Nullable
     public static String toShortString(@Nullable CarText text) {
         return text == null ? null : StringUtils.shortenString(text.toString());

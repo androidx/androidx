@@ -271,7 +271,6 @@ package androidx.car.app.model {
     method public boolean isEmpty();
     method public static boolean isNullOrEmpty(androidx.car.app.model.CarText?);
     method public CharSequence toCharSequence();
-    method public static String? toShortString(androidx.car.app.model.CarText?);
   }
 
   public final class DateTimeWithZone {
