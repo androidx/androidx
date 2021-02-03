@@ -259,6 +259,7 @@ class HardwareIdentityCredential extends IdentityCredential {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void storeStaticAuthenticationData(@NonNull X509Certificate authenticationKey,
             @NonNull byte[] staticAuthData) throws UnknownAuthenticationKeyException {
         try {

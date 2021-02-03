@@ -55,7 +55,7 @@ public final class RequestToPlatformConverter {
         android.app.appsearch.SetSchemaRequest.Builder platformBuilder =
                 new android.app.appsearch.SetSchemaRequest.Builder();
         for (AppSearchSchema jetpackSchema : jetpackRequest.getSchemas()) {
-            platformBuilder.addSchema(SchemaToPlatformConverter.toPlatformSchema(jetpackSchema));
+            platformBuilder.addSchemas(SchemaToPlatformConverter.toPlatformSchema(jetpackSchema));
         }
         for (String schemaNotVisibleToSystemUi : jetpackRequest.getSchemasNotVisibleToSystemUi()) {
             platformBuilder.setSchemaTypeVisibilityForSystemUi(
@@ -117,7 +117,7 @@ public final class RequestToPlatformConverter {
         android.app.appsearch.PutDocumentsRequest.Builder platformBuilder =
                 new android.app.appsearch.PutDocumentsRequest.Builder();
         for (GenericDocument jetpackDocument : jetpackRequest.getGenericDocuments()) {
-            platformBuilder.addGenericDocument(
+            platformBuilder.addGenericDocuments(
                     GenericDocumentToPlatformConverter.toPlatformGenericDocument(jetpackDocument));
         }
         return platformBuilder.build();

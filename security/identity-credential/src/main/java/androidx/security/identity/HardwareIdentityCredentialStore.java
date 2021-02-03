@@ -114,6 +114,7 @@ class HardwareIdentityCredentialStore extends IdentityCredentialStore {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public @Nullable byte[] deleteCredentialByName(@NonNull String credentialName) {
         return mStore.deleteCredentialByName(credentialName);
     }
