@@ -46,21 +46,4 @@ public class CustomValueUserStyleSettingWireFormat extends UserStyleSettingWireF
             @NonNull List<Integer> affectsLayers) {
         super(id, displayName, description, icon, options, 0, affectsLayers);
     }
-
-    /**
-     * Wire format for {@link
-     * androidx.wear.watchface.style.CustomValueStyleSetting.CustomValueOption}.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @VersionedParcelize
-    public static class CustomValueOptionWireFormat extends OptionWireFormat {
-        CustomValueOptionWireFormat() {
-        }
-
-        public CustomValueOptionWireFormat(@NonNull String id) {
-            super(id);
-        }
-    }
 }
