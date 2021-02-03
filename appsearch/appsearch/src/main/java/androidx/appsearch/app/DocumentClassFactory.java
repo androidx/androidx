@@ -20,31 +20,35 @@ import androidx.annotation.NonNull;
 import androidx.appsearch.exceptions.AppSearchException;
 
 /**
- * An interface for factories which can convert between data classes and {@link GenericDocument}.
+ * An interface for factories which can convert between instances of classes annotated with
+ * \@{@link androidx.appsearch.annotation.Document} and instances of {@link GenericDocument}.
  *
- * @param <T> The type of data class this factory converts to and from {@link GenericDocument}.
+ * @param <T> The document class type this factory converts to and from {@link GenericDocument}.
  */
-public interface DataClassFactory<T> {
+public interface DocumentClassFactory<T> {
     /**
      * Returns the name of this schema type, e.g. {@code Email}.
      *
      * <p>This is the name used in queries for type restricts.
      */
     @NonNull
-    String getSchemaType();
+    String getSchemaName();
 
-    /** Returns the schema for this data class. */
+    /** Returns the schema for this document class. */
     @NonNull
     AppSearchSchema getSchema() throws AppSearchException;
 
     /**
-     * Converts an instance of the data class into a {@link androidx.appsearch.app.GenericDocument}.
+     * Converts an instance of the class annotated with
+     * \@{@link androidx.appsearch.annotation.Document} into a
+     * {@link androidx.appsearch.app.GenericDocument}.
      */
     @NonNull
-    GenericDocument toGenericDocument(@NonNull T dataClass) throws AppSearchException;
+    GenericDocument toGenericDocument(@NonNull T document) throws AppSearchException;
 
     /**
-     * Converts a {@link androidx.appsearch.app.GenericDocument} into an instance of the data class.
+     * Converts a {@link androidx.appsearch.app.GenericDocument} into an instance of the document
+     * class.
      */
     @NonNull
     T fromGenericDocument(@NonNull GenericDocument genericDoc) throws AppSearchException;

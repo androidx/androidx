@@ -43,7 +43,7 @@ import javax.lang.model.util.Types;
 
 /**
  * Generates java code for a translator from a {@link androidx.appsearch.app.GenericDocument} to
- * a data class.
+ * an instance of a class annotated with {@link androidx.appsearch.annotation.Document}.
  */
 class FromGenericDocumentCodeGenerator {
     private final ProcessingEnvironment mEnv;
@@ -80,14 +80,14 @@ class FromGenericDocumentCodeGenerator {
 
         unpackSpecialFields(methodBuilder);
 
-        // Unpack properties from the GenericDocument into the format desired by the data class
+        // Unpack properties from the GenericDocument into the format desired by the document class
         for (Map.Entry<String, VariableElement> entry : mModel.getPropertyFields().entrySet()) {
             fieldFromGenericDoc(methodBuilder, entry.getKey(), entry.getValue());
         }
 
-        // Create an instance of the data class via the chosen constructor
+        // Create an instance of the document class via the chosen constructor
         methodBuilder.addStatement(
-                "$T dataClass = new $T($L)", classType, classType, getConstructorParams());
+                "$T document = new $T($L)", classType, classType, getConstructorParams());
 
         // Assign all fields which weren't set in the constructor
         for (String field : mModel.getAllFields().keySet()) {
@@ -97,13 +97,13 @@ class FromGenericDocumentCodeGenerator {
             }
         }
 
-        methodBuilder.addStatement("return dataClass");
+        methodBuilder.addStatement("return document");
         return methodBuilder.build();
     }
 
     /**
      * Converts a field from a {@link androidx.appsearch.app.GenericDocument} into a format suitable
-     * for the data class.
+     * for the document class.
      */
     private void fieldFromGenericDoc(
             @NonNull MethodSpec.Builder builder,
@@ -357,9 +357,9 @@ class FromGenericDocumentCodeGenerator {
         // If not null, iterate and assign
         body.add("if ($NCopy != null) {\n", fieldName).indent();
         body.addStatement("$T factory = $T.getInstance().getOrCreateFactory($T.class)",
-                ParameterizedTypeName.get(mHelper.getAppSearchClass("DataClassFactory"),
+                ParameterizedTypeName.get(mHelper.getAppSearchClass("DocumentClassFactory"),
                         TypeName.get(propertyType)),
-                mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType);
+                mHelper.getAppSearchClass("DocumentClassFactoryRegistry"), propertyType);
         body.addStatement("$NConv = new $T<>($NCopy.length)", fieldName, ArrayList.class,
                 fieldName);
 
@@ -563,9 +563,9 @@ class FromGenericDocumentCodeGenerator {
         body.add("if ($NCopy != null) {\n", fieldName).indent();
         body.addStatement("$NConv = new $T[$NCopy.length]", fieldName, propertyType, fieldName);
         body.addStatement("$T factory = $T.getInstance().getOrCreateFactory($T.class)",
-                ParameterizedTypeName.get(mHelper.getAppSearchClass("DataClassFactory"),
+                ParameterizedTypeName.get(mHelper.getAppSearchClass("DocumentClassFactory"),
                         TypeName.get(propertyType)),
-                mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType);
+                mHelper.getAppSearchClass("DocumentClassFactoryRegistry"), propertyType);
 
         body.add("for (int i = 0; i < $NCopy.length; i++) {\n", fieldName).indent();
         body.addStatement("$NConv[i] = factory.fromGenericDocument($NCopy[i])", fieldName,
@@ -749,7 +749,7 @@ class FromGenericDocumentCodeGenerator {
 
         body.addStatement("$NConv = $T.getInstance().getOrCreateFactory($T.class)"
                         + ".fromGenericDocument($NCopy)", fieldName,
-                mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType,
+                mHelper.getAppSearchClass("DocumentClassFactoryRegistry"), propertyType,
                 fieldName);
 
         body.unindent().add("}\n");
@@ -776,7 +776,7 @@ class FromGenericDocumentCodeGenerator {
                 DocumentModel.SpecialField.values()) {
             String fieldName = mModel.getSpecialFieldName(specialField);
             if (fieldName == null) {
-                continue;  // The data class doesn't have this field, so no need to unpack it.
+                continue;  // The document class doesn't have this field, so no need to unpack it.
             }
             switch (specialField) {
                 case URI:
@@ -803,10 +803,10 @@ class FromGenericDocumentCodeGenerator {
     private CodeBlock createAppSearchFieldWrite(@NonNull String fieldName) {
         switch (mModel.getFieldWriteKind(fieldName)) {
             case FIELD:
-                return CodeBlock.of("dataClass.$N = $NConv", fieldName, fieldName);
+                return CodeBlock.of("document.$N = $NConv", fieldName, fieldName);
             case SETTER:
                 String setter = mModel.getAccessorName(fieldName, /*get=*/ false);
-                return CodeBlock.of("dataClass.$N($NConv)", setter, fieldName);
+                return CodeBlock.of("document.$N($NConv)", setter, fieldName);
             default:
                 return null;  // Constructor params should already have been set
         }

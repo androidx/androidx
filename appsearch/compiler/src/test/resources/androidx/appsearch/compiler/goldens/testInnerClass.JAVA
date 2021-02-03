@@ -1,23 +1,23 @@
 package com.example.appsearch;
 
 import androidx.appsearch.app.AppSearchSchema;
-import androidx.appsearch.app.DataClassFactory;
+import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Override;
 import java.lang.String;
 
-public class $$__AppSearch__Gift$$__InnerGift implements DataClassFactory<Gift.InnerGift> {
-  private static final String SCHEMA_TYPE = "InnerGift";
+public class $$__AppSearch__Gift$$__InnerGift implements DocumentClassFactory<Gift.InnerGift> {
+  private static final String SCHEMA_NAME = "InnerGift";
 
   @Override
-  public String getSchemaType() {
-    return SCHEMA_TYPE;
+  public String getSchemaName() {
+    return SCHEMA_NAME;
   }
 
   @Override
   public AppSearchSchema getSchema() throws AppSearchException {
-    return new AppSearchSchema.Builder(SCHEMA_TYPE)
+    return new AppSearchSchema.Builder(SCHEMA_NAME)
           .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("arrString")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
@@ -27,10 +27,10 @@ public class $$__AppSearch__Gift$$__InnerGift implements DataClassFactory<Gift.I
   }
 
   @Override
-  public GenericDocument toGenericDocument(Gift.InnerGift dataClass) throws AppSearchException {
+  public GenericDocument toGenericDocument(Gift.InnerGift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
-    String[] arrStringCopy = dataClass.arrString;
+        new GenericDocument.Builder<>(document.uri, SCHEMA_NAME);
+    String[] arrStringCopy = document.arrString;
     if (arrStringCopy != null) {
       builder.setPropertyString("arrString", arrStringCopy);
     }
@@ -41,9 +41,9 @@ public class $$__AppSearch__Gift$$__InnerGift implements DataClassFactory<Gift.I
   public Gift.InnerGift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
     String uriConv = genericDoc.getUri();
     String[] arrStringConv = genericDoc.getPropertyStringArray("arrString");
-    Gift.InnerGift dataClass = new Gift.InnerGift();
-    dataClass.uri = uriConv;
-    dataClass.arrString = arrStringConv;
-    return dataClass;
+    Gift.InnerGift document = new Gift.InnerGift();
+    document.uri = uriConv;
+    document.arrString = arrStringConv;
+    return document;
   }
 }

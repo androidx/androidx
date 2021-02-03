@@ -133,7 +133,7 @@ public class SetSchemaRequestTest {
 
 // @exportToFramework:startStrip()
     @Test
-    public void testDataClassVisibilityForSystemUi_visible() throws Exception {
+    public void testSetDocumentClassVisibilityForSystemUi_visible() throws Exception {
         // By default, the schema is visible.
         SetSchemaRequest request =
                 new SetSchemaRequest.Builder().addDocumentClasses(Card.class).build();
@@ -147,7 +147,7 @@ public class SetSchemaRequestTest {
     }
 
     @Test
-    public void testDataClassVisibilityForSystemUi_notVisible() throws Exception {
+    public void testSetDocumentClassVisibilityForSystemUi_notVisible() throws Exception {
         SetSchemaRequest request =
                 new SetSchemaRequest.Builder().addDocumentClasses(
                         Card.class).setDocumentClassVisibilityForSystemUi(
@@ -234,7 +234,7 @@ public class SetSchemaRequestTest {
 
 // @exportToFramework:startStrip()
     @Test
-    public void testDataClassVisibilityForPackage_visible() throws Exception {
+    public void testSetDocumentClassVisibilityForPackage_visible() throws Exception {
         // By default, the schema is not visible.
         SetSchemaRequest request =
                 new SetSchemaRequest.Builder().addDocumentClasses(Card.class).build();
@@ -254,7 +254,7 @@ public class SetSchemaRequestTest {
     }
 
     @Test
-    public void testDataClassVisibilityForPackage_notVisible() throws Exception {
+    public void testSetDocumentClassVisibilityForPackage_notVisible() throws Exception {
         SetSchemaRequest request =
                 new SetSchemaRequest.Builder().addDocumentClasses(
                         Card.class).setDocumentClassVisibilityForPackage(
@@ -265,7 +265,7 @@ public class SetSchemaRequestTest {
     }
 
     @Test
-    public void testDataClassVisibilityForPackage_deduped() throws Exception {
+    public void testSetDocumentClassVisibilityForPackage_deduped() throws Exception {
         // By default, the schema is not visible.
         SetSchemaRequest request =
                 new SetSchemaRequest.Builder().addDocumentClasses(Card.class).build();
@@ -289,7 +289,7 @@ public class SetSchemaRequestTest {
     }
 
     @Test
-    public void testDataClassVisibilityForPackage_removed() throws Exception {
+    public void testSetDocumentClassVisibilityForPackage_removed() throws Exception {
         // By default, the schema is not visible.
         SetSchemaRequest request =
                 new SetSchemaRequest.Builder().addDocumentClasses(Card.class).build();
@@ -313,7 +313,7 @@ public class SetSchemaRequestTest {
     }
 
     @Test
-    public void testAddDataClass_byCollection() throws Exception {
+    public void testAddDocumentClasses_byCollection() throws Exception {
         Set<Class<? extends Spade>> cardClasses = ImmutableSet.of(Queen.class, King.class);
         SetSchemaRequest request =
                 new SetSchemaRequest.Builder().addDocumentClasses(cardClasses)
@@ -323,7 +323,7 @@ public class SetSchemaRequestTest {
     }
 
     @Test
-    public void testAddDataClass_byCollectionWithSeparateCalls() throws
+    public void testAddDocumentClasses_byCollectionWithSeparateCalls() throws
             Exception {
         SetSchemaRequest request =
                 new SetSchemaRequest.Builder().addDocumentClasses(ImmutableSet.of(Queen.class))

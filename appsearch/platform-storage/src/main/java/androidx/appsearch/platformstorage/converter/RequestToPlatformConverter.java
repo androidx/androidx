@@ -91,9 +91,9 @@ public final class RequestToPlatformConverter {
                 .setResultCode(
                         platformResponse.isSuccess()
                                 ? AppSearchResult.RESULT_OK : AppSearchResult.RESULT_INTERNAL_ERROR)
-                .addDeletedType(platformResponse.getDeletedTypes())
-                .addIncompatibleType(platformResponse.getIncompatibleTypes())
-                .addMigratedType(platformResponse.getMigratedTypes());
+                .addDeletedTypes(platformResponse.getDeletedTypes())
+                .addIncompatibleTypes(platformResponse.getIncompatibleTypes())
+                .addMigratedTypes(platformResponse.getMigratedTypes());
         for (android.app.appsearch.SetSchemaResponse.MigrationFailure migrationFailure :
                 platformResponse.getMigrationFailures()) {
             jetpackBuilder.setFailure(

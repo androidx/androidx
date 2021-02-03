@@ -1,23 +1,23 @@
 package com.example.appsearch;
 
 import androidx.appsearch.app.AppSearchSchema;
-import androidx.appsearch.app.DataClassFactory;
+import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Override;
 import java.lang.String;
 
-public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
-  private static final String SCHEMA_TYPE = "Gift";
+public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
+  private static final String SCHEMA_NAME = "Gift";
 
   @Override
-  public String getSchemaType() {
-    return SCHEMA_TYPE;
+  public String getSchemaName() {
+    return SCHEMA_NAME;
   }
 
   @Override
   public AppSearchSchema getSchema() throws AppSearchException {
-    return new AppSearchSchema.Builder(SCHEMA_TYPE)
+    return new AppSearchSchema.Builder(SCHEMA_NAME)
           .addProperty(new AppSearchSchema.Int64PropertyConfig.Builder("price")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .build())
@@ -25,10 +25,10 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
   }
 
   @Override
-  public GenericDocument toGenericDocument(Gift dataClass) throws AppSearchException {
+  public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
-    builder.setPropertyLong("price", dataClass.getPrice());
+        new GenericDocument.Builder<>(document.uri, SCHEMA_NAME);
+    builder.setPropertyLong("price", document.getPrice());
     return builder.build();
   }
 
@@ -36,9 +36,9 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
     String uriConv = genericDoc.getUri();
     int priceConv = (int) genericDoc.getPropertyLong("price");
-    Gift dataClass = new Gift();
-    dataClass.uri = uriConv;
-    dataClass.setPrice(priceConv);
-    return dataClass;
+    Gift document = new Gift();
+    document.uri = uriConv;
+    document.setPrice(priceConv);
+    return document;
   }
 }

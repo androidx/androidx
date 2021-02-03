@@ -162,7 +162,7 @@ class SearchSessionImpl implements AppSearchSession {
                     migratedTypes.add(entry.getKey());
                 }
             }
-            responseBuilder.addMigratedType(migratedTypes);
+            responseBuilder.addMigratedTypes(migratedTypes);
 
             // 5. SetSchema a second time with forceOverride=true if the first attempted failed.
             if (setSchemaResult.getResultCode() != RESULT_OK) {
@@ -175,8 +175,8 @@ class SearchSessionImpl implements AppSearchSession {
                         copySchemasPackageAccessible,
                         /*forceOverride=*/ true);
             }
-            responseBuilder.addDeletedType(setSchemaResult.getDeletedSchemaTypes());
-            responseBuilder.addIncompatibleType(setSchemaResult.getIncompatibleSchemaTypes());
+            responseBuilder.addDeletedTypes(setSchemaResult.getDeletedSchemaTypes());
+            responseBuilder.addIncompatibleTypes(setSchemaResult.getIncompatibleSchemaTypes());
             mIsMutated = true;
 
             // 6. Put all the migrated documents into the index, now that the new schema is set.

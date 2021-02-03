@@ -1,7 +1,7 @@
 package com.example.appsearch;
 
 import androidx.appsearch.app.AppSearchSchema;
-import androidx.appsearch.app.DataClassFactory;
+import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Boolean;
@@ -12,17 +12,17 @@ import java.lang.Long;
 import java.lang.Override;
 import java.lang.String;
 
-public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
-  private static final String SCHEMA_TYPE = "Gift";
+public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
+  private static final String SCHEMA_NAME = "Gift";
 
   @Override
-  public String getSchemaType() {
-    return SCHEMA_TYPE;
+  public String getSchemaName() {
+    return SCHEMA_NAME;
   }
 
   @Override
   public AppSearchSchema getSchema() throws AppSearchException {
-    return new AppSearchSchema.Builder(SCHEMA_TYPE)
+    return new AppSearchSchema.Builder(SCHEMA_NAME)
           .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("stringProp")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
@@ -50,34 +50,34 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
   }
 
   @Override
-  public GenericDocument toGenericDocument(Gift dataClass) throws AppSearchException {
+  public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
-    String stringPropCopy = dataClass.stringProp;
+        new GenericDocument.Builder<>(document.uri, SCHEMA_NAME);
+    String stringPropCopy = document.stringProp;
     if (stringPropCopy != null) {
       builder.setPropertyString("stringProp", stringPropCopy);
     }
-    Integer integerPropCopy = dataClass.integerProp;
+    Integer integerPropCopy = document.integerProp;
     if (integerPropCopy != null) {
       builder.setPropertyLong("integerProp", integerPropCopy);
     }
-    Long longPropCopy = dataClass.longProp;
+    Long longPropCopy = document.longProp;
     if (longPropCopy != null) {
       builder.setPropertyLong("longProp", longPropCopy);
     }
-    Float floatPropCopy = dataClass.floatProp;
+    Float floatPropCopy = document.floatProp;
     if (floatPropCopy != null) {
       builder.setPropertyDouble("floatProp", floatPropCopy);
     }
-    Double doublePropCopy = dataClass.doubleProp;
+    Double doublePropCopy = document.doubleProp;
     if (doublePropCopy != null) {
       builder.setPropertyDouble("doubleProp", doublePropCopy);
     }
-    Boolean booleanPropCopy = dataClass.booleanProp;
+    Boolean booleanPropCopy = document.booleanProp;
     if (booleanPropCopy != null) {
       builder.setPropertyBoolean("booleanProp", booleanPropCopy);
     }
-    byte[] bytesPropCopy = dataClass.bytesProp;
+    byte[] bytesPropCopy = document.bytesProp;
     if (bytesPropCopy != null) {
       builder.setPropertyBytes("bytesProp", bytesPropCopy);
     }
@@ -122,15 +122,15 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (bytesPropCopy != null && bytesPropCopy.length != 0) {
       bytesPropConv = bytesPropCopy[0];
     }
-    Gift dataClass = new Gift();
-    dataClass.uri = uriConv;
-    dataClass.stringProp = stringPropConv;
-    dataClass.integerProp = integerPropConv;
-    dataClass.longProp = longPropConv;
-    dataClass.floatProp = floatPropConv;
-    dataClass.doubleProp = doublePropConv;
-    dataClass.booleanProp = booleanPropConv;
-    dataClass.bytesProp = bytesPropConv;
-    return dataClass;
+    Gift document = new Gift();
+    document.uri = uriConv;
+    document.stringProp = stringPropConv;
+    document.integerProp = integerPropConv;
+    document.longProp = longPropConv;
+    document.floatProp = floatPropConv;
+    document.doubleProp = doublePropConv;
+    document.booleanProp = booleanPropConv;
+    document.bytesProp = bytesPropConv;
+    return document;
   }
 }

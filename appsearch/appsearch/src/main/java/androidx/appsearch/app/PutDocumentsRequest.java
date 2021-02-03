@@ -113,8 +113,8 @@ public final class PutDocumentsRequest {
         @NonNull
         private static <T> GenericDocument toGenericDocument(@NonNull T document)
                 throws AppSearchException {
-            DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
-            DataClassFactory<T> factory = registry.getOrCreateFactory(document);
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+            DocumentClassFactory<T> factory = registry.getOrCreateFactory(document);
             return factory.toGenericDocument(document);
         }
 // @exportToFramework:endStrip()

@@ -60,17 +60,17 @@ class SchemaCodeGenerator {
 
     private void generate(@NonNull TypeSpec.Builder classBuilder) throws ProcessingException {
         classBuilder.addField(
-                FieldSpec.builder(String.class, "SCHEMA_TYPE")
+                FieldSpec.builder(String.class, "SCHEMA_NAME")
                         .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
                         .initializer("$S", mModel.getSchemaName())
                         .build());
 
         classBuilder.addMethod(
-                MethodSpec.methodBuilder("getSchemaType")
+                MethodSpec.methodBuilder("getSchemaName")
                         .addModifiers(Modifier.PUBLIC)
                         .returns(TypeName.get(mHelper.mStringType))
                         .addAnnotation(Override.class)
-                        .addStatement("return SCHEMA_TYPE")
+                        .addStatement("return SCHEMA_NAME")
                         .build());
 
         classBuilder.addMethod(
@@ -85,7 +85,7 @@ class SchemaCodeGenerator {
 
     private CodeBlock createSchemaInitializer() throws ProcessingException {
         CodeBlock.Builder codeBlock = CodeBlock.builder()
-                .add("new $T(SCHEMA_TYPE)", mHelper.getAppSearchClass("AppSearchSchema", "Builder"))
+                .add("new $T(SCHEMA_NAME)", mHelper.getAppSearchClass("AppSearchSchema", "Builder"))
                 .indent();
         for (VariableElement property : mModel.getPropertyFields().values()) {
             codeBlock.add("\n.addProperty($L)", createPropertySchema(property));
@@ -212,8 +212,8 @@ class SchemaCodeGenerator {
 
         } else if (isPropertyDocument) {
             codeBlock.add("\n.setSchemaType($T.getInstance()"
-                    + ".getOrCreateFactory($T.class).getSchemaType())",
-                    mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType);
+                    + ".getOrCreateFactory($T.class).getSchemaName())",
+                    mHelper.getAppSearchClass("DocumentClassFactoryRegistry"), propertyType);
             // TODO(b/177572431): Apply setIndexNestedProperties here too
         }
 

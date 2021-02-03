@@ -479,24 +479,23 @@ public class GenericDocument {
 
 // @exportToFramework:startStrip()
     /**
-     * Converts this GenericDocument into an instance of the provided data class.
+     * Converts this GenericDocument into an instance of the provided document class.
      *
-     * <p>It is the developer's responsibility to ensure the right kind of data class is being
+     * <p>It is the developer's responsibility to ensure the right kind of document class is being
      * supplied here, either by structuring the application code to ensure the document type is
      * known, or by checking the return value of {@link #getSchemaType}.
      *
      * <p>Document properties are identified by String keys and any that are found are assigned into
-     * fields of the given data class, so the most likely outcome of supplying the wrong data class
-     * would be an empty or partially populated result.
+     * fields of the given document class, so the most likely outcome of supplying the wrong
+     * document class would be an empty or partially populated result.
      *
-     * @param dataClass a class annotated with
-     *                  {@link Document}.
+     * @param documentClass a class annotated with {@link Document}.
      */
     @NonNull
-    public <T> T toDataClass(@NonNull Class<T> dataClass) throws AppSearchException {
-        Preconditions.checkNotNull(dataClass);
-        DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
-        DataClassFactory<T> factory = registry.getOrCreateFactory(dataClass);
+    public <T> T toDocumentClass(@NonNull Class<T> documentClass) throws AppSearchException {
+        Preconditions.checkNotNull(documentClass);
+        DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+        DocumentClassFactory<T> factory = registry.getOrCreateFactory(documentClass);
         return factory.fromGenericDocument(this);
     }
 // @exportToFramework:endStrip()
