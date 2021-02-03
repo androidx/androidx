@@ -456,4 +456,81 @@ class StyleParcelableTest {
         assertThat(options3Overlays[0].complicationId).isEqualTo(leftComplicationID)
         assertFalse(options3Overlays[0].enabled!!)
     }
+
+    @Test
+    fun styleSchemaToString() {
+        val settingIcon1 = Icon.createWithContentUri("settingIcon1")
+        val settingIcon2 = Icon.createWithContentUri("settingIcon2")
+        val styleSetting1 = ListUserStyleSetting(
+            "id1",
+            "displayName1",
+            "description1",
+            settingIcon1,
+            listOf(option1, option2),
+            listOf(Layer.BASE_LAYER)
+        )
+        val styleSetting2 = ListUserStyleSetting(
+            "id2",
+            "displayName2",
+            "description2",
+            settingIcon2,
+            listOf(option3, option4),
+            listOf(Layer.TOP_LAYER)
+        )
+        val styleSetting3 = BooleanUserStyleSetting(
+            "id3",
+            "displayName3",
+            "description3",
+            null,
+            true,
+            listOf(Layer.BASE_LAYER)
+        )
+        val styleSetting4 = CustomValueUserStyleSetting(
+            "default",
+            listOf(Layer.BASE_LAYER)
+        )
+
+        val schema = UserStyleSchema(
+            listOf(
+                styleSetting1,
+                styleSetting2,
+                styleSetting3,
+                styleSetting4
+            )
+        )
+
+        assertThat(schema.toString()).isEqualTo(
+            "[{id1 : 1, 2}, {id2 : 3, 4}, {id3 : true, false}, {CustomValue : default}]"
+        )
+    }
+
+    @Test
+    fun userStyleToString() {
+        val settingIcon1 = Icon.createWithContentUri("settingIcon1")
+        val settingIcon2 = Icon.createWithContentUri("settingIcon2")
+        val styleSetting1 = ListUserStyleSetting(
+            "id1",
+            "displayName1",
+            "description1",
+            settingIcon1,
+            listOf(option1, option2),
+            listOf(Layer.BASE_LAYER)
+        )
+        val styleSetting2 = ListUserStyleSetting(
+            "id2",
+            "displayName2",
+            "description2",
+            settingIcon2,
+            listOf(option3, option4),
+            listOf(Layer.TOP_LAYER)
+        )
+        val style = UserStyle(
+            hashMapOf(
+                styleSetting1 to option2,
+                styleSetting2 to option3
+            )
+        )
+
+        assertThat(style.toString()).isEqualTo("[id1 -> 2, id2 -> 3]")
+    }
 }
