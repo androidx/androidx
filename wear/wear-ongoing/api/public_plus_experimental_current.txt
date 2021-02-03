@@ -38,21 +38,45 @@ package androidx.wear.ongoing {
     method public static boolean hasOngoingActivity(android.app.Notification);
   }
 
-  @androidx.versionedparcelable.VersionedParcelize public class OngoingActivityStatus implements androidx.versionedparcelable.VersionedParcelable {
+  @androidx.versionedparcelable.VersionedParcelize(isCustom=true) public class OngoingActivityStatus extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.wear.ongoing.TimeDependentText {
+    method public static androidx.wear.ongoing.OngoingActivityStatus forPart(androidx.wear.ongoing.StatusPart);
+    method public long getNextChangeTimeMillis(long);
+    method public androidx.wear.ongoing.StatusPart? getPart(String);
+    method public java.util.Set<java.lang.String!> getPartNames();
+    method public java.util.List<java.lang.CharSequence!> getTemplates();
+    method public CharSequence getText(android.content.Context, long);
+  }
+
+  public static final class OngoingActivityStatus.Builder {
+    ctor public OngoingActivityStatus.Builder();
+    method public androidx.wear.ongoing.OngoingActivityStatus.Builder addPart(String, androidx.wear.ongoing.StatusPart);
+    method public androidx.wear.ongoing.OngoingActivityStatus.Builder addTemplate(CharSequence);
+    method public androidx.wear.ongoing.OngoingActivityStatus build();
+  }
+
+  public abstract class StatusPart implements androidx.wear.ongoing.TimeDependentText androidx.versionedparcelable.VersionedParcelable {
+    ctor public StatusPart();
+  }
+
+  @androidx.versionedparcelable.VersionedParcelize public class TextStatusPart extends androidx.wear.ongoing.StatusPart {
+    ctor public TextStatusPart(String);
     method public long getNextChangeTimeMillis(long);
     method public CharSequence getText(android.content.Context, long);
   }
 
-  @androidx.versionedparcelable.VersionedParcelize public class TextOngoingActivityStatus extends androidx.wear.ongoing.OngoingActivityStatus {
-    ctor public TextOngoingActivityStatus(String);
+  public interface TimeDependentText {
+    method public long getNextChangeTimeMillis(long);
+    method public CharSequence getText(android.content.Context, long);
   }
 
-  @androidx.versionedparcelable.VersionedParcelize public class TimerOngoingActivityStatus extends androidx.wear.ongoing.OngoingActivityStatus {
-    ctor public TimerOngoingActivityStatus(long, boolean, long, long);
-    ctor public TimerOngoingActivityStatus(long, boolean, long);
-    ctor public TimerOngoingActivityStatus(long, boolean);
-    ctor public TimerOngoingActivityStatus(long);
+  @androidx.versionedparcelable.VersionedParcelize public class TimerStatusPart extends androidx.wear.ongoing.StatusPart {
+    ctor public TimerStatusPart(long, boolean, long, long);
+    ctor public TimerStatusPart(long, boolean, long);
+    ctor public TimerStatusPart(long, boolean);
+    ctor public TimerStatusPart(long);
+    method public long getNextChangeTimeMillis(long);
     method public long getPausedAtMillis();
+    method public CharSequence getText(android.content.Context, long);
     method public long getTimeZeroMillis();
     method public long getTotalDurationMillis();
     method public boolean hasTotalDuration();
