@@ -16,15 +16,13 @@
 
 package androidx.navigation.compose
 
-import android.content.ContextWrapper
-import androidx.activity.OnBackPressedDispatcherOwner
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Providers
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -80,27 +78,18 @@ public fun NavHost(
  */
 @Composable
 public fun NavHost(navController: NavHostController, graph: NavGraph) {
-    var context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val viewModelStore = LocalViewModelStoreOwner.current.viewModelStore
+    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current.onBackPressedDispatcher
     val rememberedGraph = remember { graph }
 
     // on successful recompose we setup the navController with proper inputs
     // after the first time, this will only happen again if one of the inputs changes
-    DisposableEffect(navController, lifecycleOwner, viewModelStore) {
+    DisposableEffect(navController, lifecycleOwner, viewModelStore, onBackPressedDispatcher) {
         navController.setLifecycleOwner(lifecycleOwner)
         navController.setViewModelStore(viewModelStore)
+        navController.setOnBackPressedDispatcher(onBackPressedDispatcher)
 
-        // unwrap the context until we find an OnBackPressedDispatcherOwner
-        while (context is ContextWrapper) {
-            if (context is OnBackPressedDispatcherOwner) {
-                navController.setOnBackPressedDispatcher(
-                    (context as OnBackPressedDispatcherOwner).onBackPressedDispatcher
-                )
-                break
-            }
-            context = (context as ContextWrapper).baseContext
-        }
         onDispose { }
     }
 
