@@ -211,7 +211,9 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
             userStyle.selectedOptions as HashMap<UserStyleSetting, UserStyleSetting.Option>
         hashmap[styleSetting] = userStyleOption
 
-        (activity as WatchFaceConfigActivity).editorSession.userStyle = userStyle
+        val watchFaceConfigActivity = (activity as WatchFaceConfigActivity)
+        val editorSession = watchFaceConfigActivity.editorSession
+        editorSession.userStyle = userStyle
     }
 
     override fun onItemClick(userStyleOption: UserStyleSetting.Option) {

@@ -48,7 +48,9 @@ import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.client.asApiEditorState
 import androidx.wear.watchface.data.ComplicationBoundsType
+import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
@@ -61,6 +63,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -70,10 +73,13 @@ import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.doAnswer
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 private const val LEFT_COMPLICATION_ID = 1000
 private const val RIGHT_COMPLICATION_ID = 1001
 private const val BACKGROUND_COMPLICATION_ID = 1111
+private const val TIMEOUT_MILLIS = 500L
 
 /** Trivial "editor" which exposes the EditorSession for testing. */
 public class OnWatchFaceEditingTestActivity : ComponentActivity() {
@@ -261,6 +267,23 @@ public class EditorSessionTest {
             emptyList(),
             DefaultComplicationProviderPolicy()
         ).build()
+
+    private class TestEditorObserver : IEditorObserver.Stub() {
+        private lateinit var editorState: EditorStateWireFormat
+        private var latch = CountDownLatch(1)
+
+        override fun getApiVersion() = IEditorObserver.API_VERSION
+
+        override fun onEditorStateChange(editorState: EditorStateWireFormat) {
+            this.editorState = editorState
+            latch.countDown()
+        }
+
+        fun awaitEditorStateChange(timeout: Long, unit: TimeUnit): EditorStateWireFormat {
+            require(latch.await(timeout, unit))
+            return editorState
+        }
+    }
 
     private fun createOnWatchFaceEditingTestActivity(
         userStyleSettings: List<UserStyleSetting>,
@@ -651,11 +674,15 @@ public class EditorSessionTest {
     }
 
     @Test
-    public fun userStyleAndComplicationPreviewDataInActivityResult() {
+    public fun userStyleAndComplicationPreviewDataInEditorObserver() {
         val scenario = createOnWatchFaceEditingTestActivity(
             listOf(colorStyleSetting, watchHandStyleSetting),
             listOf(leftComplication, rightComplication)
         )
+
+        val editorObserver = TestEditorObserver()
+        val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
+
         scenario.onActivity { activity ->
             runBlocking {
                 // Select [blueStyleOption] and [gothicStyleOption].
@@ -664,19 +691,26 @@ public class EditorSessionTest {
                     styleMap[userStyleSetting] = userStyleSetting.options.last()
                 }
                 activity.editorSession.userStyle = UserStyle(styleMap)
-                activity.setWatchRequestResult(activity.editorSession)
+                activity.editorSession.close()
                 activity.finish()
             }
         }
 
-        val result = WatchFaceEditorContract().parseResult(
-            scenario.result.resultCode,
-            scenario.result.resultData
-        )
+        val result = editorObserver.awaitEditorStateChange(
+            TIMEOUT_MILLIS,
+            TimeUnit.MILLISECONDS
+        ).asApiEditorState()
 
         assertThat(result.userStyle[colorStyleSetting.id]).isEqualTo(blueStyleOption.id)
         assertThat(result.userStyle[watchHandStyleSetting.id]).isEqualTo(gothicStyleOption.id)
         assertThat(result.watchFaceInstanceId).isEqualTo(testInstanceId)
+        assertTrue(result.commitChanges)
+
+        // The style change should also have been applied to the watchface
+        assertThat(editorDelegate.userStyleRepository.userStyle[colorStyleSetting]!!.id)
+            .isEqualTo(blueStyleOption.id)
+        assertThat(editorDelegate.userStyleRepository.userStyle[watchHandStyleSetting]!!.id)
+            .isEqualTo(gothicStyleOption.id)
 
         assertThat(result.previewComplicationData.size).isEqualTo(2)
         val leftComplicationData = result.previewComplicationData[LEFT_COMPLICATION_ID] as
@@ -696,6 +730,8 @@ public class EditorSessionTest {
                 0
             )
         ).isEqualTo("Right")
+
+        EditorService.globalEditorService.unregisterObserver(observerId)
     }
 
     @Test
@@ -705,37 +741,93 @@ public class EditorSessionTest {
             emptyList(),
             instanceId = null
         )
+
+        val editorObserver = TestEditorObserver()
+        val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
+
         scenario.onActivity { activity ->
             runBlocking {
                 assertThat(activity.editorSession.instanceId).isNull()
-                activity.setWatchRequestResult(activity.editorSession)
+                activity.editorSession.close()
                 activity.finish()
             }
         }
-        assertThat(
-            WatchFaceEditorContractForTest().parseResult(
-                scenario.result.resultCode,
-                scenario.result.resultData
-            ).watchFaceInstanceId
-        ).isNull()
+
+        val result = editorObserver.awaitEditorStateChange(
+            TIMEOUT_MILLIS,
+            TimeUnit.MILLISECONDS
+        ).asApiEditorState()
+        assertNull(result.watchFaceInstanceId)
+
+        EditorService.globalEditorService.unregisterObserver(observerId)
     }
 
     @Test
-    public fun emptyComplicationPreviewDataInActivityResult() {
+    public fun emptyComplicationPreviewDataInEditorObserver() {
         val scenario = createOnWatchFaceEditingTestActivity(emptyList(), emptyList())
+        val editorObserver = TestEditorObserver()
+        val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
         scenario.onActivity { activity ->
             runBlocking {
-                activity.setWatchRequestResult(activity.editorSession)
+                activity.editorSession.close()
                 activity.finish()
             }
         }
 
-        assertTrue(
-            WatchFaceEditorContract().parseResult(
-                scenario.result.resultCode,
-                scenario.result.resultData
-            ).previewComplicationData.isEmpty()
+        val result = editorObserver.awaitEditorStateChange(
+            TIMEOUT_MILLIS,
+            TimeUnit.MILLISECONDS
+        ).asApiEditorState()
+        assertThat(result.previewComplicationData).isEmpty()
+
+        EditorService.globalEditorService.unregisterObserver(observerId)
+    }
+
+    @Test
+    public fun dotNotCommit() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            listOf(colorStyleSetting, watchHandStyleSetting),
+            emptyList()
         )
+        val editorObserver = TestEditorObserver()
+        val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
+        scenario.onActivity { activity ->
+            runBlocking {
+                assertThat(editorDelegate.userStyleRepository.userStyle[colorStyleSetting]!!.id)
+                    .isEqualTo(redStyleOption.id)
+                assertThat(editorDelegate.userStyleRepository.userStyle[watchHandStyleSetting]!!.id)
+                    .isEqualTo(classicStyleOption.id)
+
+                // Select [blueStyleOption] and [gothicStyleOption].
+                val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
+                for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
+                    styleMap[userStyleSetting] = userStyleSetting.options.last()
+                }
+                activity.editorSession.userStyle = UserStyle(styleMap)
+
+                // This should cause the style on the to be reverted back to the initial style.
+                activity.editorSession.commitChangesOnClose = false
+                activity.editorSession.close()
+                activity.finish()
+            }
+        }
+
+        val result = editorObserver.awaitEditorStateChange(
+            TIMEOUT_MILLIS,
+            TimeUnit.MILLISECONDS
+        ).asApiEditorState()
+        assertThat(result.userStyle[colorStyleSetting.id]).isEqualTo(blueStyleOption.id)
+        assertThat(result.userStyle[watchHandStyleSetting.id]).isEqualTo(gothicStyleOption.id)
+        assertFalse(result.commitChanges)
+
+        // The original style should be applied to the watch face however because
+        // commitChangesOnClose is false.
+        assertThat(editorDelegate.userStyleRepository.userStyle[colorStyleSetting]!!.id)
+            .isEqualTo(redStyleOption.id)
+        assertThat(editorDelegate.userStyleRepository.userStyle[watchHandStyleSetting]!!.id)
+            .isEqualTo(classicStyleOption.id)
+
+        EditorService.globalEditorService.unregisterObserver(observerId)
     }
 
     @Test

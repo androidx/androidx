@@ -29,7 +29,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.editor.EditorSession
-import androidx.wear.watchface.editor.setWatchRequestResult
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import kotlinx.coroutines.CoroutineScope
@@ -127,7 +126,6 @@ class WatchFaceConfigActivity : FragmentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        editorSession.onDestroy()
     }
 
     private fun focusCurrentFragment() {
@@ -215,8 +213,6 @@ class WatchFaceConfigActivity : FragmentActivity() {
 
     override fun onStop() {
         super.onStop()
-        coroutineScope.launch {
-            setWatchRequestResult(editorSession)
-        }
+        editorSession.close()
     }
 }
