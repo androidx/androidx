@@ -17,8 +17,8 @@
 package androidx.paging.compose
 
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.preferredHeight
-import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.ui.Modifier
@@ -65,9 +65,9 @@ class LazyPagingItemsTest {
     fun lazyPagingColumnShowsItems() {
         rule.setContent {
             val lazyPagingItems = createPager().flow.collectAsLazyPagingItems()
-            LazyColumn(Modifier.preferredHeight(200.dp)) {
+            LazyColumn(Modifier.height(200.dp)) {
                 items(lazyPagingItems) {
-                    Spacer(Modifier.preferredHeight(101.dp).fillParentMaxWidth().testTag("$it"))
+                    Spacer(Modifier.height(101.dp).fillParentMaxWidth().testTag("$it"))
                 }
             }
         }
@@ -91,10 +91,10 @@ class LazyPagingItemsTest {
     fun lazyPagingColumnShowsIndexedItems() {
         rule.setContent {
             val lazyPagingItems = createPager().flow.collectAsLazyPagingItems()
-            LazyColumn(Modifier.preferredHeight(200.dp)) {
+            LazyColumn(Modifier.height(200.dp)) {
                 itemsIndexed(lazyPagingItems) { index, item ->
                     Spacer(
-                        Modifier.preferredHeight(101.dp).fillParentMaxWidth()
+                        Modifier.height(101.dp).fillParentMaxWidth()
                             .testTag("$index-$item")
                     )
                 }
@@ -120,9 +120,9 @@ class LazyPagingItemsTest {
     fun lazyPagingRowShowsItems() {
         rule.setContent {
             val lazyPagingItems = createPager().flow.collectAsLazyPagingItems()
-            LazyRow(Modifier.preferredWidth(200.dp)) {
+            LazyRow(Modifier.width(200.dp)) {
                 items(lazyPagingItems) {
-                    Spacer(Modifier.preferredWidth(101.dp).fillParentMaxHeight().testTag("$it"))
+                    Spacer(Modifier.width(101.dp).fillParentMaxHeight().testTag("$it"))
                 }
             }
         }
@@ -146,10 +146,10 @@ class LazyPagingItemsTest {
     fun lazyPagingRowShowsIndexedItems() {
         rule.setContent {
             val lazyPagingItems = createPager().flow.collectAsLazyPagingItems()
-            LazyRow(Modifier.preferredWidth(200.dp)) {
+            LazyRow(Modifier.width(200.dp)) {
                 itemsIndexed(lazyPagingItems) { index, item ->
                     Spacer(
-                        Modifier.preferredWidth(101.dp).fillParentMaxHeight()
+                        Modifier.width(101.dp).fillParentMaxHeight()
                             .testTag("$index-$item")
                     )
                 }
