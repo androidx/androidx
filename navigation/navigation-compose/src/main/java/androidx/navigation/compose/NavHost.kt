@@ -26,10 +26,10 @@ import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.platform.LocalViewModelStoreOwner
-import androidx.compose.ui.viewinterop.viewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -124,7 +124,11 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
             // while in the scope of the composable, we provide the navBackStackEntry as the
             // ViewModelStoreOwner and LifecycleOwner
             Providers(
-                LocalViewModelStoreOwner provides currentNavBackStackEntry,
+                LocalViewModelStoreOwner.asProvidableCompositionLocal()
+                    provides currentNavBackStackEntry,
+                @Suppress("DEPRECATION") // To be removed when we remove the one from compose:ui
+                androidx.compose.ui.platform.LocalViewModelStoreOwner provides
+                    currentNavBackStackEntry,
                 LocalLifecycleOwner provides currentNavBackStackEntry
             ) {
                 saveableStateHolder.SaveableStateProvider {

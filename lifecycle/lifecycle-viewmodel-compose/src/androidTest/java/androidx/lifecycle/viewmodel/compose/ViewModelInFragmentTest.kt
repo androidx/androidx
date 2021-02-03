@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.viewinterop
+package androidx.lifecycle.viewmodel.compose
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -23,7 +23,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.test.filters.MediumTest
 import org.junit.Assert.assertTrue
@@ -37,28 +36,27 @@ import java.util.concurrent.TimeUnit
 
 @MediumTest
 @RunWith(Parameterized::class)
-class ViewModelInFragmentTest(private val viewModelClass: Class<out ViewModel>) {
+public class ViewModelInFragmentTest(private val viewModelClass: Class<out ViewModel>) {
 
-    companion object {
+    public companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun initParameters() = viewModelClasses
+        public fun initParameters(): Array<Class<out ViewModel>> = viewModelClasses
     }
 
     @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = androidx.test.rule.ActivityTestRule<FragmentActivity>(
-        FragmentActivity::class.java
-    )
+    public val activityTestRule: androidx.test.rule.ActivityTestRule<FragmentActivity> =
+        androidx.test.rule.ActivityTestRule(FragmentActivity::class.java)
     private lateinit var activity: FragmentActivity
 
     @Before
-    fun setup() {
+    public fun setup() {
         activity = activityTestRule.activity
     }
 
     @Test
-    fun viewModelCreatedInFragment() {
+    public fun viewModelCreatedInFragment() {
         val fragment = TestFragment(viewModelClass)
 
         activityTestRule.runOnUiThread {
@@ -74,16 +72,15 @@ class ViewModelInFragmentTest(private val viewModelClass: Class<out ViewModel>) 
     }
 }
 
-class TestFragment(private val viewModelClass: Class<out ViewModel>) : Fragment() {
+public class TestFragment(private val viewModelClass: Class<out ViewModel>) : Fragment() {
 
-    var owner: LifecycleOwner? = null
-    val latch = CountDownLatch(1)
+    public val latch: CountDownLatch = CountDownLatch(1)
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ) = ComposeView(requireContext()).apply {
+    ): ComposeView = ComposeView(requireContext()).apply {
         setContent {
             viewModel(viewModelClass)
             latch.countDown()

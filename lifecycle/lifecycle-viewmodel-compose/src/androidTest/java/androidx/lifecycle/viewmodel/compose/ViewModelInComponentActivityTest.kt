@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.viewinterop
+package androidx.lifecycle.viewmodel.compose
 
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.LifecycleOwner
@@ -34,21 +34,20 @@ import java.util.concurrent.TimeUnit
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class ViewModelInAppCompatActivityTest {
+public class ViewModelInComponentActivityTest {
     @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = androidx.test.rule.ActivityTestRule<AppCompatActivity>(
-        AppCompatActivity::class.java
-    )
-    private lateinit var activity: AppCompatActivity
+    public val activityTestRule: androidx.test.rule.ActivityTestRule<ComponentActivity> =
+        androidx.test.rule.ActivityTestRule(ComponentActivity::class.java)
+    private lateinit var activity: ComponentActivity
 
     @Before
-    fun setup() {
+    public fun setup() {
         activity = activityTestRule.activity
     }
 
     @Test
-    fun lifecycleOwnerIsAvailable() {
+    public fun lifecycleOwnerIsAvailable() {
         val latch = CountDownLatch(1)
         var owner: LifecycleOwner? = null
 
@@ -64,7 +63,7 @@ class ViewModelInAppCompatActivityTest {
     }
 
     @Test
-    fun lifecycleOwnerIsAvailableWhenComposedIntoViewGroup() {
+    public fun lifecycleOwnerIsAvailableWhenComposedIntoViewGroup() {
         val latch = CountDownLatch(1)
         var owner: LifecycleOwner? = null
 
