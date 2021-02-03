@@ -1663,7 +1663,7 @@ final class Camera2CameraImpl implements CameraInternal {
         @ExecutedBy("mExecutor")
         public void onOpenAvailable() {
             if (mState == InternalState.PENDING_OPEN) {
-                tryForceOpenCameraDevice();
+                tryOpenCameraDevice(/*fromScheduledCameraReopen=*/false);
             }
         }
 
