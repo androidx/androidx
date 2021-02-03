@@ -18,7 +18,6 @@ package androidx.build.testConfiguration
 
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
-import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -101,7 +100,13 @@ class AndroidTestXmlBuilderTest {
     }
 
     @Test
-    fun testMultipleTags() {
+    fun testValidTestConfigXml_runFullTests() {
+        builder.runFullTests(false)
+        validate(builder.build())
+    }
+
+    @Test
+    fun testValidTestConfigXml_multipleTags() {
         builder.tag("another_tag")
         MatcherAssert.assertThat(builder.tags.size, CoreMatchers.`is`(2))
         validate(builder.build())
