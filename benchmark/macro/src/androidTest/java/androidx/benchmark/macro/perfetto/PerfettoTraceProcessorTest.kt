@@ -75,7 +75,7 @@ class PerfettoTraceProcessorTest {
     @Test
     fun validateTraceProcessorBinariesExist() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val suffixes = listOf("aarch64", "arm32")
+        val suffixes = listOf("aarch64")
         val entries = suffixes.map { "trace_processor_shell_$it" }.toSet()
         val assets = context.assets.list("") ?: emptyArray()
         assertTrue(

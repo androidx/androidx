@@ -37,7 +37,7 @@ object PerfettoTraceProcessor {
     @TestOnly
     fun isAbiSupported(): Boolean {
         Log.d(TAG, "Supported ABIs: ${Build.SUPPORTED_ABIS.joinToString()}")
-        return !Build.SUPPORTED_ABIS.any { it == "x86" || it == "x64" }
+        return Build.SUPPORTED_64_BIT_ABIS.any { it == "arm64-v8a" }
     }
 
     /**
@@ -53,7 +53,6 @@ object PerfettoTraceProcessor {
 
         val suffix = when {
             Build.SUPPORTED_64_BIT_ABIS.any { it.startsWith("arm") } -> "aarch64"
-            Build.SUPPORTED_32_BIT_ABIS.any { it.startsWith("arm") } -> "arm32"
             else -> IllegalStateException(
                 "Unsupported ABI (${Build.SUPPORTED_ABIS.joinToString()})"
             )
