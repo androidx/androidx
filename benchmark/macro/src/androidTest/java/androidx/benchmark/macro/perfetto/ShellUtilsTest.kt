@@ -106,4 +106,20 @@ class ShellUtilsTest {
             )
         )
     }
+
+    @Test
+    fun createRunnableExecutable_simpleScript() {
+        val path = device.createRunnableExecutable(
+            name = "myScript.sh",
+            inputStream = "echo foo".byteInputStream()
+        )
+        try {
+            assertEquals(
+                "foo\n",
+                device.executeShellCommand(path)
+            )
+        } finally {
+            device.executeShellCommand("rm $path")
+        }
+    }
 }
