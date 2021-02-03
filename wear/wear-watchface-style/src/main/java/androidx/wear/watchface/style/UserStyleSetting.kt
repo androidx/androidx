@@ -142,6 +142,8 @@ public sealed class UserStyleSetting(
     /** Returns the default for when the user hasn't selected an option. */
     public fun getDefaultOption(): Option = options[defaultOptionIndex]
 
+    override fun toString(): String = "{$id : " + options.joinToString(transform = { it.id }) + "}"
+
     /**
      * Represents a choice within a style setting which can either be an option from the list or a
      * an arbitrary value depending on the nature of the style setting.
