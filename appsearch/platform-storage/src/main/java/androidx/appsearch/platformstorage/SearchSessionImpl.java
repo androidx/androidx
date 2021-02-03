@@ -118,7 +118,7 @@ class SearchSessionImpl implements AppSearchSession {
             @NonNull PutDocumentsRequest request) {
         Preconditions.checkNotNull(request);
         ResolvableFuture<AppSearchBatchResult<String, Void>> future = ResolvableFuture.create();
-        mPlatformSession.putDocuments(
+        mPlatformSession.put(
                 RequestToPlatformConverter.toPlatformPutDocumentsRequest(request),
                 mExecutorService,
                 BatchResultCallbackAdapter.forSameValueType(future));
@@ -148,7 +148,7 @@ class SearchSessionImpl implements AppSearchSession {
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
         android.app.appsearch.SearchResults platformSearchResults =
-                mPlatformSession.query(
+                mPlatformSession.search(
                         queryExpression,
                         SearchSpecToPlatformConverter.toPlatformSearchSpec(searchSpec),
                         mExecutorService);
@@ -170,7 +170,7 @@ class SearchSessionImpl implements AppSearchSession {
             @NonNull RemoveByUriRequest request) {
         Preconditions.checkNotNull(request);
         ResolvableFuture<AppSearchBatchResult<String, Void>> future = ResolvableFuture.create();
-        mPlatformSession.removeByUri(
+        mPlatformSession.remove(
                 RequestToPlatformConverter.toPlatformRemoveByUriRequest(request),
                 mExecutorService,
                 BatchResultCallbackAdapter.forSameValueType(future));
@@ -184,7 +184,7 @@ class SearchSessionImpl implements AppSearchSession {
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
         ResolvableFuture<Void> future = ResolvableFuture.create();
-        mPlatformSession.removeByQuery(
+        mPlatformSession.remove(
                 queryExpression,
                 SearchSpecToPlatformConverter.toPlatformSearchSpec(searchSpec),
                 mExecutorService,
