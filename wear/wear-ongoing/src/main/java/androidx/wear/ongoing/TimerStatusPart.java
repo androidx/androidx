@@ -27,10 +27,12 @@ import androidx.versionedparcelable.VersionedParcelize;
 import java.util.Objects;
 
 /**
- * {@link OngoingActivityStatus} representing a timer or stopwatch.
+ * An Ongoing activity status (or part of it) representing a timer or stopwatch.
+ *
+ *  Available since wear-ongoing:1.0.0
  */
 @VersionedParcelize
-public class TimerOngoingActivityStatus extends OngoingActivityStatus {
+public class TimerStatusPart extends StatusPart {
     @ParcelField(value = 1, defaultValue = "0")
     long mTimeZeroMillis;
 
@@ -49,7 +51,7 @@ public class TimerOngoingActivityStatus extends OngoingActivityStatus {
     private static final String NEGATIVE_DURATION_PREFIX = "-";
 
     // Required by VersionedParcelable
-    TimerOngoingActivityStatus() {
+    TimerStatusPart() {
     }
 
     /**
@@ -66,7 +68,7 @@ public class TimerOngoingActivityStatus extends OngoingActivityStatus {
      * @param totalDurationMillis total duration of this timer/stopwatch, useful to display as a
      *                            progress bar or similar.
      */
-    public TimerOngoingActivityStatus(long timeZeroMillis, boolean countDown, long pausedAtMillis,
+    public TimerStatusPart(long timeZeroMillis, boolean countDown, long pausedAtMillis,
             long totalDurationMillis) {
         this.mTimeZeroMillis = timeZeroMillis;
         this.mCountDown = countDown;
@@ -85,7 +87,7 @@ public class TimerOngoingActivityStatus extends OngoingActivityStatus {
      * @param pausedAtMillis      timestamp of the time when this timer was paused. Or
      *                            {@code -1L} if this timer is running.
      */
-    public TimerOngoingActivityStatus(long timeZeroMillis, boolean countDown, long pausedAtMillis) {
+    public TimerStatusPart(long timeZeroMillis, boolean countDown, long pausedAtMillis) {
         this(timeZeroMillis, countDown, pausedAtMillis, LONG_DEFAULT);
     }
 
@@ -98,7 +100,7 @@ public class TimerOngoingActivityStatus extends OngoingActivityStatus {
      * @param countDown           indicates if this is a stopwatch (when {@code false}) or timer
      *                            (when {@code true}).
      */
-    public TimerOngoingActivityStatus(long timeZeroMillis, boolean countDown) {
+    public TimerStatusPart(long timeZeroMillis, boolean countDown) {
         this(timeZeroMillis, countDown, LONG_DEFAULT);
     }
 
@@ -107,12 +109,12 @@ public class TimerOngoingActivityStatus extends OngoingActivityStatus {
      *
      * @param timeZeroMillis      timestamp of the time at which this Stopwatch started.
      */
-    public TimerOngoingActivityStatus(long timeZeroMillis) {
+    public TimerStatusPart(long timeZeroMillis) {
         this(timeZeroMillis, false);
     }
 
     /**
-     * See {@link OngoingActivityStatus#getText(Context, long)}]
+     * See {@link TimeDependentText#getText(Context, long)}]
      */
     @NonNull
     @Override
@@ -138,7 +140,7 @@ public class TimerOngoingActivityStatus extends OngoingActivityStatus {
     }
 
     /**
-     * See {@link OngoingActivityStatus#getNextChangeTimeMillis(long)}
+     * See {@link TimeDependentText#getNextChangeTimeMillis(long)}
      */
     @Override
     public long getNextChangeTimeMillis(long fromTimeMillis) {
@@ -177,7 +179,7 @@ public class TimerOngoingActivityStatus extends OngoingActivityStatus {
 
     /**
      * @return the timestamp of the time when this timer was paused. Use
-     * {@link TimerOngoingActivityStatus#isPaused()} to determine if this timer is paused or not.
+     * {@link TimerStatusPart#isPaused()} to determine if this timer is paused or not.
      */
     public long getPausedAtMillis() {
         return mPausedAtMillis;
@@ -194,7 +196,7 @@ public class TimerOngoingActivityStatus extends OngoingActivityStatus {
 
     /**
      * @return the total duration of this timer/stopwatch, if set. Use
-     * {@link TimerOngoingActivityStatus#hasTotalDuration()} to determine if this timer has a
+     * {@link TimerStatusPart#hasTotalDuration()} to determine if this timer has a
      * duration set.
      */
     public long getTotalDurationMillis() {
@@ -203,9 +205,8 @@ public class TimerOngoingActivityStatus extends OngoingActivityStatus {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TimerOngoingActivityStatus)) return false;
-        TimerOngoingActivityStatus that = (TimerOngoingActivityStatus) o;
+        if (!(o instanceof TimerStatusPart)) return false;
+        TimerStatusPart that = (TimerStatusPart) o;
         return mTimeZeroMillis == that.mTimeZeroMillis
                 && mCountDown == that.mCountDown
                 && mPausedAtMillis == that.mPausedAtMillis
@@ -216,4 +217,7 @@ public class TimerOngoingActivityStatus extends OngoingActivityStatus {
     public int hashCode() {
         return Objects.hash(mTimeZeroMillis, mCountDown, mPausedAtMillis, mTotalDurationMillis);
     }
+
+    // Invalid value to use for paused_at and duration, as suggested by api guidelines 5.15
+    static final long LONG_DEFAULT = -1L;
 }

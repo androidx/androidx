@@ -27,7 +27,7 @@ open class OngoingActivityTest {
     private val StaticIconResourceId = 456
     private val LocusIdValue = LocusIdCompat("TestLocusId")
     private val OaId = 123456
-    private val Status = TextOngoingActivityStatus("Basic Status")
+    private val Status = OngoingActivityStatus.forPart(TextStatusPart("Basic Status"))
     private val NotificationId = 4321
     private val ChannelId = "ChannelId"
 
@@ -104,7 +104,7 @@ open class OngoingActivityTest {
         notificationManager.notify(NotificationId, builder.build())
 
         // After posting, send an update.
-        val newStatus = TimerOngoingActivityStatus(12345)
+        val newStatus = OngoingActivityStatus.forPart(TimerStatusPart(12345))
         oa.update(context, newStatus)
 
         // Get the notification and check that the status, and only the status has been updated.
@@ -144,7 +144,7 @@ open class OngoingActivityTest {
         for (i in 1..n) {
             val builder = NotificationCompat.Builder(context, ChannelId)
             OngoingActivity.Builder(context, NotificationId + i, builder)
-                .setStatus(TextOngoingActivityStatus("Ongoing Activity"))
+                .setStatus(OngoingActivityStatus.forPart(TextStatusPart("Ongoing Activity")))
                 .setOngoingActivityId(i)
                 .setStaticIcon(StaticIconResourceId)
                 .setTouchIntent(PendingIntentValue)
@@ -160,13 +160,13 @@ open class OngoingActivityTest {
             val status = "New Status $i"
             statuses.add(status)
             OngoingActivity.fromExistingOngoingActivity(context, i)!!
-                .update(context, TextOngoingActivityStatus(status))
+                .update(context, OngoingActivityStatus.forPart(TextStatusPart(status)))
         }
         assertEquals(n, statuses.size) // Just in case.
 
         // Get status from notifications.
         val notificationStatuses = notificationManager.activeNotifications.mapNotNull { sbn ->
-            OngoingActivityData.create(sbn.notification)?.status?.getText(context, 0)
+            OngoingActivityData.create(sbn.notification)?.status?.getText(context, 0).toString()
         }.toSet()
 
         // Check.
@@ -219,7 +219,7 @@ open class OngoingActivityTest {
         notificationManager.notify(NotificationId, builder.build())
 
         // After posting, send an update.
-        val newStatus = TimerOngoingActivityStatus(12345)
+        val newStatus = OngoingActivityStatus.forPart(TimerStatusPart(12345))
         OngoingActivity.fromExistingOngoingActivity(context)!!.update(context, newStatus)
 
         // Get the notification and check that the status, and only the status has been updated.
@@ -256,7 +256,7 @@ open class OngoingActivityTest {
         val received = OngoingActivityData.create(notifications[0].notification)!!
         assertNull(received.animatedIcon)
         assertEquals(StaticIconResourceId, received.staticIcon.resId)
-        assertEquals(contentText, received.status!!.getText(context, 0))
+        assertEquals(contentText, received.status!!.getText(context, 0).toString())
         assertEquals(PendingIntentValue, received.touchIntent)
 
         // Clean up.
