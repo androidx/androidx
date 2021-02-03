@@ -1,12 +1,26 @@
 // Signature format: 4.0
 package androidx.activity.compose {
 
+  public final class ActivityComposeUtilsKt {
+  }
+
+  public final class ActivityResultRegistryKt {
+    method @androidx.compose.runtime.Composable public static <I, O> androidx.activity.result.ActivityResultLauncher<I> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O> contract, kotlin.jvm.functions.Function1<? super O,kotlin.Unit> onResult);
+  }
+
   public final class BackHandlerKt {
     method @androidx.compose.runtime.Composable public static void BackHandler(optional boolean enabled, kotlin.jvm.functions.Function0<kotlin.Unit> onBack);
   }
 
   public final class ComponentActivityKt {
     method public static void setContent(androidx.activity.ComponentActivity, optional androidx.compose.runtime.CompositionContext? parent, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+  public final class LocalActivityResultRegistryOwner {
+    method public androidx.compose.runtime.ProvidableCompositionLocal<androidx.activity.result.ActivityResultRegistryOwner> asProvidableCompositionLocal();
+    method @androidx.compose.runtime.Composable public androidx.activity.result.ActivityResultRegistryOwner getCurrent();
+    property @androidx.compose.runtime.Composable public final androidx.activity.result.ActivityResultRegistryOwner current;
+    field public static final androidx.activity.compose.LocalActivityResultRegistryOwner INSTANCE;
   }
 
   public final class LocalOnBackPressedDispatcherOwner {
