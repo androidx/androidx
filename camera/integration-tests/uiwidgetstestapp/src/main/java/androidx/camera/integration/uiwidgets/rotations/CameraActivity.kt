@@ -38,6 +38,7 @@ import androidx.camera.integration.uiwidgets.databinding.ActivityRotationsMainBi
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.ExecutorService
@@ -100,7 +101,11 @@ open class CameraActivity : AppCompatActivity() {
         cameraProcessFuture.addListener(
             Runnable {
                 val cameraProvider = cameraProcessFuture.get()
-                setUpCamera(cameraProvider)
+                if (lifecycle.currentState != Lifecycle.State.DESTROYED) {
+                    setUpCamera(cameraProvider)
+                } else {
+                    Log.d(TAG, "Skip camera setup since activity is closed")
+                }
             },
             ContextCompat.getMainExecutor(this)
         )
