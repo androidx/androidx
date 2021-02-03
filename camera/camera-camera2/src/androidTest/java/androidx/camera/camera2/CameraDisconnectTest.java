@@ -25,6 +25,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 
 import androidx.camera.core.CameraX;
 import androidx.camera.testing.CameraUtil;
@@ -38,6 +39,7 @@ import androidx.test.espresso.IdlingResource;
 import androidx.test.espresso.idling.CountingIdlingResource;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
@@ -78,6 +80,7 @@ public class CameraDisconnectTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M) // Known issue, checkout b/147393563.
     public void testDisconnect_launchCamera2App() {
         // Launch CameraX test activity
         final ActivityScenario<CameraXTestActivity> cameraXActivity = ActivityScenario.launch(
