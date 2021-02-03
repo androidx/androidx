@@ -66,10 +66,11 @@ public class AppSearchImplTest {
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
+
         // Give ourselves global query permissions
         mAppSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder(),
-                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage
-                =*/ context.getPackageName());
+                context, VisibilityStore.NO_OP_USER_ID,
+                /*globalQuerierPackage=*/ context.getPackageName());
     }
 
     //TODO(b/175430168) add test to verify reset is working properly.
@@ -689,9 +690,9 @@ public class AppSearchImplTest {
                 new AppSearchSchema.Builder("Email").build());
         SetSchemaResult setSchemaResult =
                 mAppSearchImpl.setSchema("package", "database1", finalSchemas,
-                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(),
-                /*forceOverride=*/ false);
+                        /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                        /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                        /*forceOverride=*/ false);
 
         // Check the Document type has been deleted.
         assertThat(setSchemaResult.getDeletedSchemaTypes()).containsExactly("Document");
@@ -854,5 +855,81 @@ public class AppSearchImplTest {
                     GenericDocumentToProtoConverter.toGenericDocument(
                             strippedDocumentProto.build()));
         }
+    }
+
+    @Test
+    public void testThrowsExceptionIfClosed() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        AppSearchImpl appSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder(),
+                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "");
+
+        // Initial check that we could do something at first.
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
+        appSearchImpl.setSchema("package", "database", schemas,
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false);
+
+        appSearchImpl.close();
+
+        // Check all our public APIs
+        assertThrows(IllegalStateException.class, () -> {
+            appSearchImpl.setSchema("package", "database", schemas,
+                    /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                    /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                    /*forceOverride=*/ false);
+        });
+
+        assertThrows(IllegalStateException.class, () -> {
+            appSearchImpl.getSchema("package", "database");
+        });
+
+        assertThrows(IllegalStateException.class, () -> {
+            appSearchImpl.putDocument("package", "database", new GenericDocument.Builder<>("uri",
+                    "type").setNamespace("namespace").build());
+        });
+
+        assertThrows(IllegalStateException.class, () -> {
+            appSearchImpl.getDocument("package", "database", "namespace", "uri",
+                    Collections.emptyMap());
+        });
+
+        assertThrows(IllegalStateException.class, () -> {
+            appSearchImpl.query("package", "database", "query",
+                    new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build());
+        });
+
+        assertThrows(IllegalStateException.class, () -> {
+            appSearchImpl.globalQuery("query",
+                    new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build(),
+                    "package", /*callerUid=*/ 1);
+        });
+
+        assertThrows(IllegalStateException.class, () -> {
+            appSearchImpl.getNextPage(/*nextPageToken=*/ 1L);
+        });
+
+        assertThrows(IllegalStateException.class, () -> {
+            appSearchImpl.invalidateNextPageToken(/*nextPageToken=*/ 1L);
+        });
+
+        assertThrows(IllegalStateException.class, () -> {
+            appSearchImpl.reportUsage("package", "database", "namespace", "uri",
+                    /*usageTimestampMillis=*/ 1000L);
+        });
+
+        assertThrows(IllegalStateException.class, () -> {
+            appSearchImpl.remove("package", "database", "namespace", "uri");
+        });
+
+        assertThrows(IllegalStateException.class, () -> {
+            appSearchImpl.removeByQuery("package", "database", "query",
+                    new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build());
+        });
+
+        assertThrows(IllegalStateException.class, () -> {
+            appSearchImpl.persistToDisk();
+        });
     }
 }
