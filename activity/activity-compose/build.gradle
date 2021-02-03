@@ -32,6 +32,9 @@ plugins {
 dependencies {
     kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
 
+    api(projectOrArtifact(":activity:activity-ktx"))
+    api(projectOrArtifact(":compose:ui:ui"))
+
     implementation(KOTLIN_STDLIB)
 }
 

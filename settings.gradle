@@ -115,12 +115,12 @@ def includeProject(name, filePath, List<BuildType> filter = []) {
 //
 /////////////////////////////
 
-includeProject(":activity:activity", "activity/activity", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":activity:activity", "activity/activity", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":activity:activity-compose", "activity/activity-compose", [BuildType.COMPOSE])
 includeProject(":activity:activity-compose:activity-compose-samples", "activity/activity-compose/samples", [BuildType.COMPOSE])
 includeProject(":activity:activity-compose:integration-tests:activity-demos", "activity/activity-compose/integration-tests/activity-demos", [BuildType.COMPOSE])
-includeProject(":activity:activity-ktx", "activity/activity-ktx", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":activity:activity-lint", "activity/activity-lint", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":activity:activity-ktx", "activity/activity-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":activity:activity-lint", "activity/activity-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":activity:integration-tests:testapp", "activity/integration-tests/testapp", [BuildType.MAIN])
 includeProject(":ads-identifier", "ads/ads-identifier", [BuildType.MAIN])
 includeProject(":ads-identifier-benchmark", "ads/ads-identifier-benchmark", [BuildType.MAIN])
@@ -584,7 +584,7 @@ includeProject(":support-wear-demos", new File(samplesRoot, "SupportWearDemos"),
 /////////////////////////////
 
 includeProject(":internal-testutils-common", "testutils/testutils-common", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":internal-testutils-runtime", "testutils/testutils-runtime", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":internal-testutils-runtime", "testutils/testutils-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":internal-testutils-appcompat", "testutils/testutils-appcompat", [BuildType.MAIN])
 includeProject(":internal-testutils-espresso", "testutils/testutils-espresso", [BuildType.MAIN])
 includeProject(":internal-testutils-truth", "testutils/testutils-truth", [BuildType.MAIN, BuildType.FLAN])
