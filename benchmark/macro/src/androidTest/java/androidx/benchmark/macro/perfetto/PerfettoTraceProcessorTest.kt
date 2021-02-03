@@ -71,4 +71,16 @@ class PerfettoTraceProcessorTest {
             PerfettoTraceProcessor.getJsonMetrics("ignored_path", "ignored_metric")
         }
     }
+
+    @Test
+    fun validateTraceProcessorBinariesExist() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val suffixes = listOf("aarch64", "arm32")
+        val entries = suffixes.map { "trace_processor_shell_$it" }.toSet()
+        val assets = context.assets.list("") ?: emptyArray()
+        assertTrue(
+            "Expected to find $entries",
+            assets.toSet().containsAll(entries)
+        )
+    }
 }

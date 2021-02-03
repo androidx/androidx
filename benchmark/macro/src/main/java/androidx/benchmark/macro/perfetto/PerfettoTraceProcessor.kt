@@ -36,7 +36,8 @@ object PerfettoTraceProcessor {
 
     @TestOnly
     fun isAbiSupported(): Boolean {
-        return Build.SUPPORTED_64_BIT_ABIS.contains("arm64-v8a")
+        Log.d(TAG, "Supported ABIs: ${Build.SUPPORTED_ABIS.joinToString()}")
+        return !Build.SUPPORTED_ABIS.any { it == "x86" || it == "x64" }
     }
 
     /**
@@ -46,9 +47,16 @@ object PerfettoTraceProcessor {
      */
     @get:TestOnly
     val shellFile: File by lazy {
-        // TODO: support other ABIs
         if (!isAbiSupported()) {
-            throw IllegalStateException("Unsupported ABI")
+            throw IllegalStateException("Unsupported ABI (${Build.SUPPORTED_ABIS.joinToString()})")
+        }
+
+        val suffix = when {
+            Build.SUPPORTED_64_BIT_ABIS.any { it.startsWith("arm") } -> "aarch64"
+            Build.SUPPORTED_32_BIT_ABIS.any { it.startsWith("arm") } -> "arm32"
+            else -> IllegalStateException(
+                "Unsupported ABI (${Build.SUPPORTED_ABIS.joinToString()})"
+            )
         }
 
         val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -62,8 +70,7 @@ object PerfettoTraceProcessor {
         outFile.setWritable(true, false)
 
         outFile.outputStream().use {
-            // TODO: Copy the file based on the ABI
-            context.assets.open("trace_processor_shell_aarch64").copyTo(it)
+            context.assets.open("trace_processor_shell_$suffix").copyTo(it)
         }
         outFile
     }
