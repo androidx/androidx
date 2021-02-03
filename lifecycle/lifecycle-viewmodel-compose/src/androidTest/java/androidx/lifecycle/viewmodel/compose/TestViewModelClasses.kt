@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,29 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.viewinterop
+package androidx.lifecycle.viewmodel.compose
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 
-val viewModelClasses = arrayOf(
+public val viewModelClasses: Array<Class<out ViewModel>> = arrayOf(
     SimpleViewModel::class.java,
     ApplicationViewModel::class.java,
     SavedStateHandleViewModel::class.java,
     SavedStateHandleAndApplicationViewModel::class.java
 )
 
-class SimpleViewModel : ViewModel()
+public class SimpleViewModel : ViewModel()
 
-class SavedStateHandleViewModel(@Suppress("UNUSED_PARAMETER") savedStateHandle: SavedStateHandle) :
-    ViewModel()
+public class SavedStateHandleViewModel(
+    @Suppress("UNUSED_PARAMETER") savedStateHandle: SavedStateHandle
+) : ViewModel()
 
-class ApplicationViewModel(application: Application) : AndroidViewModel(application)
+public class ApplicationViewModel(application: Application) : AndroidViewModel(application)
 
-class SavedStateHandleAndApplicationViewModel(
+public class SavedStateHandleAndApplicationViewModel(
     application: Application,
     @Suppress("UNUSED_PARAMETER") savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application)

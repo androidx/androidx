@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-@file:Suppress("DeprecatedCallableAddReplaceWith", "DEPRECATION")
-
-package androidx.compose.ui.viewinterop
+package androidx.lifecycle.viewmodel.compose
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalViewModelStoreOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
@@ -35,13 +32,9 @@ import androidx.lifecycle.ViewModelStoreOwner
  * @param key The key to use to identify the [ViewModel].
  * @return A [ViewModel] that is an instance of the given [T] type.
  */
+@Suppress("MissingJvmstatic")
 @Composable
-@Deprecated(
-    "It was moved to androidx.lifecycle.viewmodel.compose package. You should add a " +
-        "dependency on androidx.lifecycle:lifecycle-viewmodel.compose:1.0.0-alpha01 in order to " +
-        "use it"
-)
-inline fun <reified T : ViewModel> viewModel(
+public inline fun <reified T : ViewModel> viewModel(
     key: String? = null,
     factory: ViewModelProvider.Factory? = null
 ): T = viewModel(T::class.java, key, factory)
@@ -59,13 +52,9 @@ inline fun <reified T : ViewModel> viewModel(
  * @param key The key to use to identify the [ViewModel].
  * @return A [ViewModel] that is an instance of the given [T] type.
  */
+@Suppress("MissingJvmstatic")
 @Composable
-@Deprecated(
-    "It was moved to androidx.lifecycle.viewmodel.compose package. You should add a " +
-        "dependency on androidx.lifecycle:lifecycle-viewmodel.compose:1.0.0-alpha01 in order to " +
-        "use it"
-)
-fun <T : ViewModel> viewModel(
+public fun <T : ViewModel> viewModel(
     modelClass: Class<T>,
     key: String? = null,
     factory: ViewModelProvider.Factory? = null
@@ -82,8 +71,8 @@ private fun <T : ViewModel> ViewModelStoreOwner.get(
         ViewModelProvider(this)
     }
     return if (key != null) {
-        provider.get<T>(key, javaClass)
+        provider.get(key, javaClass)
     } else {
-        provider.get<T>(javaClass)
+        provider.get(javaClass)
     }
 }
