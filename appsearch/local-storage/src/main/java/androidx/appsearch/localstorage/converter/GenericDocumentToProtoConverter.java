@@ -25,6 +25,9 @@ import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.PropertyProto;
 import com.google.android.icing.protobuf.ByteString;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 /**
  * Translates a {@link GenericDocument} into a {@link DocumentProto}.
  *
@@ -46,7 +49,10 @@ public final class GenericDocumentToProtoConverter {
                 .setScore(document.getScore())
                 .setTtlMs(document.getTtlMillis())
                 .setCreationTimestampMs(document.getCreationTimestampMillis());
-        for (String name : document.getPropertyNames()) {
+        ArrayList<String> keys = new ArrayList<>(document.getPropertyNames());
+        Collections.sort(keys);
+        for (int i = 0; i < keys.size(); i++) {
+            String name = keys.get(i);
             PropertyProto.Builder propertyProto = PropertyProto.newBuilder().setName(name);
             Object property = document.getProperty(name);
             if (property instanceof String[]) {
