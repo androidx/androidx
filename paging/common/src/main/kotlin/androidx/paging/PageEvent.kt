@@ -187,6 +187,7 @@ internal sealed class PageEvent<T : Any> {
         val pageCount get() = maxPageOffset - minPageOffset + 1
     }
 
+    @Deprecated("Should use LoadStateUpdate instead")
     data class LegacyLoadStateUpdate<T : Any>(
         val loadType: LoadType,
         val fromMediator: Boolean,

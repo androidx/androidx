@@ -22,7 +22,7 @@ import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
-import androidx.paging.PageEvent.LegacyLoadStateUpdate
+import androidx.paging.PageEvent.LoadStateUpdate
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
@@ -136,10 +136,17 @@ class PageEventTest {
 
     @Test
     fun stateTransform() = runBlockingTest {
+        /*
         val state = LegacyLoadStateUpdate<Char>(
             loadType = REFRESH,
             fromMediator = false,
             loadState = LoadState.Loading
+        )
+         */
+        val state = LoadStateUpdate<Char>(
+            localLoadStatesOf(
+                refreshLocal = LoadState.Loading
+            )
         )
 
         assertSame(state, state.map { it + 1 })

@@ -25,6 +25,7 @@ import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.LegacyLoadStateUpdate
+import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.TerminalSeparatorType.FULLY_COMPLETE
 import androidx.paging.TerminalSeparatorType.SOURCE_COMPLETE
 import com.google.common.truth.Truth.assertThat
@@ -1299,7 +1300,15 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote prepend is done triggers the header to resolve.
-                LegacyLoadStateUpdate(PREPEND, true, NotLoading.Complete),
+                // LegacyLoadStateUpdate(PREPEND, true, NotLoading.Complete),
+                LoadStateUpdate(
+                    remoteLoadStatesOf(
+                        prepend = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete,
+                        prependRemote = NotLoading.Complete
+                    )
+                ),
             ).insertEventSeparators(
                 terminalSeparatorType = FULLY_COMPLETE,
                 generator = LETTER_SEPARATOR_GENERATOR
@@ -1350,7 +1359,15 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote prepend is done triggers the header to resolve.
-                LegacyLoadStateUpdate(PREPEND, true, NotLoading.Complete),
+                // LegacyLoadStateUpdate(PREPEND, true, NotLoading.Complete),
+                LoadStateUpdate(
+                    remoteLoadStatesOf(
+                        prepend = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete,
+                        prependRemote = NotLoading.Complete
+                    )
+                ),
             ).insertEventSeparators(
                 terminalSeparatorType = SOURCE_COMPLETE,
                 generator = LETTER_SEPARATOR_GENERATOR
@@ -1424,7 +1441,15 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote prepend is done triggers the header to resolve.
-                LegacyLoadStateUpdate(PREPEND, true, NotLoading.Complete),
+                // LegacyLoadStateUpdate(PREPEND, true, NotLoading.Complete),
+                LoadStateUpdate(
+                    remoteLoadStatesOf(
+                        prepend = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete,
+                        prependRemote = NotLoading.Complete
+                    )
+                ),
                 // Drop the first page, header and separator between "b1" and "a1"
                 Drop(
                     loadType = PREPEND,
@@ -1562,7 +1587,15 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote prepend is done triggers the header to resolve.
-                LegacyLoadStateUpdate(PREPEND, true, NotLoading.Complete),
+                // LegacyLoadStateUpdate(PREPEND, true, NotLoading.Complete),
+                LoadStateUpdate(
+                    remoteLoadStatesOf(
+                        prepend = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete,
+                        prependRemote = NotLoading.Complete
+                    )
+                ),
                 // Drop the first page, header and separator between "b1" and "a1"
                 Drop(
                     loadType = PREPEND,
@@ -1697,7 +1730,15 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote append is done triggers the footer to resolve.
-                LegacyLoadStateUpdate(APPEND, true, NotLoading.Complete),
+                // LegacyLoadStateUpdate(APPEND, true, NotLoading.Complete),
+                LoadStateUpdate(
+                    remoteLoadStatesOf(
+                        append = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete,
+                        appendRemote = NotLoading.Complete
+                    )
+                ),
             ).insertEventSeparators(
                 terminalSeparatorType = FULLY_COMPLETE,
                 generator = LETTER_SEPARATOR_GENERATOR
@@ -1748,7 +1789,15 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote append is done triggers the footer to resolve.
-                LegacyLoadStateUpdate(APPEND, true, NotLoading.Complete),
+                //LegacyLoadStateUpdate(APPEND, true, NotLoading.Complete),
+                LoadStateUpdate(
+                    remoteLoadStatesOf(
+                        append = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete,
+                        appendRemote = NotLoading.Complete,
+                    )
+                )
             ).insertEventSeparators(
                 terminalSeparatorType = SOURCE_COMPLETE,
                 generator = LETTER_SEPARATOR_GENERATOR
@@ -1822,7 +1871,15 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote append is done triggers the footer to resolve.
-                LegacyLoadStateUpdate(APPEND, true, NotLoading.Complete),
+                // LegacyLoadStateUpdate(APPEND, true, NotLoading.Complete),
+                LoadStateUpdate(
+                    remoteLoadStatesOf(
+                        append = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete,
+                        appendRemote = NotLoading.Complete
+                    )
+                ),
                 // Drop the last page, footer and separator between "b1" and "c1"
                 Drop(
                     loadType = APPEND,
@@ -1960,7 +2017,15 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote append is done triggers the footer to resolve.
-                LegacyLoadStateUpdate(APPEND, true, NotLoading.Complete),
+                // LegacyLoadStateUpdate(APPEND, true, NotLoading.Complete),
+                LoadStateUpdate(
+                    remoteLoadStatesOf(
+                        append = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete,
+                        appendRemote = NotLoading.Complete
+                    )
+                ),
                 // Drop the last page, footer and separator between "b1" and "c1"
                 Drop(
                     loadType = APPEND,

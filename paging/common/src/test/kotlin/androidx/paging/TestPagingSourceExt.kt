@@ -62,6 +62,7 @@ internal fun createAppend(
     combinedLoadStates = localLoadStatesOf(prependLocal = startState, appendLocal = endState)
 )
 
+@Deprecated("Should use localLoadStatesOf instead")
 internal fun createCombinedLoadStates(
     loadType: LoadType,
     fromMediator: Boolean,

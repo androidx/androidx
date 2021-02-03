@@ -549,7 +549,7 @@ private class SeparatorState<R : Any, T : R>(
         @Suppress("UNCHECKED_CAST")
         return event as PageEvent<R>
     }
-
+    
     suspend fun onLoadStateUpdate(event: LoadStateUpdate<T>): PageEvent<R> {
         // Check for redundant LoadStateUpdate events to avoid unnecessary mapping to empty inserts
         // that might cause terminal separators to get added out of place.
@@ -566,8 +566,13 @@ private class SeparatorState<R : Any, T : R>(
         // isn't possible to add a separator to. Note: Adding a separate insert event also
         // doesn't work in the case where .insertSeparators() is called multiple times on the
         // same page event stream - we have to transform the terminating LoadStateUpdate event.
-        if (event.combinedLoadStates.mediator != null) {
-            val emptyTerminalInsert: Insert<T> = if (event.combinedLoadStates.append
+        if (
+            event.combinedLoadStates.mediator != null && // Mediator exists
+            event.combinedLoadStates.refresh == NotLoading.Incomplete && // Not refresh event
+            (event.combinedLoadStates.append.endOfPaginationReached ||
+                event.combinedLoadStates.prepend.endOfPaginationReached)
+        ) {
+            val emptyTerminalInsert: Insert<T> = if (event.combinedLoadStates.prepend
                     .endOfPaginationReached
             ) {
                 Insert.Prepend(
@@ -585,26 +590,6 @@ private class SeparatorState<R : Any, T : R>(
 
             return onInsert(emptyTerminalInsert)
         }
-
-//        if (event.loadType != REFRESH && event.fromMediator &&
-//            event.loadState.endOfPaginationReached
-//        ) {
-//            val emptyTerminalInsert: Insert<T> = if (event.loadType == PREPEND) {
-//                Insert.Prepend(
-//                    pages = emptyList(),
-//                    placeholdersBefore = placeholdersBefore,
-//                    combinedLoadStates = loadStates.snapshot(),
-//                )
-//            } else {
-//                Insert.Append(
-//                    pages = emptyList(),
-//                    placeholdersAfter = placeholdersAfter,
-//                    combinedLoadStates = loadStates.snapshot(),
-//                )
-//            }
-//
-//            return onInsert(emptyTerminalInsert)
-//        }
 
         @Suppress("UNCHECKED_CAST")
         return event as PageEvent<R>
