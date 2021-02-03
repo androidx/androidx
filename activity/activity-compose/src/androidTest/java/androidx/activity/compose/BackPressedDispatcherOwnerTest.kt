@@ -20,7 +20,7 @@ import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.compose.material.Button
 import androidx.compose.material.Text
-import androidx.compose.runtime.Providers
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -68,7 +68,7 @@ class BackPressedDispatcherOwnerTest {
         var innerDispatcherOwner: OnBackPressedDispatcherOwner? = null
 
         composeTestRule.setContent {
-            Providers(
+            CompositionLocalProvider(
                 LocalOnBackPressedDispatcherOwner.asProvidableCompositionLocal()
                     provides testDispatcherOwner
             ) {

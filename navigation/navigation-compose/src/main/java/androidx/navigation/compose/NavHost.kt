@@ -19,7 +19,7 @@ package androidx.navigation.compose
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.Providers
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
@@ -112,7 +112,7 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
         if (destination is ComposeNavigator.Destination) {
             // while in the scope of the composable, we provide the navBackStackEntry as the
             // ViewModelStoreOwner and LifecycleOwner
-            Providers(
+            CompositionLocalProvider(
                 LocalViewModelStoreOwner.asProvidableCompositionLocal()
                     provides currentNavBackStackEntry,
                 @Suppress("DEPRECATION") // To be removed when we remove the one from compose:ui
