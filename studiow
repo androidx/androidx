@@ -20,6 +20,9 @@ function usage() {
   echo " f, flan"
   echo "  Open the project subset flan: Fragment, Lifecycle, Activity, and Navigation"
   echo
+  echo " media"
+  echo "  Open the project subset media: Media, Media2, and MediaRouter"
+  echo
   echo " a, all"
   echo "  Open the project subset all"
   echo
@@ -56,6 +59,9 @@ while [ "$1" != "" ]; do
   fi
   if [ "$subsetArg" == "f" -o "$subsetArg" == "flan" ]; then
     newSubset=flan
+  fi
+  if [ "$subsetArg" == "media" ]; then
+    newSubset=media
   fi
   if [ "$subsetArg" == "a" -o "$subsetArg" == "all" ]; then
     newSubset=all
