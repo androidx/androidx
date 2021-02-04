@@ -14,23 +14,27 @@
  * limitations under the License.
  */
 
-plugins {
-    id("AndroidXPlugin")
-    id("com.android.application")
-}
+package androidx.car.app.samples.navigation.model;
 
-android {
-    defaultConfig {
-        applicationId "androidx.car.app.samples.helloworld"
-        minSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+import androidx.annotation.NonNull;
+
+/** Contains information about a fake place. */
+public class PlaceInfo {
+    private final String mName;
+    private final String mDisplayAddress;
+
+    public PlaceInfo(@NonNull String name, @NonNull String displayAddress) {
+        mName = name;
+        mDisplayAddress = displayAddress;
+    }
+
+    @NonNull
+    public String getName() {
+        return mName;
+    }
+
+    @NonNull
+    public String getDisplayAddress() {
+        return mDisplayAddress;
     }
 }
-
-dependencies {
-    implementation(project(":car:app:app"))
-
-    implementation("androidx.lifecycle:lifecycle-common-java8:2.2.0")
-}
-

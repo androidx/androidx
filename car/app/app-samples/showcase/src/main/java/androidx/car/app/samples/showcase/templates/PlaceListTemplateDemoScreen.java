@@ -13,33 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.car.app.samples.helloworld;
+
+package androidx.car.app.samples.showcase.templates;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
-import androidx.car.app.model.Pane;
-import androidx.car.app.model.PaneTemplate;
-import androidx.car.app.model.Row;
+import androidx.car.app.model.PlaceListMapTemplate;
 import androidx.car.app.model.Template;
+import androidx.car.app.samples.showcase.common.SamplePlaces;
 
-/**
- * A screen that shows a simple "Hello World!" message.
- *
- * <p>See {@link HelloWorldService} for the app's entry point to Android Auto.
- */
-public class HelloWorldScreen extends Screen {
-    public HelloWorldScreen(@NonNull CarContext carContext) {
+/** Creates a screen using the {@link PlaceListMapTemplate} */
+public final class PlaceListTemplateDemoScreen extends Screen {
+    private final SamplePlaces mPlaces;
+
+    public PlaceListTemplateDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
+        mPlaces = SamplePlaces.create(this);
     }
 
     @NonNull
     @Override
     public Template onGetTemplate() {
-        Row row = new Row.Builder().setTitle("Hello AndroidX!").build();
-        return new PaneTemplate.Builder(new Pane.Builder().addRow(row).build())
-                .setHeaderAction(Action.APP_ICON)
+        return new PlaceListMapTemplate.Builder()
+                .setItemList(mPlaces.getPlaceList())
+                .setTitle("Place List Template Demo")
+                .setHeaderAction(Action.BACK)
                 .build();
     }
 }
