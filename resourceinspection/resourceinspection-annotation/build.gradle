@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,25 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
-
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin")
+    id("java-library")
 }
 
 dependencies {
-    implementation(project(":resourceinspection:resourceinspection-annotation"))
+    implementation("androidx.annotation:annotation:1.1.0")
+}
 
-    implementation(KOTLIN_STDLIB)
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_7
+    targetCompatibility = JavaVersion.VERSION_1_7
 }
 
 androidx {
-    name = "Android Resource Inspection - Annotation Processor"
-    type = LibraryType.ANNOTATION_PROCESSOR
+    name = "Android Resource Inspection - Annotations"
+    type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.RESOURCEINSPECTION
-    inceptionYear = "2020"
+    inceptionYear = "2021"
     description = "Annotation processors for Android resource and layout inspection"
 }

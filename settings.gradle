@@ -444,6 +444,7 @@ includeProject(":recyclerview:recyclerview-lint", "recyclerview/recyclerview-lin
 includeProject(":recyclerview:recyclerview-selection", "recyclerview/recyclerview-selection", [BuildType.MAIN])
 includeProject(":remotecallback:remotecallback", "remotecallback/remotecallback", [BuildType.MAIN])
 includeProject(":remotecallback:remotecallback-processor", "remotecallback/processor", [BuildType.MAIN])
+includeProject(":resourceinspection:resourceinspection-annotation", "resourceinspection/resourceinspection-annotation")
 includeProject(":resourceinspection:resourceinspection-processor", "resourceinspection/resourceinspection-processor", [BuildType.MAIN])
 includeProject(":room:integration-tests:room-incremental-annotation-processing", "room/integration-tests/incremental-annotation-processing", [BuildType.MAIN])
 includeProject(":room:integration-tests:room-testapp", "room/integration-tests/testapp", [BuildType.MAIN])
