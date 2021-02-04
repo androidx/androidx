@@ -324,6 +324,14 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
+     * Allows subclasses to access the SliceItem that can be used to fire an action.
+     */
+    @Nullable
+    protected SliceItem getPrimaryActionItem() {
+        return (mRowContent != null) ? mRowContent.getPrimaryAction() : null;
+    }
+
+    /**
      * Allows subclasses to access the key associated with the primary action of the row.
      */
     @Nullable

@@ -3,5 +3,6 @@
     app:fontProviderAuthority="androidx.core.provider.fonts.font"
     app:fontProviderPackage="androidx.core.test"
     app:fontProviderQuery="singleFontFamily"
-    app:fontProviderCerts="@array/mock_provider_certs">
+    app:fontProviderCerts="@array/mock_provider_certs"
+    app:fontProviderSystemFontFamily="serif">
 </font-family>

@@ -16,7 +16,6 @@
 
 package androidx.car.app;
 
-import static androidx.car.app.utils.CommonUtils.TAG;
 import static androidx.car.app.utils.ThreadUtils.runOnMain;
 
 import android.app.Service;
@@ -34,9 +33,9 @@ import androidx.car.app.CarContext.CarServiceType;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
-import androidx.car.app.utils.HostValidator;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.car.app.utils.ThreadUtils;
+import androidx.car.app.validation.HostValidator;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.Event;
@@ -170,25 +169,34 @@ public abstract class CarAppService extends Service {
     }
 
     /**
-     * Configures this service's {@link HostValidator}, used to accept or reject host connections.
+     * Returns the {@link HostValidator} this service will use to accept or reject host connections.
      *
      * <p>By default, the provided {@link HostValidator.Builder} would produce a validator that
      * only accepts connections from hosts holding
      * {@link HostValidator#TEMPLATE_RENDERER_PERMISSION} permission.
      *
-     * <p>Application developers are expected to allow connections from known hosts (e.g.:
+     * <p>Application developers are expected to also allow connections from known hosts (e.g.:
      * Android Auto and Android Automotive OS hosts) which currently don't hold the above mentioned
-     * permission by allow listing these hosts signatures. It is also advised to allow unknown host
-     * connections in debug builds to facilitate debugging and testing.
+     * permission by allow listing these hosts signatures.
+     *
+     * <p>It is also advised to allow connections from unknown hosts in debug builds to facilitate
+     * debugging and testing, or if the information exposed through this service has no privacy
+     * concerns (e.g.: no user credentials and no personal user information (PII) is exchanged with
+     * the hosts).
      *
      * <p>Below is an example of this method implementation:
+     *
      * <pre>
      * &#64;Override
-     * public void onConfigureHostValidation(&#64;NonNull HostValidator hostValidator) {
-     *     boolean isDebugMode =
-     *         (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
-     *     hostValidator.setAllowUnknownHostsEnabled(isDebugMode);
-     *     hostValidator.addAllowListedHosts(androidx.car.app.R.array.hosts_allowlist_sample);
+     * &#64;NonNull
+     * public HostValidator createHostValidation() {
+     *     if ((getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
+     *         return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR;
+     *     } else {
+     *         return new HostValidator.Builder()
+     *             .addAllowedHosts(androidx.car.app.R.array.hosts_allowlist_sample)
+     *             .build();
+     *     }
      * }
      * </pre>
      *
@@ -198,8 +206,8 @@ public abstract class CarAppService extends Service {
      * Cars App Library Samples</a> to obtain a list of package names and signatures that should
      * be allow-listed by default.
      */
-    public abstract void configureHostValidator(@NonNull HostValidator.Builder
-            hostValidatorBuilder);
+    @NonNull
+    public abstract HostValidator createHostValidator();
 
     /**
      * Creates a new {@link Session} for the application.
@@ -238,7 +246,7 @@ public abstract class CarAppService extends Service {
     }
 
     /**
-     * Retrieves information about the host attached to this service.
+     * Returns information about the host attached to this service.
      *
      * @see HostInfo
      */
@@ -252,9 +260,7 @@ public abstract class CarAppService extends Service {
     }
 
     /**
-     * Retrieves the current {@link Session} for this service.
-     *
-     * @see Session
+     * Returns the current {@link Session} for this service.
      */
     @Nullable
     public final Session getCurrentSession() {
@@ -279,9 +285,7 @@ public abstract class CarAppService extends Service {
     @NonNull
     HostValidator getHostValidator() {
         if (mHostValidator == null) {
-            HostValidator.Builder builder = new HostValidator.Builder(this);
-            configureHostValidator(builder);
-            mHostValidator = builder.build();
+            mHostValidator = createHostValidator();
         }
         return mHostValidator;
     }
@@ -497,7 +501,7 @@ public abstract class CarAppService extends Service {
 
     Session throwIfInvalid(Session session) {
         if (session == null) {
-            throw new IllegalStateException("Null session found when non-null expected.");
+            throw new IllegalStateException("Null session found when non-null expected");
         }
 
         return session;

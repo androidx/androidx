@@ -66,14 +66,13 @@ public final class CarAppExtenderTest {
                                             @NonNull NotificationCompat.Builder builder) {
                                         Bundle carExtensions = new Bundle();
 
-                                        builder.getExtras().putBundle("android.car.app.EXTENSIONS",
+                                        builder.getExtras().putBundle("androidx.car.app.EXTENSIONS",
                                                 carExtensions);
                                         return builder;
                                     }
                                 });
 
         CarAppExtender carAppExtender = new CarAppExtender(builder.build());
-        assertThat(carAppExtender.isExtended()).isFalse();
         assertThat(carAppExtender.getContentTitle()).isNull();
         assertThat(carAppExtender.getContentText()).isNull();
         assertThat(carAppExtender.getSmallIcon()).isEqualTo(0);

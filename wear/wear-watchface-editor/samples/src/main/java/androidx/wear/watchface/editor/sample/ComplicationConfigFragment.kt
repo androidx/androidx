@@ -32,11 +32,13 @@ import android.view.ViewGroup
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.Fragment
+import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.style.Layer
 import androidx.wear.widget.SwipeDismissFrameLayout
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 /**
@@ -53,7 +55,6 @@ internal class ComplicationConfigFragment : Fragment() {
             requireContext(),
             activity as WatchFaceConfigActivity
         ).apply {
-            setWillNotDraw(false)
             isSwipeable = true
             addCallback(
                 object : SwipeDismissFrameLayout.Callback() {
@@ -90,6 +91,16 @@ internal class ConfigView(
 
     val watchFaceConfigActivity: WatchFaceConfigActivity
 ) : SwipeDismissFrameLayout(context) {
+
+    private lateinit var previewComplicationData: Map<Int, ComplicationData>
+
+    init {
+        watchFaceConfigActivity.coroutineScope.launch {
+            previewComplicationData =
+                watchFaceConfigActivity.editorSession.getComplicationPreviewData()
+            setWillNotDraw(false)
+        }
+    }
 
     /**
      * Event info class to hold the position and type of the event.
@@ -156,9 +167,12 @@ internal class ConfigView(
             },
             100
         )
-        // Redraw after the complication provider chooser has run.
-        watchFaceConfigActivity.fragmentController.showComplicationConfig(complicationId)
-            .addListener({ invalidate() }, { runnable -> runnable.run() })
+        watchFaceConfigActivity.coroutineScope.launch {
+            watchFaceConfigActivity.fragmentController.showComplicationConfig(complicationId)
+            // Redraw after the complication provider chooser has run.
+            invalidate()
+        }
+
         return true
     }
 
@@ -199,7 +213,7 @@ internal class ConfigView(
                 Color.RED
             ),
             editingSession.previewReferenceTimeMillis,
-            editingSession.complicationPreviewData.get()
+            previewComplicationData
         )
         canvas.drawBitmap(bitmap, drawRect, drawRect, null)
     }

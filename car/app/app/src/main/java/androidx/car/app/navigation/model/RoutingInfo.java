@@ -32,7 +32,7 @@ import java.util.Objects;
  * Represents routing information that can be shown in the {@link NavigationTemplate} during
  * navigation
  */
-public class RoutingInfo implements NavigationInfo {
+public final class RoutingInfo implements NavigationInfo {
     @Keep
     @Nullable
     private final Step mCurrentStep;
@@ -48,21 +48,33 @@ public class RoutingInfo implements NavigationInfo {
     @Keep
     private final boolean mIsLoading;
 
-    /** Constructs a new builder of {@link RoutingInfo}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
+    /**
+     * Returns whether the routing info is in a loading state.
+     *
+     * @see Builder#setLoading(boolean)
+     */
+    public boolean isLoading() {
+        return mIsLoading;
     }
 
+    /**
+     * Returns the current step to display to the user or {@code null} if not set.
+     *
+     * @see Builder#setCurrentStep(Step, Distance)
+     */
     @Nullable
     public Step getCurrentStep() {
-        return requireNonNull(mCurrentStep);
+        return mCurrentStep;
     }
 
+    /**
+     * Returns the current distance to display to the user or {@code null} if not set.
+     *
+     * @see Builder#setCurrentStep(Step, Distance)
+     */
     @Nullable
     public Distance getCurrentDistance() {
-        return requireNonNull(mCurrentDistance);
+        return mCurrentDistance;
     }
 
     @Nullable
@@ -70,13 +82,15 @@ public class RoutingInfo implements NavigationInfo {
         return mNextStep;
     }
 
+
+    /**
+     * Returns an image for a junction of the maneuver or {@code null} if not set.
+     *
+     * @see Builder#setJunctionImage(CarIcon)
+     */
     @Nullable
     public CarIcon getJunctionImage() {
         return mJunctionImage;
-    }
-
-    public boolean isLoading() {
-        return mIsLoading;
     }
 
     @NonNull
@@ -150,17 +164,22 @@ public class RoutingInfo implements NavigationInfo {
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
+         *
+         * @throws NullPointerException if {@code currentStep} is {@code null}
+         * @throws NullPointerException if {@code currentDistance} is {@code null}
          */
         @NonNull
         public Builder setCurrentStep(@NonNull Step currentStep,
                 @NonNull Distance currentDistance) {
-            this.mCurrentStep = requireNonNull(currentStep);
-            this.mCurrentDistance = requireNonNull(currentDistance);
+            mCurrentStep = requireNonNull(currentStep);
+            mCurrentDistance = requireNonNull(currentDistance);
             return this;
         }
 
         /**
-         * Sets the next {@link Step} or {@code null} to not display it.
+         * Sets the next {@link Step}.
+         *
+         * <p>Unless set with this method, the next step won't be displayed.
          *
          * <h4>Image Sizing Guidance</h4>
          *
@@ -170,16 +189,17 @@ public class RoutingInfo implements NavigationInfo {
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
+         *
+         * @throws NullPointerException if {@code nextStep} is {@code null}
          */
         @NonNull
-        public Builder setNextStep(@Nullable Step nextStep) {
-            this.mNextStep = nextStep;
+        public Builder setNextStep(@NonNull Step nextStep) {
+            mNextStep = requireNonNull(nextStep);
             return this;
         }
 
         /**
-         * Sets an image of a junction for the maneuver or {@code null} to not show a junction
-         * image.
+         * Sets an image of a junction for the maneuver.
          *
          * <p>For example, a photo-realistic view of the upcoming junction that the driver can
          * see when executing the maneuver.
@@ -193,11 +213,13 @@ public class RoutingInfo implements NavigationInfo {
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
+         *
+         * @throws NullPointerException if {@code junctionImage} is {@code null}
          */
         @NonNull
-        public Builder setJunctionImage(@Nullable CarIcon junctionImage) {
-            CarIconConstraints.DEFAULT.validateOrThrow(junctionImage);
-            this.mJunctionImage = junctionImage;
+        public Builder setJunctionImage(@NonNull CarIcon junctionImage) {
+            CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(junctionImage));
+            mJunctionImage = junctionImage;
             return this;
         }
 
@@ -209,12 +231,10 @@ public class RoutingInfo implements NavigationInfo {
          * call {@link androidx.car.app.Screen#invalidate()} and send the new template content
          * to the host once the data is ready. If set to {@code false}, the UI shows the actual
          * routing info.
-         *
-         * @see #build
          */
         @NonNull
         public Builder setLoading(boolean isLoading) {
-            this.mIsLoading = isLoading;
+            mIsLoading = isLoading;
             return this;
         }
 
@@ -230,7 +250,7 @@ public class RoutingInfo implements NavigationInfo {
          * Step.Builder#setLanesImage(CarIcon)}.
          *
          * @throws IllegalStateException if the {@link RoutingInfo} does not meet the template's
-         *                               requirements.
+         *                               requirements
          */
         @NonNull
         public RoutingInfo build() {
@@ -250,9 +270,9 @@ public class RoutingInfo implements NavigationInfo {
                 }
                 if (!current.getLanes().isEmpty() && current.getLanesImage() == null) {
                     // TODO(b/154660041): Remove restriction when lane image can be draw from
-                    //  lane info.
+                    // lane info.
                     throw new IllegalStateException(
-                            "Current step must have a lanes image if the lane information is set.");
+                            "Current step must have a lanes image if the lane information is set");
                 }
             }
             return new RoutingInfo(this);

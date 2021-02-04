@@ -26,7 +26,7 @@ import androidx.annotation.Nullable;
  * A container for the information conveyed by the host after the handshake with the app is
  * completed.
  */
-public class HandshakeInfo {
+public final class HandshakeInfo {
     @Keep
     @Nullable
     private final String mHostPackageName;
@@ -36,8 +36,8 @@ public class HandshakeInfo {
     /**
      * Creates an instance of {@link HandshakeInfo}.
      *
-     * @param hostPackageName    the host package name.
-     * @param hostCarAppApiLevel the API level that should be used to communicate with the host.
+     * @param hostPackageName    the host package name
+     * @param hostCarAppApiLevel the API level that should be used to communicate with the host
      */
     public HandshakeInfo(@NonNull String hostPackageName, int hostCarAppApiLevel) {
         mHostPackageName = hostPackageName;

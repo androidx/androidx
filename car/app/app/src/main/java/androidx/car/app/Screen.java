@@ -83,7 +83,7 @@ public abstract class Screen implements LifecycleOwner {
     private boolean mUseLastTemplateId;
 
     protected Screen(@NonNull CarContext carContext) {
-        this.mCarContext = requireNonNull(carContext);
+        mCarContext = requireNonNull(carContext);
     }
 
     /**
@@ -99,7 +99,7 @@ public abstract class Screen implements LifecycleOwner {
      * <p>To avoid race conditions with calls to {@link #onGetTemplate} you should call this method
      * with the main thread.
      *
-     * @throws HostException if the remote call fails.
+     * @throws HostException if the remote call fails
      */
     public final void invalidate() {
         if (getLifecycle().getCurrentState().isAtLeast(State.STARTED)) {
@@ -132,7 +132,7 @@ public abstract class Screen implements LifecycleOwner {
      *               pushing this screen onto the stack using {@link ScreenManager#pushForResult}
      */
     public void setResult(@Nullable Object result) {
-        this.mResult = result;
+        mResult = result;
     }
 
     /**
@@ -144,7 +144,7 @@ public abstract class Screen implements LifecycleOwner {
      * ScreenManager#popTo}.
      */
     public void setMarker(@Nullable String marker) {
-        this.mMarker = marker;
+        mMarker = marker;
     }
 
     /**
@@ -216,8 +216,6 @@ public abstract class Screen implements LifecycleOwner {
     public final ScreenManager getScreenManager() {
         return mCarContext.getCarService(ScreenManager.class);
     }
-
-    // TODO(rampara): Replace code tags with link on submission of notification module
 
     /**
      * Returns the {@link Template} to present in the car screen.
@@ -296,14 +294,14 @@ public abstract class Screen implements LifecycleOwner {
      * an app to begin a new task flow from notifications, and it holds true even if an app is
      * already bound and in the foreground.
      *
-     * <p>See {@code androidx.car.app.notification.CarAppExtender} for details on notifications.
+     * <p>See {@link androidx.car.app.notification.CarAppExtender} for details on notifications.
      */
     @NonNull
     public abstract Template onGetTemplate();
 
     /** Sets a {@link OnScreenResultListener} for this {@link Screen}. */
     void setOnScreenResultListener(OnScreenResultListener onScreenResultListener) {
-        this.mOnScreenResultListener = onScreenResultListener;
+        mOnScreenResultListener = onScreenResultListener;
     }
 
     /**
@@ -329,8 +327,7 @@ public abstract class Screen implements LifecycleOwner {
      * wrapped in a {@link TemplateWrapper}.
      *
      * <p>The {@link TemplateWrapper} attaches a unique ID to the wrapped template, which is used
-     * for
-     * implementing flow restrictions. The host keeps track of these IDs to detect push, pop, or
+     * for implementing flow restrictions. The host keeps track of these IDs to detect push, pop, or
      * refresh operations and handle the different cases accordingly. For example, when more than
      * a max limit of templates are pushed, the host may return an error.
      *
@@ -373,12 +370,14 @@ public abstract class Screen implements LifecycleOwner {
         if (mTemplateWrapper == null) {
             mTemplateWrapper = TemplateWrapper.wrap(onGetTemplate());
         }
-        return new TemplateInfo(mTemplateWrapper.getTemplate(), mTemplateWrapper.getId());
+        return new TemplateInfo(mTemplateWrapper.getTemplate().getClass(),
+                mTemplateWrapper.getId());
     }
 
     @NonNull
     private static TemplateInfo getLastTemplateInfo(TemplateWrapper lastTemplateWrapper) {
-        return new TemplateInfo(lastTemplateWrapper.getTemplate(), lastTemplateWrapper.getId());
+        return new TemplateInfo(lastTemplateWrapper.getTemplate().getClass(),
+                lastTemplateWrapper.getId());
     }
 
     /**
@@ -390,6 +389,6 @@ public abstract class Screen implements LifecycleOwner {
      * reset the task step to that point in time.
      */
     void setUseLastTemplateId(boolean useLastTemplateId) {
-        this.mUseLastTemplateId = useLastTemplateId;
+        mUseLastTemplateId = useLastTemplateId;
     }
 }

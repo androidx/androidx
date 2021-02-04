@@ -36,11 +36,13 @@ import androidx.annotation.Nullable;
  *     public static final String[] MIME_TYPES = new String[] {"image/*", "video/*"};
  *
  *     &#64;Override
- *     public ContentInfoCompat onReceiveContent(View view, ContentInfoCompat contentInfo) {
- *         Pair&lt;ContentInfoCompat, ContentInfoCompat&gt; split = contentInfo.partition(
+ *     public ContentInfoCompat onReceiveContent(View view, ContentInfoCompat payload) {
+ *         // Split the incoming content into two groups: content URIs and everything else.
+ *         // This way we can implement custom handling for URIs and delegate the rest.
+ *         Pair&lt;ContentInfoCompat, ContentInfoCompat&gt; split = payload.partition(
  *                 item -&gt; item.getUri() != null);
- *         ContentInfo uriContent = split.first;
- *         ContentInfo remaining = split.second;
+ *         ContentInfoCompat uriContent = split.first;
+ *         ContentInfoCompat remaining = split.second;
  *         if (uriContent != null) {
  *             ClipData clip = uriContent.getClip();
  *             for (int i = 0; i < clip.getItemCount(); i++) {
@@ -63,6 +65,7 @@ import androidx.annotation.Nullable;
  *         AppCompatEditText myInput = findViewById(R.id.my_input);
  *         ViewCompat.setOnReceiveContentListener(myInput, MyReceiver.MIME_TYPES, new MyReceiver());
  *     }
+ * }
  * </pre>
  */
 public interface OnReceiveContentListener {

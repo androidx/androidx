@@ -108,13 +108,23 @@ internal sealed class KspTypeElement(
      */
     private val _declaredProperties by lazy {
         val declaredProperties = declaration.getDeclaredProperties()
+            .map {
+                KspFieldElement(
+                    env = env,
+                    declaration = it,
+                    containing = this
+                )
+            }.let {
+                // only order instance fields, we don't care about the order of companion fields.
+                KspFieldOrdering.orderFields(declaration, it)
+            }
+
         val companionProperties = declaration
             .findCompanionObject()
             ?.getDeclaredProperties()
             ?.filter {
                 it.isStatic()
             }.orEmpty()
-        (declaredProperties + companionProperties)
             .map {
                 KspFieldElement(
                     env = env,
@@ -122,6 +132,7 @@ internal sealed class KspTypeElement(
                     containing = this
                 )
             }
+        declaredProperties + companionProperties
     }
 
     private val _declaredFieldsIncludingSupers by lazy {
@@ -179,6 +190,11 @@ internal sealed class KspTypeElement(
                 }
                 it.declaration.isPrivate() -> false
                 setter != null -> !setter.modifiers.contains(Modifier.PRIVATE)
+                it.declaration.origin != Origin.KOTLIN -> {
+                    // no reason to generate synthetics non kotlin code. If it had a setter, that
+                    // would show up as a setter
+                    false
+                }
                 else -> it.declaration.isMutable
             }
             if (needsSetter) {
@@ -205,6 +221,11 @@ internal sealed class KspTypeElement(
                 }
                 it.declaration.isPrivate() -> false
                 getter != null -> !getter.modifiers.contains(Modifier.PRIVATE)
+                it.declaration.origin != Origin.KOTLIN -> {
+                    // no reason to generate synthetics non kotlin code. If it had a getter, that
+                    // would show up as a getter
+                    false
+                }
                 else -> true
             }
 

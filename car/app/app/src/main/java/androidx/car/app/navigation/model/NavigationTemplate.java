@@ -33,8 +33,6 @@ import androidx.car.app.model.Template;
 
 import java.util.Objects;
 
-// TODO(rampara): Update code reference to CarAppExtender is javadoc to link
-
 /**
  * A template for showing navigation information.
  *
@@ -51,7 +49,7 @@ import java.util.Objects;
  * <p>The template itself does not expose a drawing surface. In order to draw on the canvas, use
  * {@link androidx.car.app.AppManager#setSurfaceCallback(SurfaceCallback)}.
  *
- * <p>See {@code androidx.car.app.notification.CarAppExtender} for how to show
+ * <p>See {@link androidx.car.app.notification.CarAppExtender} for how to show
  * alerts with notifications. Frequent alert notifications distract the driver and are discouraged.
  *
  * <h4>Template Restrictions</h4>
@@ -66,7 +64,7 @@ import java.util.Objects;
  * <p>In order to use this template your car app <b>MUST</b> declare that it uses the {@code
  * androidx.car.app.NAVIGATION_TEMPLATES} permission in the manifest.
  */
-public class NavigationTemplate implements Template {
+public final class NavigationTemplate implements Template {
 
     /**
      * Represents navigation information such as routing instructions or navigation-related
@@ -88,15 +86,18 @@ public class NavigationTemplate implements Template {
     @Nullable
     private final ActionStrip mActionStrip;
 
-    /** Constructs a new builder of {@link NavigationTemplate}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
+    /**
+     * Returns the {@link ActionStrip} for this template or {@code null} if not set.
+     *
+     * @see Builder#setActionStrip(ActionStrip)
+     */
+    @Nullable
+    public ActionStrip getActionStrip() {
+        return requireNonNull(mActionStrip);
     }
 
     /**
-     * Returns the navigation information displayed on the template, or {@code null} if there is no
+     * Returns the navigation information displayed on the template or {@code null} if there is no
      * navigation information on top of the map.
      */
     @Nullable
@@ -105,7 +106,7 @@ public class NavigationTemplate implements Template {
     }
 
     /**
-     * Returns the background color used for the navigation information, or {@code null} if set to
+     * Returns the background color used for the navigation information or {@code null} if set to
      * the default value.
      */
     @Nullable
@@ -114,20 +115,12 @@ public class NavigationTemplate implements Template {
     }
 
     /**
-     * Returns the {@link TravelEstimate} to the final destination, or {@code null} if there is no
+     * Returns the {@link TravelEstimate} to the final destination or {@code null} if there is no
      * travel estimate information.
      */
     @Nullable
     public TravelEstimate getDestinationTravelEstimate() {
         return mDestinationTravelEstimate;
-    }
-
-    /**
-     * Returns the {@link ActionStrip} with a list of the template-scoped actions for this template.
-     */
-    @NonNull
-    public ActionStrip getActionStrip() {
-        return requireNonNull(mActionStrip);
     }
 
     @NonNull
@@ -185,48 +178,47 @@ public class NavigationTemplate implements Template {
         ActionStrip mActionStrip;
 
         /**
-         * Sets the navigation information to display on the template, or {@code null} to not
-         * display navigation information on top of the map.
+         * Sets the navigation information to display on the template.
+         *
+         * <p>Unless set with this method, navigation info won't be displayed on the template.
+         *
+         * @throws NullPointerException if {@code navigationInfo} is {@code null}
          */
         @NonNull
-        public Builder setNavigationInfo(@Nullable NavigationInfo navigationInfo) {
-            this.mNavigationInfo = navigationInfo;
+        public Builder setNavigationInfo(@NonNull NavigationInfo navigationInfo) {
+            mNavigationInfo = requireNonNull(navigationInfo);
             return this;
         }
 
         /**
-         * Sets the background color to use for the navigation information, or {@code null} to
-         * use the default.
+         * Sets the background color to use for the navigation information.
          *
          * <p>The host may ignore this color and use a default color instead if the color does
          * not pass the contrast requirements.
          */
         @NonNull
-        public Builder setBackgroundColor(@Nullable CarColor backgroundColor) {
-            if (backgroundColor != null) {
-                UNCONSTRAINED.validateOrThrow(backgroundColor);
-            }
-            this.mBackgroundColor = backgroundColor;
+        public Builder setBackgroundColor(@NonNull CarColor backgroundColor) {
+            UNCONSTRAINED.validateOrThrow(requireNonNull(backgroundColor));
+            mBackgroundColor = backgroundColor;
             return this;
         }
 
         /**
-         * Sets the {@link TravelEstimate} to the final destination, or {@code null} to not show any
-         * travel estimate information.
+         * Sets the {@link TravelEstimate} to the final destination.
          *
          * @throws IllegalArgumentException if the {@link TravelEstimate}'s remaining time is
-         *                                  less than zero.
+         *                                  less than zero
+         * @throws NullPointerException     if {@code destinationTravelEstimate} is {@code null}
          */
         @NonNull
         public Builder setDestinationTravelEstimate(
-                @Nullable TravelEstimate destinationTravelEstimate) {
-            if (destinationTravelEstimate != null
-                    && destinationTravelEstimate.getRemainingTimeSeconds() < 0) {
+                @NonNull TravelEstimate destinationTravelEstimate) {
+            if (requireNonNull(destinationTravelEstimate).getRemainingTimeSeconds() < 0) {
                 throw new IllegalArgumentException(
                         "The destination travel estimate's remaining time must be greater or "
                                 + "equal to zero");
             }
-            this.mDestinationTravelEstimate = destinationTravelEstimate;
+            mDestinationTravelEstimate = destinationTravelEstimate;
             return this;
         }
 
@@ -241,26 +233,26 @@ public class NavigationTemplate implements Template {
          * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
          *
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the template's
-         *                                  requirements.
-         * @throws NullPointerException     if {@code actionStrip} is {@code null}.
+         *                                  requirements
+         * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @NonNull
         public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_NAVIGATION.validateOrThrow(
-                    requireNonNull(actionStrip).getActionList());
-            this.mActionStrip = actionStrip;
+                    requireNonNull(actionStrip).getActions());
+            mActionStrip = actionStrip;
             return this;
         }
 
         /**
          * Constructs the {@link NavigationTemplate} defined by this builder.
          *
-         * @throws IllegalStateException if an {@link ActionStrip} is not set on this template.
+         * @throws IllegalStateException if an {@link ActionStrip} is not set on this template
          */
         @NonNull
         public NavigationTemplate build() {
             if (mActionStrip == null) {
-                throw new IllegalStateException("Action strip for this template must be set.");
+                throw new IllegalStateException("Action strip for this template must be set");
             }
             return new NavigationTemplate(this);
         }

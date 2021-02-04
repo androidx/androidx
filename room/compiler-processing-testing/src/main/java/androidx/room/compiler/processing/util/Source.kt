@@ -19,21 +19,25 @@ package androidx.room.compiler.processing.util
 import com.google.testing.compile.JavaFileObjects
 import com.tschuchort.compiletesting.SourceFile
 import org.intellij.lang.annotations.Language
+import java.io.File
 import javax.tools.JavaFileObject
 
 /**
  * Common abstraction for test sources in kotlin and java
  */
 sealed class Source {
+    abstract val relativePath: String
+    abstract val contents: String
     abstract fun toJFO(): JavaFileObject
-    abstract fun toKotlinSourceFile(): SourceFile
+    abstract fun toKotlinSourceFile(srcRoot: File): SourceFile
 
-    // we need this for kotlin compile testing as it doesn't create directories
-    abstract fun relativePath(): String
+    override fun toString(): String {
+        return "SourceFile[$relativePath]"
+    }
 
     class JavaSource(
         val qName: String,
-        val contents: String
+        override val contents: String
     ) : Source() {
         override fun toJFO(): JavaFileObject {
             return JavaFileObjects.forSourceString(
@@ -42,34 +46,36 @@ sealed class Source {
             )
         }
 
-        override fun toKotlinSourceFile(): SourceFile {
-            return SourceFile.java(
-                relativePath(),
-                contents
-            )
+        override fun toKotlinSourceFile(srcRoot: File): SourceFile {
+            val outFile = srcRoot.resolve(relativePath)
+                .also {
+                    it.parentFile.mkdirs()
+                    it.writeText(contents)
+                }
+            return SourceFile.fromPath(outFile)
         }
 
-        override fun relativePath(): String {
-            return qName.replace(".", "/") + ".java"
-        }
+        override val relativePath
+            get() = qName.replace(".", "/") + ".java"
     }
 
     class KotlinSource(
-        val filePath: String,
-        val contents: String
+        override val relativePath: String,
+        override val contents: String
     ) : Source() {
         override fun toJFO(): JavaFileObject {
             throw IllegalStateException("cannot include kotlin code in javac compilation")
         }
 
-        override fun toKotlinSourceFile(): SourceFile {
-            return SourceFile.kotlin(
-                filePath,
-                contents
+        override fun toKotlinSourceFile(srcRoot: File): SourceFile {
+            val outFile = srcRoot.resolve(relativePath).also {
+                it.parentFile.mkdirs()
+                it.writeText(contents)
+            }
+            return SourceFile.fromPath(
+                outFile
             )
         }
-
-        override fun relativePath(): String = filePath
     }
 
     companion object {
@@ -93,6 +99,57 @@ sealed class Source {
                 filePath,
                 code
             )
+        }
+
+        /**
+         * Convenience method to convert JFO's to the Source objects in XProcessing so that we can
+         * convert room tests to the common API w/o major code refactor
+         */
+        fun fromJavaFileObject(javaFileObject: JavaFileObject): Source {
+            val uri = javaFileObject.toUri()
+            // parse name from uri
+            val contents = javaFileObject.openReader(true).use {
+                it.readText()
+            }
+            val qName = if (uri.scheme == "mem") {
+                // in java compile testing, path includes SOURCE_OUTPUT, drop it
+                uri.path.substringAfter("SOURCE_OUTPUT/").replace('/', '.')
+            } else {
+                uri.path.replace('/', '.')
+            }
+            val javaExt = ".java"
+            check(qName.endsWith(javaExt)) {
+                "expected a java source file, $qName does not seem like one"
+            }
+
+            return java(qName.dropLast(javaExt.length), contents)
+        }
+
+        fun loadKotlinSource(
+            file: File
+        ): Source {
+            check(file.exists() && file.name.endsWith(".kt"))
+            return kotlin(file.absolutePath, file.readText())
+        }
+
+        fun loadJavaSource(
+            file: File,
+            qName: String
+        ): Source {
+            check(file.exists() && file.name.endsWith(".java"))
+            return java(qName, file.readText())
+        }
+
+        fun load(
+            file: File,
+            qName: String
+        ): Source {
+            check(file.exists())
+            return when {
+                file.name.endsWith(".kt") -> loadKotlinSource(file)
+                file.name.endsWith(".java") -> loadJavaSource(file, qName)
+                else -> error("invalid file extension ${file.name}")
+            }
         }
     }
 }

@@ -20,8 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import com.google.common.collect.ImmutableList;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -57,7 +55,7 @@ public class PaneTest {
     public void addRow() {
         Row row = createRow(1);
         Pane pane = new Pane.Builder().addRow(row).build();
-        assertThat(pane.getRowList()).containsExactly(row);
+        assertThat(pane.getRows()).containsExactly(row);
     }
 
     @Test
@@ -66,7 +64,7 @@ public class PaneTest {
         Row row2 = createRow(2);
         Row row3 = createRow(3);
         Pane pane = new Pane.Builder().addRow(row1).addRow(row2).addRow(row3).build();
-        assertThat(pane.getRowList()).containsExactly(row1, row2, row3);
+        assertThat(pane.getRows()).containsExactly(row1, row2, row3);
     }
 
     @Test
@@ -76,17 +74,16 @@ public class PaneTest {
         List<Action> actions = Arrays.asList(action1, action2);
         Pane pane =
                 new Pane.Builder().addRow(
-                        new Row.Builder().setTitle("Title").build()).setActionList(
-                        actions).build();
-        assertThat(pane.getActionList()).containsExactlyElementsIn(actions);
+                        new Row.Builder().setTitle("Title").build()).addAction(action1).addAction(
+                        action2).build();
+        assertThat(pane.getActions()).containsExactlyElementsIn(actions);
     }
 
     @Test
     public void setActions_throwsIfNullAction() {
-        Action action1 = createAction(1);
         assertThrows(
-                IllegalArgumentException.class,
-                () -> new Pane.Builder().setActionList(Arrays.asList(action1, null)).build());
+                NullPointerException.class,
+                () -> new Pane.Builder().addAction(null).build());
     }
 
     @Test
@@ -94,7 +91,8 @@ public class PaneTest {
         Pane pane =
                 new Pane.Builder()
                         .setLoading(false)
-                        .setActionList(ImmutableList.of(Action.APP_ICON, Action.BACK))
+                        .addAction(Action.APP_ICON)
+                        .addAction(Action.BACK)
                         .addRow(new Row.Builder().setTitle("Title").build())
                         .build();
 
@@ -102,7 +100,8 @@ public class PaneTest {
                 .isEqualTo(
                         new Pane.Builder()
                                 .setLoading(false)
-                                .setActionList(ImmutableList.of(Action.APP_ICON, Action.BACK))
+                                .addAction(Action.APP_ICON)
+                                .addAction(Action.BACK)
                                 .addRow(new Row.Builder().setTitle("Title").build())
                                 .build());
     }
@@ -122,13 +121,13 @@ public class PaneTest {
         Pane pane =
                 new Pane.Builder()
                         .addRow(row)
-                        .setActionList(ImmutableList.of(Action.APP_ICON, Action.BACK))
+                        .addAction(Action.APP_ICON)
+                        .addAction(Action.BACK)
                         .build();
 
         assertThat(pane)
                 .isNotEqualTo(
-                        new Pane.Builder().addRow(row).setActionList(
-                                ImmutableList.of(Action.APP_ICON)).build());
+                        new Pane.Builder().addRow(row).addAction(Action.APP_ICON).build());
     }
 
     @Test

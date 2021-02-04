@@ -167,7 +167,7 @@ public class PlaceListNavigationTemplateTest {
                         .setTitle("Title")
                         .setItemList(new ItemList.Builder().build())
                         .build();
-        assertThat(template.getItemList().getItemList()).isEmpty();
+        assertThat(template.getItemList().getItems()).isEmpty();
         assertThat(template.getTitle().toString()).isEqualTo("Title");
         assertThat(template.getActionStrip()).isNull();
     }
@@ -267,7 +267,7 @@ public class PlaceListNavigationTemplateTest {
                         .setMetadata(
                                 new Metadata.Builder().setPlace(
                                         new Place.Builder(CarLocation.create(10.f, 10.f))
-                                                .setMarker(PlaceMarker.getDefault())
+                                                .setMarker(new PlaceMarker.Builder().build())
                                                 .build()).build())
                         .build();
 

@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Paroldan foydalanish"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"PIN kod, grafik kalit yoki parol sozlanmagan."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Bu qurilmada PIN kod, grafik kalit va parol ishlamaydi."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Barmoq izi belgisi"</string>
 </resources>

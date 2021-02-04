@@ -69,6 +69,9 @@ import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.data.UserStyleWireFormat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
 import java.util.concurrent.CountDownLatch
 
@@ -218,7 +221,7 @@ public abstract class WatchFaceService : WallpaperService() {
     }
 
     /** Override this factory method to create your WatchFaceImpl. */
-    protected abstract fun createWatchFace(
+    protected abstract suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState
     ): WatchFace
@@ -252,6 +255,7 @@ public abstract class WatchFaceService : WallpaperService() {
     internal inner class EngineWrapper(
         private val uiThreadHandler: Handler
     ) : WallpaperService.Engine(), WatchFaceHostApi {
+        private val coroutineScope = CoroutineScope(getHandler().asCoroutineDispatcher())
         private val _context = this@WatchFaceService as Context
 
         internal lateinit var iWatchFaceService: IWatchFaceService
@@ -321,11 +325,11 @@ public abstract class WatchFaceService : WallpaperService() {
         private lateinit var interactiveInstanceId: String
 
         init {
-            maybeCreateWCSApi()
+            coroutineScope.launch { maybeCreateWCSApi() }
         }
 
         @SuppressWarnings("NewApi")
-        private fun maybeCreateWCSApi() {
+        private suspend fun maybeCreateWCSApi() {
             val pendingWallpaperInstance =
                 InteractiveInstanceManager.takePendingWallpaperInteractiveWatchFaceInstance()
 
@@ -738,13 +742,13 @@ public abstract class WatchFaceService : WallpaperService() {
                 Log.w(TAG, "Failed to getVersion: ", e)
             }
 
-            maybeCreateWatchFace()
+            coroutineScope.launch { maybeCreateWatchFace() }
         }
 
         override fun getInitialUserStyle(): UserStyleWireFormat? = initialUserStyle
 
         @RequiresApi(27)
-        fun createHeadlessInstance(
+        suspend fun createHeadlessInstance(
             params: HeadlessWatchFaceInstanceParams
         ): HeadlessWatchFaceImpl {
             require(!watchFaceCreated())
@@ -823,7 +827,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         @UiThread
         @RequiresApi(27)
-        fun createInteractiveInstance(
+        suspend fun createInteractiveInstance(
             params: WallpaperInteractiveWatchFaceInstanceParams
         ): InteractiveWatchFaceImpl {
             require(!watchFaceCreated())
@@ -859,7 +863,7 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        private fun maybeCreateWatchFace() {
+        private suspend fun maybeCreateWatchFace() {
             // To simplify handling of watch face state, we only construct the [WatchFaceImpl]
             // once iWatchFaceService have been initialized and pending properties sent.
             if (this::iWatchFaceService.isInitialized && pendingProperties != null &&
@@ -985,7 +989,7 @@ public abstract class WatchFaceService : WallpaperService() {
         internal fun onPropertiesChanged(properties: Bundle) {
             if (!watchFaceInitStarted) {
                 pendingProperties = properties
-                maybeCreateWatchFace()
+                coroutineScope.launch { maybeCreateWatchFace() }
                 return
             }
 

@@ -49,6 +49,9 @@ internal class KspExecutableParameterElement(
         }
     }
 
+    override val fallbackLocationText: String
+        get() = "$name in ${method.fallbackLocationText}"
+
     override fun asMemberOf(other: XType): KspType {
         if (method.containing.type.isSameType(other)) {
             return type

@@ -25,6 +25,7 @@ import androidx.paging.cachedIn
 import androidx.paging.rxjava2.cachedIn
 import androidx.paging.rxjava2.flowable
 import androidx.paging.liveData
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /**
  * No-op ViewModel base class to be used by sample code that doesn't show ViewModel impl
@@ -39,6 +40,7 @@ open class BaseViewModel<T : Any> : ViewModel() {
 
     val pagingFlow = pager.flow.cachedIn(viewModelScope)
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val pagingFlowable = pager.flowable.cachedIn(viewModelScope)
 
     val pagingLiveData = pager.liveData.cachedIn(viewModelScope)

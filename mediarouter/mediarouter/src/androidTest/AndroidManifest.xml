@@ -22,7 +22,7 @@
             android:name="androidx.mediarouter.app.MediaRouteChooserDialogTestActivity"
             android:label="MediaRouteChooserDialogTestActivity"
             android:theme="@style/Theme.AppCompat" />
-
+        <activity android:name="androidx.mediarouter.media.MediaRouter2TestActivity" />
         <service
             android:name="androidx.mediarouter.media.StubMediaRouteProviderService"
             android:exported="true">

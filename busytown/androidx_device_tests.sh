@@ -5,10 +5,7 @@ echo "Starting $0 at $(date)"
 
 cd "$(dirname $0)"
 
-impl/build.sh --no-daemon zipTestConfigsWithApks -Pandroidx.validateNoUnrecognizedMessages \
-    -PverifyUpToDate \
-    -Pandroidx.coverageEnabled=true \
-    -Pandroidx.enableAffectedModuleDetection \
-    -Pandroidx.allWarningsAsErrors --offline "$@"
+impl/build.sh zipTestConfigsWithApks \
+    "$@"
 
 echo "Completing $0 at $(date)"

@@ -93,7 +93,14 @@ public class TestUtils {
 
     /** Returns a default {@link Action} instance. */
     public static Action createAction(@Nullable String title, @Nullable CarIcon icon) {
-        return new Action.Builder().setTitle(title).setIcon(icon).setOnClickListener(() -> {
+        Action.Builder builder = new Action.Builder();
+        if (title != null) {
+            builder.setTitle(title);
+        }
+        if (icon != null) {
+            builder.setIcon(icon);
+        }
+        return builder.setOnClickListener(() -> {
         }).build();
     }
 
@@ -138,9 +145,8 @@ public class TestUtils {
 
         List<Action> actions = new ArrayList<>();
         for (int i = 0; i < actionCount; i++) {
-            actions.add(createAction("action " + i, null));
+            builder.addAction(createAction("action " + i, null));
         }
-        builder.setActionList(actions);
 
         return builder.build();
     }

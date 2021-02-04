@@ -266,7 +266,7 @@ public final class CameraX {
         // Do not use FutureChain to chain the initFuture, because FutureChain.transformAsync()
         // will not propagate if the input initFuture is failed. We want to always
         // shutdown the CameraX instance to ensure that resources are freed.
-        sShutdownFuture = CallbackToFutureAdapter.getFuture(
+        sShutdownFuture = Futures.nonCancellationPropagating(CallbackToFutureAdapter.getFuture(
                 completer -> {
                     synchronized (INSTANCE_LOCK) {
                         // Wait initialize complete
@@ -276,7 +276,7 @@ public final class CameraX {
                         }, CameraXExecutors.directExecutor());
                         return "CameraX shutdown";
                     }
-                });
+                }));
         return sShutdownFuture;
     }
 

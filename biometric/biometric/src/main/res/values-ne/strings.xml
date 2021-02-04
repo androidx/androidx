@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"पासवर्ड प्रयोग गर्नुहोस्"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"कुनै पनि PIN, ढाँचा वा पासवर्ड सेट गरिएको छैन।"</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"यस यन्त्रमा PIN, ढाँचा वा पासवर्ड प्रयोग गर्न मिल्दैन।"</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"फिंगरप्रिन्ट जनाउने आइकन"</string>
 </resources>

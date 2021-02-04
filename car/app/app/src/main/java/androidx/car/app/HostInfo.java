@@ -33,26 +33,26 @@ import androidx.annotation.NonNull;
  * <p>The host API level can be used to adjust the models exchanged with the host to those valid
  * for the specific host version the app is connected to.
  */
-public class HostInfo {
+public final class HostInfo {
     @NonNull
     private final String mPackageName;
     private final int mUid;
 
     /**
-     * Constructs an instance of the HostInfo from the required package name, uid and API level.
+     * Constructs an instance of the HostInfo from the required package name, UID and API level.
      */
     public HostInfo(@NonNull String packageName, int uid) {
         mPackageName = requireNonNull(packageName);
         mUid = uid;
     }
 
-    /** Retrieves the package name of the host. */
+    /** Returns the package name of the host. */
     @NonNull
     public String getPackageName() {
         return mPackageName;
     }
 
-    /** Retrieves the uid of the host. */
+    /** Returns the UID of the host. */
     public int getUid() {
         return mUid;
     }

@@ -21,10 +21,10 @@ Library groups should organize their modules into directories and module names
 ```
 <feature-name>/
   <feature-name>-<sub-feature>/ [<feature-name>:<feature-name>-<sub-feature>]
+    samples/ [<feature-name>:<feature-name>-<sub-feature>:samples]
   integration-tests/
     testapp/ [<feature-name>:testapp]
     testlib/ [<feature-name>:testlib]
-    samples/ [<feature-name>:samples]
 ```
 
 For example, the `navigation` library group's directory structure is:

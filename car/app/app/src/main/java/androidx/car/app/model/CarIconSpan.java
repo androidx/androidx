@@ -58,7 +58,7 @@ import java.util.Objects;
  *
  * @see CarIcon
  */
-public class CarIconSpan extends CarSpan {
+public final class CarIconSpan extends CarSpan {
     /**
      * Indicates how to align a car icon span with its surrounding text.
      *
@@ -71,7 +71,6 @@ public class CarIconSpan extends CarSpan {
                     ALIGN_BASELINE,
             })
     @Retention(RetentionPolicy.SOURCE)
-    // TODO(shiufai): investigate how to expose IntDefs if needed.
     @RestrictTo(LIBRARY)
     public @interface Alignment {
     }
@@ -108,7 +107,7 @@ public class CarIconSpan extends CarSpan {
      * Creates a {@link CarIconSpan} from a {@link CarIcon} with a default alignment of {@link
      * #ALIGN_BASELINE}.
      *
-     * @throws NullPointerException if {@code icon} is {@code null}.
+     * @throws NullPointerException if {@code icon} is {@code null}
      * @see #create(CarIcon, int)
      */
     @NonNull
@@ -118,15 +117,16 @@ public class CarIconSpan extends CarSpan {
 
     /**
      * Creates a {@link CarIconSpan} from a {@link CarIcon}, specifying the alignment of the icon
-     * with
-     * respect to its surrounding text.
+     * with respect to its surrounding text.
      *
-     * @param icon      the {@link CarIcon} to replace the text with.
+     * @param icon      the {@link CarIcon} to replace the text with
      * @param alignment the alignment of the {@link CarIcon} relative to the text. This should be
      *                  one of {@link #ALIGN_BASELINE}, {@link #ALIGN_BOTTOM} or
-     *                  {@link #ALIGN_CENTER}.
-     * @throws NullPointerException     if {@code icon} is {@code null}.
-     * @throws IllegalArgumentException if {@code alignment} is not a valid value.
+     *                  {@link #ALIGN_CENTER}
+     *
+     * @throws NullPointerException     if {@code icon} is {@code null}
+     * @throws IllegalArgumentException if {@code alignment} is not a valid value
+     *
      * @see #ALIGN_BASELINE
      * @see #ALIGN_BOTTOM
      * @see #ALIGN_CENTER
@@ -142,8 +142,8 @@ public class CarIconSpan extends CarSpan {
     }
 
     private CarIconSpan(@Nullable CarIcon icon, @Alignment int alignment) {
-        this.mIcon = icon;
-        this.mAlignment = alignment;
+        mIcon = icon;
+        mAlignment = alignment;
     }
 
     private CarIconSpan() {
@@ -151,9 +151,9 @@ public class CarIconSpan extends CarSpan {
         mAlignment = ALIGN_BASELINE;
     }
 
-    @NonNull
+    @Nullable
     public CarIcon getIcon() {
-        return requireNonNull(mIcon);
+        return mIcon;
     }
 
     @Alignment

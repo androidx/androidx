@@ -112,6 +112,11 @@ package androidx.slice.widget {
     field public int state;
   }
 
+  @RequiresApi(19) public class GridContent extends androidx.slice.widget.SliceContent {
+    method public android.graphics.Point getFirstImageSize(android.content.Context);
+    method public boolean isValid();
+  }
+
   public interface RowStyleFactory {
     method @StyleRes public int getRowStyleRes(androidx.slice.SliceItem);
   }
@@ -119,6 +124,7 @@ package androidx.slice.widget {
   @RequiresApi(19) public class RowView extends androidx.slice.widget.SliceChildView implements android.widget.AdapterView.OnItemSelectedListener android.view.View.OnClickListener {
     ctor public RowView(android.content.Context);
     method protected java.util.List<java.lang.String!> getEndItemKeys();
+    method protected androidx.slice.SliceItem? getPrimaryActionItem();
     method protected String? getPrimaryActionKey();
     method public void onClick(android.view.View);
     method public void onItemSelected(android.widget.AdapterView<?>, android.view.View, int, long);
@@ -129,7 +135,7 @@ package androidx.slice.widget {
   @RequiresApi(19) public class SliceAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.slice.widget.SliceAdapter.SliceViewHolder> {
     ctor public SliceAdapter(android.content.Context);
     method public int getItemCount();
-    method protected androidx.slice.widget.RowView getRowView();
+    method public androidx.slice.widget.RowView getRowView();
     method public void onBindViewHolder(androidx.slice.widget.SliceAdapter.SliceViewHolder, int);
     method public androidx.slice.widget.SliceAdapter.SliceViewHolder onCreateViewHolder(android.view.ViewGroup, int);
   }
@@ -207,6 +213,7 @@ package androidx.slice.widget {
     ctor public TemplateView(android.content.Context);
     method public void onAttachedToWindow();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void resetView();
+    method public void setAdapter(androidx.slice.widget.SliceAdapter);
   }
 
 }

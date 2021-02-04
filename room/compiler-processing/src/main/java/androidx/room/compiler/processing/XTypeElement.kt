@@ -56,6 +56,9 @@ interface XTypeElement : XHasModifiers, XElement {
      */
     val enclosingTypeElement: XTypeElement?
 
+    override val fallbackLocationText: String
+        get() = qualifiedName
+
     /**
      * Returns `true` if this [XTypeElement] represents an interface
      */

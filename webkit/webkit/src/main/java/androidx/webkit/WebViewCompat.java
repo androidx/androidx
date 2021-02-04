@@ -789,7 +789,7 @@ public class WebViewCompat {
      *
      * @return the {@link WebViewRenderProcess} renderer handle associated
      *         with this {@link android.webkit.WebView}, or {@code null} if
-     *         WebView is not runing in multiprocess mode.
+     *         WebView is not running in multiprocess mode.
      */
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.GET_WEB_VIEW_RENDERER,

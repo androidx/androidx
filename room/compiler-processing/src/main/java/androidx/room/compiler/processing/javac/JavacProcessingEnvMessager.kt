@@ -18,11 +18,8 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMessager
-import java.io.StringWriter
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
-import javax.lang.model.element.ElementKind
-import javax.lang.model.util.Elements
 import javax.tools.Diagnostic
 
 internal class JavacProcessingEnvMessager(
@@ -33,7 +30,7 @@ internal class JavacProcessingEnvMessager(
         processingEnv.messager.printMessage(
             kind,
             if (javacElement != null && javacElement.isFromCompiledClass()) {
-                msg.appendElement(processingEnv.elementUtils, javacElement)
+                "$msg - ${element.fallbackLocationText}"
             } else {
                 msg
             },
@@ -66,27 +63,6 @@ internal class JavacProcessingEnvMessager(
             } catch (ex: Throwable) {
                 false
             }
-        }
-
-        private fun String.appendElement(elementUtils: Elements, element: Element): String {
-            return StringBuilder(this).apply {
-                append(" - ")
-                when (element.kind) {
-                    ElementKind.CLASS, ElementKind.INTERFACE, ElementKind.CONSTRUCTOR ->
-                        append(element)
-                    ElementKind.FIELD, ElementKind.METHOD, ElementKind.PARAMETER ->
-                        append("$element in ${element.enclosingElement}")
-                    else -> {
-                        // Not sure how to nicely print the element, delegate to utils then.
-                        append("In:\n")
-                        append(
-                            StringWriter().apply {
-                                elementUtils.printElements(this, element)
-                            }.toString()
-                        )
-                    }
-                }
-            }.toString()
         }
     }
 }

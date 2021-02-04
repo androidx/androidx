@@ -21,11 +21,20 @@ import androidx.annotation.RestrictTo
 import androidx.wear.complications.ComplicationBounds
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
+import androidx.wear.watchface.style.UserStyleSetting.Option.Companion.maxIdLength
+import androidx.wear.watchface.style.data.BooleanOptionWireFormat
 import androidx.wear.watchface.style.data.BooleanUserStyleSettingWireFormat
+import androidx.wear.watchface.style.data.ComplicationsOptionWireFormat
 import androidx.wear.watchface.style.data.ComplicationsUserStyleSettingWireFormat
+import androidx.wear.watchface.style.data.CustomValueOptionWireFormat
+import androidx.wear.watchface.style.data.CustomValueUserStyleSettingWireFormat
+import androidx.wear.watchface.style.data.DoubleRangeOptionWireFormat
 import androidx.wear.watchface.style.data.DoubleRangeUserStyleSettingWireFormat
+import androidx.wear.watchface.style.data.ListOptionWireFormat
 import androidx.wear.watchface.style.data.ListUserStyleSettingWireFormat
+import androidx.wear.watchface.style.data.LongRangeOptionWireFormat
 import androidx.wear.watchface.style.data.LongRangeUserStyleSettingWireFormat
+import androidx.wear.watchface.style.data.OptionWireFormat
 import androidx.wear.watchface.style.data.UserStyleSettingWireFormat
 import java.security.InvalidParameterException
 
@@ -36,9 +45,16 @@ import java.security.InvalidParameterException
  *
  * A UserStyleSetting represents one of these dimensions. See also [UserStyleSchema] which defines
  * the list of UserStyleSettings provided by the watch face.
+ *
+ * Styling data gets shared with the companion phone to support editors (typically over bluetooth),
+ * as a result the size of serialized UserStyleSettings could become an issue if large.
  */
 public sealed class UserStyleSetting(
-    /** Identifier for the element, must be unique. */
+    /**
+     * Identifier for the element, must be unique. Styling data gets shared with the companion
+     * (typically via bluetooth) so size is a consideration and short ids are encouraged. There is a
+     * maximum length see [maxIdLength].
+     */
     public val id: String,
 
     /** Localized human readable name for the element, used in the userStyle selection UI. */
@@ -67,7 +83,11 @@ public sealed class UserStyleSetting(
      */
     public val affectsLayers: Collection<Layer>
 ) {
-    internal companion object {
+    public companion object {
+        /** Maximum length of the [id] field. */
+        @JvmField
+        public val maxIdLength: Int = 40
+
         internal fun createFromWireFormat(
             wireFormat: UserStyleSettingWireFormat
         ): UserStyleSetting = when (wireFormat) {
@@ -75,6 +95,8 @@ public sealed class UserStyleSetting(
 
             is ComplicationsUserStyleSettingWireFormat ->
                 ComplicationsUserStyleSetting(wireFormat)
+
+            is CustomValueUserStyleSettingWireFormat -> CustomValueUserStyleSetting(wireFormat)
 
             is DoubleRangeUserStyleSettingWireFormat -> DoubleRangeUserStyleSetting(wireFormat)
 
@@ -91,6 +113,10 @@ public sealed class UserStyleSetting(
     init {
         require(defaultOptionIndex >= 0 && defaultOptionIndex < options.size) {
             "defaultOptionIndex must be in the range [0 .. options.size)"
+        }
+
+        require(id.length <= maxIdLength) {
+            "UserStyleSetting id length must not exceed $maxIdLength"
         }
     }
 
@@ -117,42 +143,61 @@ public sealed class UserStyleSetting(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public fun getWireFormatOptionsList(): List<UserStyleSettingWireFormat.OptionWireFormat> =
+    public fun getWireFormatOptionsList(): List<OptionWireFormat> =
         options.map { it.toWireFormat() }
 
     /** Returns the default for when the user hasn't selected an option. */
     public fun getDefaultOption(): Option = options[defaultOptionIndex]
 
+    override fun toString(): String = "{$id : " + options.joinToString(transform = { it.id }) + "}"
+
     /**
-     * Represents a choice within a style setting.
+     * Represents a choice within a style setting which can either be an option from the list or a
+     * an arbitrary value depending on the nature of the style setting.
      *
      * @property id Machine readable identifier for the style setting.
      */
     public abstract class Option(
-        /** Identifier for the option, must be unique within the UserStyleSetting. */
+        /**
+         * Identifier for the option (or the option itself for
+         * [CustomValueUserStyleSetting.CustomValueOption]), must be unique within the
+         * UserStyleSetting. Short ids are encouraged. There is a maximum length see [maxIdLength].
+         */
         public val id: String
     ) {
+        init {
+            require(id.length <= maxIdLength) {
+                "UserStyleSetting.Option id length must not exceed $maxIdLength"
+            }
+        }
+
         public companion object {
+            /** Maximum length of the [id] field. */
+            @JvmField
+            public val maxIdLength: Int = 1024
 
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
             public fun createFromWireFormat(
-                wireFormat: UserStyleSettingWireFormat.OptionWireFormat
+                wireFormat: OptionWireFormat
             ): Option =
                 when (wireFormat) {
-                    is BooleanUserStyleSettingWireFormat.BooleanOptionWireFormat ->
+                    is BooleanOptionWireFormat ->
                         BooleanUserStyleSetting.BooleanOption(wireFormat)
 
-                    is ComplicationsUserStyleSettingWireFormat.ComplicationsOptionWireFormat ->
+                    is ComplicationsOptionWireFormat ->
                         ComplicationsUserStyleSetting.ComplicationsOption(wireFormat)
 
-                    is DoubleRangeUserStyleSettingWireFormat.DoubleRangeOptionWireFormat ->
+                    is CustomValueOptionWireFormat ->
+                        CustomValueUserStyleSetting.CustomValueOption(wireFormat)
+
+                    is DoubleRangeOptionWireFormat ->
                         DoubleRangeUserStyleSetting.DoubleRangeOption(wireFormat)
 
-                    is ListUserStyleSettingWireFormat.ListOptionWireFormat ->
+                    is ListOptionWireFormat ->
                         ListUserStyleSetting.ListOption(wireFormat)
 
-                    is LongRangeUserStyleSettingWireFormat.LongRangeOptionWireFormat ->
+                    is LongRangeOptionWireFormat ->
                         LongRangeUserStyleSetting.LongRangeOption(wireFormat)
 
                     else -> throw IllegalArgumentException(
@@ -165,7 +210,49 @@ public sealed class UserStyleSetting(
         /** @hide */
         @Suppress("HiddenAbstractMethod")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public abstract fun toWireFormat(): UserStyleSettingWireFormat.OptionWireFormat
+        public abstract fun toWireFormat(): OptionWireFormat
+
+        public fun toBooleanOption(): BooleanUserStyleSetting.BooleanOption? =
+            if (this is BooleanUserStyleSetting.BooleanOption) {
+                this
+            } else {
+                null
+            }
+
+        public fun toComplicationsOption(): ComplicationsUserStyleSetting.ComplicationsOption? =
+            if (this is ComplicationsUserStyleSetting.ComplicationsOption) {
+                this
+            } else {
+                null
+            }
+
+        public fun toCustomValueOption(): CustomValueUserStyleSetting.CustomValueOption? =
+            if (this is CustomValueUserStyleSetting.CustomValueOption) {
+                this
+            } else {
+                null
+            }
+
+        public fun toDoubleRangeOption(): DoubleRangeUserStyleSetting.DoubleRangeOption? =
+            if (this is DoubleRangeUserStyleSetting.DoubleRangeOption) {
+                this
+            } else {
+                null
+            }
+
+        public fun toListOption(): ListUserStyleSetting.ListOption? =
+            if (this is ListUserStyleSetting.ListOption) {
+                this
+            } else {
+                null
+            }
+
+        public fun toLongRangeOption(): LongRangeUserStyleSetting.LongRangeOption? =
+            if (this is LongRangeUserStyleSetting.LongRangeOption) {
+                this
+            } else {
+                null
+            }
     }
 
     /**
@@ -247,15 +334,15 @@ public sealed class UserStyleSetting(
             }
 
             internal constructor(
-                wireFormat: BooleanUserStyleSettingWireFormat.BooleanOptionWireFormat
+                wireFormat: BooleanOptionWireFormat
             ) : super(wireFormat.mId) {
                 value = wireFormat.mValue
             }
 
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-            override fun toWireFormat(): BooleanUserStyleSettingWireFormat.BooleanOptionWireFormat =
-                BooleanUserStyleSettingWireFormat.BooleanOptionWireFormat(id, value)
+            override fun toWireFormat(): BooleanOptionWireFormat =
+                BooleanOptionWireFormat(id, value)
         }
     }
 
@@ -428,7 +515,7 @@ public sealed class UserStyleSetting(
             }
 
             internal constructor(
-                wireFormat: ComplicationsUserStyleSettingWireFormat.ComplicationsOptionWireFormat
+                wireFormat: ComplicationsOptionWireFormat
             ) : super(wireFormat.mId) {
                 complicationOverlays =
                     wireFormat.mComplicationOverlays.map { ComplicationOverlay(it) }
@@ -439,8 +526,8 @@ public sealed class UserStyleSetting(
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
             override fun toWireFormat():
-                ComplicationsUserStyleSettingWireFormat.ComplicationsOptionWireFormat =
-                    ComplicationsUserStyleSettingWireFormat.ComplicationsOptionWireFormat(
+                ComplicationsOptionWireFormat =
+                    ComplicationsOptionWireFormat(
                         id,
                         displayName,
                         icon,
@@ -549,16 +636,18 @@ public sealed class UserStyleSetting(
             }
 
             internal constructor(
-                wireFormat: DoubleRangeUserStyleSettingWireFormat.DoubleRangeOptionWireFormat
+                wireFormat: DoubleRangeOptionWireFormat
             ) : super(wireFormat.mId) {
                 value = wireFormat.mValue
             }
 
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-            override fun toWireFormat():
-                DoubleRangeUserStyleSettingWireFormat.DoubleRangeOptionWireFormat =
-                    DoubleRangeUserStyleSettingWireFormat.DoubleRangeOptionWireFormat(id, value)
+            override fun toWireFormat(): DoubleRangeOptionWireFormat =
+                DoubleRangeOptionWireFormat(
+                    id,
+                    value
+                )
         }
 
         /** Returns the minimum value. */
@@ -658,7 +747,7 @@ public sealed class UserStyleSetting(
             }
 
             internal constructor(
-                wireFormat: ListUserStyleSettingWireFormat.ListOptionWireFormat
+                wireFormat: ListOptionWireFormat
             ) : super(wireFormat.mId) {
                 displayName = wireFormat.mDisplayName
                 icon = wireFormat.mIcon
@@ -666,8 +755,12 @@ public sealed class UserStyleSetting(
 
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-            override fun toWireFormat(): ListUserStyleSettingWireFormat.ListOptionWireFormat =
-                ListUserStyleSettingWireFormat.ListOptionWireFormat(id, displayName, icon)
+            override fun toWireFormat(): ListOptionWireFormat =
+                ListOptionWireFormat(
+                    id,
+                    displayName,
+                    icon
+                )
         }
     }
 
@@ -774,16 +867,18 @@ public sealed class UserStyleSetting(
             }
 
             internal constructor(
-                wireFormat: LongRangeUserStyleSettingWireFormat.LongRangeOptionWireFormat
+                wireFormat: LongRangeOptionWireFormat
             ) : super(wireFormat.mId) {
                 value = wireFormat.mValue
             }
 
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-            override fun toWireFormat():
-                LongRangeUserStyleSettingWireFormat.LongRangeOptionWireFormat =
-                    LongRangeUserStyleSettingWireFormat.LongRangeOptionWireFormat(id, value)
+            override fun toWireFormat(): LongRangeOptionWireFormat =
+                LongRangeOptionWireFormat(
+                    id,
+                    value
+                )
         }
 
         /**
@@ -819,5 +914,69 @@ public sealed class UserStyleSetting(
                 options[defaultOptionIndex] as LongRangeOption
             }
         }
+    }
+
+    /**
+     * An application specific style setting. This style is ignored by the system editor. This is
+     * expected to be used in conjunction with an on watch face editor.
+     */
+    public class CustomValueUserStyleSetting : UserStyleSetting {
+        internal companion object {
+            internal const val CUSTOM_VALUE_USER_STYLE_SETTING_ID = "CustomValue"
+        }
+
+        public constructor (
+            /** The default value. */
+            defaultValue: String,
+
+            /**
+             * Used by the style configuration UI. Describes which rendering layers this style
+             * affects.
+             */
+            affectsLayers: Collection<Layer>
+        ) : super(
+            CUSTOM_VALUE_USER_STYLE_SETTING_ID,
+            "",
+            "",
+            null,
+            listOf(CustomValueOption(defaultValue)),
+            0,
+            affectsLayers
+        )
+
+        internal constructor(wireFormat: CustomValueUserStyleSettingWireFormat) : super(wireFormat)
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        override fun toWireFormat(): CustomValueUserStyleSettingWireFormat =
+            CustomValueUserStyleSettingWireFormat(
+                id,
+                displayName,
+                description,
+                icon,
+                getWireFormatOptionsList(),
+                affectsLayers.map { it.ordinal }
+            )
+
+        /** An application specific custom value.  */
+        public class CustomValueOption : Option {
+            /* The value for this option. */
+            public val customValue: String
+                get() = id
+
+            public constructor(customValue: String) : super(customValue)
+
+            internal constructor(
+                wireFormat: CustomValueOptionWireFormat
+            ) : super(wireFormat.mId)
+
+            /** @hide */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            override fun toWireFormat(): CustomValueOptionWireFormat =
+                CustomValueOptionWireFormat(id)
+        }
+
+        override fun getOptionForId(optionId: String): Option =
+            options.find { it.id == optionId } ?: CustomValueOption(optionId)
     }
 }

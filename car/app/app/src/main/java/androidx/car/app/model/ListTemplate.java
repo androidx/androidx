@@ -22,8 +22,6 @@ import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CON
 
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -72,50 +70,65 @@ public final class ListTemplate implements Template {
     @Nullable
     private final ActionStrip mActionStrip;
 
-    /** Constructs a new builder of {@link ListTemplate}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public boolean isLoading() {
-        return mIsLoading;
-    }
-
+    /**
+     * Returns the title of the template or {@code null} if not set.
+     *
+     * @see Builder#setTitle(CharSequence)
+     */
     @Nullable
     public CarText getTitle() {
         return mTitle;
     }
 
+    /**
+     * Returns the {@link Action} that is set to be displayed in the header of the template, or
+     * {@code null} if not set.
+     *
+     * @see Builder#setHeaderAction(Action)
+     */
     @Nullable
     public Action getHeaderAction() {
         return mHeaderAction;
     }
 
+    /**
+     * Returns the {@link ActionStrip} for this template or {@code null} if not set.
+     *
+     * @see Builder#setActionStrip(ActionStrip)
+     */
+    @Nullable
+    public ActionStrip getActionStrip() {
+        return mActionStrip;
+    }
+
+    /**
+     * Returns whether the template is loading.
+     *
+     * @see Builder#setLoading(boolean)
+     */
+    public boolean isLoading() {
+        return mIsLoading;
+    }
+
+    /**
+     * Returns the {@link ItemList} instance containing the list of items to display or {@code
+     * null} if one hasn't been set.
+     *
+     * @see Builder#setSingleList(ItemList)
+     */
     @Nullable
     public ItemList getSingleList() {
         return mSingleList;
     }
 
     /**
-     * @deprecated use {@link #getSectionedLists()} instead.
+     * Returns the list of {@link SectionedItemList} instances to be displayed in the template.
+     *
+     * @see Builder#addSectionedList(SectionedItemList)
      */
-    // TODO(b/177591128): remove after host(s) no longer reference this.
-    @Deprecated
-    @NonNull
-    public List<SectionedItemList> getSectionLists() {
-        return mSectionedLists;
-    }
-
     @NonNull
     public List<SectionedItemList> getSectionedLists() {
-        return mSectionedLists;
-    }
-
-    @Nullable
-    public ActionStrip getActionStrip() {
-        return mActionStrip;
+        return CollectionUtils.emptyIfNull(mSectionedLists);
     }
 
     @NonNull
@@ -190,11 +203,11 @@ public final class ListTemplate implements Template {
          * to the host once the data is ready.
          *
          * <p>If set to {@code false}, the UI will display the contents of the {@link ItemList}
-         * instance(s) added via {@link #setSingleList} or {@link #addList}.
+         * instance(s) added via {@link #setSingleList} or {@link #addSectionedList}.
          */
         @NonNull
         public Builder setLoading(boolean isLoading) {
-            this.mIsLoading = isLoading;
+            mIsLoading = isLoading;
             return this;
         }
 
@@ -202,41 +215,47 @@ public final class ListTemplate implements Template {
          * Sets the {@link Action} that will be displayed in the header of the template, or
          * {@code null} to not display an action.
          *
+         * <p>Unless set with this method, the template will not have a header action.
+         *
          * <h4>Requirements</h4>
          *
          * This template only supports either one of {@link Action#APP_ICON} and
          * {@link Action#BACK} as a header {@link Action}.
          *
          * @throws IllegalArgumentException if {@code headerAction} does not meet the template's
-         *                                  requirements.
+         *                                  requirements
+         * @throws NullPointerException     if {@code headerAction} is {@code null}
          */
         @NonNull
-        public Builder setHeaderAction(@Nullable Action headerAction) {
+        public Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
-                    headerAction == null ? Collections.emptyList()
-                            : Collections.singletonList(headerAction));
-            this.mHeaderAction = headerAction;
+                    Collections.singletonList(requireNonNull(headerAction)));
+            mHeaderAction = headerAction;
             return this;
         }
 
         /**
-         * Sets the {@link CharSequence} to show as the template's title, or {@code null} to not
-         * show a title.
+         * Sets the title of the template.
+         *
+         * <p>Unless set with this method, the template will not have a title.
+         *
+         * <p>Spans are not supported in the input string.
+         *
+         * @throws NullPointerException if {@code title} is null
          */
         @NonNull
-        public Builder setTitle(@Nullable CharSequence title) {
-            this.mTitle = title == null ? null : CarText.create(title);
+        public Builder setTitle(@NonNull CharSequence title) {
+            mTitle = CarText.create(requireNonNull(title));
             return this;
         }
 
         /**
          * Sets a single {@link ItemList} to show in the template.
          *
-         * <p>Note that this list cannot be mixed with others added via {@link #addList}. If
-         * multiple lists were previously added, they will be cleared.
+         * <p>Note that this list cannot be mixed with others added via {@link #addSectionedList}
+         * . If multiple lists were previously added, they will be cleared.
          *
-         * @throws NullPointerException if {@code list} is null.
-         * @see #addList(ItemList, CharSequence)
+         * @throws NullPointerException if {@code list} is null
          */
         @NonNull
         public Builder setSingleList(@NonNull ItemList list) {
@@ -244,36 +263,6 @@ public final class ListTemplate implements Template {
             mSectionedLists.clear();
             mHasSelectableList = false;
             return this;
-        }
-
-        /**
-         * Adds an {@link ItemList} to display in the template.
-         *
-         * <p>Use this method to add multiple {@link ItemList}s to the template. Each
-         * {@link ItemList} will be grouped under the given {@code header}. These lists cannot be
-         * mixed with an {@link ItemList} added via {@link #setSingleList}. If a single list was
-         * previously added, it will be cleared.
-         *
-         * <p>If the added {@link ItemList} contains a {@link ItemList.OnSelectedListener}, then it
-         * cannot be added alongside other {@link ItemList}(s).
-         *
-         * @throws NullPointerException     if {@code list} is null.
-         * @throws IllegalArgumentException if {@code list} is empty.
-         * @throws IllegalArgumentException if {@code list}'s {@link
-         *                                  ItemList.OnItemVisibilityChangedListener} is set.
-         * @throws NullPointerException     if {@code header} is null.
-         * @throws IllegalArgumentException if {@code header} is empty.
-         * @throws IllegalArgumentException if a selectable list is added alongside other lists.
-         *
-         * @deprecated use {@link #addSectionedList}  instead.
-         */
-        // TODO(b/177591128): remove after host(s) no longer reference this.
-        @Deprecated
-        @NonNull
-        // TODO(shiufai): consider rename to match getter's name.
-        @SuppressLint("MissingGetterMatchingBuilder")
-        public Builder addList(@NonNull ItemList list, @NonNull CharSequence header) {
-            return addSectionedList(SectionedItemList.create(list, header));
         }
 
         /**
@@ -288,13 +277,11 @@ public final class ListTemplate implements Template {
          * {@link ItemList.OnSelectedListener}, then it cannot be added alongside other
          * {@link SectionedItemList}(s).
          *
-         * @throws NullPointerException     if {@code list} is null.
-         * @throws IllegalArgumentException if {@code list} is empty.
-         * @throws IllegalArgumentException if {@code list}'s {@link
-         *                                  ItemList.OnItemVisibilityChangedListener} is set.
-         * @throws NullPointerException     if {@code header} is null.
-         * @throws IllegalArgumentException if {@code header} is empty.
-         * @throws IllegalArgumentException if a selectable list is added alongside other lists.
+         * @throws NullPointerException     if {@code list} or {@code header} is {@code null}
+         * @throws IllegalArgumentException if {@code list} is empty, if {@code list}'s {@link
+         *                                  ItemList.OnItemVisibilityChangedListener} is set, if
+         *                                  {@code header} is empty, or if a selectable list is
+         *                                  added alongside other lists
          */
         @NonNull
         public Builder addSectionedList(@NonNull SectionedItemList list) {
@@ -310,7 +297,7 @@ public final class ListTemplate implements Template {
             }
             mHasSelectableList = isSelectableList;
 
-            if (itemList.getItemList().isEmpty()) {
+            if (itemList.getItems().isEmpty()) {
                 throw new IllegalArgumentException("List cannot be empty");
             }
 
@@ -325,8 +312,10 @@ public final class ListTemplate implements Template {
         }
 
         /**
-         * Sets the {@link ActionStrip} for this template, or {@code null} to not display an {@link
+         * Sets the {@link ActionStrip} for this template or {@code null} to not display an {@link
          * ActionStrip}.
+         *
+         * <p>Unless set with this method, the template will not have an action strip.
          *
          * <h4>Requirements</h4>
          *
@@ -334,13 +323,13 @@ public final class ListTemplate implements Template {
          * {@link Action}s, one of them can contain a title as set via
          * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
          *
-         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements.
+         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
+         * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @NonNull
-        public Builder setActionStrip(@Nullable ActionStrip actionStrip) {
-            ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(
-                    actionStrip == null ? Collections.emptyList() : actionStrip.getActionList());
-            this.mActionStrip = actionStrip;
+        public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
+            ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
+            mActionStrip = actionStrip;
             return this;
         }
 
@@ -356,11 +345,10 @@ public final class ListTemplate implements Template {
          * <p>Either a header {@link Action} or the title must be set on the template.
          *
          * @throws IllegalStateException    if the template is in a loading state but there are
-         *                                  lists added, or vice versa.
+         *                                  lists added or vice versa, or if the template does
+         *                                  not have either a title or header {@link Action} set
          * @throws IllegalArgumentException if the added {@link ItemList}(s) do not meet the
-         *                                  template's requirements.
-         * @throws IllegalStateException    if the template does not have either a title or header
-         *                                  {@link Action} set.
+         *                                  template's requirements
          */
         @NonNull
         public ListTemplate build() {
@@ -386,7 +374,7 @@ public final class ListTemplate implements Template {
         }
 
         /** Returns an empty {@link Builder} instance. */
-        Builder() {
+        public Builder() {
         }
     }
 }

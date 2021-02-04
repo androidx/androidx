@@ -299,4 +299,27 @@ class FragmentManagerTest {
                 .isEqualTo(innerChildFragmentManager)
         }
     }
+
+    @Test
+    fun popBackStackImmediate() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragment1 = StrictFragment()
+
+            fm.beginTransaction()
+                .add(fragment1, "fragment1")
+                .addToBackStack("stack1")
+                .commit()
+            executePendingTransactions()
+
+            var popped = false
+
+            withActivity {
+                popped = fm.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+            }
+            assertThat(popped).isTrue()
+        }
+    }
 }

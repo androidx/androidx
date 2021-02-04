@@ -39,6 +39,23 @@ interface XMethodElement : XExecutableElement {
      */
     val executableType: XMethodType
 
+    override val fallbackLocationText: String
+        get() = buildString {
+            append(enclosingTypeElement.qualifiedName)
+            append(".")
+            append(name)
+            append("(")
+            // don't report last parameter if it is a suspend function
+            append(
+                parameters.dropLast(
+                    if (isSuspendFunction()) 1 else 0
+                ).joinToString(", ") {
+                    it.type.typeName.toString()
+                }
+            )
+            append(")")
+        }
+
     /**
      * Returns true if this method has the default modifier.
      *

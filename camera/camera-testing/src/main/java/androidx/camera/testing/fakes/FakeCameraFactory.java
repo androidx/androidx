@@ -21,14 +21,18 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.core.util.Pair;
 import androidx.core.util.Preconditions;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -40,11 +44,25 @@ import java.util.concurrent.Callable;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class FakeCameraFactory implements CameraFactory {
+
+    private static final String TAG = "FakeCameraFactory";
+
     @Nullable
     private Set<String> mCachedCameraIds;
 
+    @Nullable
+    private final CameraSelector mAvailableCamerasSelector;
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Map<String, Pair<Integer, Callable<CameraInternal>>> mCameraMap = new HashMap<>();
+
+    public FakeCameraFactory() {
+        mAvailableCamerasSelector = null;
+    }
+
+    public FakeCameraFactory(@Nullable CameraSelector availableCamerasSelector) {
+        mAvailableCamerasSelector = availableCamerasSelector;
+    }
 
     @Override
     @NonNull
@@ -112,10 +130,43 @@ public final class FakeCameraFactory implements CameraFactory {
         // Lazily cache the set of all camera ids. This cache will be invalidated anytime a new
         // camera is added.
         if (mCachedCameraIds == null) {
-            mCachedCameraIds = Collections.unmodifiableSet(new HashSet<>(mCameraMap.keySet()));
+            if (mAvailableCamerasSelector == null) {
+                mCachedCameraIds = Collections.unmodifiableSet(new HashSet<>(mCameraMap.keySet()));
+            } else {
+                mCachedCameraIds = Collections.unmodifiableSet(new HashSet<>(filteredCameraIds()));
+            }
         }
-
         return mCachedCameraIds;
+    }
+
+    /** Returns a list of camera ids filtered with {@link #mAvailableCamerasSelector}. */
+    @NonNull
+    private List<String> filteredCameraIds() {
+        Preconditions.checkNotNull(mAvailableCamerasSelector);
+        final List<String> filteredCameraIds = new ArrayList<>();
+        for (Map.Entry<String, Pair<Integer, Callable<CameraInternal>>> entry :
+                mCameraMap.entrySet()) {
+            final Callable<CameraInternal> callable = entry.getValue().second;
+            if (callable == null) {
+                continue;
+            }
+            try {
+                final CameraInternal camera = callable.call();
+                try {
+                    // CameraSelector.filter() throws an exception if all the cameras it takes
+                    // are filtered out. In the scenario below, only one camera is processed, so
+                    // if an exception isn't thrown, it's safe to add the camera id.
+                    mAvailableCamerasSelector.filter(
+                            new LinkedHashSet<>(Collections.singleton(camera)));
+                    filteredCameraIds.add(entry.getKey());
+                } catch (IllegalArgumentException exception) {
+                    // No op. The camera was not selected by the selector
+                }
+            } catch (Exception exception) {
+                Logger.e(TAG, "Failed to get access to the camera instance.", exception);
+            }
+        }
+        return filteredCameraIds;
     }
 
     @Nullable

@@ -89,7 +89,7 @@ private const val FRAME_PERIOD_MS: Long = 16L
 
 /** A simple example canvas based analog watch face. */
 open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
-    override fun createWatchFace(
+    override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState
     ) = createExampleCanvasAnalogWatchFaceBuilder(
@@ -321,7 +321,7 @@ class ExampleAnalogWatchCanvasRenderer(
                     watchFaceColorStyle =
                         WatchFaceColorStyle.create(
                             context,
-                            userStyle.selectedOptions[colorStyleSetting]!!.id
+                            userStyle[colorStyleSetting]!!.id
                         )
 
                     // Apply the userStyle to the complications. ComplicationDrawables for each of
@@ -332,13 +332,9 @@ class ExampleAnalogWatchCanvasRenderer(
                             watchFaceColorStyle.getComplicationDrawableRenderer(context, watchState)
                     }
 
-                    val drawPipsOption =
-                        userStyle.selectedOptions[drawPipsStyleSetting]!! as
-                            BooleanUserStyleSetting
-                            .BooleanOption
+                    val drawPipsOption = userStyle[drawPipsStyleSetting]?.toBooleanOption()!!
                     val watchHandLengthOption =
-                        userStyle.selectedOptions[watchHandLengthStyleSettingDouble]!! as
-                            DoubleRangeUserStyleSetting.DoubleRangeOption
+                        userStyle[watchHandLengthStyleSettingDouble]?.toDoubleRangeOption()!!
 
                     drawHourPips = drawPipsOption.value
                     watchHandScale = watchHandLengthOption.value.toFloat()

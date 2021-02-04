@@ -44,7 +44,7 @@ public abstract class Session implements LifecycleOwner {
      *
      * @param intent the intent that was used to start this app. If the app was started with a
      *               call to {@link CarContext#startCarApp}, this intent will be equal to the
-     *               intent passed to that method.
+     *               intent passed to that method
      */
     @NonNull
     public abstract Screen onCreateScreen(@NonNull Intent intent);
@@ -63,7 +63,8 @@ public abstract class Session implements LifecycleOwner {
      *
      * @param intent the intent that was used to start this app. If the app was started with a
      *               call to {@link CarContext#startCarApp}, this intent will be equal to the
-     *               intent passed to that method.
+     *               intent passed to that method
+     *
      * @see CarContext#startCarApp
      */
     public void onNewIntent(@NonNull Intent intent) {
@@ -91,6 +92,7 @@ public abstract class Session implements LifecycleOwner {
      *   <li>Observe its {@link Lifecycle} by calling {@link Lifecycle#addObserver}. You can use the
      *       {@link androidx.lifecycle.LifecycleObserver} to take specific actions whenever the
      *       {@link Screen} receives different {@link Lifecycle.Event}s.
+     *
      *   <li>Use this {@link CarAppService} to observe {@link androidx.lifecycle.LiveData}s that
      *       may drive the backing data for your application.
      * </ul>

@@ -211,6 +211,14 @@ class WatchFaceServiceImageTest {
         interactiveWatchFaceInstanceSysUi.release()
     }
 
+    private fun waitForPendingTaskToRunOnHandler() {
+        val latch = CountDownLatch(1)
+        handler.post {
+            latch.countDown()
+        }
+        latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+    }
+
     @Test
     fun testActiveScreenshot() {
         handler.post(this::initCanvasWatchFace)
@@ -415,6 +423,9 @@ class WatchFaceServiceImageTest {
         )
 
         handler.post(this::initCanvasWatchFace)
+        // Preview complication data results in additional tasks posted which we need to complete
+        // before interactiveWatchFaceInstanceWCS is initialized.
+        waitForPendingTaskToRunOnHandler()
         var bitmap: Bitmap? = null
         handler.post {
             bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
@@ -468,7 +479,7 @@ class WatchFaceServiceImageTest {
             )
 
             val engineWrapper2 = service2.onCreateEngine() as WatchFaceService.EngineWrapper
-            engineWrapper2.draw()
+            handler.post { engineWrapper2.draw() }
         }
 
         renderDoneLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)

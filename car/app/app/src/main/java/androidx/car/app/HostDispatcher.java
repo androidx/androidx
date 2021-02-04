@@ -41,7 +41,7 @@ import java.security.InvalidParameterException;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
-public class HostDispatcher {
+public final class HostDispatcher {
     @Nullable
     private ICarHost mCarHost;
     @Nullable
@@ -52,17 +52,17 @@ public class HostDispatcher {
     /**
      * Dispatches the {@code call} to the host for the given {@code hostType}.
      *
-     * @param hostType the service to dispatch to.
-     * @param call     the request to dispatch.
-     * @param callName the name of the call for logging purposes.
-     * @throws SecurityException if the host has thrown it.
+     * @param hostType the service to dispatch to
+     * @param call     the request to dispatch
+     * @param callName the name of the call for logging purposes
+     *
+     * @throws SecurityException if the host has thrown it
      * @throws HostException     if the host throws any exception other than
-     *                           {@link SecurityException}.
+     *                           {@link SecurityException}
      */
     @Nullable
     @SuppressWarnings({"unchecked", "cast.unsafe"}) // Cannot check if instanceof ServiceT
     @SuppressLint("LambdaLast")
-    // TODO(rampara): Change method signature to change parameter order.
     public <ServiceT, ReturnT> ReturnT dispatch(
             @CarServiceType @NonNull String hostType, @NonNull HostCall<ServiceT, ReturnT> call,
             @NonNull String callName) {
@@ -74,7 +74,7 @@ public class HostDispatcher {
         ThreadUtils.checkMainThread();
 
         resetHosts();
-        this.mCarHost = carHost;
+        mCarHost = carHost;
     }
 
     /** Removes references to remote services which are no longer valid. */
@@ -89,8 +89,6 @@ public class HostDispatcher {
 
     /**
      * Retrieves the {@link IInterface} for the given {@code hostType}.
-     *
-     * <p>Visible for testing purposes.
      *
      * @hide
      */

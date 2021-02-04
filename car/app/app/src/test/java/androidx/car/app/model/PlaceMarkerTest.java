@@ -86,16 +86,6 @@ public class PlaceMarkerTest {
     }
 
     @Test
-    public void isDefaultMarker() {
-        assertThat(PlaceMarker.isDefaultMarker(null)).isFalse();
-        assertThat(PlaceMarker.isDefaultMarker(new PlaceMarker.Builder().setLabel("foo").build()))
-                .isFalse();
-
-        assertThat(PlaceMarker.isDefaultMarker(PlaceMarker.getDefault())).isTrue();
-        assertThat(PlaceMarker.isDefaultMarker(new PlaceMarker.Builder().build())).isTrue();
-    }
-
-    @Test
     public void equals() {
         CarIcon carIcon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
                 "ic_test_1");

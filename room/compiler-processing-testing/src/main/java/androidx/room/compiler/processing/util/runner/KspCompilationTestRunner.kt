@@ -18,7 +18,9 @@ package androidx.room.compiler.processing.util.runner
 
 import androidx.room.compiler.processing.SyntheticKspProcessor
 import androidx.room.compiler.processing.util.CompilationResult
+import androidx.room.compiler.processing.util.KotlinCompilationUtil
 import androidx.room.compiler.processing.util.KotlinCompileTestingCompilationResult
+import androidx.room.compiler.processing.util.CompilationTestCapabilities
 import androidx.room.compiler.processing.util.Source
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
@@ -32,7 +34,7 @@ internal object KspCompilationTestRunner : CompilationTestRunner {
     override val name: String = "ksp"
 
     override fun canRun(params: TestCompilationParameters): Boolean {
-        return true
+        return CompilationTestCapabilities.canTestWithKsp
     }
 
     override fun compile(params: TestCompilationParameters): CompilationResult {
@@ -45,26 +47,11 @@ internal object KspCompilationTestRunner : CompilationTestRunner {
             params.sources
         }
         val syntheticKspProcessor = SyntheticKspProcessor(params.handler)
-        fun prepareCompilation(): KotlinCompilation {
-            val compilation = KotlinCompilation()
-            sources.forEach {
-                compilation.workingDir.resolve("sources")
-                    .resolve(it.relativePath())
-                    .parentFile
-                    .mkdirs()
-            }
-            compilation.sources = sources.map {
-                it.toKotlinSourceFile()
-            }
-            compilation.jvmDefault = "enable"
-            compilation.jvmTarget = "1.8"
-            compilation.inheritClassPath = true
-            compilation.verbose = false
-            compilation.classpaths += params.classpath
-            return compilation
-        }
 
-        val kspCompilation = prepareCompilation()
+        val kspCompilation = KotlinCompilationUtil.prepareCompilation(
+            sources,
+            params.classpath
+        )
         kspCompilation.symbolProcessors = listOf(syntheticKspProcessor)
         kspCompilation.compile()
         // ignore KSP result for now because KSP stops compilation, which might create false
@@ -73,7 +60,10 @@ internal object KspCompilationTestRunner : CompilationTestRunner {
         //  fixed
 
         // after ksp, compile without ksp with KSP's output as input
-        val finalCompilation = prepareCompilation()
+        val finalCompilation = KotlinCompilationUtil.prepareCompilation(
+            sources,
+            params.classpath
+        )
         // build source files from generated code
         finalCompilation.sources += kspCompilation.kspJavaSourceDir.collectSourceFiles() +
             kspCompilation.kspKotlinSourceDir.collectSourceFiles()
@@ -87,8 +77,11 @@ internal object KspCompilationTestRunner : CompilationTestRunner {
             delegate = result,
             processor = syntheticKspProcessor,
             successfulCompilation = result.exitCode == KotlinCompilation.ExitCode.OK &&
-                !hasErrorDiagnostics
-
+                !hasErrorDiagnostics,
+            outputSourceDirs = listOf(
+                kspCompilation.kspJavaSourceDir,
+                kspCompilation.kspKotlinSourceDir
+            )
         )
     }
 

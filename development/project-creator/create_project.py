@@ -76,6 +76,31 @@ def rm(path):
     elif os.path.exists(path):
         os.remove(path)
 
+def mv_dir(src_path_dir, dst_path_dir):
+    """Moves a directory from src_path_dir to dst_path_dir.
+
+    Args:
+        src_path_dir: the source directory, which must exist
+        dst_path_dir: the distination directory
+    """
+    if os.path.exists(dst_path_dir):
+        print_e('rename error: Destination path %s already exists.' % dst_path_dir)
+        return None
+    # If moving to a new parent directory, create that directory
+    parent_dst_path_dir = os.path.dirname(dst_path_dir)
+    if not os.path.exists(parent_dst_path_dir):
+        os.makedirs(parent_dst_path_dir)
+    if not os.path.exists(src_path_dir):
+        print_e('mv error: Source path %s does not exist.' % src_path_dir)
+        return None
+    try:
+        os.rename(src_path_dir, dst_path_dir)
+    except OSError as error:
+        print_e('FAIL: Unable to copy %s to destination %s' % (src_path_dir, dst_path_dir))
+        print_e(error)
+        return None
+    return dst_path_dir
+
 def generate_package_name(group_id, artifact_id):
     final_group_id_word = group_id.split(".")[-1]
     artifact_id_suffix = artifact_id.replace(final_group_id_word, "")
@@ -98,7 +123,7 @@ def get_year():
     return str(date.today().year)
 
 def get_group_id_version_macro(group_id):
-    group_id_version_macro = group_id.replace("androidx.", "").replace(".", "-").upper()
+    group_id_version_macro = group_id.replace("androidx.", "").replace(".", "_").upper()
     if group_id.startswith("androidx.compose"):
         group_id_version_macro = "COMPOSE"
     return group_id_version_macro
@@ -157,6 +182,20 @@ def get_full_artifact_path(group_id, artifact_id):
     group_id_path = get_group_id_path(group_id)
     return group_id_path + "/" + artifact_id
 
+def get_package_info_file_dir(group_id, artifact_id):
+    """Generates the full package_info.java filepath
+
+    Given androidx.foo.bar:bar-qux, the structure will be:
+    frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/package-info.java
+
+    Args:
+        group_id: group_id of the new library
+        artifact_id: group_id of the new library
+    """
+    full_artifact_path = get_full_artifact_path(group_id, artifact_id)
+    group_id_subpath = "/src/main/" + \
+                        group_id.replace(".", "/")
+    return full_artifact_path + group_id_subpath
 
 def create_directories(group_id, artifact_id):
     """Creates the standard directories for the given group_id and artifact_id.
@@ -164,6 +203,7 @@ def create_directories(group_id, artifact_id):
     Given androidx.foo.bar:bar-qux, the structure will be:
     frameworks/support/foo/bar/bar-qux/build.gradle
     frameworks/support/foo/bar/bar-qux/src/main/AndroidManifest.xml
+    frameworks/support/foo/bar/bar-qux/src/main/androidx/foo/bar/package-info.java
     frameworks/support/foo/bar/bar-qux/src/androidTest/AndroidManifest.xml
     frameworks/support/foo/bar/bar-qux/api/current.txt
 
@@ -183,15 +223,22 @@ def create_directories(group_id, artifact_id):
     # Copy the full src structure
     cp(SAMPLE_SRC_FP, full_artifact_path)
 
+    # Rename the package-info directory
+    full_package_info_dir = get_package_info_file_dir(group_id, artifact_id)
+    full_package_info_path = full_package_info_dir + "/package-info.java"
+    mv_dir(full_artifact_path + "/src/main/groupId", full_package_info_dir)
+
     # Populate the YEAR
     year = get_year()
     sed("<YEAR>", year, full_artifact_path + "/build.gradle")
     sed("<YEAR>", year, full_artifact_path + "/src/androidTest/AndroidManifest.xml")
     sed("<YEAR>", year, full_artifact_path + "/src/main/AndroidManifest.xml")
+    sed("<YEAR>", year, full_package_info_path)
     # Populate the PACKAGE
     package = generate_package_name(group_id, artifact_id)
     sed("<PACKAGE>", package, full_artifact_path + "/src/androidTest/AndroidManifest.xml")
     sed("<PACKAGE>", package, full_artifact_path + "/src/main/AndroidManifest.xml")
+    sed("<PACKAGE>", package, full_package_info_path)
     # Populate the VERSION macro
     group_id_version_macro = get_group_id_version_macro(group_id)
     sed("<GROUPID>", group_id_version_macro, full_artifact_path + "/build.gradle")

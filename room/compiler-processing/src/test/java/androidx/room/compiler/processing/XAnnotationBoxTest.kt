@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithDefaults
+import androidx.room.compiler.processing.testcode.JavaAnnotationWithPrimitiveArray
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithTypeReferences
 import androidx.room.compiler.processing.testcode.JavaEnum
 import androidx.room.compiler.processing.testcode.MainAnnotation
@@ -372,6 +373,7 @@ class XAnnotationBoxTest {
                         typeElement.toAnnotationBox(JavaAnnotationWithDefaults::class)
                     checkNotNull(annotation)
                     assertThat(annotation.value.intVal).isEqualTo(3)
+                    assertThat(annotation.value.intArrayVal).isEqualTo(intArrayOf(1, 3, 5))
                     assertThat(annotation.value.stringArrayVal).isEqualTo(arrayOf("x", "y"))
                     assertThat(annotation.value.stringVal).isEqualTo("foo")
                     assertThat(
@@ -412,6 +414,47 @@ class XAnnotationBoxTest {
                             }
                     ).containsExactly("v1")
                 }
+        }
+    }
+
+    @Test
+    fun javaPrimitiveArray() {
+        // TODO: expand this test for other primitive types: 179081610
+        val javaSrc = Source.java(
+            "JavaSubject.java",
+            """
+            import androidx.room.compiler.processing.testcode.*;
+            class JavaSubject {
+                @JavaAnnotationWithPrimitiveArray(intArray = {1, 2, 3})
+                Object annotated1;
+            }
+            """.trimIndent()
+        )
+        val kotlinSrc = Source.kotlin(
+            "KotlinSubject.kt",
+            """
+            import androidx.room.compiler.processing.testcode.*;
+            class KotlinSubject {
+                @JavaAnnotationWithPrimitiveArray(intArray = [1, 2, 3])
+                val annotated1:Any = TODO()
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(javaSrc, kotlinSrc)
+        ) { invocation ->
+            arrayOf("JavaSubject", "KotlinSubject").map {
+                invocation.processingEnv.requireTypeElement(it)
+            }.forEach { subject ->
+                val annotation = subject.getField("annotated1").toAnnotationBox(
+                    JavaAnnotationWithPrimitiveArray::class
+                )
+                assertThat(
+                    annotation?.value?.intArray
+                ).isEqualTo(
+                    intArrayOf(1, 2, 3)
+                )
+            }
         }
     }
 

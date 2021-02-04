@@ -207,23 +207,6 @@ public suspend fun Fragment.authenticateWithClass3Biometrics(
 }
 
 /**
- * Creates a [Class3BiometricAuthPrompt] with the given parameters.
- */
-private fun buildClass3BiometricAuthPrompt(
-    title: CharSequence,
-    negativeButtonText: CharSequence,
-    subtitle: CharSequence? = null,
-    description: CharSequence? = null,
-    confirmationRequired: Boolean = true,
-): Class3BiometricAuthPrompt = Class3BiometricAuthPrompt.Builder(title, negativeButtonText)
-    .apply {
-        subtitle?.let { setSubtitle(it) }
-        description?.let { setDescription(it) }
-        setConfirmationRequired(confirmationRequired)
-    }
-    .build()
-
-/**
  * Creates a [Class3BiometricAuthPrompt] with the given parameters and starts authentication.
  */
 private fun startClass3BiometricAuthenticationInternal(
@@ -231,10 +214,10 @@ private fun startClass3BiometricAuthenticationInternal(
     crypto: CryptoObject?,
     title: CharSequence,
     negativeButtonText: CharSequence,
-    subtitle: CharSequence? = null,
-    description: CharSequence? = null,
-    confirmationRequired: Boolean = true,
-    executor: Executor? = null,
+    subtitle: CharSequence?,
+    description: CharSequence?,
+    confirmationRequired: Boolean,
+    executor: Executor?,
     callback: AuthPromptCallback
 ): AuthPrompt {
     val prompt = buildClass3BiometricAuthPrompt(
@@ -251,3 +234,20 @@ private fun startClass3BiometricAuthenticationInternal(
         prompt.startAuthentication(host, crypto, executor, callback)
     }
 }
+
+/**
+ * Creates a [Class3BiometricAuthPrompt] with the given parameters.
+ */
+private fun buildClass3BiometricAuthPrompt(
+    title: CharSequence,
+    negativeButtonText: CharSequence,
+    subtitle: CharSequence?,
+    description: CharSequence?,
+    confirmationRequired: Boolean,
+): Class3BiometricAuthPrompt = Class3BiometricAuthPrompt.Builder(title, negativeButtonText)
+    .apply {
+        subtitle?.let { setSubtitle(it) }
+        description?.let { setDescription(it) }
+        setConfirmationRequired(confirmationRequired)
+    }
+    .build()

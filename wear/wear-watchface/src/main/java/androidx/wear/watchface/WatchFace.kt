@@ -49,6 +49,7 @@ import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.data.UserStyleWireFormat
+import kotlinx.coroutines.CompletableDeferred
 import java.io.FileNotFoundException
 import java.io.InputStreamReader
 import java.security.InvalidParameterException
@@ -136,13 +137,16 @@ public class WatchFace @JvmOverloads constructor(
     public companion object {
         /** Returns whether [LegacyWatchFaceOverlayStyle] is supported on this device. */
         @JvmStatic
-        public fun isLegacyWatchFaceOverlayStyleSupported(): Boolean =
-            android.os.Build.VERSION.SDK_INT <= 27
+        public fun isLegacyWatchFaceOverlayStyleSupported(): Boolean = Build.VERSION.SDK_INT <= 27
 
         private val componentNameToEditorDelegate = HashMap<ComponentName, EditorDelegate>()
 
+        private var pendingComponentName: ComponentName? = null
+        private var pendingEditorDelegateCB: CompletableDeferred<EditorDelegate?>? = null
+
         /** @hide */
         @JvmStatic
+        @UiThread
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun registerEditorDelegate(
             componentName: ComponentName,
@@ -160,9 +164,36 @@ public class WatchFace @JvmOverloads constructor(
          * @hide
          */
         @JvmStatic
+        @UiThread
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun getEditorDelegate(componentName: ComponentName): EditorDelegate? =
-            componentNameToEditorDelegate[componentName]
+        public fun getOrCreateEditorDelegate(
+            componentName: ComponentName
+        ): CompletableDeferred<EditorDelegate?> {
+            componentNameToEditorDelegate[componentName]?.let {
+                return CompletableDeferred(it)
+            }
+
+            // There's no pre-existing watch face. We expect Home/SysUI to switch the watchface soon
+            // so record a pending request...
+            pendingComponentName = componentName
+            pendingEditorDelegateCB = CompletableDeferred()
+            return pendingEditorDelegateCB!!
+        }
+
+        @UiThread
+        internal fun maybeCreatePendingEditorDelegate(watchface: WatchFaceImpl) {
+            if (pendingComponentName != null) {
+                pendingEditorDelegateCB?.complete(
+                    if (watchface.componentName == pendingComponentName) {
+                        watchface.createWFEditorDelegate()
+                    } else {
+                        null
+                    }
+                )
+                pendingComponentName = null
+                pendingEditorDelegateCB = null
+            }
+        }
     }
 
     /**
@@ -189,6 +220,9 @@ public class WatchFace @JvmOverloads constructor(
             calendarTimeMillis: Long,
             idToComplicationData: Map<Int, ComplicationData>?
         ): Bitmap
+
+        /** Signals that the activity is going away and resources should be released. */
+        public fun onDestroy()
     }
 
     /**
@@ -395,7 +429,7 @@ internal class WatchFaceImpl(
     private val pendingPostDoubleTap: CancellableUniqueTask =
         CancellableUniqueTask(watchFaceHostApi.getHandler())
 
-    private val componentName =
+    internal val componentName =
         ComponentName(
             watchFaceHostApi.getContext().packageName,
             watchFaceHostApi.getContext().javaClass.name
@@ -511,6 +545,8 @@ internal class WatchFaceImpl(
                 watchFaceHostApi.getContext().registerReceiver(null, iFilter)
             }
         )
+
+        WatchFace.maybeCreatePendingEditorDelegate(this)
     }
 
     private var inOnSetStyle = false
@@ -546,14 +582,16 @@ internal class WatchFaceImpl(
     private val batteryLowAndNotChargingObserver = Observer<Boolean> {
         // To save power we request a lower hardware display frame rate when the battery is low
         // and not charging.
-        renderer.surfaceHolder.surface.setFrameRate(
-            if (it) {
-                1000f / MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS.toFloat()
-            } else {
-                SYSTEM_DECIDES_FRAME_RATE
-            },
-            FRAME_RATE_COMPATIBILITY_DEFAULT
-        )
+        if (renderer.surfaceHolder.surface.isValid) {
+            renderer.surfaceHolder.surface.setFrameRate(
+                if (it) {
+                    1000f / MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS.toFloat()
+                } else {
+                    SYSTEM_DECIDES_FRAME_RATE
+                },
+                FRAME_RATE_COMPATIBILITY_DEFAULT
+            )
+        }
     }
 
     init {
@@ -584,67 +622,74 @@ internal class WatchFaceImpl(
         )
 
         if (!watchState.isHeadless) {
-            WatchFace.registerEditorDelegate(
-                componentName,
-                object : WatchFace.EditorDelegate {
-                    override val userStyleRepository: UserStyleRepository
-                        get() = this@WatchFaceImpl.userStyleRepository
-
-                    override val complicationsManager: ComplicationsManager
-                        get() = this@WatchFaceImpl.complicationsManager
-
-                    override val screenBounds
-                        get() = renderer.screenBounds
-
-                    override val previewReferenceTimeMillis
-                        get() = this@WatchFaceImpl.previewReferenceTimeMillis
-
-                    override fun takeScreenshot(
-                        renderParameters: RenderParameters,
-                        calendarTimeMillis: Long,
-                        idToComplicationData: Map<Int, ComplicationData>?
-                    ): Bitmap {
-                        val oldComplicationData =
-                            complicationsManager.complications.values.map {
-                                it.renderer.idAndData ?: IdAndComplicationData(
-                                    it.id,
-                                    NoDataComplicationData()
-                                )
-                            }
-
-                        idToComplicationData?.let {
-                            for ((id, complicationData) in it) {
-                                complicationsManager[id]!!.renderer.setIdComplicationDataSync(
-                                    IdAndComplicationData(id, complicationData)
-                                )
-                            }
-                        }
-                        val screenShot = renderer.takeScreenshot(
-                            Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
-                                timeInMillis = calendarTimeMillis
-                            },
-                            renderParameters
-                        )
-                        if (idToComplicationData != null) {
-                            for (idAndData in oldComplicationData) {
-                                complicationsManager[idAndData.complicationId]!!.renderer
-                                    .setIdComplicationDataSync(idAndData)
-                            }
-                        }
-                        return screenShot
-                    }
-                }
-            )
+            WatchFace.registerEditorDelegate(componentName, WFEditorDelegate())
         }
 
         watchState.isAmbient.addObserver(ambientObserver)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !watchState.isHeadless) {
             watchState.isBatteryLowAndNotCharging.addObserver(batteryLowAndNotChargingObserver)
         }
         watchState.interruptionFilter.addObserver(interruptionFilterObserver)
         watchState.isVisible.addObserver(visibilityObserver)
 
         initFinished = true
+    }
+
+    internal fun createWFEditorDelegate() = WFEditorDelegate() as WatchFace.EditorDelegate
+
+    internal inner class WFEditorDelegate : WatchFace.EditorDelegate {
+        override val userStyleRepository: UserStyleRepository
+            get() = this@WatchFaceImpl.userStyleRepository
+
+        override val complicationsManager: ComplicationsManager
+            get() = this@WatchFaceImpl.complicationsManager
+
+        override val screenBounds
+            get() = renderer.screenBounds
+
+        override val previewReferenceTimeMillis
+            get() = this@WatchFaceImpl.previewReferenceTimeMillis
+
+        override fun takeScreenshot(
+            renderParameters: RenderParameters,
+            calendarTimeMillis: Long,
+            idToComplicationData: Map<Int, ComplicationData>?
+        ): Bitmap {
+            val oldComplicationData =
+                complicationsManager.complications.values.map {
+                    it.renderer.idAndData ?: IdAndComplicationData(
+                        it.id,
+                        NoDataComplicationData()
+                    )
+                }
+
+            idToComplicationData?.let {
+                for ((id, complicationData) in it) {
+                    complicationsManager[id]!!.renderer.setIdComplicationDataSync(
+                        IdAndComplicationData(id, complicationData)
+                    )
+                }
+            }
+            val screenShot = renderer.takeScreenshot(
+                Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                    timeInMillis = calendarTimeMillis
+                },
+                renderParameters
+            )
+            if (idToComplicationData != null) {
+                for (idAndData in oldComplicationData) {
+                    complicationsManager[idAndData.complicationId]!!.renderer
+                        .setIdComplicationDataSync(idAndData)
+                }
+            }
+            return screenShot
+        }
+
+        override fun onDestroy() {
+            if (watchState.isHeadless) {
+                this@WatchFaceImpl.onDestroy()
+            }
+        }
     }
 
     internal fun setIsBatteryLowAndNotChargingFromBatteryStatus(batteryStatus: Intent?) {
@@ -678,7 +723,7 @@ internal class WatchFaceImpl(
         pendingPostDoubleTap.cancel()
         renderer.onDestroy()
         watchState.isAmbient.removeObserver(ambientObserver)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !watchState.isHeadless) {
             watchState.isBatteryLowAndNotCharging.removeObserver(batteryLowAndNotChargingObserver)
         }
         watchState.interruptionFilter.removeObserver(interruptionFilterObserver)

@@ -30,7 +30,7 @@ import androidx.core.graphics.drawable.IconCompat;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class CarIconConstraints {
+public final class CarIconConstraints {
     /** Allow all custom icon types. */
     @NonNull
     public static final CarIconConstraints UNCONSTRAINED =
@@ -56,9 +56,8 @@ public class CarIconConstraints {
      * Returns {@code true} if the {@link CarIcon} meets the constraints' requirement.
      *
      * @throws IllegalStateException    if the custom icon does not have a backing
-     *                                  {@link IconCompat}
-     *                                  instance.
-     * @throws IllegalArgumentException if the custom icon type is not allowed.
+     *                                  {@link IconCompat} instance
+     * @throws IllegalArgumentException if the custom icon type is not allowed
      */
     public void validateOrThrow(@Nullable CarIcon carIcon) {
         if (carIcon == null || carIcon.getType() != CarIcon.TYPE_CUSTOM) {
@@ -76,7 +75,7 @@ public class CarIconConstraints {
     /**
      * Checks whether the given icon is supported.
      *
-     * @throws IllegalArgumentException if the given icon type is unsupported.
+     * @throws IllegalArgumentException if the given icon type is unsupported
      */
     @NonNull
     public IconCompat checkSupportedIcon(@NonNull IconCompat iconCompat) {
@@ -95,6 +94,6 @@ public class CarIconConstraints {
     }
 
     private CarIconConstraints(int[] allowedCustomIconTypes) {
-        this.mAllowedTypes = allowedCustomIconTypes;
+        mAllowedTypes = allowedCustomIconTypes;
     }
 }

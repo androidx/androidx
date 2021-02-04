@@ -44,6 +44,10 @@ dependencies {
             dir: "${new File(project(":navigation:navigation-common").buildDir, "libJar")}",
             include : "*.jar"
     )
+    testImplementation fileTree(
+            dir: "${new File(project(":lifecycle:lifecycle-viewmodel-savedstate").buildDir, "libJar")}",
+            include : "*.jar"
+    )
 }
 
 tasks.findByName("test").doFirst {
@@ -55,6 +59,7 @@ tasks.findByName("test").doFirst {
 }
 
 tasks.findByName("compileKotlin").dependsOn(":navigation:navigation-common:jarDebug")
+tasks.findByName("compileKotlin").dependsOn(":lifecycle:lifecycle-viewmodel-savedstate:jarDebug")
 
 androidx {
     name = 'Android Navigation TypeSafe Arguments Generator'

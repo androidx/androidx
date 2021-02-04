@@ -32,7 +32,6 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(project(":wear:wear-complications-data"))
 
-    implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.preference:preference:1.1.0")
     androidTestImplementation(ANDROIDX_TEST_CORE)

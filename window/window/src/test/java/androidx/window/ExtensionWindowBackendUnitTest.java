@@ -23,7 +23,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -73,7 +72,7 @@ public class ExtensionWindowBackendUnitTest {
     public void testRegisterDeviceStateChangeCallback_noExtension() {
         // Verify method with extension
         ExtensionWindowBackend backend = ExtensionWindowBackend.getInstance(mContext);
-        assumeTrue(backend.mWindowExtension == null);
+        backend.mWindowExtension = null;
         SimpleConsumer<DeviceState> simpleConsumer = new SimpleConsumer<>();
 
         backend.registerDeviceStateChangeCallback(directExecutor(), simpleConsumer);
@@ -114,6 +113,19 @@ public class ExtensionWindowBackendUnitTest {
 
         assertTrue(backend.mWindowLayoutChangeCallbacks.isEmpty());
         verify(backend.mWindowExtension).onWindowLayoutChangeListenerRemoved(eq(activity));
+    }
+
+    @Test
+    public void testRegisterLayoutChangeCallback_noExtension() {
+        ExtensionWindowBackend backend = ExtensionWindowBackend.getInstance(mContext);
+        backend.mWindowExtension = null;
+
+        // Check registering the layout change callback
+        Consumer<WindowLayoutInfo> consumer = mock(WindowLayoutInfoConsumer.class);
+        Activity activity = mock(Activity.class);
+        backend.registerLayoutChangeCallback(activity, Runnable::run, consumer);
+
+        verify(consumer).accept(any());
     }
 
     @Test

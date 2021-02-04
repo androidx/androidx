@@ -24,9 +24,11 @@ import com.google.protobuf.gradle.generateProtoTasks
 import com.google.protobuf.gradle.protoc
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.attributes.Attribute
 import org.gradle.api.tasks.StopExecutionException
-import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getPlugin
 import java.io.File
@@ -35,15 +37,22 @@ import java.io.File
  * A plugin which, when present, ensures that intermediate inspector
  * resources are generated at build time
  */
+@Suppress("SyntheticAccessor")
 class InspectionPlugin : Plugin<Project> {
-    lateinit var dexTask: TaskProvider<DexInspectorTask>
-
     // project.register* are marked with @ExperimentalStdlibApi, because they use experimental
     // string.capitalize call.
     @ExperimentalStdlibApi
     override fun apply(project: Project) {
         var foundLibraryPlugin = false
         var foundReleaseVariant = false
+        val extension = project.extensions.create<InspectionExtension>(EXTENSION_NAME, project)
+
+        val publishInspector = project.configurations.create("publishInspector") {
+            it.isCanBeConsumed = true
+            it.isCanBeResolved = false
+            it.setupInspectorAttribute()
+        }
+
         project.pluginManager.withPlugin("com.android.library") {
             foundLibraryPlugin = true
             val libExtension = project.extensions.getByType(LibraryExtension::class.java)
@@ -53,7 +62,14 @@ class InspectionPlugin : Plugin<Project> {
                     foundReleaseVariant = true
                     val unzip = project.registerUnzipTask(variant)
                     val shadowJar = project.registerShadowDependenciesTask(variant, unzip)
-                    dexTask = project.registerDexInspectorTask(variant, libExtension, shadowJar)
+                    val dexTask = project.registerDexInspectorTask(
+                        variant, libExtension, extension.name, shadowJar
+                    )
+
+                    publishInspector.outgoing.variants {
+                        val configVariant = it.create("inspectorJar")
+                        configVariant.artifact(dexTask)
+                    }
                 }
             }
             libExtension.sourceSets.findByName("main")!!.resources.srcDirs(
@@ -120,18 +136,31 @@ private fun includeMetaInfServices(library: LibraryExtension) {
  */
 @ExperimentalStdlibApi
 fun packageInspector(libraryProject: Project, inspectorProject: Project) {
+    val consumeInspector = libraryProject.configurations.create("consumeInspector") {
+        it.setupInspectorAttribute()
+    }
+
+    libraryProject.dependencies {
+        add(consumeInspector.name, inspectorProject)
+    }
+
     generateProguardDetectionFile(libraryProject)
-    inspectorProject.project.plugins.withType(InspectionPlugin::class.java) { inspectionPlugin ->
-        val libExtension = libraryProject.extensions.getByType(LibraryExtension::class.java)
-        libExtension.libraryVariants.all { variant ->
-            inspectorProject.afterEvaluate {
-                variant.packageLibraryProvider.configure { zip ->
-                    val outputFile = inspectionPlugin.dexTask.get().outputFile
-                    zip.from(outputFile)
-                    zip.rename(outputFile.asFile.get().name, "inspector.jar")
-                }
+    val libExtension = libraryProject.extensions.getByType(LibraryExtension::class.java)
+    libExtension.libraryVariants.all { variant ->
+        variant.packageLibraryProvider.configure { zip ->
+            zip.from(consumeInspector)
+            zip.rename {
+                if (it == consumeInspector.asFileTree.singleFile.name) {
+                    "inspector.jar"
+                } else it
             }
         }
+    }
+}
+
+private fun Configuration.setupInspectorAttribute() {
+    attributes {
+        it.attribute(Attribute.of("inspector", String::class.java), "inspectorJar")
     }
 }
 
@@ -141,4 +170,13 @@ private fun generateProguardDetectionFile(libraryProject: Project) {
     libExtension.libraryVariants.all { variant ->
         libraryProject.registerGenerateProguardDetectionFileTask(variant)
     }
+}
+
+const val EXTENSION_NAME = "inspection"
+
+open class InspectionExtension(@Suppress("UNUSED_PARAMETER") project: Project) {
+    /**
+     * Name of built inspector artifact, if not provided it is equal to project's name.
+     */
+    var name: String? = null
 }

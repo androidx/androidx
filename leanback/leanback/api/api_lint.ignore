@@ -113,10 +113,22 @@ ExecutorRegistration: androidx.leanback.media.SurfaceHolderGlueHost#setSurfaceHo
     Registration methods should have overload that accepts delivery Executor: `setSurfaceHolderCallback`
 
 
-FractionFloat: androidx.leanback.widget.Parallax.FloatProperty#atFraction(float):
-    Fractions must use floats, was `androidx.leanback.widget.Parallax.PropertyMarkerValue` in `atFraction`
-FractionFloat: androidx.leanback.widget.Parallax.IntProperty#atFraction(float):
-    Fractions must use floats, was `androidx.leanback.widget.Parallax.PropertyMarkerValue` in `atFraction`
+GetterSetterNames: androidx.leanback.widget.FullWidthDetailsOverviewSharedElementHelper#getAutoStartSharedElementTransition():
+    Symmetric method for `setAutoStartSharedElementTransition` must be named `isAutoStartSharedElementTransition`; was `getAutoStartSharedElementTransition`
+GetterSetterNames: androidx.leanback.widget.GuidedAction#setSubActions(java.util.List<androidx.leanback.widget.GuidedAction>):
+    Symmetric method for `hasSubActions` must be named `setHasSubActions`; was `setSubActions`
+GetterSetterNames: androidx.leanback.widget.HorizontalGridView#getFadingLeftEdge():
+    Symmetric method for `setFadingLeftEdge` must be named `isFadingLeftEdge`; was `getFadingLeftEdge`
+GetterSetterNames: androidx.leanback.widget.HorizontalGridView#getFadingRightEdge():
+    Symmetric method for `setFadingRightEdge` must be named `isFadingRightEdge`; was `getFadingRightEdge`
+GetterSetterNames: androidx.leanback.widget.ListRowPresenter#getShadowEnabled():
+    Symmetric method for `setShadowEnabled` must be named `isShadowEnabled`; was `getShadowEnabled`
+GetterSetterNames: androidx.leanback.widget.RowPresenter#getSelectEffectEnabled():
+    Symmetric method for `setSelectEffectEnabled` must be named `isSelectEffectEnabled`; was `getSelectEffectEnabled`
+GetterSetterNames: androidx.leanback.widget.VerticalGridPresenter#getKeepChildForeground():
+    Symmetric method for `setKeepChildForeground` must be named `isKeepChildForeground`; was `getKeepChildForeground`
+GetterSetterNames: androidx.leanback.widget.VerticalGridPresenter#getShadowEnabled():
+    Symmetric method for `setShadowEnabled` must be named `isShadowEnabled`; was `getShadowEnabled`
 
 
 InternalField: androidx.leanback.widget.DetailsOverviewLogoPresenter.ViewHolder#mParentPresenter:

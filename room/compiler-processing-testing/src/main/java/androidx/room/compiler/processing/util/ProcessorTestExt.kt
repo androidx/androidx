@@ -51,8 +51,19 @@ private fun runTests(
             false
         }
     }
-    // make sure some tests did run
-    assertThat(runCount).isGreaterThan(0)
+    // make sure some tests did run. Ksp tests might be disabled so if it is the only test given,
+    // ignore the check
+    val minTestCount = when {
+        CompilationTestCapabilities.canTestWithKsp ||
+            (runners.toList() - KspCompilationTestRunner).isNotEmpty() -> {
+            1
+        }
+        else -> {
+            // is ok if we don't run any tests if ksp is disabled and it is the only test
+            0
+        }
+    }
+    assertThat(runCount).isAtLeast(minTestCount)
 }
 
 fun runProcessorTestWithoutKsp(
@@ -109,7 +120,7 @@ fun runProcessorTest(
  */
 fun runJavaProcessorTest(
     sources: List<Source>,
-    classpath: List<File>,
+    classpath: List<File> = emptyList(),
     handler: (XTestInvocation) -> Unit
 ) {
     runTests(
@@ -165,20 +176,7 @@ fun runKspTest(
 fun compileFiles(
     sources: List<Source>
 ): File {
-    val compilation = KotlinCompilation()
-    sources.forEach {
-        compilation.workingDir.resolve("sources")
-            .resolve(it.relativePath())
-            .parentFile
-            .mkdirs()
-    }
-    compilation.sources = sources.map {
-        it.toKotlinSourceFile()
-    }
-    compilation.jvmDefault = "enable"
-    compilation.jvmTarget = "1.8"
-    compilation.inheritClassPath = true
-    compilation.verbose = false
+    val compilation = KotlinCompilationUtil.prepareCompilation(sources = sources)
     val result = compilation.compile()
     check(result.exitCode == KotlinCompilation.ExitCode.OK) {
         "compilation failed: ${result.messages}"

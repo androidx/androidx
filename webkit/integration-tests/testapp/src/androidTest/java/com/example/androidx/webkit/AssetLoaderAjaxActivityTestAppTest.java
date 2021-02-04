@@ -17,6 +17,7 @@
 package com.example.androidx.webkit;
 
 import androidx.test.espresso.IdlingRegistry;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
@@ -27,34 +28,36 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Integeration test for AssetLoaderAjaxActivity demo activity.
+ * Integration test for {@link AssetLoaderAjaxActivity}.
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public final class AssetLoaderAjaxActivityTestAppTest {
 
     @Rule
-    public IntegrationActivityTestRule<AssetLoaderAjaxActivity> mRule =
-            new IntegrationActivityTestRule<>(AssetLoaderAjaxActivity.class,
-                    R.id.webview_asset_loader_webview);
+    public ActivityScenarioRule<AssetLoaderAjaxActivity> mRule =
+            new ActivityScenarioRule<>(AssetLoaderAjaxActivity.class);
 
     @Before
     public void setUp() {
-        IdlingRegistry.getInstance().register(mRule.getActivity().getUriIdlingResource());
+        WebkitTestHelpers.enableJavaScript(R.id.webview_asset_loader_webview);
+        mRule.getScenario().onActivity(activity -> IdlingRegistry.getInstance().register(
+                activity.getUriIdlingResource()));
     }
 
     @After
     public void tearDown() {
-        IdlingRegistry.getInstance().unregister(mRule.getActivity().getUriIdlingResource());
+        mRule.getScenario().onActivity(activity -> IdlingRegistry.getInstance().unregister(
+                activity.getUriIdlingResource()));
     }
 
     @Test
     public void testAssetLoaderAjaxActivity() {
-        mRule.assertHtmlElementContainsText(R.id.webview_asset_loader_webview, "title",
-                "Loaded HTML should appear below on success");
-        mRule.assertHtmlElementContainsText(R.id.webview_asset_loader_webview, "assets_html",
-                "Successfully loaded html from assets!");
-        mRule.assertHtmlElementContainsText(R.id.webview_asset_loader_webview, "res_html",
-                "Successfully loaded html from resources!");
+        WebkitTestHelpers.assertHtmlElementContainsText(R.id.webview_asset_loader_webview,
+                "title", "Loaded HTML should appear below on success");
+        WebkitTestHelpers.assertHtmlElementContainsText(R.id.webview_asset_loader_webview,
+                "assets_html", "Successfully loaded html from assets!");
+        WebkitTestHelpers.assertHtmlElementContainsText(R.id.webview_asset_loader_webview,
+                "res_html", "Successfully loaded html from resources!");
     }
 }

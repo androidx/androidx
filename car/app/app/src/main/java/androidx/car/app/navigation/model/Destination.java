@@ -16,6 +16,8 @@
 
 package androidx.car.app.navigation.model;
 
+import static java.util.Objects.requireNonNull;
+
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,34 +40,30 @@ public final class Destination {
     private final CarIcon mImage;
 
     /**
-     * Constructs a new builder of {@link Destination} with the given name and address.
+     * Returns the name of the destination or {@code null} if not set.
      *
-     * @throws NullPointerException if {@code name} is {@code null}.
-     * @throws NullPointerException if {@code address} is {@code null}.
+     * @see Builder#setName(CharSequence)
      */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder(@NonNull CharSequence name, @NonNull CharSequence address) {
-        return builder().setName(name).setAddress(address);
-    }
-
-    /** Constructs a new builder of {@link Destination}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     @Nullable
     public CarText getName() {
         return mName;
     }
 
+    /**
+     * Returns the address of the destination or {@code null} if not set.
+     *
+     * @see Builder#setAddress(CharSequence)
+     */
     @Nullable
     public CarText getAddress() {
         return mAddress;
     }
 
+    /**
+     * Returns an image to display with the destination or {@code null} if not set.
+     *
+     * @see Builder#setImage(CarIcon)
+     */
     @Nullable
     public CarIcon getImage() {
         return mImage;
@@ -105,9 +103,9 @@ public final class Destination {
     }
 
     Destination(Builder builder) {
-        this.mName = builder.mName;
-        this.mAddress = builder.mAddress;
-        this.mImage = builder.mImage;
+        mName = builder.mName;
+        mAddress = builder.mAddress;
+        mImage = builder.mImage;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -127,28 +125,37 @@ public final class Destination {
         CarIcon mImage;
 
         /**
-         * Sets the destination name formatted for the user's current locale, or {@code null} to not
-         * display a destination name.
+         * Sets the destination name formatted for the user's current locale.
+         *
+         * <p>Spans are not supported in the input string.
+         *
+         * @throws NullPointerException if {@code name} is {@code null}
+         *
+         * @see CarText for details on text handling and span support.
          */
         @NonNull
-        public Builder setName(@Nullable CharSequence name) {
-            this.mName = name == null ? null : CarText.create(name);
+        public Builder setName(@NonNull CharSequence name) {
+            mName = CarText.create(requireNonNull(name));
             return this;
         }
 
         /**
-         * Sets the destination address formatted for the user's current locale, or {@code null}
-         * to not
-         * display an address.
+         * Sets the destination address formatted for the user's current locale.
+         *
+         * <p>Spans are not supported in the input string.
+         *
+         * @throws NullPointerException if {@code address} is {@code null}
+         *
+         * @see CarText for details on text handling and span support.
          */
         @NonNull
-        public Builder setAddress(@Nullable CharSequence address) {
-            this.mAddress = address == null ? null : CarText.create(address);
+        public Builder setAddress(@NonNull CharSequence address) {
+            mAddress = CarText.create(requireNonNull(address));
             return this;
         }
 
         /**
-         * Sets the destination image to display, or {@code null} to not display an image.
+         * Sets the destination image to display.
          *
          * <h4>Image Sizing Guidance</h4>
          *
@@ -158,13 +165,14 @@ public final class Destination {
          * bounding box while preserving the aspect ratio.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
-         * that
-         * work with different car screen pixel densities.
+         * that work with different car screen pixel densities.
+         *
+         * @throws NullPointerException if {@code image} is {@code null}
          */
         @NonNull
-        public Builder setImage(@Nullable CarIcon image) {
-            CarIconConstraints.DEFAULT.validateOrThrow(image);
-            this.mImage = image;
+        public Builder setImage(@NonNull CarIcon image) {
+            CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(image));
+            mImage = image;
             return this;
         }
 
@@ -174,6 +182,7 @@ public final class Destination {
          * <p>At least one of the name or the address must be set and not empty.
          *
          * @throws IllegalStateException if both the name and the address are {@code null} or empty.
+         *
          * @see #setName(CharSequence)
          * @see #setAddress(CharSequence)
          */

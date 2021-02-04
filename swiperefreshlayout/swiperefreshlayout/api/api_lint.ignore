@@ -3,6 +3,10 @@ CallbackMethodName: androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnChil
     Callback method names must follow the on<Something> style: canChildScrollUp
 
 
+GetterSetterNames: androidx.swiperefreshlayout.widget.CircularProgressDrawable#getArrowEnabled():
+    Symmetric method for `setArrowEnabled` must be named `isArrowEnabled`; was `getArrowEnabled`
+
+
 InternalField: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#mFrom:
     Internal field mFrom must not be exposed
 InternalField: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#mOriginalOffsetTop:

@@ -16,13 +16,12 @@
 
 package androidx.camera.camera2;
 
-
 import static androidx.camera.testing.CoreAppTestUtil.ForegroundOccupiedError;
 import static androidx.camera.testing.CoreAppTestUtil.assumeCanTestCameraDisconnect;
 import static androidx.camera.testing.CoreAppTestUtil.assumeCompatibleDevice;
 import static androidx.camera.testing.CoreAppTestUtil.prepareDeviceUI;
 
-import static org.junit.Assume.assumeNotNull;
+import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.content.Intent;
@@ -32,10 +31,12 @@ import androidx.camera.core.CameraX;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.activity.Camera2TestActivity;
 import androidx.camera.testing.activity.CameraXTestActivity;
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
+import androidx.test.espresso.idling.CountingIdlingResource;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -51,6 +52,7 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -59,62 +61,62 @@ public class CameraDisconnectTest {
     @Rule
     public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
 
-    @SuppressWarnings("deprecation")
-    @Rule
-    public androidx.test.rule.ActivityTestRule<CameraXTestActivity> mCameraXTestActivityRule =
-            new androidx.test.rule.ActivityTestRule<>(CameraXTestActivity.class, true, false);
-    @SuppressWarnings("deprecation")
-    @Rule
-    public androidx.test.rule.ActivityTestRule<Camera2TestActivity> mCamera2ActivityRule =
-            new androidx.test.rule.ActivityTestRule<>(Camera2TestActivity.class, true, false);
-
-    private CameraXTestActivity mCameraXTestActivity;
-
     @Before
     public void setUp() throws ForegroundOccupiedError {
         assumeCompatibleDevice();
+        assumeCanTestCameraDisconnect();
 
-        Context context = ApplicationProvider.getApplicationContext();
+        final Context context = ApplicationProvider.getApplicationContext();
         CameraX.initialize(context, Camera2Config.defaultConfig());
 
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         prepareDeviceUI(InstrumentationRegistry.getInstrumentation());
-
-        mCameraXTestActivityRule.launchActivity(new Intent());
-        mCameraXTestActivity = mCameraXTestActivityRule.getActivity();
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
-        mCameraXTestActivityRule.finishActivity();
-        mCamera2ActivityRule.finishActivity();
-
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        CameraX.shutdown().get(10_000, TimeUnit.MILLISECONDS);
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M) // Known issue, checkout b/147393563.
     public void testDisconnect_launchCamera2App() {
-        // Specific compatibility check for the test.
-        assumeCanTestCameraDisconnect();
+        // Launch CameraX test activity
+        final ActivityScenario<CameraXTestActivity> cameraXActivity = ActivityScenario.launch(
+                CameraXTestActivity.class);
 
-        waitFor(mCameraXTestActivity.mPreviewReady);
-        String cameraId = mCameraXTestActivity.mCameraId;
-        assumeNotNull(cameraId);
+        // Wait for preview to become active
+        final AtomicReference<CountingIdlingResource> cameraXPreviewReady = new AtomicReference<>();
+        cameraXActivity.onActivity(activity -> cameraXPreviewReady.set(activity.getPreviewReady()));
+        waitFor(cameraXPreviewReady.get());
 
-        // Launch another activity and open the camera by camera2 API. It should cause the camera
-        // disconnect from CameraX.
-        mCamera2ActivityRule.launchActivity(
-                new Intent().putExtra(Camera2TestActivity.EXTRA_CAMERA_ID, cameraId));
-        waitFor(mCamera2ActivityRule.getActivity().mPreviewReady);
-        mCamera2ActivityRule.finishActivity();
+        // Get id of camera opened by CameraX test activity
+        final AtomicReference<String> cameraId = new AtomicReference<>();
+        cameraXActivity.onActivity(activity -> cameraId.set(activity.getCameraId()));
+        assertThat(cameraId.get()).isNotNull();
 
-        // Verify the CameraX Preview can resume successfully.
-        waitFor(mCameraXTestActivity.mPreviewReady);
+        // Launch Camera2 test activity. It should cause the camera to disconnect from CameraX.
+        final Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
+                Camera2TestActivity.class);
+        intent.putExtra(Camera2TestActivity.EXTRA_CAMERA_ID, cameraId.get());
+        final ActivityScenario<Camera2TestActivity> camera2Activity = ActivityScenario.launch(
+                intent);
+
+        // Wait for preview to become active
+        final AtomicReference<CountingIdlingResource> camera2PreviewReady = new AtomicReference<>();
+        camera2Activity.onActivity(activity -> camera2PreviewReady.set(activity.mPreviewReady));
+        waitFor(camera2PreviewReady.get());
+
+        // Close Camera2 test activity, and verify the CameraX Preview resumes successfully.
+        camera2Activity.close();
+        waitFor(cameraXPreviewReady.get());
+
+        // Close CameraX test activity
+        cameraXActivity.close();
     }
 
-    public static void waitFor(IdlingResource idlingResource) {
+    private static void waitFor(IdlingResource idlingResource) {
         IdlingRegistry.getInstance().register(idlingResource);
         Espresso.onIdle();
         IdlingRegistry.getInstance().unregister(idlingResource);

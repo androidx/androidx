@@ -156,10 +156,12 @@ public class CarContext extends ContextWrapper {
      *
      * @param name The name of the car service requested. This should be one of
      *             {@link #APP_SERVICE},
-     *             {@link #NAVIGATION_SERVICE} or {@link #SCREEN_SERVICE}.
-     * @return The car service instance.
-     * @throws IllegalArgumentException if {@code name} does not refer to a valid car service.
-     * @throws NullPointerException     if {@code name} is {@code null}.
+     *             {@link #NAVIGATION_SERVICE} or {@link #SCREEN_SERVICE}
+     *
+     * @return The car service instance
+     *
+     * @throws IllegalArgumentException if {@code name} does not refer to a valid car service
+     * @throws NullPointerException     if {@code name} is {@code null}
      */
     // This is kept for the testing library.
     @NonNull
@@ -175,7 +177,7 @@ public class CarContext extends ContextWrapper {
         }
 
         throw new IllegalArgumentException(
-                "The name '" + name + "' does not correspond to a car service.");
+                "The name '" + name + "' does not correspond to a car service");
     }
 
     /**
@@ -184,11 +186,11 @@ public class CarContext extends ContextWrapper {
      * <p>Currently supported classes are: {@link AppManager}, {@link NavigationManager}, {@link
      * ScreenManager}.
      *
-     * @param serviceClass the class of the requested service.
-     * @return The car service instance.
+     * @param serviceClass the class of the requested service
+     *
      * @throws IllegalArgumentException if {@code serviceClass} is not the class of a supported car
-     *                                  service.
-     * @throws NullPointerException     if {@code serviceClass} is {@code null}.
+     *                                  service
+     * @throws NullPointerException     if {@code serviceClass} is {@code null}
      */
     @NonNull
     public <T> T getCarService(@NonNull Class<T> serviceClass) {
@@ -198,11 +200,14 @@ public class CarContext extends ContextWrapper {
     /**
      * Gets the name of the car service that is represented by the specified class.
      *
-     * @param serviceClass the class of the requested service.
-     * @return the car service name to use with {@link #getCarService(String)}.
+     * @param serviceClass the class of the requested service
+     *
+     * @return the car service name to use with {@link #getCarService(String)}
+     *
      * @throws IllegalArgumentException if {@code serviceClass} is not the class of a supported car
-     *                                  service.
-     * @throws NullPointerException     if {@code serviceClass} is {@code null}.
+     *                                  service
+     * @throws NullPointerException     if {@code serviceClass} is {@code null}
+     *
      * @see #getCarService
      */
     @NonNull
@@ -216,7 +221,7 @@ public class CarContext extends ContextWrapper {
             return SCREEN_SERVICE;
         }
 
-        throw new IllegalArgumentException("The class does not correspond to a car service.");
+        throw new IllegalArgumentException("The class does not correspond to a car service");
     }
 
     /**
@@ -246,12 +251,12 @@ public class CarContext extends ContextWrapper {
      *       method will throw a {@link SecurityException}.
      * </dl>
      *
-     * @param intent the {@link Intent} to send to the target application.
+     * @param intent the {@link Intent} to send to the target application
+     *
      * @throws SecurityException         if the app attempts to start a different app explicitly or
-     *                                   does not
-     *                                   have permissions for the requested action.
-     * @throws InvalidParameterException if {@code intent} does not meet the criteria defined.
-     * @throws NullPointerException      if {@code intent} is {@code null}.
+     *                                   does not have permissions for the requested action
+     * @throws InvalidParameterException if {@code intent} does not meet the criteria defined
+     * @throws NullPointerException      if {@code intent} is {@code null}
      */
     public void startCarApp(@NonNull Intent intent) {
         requireNonNull(intent);
@@ -271,15 +276,16 @@ public class CarContext extends ContextWrapper {
      * <p>Use this method if the app has received a broadcast due to a notification action.
      *
      * @param notificationIntent the {@link Intent} that the app received via broadcast due to a
-     *                           user taking an action on a notification in the car.
+     *                           user taking an action on a notification in the car
      * @param appIntent          the {@link Intent} to use for starting the car app. See {@link
      *                           #startCarApp(Intent)} for the documentation on valid
-     *                           {@link Intent}s.
+     *                           {@link Intent}s
+     *
      * @throws InvalidParameterException if {@code notificationIntent} is not an {@link Intent}
      *                                   received from a broadcast, due to an action taken by the
-     *                                   user in the car.
+     *                                   user in the car
      * @throws NullPointerException      if either {@code notificationIntent} or {@code appIntent
-     *                                   } are {@code null}.
+     *                                   } are {@code null}
      */
     public static void startCarApp(@NonNull Intent notificationIntent, @NonNull Intent appIntent) {
         requireNonNull(notificationIntent);
@@ -450,28 +456,29 @@ public class CarContext extends ContextWrapper {
 
     /**
      * Retrieves the API level negotiated with the host.
-     * <p>
-     * API levels are used during client and host connection handshake to negotiate a common set of
-     * elements that both processes can understand. Different devices might have different host
-     * versions. Each of these hosts will support a
-     * range of API levels, as a way to provide backwards compatibility.
-     * <p>
-     * Applications can also provide forward compatibility, by declaring support for a
+     *
+     * <p>API levels are used during client and host connection handshake to negotiate a common set
+     * of elements that both processes can understand. Different devices might have different host
+     * versions. Each of these hosts will support a range of API levels, as a way to provide
+     * backwards compatibility.
+     *
+     * <p>Applications can also provide forward compatibility, by declaring support for a
      * {@link AppInfo#getMinCarAppApiLevel()} lower than {@link AppInfo#getLatestCarAppApiLevel()}.
      * See {@link AppInfo#getMinCarAppApiLevel()} for more details.
-     * <p>
-     * Clients must ensure no elements annotated with a {@link RequiresCarApi} value higher
-     * than {@link #getCarAppApiLevel()} is used at runtime.
-     * <p>
-     * Please refer to {@link RequiresCarApi} description for more details on how to
+     *
+     * <p>Clients must ensure no elements annotated with a {@link RequiresCarApi} value higher
+     * than returned by this method is used at runtime.
+     *
+     * <p>Please refer to {@link RequiresCarApi} description for more details on how to
      * implement forward compatibility.
      *
      * @return a value between {@link AppInfo#getMinCarAppApiLevel()} and
      * {@link AppInfo#getLatestCarAppApiLevel()}. In case of incompatibility, the host will
-     * disconnect from the service before completing the handshake.
+     * disconnect from the service before completing the handshake
+     *
      * @throws IllegalStateException if invoked before the connection handshake with the host has
      *                               been completed (for example, before
-     *                               {@link Session#onCreateScreen(Intent)}).
+     *                               {@link Session#onCreateScreen(Intent)})
      */
     @CarAppApiLevel
     public int getCarAppApiLevel() {
@@ -490,7 +497,7 @@ public class CarContext extends ContextWrapper {
     protected CarContext(@NonNull Lifecycle lifecycle, @NonNull HostDispatcher hostDispatcher) {
         super(null);
 
-        this.mHostDispatcher = hostDispatcher;
+        mHostDispatcher = hostDispatcher;
         mAppManager = AppManager.create(this, hostDispatcher);
         mNavigationManager = NavigationManager.create(this, hostDispatcher);
         mScreenManager = ScreenManager.create(this, lifecycle);

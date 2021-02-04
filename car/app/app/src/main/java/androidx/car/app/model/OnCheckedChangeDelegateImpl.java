@@ -71,7 +71,7 @@ public class OnCheckedChangeDelegateImpl implements OnCheckedChangeDelegate {
         private final OnCheckedChangeListener mListener;
 
         OnCheckedChangeListenerStub(OnCheckedChangeListener listener) {
-            this.mListener = listener;
+            mListener = listener;
         }
 
         @Override

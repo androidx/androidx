@@ -67,21 +67,21 @@ public class NavigationManagerTest {
     private NavigationManager mNavigationManager;
 
     private final Destination mDestination =
-            Destination.builder().setName("Home").setAddress("123 State Street").build();
-    private final Step mStep = Step.builder("Straight Ahead").build();
+            new Destination.Builder().setName("Home").setAddress("123 State Street").build();
+    private final Step mStep = new Step.Builder("Straight Ahead").build();
     private final TravelEstimate mStepTravelEstimate =
-            TravelEstimate.create(
+            new TravelEstimate.Builder(
                     Distance.create(/* displayDistance= */ 10, Distance.UNIT_KILOMETERS),
-                    TimeUnit.HOURS.toSeconds(1),
-                    createDateTimeWithZone("2020-04-14T15:57:00", "US/Pacific"));
+                    createDateTimeWithZone("2020-04-14T15:57:00", "US/Pacific"))
+            .setRemainingTimeSeconds(TimeUnit.HOURS.toSeconds(1)).build();
     private final TravelEstimate mDestinationTravelEstimate =
-            TravelEstimate.create(
+            new TravelEstimate.Builder(
                     Distance.create(/* displayDistance= */ 100, Distance.UNIT_KILOMETERS),
-                    TimeUnit.HOURS.toSeconds(1),
-                    createDateTimeWithZone("2020-04-14T16:57:00", "US/Pacific"));
+                    createDateTimeWithZone("2020-04-14T16:57:00", "US/Pacific"))
+            .setRemainingTimeSeconds(TimeUnit.HOURS.toSeconds(1)).build();
     private static final String CURRENT_ROAD = "State St.";
     private final Trip mTrip =
-            Trip.builder()
+            new Trip.Builder()
                     .addDestination(mDestination, mDestinationTravelEstimate)
                     .addStep(mStep, mStepTravelEstimate)
                     .setCurrentRoad(CURRENT_ROAD)

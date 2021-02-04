@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package androidx.benchmark.macro
 
-import android.util.Log
-import androidx.benchmark.perfetto.PerfettoResultsParser.parseResult
-import androidx.benchmark.perfetto.PerfettoTraceParser
+import androidx.annotation.RequiresApi
+import androidx.benchmark.macro.perfetto.PerfettoResultsParser.parseResult
+import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 
@@ -26,7 +26,7 @@ import androidx.test.uiautomator.UiDevice
  * Metric interface.
  */
 sealed class Metric {
-    abstract fun configure(config: MacrobenchmarkConfig)
+    abstract fun configure(packageName: String)
 
     abstract fun start()
 
@@ -40,32 +40,12 @@ sealed class Metric {
     abstract fun getMetrics(packageName: String, tracePath: String): Map<String, Long>
 }
 
-class StartupTimingMetric : Metric() {
-    private val helper = AppStartupHelper()
-
-    override fun configure(config: MacrobenchmarkConfig) {
-        // does nothing
-    }
-
-    override fun start() {
-        helper.startCollecting()
-    }
-
-    override fun stop() {
-        helper.stopCollecting()
-    }
-
-    override fun getMetrics(packageName: String, tracePath: String): Map<String, Long> {
-        return helper.getMetrics(packageName)
-    }
-}
-
 class FrameTimingMetric : Metric() {
     private lateinit var packageName: String
     private val helper = JankCollectionHelper()
 
-    override fun configure(config: MacrobenchmarkConfig) {
-        packageName = config.packageName
+    override fun configure(packageName: String) {
+        this.packageName = packageName
         helper.addTrackedPackages(packageName)
     }
 
@@ -155,43 +135,22 @@ class FrameTimingMetric : Metric() {
 }
 
 /**
- * Only does startup metrics now. Will need to expand scope.
+ * Captures app startup timing metrics.
  */
-internal class PerfettoMetric : Metric() {
-    private lateinit var packageName: String
-    private lateinit var device: UiDevice
-    private lateinit var parser: PerfettoTraceParser
-
-    override fun configure(config: MacrobenchmarkConfig) {
-        packageName = config.packageName
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        device = instrumentation.device()
-        parser = PerfettoTraceParser()
+@Suppress("CanSealedSubClassBeObject")
+@RequiresApi(29)
+class StartupTimingMetric : Metric() {
+    override fun configure(packageName: String) {
     }
 
     override fun start() {
-        parser.copyTraceProcessorShell()
     }
 
     override fun stop() {
     }
 
     override fun getMetrics(packageName: String, tracePath: String): Map<String, Long> {
-        val path = parser.shellFile?.absolutePath
-        return if (path != null) {
-            // TODO: Construct `METRICS` based on the config.
-            val command = "$path --run-metric $METRICS $tracePath --metrics-output=json"
-            Log.d(TAG, "Executing command $command")
-            val json = device.executeShellCommand(command)
-            Log.d(TAG, "Trace Processor result \n\n $json")
-            parseResult(json, packageName)
-        } else {
-            emptyMap()
-        }
-    }
-
-    companion object {
-        private const val TAG = "PerfettoMetric"
-        private const val METRICS = "android_startup"
+        val json = PerfettoTraceProcessor.getJsonMetrics(tracePath, "android_startup")
+        return parseResult(json, packageName)
     }
 }

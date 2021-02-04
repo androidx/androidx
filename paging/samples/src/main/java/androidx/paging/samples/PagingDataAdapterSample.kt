@@ -35,7 +35,6 @@ import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -154,7 +153,6 @@ fun addLoadStateListenerSample() {
 internal val lifecycleScope = CoroutineScope(Dispatchers.Default)
 
 @Sampled
-@OptIn(ExperimentalCoroutinesApi::class)
 fun loadStateFlowSample() {
     val adapter = UserPagingAdapter()
     lifecycleScope.launch {
@@ -175,7 +173,6 @@ fun loadStateFlowSample() {
 }
 
 @Sampled
-@OptIn(ExperimentalCoroutinesApi::class)
 fun submitDataFlowSample() {
     class MyFlowActivity : AppCompatActivity() {
         val pagingAdapter = UserPagingAdapter()

@@ -49,6 +49,16 @@ ExecutorRegistration: androidx.preference.PreferenceManager#setPreferenceCompari
     Registration methods should have overload that accepts delivery Executor: `setPreferenceComparisonCallback`
 
 
+GetterSetterNames: androidx.preference.Preference#setKey(String):
+    Symmetric method for `hasKey` must be named `setHasKey`; was `setKey`
+GetterSetterNames: androidx.preference.SeekBarPreference#getShowSeekBarValue():
+    Symmetric method for `setShowSeekBarValue` must be named `isShowSeekBarValue`; was `getShowSeekBarValue`
+GetterSetterNames: androidx.preference.SeekBarPreference#getUpdatesContinuously():
+    Symmetric method for `setUpdatesContinuously` must be named `isUpdatesContinuously`; was `getUpdatesContinuously`
+GetterSetterNames: androidx.preference.TwoStatePreference#getDisableDependentsState():
+    Symmetric method for `setDisableDependentsState` must be named `isDisableDependentsState`; was `getDisableDependentsState`
+
+
 InternalField: androidx.preference.TwoStatePreference#mChecked:
     Internal field mChecked must not be exposed
 

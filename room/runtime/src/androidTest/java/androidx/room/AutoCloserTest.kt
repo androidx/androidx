@@ -198,7 +198,8 @@ public class AutoCloserTest {
 
         assertThat(db.isOpen).isFalse()
 
-        assertThrows<IllegalStateException> { db.execSQL("select * from users") }
+        assertThrows<IllegalStateException> { db.query("select * from users").close() }
+            .hasMessageThat().contains("closed")
 
         autoCloser.decrementCountAndScheduleClose() // Should succeed
 

@@ -39,6 +39,7 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_ROTATIO
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_SOFTWARE_JPEG_ENCODER;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.internal.utils.ImageUtil.min;
 import static androidx.camera.core.internal.utils.ImageUtil.sizeToVertexes;
@@ -116,6 +117,7 @@ import androidx.camera.core.internal.compat.quirk.SoftwareJpegEncodingPreferredQ
 import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability;
 import androidx.camera.core.internal.utils.ImageUtil;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -129,6 +131,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
@@ -767,22 +770,6 @@ public final class ImageCapture extends UseCase {
      * set, or {@link #setCropAspectRatio} is used, the image may be cropped before saving to
      * disk which causes an additional latency.
      *
-     * <p> Before triggering the image capture pipeline, if the save location is a {@link File} or
-     * {@link MediaStore}, it is first verified to ensure it's valid and writable. A {@link File}
-     * is verified by attempting to open a {@link java.io.FileOutputStream} to it, whereas a
-     * location in {@link MediaStore} is validated by
-     * {@linkplain ContentResolver#insert(Uri, ContentValues) creating a new row} in the user
-     * defined table, retrieving a {@link Uri} pointing to it, then attempting to open an
-     * {@link OutputStream} to it. The newly created row is
-     * {@linkplain ContentResolver#delete(Uri, String, String[]) deleted}
-     * at the end of the verification. On Huawei devices, this deletion results in the system
-     * displaying a notification informing the user that a photo has been deleted. In order to
-     * avoid this, validating the image capture save location in
-     * {@link android.provider.MediaStore} is skipped on Huawei devices.
-     *
-     * <p> If the validation of the save location fails, {@link OnImageSavedCallback}'s error
-     * callback is invoked with an {@link ImageCaptureException}.
-     *
      * @param outputFileOptions  Options to store the newly captured image.
      * @param executor           The executor in which the callback methods will be run.
      * @param imageSavedCallback Callback to be called for the newly captured image.
@@ -792,30 +779,11 @@ public final class ImageCapture extends UseCase {
             final @NonNull OutputFileOptions outputFileOptions,
             final @NonNull Executor executor,
             final @NonNull OnImageSavedCallback imageSavedCallback) {
-        mSequentialIoExecutor.execute(() -> {
-            if (!ImageSaveLocationValidator.isValid(outputFileOptions)) {
-                // Check whether the captured image can be saved. If it cannot, fail fast and
-                // notify user.
-                executor.execute(() -> imageSavedCallback.onError(
-                        new ImageCaptureException(ERROR_FILE_IO,
-                                "Cannot save capture result to specified location", null)));
-            } else {
-                CameraXExecutors.mainThreadExecutor().execute(
-                        () -> takePictureAfterValidation(outputFileOptions, executor,
-                                imageSavedCallback));
-            }
-        });
-    }
-
-    /**
-     * Takes picture after the output file options is validated.
-     */
-    @UiThread
-    private void takePictureAfterValidation(
-            final @NonNull OutputFileOptions outputFileOptions,
-            final @NonNull Executor executor,
-            final @NonNull OnImageSavedCallback imageSavedCallback) {
-        Threads.checkMainThread();
+        if (Looper.getMainLooper() != Looper.myLooper()) {
+            CameraXExecutors.mainThreadExecutor().execute(
+                    () -> takePicture(outputFileOptions, executor, imageSavedCallback));
+            return;
+        }
         /*
          * We need to chain the following callbacks to save the image to disk:
          *
@@ -2929,6 +2897,17 @@ public final class ImageCapture extends UseCase {
         public Builder setUseCaseEventCallback(
                 @NonNull UseCase.EventCallback useCaseEventCallback) {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setAttachedUseCasesUpdateListener(
+                @NonNull Consumer<Collection<UseCase>> attachedUseCasesUpdateListener) {
+            getMutableConfig().insertOption(OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER,
+                    attachedUseCasesUpdateListener);
             return this;
         }
     }

@@ -114,17 +114,6 @@ public class GridTemplateTest {
     }
 
     @Test
-    public void createInstance_setBackground() {
-        GridTemplate template =
-                new GridTemplate.Builder()
-                        .setTitle("Title")
-                        .setLoading(true)
-                        .setBackgroundImage(BACK)
-                        .build();
-        assertThat(template.getBackgroundImage()).isEqualTo(BACK);
-    }
-
-    @Test
     public void equals() {
         ItemList itemList = new ItemList.Builder().build();
         String title = "title";

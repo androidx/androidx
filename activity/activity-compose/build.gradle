@@ -33,11 +33,20 @@ dependencies {
     kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
 
     implementation(KOTLIN_STDLIB)
+    api projectOrArtifact(":compose:runtime:runtime")
+    api(projectOrArtifact(":activity:activity-ktx"))
+    api(projectOrArtifact(":compose:ui:ui"))
+
+    androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
+    androidTestImplementation projectOrArtifact(":compose:material:material")
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(JUNIT)
+    androidTestImplementation(TRUTH)
 }
 
 androidx {
     name = "Activity Compose"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.ACTIVITY
     inceptionYear = "2020"
     description = "Compose integration with Activity"

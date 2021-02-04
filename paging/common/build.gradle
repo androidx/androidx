@@ -29,7 +29,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.arch.core:core-common:2.0.1")
+    api("androidx.arch.core:core-common:2.1.0")
     api(KOTLIN_STDLIB)
     api(KOTLIN_COROUTINES_CORE)
 

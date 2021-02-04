@@ -99,13 +99,15 @@ class TestRunnerTest {
         assertThat(kaptResult.exceptionOrNull()).hasMessageThat()
             .contains(errorMessage)
 
-        val kspResult = runCatching {
-            runKspTest(
-                sources = listOf(src)
-            ) {}
+        if (CompilationTestCapabilities.canTestWithKsp) {
+            val kspResult = runCatching {
+                runKspTest(
+                    sources = listOf(src)
+                ) {}
+            }
+            assertThat(kspResult.exceptionOrNull()).hasMessageThat()
+                .contains(errorMessage)
         }
-        assertThat(kspResult.exceptionOrNull()).hasMessageThat()
-            .contains(errorMessage)
     }
 
     @Test
@@ -126,12 +128,14 @@ class TestRunnerTest {
         assertThat(kaptResult.exceptionOrNull()).hasMessageThat()
             .contains(errorMessage)
 
-        val kspResult = runCatching {
-            runKspTest(
-                sources = listOf(src)
-            ) {}
+        if (CompilationTestCapabilities.canTestWithKsp) {
+            val kspResult = runCatching {
+                runKspTest(
+                    sources = listOf(src)
+                ) {}
+            }
+            assertThat(kspResult.exceptionOrNull()).hasMessageThat()
+                .contains(errorMessage)
         }
-        assertThat(kspResult.exceptionOrNull()).hasMessageThat()
-            .contains(errorMessage)
     }
 }

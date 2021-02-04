@@ -28,6 +28,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
+    api("androidx.core:core:1.5.0-beta01")
     api(KOTLIN_STDLIB)
 
     testImplementation(ANDROIDX_TEST_CORE)
@@ -41,11 +42,15 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 23
+        minSdkVersion 25
     }
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+
+    buildFeatures {
+        aidl = true
+    }
 }
 
 androidx {

@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Ввести пароль"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Не вказано PIN-код, ключ або пароль."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Пристрій не підтримує PIN-код, ключ або пароль."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Значок відбитка пальця"</string>
 </resources>

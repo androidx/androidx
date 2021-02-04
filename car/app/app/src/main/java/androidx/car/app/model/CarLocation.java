@@ -42,7 +42,7 @@ public final class CarLocation {
      * Returns a new instance of a {@link CarLocation} with the same latitude and longitude
      * contained in the given {@link Location}.
      *
-     * @throws NullPointerException if {@code location} is {@code null}.
+     * @throws NullPointerException if {@code location} is {@code null}
      */
     @NonNull
     public static CarLocation create(@NonNull Location location) {
@@ -85,8 +85,8 @@ public final class CarLocation {
     }
 
     private CarLocation(double lat, double lng) {
-        this.mLat = lat;
-        this.mLng = lng;
+        mLat = lat;
+        mLng = lng;
     }
 
     /** Constructs an empty instance, used by serialization code. */

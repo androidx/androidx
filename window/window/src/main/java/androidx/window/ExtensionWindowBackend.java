@@ -200,6 +200,7 @@ final class ExtensionWindowBackend implements WindowBackend {
                 if (DEBUG) {
                     Log.v(TAG, "Extension not loaded, skipping callback registration.");
                 }
+                callback.accept(new WindowLayoutInfo(new ArrayList<>()));
                 return;
             }
 

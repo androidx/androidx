@@ -41,40 +41,22 @@ import java.util.Set;
  * <p>See the documentation of individual {@link Template}s on restrictions around what actions are
  * supported.
  */
-public class ActionStrip {
+public final class ActionStrip {
     @Keep
     private final List<Action> mActions;
 
-    /** Constructs a new builder of {@link ActionStrip}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     /**
-     * Returns the list of {@link Action}'s.
+     * Returns the list of {@link Action}s in the strip.
      *
-     * @deprecated use {@link #getActionList()} instead.
+     * @see Builder#addAction(Action)
      */
-    // TODO(jayyoo): remove once {@link #getActionList()} is used in the host.
-    @Deprecated
     @NonNull
-    @SuppressWarnings("unchecked")
-    public List<Object> getActions() {
-        return (List<Object>) (List<? extends Object>) mActions;
+    public List<Action> getActions() {
+        return CollectionUtils.emptyIfNull(mActions);
     }
 
     /**
-     * Returns the list of {@link Action}'s.
-     */
-    @NonNull
-    public List<Action> getActionList() {
-        return mActions;
-    }
-
-    /**
-     * Returns the first {@link Action} associated with the input {@code actionType}, or {@code
+     * Returns the first {@link Action} associated with the input {@code actionType} or {@code
      * null} if no matching {@link Action} is found.
      */
     @Nullable
@@ -132,10 +114,10 @@ public class ActionStrip {
         /**
          * Adds an {@link Action} to the list.
          *
-         * @throws IllegalArgumentException if the background color of the action is specified.
-         * @throws IllegalArgumentException if {@code action} is a standard action and an action of
-         *                                  the same type has already been added.
-         * @throws NullPointerException     if {@code action} is {@code null}.
+         * @throws IllegalArgumentException if the background color of the action is specified,
+         *                                  or if {@code action} is a standard action and an
+         *                                  action of the same type has already been added
+         * @throws NullPointerException     if {@code action} is {@code null}
          */
         @NonNull
         public Builder addAction(@NonNull Action action) {
@@ -157,7 +139,7 @@ public class ActionStrip {
         /**
          * Constructs the {@link ActionStrip} defined by this builder.
          *
-         * @throws IllegalStateException if the action strip is empty.
+         * @throws IllegalStateException if the action strip is empty
          */
         @NonNull
         public ActionStrip build() {

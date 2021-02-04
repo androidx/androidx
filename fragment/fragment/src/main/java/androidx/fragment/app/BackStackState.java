@@ -47,7 +47,7 @@ final class BackStackState implements Parcelable {
 
     public BackStackState(BackStackRecord bse) {
         final int numOps = bse.mOps.size();
-        mOps = new int[numOps * 5];
+        mOps = new int[numOps * 6];
 
         if (!bse.mAddToBackStack) {
             throw new IllegalStateException("Not on back stack");
@@ -61,6 +61,7 @@ final class BackStackState implements Parcelable {
             final BackStackRecord.Op op = bse.mOps.get(opNum);
             mOps[pos++] = op.mCmd;
             mFragmentWhos.add(op.mFragment != null ? op.mFragment.mWho : null);
+            mOps[pos++] = op.mTopmostFragment ? 1 : 0;
             mOps[pos++] = op.mEnterAnim;
             mOps[pos++] = op.mExitAnim;
             mOps[pos++] = op.mPopEnterAnim;
@@ -117,6 +118,7 @@ final class BackStackState implements Parcelable {
             }
             op.mOldMaxState = Lifecycle.State.values()[mOldMaxLifecycleStates[num]];
             op.mCurrentMaxState = Lifecycle.State.values()[mCurrentMaxLifecycleStates[num]];
+            op.mTopmostFragment = mOps[pos++] != 0;
             op.mEnterAnim = mOps[pos++];
             op.mExitAnim = mOps[pos++];
             op.mPopEnterAnim = mOps[pos++];

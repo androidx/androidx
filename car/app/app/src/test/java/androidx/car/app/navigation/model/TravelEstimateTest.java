@@ -70,7 +70,8 @@ public class TravelEstimateTest {
         Duration remainingTime = Duration.ofHours(10);
 
         TravelEstimate travelEstimate =
-                TravelEstimate.create(mRemainingDistance, remainingTime, arrivalTime);
+                new TravelEstimate.Builder(mRemainingDistance, arrivalTime).setRemainingTime(
+                        remainingTime).build();
 
         assertThat(travelEstimate.getRemainingDistance()).isEqualTo(mRemainingDistance);
         assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(remainingTime.getSeconds());
@@ -84,9 +85,8 @@ public class TravelEstimateTest {
                 Distance.UNIT_METERS);
         long remainingTime = TimeUnit.HOURS.toMillis(10);
         TravelEstimate travelEstimate =
-                TravelEstimate.create(remainingDistance,
-                        TimeUnit.MILLISECONDS.toSeconds(remainingTime),
-                        arrivalTime);
+                new TravelEstimate.Builder(remainingDistance, arrivalTime).setRemainingTimeSeconds(
+                        TimeUnit.MILLISECONDS.toSeconds(remainingTime)).build();
 
         assertThat(travelEstimate.getRemainingDistance()).isEqualTo(remainingDistance);
         assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(
@@ -101,7 +101,8 @@ public class TravelEstimateTest {
         Distance remainingDistance = Distance.create(/* displayDistance= */ 100,
                 Distance.UNIT_METERS);
         TravelEstimate travelEstimate =
-                TravelEstimate.create(remainingDistance, REMAINING_TIME_UNKNOWN, arrivalTime);
+                new TravelEstimate.Builder(remainingDistance, arrivalTime).setRemainingTimeSeconds(
+                        REMAINING_TIME_UNKNOWN).build();
 
         assertThat(travelEstimate.getRemainingDistance()).isEqualTo(remainingDistance);
         assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(REMAINING_TIME_UNKNOWN);
@@ -115,8 +116,9 @@ public class TravelEstimateTest {
         Distance remainingDistance = Distance.create(/* displayDistance= */ 100,
                 Distance.UNIT_METERS);
         TravelEstimate travelEstimate =
-                TravelEstimate.create(
-                        remainingDistance, Duration.ofSeconds(REMAINING_TIME_UNKNOWN), arrivalTime);
+                new TravelEstimate.Builder(
+                        remainingDistance, arrivalTime).setRemainingTime(
+                        Duration.ofSeconds(REMAINING_TIME_UNKNOWN)).build();
 
         assertThat(travelEstimate.getRemainingDistance()).isEqualTo(remainingDistance);
         assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(REMAINING_TIME_UNKNOWN);
@@ -217,58 +219,60 @@ public class TravelEstimateTest {
 
     @Test
     public void equals() {
-        TravelEstimate travelEstimate = TravelEstimate.create(mRemainingDistance,
-                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime), mArrivalTime);
+        TravelEstimate travelEstimate = new TravelEstimate.Builder(mRemainingDistance,
+                mArrivalTime).setRemainingTimeSeconds(
+                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime)).build();
 
         assertThat(travelEstimate)
                 .isEqualTo(
-                        TravelEstimate.create(mRemainingDistance,
-                                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime),
-                                mArrivalTime));
+                        new TravelEstimate.Builder(mRemainingDistance,
+                                mArrivalTime).setRemainingTimeSeconds(
+                                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime)).build());
     }
 
     @Test
     public void notEquals_differentRemainingDistance() {
         TravelEstimate travelEstimate =
-                TravelEstimate.create(mRemainingDistance,
-                        TimeUnit.MILLISECONDS.toSeconds(mRemainingTime),
-                        mArrivalTime);
+                new TravelEstimate.Builder(mRemainingDistance,
+                        mArrivalTime).setRemainingTimeSeconds(
+                        TimeUnit.MILLISECONDS.toSeconds(mRemainingTime)).build();
 
         assertThat(travelEstimate)
                 .isNotEqualTo(
-                        TravelEstimate.create(
+                        new TravelEstimate.Builder(
                                 Distance.create(/* displayDistance= */ 200, Distance.UNIT_METERS),
-                                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime),
-                                mArrivalTime));
+                                mArrivalTime).setRemainingTimeSeconds(
+                                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime)).build());
     }
 
     @Test
     public void notEquals_differentRemainingTime() {
         TravelEstimate travelEstimate =
-                TravelEstimate.create(mRemainingDistance,
-                        TimeUnit.MILLISECONDS.toSeconds(mRemainingTime),
-                        mArrivalTime);
+                new TravelEstimate.Builder(mRemainingDistance,
+                        mArrivalTime).setRemainingTimeSeconds(
+                        TimeUnit.MILLISECONDS.toSeconds(mRemainingTime)).build();
 
         assertThat(travelEstimate)
                 .isNotEqualTo(
-                        TravelEstimate.create(mRemainingDistance,
-                                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime) + 1,
-                                mArrivalTime));
+                        new TravelEstimate.Builder(mRemainingDistance,
+                                mArrivalTime).setRemainingTimeSeconds(
+                                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime) + 1).build());
     }
 
     @Test
     public void notEquals_differentArrivalTime() {
         TravelEstimate travelEstimate =
-                TravelEstimate.create(mRemainingDistance,
-                        TimeUnit.MILLISECONDS.toSeconds(mRemainingTime),
-                        mArrivalTime);
+                new TravelEstimate.Builder(mRemainingDistance,
+                        mArrivalTime).setRemainingTimeSeconds(
+                        TimeUnit.MILLISECONDS.toSeconds(mRemainingTime)).build();
 
         assertThat(travelEstimate)
                 .isNotEqualTo(
-                        TravelEstimate.create(
+                        new TravelEstimate.Builder(
                                 mRemainingDistance,
-                                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime),
-                                createDateTimeWithZone("2020-04-14T15:57:01", "US/Pacific")));
+                                createDateTimeWithZone("2020-04-14T15:57:01",
+                                        "US/Pacific")).setRemainingTimeSeconds(
+                                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime)).build());
     }
 
     @Test

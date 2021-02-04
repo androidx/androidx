@@ -57,7 +57,7 @@ import java.util.Objects;
  * string.setSpan(ForegroundCarColorSpan.create(CarColor.BLUE), 0, 1, SPAN_EXCLUSIVE_EXCLUSIVE);
  * }</pre>
  */
-public class DistanceSpan extends CarSpan {
+public final class DistanceSpan extends CarSpan {
     @Nullable
     @Keep
     private final Distance mDistance;
@@ -68,17 +68,13 @@ public class DistanceSpan extends CarSpan {
         return new DistanceSpan(requireNonNull(distance));
     }
 
-    private DistanceSpan(Distance distance) {
-        this.mDistance = distance;
-    }
-
-    private DistanceSpan() {
-        mDistance = null;
-    }
-
-    @NonNull
+    /**
+     * Returns the {@link Distance} instance associated with this span or {@code null} if not
+     * set.
+     */
+    @Nullable
     public Distance getDistance() {
-        return requireNonNull(mDistance);
+        return mDistance;
     }
 
     @NonNull
@@ -103,5 +99,13 @@ public class DistanceSpan extends CarSpan {
         DistanceSpan otherSpan = (DistanceSpan) other;
 
         return Objects.equals(mDistance, otherSpan.mDistance);
+    }
+
+    private DistanceSpan(Distance distance) {
+        mDistance = distance;
+    }
+
+    private DistanceSpan() {
+        mDistance = null;
     }
 }

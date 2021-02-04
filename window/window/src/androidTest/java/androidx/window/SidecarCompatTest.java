@@ -34,7 +34,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -292,7 +291,7 @@ public final class SidecarCompatTest extends WindowTestBase
                 sidecarWindowLayoutInfo);
         ArgumentCaptor<WindowLayoutInfo> windowLayoutInfoCaptor =
                 ArgumentCaptor.forClass(WindowLayoutInfo.class);
-        verify(callback, times(2)).onWindowLayoutChanged(eq(mActivity),
+        verify(callback).onWindowLayoutChanged(eq(mActivity),
                 windowLayoutInfoCaptor.capture());
 
         WindowLayoutInfo capturedLayout = windowLayoutInfoCaptor.getValue();
@@ -364,12 +363,13 @@ public final class SidecarCompatTest extends WindowTestBase
         mSidecarCompat.setExtensionCallback(listener);
         when(mSidecarCompat.mSidecar.getWindowLayoutInfo(any())).thenReturn(layoutInfo);
         View fakeView = mock(View.class);
+        Window fakeWindow = new TestWindow(mActivity, fakeView);
         doAnswer(invocation -> {
             View.OnAttachStateChangeListener stateChangeListener = invocation.getArgument(0);
+            fakeWindow.getAttributes().token = mock(IBinder.class);
             stateChangeListener.onViewAttachedToWindow(fakeView);
             return null;
         }).when(fakeView).addOnAttachStateChangeListener(any());
-        Window fakeWindow = new TestWindow(mActivity, fakeView);
         when(mActivity.getWindow()).thenReturn(fakeWindow);
 
         mSidecarCompat.onWindowLayoutChangeListenerAdded(mActivity);

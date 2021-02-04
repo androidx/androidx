@@ -88,7 +88,7 @@ abstract class BasePluginTest {
             """.trimIndent(),
             suffix = """
                 dependencies {
-                    implementation "${projectSetup.props.navigationCommon}"
+                    implementation "${projectSetup.props.navigationRuntime}"
                 }
             """.trimIndent()
         )
@@ -104,7 +104,7 @@ abstract class BasePluginTest {
                 ext.buildTools = "${props.buildToolsVersion}"
                 ext.minSdk = ${props.minSdkVersion}
                 ext.debugKeystoreFile = "${props.debugKeystore}"
-                ext.navigationCommonDep = "${props.navigationCommon}"
+                ext.navigationCommonDep = "${props.navigationRuntime}"
             }
 
             allprojects {
@@ -130,7 +130,7 @@ abstract class BasePluginTest {
             suffix = """
                 dependencies {
                     implementation "${projectSetup.props.kotlinStblib}"
-                    implementation "${projectSetup.props.navigationCommon}"
+                    implementation "${projectSetup.props.navigationRuntime}"
                 }
             """.trimIndent()
         )

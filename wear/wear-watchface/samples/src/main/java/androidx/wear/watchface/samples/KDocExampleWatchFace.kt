@@ -48,7 +48,7 @@ import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 fun kDocCreateExampleWatchFaceService(): WatchFaceService {
 
     class ExampleCanvasWatchFaceService : WatchFaceService() {
-        override fun createWatchFace(
+        override suspend fun createWatchFace(
             surfaceHolder: SurfaceHolder,
             watchState: WatchState
         ): WatchFace {

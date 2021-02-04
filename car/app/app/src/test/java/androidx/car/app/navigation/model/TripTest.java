@@ -40,32 +40,32 @@ import java.util.concurrent.TimeUnit;
 public class TripTest {
 
     private final Step mStep =
-            Step.builder("Take the second exit of the roundabout.")
-                    .addLane(Lane.builder().addDirection(
+            new Step.Builder("Take the second exit of the roundabout.")
+                    .addLane(new Lane.Builder().addDirection(
                             LaneDirection.create(SHAPE_SHARP_LEFT, true)).build())
-                    .setManeuver(Maneuver.builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW)
+                    .setManeuver(new Maneuver.Builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW)
                             .setRoundaboutExitNumber(/*roundaboutExitNumber=*/ 2)
                             .setIcon(CarIcon.APP_ICON)
                             .build())
                     .build();
     private final Destination mDestination =
-            Destination.builder().setName("Google BVE").setAddress("1120 112th Ave NE").build();
+            new Destination.Builder().setName("Google BVE").setAddress("1120 112th Ave NE").build();
     private final TravelEstimate mStepTravelEstimate =
-            TravelEstimate.create(
+            new TravelEstimate.Builder(
                     Distance.create(/* displayDistance= */ 10, Distance.UNIT_KILOMETERS),
-                    TimeUnit.HOURS.toSeconds(1),
-                    createDateTimeWithZone("2020-04-14T15:57:00", "US/Pacific"));
+                    createDateTimeWithZone("2020-04-14T15:57:00", "US/Pacific"))
+                    .setRemainingTimeSeconds(TimeUnit.HOURS.toSeconds(1)).build();
     private final TravelEstimate mDestinationTravelEstimate =
-            TravelEstimate.create(
+            new TravelEstimate.Builder(
                     Distance.create(/* displayDistance= */ 100, Distance.UNIT_KILOMETERS),
-                    TimeUnit.HOURS.toSeconds(1),
-                    createDateTimeWithZone("2020-04-14T16:57:00", "US/Pacific"));
+                    createDateTimeWithZone("2020-04-14T16:57:00", "US/Pacific"))
+                    .setRemainingTimeSeconds(TimeUnit.HOURS.toSeconds(1)).build();
     private static final String ROAD = "State St.";
 
     @Test
     public void createInstance() {
         Trip trip =
-                Trip.builder()
+                new Trip.Builder()
                         .addDestination(mDestination, mDestinationTravelEstimate)
                         .addStep(mStep, mStepTravelEstimate)
                         .setCurrentRoad(ROAD)
@@ -87,7 +87,7 @@ public class TripTest {
     @Test
     public void createInstance_loading_no_steps() {
         Trip trip =
-                Trip.builder()
+                new Trip.Builder()
                         .addDestination(mDestination, mDestinationTravelEstimate)
                         .setCurrentRoad(ROAD)
                         .setLoading(true)
@@ -108,7 +108,7 @@ public class TripTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> Trip.builder()
+                () -> new Trip.Builder()
                         .addStep(mStep, mStepTravelEstimate)
                         .setLoading(true)
                         .build());
