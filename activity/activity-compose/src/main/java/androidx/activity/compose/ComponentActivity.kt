@@ -19,7 +19,7 @@ package androidx.activity.compose
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionReference
+import androidx.compose.runtime.CompositionContext
 import androidx.compose.ui.platform.ComposeView
 
 /**
@@ -30,7 +30,7 @@ import androidx.compose.ui.platform.ComposeView
  * @param content A `@Composable` function declaring the UI contents
  */
 public fun ComponentActivity.setContent(
-    parent: CompositionReference? = null,
+    parent: CompositionContext? = null,
     content: @Composable () -> Unit
 ) {
     val existingComposeView = window.decorView
@@ -38,12 +38,12 @@ public fun ComponentActivity.setContent(
         .getChildAt(0) as? ComposeView
 
     if (existingComposeView != null) with(existingComposeView) {
-        setParentCompositionReference(parent)
+        setParentCompositionContext(parent)
         setContent(content)
     } else ComposeView(this).apply {
         // Set content and parent **before** setContentView
         // to have ComposeView create the composition on attach
-        setParentCompositionReference(parent)
+        setParentCompositionContext(parent)
         setContent(content)
         setContentView(this, DefaultActivityContentLayoutParams)
     }
