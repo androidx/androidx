@@ -1,4 +1,4 @@
-# This file is a list of regexes of messages that are expected to appear in stdout/stderr.
+ould not perform incremental compilation: Could not connect to Kot# This file is a list of regexes of messages that are expected to appear in stdout/stderr.
 # Comments and blank lines are ignored.
 # Before adding a suppression to this file, please attempt to suppress the output inside the generating tool instead.
 # Messages that only sometimes appear in stdout/stderr should be exempted in message-flakes.ignore, because this file (messages.ignore) may be automatically garbage collected whereas that one will not be.
@@ -903,11 +903,14 @@ Stripped invalid locals information from [0-9]+ methods\.
 Methods with invalid locals information:
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.ZoomableKt\$detectZoom\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
 Type information in locals\-table is inconsistent\. Cannot constrain type: @Nullable java\.util\.List \{\} for value: v[0-9]+\(\$this\$fastAny\$iv\) by constraint FLOAT\.
+java\.lang\.Object androidx\.compose\.foundation\.gestures\.DragGestureDetectorKt\$awaitLongPressOrCancellation\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+java\.lang\.Object androidx\.compose\.foundation\.gestures\.DragGestureDetectorKt\.awaitVerticalTouchSlopOrCancellation\-jO[0-9]+t[0-9]+\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, long, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.coroutines\.Continuation\)
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.DragGestureDetectorKt\.awaitVerticalTouchSlopOrCancellation\-qFc19kk\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, long, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.coroutines\.Continuation\)
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.TapGestureDetectorKt\.waitForUpOrCancel\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, kotlin\.coroutines\.Continuation\)
 Type information in locals\-table is inconsistent\. Cannot constrain type: BOTTOM \(empty\) for value: v[0-9]+ by constraint INT\.
 Some warnings are typically a sign of using an outdated Java toolchain\. To fix, recompile the source with an updated toolchain\.
 Type information in locals\-table is inconsistent\. Cannot constrain type: BOTTOM \(empty\) for value: v[0-9]+ by constraint FLOAT\.
+java\.lang\.Object androidx\.compose\.foundation\.gestures\.DragGestureDetectorKt\.awaitHorizontalTouchSlopOrCancellation\-jO[0-9]+t[0-9]+\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, long, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.coroutines\.Continuation\)
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.DragGestureDetectorKt\.awaitHorizontalTouchSlopOrCancellation\-qFc19kk\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, long, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.coroutines\.Continuation\)
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.TransformGestureDetectorKt\$detectTransformGestures\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
 Type information in locals\-table is inconsistent\. Cannot constrain type: INT for value: v[0-9]+\(index\$iv\$iv\) by constraint FLOAT\.

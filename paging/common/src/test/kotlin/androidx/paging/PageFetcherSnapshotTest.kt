@@ -2345,7 +2345,7 @@ class PageFetcherSnapshotTest {
             remoteMediator = remoteMediator
         )
 
-        val expected = listOf(
+        val expected: List<List<PageEvent<Int>>> = listOf(
             listOf(
                 LoadStateUpdate(
                     loadType = REFRESH,
@@ -2659,7 +2659,7 @@ class PageFetcherSnapshotTest {
             remoteMediator = remoteMediator
         )
 
-        val expected = listOf(
+        val expected: List<List<PageEvent<Int>>> = listOf(
             listOf(
                 LoadStateUpdate(
                     loadType = REFRESH,
