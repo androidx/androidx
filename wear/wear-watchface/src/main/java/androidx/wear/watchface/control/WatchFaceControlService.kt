@@ -29,6 +29,7 @@ import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.runOnHandler
+import kotlinx.coroutines.runBlocking
 
 /**
  * A service for creating and controlling watch face instances.
@@ -88,7 +89,11 @@ private class IWatchFaceInstanceServiceStub(
         params: HeadlessWatchFaceInstanceParams
     ): IHeadlessWatchFace? =
         uiThreadHandler.runOnHandler {
-            createEngine(params.watchFaceName, context)?.createHeadlessInstance(params)
+            val engine = createEngine(params.watchFaceName, context)
+            engine?.let {
+                // This is serviced on a background thread so it should be fine to block.
+                runBlocking { it.createHeadlessInstance(params) }
+            }
         }
 
     private fun createEngine(

@@ -394,6 +394,77 @@ class XTypeElementTest {
     }
 
     @Test
+    fun propertyGettersSetters() {
+        val dependencyJavaSource = Source.java(
+            "DependencyJavaSubject.java",
+            """
+            class DependencyJavaSubject {
+                int myField;
+                private int mutable;
+                int immutable;
+                int getMutable() {return 3;}
+                void setMutable(int x) {}
+                int getImmutable() {return 3;}
+            }
+            """.trimIndent()
+        )
+        val dependencyKotlinSource = Source.kotlin(
+            "DependencyKotlinSubject.kt",
+            """
+            class DependencyKotlinSubject {
+                private val myField = 0
+                var mutable: Int = 0
+                val immutable:Int = 0
+            }
+            """.trimIndent()
+        )
+        val dependency = compileFiles(listOf(dependencyJavaSource, dependencyKotlinSource))
+        val javaSource = Source.java(
+            "JavaSubject.java",
+            """
+            class JavaSubject {
+                int myField;
+                private int mutable;
+                int immutable;
+                int getMutable() {return 3;}
+                void setMutable(int x) {}
+                int getImmutable() {return 3;}
+            }
+            """.trimIndent()
+        )
+        val kotlinSource = Source.kotlin(
+            "KotlinSubject.kt",
+            """
+            class KotlinSubject {
+                private val myField = 0
+                var mutable: Int = 0
+                val immutable:Int = 0
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            listOf(javaSource, kotlinSource),
+            classpath = listOf(dependency)
+        ) { invocation ->
+            listOf(
+                "JavaSubject", "DependencyJavaSubject",
+                "KotlinSubject", "DependencyKotlinSubject"
+            ).map {
+                invocation.processingEnv.requireTypeElement(it)
+            }.forEach { subject ->
+                assertWithMessage(subject.qualifiedName)
+                    .that(
+                        subject.getDeclaredMethods().map {
+                            it.name
+                        }
+                    ).containsExactly(
+                        "getMutable", "setMutable", "getImmutable"
+                    )
+            }
+        }
+    }
+
+    @Test
     fun declaredAndInstanceMethods() {
         val src = Source.kotlin(
             "Foo.kt",
@@ -805,6 +876,7 @@ class XTypeElementTest {
                 """.trimIndent()
             )
         )
+
         val classpath = compileFiles(
             createSources("lib")
         )

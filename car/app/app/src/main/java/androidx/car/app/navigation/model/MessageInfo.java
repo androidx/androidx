@@ -29,7 +29,7 @@ import androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo;
 import java.util.Objects;
 
 /** Represents a message that can be shown in the {@link NavigationTemplate}. */
-public class MessageInfo implements NavigationInfo {
+public final class MessageInfo implements NavigationInfo {
     @Keep
     @Nullable
     private final CarText mTitle;
@@ -41,26 +41,30 @@ public class MessageInfo implements NavigationInfo {
     private final CarIcon mImage;
 
     /**
-     * Constructs a new builder of {@link MessageInfo}.
+     * Returns the title of the message or {@code null} if not set.
      *
-     * @throws NullPointerException if {@code title} is {@code null}.
+     * @see Builder#setTitle(CharSequence)
      */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder(@NonNull CharSequence title) {
-        return new Builder(title);
-    }
-
-    @NonNull
+    @Nullable
     public CarText getTitle() {
-        return requireNonNull(mTitle);
+        return mTitle;
     }
 
+    /**
+     * Returns the text to display with the message or {@code null} if not set.
+     *
+     * @see Builder#setText(CharSequence)
+     */
     @Nullable
     public CarText getText() {
         return mText;
     }
 
+    /**
+     * Returns the image to display along with the message or {@code null} if not set.
+     *
+     * @see Builder#setImage(CarIcon)
+     */
     @Nullable
     public CarIcon getImage() {
         return mImage;
@@ -117,29 +121,48 @@ public class MessageInfo implements NavigationInfo {
         /**
          * Sets the title of the message.
          *
-         * @throws NullPointerException if {@code message} is {@code null}.
+         * <p>Unless set with this method, the message will not have a title.
+         *
+         * <p>Spans are not supported in the input string.
+         *
+         * @throws NullPointerException if {@code message} is {@code null}
+         *
+         * @see CarText for details on text handling and span support.
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
-            this.mTitle = CarText.create(requireNonNull(title));
-            return this;
-        }
-
-        /** Sets additional text on the message or {@code null} to not set any additional text. */
-        @NonNull
-        public Builder setText(@Nullable CharSequence text) {
-            this.mText = text == null ? null : CarText.create(text);
+            mTitle = CarText.create(requireNonNull(title));
             return this;
         }
 
         /**
-         * Sets the image to display along with the message, or {@code null} to not display an
-         * image.
+         * Sets additional text on the message.
+         *
+         * <p>Unless set with this method, the message will not have additional text.
+         *
+         * <p>Spans are not supported in the input string.
+         *
+         * @throws NullPointerException if {@code text} is {@code null}
+         *
+         * @see CarText for details on text handling and span support.
          */
         @NonNull
-        public Builder setImage(@Nullable CarIcon image) {
-            CarIconConstraints.DEFAULT.validateOrThrow(image);
-            this.mImage = image;
+        public Builder setText(@NonNull CharSequence text) {
+            mText = CarText.create(requireNonNull(text));
+            return this;
+        }
+
+        /**
+         * Sets the image to display along with the message.
+         *
+         * <p>Unless set with this method, the message will not have an image.
+         *
+         * @throws NullPointerException if {@code image} is {@code null}
+         */
+        @NonNull
+        public Builder setImage(@NonNull CarIcon image) {
+            CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(image));
+            mImage = image;
             return this;
         }
 
@@ -152,10 +175,10 @@ public class MessageInfo implements NavigationInfo {
         /**
          * Returns a new instance of a {@link Builder}.
          *
-         * @throws NullPointerException if {@code title} is {@code null}.
+         * @throws NullPointerException if {@code title} is {@code null}
          */
         public Builder(@NonNull CharSequence title) {
-            this.mTitle = CarText.create(requireNonNull(title));
+            mTitle = CarText.create(requireNonNull(title));
         }
     }
 }

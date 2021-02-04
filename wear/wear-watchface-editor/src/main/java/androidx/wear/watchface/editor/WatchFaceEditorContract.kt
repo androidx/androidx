@@ -20,22 +20,39 @@ import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.support.wearable.watchface.Constants
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.versionedparcelable.ParcelUtils
+import androidx.wear.complications.data.ComplicationData
+import androidx.wear.complications.data.asApiComplicationData
+import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.data.UserStyleWireFormat
+
+internal const val INSTANCE_ID_KEY: String = "INSTANCE_ID_KEY"
+internal const val COMPONENT_NAME_KEY: String = "COMPONENT_NAME_KEY"
+internal const val PREVIEW_COMPLICATIONS_KEY: String = "PREVIEW_COMPLICATIONS_KEY"
+internal const val USER_STYLE_KEY: String = "USER_STYLE_KEY"
+internal const val USER_STYLE_VALUES: String = "USER_STYLE_VALUES"
 
 /**
  * The request sent by [WatchFaceEditorContract.createIntent]. The editing session's result should
  * be reported via [Activity.setWatchRequestResult].
  */
 public class EditorRequest(
-    /** The [ComponentName] on the watch face being edited. */
+    /** The [ComponentName] of the watch face being edited. */
     public val watchFaceComponentName: ComponentName,
 
-    /** A unique ID for the instance of the watch face being edited. */
-    public val watchFaceInstanceId: String,
+    /** The [ComponentName] of the watch face editor. */
+    public val editorComponentName: ComponentName,
+
+    /**
+     * Unique ID for the instance of the watch face being edited, only defined for Android R and
+     * beyond, it's `null` on Android P and earlier. Note each distinct [ComponentName] can have
+     * multiple instances.
+     */
+    public val watchFaceInstanceId: String?,
 
     /** The initial [UserStyle], only required for a headless [EditorSession]. */
     public val initialUserStyle: Map<String, String>?
@@ -50,8 +67,9 @@ public class EditorRequest(
             val componentName =
                 intent.getParcelableExtra<ComponentName>(COMPONENT_NAME_KEY)
                     ?: intent.getParcelableExtra(Constants.EXTRA_WATCH_FACE_COMPONENT)
-            val instanceId = intent.getStringExtra(INSTANCE_ID)!!
-            val userStyleKey = intent.getStringArrayExtra(USER_STYLE_KEYS)
+            val editorComponentName = intent.component ?: ComponentName("?", "?")
+            val instanceId = intent.getStringExtra(INSTANCE_ID_KEY)
+            val userStyleKey = intent.getStringArrayExtra(USER_STYLE_KEY)
             val userStyleValue = intent.getStringArrayExtra(USER_STYLE_VALUES)
             return componentName?.let {
                 if (userStyleKey != null && userStyleValue != null &&
@@ -59,6 +77,7 @@ public class EditorRequest(
                 ) {
                     EditorRequest(
                         componentName,
+                        editorComponentName,
                         instanceId,
                         HashMap<String, String>().apply {
                             for (i in userStyleKey.indices) {
@@ -67,15 +86,10 @@ public class EditorRequest(
                         }
                     )
                 } else {
-                    EditorRequest(componentName, instanceId, null)
+                    EditorRequest(componentName, editorComponentName, instanceId, null)
                 }
             }
         }
-
-        internal const val COMPONENT_NAME_KEY: String = "COMPONENT_NAME_KEY"
-        internal const val INSTANCE_ID: String = "INSTANCE_ID"
-        internal const val USER_STYLE_KEYS: String = "USER_STYLE_KEYS"
-        internal const val USER_STYLE_VALUES: String = "USER_STYLE_VALUES"
     }
 }
 
@@ -84,12 +98,21 @@ public class EditorRequest(
  */
 public class EditorResult(
     /** The updated style, see [UserStyle]. */
-    public val userStyle: Map<String, String>
-) {
-    internal companion object {
-        internal const val USER_STYLE_KEY: String = "USER_STYLE_KEY"
-    }
-}
+    public val userStyle: Map<String, String>,
+
+    /**
+     * The preview [ComplicationData] used by the editor, which can be used by a headless client to
+     * take an updated screen shot.
+     */
+    public val previewComplicationData: Map<Int, ComplicationData>,
+
+    /**
+     * Unique ID for the instance of the watch face being edited, only defined for Android R and
+     * beyond, it's `null` on Android P and earlier. Note each distinct [ComponentName] can have
+     * multiple instances.
+     */
+    public val watchFaceInstanceId: String?
+)
 
 /** An [ActivityResultContract] for invoking a watch face editor. */
 public open class WatchFaceEditorContract : ActivityResultContract<EditorRequest, EditorResult>() {
@@ -99,23 +122,50 @@ public open class WatchFaceEditorContract : ActivityResultContract<EditorRequest
             "androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR"
     }
 
-    override fun createIntent(context: Context, input: EditorRequest): Intent =
-        Intent(ACTION_WATCH_FACE_EDITOR).apply {
-            putExtra(EditorRequest.COMPONENT_NAME_KEY, input.watchFaceComponentName)
-            putExtra(EditorRequest.INSTANCE_ID, input.watchFaceInstanceId)
+    // Required for testing.
+    internal open fun nullWatchFaceInstanceIdOK() =
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.R
+
+    override fun createIntent(
+        context: Context,
+        input: EditorRequest
+    ): Intent {
+        require(
+            input.watchFaceInstanceId != null || nullWatchFaceInstanceIdOK()
+        ) {
+            "watchFaceInstanceId must be set from Android R and above"
+        }
+        return Intent(ACTION_WATCH_FACE_EDITOR).apply {
+            component = input.editorComponentName
+            putExtra(COMPONENT_NAME_KEY, input.watchFaceComponentName)
+            putExtra(INSTANCE_ID_KEY, input.watchFaceInstanceId)
             input.initialUserStyle?.let {
-                putExtra(EditorRequest.USER_STYLE_KEYS, it.keys.toTypedArray())
-                putExtra(EditorRequest.USER_STYLE_VALUES, it.values.toTypedArray())
+                putExtra(USER_STYLE_KEY, it.keys.toTypedArray())
+                putExtra(USER_STYLE_VALUES, it.values.toTypedArray())
             }
         }
+    }
 
     override fun parseResult(resultCode: Int, intent: Intent?): EditorResult {
         val extras = intent!!.extras!!
         extras.classLoader = this::class.java.classLoader
         return EditorResult(
+            // Unmarshall the UserStyle.
             ParcelUtils.fromParcelable<UserStyleWireFormat>(
-                extras.getParcelable(EditorResult.USER_STYLE_KEY)!!
-            ).mUserStyle
+                extras.getParcelable(USER_STYLE_KEY)!!
+            ).mUserStyle,
+
+            // Unmarshall the preview Map<Int, ComplicationData>.
+            extras.getParcelableArray(PREVIEW_COMPLICATIONS_KEY)?.let {
+                it.map {
+                    ParcelUtils.fromParcelable<IdAndComplicationDataWireFormat>(it)
+                }.associateBy(
+                    { it.id },
+                    { it.complicationData.asApiComplicationData() }
+                )
+            } ?: emptyMap(),
+
+            extras.getString(INSTANCE_ID_KEY)
         )
     }
 }

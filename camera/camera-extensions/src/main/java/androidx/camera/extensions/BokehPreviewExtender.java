@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
-import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.BokehPreviewExtenderImpl;
 
 /**
@@ -69,7 +68,7 @@ public class BokehPreviewExtender extends PreviewExtender {
 
         VendorBokehPreviewExtender(Preview.Builder builder) {
             mImpl = new BokehPreviewExtenderImpl();
-            init(builder, mImpl, EffectMode.BOKEH);
+            init(builder, mImpl, Extensions.EXTENSION_MODE_BOKEH);
         }
     }
 

@@ -36,12 +36,13 @@ import androidx.car.app.versioning.CarAppApiLevels;
 
 /**
  * Container class for information about the app the host is connected to.
- * <p>
- * Hosts will use this information to provide the right level of compatibility, based on the
+ *
+ * <p>Hosts will use this information to provide the right level of compatibility, based on the
  * application's minimum and maximum API level and its own set of supported API levels.
- * <p>
- * The application minimum API level is defined in the application's manifest using the
+ *
+ * <p>The application minimum API level is defined in the application's manifest using the
  * following declaration.
+ *
  * <pre>{@code
  * <manifest ...>
  *   <application ...>
@@ -52,7 +53,6 @@ import androidx.car.app.versioning.CarAppApiLevels;
  *   </application>
  * </manifest>
  * }</pre>
- * <p>
  *
  * @see CarContext#getCarAppApiLevel()
  */
@@ -99,9 +99,9 @@ public final class AppInfo {
      * Creates an instance of {@link AppInfo} with the provided version information.
      *
      * @param minCarAppApiLevel    the minimal API level that can work with an app built with
-     *                             the library.
-     * @param latestCarAppApiLevel the latest API level the library supports.
-     * @param libraryVersion       the library artifact version.
+     *                             the library
+     * @param latestCarAppApiLevel the latest API level the library supports
+     * @param libraryVersion       the library artifact version
      */
     @VisibleForTesting
     public AppInfo(@CarAppApiLevel int minCarAppApiLevel, @CarAppApiLevel int latestCarAppApiLevel,

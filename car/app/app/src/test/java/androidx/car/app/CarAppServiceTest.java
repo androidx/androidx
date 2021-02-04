@@ -35,7 +35,7 @@ import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.testing.CarAppServiceController;
 import androidx.car.app.testing.TestCarContext;
-import androidx.car.app.utils.HostValidator;
+import androidx.car.app.validation.HostValidator;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
@@ -90,15 +90,17 @@ public final class CarAppServiceTest {
                     }
 
                     @Override
-                    public void configureHostValidator(
-                            @NonNull HostValidator.Builder hostValidatorBuilder) {
-                        hostValidatorBuilder.setAllowUnknownHostsEnabled(true);
+                    @NonNull
+                    public HostValidator createHostValidator() {
+                        return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR;
                     }
 
                     @Override
                     @NonNull
                     public Session onCreateSession() {
                         Session testSession = createTestSession();
+                        mCarContext = TestCarContext.createCarContext(
+                                ApplicationProvider.getApplicationContext());
                         CarAppServiceController.of(mCarContext, testSession, mCarAppService);
                         return testSession;
                     }
@@ -351,6 +353,8 @@ public final class CarAppServiceTest {
         HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName, hostApiLevel);
         carApp.onHandshakeCompleted(Bundleable.create(handshakeInfo), mock(IOnDoneCallback.class));
         carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
+
+        currentSession = mCarAppService.getCurrentSession();
         assertThat(currentSession.getCarContext().getCarService(
                 ScreenManager.class).getScreenStack()).hasSize(1);
     }

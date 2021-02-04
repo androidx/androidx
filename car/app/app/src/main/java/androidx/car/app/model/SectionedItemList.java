@@ -27,27 +27,13 @@ import java.util.Objects;
 /**
  * Represents an {@link ItemList} that is contained inside a section, for internal use only.
  */
-public class SectionedItemList {
+public final class SectionedItemList {
     @Keep
     @Nullable
     private final ItemList mItemList;
     @Keep
     @Nullable
     private final CarText mHeader;
-
-    /**
-     * Creates an instance of a {@link SectionedItemList} with the given {@code itemList} and
-     * {@code sectionHeader}.
-     *
-     * @deprecated use {@link #create(ItemList, CharSequence)} ()} instead.
-     */
-    // TODO(b/177591128): remove after host(s) no longer reference this.
-    @Deprecated
-    @NonNull
-    public static SectionedItemList create(
-            @NonNull ItemList itemList, @NonNull CarText sectionHeader) {
-        return new SectionedItemList(requireNonNull(itemList), requireNonNull(sectionHeader));
-    }
 
     /**
      * Creates an instance of a {@link SectionedItemList} with the given {@code itemList} and
@@ -60,16 +46,16 @@ public class SectionedItemList {
                 CarText.create(requireNonNull(sectionHeader)));
     }
 
-    /** Returns the {@link ItemList} for the section. */
-    @NonNull
+    /** Returns the {@link ItemList} for the section or {@code null} if not set. */
+    @Nullable
     public ItemList getItemList() {
-        return requireNonNull(mItemList);
+        return mItemList;
     }
 
-    /** Returns the title of the section. */
-    @NonNull
+    /** Returns the title of the section or {@code null} if not set */
+    @Nullable
     public CarText getHeader() {
-        return requireNonNull(mHeader);
+        return mHeader;
     }
 
     @Override
@@ -98,13 +84,12 @@ public class SectionedItemList {
     }
 
     private SectionedItemList(@Nullable ItemList itemList, @Nullable CarText header) {
-        this.mItemList = itemList;
-        this.mHeader = header;
+        mItemList = itemList;
+        mHeader = header;
     }
 
-    /** For serialization. */
     private SectionedItemList() {
-        this.mItemList = null;
-        this.mHeader = null;
+        mItemList = null;
+        mHeader = null;
     }
 }

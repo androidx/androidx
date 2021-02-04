@@ -11,6 +11,7 @@ package androidx.wear.watchface.style {
     ctor public UserStyle(java.util.Map<androidx.wear.watchface.style.UserStyleSetting,? extends androidx.wear.watchface.style.UserStyleSetting.Option> selectedOptions);
     ctor public UserStyle(androidx.wear.watchface.style.UserStyle userStyle);
     ctor public UserStyle(java.util.Map<java.lang.String,java.lang.String> userStyle, androidx.wear.watchface.style.UserStyleSchema styleSchema);
+    method public operator androidx.wear.watchface.style.UserStyleSetting.Option? get(androidx.wear.watchface.style.UserStyleSetting setting);
     method public java.util.Map<androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option> getSelectedOptions();
     method public java.util.Map<java.lang.String,java.lang.String> toMap();
     property public final java.util.Map<androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option> selectedOptions;
@@ -54,6 +55,8 @@ package androidx.wear.watchface.style {
     property public final android.graphics.drawable.Icon? icon;
     property public final String id;
     property public final java.util.List<androidx.wear.watchface.style.UserStyleSetting.Option> options;
+    field public static final androidx.wear.watchface.style.UserStyleSetting.Companion Companion;
+    field public static final int maxIdLength;
   }
 
   public static final class UserStyleSetting.BooleanUserStyleSetting extends androidx.wear.watchface.style.UserStyleSetting {
@@ -65,6 +68,9 @@ package androidx.wear.watchface.style {
     ctor public UserStyleSetting.BooleanUserStyleSetting.BooleanOption(boolean value);
     method public boolean getValue();
     property public final boolean value;
+  }
+
+  public static final class UserStyleSetting.Companion {
   }
 
   public static final class UserStyleSetting.ComplicationsUserStyleSetting extends androidx.wear.watchface.style.UserStyleSetting {
@@ -96,6 +102,16 @@ package androidx.wear.watchface.style {
     property public final java.util.Collection<androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay> complicationOverlays;
     property public final CharSequence displayName;
     property public final android.graphics.drawable.Icon? icon;
+  }
+
+  public static final class UserStyleSetting.CustomValueUserStyleSetting extends androidx.wear.watchface.style.UserStyleSetting {
+    ctor public UserStyleSetting.CustomValueUserStyleSetting(String defaultValue, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
+  }
+
+  public static final class UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption extends androidx.wear.watchface.style.UserStyleSetting.Option {
+    ctor public UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption(String customValue);
+    method public String getCustomValue();
+    property public final String customValue;
   }
 
   public static final class UserStyleSetting.DoubleRangeUserStyleSetting extends androidx.wear.watchface.style.UserStyleSetting {
@@ -140,8 +156,15 @@ package androidx.wear.watchface.style {
   public abstract static class UserStyleSetting.Option {
     ctor public UserStyleSetting.Option(String id);
     method public final String getId();
+    method public final androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption? toBooleanOption();
+    method public final androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption? toComplicationsOption();
+    method public final androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption? toCustomValueOption();
+    method public final androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption? toDoubleRangeOption();
+    method public final androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption? toListOption();
+    method public final androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption? toLongRangeOption();
     property public final String id;
     field public static final androidx.wear.watchface.style.UserStyleSetting.Option.Companion Companion;
+    field public static final int maxIdLength;
   }
 
   public static final class UserStyleSetting.Option.Companion {

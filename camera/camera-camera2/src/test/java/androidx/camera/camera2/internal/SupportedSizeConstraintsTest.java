@@ -30,6 +30,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.CamcorderProfile;
 import android.os.Build;
 import android.util.Size;
 
@@ -38,8 +39,11 @@ import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.compat.workaround.ExcludedSupportedSizesContainer;
+import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
+import androidx.camera.core.InitializationException;
+import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
@@ -47,6 +51,7 @@ import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.apache.maven.artifact.ant.shaded.ReflectionUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -85,6 +90,7 @@ public class SupportedSizeConstraintsTest {
 
     private final CamcorderProfileHelper mMockCamcorderProfileHelper =
             Mockito.mock(CamcorderProfileHelper.class);
+    private final CamcorderProfile mMockCamcorderProfile = Mockito.mock(CamcorderProfile.class);
 
     private final Size[] mSupportedSizes =
             new Size[]{
@@ -104,8 +110,10 @@ public class SupportedSizeConstraintsTest {
     private final CameraManagerCompat mCameraManager = CameraManagerCompat.from(mContext);
 
     @Before
-    public void setUp() {
-        when(mMockCamcorderProfileHelper.hasProfile(anyInt(), anyInt())).thenReturn(true);
+    public void setUp() throws IllegalAccessException {
+        ReflectionUtils.setVariableValueInObject(mMockCamcorderProfile, "videoFrameWidth", 3840);
+        ReflectionUtils.setVariableValueInObject(mMockCamcorderProfile, "videoFrameHeight", 2160);
+        when(mMockCamcorderProfileHelper.get(anyInt(), anyInt())).thenReturn(mMockCamcorderProfile);
     }
 
     @After
@@ -201,8 +209,20 @@ public class SupportedSizeConstraintsTest {
     }
 
     private void initCameraX(final FakeCameraFactory cameraFactory) {
+        CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
+                (context, cameraManager, availableCameraIds) -> {
+                    try {
+                        return new Camera2DeviceSurfaceManager(context,
+                                mMockCamcorderProfileHelper,
+                                (CameraManagerCompat) cameraManager, availableCameraIds);
+                    } catch (CameraUnavailableException e) {
+                        throw new InitializationException(e);
+                    }
+                };
+
         CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
                 Camera2Config.defaultConfig())
+                .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                 .setCameraFactoryProvider((ignored0, ignored1, ignored2) -> cameraFactory)
                 .build();
         CameraX.initialize(mContext, cameraXConfig);

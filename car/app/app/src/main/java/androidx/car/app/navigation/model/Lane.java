@@ -38,16 +38,14 @@ public final class Lane {
     @Keep
     private final List<LaneDirection> mDirections;
 
-    /** Constructs a new builder of {@link Lane}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
+    /**
+     * Returns the list of directions a driver can take from this {@link Lane}.
+     *
+     * @see Builder#addDirection(LaneDirection)
+     */
     @NonNull
     public List<LaneDirection> getDirections() {
-        return mDirections;
+        return CollectionUtils.emptyIfNull(mDirections);
     }
 
     @Override
@@ -75,7 +73,7 @@ public final class Lane {
     }
 
     Lane(List<LaneDirection> directions) {
-        this.mDirections = CollectionUtils.unmodifiableCopy(directions);
+        mDirections = CollectionUtils.unmodifiableCopy(directions);
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -90,7 +88,7 @@ public final class Lane {
         /**
          * Adds a direction a driver can take from this lane.
          *
-         * @throws NullPointerException if {@code direction} is {@code null}.
+         * @throws NullPointerException if {@code direction} is {@code null}
          */
         @NonNull
         public Builder addDirection(@NonNull LaneDirection direction) {

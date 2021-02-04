@@ -17,7 +17,7 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.os.Handler
-import androidx.camera.camera2.pipe.impl.Threads
+import androidx.camera.camera2.pipe.core.Threads
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope

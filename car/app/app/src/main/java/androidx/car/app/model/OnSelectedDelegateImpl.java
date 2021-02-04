@@ -71,7 +71,7 @@ public class OnSelectedDelegateImpl implements OnSelectedDelegate {
         private final OnSelectedListener mListener;
 
         OnSelectedListenerStub(OnSelectedListener listener) {
-            this.mListener = listener;
+            mListener = listener;
         }
 
         @Override

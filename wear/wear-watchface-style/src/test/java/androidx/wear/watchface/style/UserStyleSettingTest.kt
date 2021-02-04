@@ -18,6 +18,7 @@ package androidx.wear.watchface.style
 
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -72,5 +73,59 @@ class UserStyleSettingTest {
 
         assertThat(rangedUserStyleSetting.getOptionForId("1").id)
             .isEqualTo("1.0")
+    }
+
+    @Test
+    fun maximumUserStyleSettingIdLength() {
+        // OK.
+        DoubleRangeUserStyleSetting(
+            "x".repeat(UserStyleSetting.maxIdLength),
+            "",
+            "",
+            null,
+            0.0,
+            1.0,
+            1.0,
+            emptyList()
+        )
+
+        try {
+            // Not OK.
+            DoubleRangeUserStyleSetting(
+                "x".repeat(UserStyleSetting.maxIdLength + 1),
+                "",
+                "",
+                null,
+                0.0,
+                1.0,
+                1.0,
+                emptyList()
+            )
+            fail("Should have thrown an exception")
+        } catch (e: Exception) {
+            // Expected
+        }
+    }
+
+    @Test
+    fun maximumOptionIdLength() {
+        // OK.
+        UserStyleSetting.ListUserStyleSetting.ListOption(
+            "x".repeat(UserStyleSetting.Option.maxIdLength),
+            "",
+            null
+        )
+
+        try {
+            // Not OK.
+            UserStyleSetting.ListUserStyleSetting.ListOption(
+                "x".repeat(UserStyleSetting.Option.maxIdLength + 1),
+                "",
+                null
+            )
+            fail("Should have thrown an exception")
+        } catch (e: Exception) {
+            // Expected
+        }
     }
 }

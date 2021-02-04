@@ -66,9 +66,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
     private static final String TAG = "CameraExtensionActivity";
     private static final int PERMISSIONS_REQUEST_CODE = 42;
 
-    private static final CameraSelector CAMERA_SELECTOR =
-            new CameraSelector.Builder().requireLensFacing(
-                    CameraSelector.LENS_FACING_BACK).build();
+    private CameraSelector mCurrentCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
     boolean mPermissionsGranted = false;
     private CallbackToFutureAdapter.Completer<Boolean> mPermissionCompleter;
@@ -117,11 +115,9 @@ public class CameraExtensionsActivity extends AppCompatActivity
     /**
      * Sets up the appropriate UseCases.
      */
-    private void setupUseCases() {
-        Button button = findViewById(R.id.PhotoToggle);
+    private void bindUseCases() {
         ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder().setTargetName(
                 "ImageCapture");
-
         mImageCapture = imageCaptureBuilder.build();
 
         Preview.Builder previewBuilder = new Preview.Builder().setTargetName("Preview");
@@ -129,10 +125,23 @@ public class CameraExtensionsActivity extends AppCompatActivity
         mPreview = previewBuilder.build();
         mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
 
-        mCameraProvider.bindToLifecycle(this, CAMERA_SELECTOR, mImageCapture, mPreview);
+        mCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector,
+                mImageCapture, mPreview);
+    }
 
-        enableNextExtension();
-        button.setOnClickListener((view) -> enableNextExtension());
+    void setupButtons() {
+        Button btnToggleMode = findViewById(R.id.PhotoToggle);
+        Button btnSwitchCamera = findViewById(R.id.Switch);
+        btnToggleMode.setOnClickListener(view -> enableNextExtension());
+        btnSwitchCamera.setOnClickListener(view -> switchCameras());
+    }
+
+    void switchCameras() {
+        mCameraProvider.unbindAll();
+        mCurrentCameraSelector = (mCurrentCameraSelector == CameraSelector.DEFAULT_BACK_CAMERA)
+                ? CameraSelector.DEFAULT_FRONT_CAMERA : CameraSelector.DEFAULT_BACK_CAMERA;
+        bindUseCases();
+        enableExtension(mCurrentImageCaptureType);
     }
 
     @Extensions.ExtensionMode
@@ -253,7 +262,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
     void createUseCases() {
         ExtensionsManager.setExtensionsErrorListener((errorCode) ->
                 Log.d(TAG, "Extensions error in error code: " + errorCode));
-        setupUseCases();
+        bindUseCases();
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -303,7 +312,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
             return;
         }
 
-        mCamera = mCameraProvider.bindToLifecycle(this, CAMERA_SELECTOR);
+        mCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector);
         ListenableFuture<ExtensionsManager.ExtensionsAvailability> availability =
                 ExtensionsManager.init(getApplicationContext());
 
@@ -319,6 +328,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
                                 mExtensions = ExtensionsManager.getExtensions(
                                         getApplicationContext());
                                 createUseCases();
+                                enableNextExtension();
+                                setupButtons();
                                 break;
                             case LIBRARY_UNAVAILABLE_ERROR_LOADING:
                             case LIBRARY_UNAVAILABLE_MISSING_IMPLEMENTATION:

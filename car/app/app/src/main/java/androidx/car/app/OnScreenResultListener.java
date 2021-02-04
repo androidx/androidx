@@ -30,7 +30,8 @@ public interface OnScreenResultListener {
      * androidx.lifecycle.Lifecycle.State#DESTROYED}.
      *
      * @param result the result provided by the {@link Screen} that was pushed using {@link
-     *               ScreenManager#pushForResult}, or {@code null} if no result was set.
+     *               ScreenManager#pushForResult} or {@code null} if no result was set
+     *
      * @see Screen#setResult
      */
     void onScreenResult(@Nullable Object result);

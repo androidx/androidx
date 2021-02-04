@@ -53,6 +53,11 @@ tasks.withType(KotlinCompile).configureEach {
     }
 }
 
+tasks.withType(Test).configureEach {
+    // TODO: re-enable once b/177660733 is fixed.
+   it.systemProperty("androidx.room.compiler.processing.strict", "false")
+}
+
 androidx {
     name = "AndroidX Room XProcessor"
     type = LibraryType.ANNOTATION_PROCESSOR

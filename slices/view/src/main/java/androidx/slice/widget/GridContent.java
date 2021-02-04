@@ -55,9 +55,7 @@ import java.util.List;
 
 /**
  * Extracts information required to present content in a grid format from a slice.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)
 public class GridContent extends SliceContent {
 
@@ -73,7 +71,11 @@ public class GridContent extends SliceContent {
 
     private SliceItem mTitleItem;
 
-    public GridContent(SliceItem gridItem, int position) {
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public GridContent(@NonNull SliceItem gridItem, int position) {
         super(gridItem, position);
         populate(gridItem);
     }
@@ -131,7 +133,9 @@ public class GridContent extends SliceContent {
 
     /**
      * @return the title of this grid row, if it exists.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Nullable
     public CharSequence getTitle() {
         if (mTitleItem != null) {
@@ -144,7 +148,9 @@ public class GridContent extends SliceContent {
 
     /**
      * @return the list of cell content for this grid.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @NonNull
     public ArrayList<CellContent> getGridContent() {
         return mGridContent;
@@ -152,7 +158,9 @@ public class GridContent extends SliceContent {
 
     /**
      * @return the content intent item for this grid.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Nullable
     public SliceItem getContentIntent() {
         return mPrimaryAction;
@@ -160,7 +168,9 @@ public class GridContent extends SliceContent {
 
     /**
      * @return the see more item to use when not all items in the grid can be displayed.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Nullable
     public SliceItem getSeeMoreItem() {
         return mSeeMoreItem;
@@ -176,20 +186,25 @@ public class GridContent extends SliceContent {
 
     /**
      * @return whether the contents of this grid is just images.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public boolean isAllImages() {
         return mAllImages;
     }
 
     /**
      * @return the largest image size in this row, if there are images.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public int getLargestImageMode() {
         return mLargestImageMode;
     }
 
     /**
-     * @return the first image dimensions in this row, if there are images.
+     * @return the first image dimensions in this row, if there are images. If there are no images,
+     * return {-1, -1}.
      */
     @NonNull
     public Point getFirstImageSize(@NonNull Context context) {
@@ -227,32 +242,44 @@ public class GridContent extends SliceContent {
 
     /**
      * @return the max number of lines of text in the cells of this grid row.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public int getMaxCellLineCount() {
         return mMaxCellLineCount;
     }
 
     /**
      * @return whether this row contains an image.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public boolean hasImage() {
         return mFirstImage != null;
     }
 
     /**
      * @return whether this content is being displayed last in a list.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public boolean getIsLastIndex() { return mIsLastIndex; }
 
     /**
      * Sets whether this content is being displayed last in a list.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public void setIsLastIndex(boolean isLast) {
         mIsLastIndex = isLast;
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Override
-    public int getHeight(SliceStyle style, SliceViewPolicy policy) {
+    public int getHeight(@NonNull SliceStyle style, @NonNull SliceViewPolicy policy) {
         return style.getGridHeight(this, policy);
     }
 
@@ -275,14 +302,14 @@ public class GridContent extends SliceContent {
         private SliceItem mTitleItem;
         private SliceItem mToggleItem;
 
-        public CellContent(SliceItem cellItem) {
+        public CellContent(@NonNull SliceItem cellItem) {
             populate(cellItem);
         }
 
         /**
          * @return whether this row has content that is valid to display.
          */
-        public boolean populate(SliceItem cellItem) {
+        public boolean populate(@NonNull SliceItem cellItem) {
             final String format = cellItem.getFormat();
             if (!cellItem.hasHint(HINT_SHORTCUT)
                     && (FORMAT_SLICE.equals(format) || FORMAT_ACTION.equals(format))) {

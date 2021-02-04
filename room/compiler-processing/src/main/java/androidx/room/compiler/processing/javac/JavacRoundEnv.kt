@@ -16,12 +16,15 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.annotation.VisibleForTesting
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XRoundEnv
+import androidx.room.compiler.processing.XTypeElement
 import com.google.auto.common.MoreElements
 import javax.annotation.processing.RoundEnvironment
 
-@Suppress("VisibleForTests", "UnstableApiUsage")
+@Suppress("UnstableApiUsage")
+@VisibleForTesting
 internal class JavacRoundEnv(
     private val env: JavacProcessingEnv,
     val delegate: RoundEnvironment
@@ -34,10 +37,11 @@ internal class JavacRoundEnv(
     }
 
     // TODO this is only for tests but we may need to support more types of elements
-    override fun getElementsAnnotatedWith(klass: Class<out Annotation>): Set<XElement> {
+    override fun getTypeElementsAnnotatedWith(klass: Class<out Annotation>): Set<XTypeElement> {
         val result = delegate.getElementsAnnotatedWith(klass)
-        return result.map {
-            check(MoreElements.isType(it))
+        return result.filter {
+            MoreElements.isType(it)
+        }.map {
             env.wrapTypeElement(MoreElements.asType(it))
         }.toSet()
     }

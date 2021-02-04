@@ -1,0 +1,4 @@
+attr carColorPrimary
+attr carColorPrimaryDark
+attr carColorSecondary
+attr carColorSecondaryDark

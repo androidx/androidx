@@ -28,7 +28,8 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -63,7 +64,7 @@ fun ProfileWithDeepLink(navController: NavController, uri: String) {
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
         Text(text = stringResource(Screen.Profile.resourceId))
         Divider(color = Color.Black)
-        val state = savedInstanceState { "" }
+        val state = rememberSaveable { mutableStateOf("") }
         Box {
             TextField(
                 value = state.value,

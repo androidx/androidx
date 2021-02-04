@@ -2044,6 +2044,86 @@ class PageFetcherSnapshotTest {
         }
     }
 
+    /**
+     * The case where all pages from presenter have been dropped in fetcher, so instead of
+     * counting dropped pages against prefetchDistance, we should clamp that logic to only count
+     * pages that have been loaded.
+     */
+    @Test
+    fun doLoad_prependPresenterPagesDropped() = testScope.runBlockingTest {
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+        assertThat(fetcherState.newEvents()).containsExactly(
+            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            createRefresh(50..51)
+        )
+
+        // Send a hint from a presenter state that only sees pages well after the pages loaded in
+        // fetcher state:
+        // [hint], [50, 51], [52], [53], [54], [55]
+        fetcherState.pagingDataList[0].receiver.accessHint(
+            ViewportHint.Access(
+                pageOffset = 4,
+                indexInPage = -6,
+                presentedItemsBefore = -6,
+                presentedItemsAfter = 2,
+                originalPageOffsetFirst = 4,
+                originalPageOffsetLast = 6
+            )
+        )
+        advanceUntilIdle()
+
+        assertThat(fetcherState.newEvents()).containsExactly(
+            LoadStateUpdate<Int>(loadType = PREPEND, fromMediator = false, loadState = Loading),
+            createPrepend(pageOffset = -1, range = 49..49, startState = Loading),
+            createPrepend(pageOffset = -2, range = 48..48, startState = NotLoading.Incomplete),
+        )
+
+        fetcherState.job.cancel()
+    }
+
+    /**
+     * The case where all pages from presenter have been dropped in fetcher, so instead of
+     * counting dropped pages against prefetchDistance, we should clamp that logic to only count
+     * pages that have been loaded.
+     */
+    @Test
+    fun doLoad_appendPresenterPagesDropped() = testScope.runBlockingTest {
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+        assertThat(fetcherState.newEvents()).containsExactly(
+            LoadStateUpdate<Int>(REFRESH, false, Loading),
+            createRefresh(50..51)
+        )
+
+        // Send a hint from a presenter state that only sees pages well before the pages loaded in
+        // fetcher state:
+        // [46], [47], [48], [49], [50, 51], [hint]
+        fetcherState.pagingDataList[0].receiver.accessHint(
+            ViewportHint.Access(
+                pageOffset = -4,
+                indexInPage = 6,
+                presentedItemsBefore = 2,
+                presentedItemsAfter = -6,
+                originalPageOffsetFirst = -6,
+                originalPageOffsetLast = -4
+            )
+        )
+        advanceUntilIdle()
+
+        assertThat(fetcherState.newEvents()).containsExactly(
+            LoadStateUpdate<Int>(loadType = APPEND, fromMediator = false, loadState = Loading),
+            createAppend(pageOffset = 1, range = 52..52, endState = Loading),
+            createAppend(pageOffset = 2, range = 53..53, endState = NotLoading.Incomplete),
+        )
+
+        fetcherState.job.cancel()
+    }
+
     @Test
     fun remoteMediator_initialLoadErrorTriggersLocal() = testScope.runBlockingTest {
         @OptIn(ExperimentalPagingApi::class)
@@ -2265,7 +2345,7 @@ class PageFetcherSnapshotTest {
             remoteMediator = remoteMediator
         )
 
-        val expected = listOf(
+        val expected: List<List<PageEvent<Int>>> = listOf(
             listOf(
                 LoadStateUpdate(
                     loadType = REFRESH,
@@ -2579,7 +2659,7 @@ class PageFetcherSnapshotTest {
             remoteMediator = remoteMediator
         )
 
-        val expected = listOf(
+        val expected: List<List<PageEvent<Int>>> = listOf(
             listOf(
                 LoadStateUpdate(
                     loadType = REFRESH,

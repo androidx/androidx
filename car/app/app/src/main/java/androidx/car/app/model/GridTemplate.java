@@ -24,7 +24,6 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.model.constraints.CarIconConstraints;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -59,44 +58,56 @@ public final class GridTemplate implements Template {
     @Keep
     @Nullable
     private final ActionStrip mActionStrip;
-    @Keep
-    @Nullable
-    private final CarIcon mBackgroundImage;
 
-    /** Constructs a new builder of {@link GridTemplate}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public boolean isLoading() {
-        return mIsLoading;
-    }
-
+    /**
+     * Returns the title of the template or {@code null} if not set.
+     *
+     * @see Builder#setTitle(CharSequence)
+     */
     @Nullable
     public CarText getTitle() {
         return mTitle;
     }
 
+    /**
+     * Returns the {@link Action} that is set to be displayed in the header of the template, or
+     * {@code null} if not set.
+     *
+     * @see Builder#setHeaderAction(Action)
+     */
     @Nullable
     public Action getHeaderAction() {
         return mHeaderAction;
     }
 
-    @Nullable
-    public ItemList getSingleList() {
-        return mSingleList;
-    }
-
+    /**
+     * Returns the {@link ActionStrip} for this template or {@code null} if not set.
+     *
+     * @see Builder#setActionStrip(ActionStrip)
+     */
     @Nullable
     public ActionStrip getActionStrip() {
         return mActionStrip;
     }
 
+    /**
+     * Returns whether the template is loading.
+     *
+     * @see Builder#setLoading(boolean)
+     */
+    public boolean isLoading() {
+        return mIsLoading;
+    }
+
+    /**
+     * Returns the {@link ItemList} instance that contains the grid items to display or {@code
+     * null} if not set.
+     *
+     * @see Builder#setSingleList(ItemList)
+     */
     @Nullable
-    public CarIcon getBackgroundImage() {
-        return mBackgroundImage;
+    public ItemList getSingleList() {
+        return mSingleList;
     }
 
     @NonNull
@@ -107,8 +118,7 @@ public final class GridTemplate implements Template {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mIsLoading, mTitle, mHeaderAction, mSingleList, mActionStrip,
-                mBackgroundImage);
+        return Objects.hash(mIsLoading, mTitle, mHeaderAction, mSingleList, mActionStrip);
     }
 
     @Override
@@ -125,8 +135,7 @@ public final class GridTemplate implements Template {
                 && Objects.equals(mTitle, otherTemplate.mTitle)
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
                 && Objects.equals(mSingleList, otherTemplate.mSingleList)
-                && Objects.equals(mActionStrip, otherTemplate.mActionStrip)
-                && Objects.equals(mBackgroundImage, otherTemplate.mBackgroundImage);
+                && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
     }
 
     GridTemplate(Builder builder) {
@@ -135,7 +144,6 @@ public final class GridTemplate implements Template {
         mHeaderAction = builder.mHeaderAction;
         mSingleList = builder.mSingleList;
         mActionStrip = builder.mActionStrip;
-        mBackgroundImage = builder.mBackgroundImage;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -145,7 +153,6 @@ public final class GridTemplate implements Template {
         mHeaderAction = null;
         mSingleList = null;
         mActionStrip = null;
-        mBackgroundImage = null;
     }
 
     /** A builder of {@link GridTemplate}. */
@@ -160,10 +167,6 @@ public final class GridTemplate implements Template {
         @Nullable
         ActionStrip mActionStrip;
 
-        /** For internal, host-side use only. */
-        @Nullable
-        CarIcon mBackgroundImage;
-
         /**
          * Sets whether the template is in a loading state.
          *
@@ -175,42 +178,50 @@ public final class GridTemplate implements Template {
          */
         @NonNull
         public Builder setLoading(boolean isLoading) {
-            this.mIsLoading = isLoading;
+            mIsLoading = isLoading;
             return this;
         }
 
         /**
-         * Sets the {@link Action} that will be displayed in the header of the template, or
-         * {@code null} to not display an action.
+         * Sets the {@link Action} that will be displayed in the header of the template.
+         *
+         * <p>Unless set with this method, the template will not have a header action.
          *
          * <h4>Requirements</h4>
          *
-         * This template only supports either either one of {@link Action#APP_ICON} and {@link
-         * Action#BACK} as a header {@link Action}.
+         * This template only supports either one of {@link Action#APP_ICON} and
+         * {@link Action#BACK} as a header {@link Action}.
          *
          * @throws IllegalArgumentException if {@code headerAction} does not meet the template's
-         *                                  requirements.
+         *                                  requirements
+         * @throws NullPointerException     if {@code headerAction} is {@code null}
          */
         @NonNull
-        public Builder setHeaderAction(@Nullable Action headerAction) {
-            ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
-                    headerAction == null ? Collections.emptyList()
-                            : Collections.singletonList(headerAction));
-            this.mHeaderAction = headerAction;
+        public Builder setHeaderAction(@NonNull Action headerAction) {
+            ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(Collections.singletonList(headerAction));
+            mHeaderAction = headerAction;
             return this;
         }
 
-        /** Sets the {@link CharSequence} to show as title, or {@code null} to not show a title. */
+        /**
+         * Sets the title of the template.
+         *
+         * <p>Unless set with this method, the template will not have a title.
+         *
+         * <p>Spans are not supported in the input string.
+         *
+         * @throws NullPointerException if {@code title} is null
+         */
         @NonNull
-        public Builder setTitle(@Nullable CharSequence title) {
-            this.mTitle = title == null ? null : CarText.create(title);
+        public Builder setTitle(@NonNull CharSequence title) {
+            mTitle = CarText.create(requireNonNull(title));
             return this;
         }
 
         /**
          * Sets a single {@link ItemList} to show in the template.
          *
-         * @throws NullPointerException if {@code list} is null.
+         * @throws NullPointerException if {@code list} is null
          */
         @NonNull
         public Builder setSingleList(@NonNull ItemList list) {
@@ -219,8 +230,9 @@ public final class GridTemplate implements Template {
         }
 
         /**
-         * Sets the {@link ActionStrip} for this template, or {@code null} to not display an {@link
-         * ActionStrip}.
+         * Sets the {@link ActionStrip} for this template.
+         *
+         * <p>Unless set with this method, the template will not have an action strip.
          *
          * <h4>Requirements</h4>
          *
@@ -228,25 +240,13 @@ public final class GridTemplate implements Template {
          * {@link Action}s, one of them can contain a title as set via
          * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
          *
-         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements.
+         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
+         * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @NonNull
-        public Builder setActionStrip(@Nullable ActionStrip actionStrip) {
-            ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(
-                    actionStrip == null ? Collections.emptyList() : actionStrip.getActionList());
-            this.mActionStrip = actionStrip;
-            return this;
-        }
-
-        /**
-         * Sets a {@link CarIcon} to be shown as background of the template.
-         *
-         * <p>For internal, host-side use only.
-         */
-        @NonNull
-        public Builder setBackgroundImage(@Nullable CarIcon backgroundImage) {
-            CarIconConstraints.UNCONSTRAINED.validateOrThrow(backgroundImage);
-            this.mBackgroundImage = backgroundImage;
+        public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
+            ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
+            mActionStrip = actionStrip;
             return this;
         }
 
@@ -261,11 +261,10 @@ public final class GridTemplate implements Template {
          * <p>Either a header {@link Action} or title must be set on the template.
          *
          * @throws IllegalStateException    if the template is in a loading state but there are
-         *                                  lists added, or vice versa.
+         *                                  lists added, or vice versa, or if the template does not
+         *                                  have either a title or header {@link Action} set.
          * @throws IllegalArgumentException if the added {@link ItemList} does not meet the
          *                                  template's requirements.
-         * @throws IllegalStateException    if the template does not have either a title or header
-         *                                  {@link Action} set.
          */
         @NonNull
         public GridTemplate build() {
@@ -276,7 +275,7 @@ public final class GridTemplate implements Template {
             }
 
             if (mSingleList != null) {
-                for (Item gridItemObject : mSingleList.getItemList()) {
+                for (Item gridItemObject : mSingleList.getItems()) {
                     if (!(gridItemObject instanceof GridItem)) {
                         throw new IllegalArgumentException(
                                 "All the items in grid template's item list must be grid items");

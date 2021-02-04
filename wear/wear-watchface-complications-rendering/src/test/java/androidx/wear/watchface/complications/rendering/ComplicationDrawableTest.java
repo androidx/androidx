@@ -59,7 +59,7 @@ import androidx.wear.watchface.WatchState;
 import androidx.wear.watchface.style.UserStyleRepository;
 import androidx.wear.watchface.style.UserStyleSchema;
 
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -71,6 +71,8 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+
+import kotlin.coroutines.Continuation;
 
 /** Tests for {@link ComplicationDrawable}. */
 @RunWith(ComplicationsTestRunner.class)
@@ -713,11 +715,11 @@ public class ComplicationDrawableTest {
             ApplicationProvider.getApplicationContext().startActivity(intent);
         }
 
-        @NonNull
+        @Nullable
         @Override
-        protected WatchFace createWatchFace(
-                @NotNull SurfaceHolder surfaceHolder,
-                @NotNull WatchState watchState) {
+        protected Object createWatchFace(@NonNull SurfaceHolder surfaceHolder,
+                @NonNull WatchState watchState,
+                @NonNull Continuation<? super WatchFace> completion) {
             UserStyleRepository userStyleRepository =
                     new UserStyleRepository(new UserStyleSchema(new ArrayList<>()));
             return new WatchFace(

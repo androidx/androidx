@@ -20,13 +20,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /**
- * An {@link Exception} that notates a failure in serializing/de-serializing to/from a bundle.
+ * An {@link Exception} that notates a failure in serializing or deserialized to or from a bundle.
  */
 public class BundlerException extends Exception {
     public BundlerException(@Nullable String msg, @NonNull Throwable e) {
         super(msg, e);
     }
-
     public BundlerException(@Nullable String msg) {
         super(msg);
     }

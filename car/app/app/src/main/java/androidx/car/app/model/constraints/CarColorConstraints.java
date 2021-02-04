@@ -31,7 +31,7 @@ import java.util.HashSet;
  * @hide
  */
 @RestrictTo(Scope.LIBRARY)
-public class CarColorConstraints {
+public final class CarColorConstraints {
 
     @NonNull
     public static final CarColorConstraints UNCONSTRAINED =
@@ -70,7 +70,7 @@ public class CarColorConstraints {
     /**
      * Returns {@code true} if the {@link CarColor} meets the constraints' requirement.
      *
-     * @throws IllegalArgumentException if the color type is not allowed.
+     * @throws IllegalArgumentException if the color type is not allowed
      */
     public void validateOrThrow(@NonNull CarColor carColor) {
         @CarColorType int type = carColor.getType();
@@ -80,9 +80,9 @@ public class CarColorConstraints {
     }
 
     private CarColorConstraints(int[] allowedColorTypes) {
-        this.mAllowedTypes = new HashSet<>();
+        mAllowedTypes = new HashSet<>();
         for (int type : allowedColorTypes) {
-            this.mAllowedTypes.add(type);
+            mAllowedTypes.add(type);
         }
     }
 }

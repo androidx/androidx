@@ -38,13 +38,12 @@ import java.util.Objects;
 /**
  * Represents a grid item with an image and an optional title.
  */
-public class GridItem implements Item {
+public final class GridItem implements Item {
     /**
      * The type of images supported within grid items.
      *
      * @hide
      */
-    // TODO(shiufai): investigate how to expose IntDefs if needed.
     @RestrictTo(LIBRARY)
     @IntDef(value = {IMAGE_TYPE_ICON, IMAGE_TYPE_LARGE})
     @Retention(RetentionPolicy.SOURCE)
@@ -55,8 +54,7 @@ public class GridItem implements Item {
      * Represents an icon to be displayed in the grid item.
      *
      * <p>If necessary, icons will be scaled down to fit within a 64 x 64 dp bounding box,
-     * preserving
-     * their aspect ratios.
+     * preserving their aspect ratios.
      *
      * <p>A tint color is expected to be provided via {@link CarIcon.Builder#setTint}. Otherwise, a
      * default tint color as determined by the host will be applied.
@@ -85,39 +83,45 @@ public class GridItem implements Item {
     @Keep
     @GridItemImageType
     private final int mImageType;
-    @SuppressWarnings("deprecation")
-    @Keep
-    @Nullable
-    private final OnClickListenerWrapper mOnClickListener;
     @Keep
     @Nullable
     private final OnClickDelegate mOnClickDelegate;
 
-    /** Constructs a new builder of {@link GridItem}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /** Returns whether the grid item is loading. */
+    /**
+     * Returns whether the grid item is in a loading state.
+     *
+     * @see Builder#setLoading(boolean)
+     */
     public boolean isLoading() {
         return mIsLoading;
     }
 
-    /** Returns the title of the grid item. */
-    @NonNull
+    /**
+     * Returns the title of the grid item or {@code null} if not set.
+     *
+     * @see Builder#setTitle(CharSequence)
+     */
+    @Nullable
     public CarText getTitle() {
-        return requireNonNull(mTitle);
+        return mTitle;
     }
 
-    /** Returns the list of text below the title. */
+    /**
+     * Returns the text to display below the title or {@code null} if no text will be displayed
+     * below the title.
+     *
+     * @see Builder#setText(CharSequence)
+     */
     @Nullable
     public CarText getText() {
         return mText;
     }
 
-    /** Returns the image of the grid item. */
+    /**
+     * Returns the image of the grid item or {@code null} if not set.
+     *
+     * @see Builder#setImage(CarIcon)
+     */
     @Nullable
     public CarIcon getImage() {
         return mImage;
@@ -130,21 +134,7 @@ public class GridItem implements Item {
     }
 
     /**
-     * Returns the {@link OnClickListener} to be called back when the grid item is clicked, or
-     * {@code null} if the grid item is non-clickable.
-     *
-     * @deprecated use {@link #getOnClickDelegate} instead.
-     */
-    // TODO(b/177591476): remove after host references have been cleaned up.
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    @Nullable
-    public OnClickListenerWrapper getOnClickListener() {
-        return mOnClickListener;
-    }
-
-    /**
-     * Returns the {@link OnClickDelegate} to be called back when the grid item is clicked, or
+     * Returns the {@link OnClickDelegate} to be called back when the grid item is clicked or
      * {@code null} if the grid item is non-clickable.
      */
     @Nullable
@@ -195,7 +185,6 @@ public class GridItem implements Item {
         mText = builder.mText;
         mImage = builder.mImage;
         mImageType = builder.mImageType;
-        mOnClickListener = builder.mOnClickListener;
         mOnClickDelegate = builder.mOnClickDelegate;
     }
 
@@ -206,7 +195,6 @@ public class GridItem implements Item {
         mText = null;
         mImage = null;
         mImageType = IMAGE_TYPE_LARGE;
-        mOnClickListener = null;
         mOnClickDelegate = null;
     }
 
@@ -220,9 +208,6 @@ public class GridItem implements Item {
         CarIcon mImage;
         @GridItemImageType
         int mImageType = IMAGE_TYPE_LARGE;
-        @SuppressWarnings("deprecation")
-        @Nullable
-        OnClickListenerWrapper mOnClickListener;
         @Nullable
         OnClickDelegate mOnClickDelegate;
         boolean mIsLoading;
@@ -237,15 +222,19 @@ public class GridItem implements Item {
          */
         @NonNull
         public Builder setLoading(boolean isLoading) {
-            this.mIsLoading = isLoading;
+            mIsLoading = isLoading;
             return this;
         }
 
         /**
          * Sets the title of the row.
          *
-         * @throws NullPointerException     if {@code title} is {@code null}.
-         * @throws IllegalArgumentException if {@code title} is empty.
+         * <p>Unless set with this method, the grid item will not have an title.
+         *
+         * <p>Spans are not supported in the input string.
+         *
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} is empty
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
@@ -253,32 +242,40 @@ public class GridItem implements Item {
             if (titleText.isEmpty()) {
                 throw new IllegalArgumentException("The title cannot be null or empty");
             }
-            this.mTitle = titleText;
+            mTitle = titleText;
             return this;
         }
 
         /**
-         * Sets the text string to the grid item that is displayed below the title, or {@code
-         * null} to not show any text below the title.
+         * Sets a secondary text string to the grid item that is displayed below the title.
+         *
+         * <p>Unless set with this method, the grid item will not have a secondary text string.
+         *
+         * <p>The text's color can be customized with {@link ForegroundCarColorSpan} instances, any
+         * other spans will be ignored by the host.
          *
          * <h2>Text Wrapping</h2>
          *
-         * This text is truncated at the end to fit in a single line below the title.
+         * This text is truncated at the end to fit in a single line below the title
+         *
+         * @throws NullPointerException if {@code text} is {@code null}
          */
         @NonNull
-        public Builder setText(@Nullable CharSequence text) {
-            this.mText = text == null ? null : CarText.create(text);
+        public Builder setText(@NonNull CharSequence text) {
+            mText = CarText.create(requireNonNull(text));
             return this;
         }
 
         /**
          * Sets an image to show in the grid item with the default size {@link #IMAGE_TYPE_LARGE}.
          *
+         * @throws NullPointerException if {@code image} is {@code null}
+         *
          * @see #setImage(CarIcon, int)
          */
         @NonNull
         public Builder setImage(@NonNull CarIcon image) {
-            return setImage(image, IMAGE_TYPE_LARGE);
+            return setImage(requireNonNull(image), IMAGE_TYPE_LARGE);
         }
 
         /**
@@ -298,14 +295,16 @@ public class GridItem implements Item {
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
          *
-         * @param image     the {@link CarIcon} to display.
-         * @param imageType one of {@link #IMAGE_TYPE_ICON} or {@link #IMAGE_TYPE_LARGE}.
+         * @param image     the {@link CarIcon} to display
+         * @param imageType one of {@link #IMAGE_TYPE_ICON} or {@link #IMAGE_TYPE_LARGE}
+         *
+         * @throws NullPointerException if {@code image} is {@code null}
          */
         @NonNull
         public Builder setImage(@NonNull CarIcon image, @GridItemImageType int imageType) {
-            CarIconConstraints.UNCONSTRAINED.validateOrThrow(image);
-            this.mImage = image;
-            this.mImageType = imageType;
+            CarIconConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(image));
+            mImage = image;
+            mImageType = imageType;
             return this;
         }
 
@@ -314,25 +313,23 @@ public class GridItem implements Item {
          * {@code null} to make the grid item non-clickable.
          *
          * <p>Note that the listener relates to UI events and will be executed on the main thread
-         * using {@link Looper#getMainLooper()}.
+         * using {@link Looper#getMainLooper()}
+         *
+         * @throws NullPointerException if {@code onClickListener} is {@code null}
          */
         @NonNull
-        @SuppressLint("ExecutorRegistration")
-        public Builder setOnClickListener(@Nullable OnClickListener onClickListener) {
-            mOnClickListener = onClickListener == null ? null :
-                    OnClickListenerWrapperImpl.create(onClickListener);
-            mOnClickDelegate = onClickListener == null ? null : OnClickDelegateImpl.create(
-                    onClickListener);
+        @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
+        public Builder setOnClickListener(@NonNull OnClickListener onClickListener) {
+            mOnClickDelegate = OnClickDelegateImpl.create(onClickListener);
             return this;
         }
 
         /**
          * Constructs the {@link GridItem} defined by this builder.
          *
-         * @throws IllegalStateException if the grid item's title is not set.
-         * @throws IllegalStateException if the grid item's image is set when it is loading and vice
-         *                               versa.
-         * @throws IllegalStateException if the grid item is loading but the click listener is set.
+         * @throws IllegalStateException if the grid item's title is not set, if the grid item's
+         *                               image is set when it is loading or vice versa, or if
+         *                               the grid item is loading but the click listener is set
          */
         @NonNull
         public GridItem build() {

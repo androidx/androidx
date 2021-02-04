@@ -40,17 +40,18 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class NightModeRotateDoesNotRecreateActivityTestCase(private val setMode: NightSetMode) {
+public class NightModeRotateDoesNotRecreateActivityTestCase(private val setMode: NightSetMode) {
     @get:Rule
-    val activityRule = NightModeActivityTestRule(
-        NightModeRotateDoesNotRecreateActivity::class.java,
-        initialTouchMode = false,
-        // Let the test method launch its own activity so that we can ensure it's RESUMED.
-        launchActivity = false
-    )
+    public val activityRule: NightModeActivityTestRule<NightModeRotateDoesNotRecreateActivity> =
+        NightModeActivityTestRule(
+            NightModeRotateDoesNotRecreateActivity::class.java,
+            initialTouchMode = false,
+            // Let the test method launch its own activity so that we can ensure it's RESUMED.
+            launchActivity = false
+        )
 
     @After
-    fun teardown() {
+    public fun teardown() {
         // Clean up after the default mode test.
         if (setMode == NightSetMode.DEFAULT) {
             activityRule.runOnUiThread {
@@ -60,7 +61,7 @@ class NightModeRotateDoesNotRecreateActivityTestCase(private val setMode: NightS
     }
 
     @Test
-    fun testRotateDoesNotRecreateActivity() {
+    public fun testRotateDoesNotRecreateActivity() {
         // Don't run this test on SDK 26 because it has issues with setRequestedOrientation. Also
         // don't run it on SDK 24 (Nexus Player) or SDK 23 (Pixel C) because those devices only
         // support a single orientation and there doesn't seem to be a way to query supported
@@ -77,6 +78,9 @@ class NightModeRotateDoesNotRecreateActivityTestCase(private val setMode: NightS
 
         val nightModeActivity = activityRule.activity
         val config = nightModeActivity.resources.configuration
+
+        // On API level 26 and below, the configuration object is going to be identical
+        // across configuration changes, so we need to pull the orientation value now.
         val orientation = config.orientation
 
         // Assert that the current Activity is 'dark'.
@@ -99,10 +103,10 @@ class NightModeRotateDoesNotRecreateActivityTestCase(private val setMode: NightS
         assertNotSame(orientation, rotatedConfig.orientation)
     }
 
-    companion object {
+    public companion object {
         @JvmStatic
         @Parameterized.Parameters
-        fun data() = if (Build.VERSION.SDK_INT >= 17) {
+        public fun data(): List<NightSetMode> = if (Build.VERSION.SDK_INT >= 17) {
             listOf(NightSetMode.DEFAULT, NightSetMode.LOCAL)
         } else {
             listOf(NightSetMode.DEFAULT)

@@ -75,9 +75,7 @@ final class SupportedSurfaceCombination {
     private static final Size MAX_PREVIEW_SIZE = new Size(1920, 1080);
     private static final Size DEFAULT_SIZE = new Size(640, 480);
     private static final Size ZERO_SIZE = new Size(0, 0);
-    private static final Size QUALITY_2160P_SIZE = new Size(3840, 2160);
     private static final Size QUALITY_1080P_SIZE = new Size(1920, 1080);
-    private static final Size QUALITY_720P_SIZE = new Size(1280, 720);
     private static final Size QUALITY_480P_SIZE = new Size(720, 480);
     private static final int ALIGN16 = 16;
     private static final Rational ASPECT_RATIO_4_3 = new Rational(4, 3);
@@ -1211,18 +1209,12 @@ final class SupportedSurfaceCombination {
         try {
             int cameraId = Integer.parseInt(mCameraId);
 
-            // Check whether 2160P, 1080P, 720P, 480P are supported by CamcorderProfile
-            if (mCamcorderProfileHelper.hasProfile(cameraId, CamcorderProfile.QUALITY_2160P)) {
-                recordSize = QUALITY_2160P_SIZE;
-            } else if (mCamcorderProfileHelper.hasProfile(cameraId,
-                    CamcorderProfile.QUALITY_1080P)) {
-                recordSize = QUALITY_1080P_SIZE;
-            } else if (mCamcorderProfileHelper.hasProfile(cameraId,
-                    CamcorderProfile.QUALITY_720P)) {
-                recordSize = QUALITY_720P_SIZE;
-            } else if (mCamcorderProfileHelper.hasProfile(cameraId,
-                    CamcorderProfile.QUALITY_480P)) {
-                recordSize = QUALITY_480P_SIZE;
+            // Quality levels QUALITY_LOW, QUALITY_HIGH are guaranteed to be supported.
+            CamcorderProfile profile = mCamcorderProfileHelper.get(cameraId,
+                    CamcorderProfile.QUALITY_HIGH);
+
+            if (profile != null) {
+                recordSize = new Size(profile.videoFrameWidth, profile.videoFrameHeight);
             }
         } catch (NumberFormatException e) {
             // The camera Id is not an integer because the camera may be a removable device. Use

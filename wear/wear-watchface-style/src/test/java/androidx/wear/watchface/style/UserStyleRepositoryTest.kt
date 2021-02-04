@@ -16,9 +16,11 @@
 
 package androidx.wear.watchface.style
 
-import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -219,5 +221,76 @@ class UserStyleRepositoryTest {
 
         assertThat(userStyle.selectedOptions[colorStyleSetting]!!.id).isEqualTo("red_style")
         assertThat(userStyle.selectedOptions[watchHandStyleSetting]!!.id).isEqualTo("gothic_style")
+    }
+
+    @Test
+    fun userStyle_mapConstructor_customValueUserStyleSetting() {
+        val customStyleSetting = CustomValueUserStyleSetting(
+            "default",
+            listOf(Layer.BASE_LAYER)
+        )
+
+        val userStyleRepository = UserStyleRepository(
+            UserStyleSchema(
+                listOf(customStyleSetting)
+            )
+        )
+
+        val userStyle = UserStyle(
+            mapOf(
+                CustomValueUserStyleSetting.CUSTOM_VALUE_USER_STYLE_SETTING_ID to "TEST 123"
+            ),
+            userStyleRepository.schema
+        )
+
+        val customValue = userStyle.selectedOptions[customStyleSetting]!! as
+            UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption
+        assertThat(customValue.customValue).isEqualTo("TEST 123")
+    }
+
+    @Test
+    fun userStyle_multiple_CustomValueUserStyleSettings_notAllowed() {
+        val customStyleSetting1 = CustomValueUserStyleSetting(
+            "default",
+            listOf(Layer.BASE_LAYER)
+        )
+        val customStyleSetting2 = CustomValueUserStyleSetting(
+            "default",
+            listOf(Layer.BASE_LAYER)
+        )
+
+        try {
+            UserStyleSchema(
+                listOf(customStyleSetting1, customStyleSetting2)
+            )
+            fail(
+                "Constructing a UserStyleSchema with more than one CustomValueUserStyleSetting " +
+                    "should fail"
+            )
+        } catch (e: Exception) {
+            // expected
+        }
+    }
+
+    @Test
+    fun setAndGetCustomStyleSetting() {
+        val customStyleSetting = CustomValueUserStyleSetting(
+            "default",
+            listOf(Layer.BASE_LAYER)
+        )
+
+        val userStyleRepository = UserStyleRepository(
+            UserStyleSchema(
+                listOf(customStyleSetting)
+            )
+        )
+
+        userStyleRepository.userStyle = UserStyle(
+            mapOf(customStyleSetting to CustomValueUserStyleSetting.CustomValueOption("test"))
+        )
+
+        assertThat(
+            userStyleRepository.userStyle[customStyleSetting]?.toCustomValueOption()!!.customValue
+        ).isEqualTo("test")
     }
 }

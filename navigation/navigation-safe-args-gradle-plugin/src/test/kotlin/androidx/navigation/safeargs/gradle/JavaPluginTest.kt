@@ -49,7 +49,7 @@ class JavaPluginTest : BasePluginTest() {
                 }
 
                 dependencies {
-                    implementation "${projectSetup.props.navigationCommon}"
+                    implementation "${projectSetup.props.navigationRuntime}"
                 }
             """.trimIndent()
         )

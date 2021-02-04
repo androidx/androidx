@@ -205,33 +205,16 @@ public suspend fun Fragment.authenticateWithClass2Biometrics(
 }
 
 /**
- * Creates a [Class2BiometricAuthPrompt] with the given parameters.
- */
-private fun buildClass2BiometricAuthPrompt(
-    title: CharSequence,
-    negativeButtonText: CharSequence,
-    subtitle: CharSequence? = null,
-    description: CharSequence? = null,
-    confirmationRequired: Boolean = true,
-): Class2BiometricAuthPrompt = Class2BiometricAuthPrompt.Builder(title, negativeButtonText)
-    .apply {
-        subtitle?.let { setSubtitle(it) }
-        description?.let { setDescription(it) }
-        setConfirmationRequired(confirmationRequired)
-    }
-    .build()
-
-/**
  * Creates a [Class2BiometricAuthPrompt] with the given parameters and starts authentication.
  */
 private fun startClass2BiometricAuthenticationInternal(
     host: AuthPromptHost,
     title: CharSequence,
     negativeButtonText: CharSequence,
-    subtitle: CharSequence? = null,
-    description: CharSequence? = null,
-    confirmationRequired: Boolean = true,
-    executor: Executor? = null,
+    subtitle: CharSequence?,
+    description: CharSequence?,
+    confirmationRequired: Boolean,
+    executor: Executor?,
     callback: AuthPromptCallback
 ): AuthPrompt {
     val prompt = buildClass2BiometricAuthPrompt(
@@ -248,3 +231,20 @@ private fun startClass2BiometricAuthenticationInternal(
         prompt.startAuthentication(host, executor, callback)
     }
 }
+
+/**
+ * Creates a [Class2BiometricAuthPrompt] with the given parameters.
+ */
+private fun buildClass2BiometricAuthPrompt(
+    title: CharSequence,
+    negativeButtonText: CharSequence,
+    subtitle: CharSequence?,
+    description: CharSequence?,
+    confirmationRequired: Boolean,
+): Class2BiometricAuthPrompt = Class2BiometricAuthPrompt.Builder(title, negativeButtonText)
+    .apply {
+        subtitle?.let { setSubtitle(it) }
+        description?.let { setDescription(it) }
+        setConfirmationRequired(confirmationRequired)
+    }
+    .build()

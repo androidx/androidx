@@ -18,7 +18,6 @@ package androidx.room.writer
 
 import COMMON
 import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.processor.DaoProcessor
 import androidx.room.testing.TestProcessor
 import com.google.common.truth.Truth

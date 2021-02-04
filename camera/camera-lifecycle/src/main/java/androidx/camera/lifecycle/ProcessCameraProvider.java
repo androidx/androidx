@@ -135,7 +135,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      *
      * @return A future which will contain the {@link ProcessCameraProvider}. Cancellation of
      * this future is a no-op. This future may fail with an {@link InitializationException} and
-     * associated cause that can be retrieved by {@link Throwable#getCause()). The cause will be
+     * associated cause that can be retrieved by {@link Throwable#getCause()}. The cause will be
      * a {@link androidx.camera.core.CameraUnavailableException} if it fails to access any camera
      * during initialization.
      * @throws IllegalStateException if CameraX fails to initialize via a default provider or a
@@ -168,7 +168,9 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      *
      * <p>Configuration can only occur once. Once the ProcessCameraProvider has been configured with
      * {@code configureInstance()} or {@link #getInstance(Context)}, this method will throw
-     * an {@link IllegalStateException}.
+     * an {@link IllegalStateException}. Because configuration can only occur once, <b>usage of this
+     * method from library code is not recommended</b> as the application owner should ultimately
+     * be in control of singleton configuration.
      *
      * @param cameraXConfig configuration options for the singleton process camera provider
      *                      instance.

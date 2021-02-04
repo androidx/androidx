@@ -25,7 +25,7 @@ import androidx.annotation.Nullable;
 import java.util.Objects;
 
 /** Represents a geographical location and additional information on how to display it. */
-public class Place {
+public final class Place {
     @Keep
     @Nullable
     private final CarLocation mLocation;
@@ -34,52 +34,25 @@ public class Place {
     private final PlaceMarker mMarker;
 
     /**
-     * Create a builder for a {@link Place} instance.
+     * Returns the {@link PlaceMarker} object associated with this place or {@code null} if one
+     * is not set.
      *
-     * @param latLng the geographical location associated with the place.
-     * @throws NullPointerException if {@code latLng} is {@code null}.
-     * @deprecated use {@link Place.Builder#Builder(CarLocation)} instead.
+     * @see Builder#setMarker(PlaceMarker)
      */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @Deprecated
-    @NonNull
-    public static Builder builder(@NonNull LatLng latLng) {
-        return new Builder(requireNonNull(latLng));
-    }
-
-    /**
-     * Returns a {@link Builder} instance with the same data as this {@link Place} instance.
-     * @deprecated use constructor.
-     */
-    // TODO(b/177484889): remove once host is changed to use new public ctor.
-    @NonNull
-    @Deprecated
-    public Builder newBuilder() {
-        return new Builder(this);
-    }
-
     @Nullable
     public PlaceMarker getMarker() {
         return mMarker;
     }
 
     /**
-     * @deprecated use {@link #getLocation()} instead.
+     * Returns the {@link CarLocation} instance associated with this place or {@code null} if one
+     * is not set.
+     *
+     * @see Builder#Builder(CarLocation)
      */
-    // TODO(b/177591131): remove after all host references have been removed.
-    @Deprecated
-    @NonNull
-    public LatLng getLatLng() {
-        requireNonNull(mLocation);
-        return LatLng.create(mLocation.getLatitude(), mLocation.getLongitude());
-    }
-
-    /**
-     * @return the {@link CarLocation} set for this Place instance.
-     */
-    @NonNull
+    @Nullable
     public CarLocation getLocation() {
-        return requireNonNull(mLocation);
+        return mLocation;
     }
 
     @Override
@@ -125,26 +98,28 @@ public class Place {
         PlaceMarker mMarker;
 
         /**
-         * Returns a builder instance for a {@link LatLng}.
-         *
-         * @param latLng the geographical location associated with the place.
-         * @throws NullPointerException if {@code latLng} is {@code null}.
-         * @deprecated use {@link #Builder(CarLocation)} instead.
-         */
-        // TODO(b/177591131): remove after all host references have been removed.
-        @Deprecated
-        public Builder(@NonNull LatLng latLng) {
-            this(CarLocation.create(latLng.getLatitude(), latLng.getLongitude()));
-        }
-
-        /**
          * Returns a builder instance for a {@link CarLocation}.
          *
-         * @param location the geographical location associated with the place.
-         * @throws NullPointerException if {@code location} is {@code null}.
+         * @param location the geographical location associated with the place
+         *
+         * @throws NullPointerException if {@code location} is {@code null}
          */
         public Builder(@NonNull CarLocation location) {
             mLocation = Objects.requireNonNull(location);
+        }
+
+        /**
+         * Sets the {@link PlaceMarker} that specifies how this place is to be displayed on a
+         * map.
+         *
+         * <p>Unless set with this method, the place will not have a marker.
+         *
+         * @throws NullPointerException if {@code marker} is {@code null}
+         */
+        @NonNull
+        public Builder setMarker(@NonNull PlaceMarker marker) {
+            mMarker = requireNonNull(marker);
+            return this;
         }
 
         /**
@@ -155,18 +130,6 @@ public class Place {
             requireNonNull(place);
             mLocation = place.getLocation();
             mMarker = place.getMarker();
-        }
-
-        /**
-         * Sets the {@link PlaceMarker} that specifies how this place is to be displayed on a
-         * map, or {@code null} to not display a marker for this place.
-         *
-         * <p>By default and unless otherwise set in this method, a marker will not be displayed.
-         */
-        @NonNull
-        public Builder setMarker(@Nullable PlaceMarker marker) {
-            this.mMarker = marker;
-            return this;
         }
 
         /** Constructs the {@link Place} defined by this builder. */

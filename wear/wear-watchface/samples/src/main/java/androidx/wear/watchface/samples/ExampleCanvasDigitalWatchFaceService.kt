@@ -464,7 +464,7 @@ fun Byte.toUnsigned(): Int {
 
 /** A simple example canvas based digital watch face. */
 class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
-    override fun createWatchFace(
+    override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState
     ): WatchFace {
@@ -752,7 +752,7 @@ class ExampleDigitalWatchCanvasRenderer(
                     watchFaceColorStyle =
                         WatchFaceColorStyle.create(
                             context,
-                            userStyle.selectedOptions[colorStyleSetting]!!.id
+                            userStyle[colorStyleSetting]!!.id
                         )
 
                     // Apply the userStyle to the complications. ComplicationDrawables for each of

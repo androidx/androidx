@@ -105,7 +105,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
             .failsToCompile()
             .withErrorContaining(
                 ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD +
-                    " - getFoo() in test.library.MissingAnnotationsBaseDao"
+                    " - test.library.MissingAnnotationsBaseDao.getFoo()"
             )
     }
 
@@ -418,7 +418,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                     )
                     .nextRunHandler { invocation ->
                         val dao = invocation.roundEnv
-                            .getElementsAnnotatedWith(
+                            .getTypeElementsAnnotatedWith(
                                 androidx.room.Dao::class.java
                             )
                             .first()

@@ -94,6 +94,20 @@ public class TypefaceCompat {
     }
 
     /**
+     * Returns Typeface if the system has the font family with the name [familyName]. For example
+     * querying with "sans-serif" would check if the "sans-serif" family is defined in the system
+     * and return the Typeface if so.
+     *
+     * @param familyName The name of the font family.
+     */
+    private static Typeface getSystemFontFamily(@Nullable String familyName) {
+        if (familyName == null || familyName.isEmpty()) return null;
+        Typeface typeface = Typeface.create(familyName, Typeface.NORMAL);
+        Typeface defaultTypeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL);
+        return typeface != null && !typeface.equals(defaultTypeface) ? typeface : null;
+    }
+
+    /**
      * Create Typeface from XML resource which root node is font-family.
      *
      * @return null if failed to create.
@@ -109,6 +123,16 @@ public class TypefaceCompat {
         Typeface typeface;
         if (entry instanceof ProviderResourceEntry) {
             ProviderResourceEntry providerEntry = (ProviderResourceEntry) entry;
+
+            Typeface fontFamilyTypeface = getSystemFontFamily(
+                    providerEntry.getSystemFontFamilyName());
+            if (fontFamilyTypeface != null) {
+                if (fontCallback != null) {
+                    fontCallback.callbackSuccessAsync(fontFamilyTypeface, handler);
+                }
+                return fontFamilyTypeface;
+            }
+
             final boolean isBlocking = isRequestFromLayoutInflator
                     ? providerEntry.getFetchStrategy()
                     == FontResourcesParserCompat.FETCH_STRATEGY_BLOCKING

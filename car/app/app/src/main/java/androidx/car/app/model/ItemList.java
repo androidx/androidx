@@ -50,7 +50,7 @@ public final class ItemList {
          * <p>This event is called even if the selection did not change, for example, if the user
          * selected an already selected item.
          *
-         * @param selectedIndex the index of the newly selected item.
+         * @param selectedIndex the index of the newly selected item
          */
         void onSelected(int selectedIndex);
     }
@@ -64,9 +64,9 @@ public final class ItemList {
          * first item in a list is visible, the start and end indices would be 0 and 1,
          * respectively. If no items are visible, the indices will be set to -1.
          *
-         * @param startIndex the index of the first item that is visible.
+         * @param startIndex the index of the first item that is visible
          * @param endIndex   the index of the first item that is not visible after the visible
-         *                   range.
+         *                   range
          */
         void onItemVisibilityChanged(int startIndex, int endIndex);
     }
@@ -75,17 +75,9 @@ public final class ItemList {
     private final int mSelectedIndex;
     @Keep
     private final List<Item> mItems;
-    @SuppressWarnings("deprecation")
-    @Keep
-    @Nullable
-    private final OnSelectedListenerWrapper mOnSelectedListener;
     @Keep
     @Nullable
     private final OnSelectedDelegate mOnSelectedDelegate;
-    @SuppressWarnings("deprecation")
-    @Keep
-    @Nullable
-    private final OnItemVisibilityChangedListenerWrapper mOnItemVisibilityChangedListener;
     @Keep
     @Nullable
     private final OnItemVisibilityChangedDelegate mOnItemVisibilityChangedDelegate;
@@ -93,64 +85,42 @@ public final class ItemList {
     @Nullable
     private final CarText mNoItemsMessage;
 
-    /** Constructs a new builder of {@link ItemList}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /** Returns the index of the selected item of the list. */
+    /**
+     * Returns the index of the selected item of the list.
+     *
+     * @see Builder#setSelectedIndex(int)
+     */
     public int getSelectedIndex() {
         return mSelectedIndex;
     }
 
     /**
-     * Returns the {@link OnSelectedListenerWrapper} to be called when when an item is selected
-     * by the user, or {@code null} is the list is non-selectable.
+     * Returns the {@link OnSelectedDelegate} to be called when when an item is selected
+     * by the user or {@code null} is the list is non-selectable.
      *
-     * @deprecated use {@link #getOnSelectedDelegate()} instead.
-     */
-    // TODO(b/177591476): remove after host references have been cleaned up.
-    @Deprecated
-    @SuppressWarnings("deprecation")
-    @Nullable
-    public OnSelectedListenerWrapper getOnSelectedListener() {
-        return mOnSelectedListener;
-    }
-
-    /**
-     * Returns the {@link OnSelectedListenerWrapper} to be called when when an item is selected
-     * by the user, or {@code null} is the list is non-selectable.
+     * @see Builder#setOnSelectedListener(OnSelectedListener)
      */
     @Nullable
     public OnSelectedDelegate getOnSelectedDelegate() {
         return mOnSelectedDelegate;
     }
 
-    /** Returns the text to be displayed if the list is empty. */
+    /**
+     * Returns the app-supplied text to be displayed if the list is empty or {@code null} if the
+     * default text will be used by the host.
+     *
+     * @see Builder#setNoItemsMessage(CharSequence)
+     */
     @Nullable
     public CarText getNoItemsMessage() {
         return mNoItemsMessage;
     }
 
     /**
-     * Returns the {@link OnItemVisibilityChangedListenerWrapper} to be called when the visible
-     * items in the list changes.
-     *
-     * @deprecated use {@link #getOnItemVisibilityChangedDelegate()} instead.
-     */
-    // TODO(b/177591476): remove after host references have been cleaned up.
-    @Deprecated
-    @SuppressWarnings("deprecation")
-    @Nullable
-    public OnItemVisibilityChangedListenerWrapper getOnItemsVisibilityChangedListener() {
-        return mOnItemVisibilityChangedListener;
-    }
-
-    /**
      * Returns the {@link OnItemVisibilityChangedDelegate} to be called when the visible
-     * items in the list changes.
+     * items in the list changes or {@code null} if one hasn't been set.
+     *
+     * @see Builder#setOnItemsVisibilityChangedListener(OnItemVisibilityChangedListener)
      */
     @Nullable
     public OnItemVisibilityChangedDelegate getOnItemVisibilityChangedDelegate() {
@@ -160,21 +130,11 @@ public final class ItemList {
     /**
      * Returns the list of items in this {@link ItemList}.
      *
-     * @deprecated use {@link #getItemList()} instead.
+     * @see Builder#addItem(Item)
      */
-    // TODO(b/177591128): remove after host(s) no longer reference this.
-    @SuppressWarnings("unchecked")
-    @Deprecated
     @NonNull
-    public List<Object> getItems() {
-        return (List<Object>) (List<? extends Object>) mItems;
-    }
-
-    /** Returns the list of items in this {@link ItemList}. */
-    // TODO(b/177591128): rename back to getItems after removal of the deprecated API.
-    @NonNull
-    public List<Item> getItemList() {
-        return mItems;
+    public List<Item> getItems() {
+        return CollectionUtils.emptyIfNull(mItems);
     }
 
     @Override
@@ -222,9 +182,7 @@ public final class ItemList {
         mSelectedIndex = builder.mSelectedIndex;
         mItems = CollectionUtils.unmodifiableCopy(builder.mItems);
         mNoItemsMessage = builder.mNoItemsMessage;
-        mOnSelectedListener = builder.mOnSelectedListener;
         mOnSelectedDelegate = builder.mOnSelectedDelegate;
-        mOnItemVisibilityChangedListener = builder.mOnItemVisibilityChangedListener;
         mOnItemVisibilityChangedDelegate = builder.mOnItemVisibilityChangedDelegate;
     }
 
@@ -233,15 +191,13 @@ public final class ItemList {
         mSelectedIndex = 0;
         mItems = Collections.emptyList();
         mNoItemsMessage = null;
-        mOnSelectedListener = null;
         mOnSelectedDelegate = null;
-        mOnItemVisibilityChangedListener = null;
         mOnItemVisibilityChangedDelegate = null;
     }
 
 
     @Nullable
-    static OnClickDelegate getOnClickListener(Item item) {
+    static OnClickDelegate getOnClickDelegate(Item item) {
         if (item instanceof Row) {
             return ((Row) item).getOnClickDelegate();
         } else if (item instanceof GridItem) {
@@ -264,14 +220,8 @@ public final class ItemList {
     public static final class Builder {
         final List<Item> mItems = new ArrayList<>();
         int mSelectedIndex;
-        @SuppressWarnings("deprecation")
-        @Nullable
-        OnSelectedListenerWrapper mOnSelectedListener;
         @Nullable
         OnSelectedDelegate mOnSelectedDelegate;
-        @SuppressWarnings("deprecation")
-        @Nullable
-        OnItemVisibilityChangedListenerWrapper mOnItemVisibilityChangedListener;
         @Nullable
         OnItemVisibilityChangedDelegate mOnItemVisibilityChangedDelegate;
         @Nullable
@@ -283,21 +233,15 @@ public final class ItemList {
          *
          * <p>Note that the listener relates to UI events and will be executed on the main thread
          * using {@link Looper#getMainLooper()}.
+         *
+         * @throws NullPointerException if {@code itemVisibilityChangedListener} is {@code null}
          */
         @NonNull
-        @SuppressLint("ExecutorRegistration")
+        @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
         public Builder setOnItemsVisibilityChangedListener(
-                @Nullable OnItemVisibilityChangedListener itemVisibilityChangedListener) {
-            mOnItemVisibilityChangedListener =
-                    itemVisibilityChangedListener == null
-                            ? null
-                            : OnItemVisibilityChangedListenerWrapperImpl.create(
-                                    itemVisibilityChangedListener);
-            mOnItemVisibilityChangedDelegate =
-                    itemVisibilityChangedListener == null
-                            ? null
-                            : OnItemVisibilityChangedDelegateImpl.create(
-                                    itemVisibilityChangedListener);
+                @NonNull OnItemVisibilityChangedListener itemVisibilityChangedListener) {
+            mOnItemVisibilityChangedDelegate = OnItemVisibilityChangedDelegateImpl.create(
+                    itemVisibilityChangedListener);
             return this;
         }
 
@@ -315,17 +259,14 @@ public final class ItemList {
          * and the host implementation. For example, some templates may display the list as a
          * radio button group, while others may highlight the selected item's background.
          *
+         * @throws NullPointerException if {@code onSelectedListener} is {@code null}
+         *
          * @see #setSelectedIndex(int)
          */
         @NonNull
-        @SuppressLint("ExecutorRegistration")
-        public Builder setOnSelectedListener(@Nullable OnSelectedListener onSelectedListener) {
-            mOnSelectedListener =
-                    onSelectedListener == null ? null :
-                            OnSelectedListenerWrapperImpl.create(onSelectedListener);
-            mOnSelectedDelegate =
-                    onSelectedListener == null ? null :
-                            OnSelectedDelegateImpl.create(onSelectedListener);
+        @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
+        public Builder setOnSelectedListener(@NonNull OnSelectedListener onSelectedListener) {
+            mOnSelectedDelegate = OnSelectedDelegateImpl.create(onSelectedListener);
             return this;
         }
 
@@ -341,9 +282,9 @@ public final class ItemList {
         public Builder setSelectedIndex(@IntRange(from = 0) int selectedIndex) {
             if (selectedIndex < 0) {
                 throw new IllegalArgumentException(
-                        "The item index must be larger than or equal to 0.");
+                        "The item index must be larger than or equal to 0");
             }
-            this.mSelectedIndex = selectedIndex;
+            mSelectedIndex = selectedIndex;
             return this;
         }
 
@@ -352,17 +293,21 @@ public final class ItemList {
          *
          * <p>If the list is empty and the app does not explicitly set the message with this
          * method, the host will show a default message.
+         *
+         * <p>Spans are not supported in the input string.
+         *
+         * @throws NullPointerException if {@code noItemsMessage} is {@code null}
          */
         @NonNull
-        public Builder setNoItemsMessage(@Nullable CharSequence noItemsMessage) {
-            this.mNoItemsMessage = noItemsMessage == null ? null : CarText.create(noItemsMessage);
+        public Builder setNoItemsMessage(@NonNull CharSequence noItemsMessage) {
+            mNoItemsMessage = CarText.create(requireNonNull(noItemsMessage));
             return this;
         }
 
         /**
          * Adds an item to the list.
          *
-         * @throws NullPointerException if {@code item} is {@code null}.
+         * @throws NullPointerException if {@code item} is {@code null}
          */
         @NonNull
         public Builder addItem(@NonNull Item item) {
@@ -373,15 +318,15 @@ public final class ItemList {
         /**
          * Constructs the item list defined by this builder.
          *
-         * @throws IllegalStateException if the list is selectable but does not have any items.
-         * @throws IllegalStateException if the selected index is greater or equal to the size of
-         *                               the list.
-         * @throws IllegalStateException if the list is selectable and any items have either one of
-         *                               their {@link OnClickListener} or {@link Toggle} set.
+         * @throws IllegalStateException if the list is selectable but does not have any items, if
+         *                               the selected index is greater or equal to the size of the
+         *                               list, or if the list is selectable and any items have
+         *                               either one of their {@link OnClickListener} or
+         *                               {@link Toggle} set
          */
         @NonNull
         public ItemList build() {
-            if (mOnSelectedListener != null) {
+            if (mOnSelectedDelegate != null) {
                 int listSize = mItems.size();
                 if (listSize == 0) {
                     throw new IllegalStateException("A selectable list cannot be empty");
@@ -396,7 +341,7 @@ public final class ItemList {
 
                 // Check that no items have disallowed elements if the list is selectable.
                 for (Item item : mItems) {
-                    if (getOnClickListener(item) != null) {
+                    if (getOnClickDelegate(item) != null) {
                         throw new IllegalStateException(
                                 "Items that belong to selectable lists can't have an "
                                         + "onClickListener. Use the OnSelectedListener of the list "

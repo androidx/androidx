@@ -32,7 +32,12 @@ plugins {
 dependencies {
     kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
     implementation(KOTLIN_STDLIB)
+
+    compileOnly projectOrArtifact(":annotation:annotation-sampled")
+    implementation projectOrArtifact(":compose:foundation:foundation")
     implementation projectOrArtifact(":activity:activity-compose")
+    implementation projectOrArtifact(":activity:activity-ktx")
+    implementation projectOrArtifact(":compose:material:material")
 }
 
 androidx {

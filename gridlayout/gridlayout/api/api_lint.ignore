@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+GetterSetterNames: androidx.gridlayout.widget.GridLayout#getUseDefaultMargins():
+    Symmetric method for `setUseDefaultMargins` must be named `isUseDefaultMargins`; was `getUseDefaultMargins`
+
+
 MissingNullability: androidx.gridlayout.widget.GridLayout#BASELINE:
     Missing nullability on field `BASELINE` in class `class androidx.gridlayout.widget.GridLayout`
 MissingNullability: androidx.gridlayout.widget.GridLayout#BOTTOM:

@@ -56,6 +56,16 @@ public class MediaRouterParams {
     public @interface DialogType {}
 
     /**
+     * Bundle key used for setting the cast icon fixed regardless of its connection state.
+     *
+     * <p>TYPE: boolean
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final String EXTRAS_KEY_FIXED_CAST_ICON =
+            "androidx.mediarouter.media.MediaRouterParams.FIXED_CAST_ICON";
+
+    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)

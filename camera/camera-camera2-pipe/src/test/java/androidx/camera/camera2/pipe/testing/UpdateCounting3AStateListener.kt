@@ -18,7 +18,7 @@ package androidx.camera.camera2.pipe.testing
 
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.RequestNumber
-import androidx.camera.camera2.pipe.impl.Result3AStateListener
+import androidx.camera.camera2.pipe.graph.Result3AStateListener
 
 /**
  * Wrapper on Result3AStateListenerImpl to keep track of the number of times the update method is

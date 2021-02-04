@@ -46,8 +46,10 @@ public final class CarAppPermission {
     }
 
     /**
-     * Permission that apps can use to get access to a canvas surface. This surface can be used for
-     * drawing custom content like navigation apps can use it to draw a map.
+     * Permission that apps can use to get access to a canvas surface.
+     *
+     * <p>This surface can be used for drawing custom content like navigation apps can use it to
+     * draw a map.
      */
     public static final String ACCESS_SURFACE = "androidx.car.app.ACCESS_SURFACE";
 
@@ -80,7 +82,7 @@ public final class CarAppPermission {
     /**
      * Checks that the car app has the given {@code permission} granted.
      *
-     * @throws SecurityException if the app does not have a required permission granted.
+     * @throws SecurityException if the app does not have a required permission granted
      */
     public static void checkHasPermission(@NonNull Context context, @NonNull String permission) {
         if (context.getPackageManager().checkPermission(permission, context.getPackageName())
@@ -98,7 +100,7 @@ public final class CarAppPermission {
      * <p>In contrast to {@link #checkHasPermission}, this method will validate that the app has at
      * least declared the permission requested.
      *
-     * @throws SecurityException if the app does not have the required permission declared.
+     * @throws SecurityException if the app does not have the required permission declared
      */
     public static void checkHasLibraryPermission(
             @NonNull Context context, @NonNull @LibraryPermission String permission) {

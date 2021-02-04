@@ -29,7 +29,7 @@ import androidx.car.app.model.Row;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class RowConstraints {
+public final class RowConstraints {
     @NonNull
     public static final RowConstraints UNCONSTRAINED = new RowConstraints.Builder().build();
 
@@ -78,15 +78,6 @@ public class RowConstraints {
     private final boolean mIsOnClickListenerAllowed;
     private final CarIconConstraints mCarIconConstraints;
 
-    /**
-     * Returns a new {@link Builder}.
-     */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     /** Returns whether the row can have a click listener associated with it. */
     public boolean isOnClickListenerAllowed() {
         return mIsOnClickListenerAllowed;
@@ -121,7 +112,7 @@ public class RowConstraints {
     /**
      * Validates that the given row satisfies this {@link RowConstraints} instance.
      *
-     * @throws IllegalArgumentException if the constraints are not met.
+     * @throws IllegalArgumentException if the constraints are not met
      */
     public void validateOrThrow(@NonNull Row row) {
         if (!mIsOnClickListenerAllowed && row.getOnClickDelegate() != null) {
@@ -169,42 +160,42 @@ public class RowConstraints {
         /** Sets whether the row can have a click listener associated with it. */
         @NonNull
         public Builder setOnClickListenerAllowed(boolean isOnClickListenerAllowed) {
-            this.mIsOnClickListenerAllowed = isOnClickListenerAllowed;
+            mIsOnClickListenerAllowed = isOnClickListenerAllowed;
             return this;
         }
 
         /** Sets the maximum number lines of text, excluding the title, to render in the row. */
         @NonNull
         public Builder setMaxTextLinesPerRow(int maxTextLinesPerRow) {
-            this.mMaxTextLines = maxTextLinesPerRow;
+            mMaxTextLines = maxTextLinesPerRow;
             return this;
         }
 
         /** Sets the maximum number actions to allowed in a row that consists only of actions. */
         @NonNull
         public Builder setMaxActionsExclusive(int maxActionsExclusive) {
-            this.mMaxActionsExclusive = maxActionsExclusive;
+            mMaxActionsExclusive = maxActionsExclusive;
             return this;
         }
 
         /** Sets whether an image can be added to the row. */
         @NonNull
         public Builder setImageAllowed(boolean imageAllowed) {
-            this.mIsImageAllowed = imageAllowed;
+            mIsImageAllowed = imageAllowed;
             return this;
         }
 
         /** Sets whether a toggle can be added to the row. */
         @NonNull
         public Builder setToggleAllowed(boolean toggleAllowed) {
-            this.mIsToggleAllowed = toggleAllowed;
+            mIsToggleAllowed = toggleAllowed;
             return this;
         }
 
         /** Sets the {@link CarIconConstraints} enforced for the row images. */
         @NonNull
         public Builder setCarIconConstraints(@NonNull CarIconConstraints carIconConstraints) {
-            this.mCarIconConstraints = carIconConstraints;
+            mCarIconConstraints = carIconConstraints;
             return this;
         }
 
@@ -224,7 +215,7 @@ public class RowConstraints {
          * Returns a new builder that contains the same data as the given {@link RowConstraints}
          * instance.
          *
-         * @throws NullPointerException if {@code latLng} is {@code null}.
+         * @throws NullPointerException if {@code latLng} is {@code null}
          */
         public Builder(@NonNull RowConstraints constraints) {
             requireNonNull(constraints);

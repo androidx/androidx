@@ -41,6 +41,14 @@ GetterOnBuilder: androidx.appcompat.app.AlertDialog.Builder#getContext():
     Getter should be on the built object, not the builder: method androidx.appcompat.app.AlertDialog.Builder.getContext()
 
 
+GetterSetterNames: androidx.appcompat.view.ActionMode#getTitleOptionalHint():
+    Symmetric method for `setTitleOptionalHint` must be named `isTitleOptionalHint`; was `getTitleOptionalHint`
+GetterSetterNames: androidx.appcompat.widget.SwitchCompat#getShowText():
+    Symmetric method for `setShowText` must be named `isShowText`; was `getShowText`
+GetterSetterNames: androidx.appcompat.widget.SwitchCompat#getSplitTrack():
+    Symmetric method for `setSplitTrack` must be named `isSplitTrack`; was `getSplitTrack`
+
+
 ListenerLast: androidx.appcompat.app.AlertDialog.Builder#setCursor(android.database.Cursor, android.content.DialogInterface.OnClickListener, String) parameter #2:
     Listeners should always be at end of argument list (method `setCursor`)
 
@@ -647,8 +655,6 @@ MissingNullability: androidx.appcompat.widget.AppCompatCheckedTextView#setCustom
     Missing nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`
 MissingNullability: androidx.appcompat.widget.AppCompatCheckedTextView#setTextAppearance(android.content.Context, int) parameter #0:
     Missing nullability on parameter `context` in method `setTextAppearance`
-MissingNullability: androidx.appcompat.widget.AppCompatEditText#onCreateInputConnection(android.view.inputmethod.EditorInfo):
-    Missing nullability on method `onCreateInputConnection` return
 MissingNullability: androidx.appcompat.widget.AppCompatEditText#onCreateInputConnection(android.view.inputmethod.EditorInfo) parameter #0:
     Missing nullability on parameter `outAttrs` in method `onCreateInputConnection`
 MissingNullability: androidx.appcompat.widget.AppCompatEditText#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:

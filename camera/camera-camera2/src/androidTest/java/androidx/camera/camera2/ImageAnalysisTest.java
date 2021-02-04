@@ -57,8 +57,10 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
@@ -137,13 +139,23 @@ public final class ImageAnalysisTest {
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
                 .setImageQueueDepth(queueDepth)
                 .build();
+        List<ImageProxy> imageProxyList = new ArrayList<>();
         useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler),
-                image -> semaphore.release());
+                image -> {
+                    imageProxyList.add(image);
+                    semaphore.release();
+                });
         // Act.
         mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
                 CameraSelector.DEFAULT_FRONT_CAMERA, useCase);
         // Assert: waiting for images does not crash.
         assertThat(semaphore.tryAcquire(queueDepth + 1, /*timeout=*/1, TimeUnit.SECONDS)).isFalse();
+
+        // Clean it up.
+        useCase.clearAnalyzer();
+        for (ImageProxy image : imageProxyList) {
+            image.close();
+        }
     }
 
     @Test

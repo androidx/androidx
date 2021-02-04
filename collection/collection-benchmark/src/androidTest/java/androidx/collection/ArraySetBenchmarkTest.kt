@@ -19,6 +19,7 @@ package androidx.collection
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
@@ -73,7 +74,7 @@ class ArraySetBenchmarkTest(size: Int, sparse: Boolean) {
         // Split the set into two lists, one with elements in the created set, one not.
         val src = sourceSet.toList()
         val inList = src.slice(0 until src.size / 2)
-        var outList = src.slice(src.size / 2 until src.size)
+        val outList = src.slice(src.size / 2 until src.size)
 
         val set = ArraySet(inList)
         benchmark.measureRepeated {
@@ -96,7 +97,7 @@ class ArraySetBenchmarkTest(size: Int, sparse: Boolean) {
         // Split the set into two lists, one with elements in the created set, one not.
         val src = sourceSet.toList()
         val inList = src.slice(0 until src.size / 2)
-        var outList = src.slice(src.size / 2 until src.size)
+        val outList = src.slice(src.size / 2 until src.size)
 
         val set = ArraySet(inList)
         benchmark.measureRepeated {
@@ -110,6 +111,24 @@ class ArraySetBenchmarkTest(size: Int, sparse: Boolean) {
                 if (set.indexOf(e) >= 0) {
                     fail()
                 }
+            }
+        }
+    }
+
+    @Test
+    fun addAllThenRemoveIndividually() {
+        val set = ArraySet<Int>(sourceSet.size)
+        benchmark.measureRepeated {
+            set.addAll(sourceSet)
+            runWithTimingDisabled {
+                assertEquals(sourceSet.size, set.size)
+            }
+
+            for (e in sourceSet) {
+                set.remove(e)
+            }
+            runWithTimingDisabled {
+                assertTrue(set.isEmpty())
             }
         }
     }

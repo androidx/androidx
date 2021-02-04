@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.util.RecordingXMessager
 import androidx.room.compiler.processing.util.XTestInvocation
 import javax.lang.model.SourceVersion
 
+@Suppress("VisibleForTests")
 class SyntheticJavacProcessor(
     val handler: (XTestInvocation) -> Unit,
 ) : JavacTestProcessor(), SyntheticProcessor {
@@ -33,7 +34,8 @@ class SyntheticJavacProcessor(
         result = kotlin.runCatching {
             handler(
                 XTestInvocation(
-                    processingEnv = xEnv
+                    processingEnv = xEnv,
+                    roundEnv = roundEnv
                 ).also {
                     invocationInstances.add(it)
                 }

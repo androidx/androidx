@@ -28,14 +28,13 @@ import androidx.annotation.NonNull;
  * A class that serializes and stores an object for sending over IPC.
  */
 @SuppressWarnings("BanParcelableUsage")
-// TODO(rampara): Investigate transition to VersionedParcelable.
 public final class Bundleable implements Parcelable {
     private final Bundle mBundle;
 
     /**
      * Serializes the {@code objectToSerialize} into a {@link Bundleable} to send over IPC.
      *
-     * @throws BundlerException if serialization fails.
+     * @throws BundlerException if serialization fails
      */
     @NonNull
     public static Bundleable create(@NonNull Object objectToSerialize) throws BundlerException {
@@ -50,7 +49,7 @@ public final class Bundleable implements Parcelable {
     /**
      * De-serializes the object passed in for IPC communication.
      *
-     * @throws BundlerException if deserialization fails.
+     * @throws BundlerException if deserialization fails
      */
     @NonNull
     public Object get() throws BundlerException {
@@ -63,11 +62,11 @@ public final class Bundleable implements Parcelable {
     }
 
     private Bundleable(Object o) throws BundlerException {
-        this.mBundle = Bundler.toBundle(o);
+        mBundle = Bundler.toBundle(o);
     }
 
     Bundleable(Bundle bundle) {
-        this.mBundle = bundle;
+        mBundle = bundle;
     }
 
     @NonNull

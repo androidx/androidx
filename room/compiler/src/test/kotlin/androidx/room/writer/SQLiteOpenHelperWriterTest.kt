@@ -17,7 +17,6 @@
 package androidx.room.writer
 
 import androidx.annotation.NonNull
-import androidx.room.ext.getTypeElementsAnnotatedWith
 import androidx.room.processor.DatabaseProcessor
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor

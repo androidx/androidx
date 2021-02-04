@@ -266,7 +266,7 @@ public class WindowInsetsCompat {
      */
     public boolean hasInsets() {
         return !getInsets(Type.all()).equals(Insets.NONE)
-                || !getInsetsIgnoringVisibility(Type.all()).equals(Insets.NONE)
+                || !getInsetsIgnoringVisibility(Type.all() ^ Type.ime()).equals(Insets.NONE)
                 || getDisplayCutout() != null;
     }
 

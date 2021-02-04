@@ -20,6 +20,7 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
@@ -56,137 +57,58 @@ public final class TravelEstimate {
     @Keep
     private final CarColor mRemainingDistanceColor;
 
-    /**
-     * Returns a new instance of a {@link TravelEstimate} for the given time and distance
-     * parameters.
-     *
-     * @param remainingDistance        The estimated remaining {@link Distance} until arriving at
-     *                                 the destination.
-     * @param remainingTimeSeconds     The estimated time remaining until arriving at the
-     *                                 destination, in seconds, or {@link #REMAINING_TIME_UNKNOWN}.
-     * @param arrivalTimeAtDestination The arrival time with the time zone information provided
-     *                                 for the destination.
-     * @throws IllegalArgumentException if {@code remainingTimeSeconds} is a negative value.
-     * @throws NullPointerException     if {@code remainingDistance} is {@code null}
-     * @throws NullPointerException     if {@code arrivalTimeAtDestination} is {@code null}
-     */
-    @NonNull
-    public static TravelEstimate create(
-            @NonNull Distance remainingDistance,
-            long remainingTimeSeconds,
-            @NonNull DateTimeWithZone arrivalTimeAtDestination) {
-        return builder(remainingDistance, arrivalTimeAtDestination).setRemainingTimeSeconds(
-                remainingTimeSeconds).build();
-    }
-
-    /**
-     * Returns a new instance of a {@link TravelEstimate} for the given time and distance
-     * parameters.
-     *
-     * @param remainingDistance        The estimated remaining {@link Distance} until arriving at
-     *                                 the destination.
-     * @param remainingTime            The estimated time remaining until arriving at the
-     *                                 destination, or {@code Duration.ofSeconds
-     *                                 (REMAINING_TIME_UNKNOWN)}.
-     * @param arrivalTimeAtDestination The arrival time with the time zone information provided for
-     *                                 the destination.
-     * @throws IllegalArgumentException if {@code remainingTime} contains a negative duration.
-     * @throws NullPointerException     if {@code remainingDistance} is {@code null}
-     * @throws NullPointerException     if {@code remainingTime} is {@code null}
-     * @throws NullPointerException     if {@code arrivalTimeAtDestination} is {@code null}
-     */
-    @RequiresApi(26)
-    @SuppressWarnings("AndroidJdkLibsChecker")
-    @NonNull
-    public static TravelEstimate create(
-            @NonNull Distance remainingDistance,
-            @NonNull Duration remainingTime,
-            @NonNull ZonedDateTime arrivalTimeAtDestination) {
-        return builder(remainingDistance, arrivalTimeAtDestination).setRemainingTime(
-                remainingTime).build();
-    }
-
-    /**
-     * Constructs a new builder of {@link TravelEstimate}.
-     *
-     * @param remainingDistance        The estimated remaining {@link Distance} until arriving at
-     *                                 the destination.
-     * @param arrivalTimeAtDestination The arrival time with the time zone information provided
-     *                                 for the destination.
-     * @throws NullPointerException if {@code remainingDistance} is {@code null}
-     * @throws NullPointerException if {@code arrivalTimeAtDestination} is {@code null}
-     */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder(
-            @NonNull Distance remainingDistance,
-            @NonNull DateTimeWithZone arrivalTimeAtDestination) {
-        return new Builder(
-                requireNonNull(remainingDistance),
-                requireNonNull(arrivalTimeAtDestination));
-    }
-
-    /**
-     * Constructs a new builder of {@link TravelEstimate}.
-     *
-     * @param remainingDistance        The estimated remaining {@link Distance} until arriving at
-     *                                 the destination.
-     * @param arrivalTimeAtDestination The arrival time with the time zone information provided for
-     *                                 the destination.
-     * @throws NullPointerException if {@code remainingDistance} is {@code null}
-     * @throws NullPointerException if {@code arrivalTimeAtDestination} is {@code null}
-     */
-    @NonNull
-    @RequiresApi(26)
-    @SuppressWarnings("AndroidJdkLibsChecker")
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    public static Builder builder(
-            @NonNull Distance remainingDistance,
-            @NonNull ZonedDateTime arrivalTimeAtDestination) {
-        return new Builder(
-                requireNonNull(remainingDistance),
-                requireNonNull(arrivalTimeAtDestination));
-    }
-
-    @NonNull
+    @Nullable
     public Distance getRemainingDistance() {
-        return requireNonNull(mRemainingDistance);
+        return mRemainingDistance;
     }
 
-    // TODO(rampara): Returned time values must be in milliseconds
+    /**
+     * Returns the remaining time until arriving at the destination, in seconds.
+     *
+     * @see Builder#setRemainingTimeSeconds(long)
+     */
     @SuppressWarnings("MethodNameUnits")
     public long getRemainingTimeSeconds() {
         return mRemainingTimeSeconds >= 0 ? mRemainingTimeSeconds : REMAINING_TIME_UNKNOWN;
     }
 
+    /**
+     * Returns the arrival time until at the destination or {@code null} if not set.
+     *
+     * @see Builder#Builder(Distance, DateTimeWithZone)
+     */
     @Nullable
     public DateTimeWithZone getArrivalTimeAtDestination() {
         return mArrivalTimeAtDestination;
     }
 
-    @NonNull
+    /**
+     * Sets the color of the remaining time text or {@code null} if not set.
+     *
+     * @see Builder#setRemainingTimeColor(CarColor)
+     */
+    @Nullable
     public CarColor getRemainingTimeColor() {
         return mRemainingTimeColor;
     }
 
-    @NonNull
+    /**
+     * Sets the color of the remaining distance text or {@code null} if not set.
+     *
+     * @see Builder#setRemainingDistanceColor(CarColor)
+     */
+    @Nullable
     public CarColor getRemainingDistanceColor() {
         return mRemainingDistanceColor;
     }
 
-    @SuppressLint("UnsafeNewApiCall")
-    // TODO(rampara): Move API 26 calls into separate class.
     @Override
     @NonNull
-    @RequiresApi(26)
-    @SuppressWarnings("AndroidJdkLibsChecker")
     public String toString() {
         return "[ remaining distance: "
                 + mRemainingDistance
-                + ", time: "
-                + Duration.ofSeconds(mRemainingTimeSeconds)
-                + ", ETA: "
-                + mArrivalTimeAtDestination
+                + ", time (s): " + mRemainingTimeSeconds
+                + ", ETA: " + mArrivalTimeAtDestination
                 + "]";
     }
 
@@ -227,11 +149,11 @@ public final class TravelEstimate {
     }
 
     TravelEstimate(Builder builder) {
-        this.mRemainingDistance = builder.mRemainingDistance;
-        this.mRemainingTimeSeconds = builder.mRemainingTimeSeconds;
-        this.mArrivalTimeAtDestination = builder.mArrivalTimeAtDestination;
-        this.mRemainingTimeColor = builder.mRemainingTimeColor;
-        this.mRemainingDistanceColor = builder.mRemainingDistanceColor;
+        mRemainingDistance = builder.mRemainingDistance;
+        mRemainingTimeSeconds = builder.mRemainingTimeSeconds;
+        mArrivalTimeAtDestination = builder.mArrivalTimeAtDestination;
+        mRemainingTimeColor = builder.mRemainingTimeColor;
+        mRemainingDistanceColor = builder.mRemainingDistanceColor;
     }
 
     /** A builder of {@link TravelEstimate}. */
@@ -246,42 +168,39 @@ public final class TravelEstimate {
          * Constructs a new builder of {@link TravelEstimate}.
          *
          * @param remainingDistance        The estimated remaining {@link Distance} until
-         *                                 arriving at
-         *                                 the destination.
+         *                                 arriving at the destination
          * @param arrivalTimeAtDestination The arrival time with the time zone information
-         *                                 provided for
-         *                                 the destination.
-         * @throws NullPointerException if {@code remainingDistance} is {@code null}
-         * @throws NullPointerException if {@code arrivalTimeAtDestination} is {@code null}
+         *                                 provided for the destination
+         *
+         * @throws NullPointerException if {@code remainingDistance} or
+         *                              {@code arrivalTimeAtDestination} are {@code null}
          */
         public Builder(
                 @NonNull Distance remainingDistance,
                 @NonNull DateTimeWithZone arrivalTimeAtDestination) {
-            this.mRemainingDistance = requireNonNull(remainingDistance);
-            this.mArrivalTimeAtDestination = requireNonNull(arrivalTimeAtDestination);
+            mRemainingDistance = requireNonNull(remainingDistance);
+            mArrivalTimeAtDestination = requireNonNull(arrivalTimeAtDestination);
         }
 
         /**
          * Constructs a new builder of {@link TravelEstimate}.
          *
          * @param remainingDistance        The estimated remaining {@link Distance} until
-         *                                 arriving at
-         *                                 the destination.
+         *                                 arriving at the destination
          * @param arrivalTimeAtDestination The arrival time with the time zone information
-         *                                 provided for
-         *                                 the destination.
-         * @throws NullPointerException if {@code remainingDistance} is {@code null}
-         * @throws NullPointerException if {@code arrivalTimeAtDestination} is {@code null}
+         *                                 provided for the destination
+         *
+         * @throws NullPointerException if {@code remainingDistance} or
+         *                              {@code arrivalTimeAtDestination} are {@code null}
          */
-        // TODO(rampara): Move API 26 calls into separate class.
         @SuppressLint("UnsafeNewApiCall")
         @RequiresApi(26)
         @SuppressWarnings("AndroidJdkLibsChecker")
         public Builder(
                 @NonNull Distance remainingDistance,
                 @NonNull ZonedDateTime arrivalTimeAtDestination) {
-            this.mRemainingDistance = requireNonNull(remainingDistance);
-            this.mArrivalTimeAtDestination =
+            mRemainingDistance = requireNonNull(remainingDistance);
+            mArrivalTimeAtDestination =
                     DateTimeWithZone.create(requireNonNull(arrivalTimeAtDestination));
         }
 
@@ -291,11 +210,11 @@ public final class TravelEstimate {
          * <p>If not set, {@link #REMAINING_TIME_UNKNOWN} will be used.
          *
          * @throws IllegalArgumentException if {@code remainingTimeSeconds} is a negative value
-         *                                  but not {@link #REMAINING_TIME_UNKNOWN}.
+         *                                  but not {@link #REMAINING_TIME_UNKNOWN}
          */
         @NonNull
         public Builder setRemainingTimeSeconds(@IntRange(from = -1) long remainingTimeSeconds) {
-            this.mRemainingTimeSeconds = validateRemainingTime(remainingTimeSeconds);
+            mRemainingTimeSeconds = validateRemainingTime(remainingTimeSeconds);
             return this;
         }
 
@@ -305,18 +224,14 @@ public final class TravelEstimate {
          * <p>If not set, {@link #REMAINING_TIME_UNKNOWN} will be used.
          *
          * @throws IllegalArgumentException if {@code remainingTime} is a negative duration
-         *                                  but not {@link #REMAINING_TIME_UNKNOWN}.
+         *                                  but not {@link #REMAINING_TIME_UNKNOWN}
          * @throws NullPointerException     if {@code remainingTime} is {@code null}
          */
-        @SuppressLint({"MissingGetterMatchingBuilder", "UnsafeNewApiCall"})
-        // TODO(rampara): Move API 26 calls into separate class.
+        @SuppressLint({"MissingGetterMatchingBuilder"})
         @RequiresApi(26)
-        @SuppressWarnings("AndroidJdkLibsChecker")
         @NonNull
         public Builder setRemainingTime(@NonNull Duration remainingTime) {
-            requireNonNull(remainingTime);
-            this.mRemainingTimeSeconds = validateRemainingTime(remainingTime.getSeconds());
-            return this;
+            return Api26Impl.setRemainingTime(this, remainingTime);
         }
 
         /**
@@ -328,13 +243,13 @@ public final class TravelEstimate {
          *
          * <p>Custom colors created with {@link CarColor#createCustom} are not supported.
          *
-         * @throws IllegalArgumentException if {@code remainingTimeColor} is not supported.
+         * @throws IllegalArgumentException if {@code remainingTimeColor} is not supported
          * @throws NullPointerException     if {@code remainingTimecolor} is {@code null}
          */
         @NonNull
         public Builder setRemainingTimeColor(@NonNull CarColor remainingTimeColor) {
             CarColorConstraints.STANDARD_ONLY.validateOrThrow(requireNonNull(remainingTimeColor));
-            this.mRemainingTimeColor = remainingTimeColor;
+            mRemainingTimeColor = remainingTimeColor;
             return this;
         }
 
@@ -347,14 +262,14 @@ public final class TravelEstimate {
          *
          * <p>Custom colors created with {@link CarColor#createCustom} are not supported.
          *
-         * @throws IllegalArgumentException if {@code remainingDistanceColor} is not supported.
-         * @throws NullPointerException     if {@code remainingDistanceColor} is {@code null}.
+         * @throws IllegalArgumentException if {@code remainingDistanceColor} is not supported
+         * @throws NullPointerException     if {@code remainingDistanceColor} is {@code null}
          */
         @NonNull
         public Builder setRemainingDistanceColor(@NonNull CarColor remainingDistanceColor) {
             CarColorConstraints.STANDARD_ONLY.validateOrThrow(
                     requireNonNull(remainingDistanceColor));
-            this.mRemainingDistanceColor = remainingDistanceColor;
+            mRemainingDistanceColor = remainingDistanceColor;
             return this;
         }
 
@@ -364,13 +279,33 @@ public final class TravelEstimate {
             return new TravelEstimate(this);
         }
 
-        private static long validateRemainingTime(long remainingTimeSeconds) {
+        static long validateRemainingTime(long remainingTimeSeconds) {
             if (remainingTimeSeconds < 0 && remainingTimeSeconds != REMAINING_TIME_UNKNOWN) {
                 throw new IllegalArgumentException(
                         "Remaining time must be a larger than or equal to zero, or set to"
                                 + " REMAINING_TIME_UNKNOWN");
             }
             return remainingTimeSeconds;
+        }
+
+        /**
+         * Version-specific static inner class to avoid verification errors that negatively affect
+         * run-time performance.
+         */
+        @RequiresApi(26)
+        private static final class Api26Impl {
+            private Api26Impl() {
+            }
+
+            @DoNotInline
+            @NonNull
+            public static Builder setRemainingTime(Builder builder,
+                    @NonNull Duration remainingTime) {
+                requireNonNull(remainingTime);
+                builder.mRemainingTimeSeconds =
+                        Builder.validateRemainingTime(remainingTime.getSeconds());
+                return builder;
+            }
         }
     }
 }

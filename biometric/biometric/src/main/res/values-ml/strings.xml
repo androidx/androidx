@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"പാസ്‌വേഡ് ഉപയോഗിക്കുക"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"പിൻ, പാറ്റേൺ, അല്ലെങ്കിൽ പാസ്‍വേഡ് ഇവയൊന്നും സജ്ജീകരിച്ചിട്ടില്ല."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"പിൻ, പാറ്റേൺ, പാസ്‌വേഡ് എന്നിവ ഈ ഉപകരണം പിന്തുണയ്ക്കുന്നില്ല."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"ഫിംഗർപ്രിന്റ് ഐക്കൺ"</string>
 </resources>

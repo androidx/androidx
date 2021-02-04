@@ -47,6 +47,10 @@ public final class ParkedOnlyOnClickListener implements OnClickListener {
     @Keep
     private final OnClickListener mListener;
 
+    /**
+     * Triggers the {@link OnClickListener#onClick()} method in the listener wrapped by this
+     * object.
+     */
     @Override
     public void onClick() {
         mListener.onClick();
@@ -58,7 +62,7 @@ public final class ParkedOnlyOnClickListener implements OnClickListener {
      * <p>Note that the listener relates to UI events and will be executed on the main thread
      * using {@link Looper#getMainLooper()}.
      *
-     * @throws NullPointerException if {@code listener} is {@code null}.
+     * @throws NullPointerException if {@code listener} is {@code null}
      */
     @NonNull
     @SuppressLint("ExecutorRegistration")
@@ -67,6 +71,6 @@ public final class ParkedOnlyOnClickListener implements OnClickListener {
     }
 
     private ParkedOnlyOnClickListener(OnClickListener listener) {
-        this.mListener = listener;
+        mListener = listener;
     }
 }

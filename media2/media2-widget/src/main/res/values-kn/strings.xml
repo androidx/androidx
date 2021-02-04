@@ -17,33 +17,33 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="MediaControlView_subtitle_off_text" msgid="1845015629089301203">"ಆಫ್ ಮಾಡಿ"</string>
-    <string name="MediaControlView_audio_track_text" msgid="3532548952520840186">"ಆಡಿಯೊ ಟ್ರ್ಯಾಕ್"</string>
-    <string name="MediaControlView_audio_track_none_text" msgid="549548876131348304">"ಯಾವುದೂ ಇಲ್ಲ"</string>
-    <string name="MediaControlView_playback_speed_text" msgid="8150324864582460559">"ಪ್ಲೇಬ್ಯಾಕ್ ವೇಗ"</string>
-    <string name="MediaControlView_playback_speed_normal" msgid="480754169449450083">"ಸಾಮಾನ್ಯ"</string>
-    <string name="MediaControlView_time_placeholder" msgid="4037918370566028719">"00:00:00"</string>
-    <string name="MediaControlView_subtitle_track_number_text" msgid="7764843500931103738">"ಟ್ರ್ಯಾಕ್ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
-    <string name="MediaControlView_subtitle_track_number_and_lang_text" msgid="4652664932814816449">"ಟ್ರ್ಯಾಕ್ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
-    <string name="MediaControlView_audio_track_number_text" msgid="4764598467753473351">"ಟ್ರ್ಯಾಕ್ <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
-    <string name="mcv2_non_music_title_unknown_text" msgid="5414417081368449210">"ವೀಡಿಯೊ ಶೀರ್ಷಿಕೆ ಯಾವುದೆಂದು ಗೊತ್ತಿಲ್ಲ"</string>
-    <string name="mcv2_music_title_unknown_text" msgid="6768779662371844918">"ಹಾಡಿನ ಶೀರ್ಷಿಕೆ ಯಾವುದೆಂದು ಗೊತ್ತಿಲ್ಲ"</string>
-    <string name="mcv2_music_artist_unknown_text" msgid="1475333855817994058">"ಕಲಾವಿದರು ಯಾರೆಂದು ಗೊತ್ತಿಲ್ಲ"</string>
-    <string name="mcv2_playback_error_text" msgid="1201919666572302119">"ನೀವು ವಿನಂತಿಸಿದ ಐಟಂ ಅನ್ನು ಪ್ಲೇ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ"</string>
-    <string name="mcv2_error_dialog_button" msgid="1892680062375516133">"ಸರಿ"</string>
-    <string name="mcv2_back_button_desc" msgid="5728972524527278943">"ಹಿಂದಕ್ಕೆ"</string>
-    <string name="mcv2_overflow_left_button_desc" msgid="4619938179240477643">"ಹಿಂದಿನ ಬಟನ್ ಪಟ್ಟಿಗೆ ಹಿಂತಿರುಗಿ"</string>
-    <string name="mcv2_overflow_right_button_desc" msgid="3959698281663418432">"ಇನ್ನಷ್ಟು ಬಟನ್‌ಗಳನ್ನು ವೀಕ್ಷಿಸಿ"</string>
-    <string name="mcv2_seek_bar_desc" msgid="2626125787370091731">"ಪ್ಲೇಬ್ಯಾಕ್ ಪ್ರಗತಿಯಲ್ಲಿದೆ"</string>
-    <string name="mcv2_settings_button_desc" msgid="8453746936008970620">"ಸೆಟ್ಟಿಂಗ್‌ಗಳು"</string>
-    <string name="mcv2_cc_is_on" msgid="8890320846743698774">"ಉಪಶೀರ್ಷಿಕೆ ಆನ್ ಆಗಿದೆ. ಅದನ್ನು ಮರೆಮಾಡಲು ಕ್ಲಿಕ್ ಮಾಡಿ."</string>
-    <string name="mcv2_cc_is_off" msgid="6888583680833967030">"ಉಪಶೀರ್ಷಿಕೆ ಆಫ್ ಆಗಿದೆ. ಅದನ್ನು ತೋರಿಸಲು ಕ್ಲಿಕ್ ಮಾಡಿ."</string>
-    <string name="mcv2_replay_button_desc" msgid="3498082316888662782">"ಮರುಪ್ಲೇ"</string>
-    <string name="mcv2_play_button_desc" msgid="1994649551115596877">"ಪ್ಲೇ ಮಾಡಿ"</string>
-    <string name="mcv2_pause_button_desc" msgid="997297527148989963">"ವಿರಾಮಗೊಳಿಸಿ"</string>
-    <string name="mcv2_previous_button_desc" msgid="5367141424871007842">"ಹಿಂದಿನ ಮಾಧ್ಯಮ"</string>
-    <string name="mcv2_next_button_desc" msgid="4799850472802157220">"ಮುಂದಿನ ಮಾಧ್ಯಮ"</string>
-    <string name="mcv2_rewind_button_desc" msgid="5725552141091554735">"10 ಸೆಕೆಂಡ್‌ಗಳಷ್ಟು ರಿವೈಂಡ್ ಮಾಡಿ"</string>
-    <string name="mcv2_ffwd_button_desc" msgid="7189466356853482980">"30 ಸೆಕೆಂಡುಗಳಷ್ಟು ಫಾರ್ವರ್ಡ್ ಮಾಡಿ"</string>
-    <string name="mcv2_full_screen_button_desc" msgid="6900438429115580036">"ಪೂರ್ಣ ಸ್ಕ್ರೀನ್"</string>
+    <string name="MediaControlView_subtitle_off_text" msgid="3464220590351304587">"ಆಫ್ ಮಾಡಿ"</string>
+    <string name="MediaControlView_audio_track_text" msgid="3309135445007366582">"ಆಡಿಯೊ ಟ್ರ್ಯಾಕ್"</string>
+    <string name="MediaControlView_audio_track_none_text" msgid="2659752099246305694">"ಯಾವುದೂ ಇಲ್ಲ"</string>
+    <string name="MediaControlView_playback_speed_text" msgid="1481072528142380025">"ಪ್ಲೇಬ್ಯಾಕ್ ವೇಗ"</string>
+    <string name="MediaControlView_playback_speed_normal" msgid="2029510260288453183">"ಸಾಮಾನ್ಯ"</string>
+    <string name="MediaControlView_time_placeholder" msgid="6734584158942500617">"00:00:00"</string>
+    <string name="MediaControlView_subtitle_track_number_text" msgid="2241078077382492349">"ಟ್ರ್ಯಾಕ್ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView_subtitle_track_number_and_lang_text" msgid="2268860463481696609">"ಟ್ರ್ಯಾಕ್ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView_audio_track_number_text" msgid="4263103361854223806">"ಟ್ರ್ಯಾಕ್ <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
+    <string name="mcv2_non_music_title_unknown_text" msgid="2032814146738922144">"ವೀಡಿಯೊ ಶೀರ್ಷಿಕೆ ಏನೆಂದು ಗೊತ್ತಿಲ್ಲ"</string>
+    <string name="mcv2_music_title_unknown_text" msgid="6037645626002038645">"ಹಾಡಿನ ಶೀರ್ಷಿಕೆ ಏನೆಂದು ಗೊತ್ತಿಲ್ಲ"</string>
+    <string name="mcv2_music_artist_unknown_text" msgid="5393558204040775454">"ಕಲಾವಿದರು ಯಾರೆಂದು ಗೊತ್ತಿಲ್ಲ"</string>
+    <string name="mcv2_playback_error_text" msgid="6061787693725630293">"ನೀವು ವಿನಂತಿಸಿದ ಐಟಂ ಅನ್ನು ಪ್ಲೇ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ"</string>
+    <string name="mcv2_error_dialog_button" msgid="5940167897992933850">"ಸರಿ"</string>
+    <string name="mcv2_back_button_desc" msgid="1540894858499118373">"ಹಿಂದಕ್ಕೆ"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="2749567167276435888">"ಹಿಂದಿನ ಬಟನ್ ಪಟ್ಟಿಗೆ ಹಿಂದಿರುಗಿ"</string>
+    <string name="mcv2_overflow_right_button_desc" msgid="7388732945289831383">"ಇನ್ನಷ್ಟು ಬಟನ್‌ಗಳನ್ನು ನೋಡಿ"</string>
+    <string name="mcv2_seek_bar_desc" msgid="24915699029009384">"ಪ್ಲೇಬ್ಯಾಕ್‌ನ ಪ್ರಗತಿ"</string>
+    <string name="mcv2_settings_button_desc" msgid="811917224044739656">"ಸೆಟ್ಟಿಂಗ್‌ಗಳು"</string>
+    <string name="mcv2_cc_is_on" msgid="5427119422911561783">"ಸಬ್‌ಟೈಟಲ್ ಆನ್ ಆಗಿದೆ. ಅದನ್ನು ಮರೆಮಾಡಲು ಕ್ಲಿಕ್ ಮಾಡಿ."</string>
+    <string name="mcv2_cc_is_off" msgid="2380791179816122456">"ಸಬ್‌ಟೈಟಲ್ ಆಫ್ ಆಗಿದೆ. ಅದನ್ನು ತೋರಿಸಲು ಕ್ಲಿಕ್ ಮಾಡಿ."</string>
+    <string name="mcv2_replay_button_desc" msgid="3128622733570179596">"ಮರುಪ್ಲೇ ಮಾಡಿ"</string>
+    <string name="mcv2_play_button_desc" msgid="4881308324856085359">"ಪ್ಲೇ ಮಾಡಿ"</string>
+    <string name="mcv2_pause_button_desc" msgid="7391720675120766278">"ವಿರಾಮಗೊಳಿಸಿ"</string>
+    <string name="mcv2_previous_button_desc" msgid="3080315055670437389">"ಹಿಂದಿನ ಮಾಧ್ಯಮ"</string>
+    <string name="mcv2_next_button_desc" msgid="1204572886248099893">"ಮುಂದಿನ ಮಾಧ್ಯಮ"</string>
+    <string name="mcv2_rewind_button_desc" msgid="578809901971186362">"10 ಸೆಕೆಂಡ್‌ಗಳಷ್ಟು ಹಿಂದಕ್ಕೆ ಹೋಗಿ"</string>
+    <string name="mcv2_ffwd_button_desc" msgid="611689280746097673">"30 ಸೆಕೆಂಡ್‌ಗಳಷ್ಟು ಮುಂದಕ್ಕೆ ಹೋಗಿ"</string>
+    <string name="mcv2_full_screen_button_desc" msgid="1609817079594941003">"ಪೂರ್ಣ ಸ್ಕ್ರೀನ್"</string>
 </resources>

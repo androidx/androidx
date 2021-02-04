@@ -17,7 +17,6 @@
 package androidx.car.app.model;
 
 import static androidx.car.app.model.CarIcon.BACK;
-import static androidx.car.app.model.ItemList.builder;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -66,35 +65,35 @@ public class ItemListTest {
 
     @Test
     public void createEmpty() {
-        ItemList list = builder().build();
-        assertThat(list.getItemList()).isEqualTo(Collections.emptyList());
+        ItemList list = new ItemList.Builder().build();
+        assertThat(list.getItems()).isEqualTo(Collections.emptyList());
     }
 
     @Test
     public void createRows() {
         Row row1 = new Row.Builder().setTitle("Row1").build();
         Row row2 = new Row.Builder().setTitle("Row2").build();
-        ItemList list = builder().addItem(row1).addItem(row2).build();
+        ItemList list = new ItemList.Builder().addItem(row1).addItem(row2).build();
 
-        assertThat(list.getItemList()).hasSize(2);
-        assertThat(list.getItemList().get(0)).isEqualTo(row1);
-        assertThat(list.getItemList().get(1)).isEqualTo(row2);
+        assertThat(list.getItems()).hasSize(2);
+        assertThat(list.getItems().get(0)).isEqualTo(row1);
+        assertThat(list.getItems().get(1)).isEqualTo(row2);
     }
 
     @Test
     public void createGridItems() {
         GridItem gridItem1 = new GridItem.Builder().setTitle("title 1").setImage(BACK).build();
         GridItem gridItem2 = new GridItem.Builder().setTitle("title 2").setImage(BACK).build();
-        ItemList list = builder().addItem(gridItem1).addItem(gridItem2).build();
+        ItemList list = new ItemList.Builder().addItem(gridItem1).addItem(gridItem2).build();
 
-        assertThat(list.getItemList()).containsExactly(gridItem1, gridItem2).inOrder();
+        assertThat(list.getItems()).containsExactly(gridItem1, gridItem2).inOrder();
     }
 
     @Test
     public void setSelectedable_emptyList_throws() {
         assertThrows(
                 IllegalStateException.class,
-                () -> builder().setOnSelectedListener(selectedIndex -> {
+                () -> new ItemList.Builder().setOnSelectedListener(selectedIndex -> {
                 }).build());
     }
 
@@ -103,7 +102,7 @@ public class ItemListTest {
         Row row1 = new Row.Builder().setTitle("Row1").build();
         assertThrows(
                 IllegalStateException.class,
-                () -> builder()
+                () -> new ItemList.Builder()
                         .addItem(row1)
                         .setOnSelectedListener(selectedIndex -> {
                         })
@@ -115,7 +114,7 @@ public class ItemListTest {
     public void setSelectable() throws RemoteException {
         OnSelectedListener mockListener = mock(OnSelectedListener.class);
         ItemList itemList =
-                builder()
+                new ItemList.Builder()
                         .addItem(new Row.Builder().setTitle("title").build())
                         .setOnSelectedListener(mockListener)
                         .build();
@@ -132,7 +131,7 @@ public class ItemListTest {
     public void setSelectable_disallowOnClickListenerInRows() {
         assertThrows(
                 IllegalStateException.class,
-                () -> builder()
+                () -> new ItemList.Builder()
                         .addItem(new Row.Builder().setTitle("foo").setOnClickListener(() -> {
                         }).build())
                         .setOnSelectedListener((index) -> {
@@ -140,7 +139,7 @@ public class ItemListTest {
                         .build());
 
         // Positive test.
-        builder()
+        new ItemList.Builder()
                 .addItem(new Row.Builder().setTitle("foo").build())
                 .setOnSelectedListener((index) -> {
                 })
@@ -151,7 +150,7 @@ public class ItemListTest {
     public void setSelectable_disallowToggleInRow() {
         assertThrows(
                 IllegalStateException.class,
-                () -> builder()
+                () -> new ItemList.Builder()
                         .addItem(new Row.Builder().setToggle(new Toggle.Builder(isChecked -> {
                         }).build()).build())
                         .setOnSelectedListener((index) -> {
@@ -163,7 +162,7 @@ public class ItemListTest {
     public void setOnItemVisibilityChangeListener_triggerListener() {
         OnItemVisibilityChangedListener listener = mock(OnItemVisibilityChangedListener.class);
         ItemList list =
-                builder()
+                new ItemList.Builder()
                         .addItem(new Row.Builder().setTitle("1").build())
                         .setOnItemsVisibilityChangedListener(listener)
                         .build();
@@ -184,7 +183,7 @@ public class ItemListTest {
     public void setOnItemVisibilityChangeListener_triggerListenerWithFailure() {
         OnItemVisibilityChangedListener listener = mock(OnItemVisibilityChangedListener.class);
         ItemList list =
-                builder()
+                new ItemList.Builder()
                         .addItem(new Row.Builder().setTitle("1").build())
                         .setOnItemsVisibilityChangedListener(listener)
                         .build();
@@ -214,7 +213,7 @@ public class ItemListTest {
     public void equals_itemListWithRows() {
         Row row = new Row.Builder().setTitle("Title").build();
         ItemList itemList =
-                builder()
+                new ItemList.Builder()
                         .setOnSelectedListener((index) -> {
                         })
                         .setNoItemsMessage("no items")
@@ -225,7 +224,7 @@ public class ItemListTest {
                         .build();
         assertThat(itemList)
                 .isEqualTo(
-                        builder()
+                        new ItemList.Builder()
                                 .setOnSelectedListener((index) -> {
                                 })
                                 .setNoItemsMessage("no items")
@@ -240,7 +239,7 @@ public class ItemListTest {
     public void equals_itemListWithGridItems() {
         GridItem gridItem = new GridItem.Builder().setImage(BACK).setTitle("Title").build();
         ItemList itemList =
-                builder()
+                new ItemList.Builder()
                         .setOnSelectedListener((index) -> {
                         })
                         .setNoItemsMessage("no items")
@@ -251,7 +250,7 @@ public class ItemListTest {
                         .build();
         assertThat(itemList)
                 .isEqualTo(
-                        builder()
+                        new ItemList.Builder()
                                 .setOnSelectedListener((index) -> {
                                 })
                                 .setNoItemsMessage("no items")
@@ -264,19 +263,19 @@ public class ItemListTest {
 
     @Test
     public void notEquals_differentNoItemsMessage() {
-        ItemList itemList = builder().setNoItemsMessage("no items").build();
-        assertThat(itemList).isNotEqualTo(builder().setNoItemsMessage("YO").build());
+        ItemList itemList = new ItemList.Builder().setNoItemsMessage("no items").build();
+        assertThat(itemList).isNotEqualTo(new ItemList.Builder().setNoItemsMessage("YO").build());
     }
 
     @Test
     public void notEquals_differentSelectedIndex() {
         Row row = new Row.Builder().setTitle("Title").build();
         ItemList itemList =
-                builder().setOnSelectedListener((index) -> {
+                new ItemList.Builder().setOnSelectedListener((index) -> {
                 }).addItem(row).addItem(row).build();
         assertThat(itemList)
                 .isNotEqualTo(
-                        builder()
+                        new ItemList.Builder()
                                 .setOnSelectedListener((index) -> {
                                 })
                                 .setSelectedIndex(1)
@@ -289,35 +288,35 @@ public class ItemListTest {
     public void notEquals_missingSelectedListener() {
         Row row = new Row.Builder().setTitle("Title").build();
         ItemList itemList =
-                builder().setOnSelectedListener((index) -> {
+                new ItemList.Builder().setOnSelectedListener((index) -> {
                 }).addItem(row).addItem(row).build();
-        assertThat(itemList).isNotEqualTo(builder().addItem(row).addItem(row).build());
+        assertThat(itemList).isNotEqualTo(new ItemList.Builder().addItem(row).addItem(row).build());
     }
 
     @Test
     public void notEquals_missingVisibilityChangedListener() {
         Row row = new Row.Builder().setTitle("Title").build();
         ItemList itemList =
-                builder()
+                new ItemList.Builder()
                         .setOnItemsVisibilityChangedListener((start, end) -> {
                         })
                         .addItem(row)
                         .addItem(row)
                         .build();
-        assertThat(itemList).isNotEqualTo(builder().addItem(row).addItem(row).build());
+        assertThat(itemList).isNotEqualTo(new ItemList.Builder().addItem(row).addItem(row).build());
     }
 
     @Test
     public void notEquals_differentRows() {
         Row row = new Row.Builder().setTitle("Title").build();
-        ItemList itemList = builder().addItem(row).addItem(row).build();
-        assertThat(itemList).isNotEqualTo(builder().addItem(row).build());
+        ItemList itemList = new ItemList.Builder().addItem(row).addItem(row).build();
+        assertThat(itemList).isNotEqualTo(new ItemList.Builder().addItem(row).build());
     }
 
     @Test
     public void notEquals_differentGridItems() {
         GridItem gridItem = new GridItem.Builder().setImage(BACK).setTitle("Title").build();
-        ItemList itemList = builder().addItem(gridItem).addItem(gridItem).build();
-        assertThat(itemList).isNotEqualTo(builder().addItem(gridItem).build());
+        ItemList itemList = new ItemList.Builder().addItem(gridItem).addItem(gridItem).build();
+        assertThat(itemList).isNotEqualTo(new ItemList.Builder().addItem(gridItem).build());
     }
 }

@@ -2,18 +2,15 @@ package androidx.wear.ongoing
 
 import android.content.Context
 import android.os.Build
-import android.os.Bundle
 import androidx.test.core.app.ApplicationProvider
-import androidx.versionedparcelable.ParcelUtils
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotEquals
-import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import java.lang.IllegalStateException
 
 @RunWith(PatchedRobolectricTestRunner::class)
 @DoNotInstrument
@@ -27,266 +24,143 @@ open class OngoingActivityStatusTest {
     }
 
     @Test
-    fun testTextOngoingActivityStatusBasic() {
-        val text = "Text"
-        val textStatus = TextOngoingActivityStatus(text)
+    fun testTextOngoingActivityStatusText() {
+        val status = OngoingActivityStatus.Builder()
+            .addPart("1", TextStatusPart("First Text"))
+            .addPart("2", TextStatusPart("Second Text"))
+            .build()
 
-        assertEquals(Long.MAX_VALUE, textStatus.getNextChangeTimeMillis(0))
+        assertEquals(Long.MAX_VALUE, status.getNextChangeTimeMillis(0))
 
-        assertEquals(text, textStatus.getText(context, 0))
+        assertEquals("First Text Second Text", status.getText(context, 0).toString())
+    }
 
-        assertEquals(TextOngoingActivityStatus(text), textStatus)
-        assertNotEquals(TextOngoingActivityStatus("Other"), textStatus)
+    @Test
+    fun testTextOngoingActivityStatusTextAndTemplate() {
+        val status = OngoingActivityStatus.Builder()
+            .addPart("one", TextStatusPart("First Text"))
+            .addPart("two", TextStatusPart("Second Text"))
+            .addTemplate("#one# | #two#").build()
 
-        assertEquals(TextOngoingActivityStatus(text).hashCode(), textStatus.hashCode())
+        assertEquals(Long.MAX_VALUE, status.getNextChangeTimeMillis(0))
+
         assertEquals(
-            TextOngoingActivityStatus("Other").hashCode(),
-            TextOngoingActivityStatus("Other").hashCode()
+            "First Text | Second Text",
+            status.getText(context, 0).toString()
         )
     }
 
     @Test
-    fun testTimerOngoingActivityStatusBasic() {
-        assertEquals(
-            TimerOngoingActivityStatus(1234L),
-            TimerOngoingActivityStatus(1234L)
-        )
-        assertEquals(
-            TimerOngoingActivityStatus(1234L).hashCode(),
-            TimerOngoingActivityStatus(1234L).hashCode()
-        )
-        assertNotEquals(
-            TimerOngoingActivityStatus(1234L),
-            TimerOngoingActivityStatus(1235L)
-        )
+    fun testTextOngoingActivityStatusTextAndTemplate2() {
+        val status = OngoingActivityStatus.Builder()
+            .addPart("a", TextStatusPart("A"))
+            .addPart("b", TextStatusPart("B"))
+            .addTemplate("#a##b#").build()
+
+        assertEquals(Long.MAX_VALUE, status.getNextChangeTimeMillis(0))
 
         assertEquals(
-            TimerOngoingActivityStatus(1234L, true),
-            TimerOngoingActivityStatus(1234L, true)
-        )
-        assertEquals(
-            TimerOngoingActivityStatus(1234L, true).hashCode(),
-            TimerOngoingActivityStatus(1234L, true).hashCode()
-        )
-        assertNotEquals(
-            TimerOngoingActivityStatus(1234L, false),
-            TimerOngoingActivityStatus(1234L, true)
-        )
-
-        assertEquals(
-            TimerOngoingActivityStatus(1234L, true, 5678L),
-            TimerOngoingActivityStatus(1234L, true, 5678L)
-        )
-        assertEquals(
-            TimerOngoingActivityStatus(1234L, true, 5678L).hashCode(),
-            TimerOngoingActivityStatus(1234L, true, 5678L).hashCode()
-        )
-        assertNotEquals(
-            TimerOngoingActivityStatus(1234L, true, 5678L),
-            TimerOngoingActivityStatus(1234L, true, 5679L)
-        )
-        assertNotEquals(
-            TimerOngoingActivityStatus(1234L, true, 5678L),
-            TimerOngoingActivityStatus(1234L, true)
-        )
-
-        assertEquals(
-            TimerOngoingActivityStatus(1234L, true, 5678L, 100L),
-            TimerOngoingActivityStatus(1234L, true, 5678L, 100L)
-        )
-        assertEquals(
-            TimerOngoingActivityStatus(1234L, true, 5678L, 100L).hashCode(),
-            TimerOngoingActivityStatus(1234L, true, 5678L, 100L).hashCode()
-        )
-        assertNotEquals(
-            TimerOngoingActivityStatus(1234L, true, 5678L, 100L),
-            TimerOngoingActivityStatus(1234L, true, 5678L, 101L)
-        )
-        assertNotEquals(
-            TimerOngoingActivityStatus(1234L, true, 5678L, 100L),
-            TimerOngoingActivityStatus(1234L, true, 5678L)
-        )
-        assertNotEquals(
-            TimerOngoingActivityStatus(1234L, true, 5678L, 100L),
-            TimerOngoingActivityStatus(1234L, true)
+            "AB",
+            status.getText(context, 0).toString()
         )
     }
 
     @Test
-    fun testOngoingActivityStatusSerialization() {
-        val key = "KEY"
+    fun testTextOngoingActivityStatusMixed() {
+        val t0 = 123456L
+        val status = OngoingActivityStatus.Builder()
+            .addPart("type", TextStatusPart("Workout"))
+            .addPart("time", TimerStatusPart(t0, /* countDown = */ false))
+            .addTemplate("The time on your #type# is #time#")
+            .build()
+
+        assertEquals(t0 + 1000, status.getNextChangeTimeMillis(t0))
+
+        assertEquals(
+            "The time on your Workout is 01:00",
+            status.getText(context, t0 + 60 * 1000).toString()
+        )
+    }
+
+    @Test
+    fun testProcessTemplate() {
+        val values = mapOf(
+            "1" to "One",
+            "2" to "Two",
+            "3" to "Three",
+            "Long" to "LongValue",
+            "Foo" to "Bar"
+        )
+
         listOf(
-            TimerOngoingActivityStatus(1234L),
-            TextOngoingActivityStatus("Text1"),
-            TimerOngoingActivityStatus(1234L, false),
-            TimerOngoingActivityStatus(1234L, true),
-            TimerOngoingActivityStatus(1234L, true, 5678L),
-            TextOngoingActivityStatus("Text2"),
-            TimerOngoingActivityStatus(1234L, false, 5678L, 100L)
-        ).forEach { original ->
-            val bundle = Bundle()
-            ParcelUtils.putVersionedParcelable(bundle, key, original)
-
-            val received = ParcelUtils.getVersionedParcelable<OngoingActivityStatus>(bundle, key)!!
-            assertEquals(original::class, received::class)
-            assertEquals(original, received)
-            assertEquals(original.hashCode(), received.hashCode())
+            "#1# #2# #3#" to "One Two Three",
+            "#1####2####3#" to "One#Two#Three",
+            "###1####2####3###" to "#One#Two#Three#",
+            "#1##Long##Foo#" to "OneLongValueBar",
+            // Unclosed variables are ignored
+            "#1# #2# #3" to "One Two #3",
+            "#1##" to "One#"
+        ).forEach { (template, expected) ->
+            assertEquals(
+                expected,
+                OngoingActivityStatus.processTemplate(template, values).toString()
+            )
         }
+
+        // Check that when undefined values are used, returns null
+        assertNull(OngoingActivityStatus.processTemplate("#NOT#", values))
     }
 
     @Test
-    fun testTimerOngoingActivityStatusGetters() {
-        TimerOngoingActivityStatus(123L).also {
-            assertEquals(123L, it.timeZeroMillis)
-            assertFalse(it.isPaused)
-            assertFalse(it.hasTotalDuration())
-        }
-
-        TimerOngoingActivityStatus(1234L, false).also {
-            assertEquals(1234L, it.timeZeroMillis)
-            assertFalse(it.isCountDown)
-            assertFalse(it.isPaused)
-            assertFalse(it.hasTotalDuration())
-        }
-
-        TimerOngoingActivityStatus(12345L, true).also {
-            assertEquals(12345L, it.timeZeroMillis)
-            assertTrue(it.isCountDown)
-            assertFalse(it.isPaused)
-            assertFalse(it.hasTotalDuration())
-        }
-
-        TimerOngoingActivityStatus(2345L, false, 3456L).also {
-            assertEquals(2345L, it.timeZeroMillis)
-            assertFalse(it.isCountDown)
-            assertTrue(it.isPaused)
-            assertEquals(3456L, it.pausedAtMillis)
-            assertFalse(it.hasTotalDuration())
-        }
-
-        TimerOngoingActivityStatus(4567L, true, 7890L, 12000L).also {
-            assertEquals(4567L, it.timeZeroMillis)
-            assertTrue(it.isCountDown)
-            assertTrue(it.isPaused)
-            assertEquals(7890L, it.pausedAtMillis)
-            assertTrue(it.hasTotalDuration())
-            assertEquals(12000L, it.totalDurationMillis)
-        }
-    }
-
-    @Test
-    fun testTimerOngoingActivityStatusChronometer() {
-        // Create a chronometer, starting at the given timestamp (around 2 minutes after
-        // timestamp 0).
-        val t0 = 123456L
-        val timerStatus = TimerOngoingActivityStatus(/* timeZeroMillis = */ t0)
-
-        // The chronometer is not paused.
-        assertFalse(timerStatus.isPaused())
-
-        // The chronometer will always change at timestamps ending in 456.
-        assertEquals(456L, timerStatus.getNextChangeTimeMillis(0L))
-        assertEquals(456L, timerStatus.getNextChangeTimeMillis(455L))
-        assertEquals(1456L, timerStatus.getNextChangeTimeMillis(456L))
-        assertEquals(1456L, timerStatus.getNextChangeTimeMillis(457L))
-        assertEquals(1456L, timerStatus.getNextChangeTimeMillis(1000L))
-
-        assertEquals(t0, timerStatus.getNextChangeTimeMillis(t0 - 1))
-        assertEquals(t0 + 1000, timerStatus.getNextChangeTimeMillis(t0))
-
-        // Check default formatting.
-        assertEquals("00:00", timerStatus.getText(context, t0))
-        assertEquals("00:00", timerStatus.getText(context, t0 + 999))
-        assertEquals("00:01", timerStatus.getText(context, t0 + 1000))
-
-        assertEquals("00:59", timerStatus.getText(context, t0 + 60 * 1000 - 1))
-        assertEquals("01:00", timerStatus.getText(context, t0 + 60 * 1000))
-
-        assertEquals("59:59", timerStatus.getText(context, t0 + 3600 * 1000 - 1))
-        assertEquals("1:00:00", timerStatus.getText(context, t0 + 3600 * 1000))
-    }
-
-    @Test
-    fun testTimerOngoingActivityStatusTimer() {
-        // Create a timer, set to expire at the given timestamp (around 2 minutes after
-        // timestamp 0).
-        val t0 = 123456L
-        val timerStatus = TimerOngoingActivityStatus(
-            /* timeZeroMillis = */ t0,
-            /* countDown = */ true
+    fun testMultipleTemplates() {
+        val values = mapOf(
+            "1" to "One",
+            "2" to "Two",
+            "3" to "Three",
+            "Long" to "LongValue",
+            "Foo" to "Bar"
         )
 
-        // The Timer is not paused.
-        assertFalse(timerStatus.isPaused())
+        // list of (list of template -> expected output)
+        listOf(
+            listOf("#1#", "#2#", "#3#") to "One",
+            listOf("#5#", "#4#", "#3#", "#2#") to "Three",
+            listOf("#1##11#", "2=#2#") to "2=Two",
+        ).forEach { (templates, expected) ->
+            val status = OngoingActivityStatus(
+                templates,
+                values.map { (k, v) ->
+                    k to TextStatusPart(v)
+                }.toMap()
+            )
 
-        // The timer will always change at timestamps ending in 456.
-        assertEquals(456L, timerStatus.getNextChangeTimeMillis(0L))
-        assertEquals(456L, timerStatus.getNextChangeTimeMillis(455L))
-        assertEquals(1456L, timerStatus.getNextChangeTimeMillis(456L))
-        assertEquals(1456L, timerStatus.getNextChangeTimeMillis(457L))
-        assertEquals(1456L, timerStatus.getNextChangeTimeMillis(1000L))
-
-        assertEquals(t0, timerStatus.getNextChangeTimeMillis(t0 - 1))
-        assertEquals(t0 + 1000, timerStatus.getNextChangeTimeMillis(t0))
-
-        // Check default formatting.
-        assertEquals("00:01", timerStatus.getText(context, t0 - 1))
-        assertEquals("00:00", timerStatus.getText(context, t0))
-        assertEquals("00:00", timerStatus.getText(context, t0 + 999))
-        assertEquals("-00:01", timerStatus.getText(context, t0 + 1000))
-
-        assertEquals("02:00", timerStatus.getText(context, 3456L))
-
-        assertEquals("-1:00:00", timerStatus.getText(context, t0 + 3600 * 1000))
+            assertEquals(expected, status.getText(context, 0).toString())
+        }
     }
 
-    @Test
-    fun testTimerOngoingActivityStatusChronometerPaused() {
-        val t0 = 123456L
-        var timerStatus = TimerOngoingActivityStatus(
-            /* timeZeroMillis = */ t0,
-            /* countDown = */ false,
-            /* pausedAt = */ t0 + 1999
-        )
-
-        // The Timer is paused.
-        assertTrue(timerStatus.isPaused())
-        assertEquals(t0 + 1999, timerStatus.pausedAtMillis)
-
-        // The timer is paused, will never change.
-        assertEquals(Long.MAX_VALUE, timerStatus.getNextChangeTimeMillis(0L))
-        assertEquals(Long.MAX_VALUE, timerStatus.getNextChangeTimeMillis(t0))
-        assertEquals(Long.MAX_VALUE, timerStatus.getNextChangeTimeMillis(t0 + 3600 * 1000))
-
-        // Check formatting. Current Time doesn't mater.
-        assertEquals("00:01", timerStatus.getText(context, 0))
-        assertEquals("00:01", timerStatus.getText(context, t0))
-        assertEquals("00:01", timerStatus.getText(context, t0 + 2000))
-        assertEquals("00:01", timerStatus.getText(context, t0 + 3600 * 1000))
+    @Test(expected = IllegalStateException::class)
+    fun testVerifyBuildCheckBaseTemplate() {
+        // We verify on build() that the last template uses only base parts (Text & Timer)
+        OngoingActivityStatus.Builder()
+            .addTemplate("#1#")
+            .addTemplate("#2#")
+            .addPart("1", TextStatusPart("text"))
+            .addPart("2", SampleStatusPart())
+            .build()
     }
 
-    @Test
-    fun testTimerOngoingActivityStatusTimerPaused() {
-        val t0 = 123456L
-        var timerStatus = TimerOngoingActivityStatus(
-            /* timeZeroMillis = */ t0,
-            /* countDown = */ true,
-            /* pausedAt = */ t0 + 1999
-        )
+    @Test(expected = IllegalStateException::class)
+    fun testVerifyBuildCheckTemplates() {
+        // We verify on build() that all parts used on templates are present
+        OngoingActivityStatus.Builder()
+            .addTemplate("#1##2##3#")
+            .addPart("1", TextStatusPart("text"))
+            .addPart("2", TimerStatusPart(12345L))
+            .build()
+    }
 
-        // The Timer is paused.
-        assertTrue(timerStatus.isPaused())
-        assertEquals(t0 + 1999, timerStatus.pausedAtMillis)
-
-        // The timer is paused, will never change.
-        assertEquals(Long.MAX_VALUE, timerStatus.getNextChangeTimeMillis(0L))
-        assertEquals(Long.MAX_VALUE, timerStatus.getNextChangeTimeMillis(t0))
-        assertEquals(Long.MAX_VALUE, timerStatus.getNextChangeTimeMillis(t0 + 3600 * 1000))
-
-        // Check formatting. Current Time doesn't mater.
-        assertEquals("-00:01", timerStatus.getText(context, 0))
-        assertEquals("-00:01", timerStatus.getText(context, t0))
-        assertEquals("-00:01", timerStatus.getText(context, t0 + 2000))
-        assertEquals("-00:01", timerStatus.getText(context, t0 + 3600 * 1000))
+    class SampleStatusPart : StatusPart() {
+        override fun getText(context: Context, timeNowMillis: Long) = "Sample"
+        override fun getNextChangeTimeMillis(fromTimeMillis: Long) = Long.MAX_VALUE
     }
 }

@@ -74,7 +74,7 @@ const val EXAMPLE_OPENGL_COMPLICATION_ID = 101
  * when the watch enters ambient mode.
  */
 class ExampleOpenGLWatchFaceService() : WatchFaceService() {
-    override fun createWatchFace(
+    override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState
     ) = createExampleOpenGLWatchFaceBuilder(
@@ -573,7 +573,7 @@ class ExampleOpenGLRenderer(
             GLES20.glClearColor(0f, 0f, 0f, 1f)
             ambientVpMatrix
         } else {
-            when (userStyleRepository.userStyle.selectedOptions[colorStyleSetting]!!.id) {
+            when (userStyleRepository.userStyle[colorStyleSetting]!!.id) {
                 "red_style" -> GLES20.glClearColor(0.5f, 0.2f, 0.2f, 1f)
                 "green_style" -> GLES20.glClearColor(0.2f, 0.5f, 0.2f, 1f)
             }
@@ -640,7 +640,7 @@ class ExampleOpenGLRenderer(
                     0
                 )
                 secondHandTriangleMap[
-                    userStyleRepository.userStyle.selectedOptions[colorStyleSetting]!!.id
+                    userStyleRepository.userStyle[colorStyleSetting]!!.id
                 ]
                     ?.draw(mvpMatrix)
             }

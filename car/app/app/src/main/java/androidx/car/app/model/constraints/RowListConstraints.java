@@ -41,7 +41,7 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class RowListConstraints {
+public final class RowListConstraints {
     /** Conservative constraints for all types lists. */
     @NonNull
     public static final RowListConstraints ROW_LIST_CONSTRAINTS_CONSERVATIVE =
@@ -87,13 +87,6 @@ public class RowListConstraints {
     private final RowConstraints mRowConstraints;
     private final boolean mAllowSelectableLists;
 
-    /** A builder of {@link RowListConstraints}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     /** Returns the maximum number of actions allowed to be added alongside the list. */
     public int getMaxActions() {
         return mMaxActions;
@@ -113,23 +106,23 @@ public class RowListConstraints {
     /**
      * Validates that the {@link ItemList} satisfies this {@link RowListConstraints} instance.
      *
-     * @throws IllegalArgumentException if the constraints are not met.
-     * @throws IllegalArgumentException if the list contains non-Row instances.
+     * @throws IllegalArgumentException if the constraints are not met, or if the list contains
+     *                                  non-row instances
      */
     public void validateOrThrow(@NonNull ItemList itemList) {
         if (itemList.getOnSelectedDelegate() != null && !mAllowSelectableLists) {
             throw new IllegalArgumentException("Selectable lists are not allowed");
         }
 
-        validateRows(itemList.getItemList());
+        validateRows(itemList.getItems());
     }
 
     /**
      * Validates that the list of {@link SectionedItemList}s satisfies this
      * {@link RowListConstraints} instance.
      *
-     * @throws IllegalArgumentException if the constraints are not met.
-     * @throws IllegalArgumentException if the lists contain any non-Row instances.
+     * @throws IllegalArgumentException if the constraints are not met or if the lists contain
+     *                                  any non-row instances
      */
     public void validateOrThrow(@NonNull List<SectionedItemList> sections) {
         List<Item> combinedLists = new ArrayList<>();
@@ -140,7 +133,7 @@ public class RowListConstraints {
                 throw new IllegalArgumentException("Selectable lists are not allowed");
             }
 
-            combinedLists.addAll(sectionList.getItemList());
+            combinedLists.addAll(sectionList.getItems());
         }
 
         validateRows(combinedLists);
@@ -149,17 +142,17 @@ public class RowListConstraints {
     /**
      * Validates that the {@link Pane} satisfies this {@link RowListConstraints} instance.
      *
-     * @throws IllegalArgumentException if the constraints are not met.
+     * @throws IllegalArgumentException if the constraints are not met
      */
     public void validateOrThrow(@NonNull Pane pane) {
-        List<Action> actions = pane.getActionList();
-        if (actions != null && actions.size() > mMaxActions) {
+        List<Action> actions = pane.getActions();
+        if (actions.size() > mMaxActions) {
             throw new IllegalArgumentException(
                     "The number of actions on the pane exceeded the supported max of "
                             + mMaxActions);
         }
 
-        validateRows(pane.getRowList());
+        validateRows(pane.getRows());
     }
 
     private void validateRows(List<? extends Item> rows) {
@@ -188,21 +181,21 @@ public class RowListConstraints {
         /** Sets the maximum number of actions allowed to be added alongside the list. */
         @NonNull
         public Builder setMaxActions(int maxActions) {
-            this.mMaxActions = maxActions;
+            mMaxActions = maxActions;
             return this;
         }
 
         /** Sets the constraints to apply on individual rows. */
         @NonNull
         public Builder setRowConstraints(@NonNull RowConstraints rowConstraints) {
-            this.mRowConstraints = rowConstraints;
+            mRowConstraints = rowConstraints;
             return this;
         }
 
         /** Sets whether selectable lists are allowed. */
         @NonNull
         public Builder setAllowSelectableLists(boolean allowSelectableLists) {
-            this.mAllowSelectableLists = allowSelectableLists;
+            mAllowSelectableLists = allowSelectableLists;
             return this;
         }
 
@@ -221,13 +214,13 @@ public class RowListConstraints {
         /**
          * Return a a new builder for the given {@link RowListConstraints} instance.
          *
-         * @throws NullPointerException if {@code latLng} is {@code null}.
+         * @throws NullPointerException if {@code latLng} is {@code null}
          */
         public Builder(@NonNull RowListConstraints constraints) {
             requireNonNull(constraints);
-            this.mMaxActions = constraints.getMaxActions();
-            this.mRowConstraints = constraints.getRowConstraints();
-            this.mAllowSelectableLists = constraints.isAllowSelectableLists();
+            mMaxActions = constraints.getMaxActions();
+            mRowConstraints = constraints.getRowConstraints();
+            mAllowSelectableLists = constraints.isAllowSelectableLists();
         }
     }
 }

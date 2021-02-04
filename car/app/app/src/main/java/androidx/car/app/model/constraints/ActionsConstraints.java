@@ -39,7 +39,7 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(Scope.LIBRARY)
-public class ActionsConstraints {
+public final class ActionsConstraints {
 
     /** Conservative constraints for most template types. */
     @NonNull
@@ -78,14 +78,6 @@ public class ActionsConstraints {
     private final Set<Integer> mRequiredActionTypes;
     private final Set<Integer> mDisallowedActionTypes;
 
-    /** Returns a builder of {@link ActionsConstraints}. */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @VisibleForTesting
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     /** Returns the max number of actions allowed. */
     public int getMaxActions() {
         return mMaxActions;
@@ -111,11 +103,10 @@ public class ActionsConstraints {
     /**
      * Validates the input list of {@link Action}s against this {@link ActionsConstraints} instance.
      *
-     * @throws IllegalArgumentException if the actions has more actions than allowed.
-     * @throws IllegalArgumentException if the actions has more actions with custom titles than
-     *                                  allowed.
-     * @throws IllegalArgumentException if the actions does not contain all required types.
-     * @throws IllegalArgumentException if the actions contain any disallowed types.
+     * @throws IllegalArgumentException if the actions has more actions than allowed, if it has
+     *                                  more actions with custom titles than allowed, if the
+     *                                  actions do not contain all required types, or if the
+     *                                  actions contain any disallowed types
      */
     public void validateOrThrow(@NonNull List<Action> actions) {
         int maxAllowedActions = mMaxActions;
@@ -124,7 +115,7 @@ public class ActionsConstraints {
         Set<Integer> requiredTypes =
                 mRequiredActionTypes.isEmpty()
                         ? Collections.emptySet()
-                        : new HashSet<>(this.mRequiredActionTypes);
+                        : new HashSet<>(mRequiredActionTypes);
 
         for (Action action : actions) {
             if (mDisallowedActionTypes.contains(action.getType())) {
@@ -170,14 +161,14 @@ public class ActionsConstraints {
             disallowedActionTypes.retainAll(mRequiredActionTypes);
             if (!disallowedActionTypes.isEmpty()) {
                 throw new IllegalArgumentException(
-                        "Disallowed action types cannot also be in the required set.");
+                        "Disallowed action types cannot also be in the required set");
             }
         }
         mDisallowedActionTypes = new HashSet<>(builder.mDisallowedActionTypes);
 
         if (mRequiredActionTypes.size() > mMaxActions) {
             throw new IllegalArgumentException(
-                    "Required action types exceeded max allowed actions.");
+                    "Required action types exceeded max allowed actions");
         }
     }
 
@@ -194,14 +185,14 @@ public class ActionsConstraints {
         /** Sets the maximum number of actions allowed. */
         @NonNull
         public Builder setMaxActions(int maxActions) {
-            this.mMaxActions = maxActions;
+            mMaxActions = maxActions;
             return this;
         }
 
         /** Sets the maximum number of actions with custom titles allowed. */
         @NonNull
         public Builder setMaxCustomTitles(int maxCustomTitles) {
-            this.mMaxCustomTitles = maxCustomTitles;
+            mMaxCustomTitles = maxCustomTitles;
             return this;
         }
 
@@ -235,14 +226,14 @@ public class ActionsConstraints {
          * Returns a new builder that contains the same data as the given {@link ActionsConstraints}
          * instance.
          *
-         * @throws NullPointerException if {@code latLng} is {@code null}.
+         * @throws NullPointerException if {@code latLng} is {@code null}
          */
         public Builder(@NonNull ActionsConstraints constraints) {
             requireNonNull(constraints);
-            this.mMaxActions = constraints.getMaxActions();
-            this.mMaxCustomTitles = constraints.getMaxCustomTitles();
-            this.mRequiredActionTypes.addAll(constraints.getRequiredActionTypes());
-            this.mDisallowedActionTypes.addAll(constraints.getDisallowedActionTypes());
+            mMaxActions = constraints.getMaxActions();
+            mMaxCustomTitles = constraints.getMaxCustomTitles();
+            mRequiredActionTypes.addAll(constraints.getRequiredActionTypes());
+            mDisallowedActionTypes.addAll(constraints.getDisallowedActionTypes());
         }
     }
 }

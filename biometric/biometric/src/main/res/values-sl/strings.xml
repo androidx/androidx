@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Uporaba gesla"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Nastavljena ni nobena koda PIN, vzorec ali geslo."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Ta naprava ne podpira kode PIN, vzorca ali gesla."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Ikona prstnih odtisov"</string>
 </resources>

@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Utilizar palavra-passe"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Nenhum PIN, padrão ou palavra-passe definidos."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Este dispositivo não suporta o PIN, o padrão ou a palavra-passe."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Ícone de impressão digital"</string>
 </resources>

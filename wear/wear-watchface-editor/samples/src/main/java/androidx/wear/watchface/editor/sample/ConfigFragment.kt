@@ -42,6 +42,7 @@ import androidx.wear.watchface.R
 import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView
+import kotlinx.coroutines.launch
 
 /**
  * Top level configuration fragment. Lets the user select whether they want to select a complication
@@ -147,22 +148,20 @@ internal class ConfigFragment : Fragment() {
 
         // Update the summary with the actual background complication provider name, if there is
         // one.
-        val providerInfoRetriever = ProviderInfoRetriever(activity as WatchFaceConfigActivity)
-        val future = providerInfoRetriever.retrieveProviderInfo(
-            watchFaceConfigActivity.editorSession.watchFaceComponentName,
-            intArrayOf(watchFaceConfigActivity.editorSession.backgroundComplicationId!!)
-        )
-        future.addListener(
-            {
-                val provideInfo = future.get()
-                provideInfo[0].info?.apply {
+        watchFaceConfigActivity.coroutineScope.launch {
+            val providerInfoRetriever = ProviderInfoRetriever(activity as WatchFaceConfigActivity)
+            val infoArray = providerInfoRetriever.retrieveProviderInfo(
+                watchFaceConfigActivity.editorSession.watchFaceComponentName,
+                intArrayOf(watchFaceConfigActivity.editorSession.backgroundComplicationId!!)
+            )
+            infoArray?.let {
+                it[0].info?.apply {
                     backgroundConfigOption.summary = providerName!!
-                    configViewAdapter.notifyDataSetChanged()
                 }
-                providerInfoRetriever.close()
-            },
-            { runnable -> runnable.run() }
-        )
+                configViewAdapter.notifyDataSetChanged()
+            }
+            providerInfoRetriever.close()
+        }
         return backgroundConfigOption
     }
 
@@ -186,9 +185,11 @@ internal class ConfigFragment : Fragment() {
                 watchFaceConfigActivity.fragmentController.showComplicationConfigSelectionFragment()
 
             Constants.KEY_BACKGROUND_IMAGE_SETTINGS -> {
-                watchFaceConfigActivity.fragmentController.showComplicationConfig(
-                    editingSession.backgroundComplicationId!!
-                )
+                watchFaceConfigActivity.coroutineScope.launch {
+                    watchFaceConfigActivity.fragmentController.showComplicationConfig(
+                        editingSession.backgroundComplicationId!!
+                    )
+                }
             }
 
             else -> {

@@ -34,6 +34,8 @@ import java.util.Objects;
  *
  * <p>These directions can be combined and sent to the host to display a lane configuration to the
  * user.
+ *
+ * @see Lane
  */
 public final class LaneDirection {
     /**
@@ -113,9 +115,9 @@ public final class LaneDirection {
     /**
      * Constructs a new instance of a {@link LaneDirection}.
      *
-     * @param shape         one of the {@code SHAPE_*} static constants defined in this class.
+     * @param shape         one of the {@code SHAPE_*} static constants defined in this class
      * @param isRecommended indicates whether the {@link LaneDirection} is the one the driver should
-     *                      take in order to stay on the navigation route.
+     *                      take in order to stay on the navigation route
      */
     @NonNull
     public static LaneDirection create(@Shape int shape, boolean isRecommended) {
@@ -161,8 +163,8 @@ public final class LaneDirection {
     }
 
     private LaneDirection(@Shape int shape, boolean isRecommended) {
-        this.mShape = shape;
-        this.mIsRecommended = isRecommended;
+        mShape = shape;
+        mIsRecommended = isRecommended;
     }
 
     /** Constructs an empty instance, used by serialization code. */

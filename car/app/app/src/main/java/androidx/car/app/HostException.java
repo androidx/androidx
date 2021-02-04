@@ -19,12 +19,11 @@ package androidx.car.app;
 import androidx.annotation.NonNull;
 
 /** Exceptions that happen on calls to the host. */
-// Developers can catch this exception so keeping it.
-public class HostException extends RuntimeException {
+public final class HostException extends RuntimeException {
     /**
      * Creates an instance of {@link HostException} with the given {@code message}.
      *
-     * @param message the exception message.
+     * @param message the exception message
      */
     public HostException(@NonNull String message) {
         super(message);
@@ -33,8 +32,8 @@ public class HostException extends RuntimeException {
     /**
      * Creates an instance of {@link HostException} with the given {@code message}.
      *
-     * @param message the exception message.
-     * @param cause   the originating cause of the exception.
+     * @param message the exception message
+     * @param cause   the originating cause of the exception
      */
     public HostException(@NonNull String message, @NonNull Throwable cause) {
         super(message, cause);
@@ -43,7 +42,7 @@ public class HostException extends RuntimeException {
     /**
      * Creates an instance of {@link HostException} with the given {@code cause}.
      *
-     * @param cause the originating cause of the exception.
+     * @param cause the originating cause of the exception
      */
     public HostException(@NonNull Throwable cause) {
         super(cause);

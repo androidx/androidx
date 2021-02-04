@@ -36,7 +36,7 @@ import kotlinx.coroutines.rx2.asObservable
  * An [Observable] of [PagingData], which mirrors the stream provided by [Pager.flow], but exposes
  * it as an [Observable].
  */
-@OptIn(ExperimentalCoroutinesApi::class)
+@ExperimentalCoroutinesApi
 val <Key : Any, Value : Any> Pager<Key, Value>.observable: Observable<PagingData<Value>>
     get() = flow
         .conflate()
@@ -46,7 +46,7 @@ val <Key : Any, Value : Any> Pager<Key, Value>.observable: Observable<PagingData
  * A [Flowable] of [PagingData], which mirrors the stream provided by [Pager.flow], but exposes
  * it as a [Flowable].
  */
-@OptIn(ExperimentalCoroutinesApi::class)
+@ExperimentalCoroutinesApi
 val <Key : Any, Value : Any> Pager<Key, Value>.flowable: Flowable<PagingData<Value>>
     get() = flow
         .conflate()
@@ -69,7 +69,7 @@ val <Key : Any, Value : Any> Pager<Key, Value>.flowable: Flowable<PagingData<Val
  * the [PagingData] stream is no longer needed. Otherwise, the provided [CoroutineScope] must be
  * manually cancelled to avoid memory leaks.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
+@ExperimentalCoroutinesApi
 fun <T : Any> Observable<PagingData<T>>.cachedIn(scope: CoroutineScope): Observable<PagingData<T>> {
     return toFlowable(BackpressureStrategy.LATEST)
         .asFlow()
@@ -94,7 +94,7 @@ fun <T : Any> Observable<PagingData<T>>.cachedIn(scope: CoroutineScope): Observa
  * the [PagingData] stream is no longer needed. Otherwise, the provided [CoroutineScope] must be
  * manually cancelled to avoid memory leaks.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
+@ExperimentalCoroutinesApi
 fun <T : Any> Flowable<PagingData<T>>.cachedIn(scope: CoroutineScope): Flowable<PagingData<T>> {
     return asFlow()
         .cachedIn(scope)

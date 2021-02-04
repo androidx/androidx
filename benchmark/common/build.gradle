@@ -40,11 +40,11 @@ dependencies {
 }
 
 androidx {
-    name = "Android Benchmark Common"
+    name = "Android Benchmark - Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.BENCHMARK
     inceptionYear = "2018"
-    description = "Android Benchmark Common"
+    description = "Android Benchmark - Common"
 }
 
 // Allow usage of Kotlin's @Experimental annotation, which is itself experimental.

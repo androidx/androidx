@@ -68,6 +68,15 @@ public class UserStyle(
     /** Returns the style as a Map<String, String>. */
     public fun toMap(): Map<String, String> =
         selectedOptions.entries.associate { it.key.id to it.value.id }
+
+    /** Returns the [UserStyleSetting.Option] for [setting] if there is one or `null` otherwise. */
+    public operator fun get(setting: UserStyleSetting): UserStyleSetting.Option? =
+        selectedOptions[setting]
+
+    override fun toString(): String =
+        "[" + selectedOptions.entries.joinToString(
+            transform = { it.key.id + " -> " + it.value.id }
+        ) + "]"
 }
 
 /** Describes the list of [UserStyleSetting]s the user can configure. */
@@ -78,6 +87,23 @@ public class UserStyleSchema(
      */
     public val userStyleSettings: List<UserStyleSetting>
 ) {
+    init {
+        var customValueUserStyleSettingCount = 0
+        for (setting in userStyleSettings) {
+            if (setting is UserStyleSetting.CustomValueUserStyleSetting) {
+                customValueUserStyleSettingCount++
+            }
+        }
+
+        // There's a hard limit to how big Schema + UserStyle can be and since this data is sent
+        // over bluetooth to the companion there will be performance issues well before we hit
+        // that the limit. As a result we want the total size of custom data to be kept small and
+        // we are initially restricting there to be at most one CustomValueUserStyleSetting.
+        require(
+            customValueUserStyleSettingCount <= 1
+        ) { "At most only one CustomValueUserStyleSetting is allowed" }
+    }
+
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public constructor(wireFormat: UserStyleSchemaWireFormat) : this(
@@ -88,6 +114,8 @@ public class UserStyleSchema(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public fun toWireFormat(): UserStyleSchemaWireFormat =
         UserStyleSchemaWireFormat(userStyleSettings.map { it.toWireFormat() })
+
+    override fun toString(): String = "[" + userStyleSettings.joinToString() + "]"
 }
 
 /**

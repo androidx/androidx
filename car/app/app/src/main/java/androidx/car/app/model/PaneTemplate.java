@@ -60,34 +60,44 @@ public final class PaneTemplate implements Template {
     private final ActionStrip mActionStrip;
 
     /**
-     * Constructs a new builder of {@link PaneTemplate}.
+     * Returns the title of the template or {@code null} if not set.
      *
-     * @throws NullPointerException if {@code pane} is {@code null}
+     * @see Builder#setTitle(CharSequence)
      */
-    // TODO(b/175827428): remove once host is changed to use new public ctor.
-    @NonNull
-    public static Builder builder(@NonNull Pane pane) {
-        return new Builder(requireNonNull(pane));
-    }
-
     @Nullable
     public CarText getTitle() {
         return mTitle;
     }
 
+    /**
+     * Returns the {@link Action} that is set to be displayed in the header of the template, or
+     * {@code null} if not set.
+     *
+     * @see Builder#setHeaderAction(Action)
+     */
     @Nullable
     public Action getHeaderAction() {
         return mHeaderAction;
     }
 
-    @NonNull
-    public Pane getPane() {
-        return requireNonNull(mPane);
-    }
-
+    /**
+     * Returns the {@link ActionStrip} for this template or {@code null} if not set.
+     *
+     * @see Builder#setActionStrip(ActionStrip)
+     */
     @Nullable
     public ActionStrip getActionStrip() {
         return mActionStrip;
+    }
+
+    /**
+     * Returns the {@link Pane} to display in the template or {@code null} if not set.
+     *
+     * @see Builder#Builder(Pane)
+     */
+    @Nullable
+    public Pane getPane() {
+        return mPane;
     }
 
     @NonNull
@@ -143,66 +153,62 @@ public final class PaneTemplate implements Template {
         ActionStrip mActionStrip;
 
         /**
-         * Sets the {@link CharSequence} to show as the template's title, or {@code null} to not
-         * show a
-         * title.
+         * Sets the title of the template.
+         *
+         * <p>Unless set with this method, the template will not have a title.
+         *
+         * <p>Spans are not supported in the input string.
+         *
+         * @throws NullPointerException if {@code title} is {@code null}
+         *
+         * @see CarText for details on text handling and span support.
          */
         @NonNull
-        public Builder setTitle(@Nullable CharSequence title) {
-            this.mTitle = title == null ? null : CarText.create(title);
+        public Builder setTitle(@NonNull CharSequence title) {
+            mTitle = CarText.create(requireNonNull(title));
             return this;
         }
 
         /**
-         * Sets the {@link Action} that will be displayed in the header of the template, or
-         * {@code null}
-         * to not display an action.
+         * Sets the {@link Action} that will be displayed in the header of the template.
+         *
+         * <p>Unless set with this method, the template will not have a header action.
          *
          * <h4>Requirements</h4>
          *
-         * This template only supports either either one of {@link Action#APP_ICON} and {@link
-         * Action#BACK} as a header {@link Action}.
+         * This template only supports either one of {@link Action#APP_ICON} and
+         * {@link Action#BACK} as a header {@link Action}.
          *
          * @throws IllegalArgumentException if {@code headerAction} does not meet the template's
-         *                                  requirements.
+         *                                  requirements
+         * @throws NullPointerException     if {@code headerAction} is {@code null}
          */
         @NonNull
-        public Builder setHeaderAction(@Nullable Action headerAction) {
+        public Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
-                    headerAction == null ? Collections.emptyList()
-                            : Collections.singletonList(headerAction));
-            this.mHeaderAction = headerAction;
-            return this;
-        }
-
-        /**
-         * Sets the {@link Pane} to display in the template.
-         *
-         * @throws NullPointerException if {@code pane} is {@code null}.
-         */
-        @NonNull
-        public Builder setPane(@NonNull Pane pane) {
-            this.mPane = requireNonNull(pane);
+                    Collections.singletonList(requireNonNull(headerAction)));
+            mHeaderAction = headerAction;
             return this;
         }
 
         /**
          * Sets the {@link ActionStrip} for this template.
          *
+         * <p>Unless set with this method, the template will not have an action strip.
+         *
          * <h4>Requirements</h4>
          *
          * This template allows up to 2 {@link Action}s in its {@link ActionStrip}. Of the 2 allowed
          * {@link Action}s, one of them can contain a title as set via
-         * {@link Action.Builder#setTitle}.
-         * Otherwise, only {@link Action}s with icons are allowed.
+         * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
          *
-         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements.
+         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
+         * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @NonNull
-        public Builder setActionStrip(@Nullable ActionStrip actionStrip) {
-            ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(
-                    actionStrip == null ? Collections.emptyList() : actionStrip.getActionList());
-            this.mActionStrip = actionStrip;
+        public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
+            ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
+            mActionStrip = actionStrip;
             return this;
         }
 
@@ -220,10 +226,9 @@ public final class PaneTemplate implements Template {
          *
          * <p>Either a header {@link Action} or title must be set on the template.
          *
-         * @throws IllegalArgumentException if the {@link Pane} does not meet the requirements.
+         * @throws IllegalArgumentException if the {@link Pane} does not meet the requirements
          * @throws IllegalStateException    if the template does not have either a title or header
-         *                                  {@link
-         *                                  Action} set.
+         *                                  {@link Action} set
          */
         @NonNull
         public PaneTemplate build() {

@@ -46,11 +46,12 @@ import java.util.Objects;
  * @see CarColor
  * @see ForegroundColorSpan
  */
-public class ForegroundCarColorSpan extends CarSpan {
+public final class ForegroundCarColorSpan extends CarSpan {
     @Keep
     private final CarColor mCarColor;
 
-    @NonNull
+    /** Returns the {@link CarColor} associated with this span or {@code null} if not set. */
+    @Nullable
     public CarColor getColor() {
         return mCarColor;
     }
@@ -60,8 +61,8 @@ public class ForegroundCarColorSpan extends CarSpan {
      *
      * <p>Custom colors created with {@link CarColor#createCustom} are not supported in text spans.
      *
-     * @throws IllegalArgumentException if {@code carColor} contains a custom color.
-     * @throws NullPointerException     if {@code carColor} is {@code null}.
+     * @throws IllegalArgumentException if {@code carColor} contains a custom color
+     * @throws NullPointerException     if {@code carColor} is {@code null}
      */
     @NonNull
     public static ForegroundCarColorSpan create(@NonNull CarColor carColor) {
@@ -94,7 +95,7 @@ public class ForegroundCarColorSpan extends CarSpan {
     }
 
     private ForegroundCarColorSpan(CarColor carColor) {
-        this.mCarColor = carColor;
+        mCarColor = carColor;
     }
 
     private ForegroundCarColorSpan() {
