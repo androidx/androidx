@@ -29,6 +29,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -43,6 +44,7 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.WeakHashMap;
 
 /** Extension interface compatibility wrapper for v0.1 sidecar. */
 @SuppressWarnings("deprecation")
@@ -92,40 +94,9 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
 
     @Override
     public void setExtensionCallback(@NonNull ExtensionCallbackInterface extensionCallback) {
-        mExtensionCallback = extensionCallback;
-        mSidecar.setSidecarCallback(new SidecarInterface.SidecarCallback() {
-            @Override
-            @SuppressLint("SyntheticAccessor")
-            public void onDeviceStateChanged(@NonNull SidecarDeviceState newDeviceState) {
-                extensionCallback.onDeviceStateChanged(mSidecarAdapter.translate(newDeviceState));
-
-                for (int i = 0; i < mWindowListenerRegisteredContexts.size(); i++) {
-                    Activity activity = mWindowListenerRegisteredContexts.valueAt(i);
-                    IBinder windowToken = getActivityWindowToken(activity);
-                    if (windowToken == null) {
-                        continue;
-                    }
-                    SidecarWindowLayoutInfo layoutInfo = mSidecar.getWindowLayoutInfo(windowToken);
-                    extensionCallback.onWindowLayoutChanged(activity,
-                            mSidecarAdapter.translate(activity, layoutInfo, newDeviceState));
-                }
-            }
-
-            @Override
-            @SuppressLint("SyntheticAccessor")
-            public void onWindowLayoutChanged(@NonNull IBinder windowToken,
-                    @NonNull SidecarWindowLayoutInfo newLayout) {
-                Activity activity = mWindowListenerRegisteredContexts.get(windowToken);
-                if (activity == null) {
-                    Log.w(TAG, "Unable to resolve activity from window token. Missing a call"
-                            + "to #onWindowLayoutChangeListenerAdded()?");
-                    return;
-                }
-
-                extensionCallback.onWindowLayoutChanged(activity,
-                        mSidecarAdapter.translate(activity, newLayout, mSidecar.getDeviceState()));
-            }
-        });
+        mExtensionCallback = new DistinctElementCallback(extensionCallback);
+        mSidecar.setSidecarCallback(new DistinctSidecarElementCallback(mSidecarAdapter,
+                new TranslatingCallback()));
     }
 
     //TODO(b/173739071) reduce visibility to @VisibleForTesting
@@ -359,5 +330,141 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
 
         @Override
         public void onViewDetachedFromWindow(View view) { }
+    }
+
+    final class TranslatingCallback implements SidecarInterface.SidecarCallback {
+        @Override
+        @SuppressLint("SyntheticAccessor")
+        public void onDeviceStateChanged(@NonNull SidecarDeviceState newDeviceState) {
+            mExtensionCallback.onDeviceStateChanged(mSidecarAdapter.translate(newDeviceState));
+
+            for (int i = 0; i < mWindowListenerRegisteredContexts.size(); i++) {
+                Activity activity = mWindowListenerRegisteredContexts.valueAt(i);
+                IBinder windowToken = getActivityWindowToken(activity);
+                if (windowToken == null) {
+                    continue;
+                }
+                SidecarWindowLayoutInfo layoutInfo = mSidecar.getWindowLayoutInfo(windowToken);
+                mExtensionCallback.onWindowLayoutChanged(activity,
+                        mSidecarAdapter.translate(activity, layoutInfo, newDeviceState));
+            }
+        }
+
+        @Override
+        @SuppressLint("SyntheticAccessor")
+        public void onWindowLayoutChanged(@NonNull IBinder windowToken,
+                @NonNull SidecarWindowLayoutInfo newLayout) {
+            Activity activity = mWindowListenerRegisteredContexts.get(windowToken);
+            if (activity == null) {
+                Log.w(TAG, "Unable to resolve activity from window token. Missing a call"
+                        + "to #onWindowLayoutChangeListenerAdded()?");
+                return;
+            }
+
+            mExtensionCallback.onWindowLayoutChanged(activity,
+                    mSidecarAdapter.translate(activity, newLayout, mSidecar.getDeviceState()));
+        }
+    }
+
+    /**
+     * A class to record the last calculated values from {@link SidecarInterface} and filter out
+     * duplicates. This class uses {@link WindowLayoutInfo} and {@link DeviceState} as opposed to
+     * {@link SidecarDeviceState} and {@link SidecarDisplayFeature} since the methods
+     * {@link Object#equals(Object)} and {@link Object#hashCode()} may not have been overridden.
+     */
+    private static final class DistinctElementCallback
+            implements ExtensionCallbackInterface {
+
+        private final Object mLock = new Object();
+        @GuardedBy("mLock")
+        private DeviceState mLastDeviceState;
+        /**
+         * A map from {@link Activity} to the last computed {@link WindowLayoutInfo} for the
+         * given activity. A {@link WeakHashMap} is used to avoid retaining the {@link Activity}.
+         */
+        @GuardedBy("mLock")
+        private final WeakHashMap<Activity, WindowLayoutInfo> mActivityWindowLayoutInfo =
+                new WeakHashMap<>();
+        private final ExtensionCallbackInterface mCallbackInterface;
+
+        DistinctElementCallback(ExtensionCallbackInterface callbackInterface) {
+            mCallbackInterface = callbackInterface;
+        }
+
+        @Override
+        public void onDeviceStateChanged(@NonNull DeviceState newDeviceState) {
+            synchronized (mLock) {
+                if (newDeviceState.equals(mLastDeviceState)) {
+                    return;
+                }
+                mLastDeviceState = newDeviceState;
+                mCallbackInterface.onDeviceStateChanged(newDeviceState);
+            }
+        }
+
+        @Override
+        public void onWindowLayoutChanged(@NonNull Activity activity,
+                @NonNull WindowLayoutInfo newLayout) {
+            synchronized (mLock) {
+                WindowLayoutInfo lastInfo = mActivityWindowLayoutInfo.get(activity);
+                if (newLayout.equals(lastInfo)) {
+                    return;
+                }
+                mActivityWindowLayoutInfo.put(activity, newLayout);
+            }
+            mCallbackInterface.onWindowLayoutChanged(activity, newLayout);
+        }
+    }
+
+    /**
+     * A class to record the last calculated values from {@link SidecarInterface} and filter out
+     * duplicates. This class uses {@link SidecarAdapter} to compute equality since the methods
+     * {@link Object#equals(Object)} and {@link Object#hashCode()} may not have been overridden.
+     */
+    private static final class DistinctSidecarElementCallback
+            implements SidecarInterface.SidecarCallback {
+
+        private final Object mLock = new Object();
+        @GuardedBy("mLock")
+        private SidecarDeviceState mLastDeviceState;
+        /**
+         * A map from {@link Activity} to the last computed {@link WindowLayoutInfo} for the
+         * given activity. A {@link WeakHashMap} is used to avoid retaining the {@link Activity}.
+         */
+        @GuardedBy("mLock")
+        private final WeakHashMap<IBinder, SidecarWindowLayoutInfo> mActivityWindowLayoutInfo =
+                new WeakHashMap<>();
+        private final SidecarAdapter mSidecarAdapter;
+        private final SidecarInterface.SidecarCallback mCallbackInterface;
+
+        DistinctSidecarElementCallback(SidecarAdapter adapter,
+                SidecarInterface.SidecarCallback callbackInterface) {
+            mSidecarAdapter = adapter;
+            mCallbackInterface = callbackInterface;
+        }
+
+        @Override
+        public void onDeviceStateChanged(@NonNull SidecarDeviceState newDeviceState) {
+            synchronized (mLock) {
+                if (mSidecarAdapter.isEqualSidecarDeviceState(mLastDeviceState, newDeviceState)) {
+                    return;
+                }
+                mLastDeviceState = newDeviceState;
+                mCallbackInterface.onDeviceStateChanged(newDeviceState);
+            }
+        }
+
+        @Override
+        public void onWindowLayoutChanged(@NonNull IBinder token,
+                @NonNull SidecarWindowLayoutInfo newLayout) {
+            synchronized (mLock) {
+                SidecarWindowLayoutInfo lastInfo = mActivityWindowLayoutInfo.get(token);
+                if (mSidecarAdapter.isEqualSidecarWindowLayoutInfo(lastInfo, newLayout)) {
+                    return;
+                }
+                mActivityWindowLayoutInfo.put(token, newLayout);
+            }
+            mCallbackInterface.onWindowLayoutChanged(token, newLayout);
+        }
     }
 }
