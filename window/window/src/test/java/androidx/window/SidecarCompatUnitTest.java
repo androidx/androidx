@@ -28,6 +28,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -98,7 +99,7 @@ public final class SidecarCompatUnitTest {
 
         fakeSidecarImp.triggerDeviceState(deviceState);
 
-        verify(mockCallback).onDeviceStateChanged(any());
+        verify(mockCallback).onDeviceStateChanged(new DeviceState(DeviceState.POSTURE_OPENED));
     }
 
     @Test
@@ -251,6 +252,22 @@ public final class SidecarCompatUnitTest {
         verify(listener).onDeviceStateChanged(expectedDeviceState);
     }
 
+    @Test
+    public void testExtensionCallback_deduplicateValues() {
+        ExtensionInterfaceCompat.ExtensionCallbackInterface callback = mock(
+                ExtensionInterfaceCompat.ExtensionCallbackInterface.class);
+        FakeExtensionImp fakeExtensionImp = new FakeExtensionImp();
+        SidecarCompat compat = new SidecarCompat(fakeExtensionImp, new SidecarAdapter());
+        compat.setExtensionCallback(callback);
+        mActivity.getWindow().getAttributes().token = mock(IBinder.class);
+
+        compat.onWindowLayoutChangeListenerAdded(mActivity);
+        fakeExtensionImp.triggerDeviceState(fakeExtensionImp.getDeviceState());
+        fakeExtensionImp.triggerDeviceState(fakeExtensionImp.getDeviceState());
+
+        verify(callback, times(1)).onWindowLayoutChanged(any(), any());
+    }
+
     private static SidecarDisplayFeature newDisplayFeature(Rect rect, int type) {
         SidecarDisplayFeature feature = new SidecarDisplayFeature();
         feature.setRect(rect);
@@ -294,7 +311,7 @@ public final class SidecarCompatUnitTest {
 
         @Override
         public void setSidecarCallback(@NonNull SidecarCallback callback) {
-
+            mCallback = callback;
         }
 
         @NonNull
