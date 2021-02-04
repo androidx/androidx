@@ -16,7 +16,7 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="email" msgid="6099716515489216517">"Poslat e-mail"</string>
+    <string name="email" msgid="6099716515489216517">"E-mail"</string>
     <string name="email_desc" msgid="2189760120923982860">"Napsat na vybranou e‑mailovou adresu"</string>
     <string name="dial" msgid="2101464860090311277">"Zavolat"</string>
     <string name="dial_desc" msgid="1195407206406821463">"Zavolat na vybrané telefonní číslo"</string>
@@ -26,7 +26,7 @@ limitations under the License.
     <string name="sms_desc" msgid="7733202356868441148">"Napsat SMS na vybrané telefonní číslo"</string>
     <string name="add_contact" msgid="386263007484061034">"Přidat"</string>
     <string name="add_contact_desc" msgid="1739272501140197425">"Přidat do kontaktů"</string>
-    <string name="floating_toolbar_open_overflow_description" msgid="6778458701858708647">"Více možností"</string>
+    <string name="floating_toolbar_open_overflow_description" msgid="6778458701858708647">"Další možnosti"</string>
     <string name="floating_toolbar_close_overflow_description" msgid="3112942430227166657">"Zavřít rozbalovací nabídku"</string>
     <string name="abc_share" msgid="37557693057519685">"Sdílet"</string>
 </resources>
