@@ -285,7 +285,12 @@ public class ScreenManager {
 
         Log.d(TAG, "Screen " + newTop + " is at the top of the screen stack");
         if (mAppLifecycle.getCurrentState().isAtLeast(State.RESUMED)) {
-            newTop.dispatchLifecycleEvent(Event.ON_RESUME);
+            if (mScreenStack.contains(newTop)) {
+                // During the Screen teardown it can send the result to any screen that called
+                // startScreenForResult.  If this receiver pops from the stack, it is possible
+                // that the newTop is no longer in the stack.
+                newTop.dispatchLifecycleEvent(Event.ON_RESUME);
+            }
         }
     }
 
