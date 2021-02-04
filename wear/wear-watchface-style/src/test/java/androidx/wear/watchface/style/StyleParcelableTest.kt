@@ -18,6 +18,7 @@ package androidx.wear.watchface.style
 
 import android.graphics.drawable.Icon
 import android.os.Parcel
+
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting
@@ -30,6 +31,7 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -504,6 +506,7 @@ class StyleParcelableTest {
         )
     }
 
+    @Ignore
     @Test
     fun userStyleToString() {
         val settingIcon1 = Icon.createWithContentUri("settingIcon1")
