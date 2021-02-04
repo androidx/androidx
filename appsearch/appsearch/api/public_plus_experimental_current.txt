@@ -32,6 +32,7 @@ package androidx.appsearch.annotation {
 package androidx.appsearch.app {
 
   public final class AppSearchBatchResult<KeyType, ValueType> {
+    method public java.util.Map<KeyType!,androidx.appsearch.app.AppSearchResult<ValueType!>!> getAll();
     method public java.util.Map<KeyType!,androidx.appsearch.app.AppSearchResult<ValueType!>!> getFailures();
     method public java.util.Map<KeyType!,ValueType!> getSuccesses();
     method public boolean isSuccess();
