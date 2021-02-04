@@ -17,7 +17,7 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="lb_navigation_menu_contentDescription" msgid="8084428500709675515">"Навигацийн цэс"</string>
+    <string name="lb_navigation_menu_contentDescription" msgid="8084428500709675515">"Навигацын цэс"</string>
     <string name="orb_search_action" msgid="1301877238242752863">"Хайлтын үйлдэл"</string>
     <string name="lb_search_bar_hint" msgid="5700349211583074131">"Хайх"</string>
     <string name="lb_search_bar_hint_speech" msgid="5926531297066387462">"Хайхын тулд ярина уу"</string>
