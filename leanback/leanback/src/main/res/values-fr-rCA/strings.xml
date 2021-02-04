@@ -34,8 +34,8 @@ limitations under the License.
     <string name="lb_playback_controls_skip_next" msgid="8117512422682146745">"Passer à l\'élément suivant"</string>
     <string name="lb_playback_controls_skip_previous" msgid="3481218248309447059">"Retourner à l\'élément précédent"</string>
     <string name="lb_playback_controls_more_actions" msgid="8730341244454469032">"Autres actions"</string>
-    <string name="lb_playback_controls_thumb_up" msgid="3458671378107738666">"Désélectionner la mention « J\'aime »"</string>
-    <string name="lb_playback_controls_thumb_up_outline" msgid="1385865732502550659">"Sélectionner la mention « J\'aime »"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="3458671378107738666">"Désélectionner la mention J\'aime"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1385865732502550659">"Sélectionner la mention J\'aime"</string>
     <string name="lb_playback_controls_thumb_down" msgid="3544533410444618518">"Désélectionner la mention « Je n\'aime pas »"</string>
     <string name="lb_playback_controls_thumb_down_outline" msgid="8475278766138652105">"Sélectionner la mention « Je n\'aime pas »"</string>
     <string name="lb_playback_controls_repeat_none" msgid="1614290959784265209">"Aucune répétition"</string>
