@@ -525,7 +525,7 @@ class StyleParcelableTest {
             listOf(Layer.TOP_LAYER)
         )
         val style = UserStyle(
-            hashMapOf(
+            mapOf(
                 styleSetting1 to option2,
                 styleSetting2 to option3
             )
