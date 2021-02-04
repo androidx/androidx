@@ -121,46 +121,4 @@ public class ComplicationsUserStyleSettingWireFormat extends UserStyleSettingWir
                     }
                 };
     }
-
-    /**
-     * Wire format for {@link
-     * androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationsOption}.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @VersionedParcelize
-    public static class ComplicationsOptionWireFormat extends OptionWireFormat {
-        @ParcelField(2)
-        @NonNull
-        public CharSequence mDisplayName;
-
-        @ParcelField(3)
-        @Nullable
-        public Icon mIcon;
-
-        /**
-         * Great care should be taken to ensure backwards compatibility of the versioned parcelable
-         * if {@link ComplicationOverlayWireFormat} is ever extended.
-         */
-        @ParcelField(100)
-        @NonNull
-        public ComplicationOverlayWireFormat[] mComplicationOverlays =
-                new ComplicationOverlayWireFormat[0];
-
-        ComplicationsOptionWireFormat() {
-        }
-
-        public ComplicationsOptionWireFormat(
-                @NonNull String id,
-                @NonNull CharSequence displayName,
-                @Nullable Icon icon,
-                @NonNull ComplicationOverlayWireFormat[] complicationOverlays
-        ) {
-            super(id);
-            mDisplayName = displayName;
-            mIcon = icon;
-            mComplicationOverlays = complicationOverlays;
-        }
-    }
 }

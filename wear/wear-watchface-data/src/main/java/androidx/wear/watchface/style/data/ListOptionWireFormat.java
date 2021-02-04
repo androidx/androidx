@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,30 +21,38 @@ import android.graphics.drawable.Icon;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
 
-import java.util.List;
-
 /**
- * Wire format for {@link androidx.wear.watchface.style.DoubleRangeUserStyleSetting}.
+ * Wire format for
+ * {@link androidx.wear.watchface.style.ListUserStyleSetting.ListOption}.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize
-public class DoubleRangeUserStyleSettingWireFormat extends UserStyleSettingWireFormat {
+public class ListOptionWireFormat extends OptionWireFormat {
+    /** Localized human readable name for the setting, used in the style selection UI. */
+    @ParcelField(2)
+    @NonNull
+    public CharSequence mDisplayName = "";
 
-    DoubleRangeUserStyleSettingWireFormat() {}
+    /** Icon for use in the style selection UI. */
+    @ParcelField(3)
+    @Nullable
+    public Icon mIcon = null;
 
-    public DoubleRangeUserStyleSettingWireFormat(
-            @NonNull String id,
-            @NonNull CharSequence displayName,
-            @NonNull CharSequence description,
-            @Nullable Icon icon,
-            @NonNull List<OptionWireFormat> options,
-            int defaultOptionIndex,
-            @NonNull List<Integer> affectsLayers)  {
-        super(id, displayName, description, icon, options, defaultOptionIndex, affectsLayers);
+    ListOptionWireFormat() {
     }
 
+    public ListOptionWireFormat(
+            @NonNull String id,
+            @NonNull CharSequence displayName,
+            @Nullable Icon icon
+    ) {
+        super(id);
+        this.mDisplayName = displayName;
+        this.mIcon = icon;
+    }
 }
