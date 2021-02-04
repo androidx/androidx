@@ -114,8 +114,7 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
             // while in the scope of the composable, we provide the navBackStackEntry as the
             // ViewModelStoreOwner and LifecycleOwner
             CompositionLocalProvider(
-                LocalViewModelStoreOwner.asProvidableCompositionLocal()
-                    provides currentNavBackStackEntry,
+                LocalViewModelStoreOwner provides currentNavBackStackEntry,
                 LocalLifecycleOwner provides currentNavBackStackEntry,
                 LocalSavedStateRegistryOwner provides currentNavBackStackEntry
             ) {

@@ -64,8 +64,7 @@ class ActivityResultRegistryTest {
         var launcher: ActivityResultLauncher<Intent>? by mutableStateOf(null)
         composeTestRule.setContent {
             CompositionLocalProvider(
-                LocalActivityResultRegistryOwner.asProvidableCompositionLocal()
-                    provides registryOwner
+                LocalActivityResultRegistryOwner provides registryOwner
             ) {
                 launcher = registerForActivityResult(
                     ActivityResultContracts.StartActivityForResult()
@@ -92,8 +91,7 @@ class ActivityResultRegistryTest {
         activityScenario.onActivity { activity ->
             (activity as ComponentActivity).setContent {
                 CompositionLocalProvider(
-                    LocalActivityResultRegistryOwner.asProvidableCompositionLocal()
-                        provides registryOwner
+                    LocalActivityResultRegistryOwner provides registryOwner
                 ) {
                     launcher = registerForActivityResult(
                         ActivityResultContracts.StartActivityForResult()
