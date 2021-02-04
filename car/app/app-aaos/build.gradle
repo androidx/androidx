@@ -15,7 +15,7 @@
  */
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.Publish
+import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -29,6 +29,8 @@ dependencies {
 androidx {
     name = "Android for Cars App Library AAOS Extension"
     type = LibraryType.PUBLISHED_LIBRARY
+    // Special pre-release version to exclude the app-aaos module from the 1.0.0 release.
+    mavenVersion = LibraryVersions.CAR_APP_PRE_RELEASE
     mavenGroup = LibraryGroups.CAR_APP
     inceptionYear = "2021"
     description = "AAOS specific funationaltiy to build navigation, parking, and charging apps for cars"
