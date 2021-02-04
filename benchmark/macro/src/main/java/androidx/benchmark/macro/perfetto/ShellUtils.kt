@@ -19,6 +19,7 @@ package androidx.benchmark.macro.perfetto
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import java.io.File
+import java.io.InputStream
 
 /**
  * Convenience wrapper around [UiDevice.executeShellCommand()] which enables redirects, piping, and
@@ -63,4 +64,42 @@ fun UiDevice.executeShellScript(script: String, stdin: String? = null): String {
         writableScriptFile.delete()
         executeShellCommand("rm $runnableScriptPath")
     }
+}
+
+/**
+ * Writes the inputStream to an executable file with the given name in `/data/local/tmp`
+ */
+fun UiDevice.createRunnableExecutable(name: String, inputStream: InputStream): String {
+    // externalFilesDir is writable, but we can't execute there (as of Q),
+    // so we copy to /data/local/tmp
+    val context = InstrumentationRegistry.getInstrumentation().context
+    val externalDir = context.getExternalFilesDir(null)!!
+
+    val writableExecutableFile = File.createTempFile(
+        /* prefix */ "temporary_$name",
+        /* suffix */ null,
+        /* directory */ externalDir
+    )
+    val runnableExecutablePath = "/data/local/tmp/$name"
+
+    try {
+        writableExecutableFile.outputStream().use {
+            inputStream.copyTo(it)
+        }
+        moveToTmpAndMakeExecutable(
+            src = writableExecutableFile.absolutePath,
+            dst = runnableExecutablePath
+        )
+    } finally {
+        writableExecutableFile.delete()
+    }
+
+    return runnableExecutablePath
+}
+
+private fun UiDevice.moveToTmpAndMakeExecutable(src: String, dst: String) {
+    // Note: we don't check for return values from the below, since shell based file
+    // permission errors generally crash our process.
+    executeShellCommand("cp $src $dst")
+    executeShellCommand("chmod +x $dst")
 }

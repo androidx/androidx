@@ -16,7 +16,6 @@
 
 package androidx.benchmark.macro.perfetto
 
-import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -46,7 +45,7 @@ object PerfettoTraceProcessor {
      * Lazily copies the `trace_processor_shell` and enables parsing of the perfetto trace files.
      */
     @get:TestOnly
-    val shellFile: File by lazy {
+    val shellPath: String by lazy {
         if (!isAbiSupported()) {
             throw IllegalStateException("Unsupported ABI (${Build.SUPPORTED_ABIS.joinToString()})")
         }
@@ -59,19 +58,9 @@ object PerfettoTraceProcessor {
         }
 
         val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val context: Context = instrumentation.context
-        val outFile = File(context.cacheDir, "trace_processor_shell")
-
-        // Re-copy file for isolation upon first parse.
-        outFile.delete()
-        outFile.createNewFile()
-        outFile.setExecutable(true)
-        outFile.setWritable(true, false)
-
-        outFile.outputStream().use {
-            context.assets.open("trace_processor_shell_$suffix").copyTo(it)
-        }
-        outFile
+        val inputStream = instrumentation.context.assets.open("trace_processor_shell_$suffix")
+        val device = instrumentation.device()
+        device.createRunnableExecutable("trace_processor_shell", inputStream)
     }
 
     fun getJsonMetrics(absoluteTracePath: String, metric: String): String {
@@ -85,7 +74,7 @@ object PerfettoTraceProcessor {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val device = instrumentation.device()
 
-        val command = "$shellFile --run-metric $metric $absoluteTracePath --metrics-output=json"
+        val command = "$shellPath --run-metric $metric $absoluteTracePath --metrics-output=json"
         Log.d(TAG, "Executing command $command")
         val json = device.executeShellCommand(command)
             .trim() // trim to enable empty check below
