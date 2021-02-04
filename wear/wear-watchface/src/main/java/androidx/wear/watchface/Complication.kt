@@ -178,18 +178,23 @@ public open class CanvasComplicationDrawable(
         }
     }
 
-    /** Used (indirectly) by the editor, draws a dashed line around the complication. */
+    /**
+     * Used (indirectly) by the editor, draws a dashed line around the complication unless the.
+     * [Complication] is fixed in which case it does nothing.
+     */
     public open fun drawOutline(
         canvas: Canvas,
         bounds: Rect,
         calendar: Calendar,
         @ColorInt color: Int
     ) {
-        ComplicationOutlineRenderer.drawComplicationSelectOutline(
-            canvas,
-            bounds,
-            color
-        )
+        if (!attachedComplication!!.fixedComplicationProvider) {
+            ComplicationOutlineRenderer.drawComplicationSelectOutline(
+                canvas,
+                bounds,
+                color
+            )
+        }
     }
 
     /**
@@ -252,7 +257,11 @@ public class Complication internal constructor(
     initiallyEnabled: Boolean,
 
     /** Extras to be merged into the Intent sent when invoking the provider chooser activity. */
-    public val complicationConfigExtras: Bundle?
+    public val complicationConfigExtras: Bundle?,
+
+    /** Whether or not the complication provider is fixed. */
+    @get:JvmName("isFixedComplicationProvider")
+    public val fixedComplicationProvider: Boolean
 ) {
     public companion object {
         internal val unitSquare = RectF(0f, 0f, 1f, 1f)
@@ -356,6 +365,7 @@ public class Complication internal constructor(
         private var defaultProviderType = ComplicationType.NOT_CONFIGURED
         private var initiallyEnabled = true
         private var complicationConfigExtras: Bundle? = null
+        private var fixedComplicationProvider = false
 
         /**
          * Sets the initial [ComplicationType] to use with the initial complication provider.
@@ -387,6 +397,14 @@ public class Complication internal constructor(
             return this
         }
 
+        /**
+         * Whether or not the complication is fixed (i.e. the user can't change it).
+         */
+        public fun setFixedComplicationProvider(fixedComplicationProvider: Boolean): Builder {
+            this.fixedComplicationProvider = fixedComplicationProvider
+            return this
+        }
+
         /** Constructs the [Complication]. */
         public fun build(): Complication = Complication(
             id,
@@ -397,7 +415,8 @@ public class Complication internal constructor(
             defaultProviderPolicy,
             defaultProviderType,
             initiallyEnabled,
-            complicationConfigExtras
+            complicationConfigExtras,
+            fixedComplicationProvider
         )
     }
 

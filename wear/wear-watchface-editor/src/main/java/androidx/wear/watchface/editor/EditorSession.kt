@@ -263,6 +263,9 @@ internal abstract class BaseEditorSession(
         }
 
     override suspend fun launchComplicationProviderChooser(complicationId: Int): Boolean {
+        require(!complicationState[complicationId]!!.fixedComplicationProvider) {
+            "Can't configure fixed complication ID $complicationId"
+        }
         pendingComplicationProviderChooserResult = CompletableDeferred<Boolean>()
         pendingComplicationProviderId = complicationId
         chooseComplicationProvider.launch(
@@ -381,7 +384,8 @@ internal class OnWatchFaceEditorSessionImpl(
                 it.value.defaultProviderType,
                 it.value.enabled,
                 it.value.renderer.idAndData?.complicationData?.type
-                    ?: ComplicationType.NO_DATA
+                    ?: ComplicationType.NO_DATA,
+                it.value.fixedComplicationProvider
             )
         }
 

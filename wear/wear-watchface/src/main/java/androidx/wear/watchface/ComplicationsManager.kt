@@ -370,7 +370,8 @@ public class ComplicationsManager(
 
     /**
      * Called when the user double taps on a complication, launches the complication
-     * configuration activity.
+     * configuration activity unless the complication is fixed in which case it does
+     * nothing.
      *
      * @param complicationId The watch face's id for the complication double tapped
      */
@@ -379,6 +380,9 @@ public class ComplicationsManager(
     internal fun onComplicationDoubleTapped(complicationId: Int) {
         // Check if the complication is missing permissions.
         val complication = complications[complicationId] ?: return
+        if (complication.fixedComplicationProvider) {
+            return
+        }
         val data = complication.renderer.idAndData ?: return
         if (data.complicationData.type == ComplicationType.NO_PERMISSION) {
             watchFaceHostApi.getContext().startActivity(

@@ -60,7 +60,9 @@ import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
@@ -368,17 +370,71 @@ public class EditorSessionTest {
                 .isEqualTo(Rect(80, 160, 160, 240))
             assertThat(it.editorSession.complicationState[LEFT_COMPLICATION_ID]!!.boundsType)
                 .isEqualTo(ComplicationBoundsType.ROUND_RECT)
+            assertFalse(
+                it.editorSession.complicationState[LEFT_COMPLICATION_ID]!!.fixedComplicationProvider
+            )
 
             assertThat(it.editorSession.complicationState[RIGHT_COMPLICATION_ID]!!.bounds)
                 .isEqualTo(Rect(240, 160, 320, 240))
             assertThat(it.editorSession.complicationState[RIGHT_COMPLICATION_ID]!!.boundsType)
                 .isEqualTo(ComplicationBoundsType.ROUND_RECT)
+            assertFalse(
+                it.editorSession.complicationState[RIGHT_COMPLICATION_ID]!!
+                    .fixedComplicationProvider
+            )
 
             assertThat(it.editorSession.complicationState[BACKGROUND_COMPLICATION_ID]!!.bounds)
                 .isEqualTo(screenBounds)
             assertThat(it.editorSession.complicationState[BACKGROUND_COMPLICATION_ID]!!.boundsType)
                 .isEqualTo(ComplicationBoundsType.BACKGROUND)
+            assertFalse(
+                it.editorSession.complicationState[BACKGROUND_COMPLICATION_ID]!!
+                    .fixedComplicationProvider
+            )
             // We could test more state but this should be enough.
+        }
+    }
+
+    @Test
+    public fun fixedComplicationProvider() {
+        val fixedLeftComplication =
+            Complication.createRoundRectComplicationBuilder(
+                LEFT_COMPLICATION_ID,
+                mockLeftCanvasComplication,
+                listOf(
+                    ComplicationType.RANGED_VALUE,
+                    ComplicationType.LONG_TEXT,
+                    ComplicationType.SHORT_TEXT,
+                    ComplicationType.MONOCHROMATIC_IMAGE,
+                    ComplicationType.SMALL_IMAGE
+                ),
+                DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET),
+                ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+            ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+                .setFixedComplicationProvider(true)
+                .build()
+
+        val scenario = createOnWatchFaceEditingTestActivity(
+            emptyList(),
+            listOf(fixedLeftComplication)
+        )
+        scenario.onActivity {
+            assertTrue(
+                it.editorSession.complicationState[LEFT_COMPLICATION_ID]!!.fixedComplicationProvider
+            )
+
+            try {
+                runBlocking {
+                    it.editorSession.launchComplicationProviderChooser(LEFT_COMPLICATION_ID)
+
+                    fail(
+                        "launchComplicationProviderChooser should fail for a fixed complication " +
+                            "provider"
+                    )
+                }
+            } catch (e: Exception) {
+                // Expected.
+            }
         }
     }
 
