@@ -19,30 +19,53 @@ package androidx.paging
 import androidx.recyclerview.widget.ListUpdateCallback
 
 class ListUpdateCallbackFake : ListUpdateCallback {
-    var interactions = 0
     val onInsertedEvents = mutableListOf<OnInsertedEvent>()
     val onRemovedEvents = mutableListOf<OnRemovedEvent>()
     val onMovedEvents = mutableListOf<OnMovedEvent>()
     val onChangedEvents = mutableListOf<OnChangedEvent>()
+    val allEvents = mutableListOf<Any>()
+
+    val interactions
+        get() = allEvents.size
+
+    fun itemCountFromEvents() = allEvents.sumBy {
+        when (it) {
+            is OnInsertedEvent -> it.count
+            is OnRemovedEvent -> -it.count
+            else -> 0
+        }
+    }
 
     override fun onInserted(position: Int, count: Int) {
-        interactions++
-        onInsertedEvents.add(OnInsertedEvent(position, count))
+        OnInsertedEvent(position, count).let {
+            onInsertedEvents.add(it)
+            allEvents.add(it)
+        }
     }
 
     override fun onRemoved(position: Int, count: Int) {
-        interactions++
-        onRemovedEvents.add(OnRemovedEvent(position, count))
+        OnRemovedEvent(position, count).let {
+            onRemovedEvents.add(it)
+            allEvents.add(it)
+        }
     }
 
     override fun onMoved(fromPosition: Int, toPosition: Int) {
-        interactions++
-        onMovedEvents.add(OnMovedEvent(fromPosition, toPosition))
+        OnMovedEvent(fromPosition, toPosition).let {
+            onMovedEvents.add(it)
+            allEvents.add(it)
+        }
     }
 
     override fun onChanged(position: Int, count: Int, payload: Any?) {
-        interactions++
-        onChangedEvents.add(OnChangedEvent(position, count, payload))
+        OnChangedEvent(position, count, payload).let {
+            onChangedEvents.add(it)
+            allEvents.add(it)
+        }
+    }
+
+    override fun toString(): String {
+        return allEvents.joinToString(", ")
     }
 
     data class OnInsertedEvent(val position: Int, val count: Int)
