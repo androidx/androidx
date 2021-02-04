@@ -13,33 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.car.app.samples.helloworld;
+
+package androidx.car.app.samples.showcase.misc;
+
+import static androidx.car.app.model.Action.BACK;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
-import androidx.car.app.model.Action;
 import androidx.car.app.model.Pane;
 import androidx.car.app.model.PaneTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 
-/**
- * A screen that shows a simple "Hello World!" message.
- *
- * <p>See {@link HelloWorldService} for the app's entry point to Android Auto.
- */
-public class HelloWorldScreen extends Screen {
-    public HelloWorldScreen(@NonNull CarContext carContext) {
+/** A screen that displays text about canceling the reservation */
+public final class ReservationCancelledScreen extends Screen {
+
+    public ReservationCancelledScreen(@NonNull CarContext carContext) {
         super(carContext);
     }
 
     @NonNull
     @Override
     public Template onGetTemplate() {
-        Row row = new Row.Builder().setTitle("Hello AndroidX!").build();
-        return new PaneTemplate.Builder(new Pane.Builder().addRow(row).build())
-                .setHeaderAction(Action.APP_ICON)
+        Pane pane =
+                new Pane.Builder()
+                        .addRow(new Row.Builder().setTitle("Reservation canceled").build())
+                        .build();
+
+        return new PaneTemplate.Builder(pane)
+                .setTitle("Cancel Reservation Screen")
+                .setHeaderAction(BACK)
                 .build();
     }
 }
