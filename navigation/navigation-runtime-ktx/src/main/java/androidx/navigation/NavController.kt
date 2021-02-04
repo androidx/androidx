@@ -39,7 +39,7 @@ public inline fun NavController.createGraph(
 @ExperimentalCoroutinesApi
 public val NavController.currentBackStackEntryFlow: Flow<NavBackStackEntry> get() = callbackFlow {
     val listener = NavController.OnDestinationChangedListener { controller, _, _ ->
-        controller.currentBackStackEntry?.let(::sendBlocking)
+        controller.currentBackStackEntry?.let { sendBlocking(it) }
     }
 
     addOnDestinationChangedListener(listener)
