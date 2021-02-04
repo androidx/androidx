@@ -18,7 +18,7 @@
     package="android.support.v7.appcompat.test">
 
     <application
-        android:name="androidx.multidex.MultiDexApplication"
+        android:name="androidx.appcompat.CustomConfigApplication"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
 
