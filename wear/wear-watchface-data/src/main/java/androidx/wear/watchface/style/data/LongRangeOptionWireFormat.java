@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,35 +16,29 @@
 
 package androidx.wear.watchface.style.data;
 
-import android.graphics.drawable.Icon;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
 
-import java.util.List;
-
 /**
- * Wire format for {@link androidx.wear.watchface.style.DoubleRangeUserStyleSetting}.
+ * Wire format for
+ * {@link androidx.wear.watchface.style.LongRangeUserStyleSetting.LongRangeOption}.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize
-public class DoubleRangeUserStyleSettingWireFormat extends UserStyleSettingWireFormat {
+public class LongRangeOptionWireFormat extends OptionWireFormat {
+    /* The value for this option. Must be within the range [minimumValue .. maximumValue]. */
+    @ParcelField(2)
+    public long mValue;
 
-    DoubleRangeUserStyleSettingWireFormat() {}
-
-    public DoubleRangeUserStyleSettingWireFormat(
-            @NonNull String id,
-            @NonNull CharSequence displayName,
-            @NonNull CharSequence description,
-            @Nullable Icon icon,
-            @NonNull List<OptionWireFormat> options,
-            int defaultOptionIndex,
-            @NonNull List<Integer> affectsLayers)  {
-        super(id, displayName, description, icon, options, defaultOptionIndex, affectsLayers);
+    LongRangeOptionWireFormat() {
     }
 
+    public LongRangeOptionWireFormat(@NonNull String id, long value) {
+        super(id);
+        this.mValue = value;
+    }
 }
