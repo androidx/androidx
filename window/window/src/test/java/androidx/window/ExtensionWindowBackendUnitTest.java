@@ -38,7 +38,6 @@ import androidx.core.util.Consumer;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -336,13 +335,13 @@ public class ExtensionWindowBackendUnitTest {
         SynchronousExtensionInterface(WindowLayoutInfo windowLayoutInfo, DeviceState deviceState) {
             mInterface = new ExtensionCallbackInterface() {
                 @Override
-                public void onDeviceStateChanged(@NonNull @NotNull DeviceState newDeviceState) {
+                public void onDeviceStateChanged(@NonNull DeviceState newDeviceState) {
 
                 }
 
                 @Override
-                public void onWindowLayoutChanged(@NonNull @NotNull Activity activity,
-                        @NonNull @NotNull WindowLayoutInfo newLayout) {
+                public void onWindowLayoutChanged(@NonNull Activity activity,
+                        @NonNull WindowLayoutInfo newLayout) {
 
                 }
             };
@@ -357,17 +356,17 @@ public class ExtensionWindowBackendUnitTest {
 
         @Override
         public void setExtensionCallback(
-                @NonNull @NotNull ExtensionCallbackInterface extensionCallback) {
+                @NonNull ExtensionCallbackInterface extensionCallback) {
             mInterface = extensionCallback;
         }
 
         @Override
-        public void onWindowLayoutChangeListenerAdded(@NonNull @NotNull Activity activity) {
+        public void onWindowLayoutChangeListenerAdded(@NonNull Activity activity) {
             mInterface.onWindowLayoutChanged(activity, mWindowLayoutInfo);
         }
 
         @Override
-        public void onWindowLayoutChangeListenerRemoved(@NonNull @NotNull Activity activity) {
+        public void onWindowLayoutChangeListenerRemoved(@NonNull Activity activity) {
 
         }
 
