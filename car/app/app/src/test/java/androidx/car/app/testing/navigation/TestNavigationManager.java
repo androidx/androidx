@@ -25,7 +25,6 @@ import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.navigation.NavigationManagerCallback;
 import androidx.car.app.navigation.model.Trip;
 import androidx.car.app.testing.TestCarContext;
-import androidx.car.app.testing.navigation.model.TripController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +45,7 @@ import java.util.List;
  * </ul>
  */
 public class TestNavigationManager extends NavigationManager {
-    private final List<TripController> mTripsSent = new ArrayList<>();
+    private final List<Trip> mTripsSent = new ArrayList<>();
     private final List<NavigationManagerCallback> mListenersSet = new ArrayList<>();
     private int mNavigationStartedCount;
     private int mNavigationEndedCount;
@@ -67,7 +66,7 @@ public class TestNavigationManager extends NavigationManager {
      * <p>The trips will be stored until {@link #reset} is called.
      */
     @NonNull
-    public List<TripController> getTripsSent() {
+    public List<Trip> getTripsSent() {
         return mTripsSent;
     }
 
@@ -102,7 +101,7 @@ public class TestNavigationManager extends NavigationManager {
 
     @Override
     public void updateTrip(@NonNull Trip trip) {
-        mTripsSent.add(TripController.of(requireNonNull(trip)));
+        mTripsSent.add(requireNonNull(trip));
         super.updateTrip(trip);
     }
 
