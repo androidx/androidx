@@ -34,6 +34,31 @@ package androidx.wear.watchface.client {
     property public final boolean hasLowBitAmbient;
   }
 
+  public interface EditorObserverCallback {
+    method public void onEditorStateChange(androidx.wear.watchface.client.EditorState editorState);
+  }
+
+  public interface EditorServiceClient {
+    method public void registerObserver(androidx.wear.watchface.client.EditorObserverCallback editorObserverCallback);
+    method public void registerObserver(optional java.util.concurrent.Executor? observerCallbackExecutor, androidx.wear.watchface.client.EditorObserverCallback editorObserverCallback);
+    method public void unregisterObserver(androidx.wear.watchface.client.EditorObserverCallback editorObserverCallback);
+  }
+
+  public final class EditorState {
+    method public java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> getPreviewComplicationData();
+    method public java.util.Map<java.lang.String,java.lang.String> getUserStyle();
+    method public String? getWatchFaceInstanceId();
+    method public boolean hasCommitChanges();
+    property public final boolean commitChanges;
+    property public final java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> previewComplicationData;
+    property public final java.util.Map<java.lang.String,java.lang.String> userStyle;
+    property public final String? watchFaceInstanceId;
+  }
+
+  public final class EditorStateKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.watchface.client.EditorState asApiEditorState(androidx.wear.watchface.editor.data.EditorStateWireFormat);
+  }
+
   public interface HeadlessWatchFaceClient extends java.lang.AutoCloseable {
     method public android.os.IBinder asBinder();
     method public default static androidx.wear.watchface.client.HeadlessWatchFaceClient createFromBinder(android.os.IBinder binder);
@@ -125,6 +150,7 @@ package androidx.wear.watchface.client {
   public interface WatchFaceControlClient extends java.lang.AutoCloseable {
     method public androidx.wear.watchface.client.HeadlessWatchFaceClient? createHeadlessWatchFaceClient(android.content.ComponentName watchFaceName, androidx.wear.watchface.client.DeviceConfig deviceConfig, int surfaceWidth, int surfaceHeight);
     method public default static suspend Object? createWatchFaceControlClient(android.content.Context p, String context, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceControlClient> watchFacePackageName);
+    method public androidx.wear.watchface.client.EditorServiceClient getEditorServiceClient();
     method public androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient? getInteractiveWatchFaceSysUiClientInstance(String instanceId);
     method public kotlinx.coroutines.Deferred<androidx.wear.watchface.client.InteractiveWatchFaceWcsClient> getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClientAsync(String id, androidx.wear.watchface.client.DeviceConfig deviceConfig, androidx.wear.watchface.client.SystemState systemState, java.util.Map<java.lang.String,java.lang.String>? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
     field public static final androidx.wear.watchface.client.WatchFaceControlClient.Companion Companion;

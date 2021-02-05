@@ -155,6 +155,8 @@ public interface WatchFaceControlClient : AutoCloseable {
         userStyle: Map<String, String>?,
         idToComplicationData: Map<Int, ComplicationData>?
     ): Deferred<InteractiveWatchFaceWcsClient>
+
+    public fun getEditorServiceClient(): EditorServiceClient
 }
 
 internal class WatchFaceControlClientImpl internal constructor(
@@ -252,6 +254,8 @@ internal class WatchFaceControlClientImpl internal constructor(
         // Wait for [watchFaceCreatedCallback] or [deathObserver] to fire.
         return deferredClient
     }
+
+    override fun getEditorServiceClient() = EditorServiceClientImpl(service.editorService)
 
     override fun close() {
         context.unbindService(serviceConnection)
