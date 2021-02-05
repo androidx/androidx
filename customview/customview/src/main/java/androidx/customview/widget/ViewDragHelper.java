@@ -1374,6 +1374,10 @@ public class ViewDragHelper {
      * @return true if the slop threshold has been crossed, false otherwise
      */
     public boolean checkTouchSlop(int directions) {
+        if (mInitialMotionX == null) {
+            return false;
+        }
+
         final int count = mInitialMotionX.length;
         for (int i = 0; i < count; i++) {
             if (checkTouchSlop(directions, i)) {
@@ -1406,6 +1410,15 @@ public class ViewDragHelper {
         final boolean checkHorizontal = (directions & DIRECTION_HORIZONTAL) == DIRECTION_HORIZONTAL;
         final boolean checkVertical = (directions & DIRECTION_VERTICAL) == DIRECTION_VERTICAL;
 
+        if (mInitialMotionX == null || mInitialMotionY == null
+                || mLastMotionX == null || mLastMotionY == null) {
+            // We should never reach this point, because if the pointer is down then there ought
+            // to be an initial motion event; however, isPointerDown is not a guarantee of this.
+            Log.w(TAG, "Inconsistent pointer event stream: pointer is down, but there is no "
+                    + "initial motion recorded. Is something intercepting or modifying events?");
+            return false;
+        }
+
         final float dx = mLastMotionX[pointerId] - mInitialMotionX[pointerId];
         final float dy = mLastMotionY[pointerId] - mInitialMotionY[pointerId];
 
@@ -1429,6 +1442,10 @@ public class ViewDragHelper {
      * @return true if any of the edges specified were initially touched in the current gesture
      */
     public boolean isEdgeTouched(int edges) {
+        if (mInitialEdgesTouched == null) {
+            return false;
+        }
+
         final int count = mInitialEdgesTouched.length;
         for (int i = 0; i < count; i++) {
             if (isEdgeTouched(edges, i)) {
@@ -1449,7 +1466,8 @@ public class ViewDragHelper {
      * @return true if any of the edges specified were initially touched in the current gesture
      */
     public boolean isEdgeTouched(int edges, int pointerId) {
-        return isPointerDown(pointerId) && (mInitialEdgesTouched[pointerId] & edges) != 0;
+        return isPointerDown(pointerId) && mInitialEdgesTouched != null
+                && (mInitialEdgesTouched[pointerId] & edges) != 0;
     }
 
     private void releaseViewForPointerUp() {
