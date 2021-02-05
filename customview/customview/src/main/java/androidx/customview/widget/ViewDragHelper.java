@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package androidx.customview.widget;
 
 import android.content.Context;
@@ -68,6 +67,7 @@ public class ViewDragHelper {
     /**
      * Edge flag indicating that the left edge should be affected.
      */
+    @SuppressWarnings("PointlessBitwiseExpression")
     public static final int EDGE_LEFT = 1 << 0;
 
     /**
@@ -93,6 +93,7 @@ public class ViewDragHelper {
     /**
      * Indicates that a check should occur along the horizontal axis
      */
+    @SuppressWarnings("PointlessBitwiseExpression")
     public static final int DIRECTION_HORIZONTAL = 1 << 0;
 
     /**
@@ -130,20 +131,23 @@ public class ViewDragHelper {
     private int mPointersDown;
 
     private VelocityTracker mVelocityTracker;
-    private float mMaxVelocity;
+    private final float mMaxVelocity;
     private float mMinVelocity;
 
     private int mEdgeSize;
     private final int mDefaultEdgeSize;
     private int mTrackingEdges;
 
-    private OverScroller mScroller;
+    @NonNull
+    private final OverScroller mScroller;
 
+    @NonNull
     private final Callback mCallback;
 
     private View mCapturedView;
     private boolean mReleaseInProgress;
 
+    @NonNull
     private final ViewGroup mParentView;
 
     /**
@@ -277,6 +281,7 @@ public class ViewDragHelper {
          * @param child Child view to check
          * @return range of vertical motion in pixels
          */
+        @SuppressWarnings("unused")
         public int getViewVerticalDragRange(@NonNull View child) {
             return 0;
         }
@@ -385,12 +390,8 @@ public class ViewDragHelper {
      */
     private ViewDragHelper(@NonNull Context context, @NonNull ViewGroup forParent,
             @NonNull Callback cb) {
-        if (forParent == null) {
-            throw new IllegalArgumentException("Parent view may not be null");
-        }
-        if (cb == null) {
-            throw new IllegalArgumentException("Callback may not be null");
-        }
+        requireNonNull(forParent, "Parent view may not be null");
+        requireNonNull(cb, "Callback may not be null");
 
         mParentView = forParent;
         mCallback = cb;
@@ -1066,7 +1067,7 @@ public class ViewDragHelper {
                     final float dy = y - mInitialMotionY[pointerId];
 
                     final View toCapture = findTopChildUnder((int) x, (int) y);
-                    final boolean pastSlop = toCapture != null && checkTouchSlop(toCapture, dx, dy);
+                    final boolean pastSlop = checkTouchSlop(toCapture, dx, dy);
                     if (pastSlop) {
                         // check the callback's
                         // getView[Horizontal|Vertical]DragRange methods to know
@@ -1210,8 +1211,6 @@ public class ViewDragHelper {
                     final int idy = (int) (y - mLastMotionY[mActivePointerId]);
 
                     dragTo(mCapturedView.getLeft() + idx, mCapturedView.getTop() + idy, idx, idy);
-
-                    saveLastMotion(ev);
                 } else {
                     // Check to see if any pointer is now over a draggable view.
                     final int pointerCount = ev.getPointerCount();
@@ -1238,8 +1237,9 @@ public class ViewDragHelper {
                             break;
                         }
                     }
-                    saveLastMotion(ev);
                 }
+
+                saveLastMotion(ev);
                 break;
             }
 
@@ -1338,12 +1338,14 @@ public class ViewDragHelper {
      * @param child Child to check
      * @param dx Motion since initial position along X axis
      * @param dy Motion since initial position along Y axis
-     * @return true if the touch slop has been crossed
+     * @return {@code true} if the touch slop has been crossed, {@code false} otherwise or if
+     *         child is {@code null}
      */
-    private boolean checkTouchSlop(View child, float dx, float dy) {
+    private boolean checkTouchSlop(@Nullable View child, float dx, float dy) {
         if (child == null) {
             return false;
         }
+
         final boolean checkHorizontal = mCallback.getViewHorizontalDragRange(child) > 0;
         final boolean checkVertical = mCallback.getViewVerticalDragRange(child) > 0;
 
@@ -1547,6 +1549,7 @@ public class ViewDragHelper {
         return result;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isValidPointerForActionMove(int pointerId) {
         if (!isPointerDown(pointerId)) {
             if (DEBUG) {
@@ -1558,5 +1561,12 @@ public class ViewDragHelper {
             return false;
         }
         return true;
+    }
+
+    // Temporary backport of Objects.requireNonNull() until we can port it to core (b/179904366).
+    @Nullable
+    private static <T> T requireNonNull(@Nullable T obj, @NonNull String message) {
+        if (obj == null) throw new NullPointerException(message);
+        return obj;
     }
 }
