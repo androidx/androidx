@@ -23,7 +23,7 @@ import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.ActivityResultRegistryOwner
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.Providers
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -63,7 +63,7 @@ class ActivityResultRegistryTest {
     fun testRegisterForActivityResult() {
         var launcher: ActivityResultLauncher<Intent>? by mutableStateOf(null)
         composeTestRule.setContent {
-            Providers(
+            CompositionLocalProvider(
                 LocalActivityResultRegistryOwner.asProvidableCompositionLocal()
                     provides registryOwner
             ) {
@@ -91,7 +91,7 @@ class ActivityResultRegistryTest {
 
         activityScenario.onActivity { activity ->
             (activity as ComponentActivity).setContent {
-                Providers(
+                CompositionLocalProvider(
                     LocalActivityResultRegistryOwner.asProvidableCompositionLocal()
                         provides registryOwner
                 ) {

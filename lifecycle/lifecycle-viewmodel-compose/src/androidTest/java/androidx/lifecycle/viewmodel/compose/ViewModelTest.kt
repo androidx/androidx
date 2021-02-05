@@ -16,7 +16,7 @@
 
 package androidx.lifecycle.viewmodel.compose
 
-import androidx.compose.runtime.Providers
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
@@ -42,7 +42,9 @@ public class ViewModelTest {
     public fun viewModelCreatedViaDefaultFactory() {
         val owner = FakeViewModelStoreOwner()
         rule.setContent {
-            Providers(LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner) {
+            CompositionLocalProvider(
+                LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner
+            ) {
                 viewModel<TestViewModel>()
             }
         }
@@ -55,7 +57,9 @@ public class ViewModelTest {
         val owner = FakeViewModelStoreOwner()
         var createdInComposition: Any? = null
         rule.setContent {
-            Providers(LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner) {
+            CompositionLocalProvider(
+                LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner
+            ) {
                 createdInComposition = viewModel<TestViewModel>()
             }
         }
@@ -70,7 +74,9 @@ public class ViewModelTest {
         val owner = FakeViewModelStoreOwner()
         var createdInComposition: Any? = null
         rule.setContent {
-            Providers(LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner) {
+            CompositionLocalProvider(
+                LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner
+            ) {
                 createdInComposition = viewModel<TestViewModel>()
             }
         }
@@ -85,7 +91,9 @@ public class ViewModelTest {
         val owner = FakeViewModelStoreOwner()
         var createdInComposition: Any? = null
         rule.setContent {
-            Providers(LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner) {
+            CompositionLocalProvider(
+                LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner
+            ) {
                 createdInComposition =
                     viewModel<TestViewModel>(key = "test")
             }
@@ -101,7 +109,9 @@ public class ViewModelTest {
         val owner = FakeViewModelStoreOwner()
         val customFactory = FakeViewModelProviderFactory()
         rule.setContent {
-            Providers(LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner) {
+            CompositionLocalProvider(
+                LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner
+            ) {
                 viewModel<TestViewModel>(factory = customFactory)
             }
         }
@@ -114,7 +124,9 @@ public class ViewModelTest {
         val owner = FakeViewModelStoreOwner()
         val customFactory = FakeViewModelProviderFactory()
         rule.setContent {
-            Providers(LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner) {
+            CompositionLocalProvider(
+                LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner
+            ) {
                 viewModel<TestViewModel>(factory = customFactory)
             }
         }
@@ -128,7 +140,9 @@ public class ViewModelTest {
         var createdInComposition: Any? = null
         val customFactory = FakeViewModelProviderFactory()
         rule.setContent {
-            Providers(LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner) {
+            CompositionLocalProvider(
+                LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner
+            ) {
                 createdInComposition = viewModel<TestViewModel>()
             }
         }
@@ -144,7 +158,9 @@ public class ViewModelTest {
         var createdInComposition: Any? = null
         val customFactory = FakeViewModelProviderFactory()
         rule.setContent {
-            Providers(LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner) {
+            CompositionLocalProvider(
+                LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner
+            ) {
                 createdInComposition =
                     viewModel<TestViewModel>(key = "test")
             }
