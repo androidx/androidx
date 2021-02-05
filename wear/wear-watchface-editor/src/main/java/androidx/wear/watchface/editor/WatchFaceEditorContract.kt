@@ -23,16 +23,13 @@ import android.content.Intent
 import android.os.Build
 import android.support.wearable.watchface.Constants
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.versionedparcelable.ParcelUtils
-import androidx.wear.complications.data.ComplicationData
-import androidx.wear.complications.data.asApiComplicationData
-import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
+import androidx.wear.watchface.client.EditorServiceClient
+import androidx.wear.watchface.client.EditorState
+import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 internal const val INSTANCE_ID_KEY: String = "INSTANCE_ID_KEY"
 internal const val COMPONENT_NAME_KEY: String = "COMPONENT_NAME_KEY"
-internal const val PREVIEW_COMPLICATIONS_KEY: String = "PREVIEW_COMPLICATIONS_KEY"
 internal const val USER_STYLE_KEY: String = "USER_STYLE_KEY"
 internal const val USER_STYLE_VALUES: String = "USER_STYLE_VALUES"
 
@@ -94,28 +91,13 @@ public class EditorRequest(
 }
 
 /**
- * The result for a successful [EditorRequest], to be returned via [Activity.setWatchRequestResult].
+ * An [ActivityResultContract] for invoking a watch face editor. Note watch face editors are invoked
+ * by SysUI and the normal activity result isn't used for returning [EditorState] because
+ * [Activity.onStop] isn't guaranteed to be called when SysUI UX needs it to. Instead [EditorState]
+ * is broadcast by the editor using[EditorSession.close], to observe these broadcasts use
+ * [WatchFaceControlClient.getEditorServiceClient] and [EditorServiceClient.registerObserver].
  */
-public class EditorResult(
-    /** The updated style, see [UserStyle]. */
-    public val userStyle: Map<String, String>,
-
-    /**
-     * The preview [ComplicationData] used by the editor, which can be used by a headless client to
-     * take an updated screen shot.
-     */
-    public val previewComplicationData: Map<Int, ComplicationData>,
-
-    /**
-     * Unique ID for the instance of the watch face being edited, only defined for Android R and
-     * beyond, it's `null` on Android P and earlier. Note each distinct [ComponentName] can have
-     * multiple instances.
-     */
-    public val watchFaceInstanceId: String?
-)
-
-/** An [ActivityResultContract] for invoking a watch face editor. */
-public open class WatchFaceEditorContract : ActivityResultContract<EditorRequest, EditorResult>() {
+public open class WatchFaceEditorContract : ActivityResultContract<EditorRequest, Unit>() {
 
     public companion object {
         public const val ACTION_WATCH_FACE_EDITOR: String =
@@ -146,26 +128,5 @@ public open class WatchFaceEditorContract : ActivityResultContract<EditorRequest
         }
     }
 
-    override fun parseResult(resultCode: Int, intent: Intent?): EditorResult {
-        val extras = intent!!.extras!!
-        extras.classLoader = this::class.java.classLoader
-        return EditorResult(
-            // Unmarshall the UserStyle.
-            ParcelUtils.fromParcelable<UserStyleWireFormat>(
-                extras.getParcelable(USER_STYLE_KEY)!!
-            ).mUserStyle,
-
-            // Unmarshall the preview Map<Int, ComplicationData>.
-            extras.getParcelableArray(PREVIEW_COMPLICATIONS_KEY)?.let {
-                it.map {
-                    ParcelUtils.fromParcelable<IdAndComplicationDataWireFormat>(it)
-                }.associateBy(
-                    { it.id },
-                    { it.complicationData.asApiComplicationData() }
-                )
-            } ?: emptyMap(),
-
-            extras.getString(INSTANCE_ID_KEY)
-        )
-    }
+    override fun parseResult(resultCode: Int, intent: Intent?) {}
 }

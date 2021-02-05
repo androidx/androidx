@@ -28,6 +28,7 @@ import androidx.annotation.RestrictTo
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
+import androidx.wear.watchface.editor.EditorService
 import androidx.wear.watchface.runOnHandler
 import kotlinx.coroutines.runBlocking
 
@@ -122,4 +123,6 @@ private class IWatchFaceInstanceServiceStub(
                 callback
             )
         )
+
+    override fun getEditorService() = EditorService.globalEditorService
 }

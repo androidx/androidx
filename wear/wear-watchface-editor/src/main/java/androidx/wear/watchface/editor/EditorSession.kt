@@ -17,7 +17,6 @@
 package androidx.wear.watchface.editor
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -30,7 +29,6 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
-import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.ProviderInfoRetriever
 import androidx.wear.complications.data.ComplicationData
@@ -42,9 +40,13 @@ import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.client.ComplicationState
+import androidx.wear.watchface.client.EditorObserverCallback
+import androidx.wear.watchface.client.EditorServiceClient
+import androidx.wear.watchface.client.EditorState
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
+import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import kotlinx.coroutines.CompletableDeferred
@@ -57,33 +59,49 @@ import kotlinx.coroutines.launch
 /**
  * Interface for manipulating watch face state during an editing session for a watch face editing
  * session. The editor should adjust [userStyle] and call [launchComplicationProviderChooser] to
- * configure the watch face and call [Activity.setWatchRequestResult] to record the result.
+ * configure the watch face and call [close] when done. This reports the updated [EditorState] to
+ * the [EditorObserverCallback]s registered via [EditorServiceClient.registerObserver].
  */
-public interface EditorSession {
+public abstract class EditorSession : AutoCloseable {
     /** The [ComponentName] of the watch face being edited. */
-    public val watchFaceComponentName: ComponentName
+    public abstract val watchFaceComponentName: ComponentName
 
     /**
      * Unique ID for the instance of the watch face being edited, only defined for Android R and
      * beyond, it's `null` on Android P and earlier. Note each distinct [ComponentName] can have
      * multiple instances.
      */
-    public val instanceId: String?
+    public abstract val instanceId: String?
 
     /** The current [UserStyle]. Assigning to this will cause the style to update. */
-    public var userStyle: UserStyle
+    public abstract var userStyle: UserStyle
 
     /** The UTC reference preview time for this watch face in milliseconds since the epoch. */
-    public val previewReferenceTimeMillis: Long
+    public abstract val previewReferenceTimeMillis: Long
 
     /** The watch face's [UserStyleSchema]. */
-    public val userStyleSchema: UserStyleSchema
+    public abstract val userStyleSchema: UserStyleSchema
 
     /**
      * Map of complication ids to [ComplicationState] for each complication slot. Note
      * [ComplicationState] can change, typically in response to styling.
      */
-    public val complicationState: Map<Int, ComplicationState>
+    public abstract val complicationState: Map<Int, ComplicationState>
+
+    /**
+     * Whether any changes should be committed when the session is closed (defaults to `true`).
+     *
+     * Note due to SysUI requirements [EditorState] can't reliably be sent in the activity result
+     * because there are circumstances where [ComponentActivity.onStop] doesn't get called but the
+     * UX requires us to commit changes.
+     *
+     * If false upon exit for an on watch face editor, the original UserStyle is restored. Note we
+     * need SysUI's help to revert any complication provider changes. Caveat some providers have
+     * their own config (e.g. the world clock has a timezone setting) and that config currently
+     * can't be reverted.
+     */
+    @get:JvmName("isCommitChangesOnClose")
+    public var commitChangesOnClose: Boolean = true
 
     /**
      * Returns a map of complication ids to preview [ComplicationData] suitable for use in rendering
@@ -92,16 +110,16 @@ public interface EditorSession {
      * provider, but it may change (on the UIThread) as a result of
      * [launchComplicationProviderChooser].
      */
-    public suspend fun getComplicationPreviewData(): Map<Int, ComplicationData>
+    public abstract suspend fun getComplicationPreviewData(): Map<Int, ComplicationData>
 
     /** The ID of the background complication or `null` if there isn't one. */
     @get:SuppressWarnings("AutoBoxing")
-    public val backgroundComplicationId: Int?
+    public abstract val backgroundComplicationId: Int?
 
     /** Returns the ID of the complication at the given coordinates or `null` if there isn't one. */
     @SuppressWarnings("AutoBoxing")
     @UiThread
-    public fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int?
+    public abstract fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int?
 
     /**
      * Takes a screen shot of the watch face using the current [userStyle].
@@ -111,7 +129,7 @@ public interface EditorSession {
      * @param idToComplicationData The [ComplicationData] for each complication to render with
      */
     @UiThread
-    public fun takeWatchFaceScreenshot(
+    public abstract fun takeWatchFaceScreenshot(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
         idToComplicationData: Map<Int, ComplicationData>?
@@ -122,10 +140,7 @@ public interface EditorSession {
      * `false` if the activity was canceled.
      */
     @UiThread
-    public suspend fun launchComplicationProviderChooser(complicationId: Int): Boolean
-
-    /** Should be called when the activity is going away so we can release resources. */
-    public fun onDestroy()
+    public abstract suspend fun launchComplicationProviderChooser(complicationId: Int): Boolean
 
     public companion object {
         /**
@@ -222,7 +237,9 @@ internal abstract class BaseEditorSession(
     protected val activity: ComponentActivity,
     protected val providerInfoRetrieverProvider: ProviderInfoRetrieverProvider,
     internal val coroutineScope: CoroutineScope
-) : EditorSession {
+) : EditorSession() {
+    protected var closed = false
+
     // This is completed when [fetchComplicationPreviewData] has called [getPreviewData] for
     // each complication and each of those have been completed.
     private val deferredComplicationPreviewDataMap =
@@ -263,6 +280,7 @@ internal abstract class BaseEditorSession(
         }
 
     override suspend fun launchComplicationProviderChooser(complicationId: Int): Boolean {
+        require(!closed)
         require(!complicationState[complicationId]!!.fixedComplicationProvider) {
             "Can't configure fixed complication ID $complicationId"
         }
@@ -275,13 +293,15 @@ internal abstract class BaseEditorSession(
     }
 
     override val backgroundComplicationId by lazy {
+        require(!closed)
         complicationState.entries.firstOrNull {
             it.value.boundsType == ComplicationBoundsType.BACKGROUND
         }?.key
     }
 
-    override fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int? =
-        complicationState.entries.firstOrNull {
+    override fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int? {
+        require(!closed)
+        return complicationState.entries.firstOrNull {
             it.value.isEnabled && when (it.value.boundsType) {
                 ComplicationBoundsType.ROUND_RECT -> it.value.bounds.contains(x, y)
                 ComplicationBoundsType.BACKGROUND -> false
@@ -289,6 +309,7 @@ internal abstract class BaseEditorSession(
                 else -> false
             }
         }?.key
+    }
 
     /**
      * Returns the provider's preview [ComplicationData] if possible or fallback preview data based
@@ -356,6 +377,28 @@ internal abstract class BaseEditorSession(
             providerInfoRetriever.close()
         }
     }
+
+    override fun close() {
+        require(!closed)
+        coroutineScope.launch {
+            val editorState = EditorStateWireFormat(
+                instanceId,
+                userStyle.toWireFormat(),
+                getComplicationPreviewData().map {
+                    IdAndComplicationDataWireFormat(
+                        it.key,
+                        it.value.asWireComplicationData()
+                    )
+                },
+                commitChangesOnClose
+            )
+            releaseResources()
+            closed = true
+            EditorService.globalEditorService.broadcastEditorState(editorState)
+        }
+    }
+
+    protected abstract fun releaseResources()
 }
 
 internal class OnWatchFaceEditorSessionImpl(
@@ -369,6 +412,7 @@ internal class OnWatchFaceEditorSessionImpl(
     private lateinit var editorDelegate: WatchFace.EditorDelegate
 
     override val userStyleSchema by lazy {
+        require(!closed)
         editorDelegate.userStyleRepository.schema
     }
 
@@ -376,6 +420,7 @@ internal class OnWatchFaceEditorSessionImpl(
 
     override val complicationState
         get() = editorDelegate.complicationsManager.complications.mapValues {
+            require(!closed)
             ComplicationState(
                 it.value.computeBounds(editorDelegate.screenBounds),
                 it.value.boundsType,
@@ -395,32 +440,45 @@ internal class OnWatchFaceEditorSessionImpl(
     // side effects (it would apply to the active watch face).
     override var userStyle: UserStyle
         get() {
+            require(!closed)
             if (_userStyle == null) {
                 _userStyle = UserStyle(editorDelegate.userStyleRepository.userStyle)
             }
             return _userStyle!!
         }
         set(value) {
+            require(!closed)
             _userStyle = value
             editorDelegate.userStyleRepository.userStyle = UserStyle(value)
         }
+
+    private lateinit var previousWatchFaceUserStyle: UserStyle
 
     override fun takeWatchFaceScreenshot(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
         idToComplicationData: Map<Int, ComplicationData>?
-    ) = editorDelegate.takeScreenshot(
-        renderParameters,
-        calendarTimeMillis,
-        idToComplicationData
-    )
+    ): Bitmap {
+        require(!closed)
+        return editorDelegate.takeScreenshot(
+            renderParameters,
+            calendarTimeMillis,
+            idToComplicationData
+        )
+    }
 
-    override fun onDestroy() {
+    override fun releaseResources() {
         editorDelegate.onDestroy()
+        // Revert any changes to the UserStyle if needed.
+        if (!commitChangesOnClose) {
+            userStyle = previousWatchFaceUserStyle
+        }
     }
 
     fun setEditorDelegate(editorDelegate: WatchFace.EditorDelegate) {
         this.editorDelegate = editorDelegate
+
+        previousWatchFaceUserStyle = UserStyle(editorDelegate.userStyleRepository.userStyle)
 
         // Apply any initial style from the intent.  Note we don't restore the previous style at
         // the end since we assume we're editing the current active watchface.
@@ -441,7 +499,7 @@ internal class HeadlessEditorSession(
     override val instanceId: String?,
     initialUserStyle: Map<String, String>,
     providerInfoRetrieverProvider: ProviderInfoRetrieverProvider,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
 ) : BaseEditorSession(activity, providerInfoRetrieverProvider, coroutineScope) {
     override val userStyleSchema = headlessWatchFaceClient.userStyleSchema
 
@@ -455,15 +513,18 @@ internal class HeadlessEditorSession(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
         idToComplicationData: Map<Int, ComplicationData>?
-    ) = headlessWatchFaceClient.takeWatchFaceScreenshot(
-        renderParameters,
-        100,
-        calendarTimeMillis,
-        userStyle,
-        idToComplicationData
-    )
+    ): Bitmap {
+        require(!closed)
+        return headlessWatchFaceClient.takeWatchFaceScreenshot(
+            renderParameters,
+            100,
+            calendarTimeMillis,
+            userStyle,
+            idToComplicationData
+        )
+    }
 
-    override fun onDestroy() {
+    override fun releaseResources() {
         headlessWatchFaceClient.close()
     }
 
@@ -501,29 +562,4 @@ internal class ComplicationProviderChooserContract : ActivityResultContract<
     override fun parseResult(resultCode: Int, intent: Intent?): ComplicationProviderChooserResult {
         return ComplicationProviderChooserResult(intent?.getParcelableExtra(EXTRA_PROVIDER_INFO))
     }
-}
-
-/** Sets the [Activity]s result with [EditorResult]. */
-public suspend fun Activity.setWatchRequestResult(editorSession: EditorSession) {
-    setResult(
-        Activity.RESULT_OK,
-        Intent().apply {
-            putExtra(
-                USER_STYLE_KEY,
-                ParcelUtils.toParcelable(editorSession.userStyle.toWireFormat())
-            )
-            putExtra(
-                PREVIEW_COMPLICATIONS_KEY,
-                editorSession.getComplicationPreviewData().map {
-                    ParcelUtils.toParcelable(
-                        IdAndComplicationDataWireFormat(
-                            it.key,
-                            it.value.asWireComplicationData()
-                        )
-                    )
-                }.toTypedArray()
-            )
-            putExtra(INSTANCE_ID_KEY, editorSession.instanceId)
-        }
-    )
 }
