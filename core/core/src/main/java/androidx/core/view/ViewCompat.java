@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Matrix;
@@ -2652,9 +2653,12 @@ public class ViewCompat {
             return Api30Impl.getWindowInsetsController(view);
         } else {
             Context context = view.getContext();
-            if (context instanceof Activity) {
-                Window window = ((Activity) context).getWindow();
-                return window != null ? WindowCompat.getInsetsController(window, view) : null;
+            while (context instanceof ContextWrapper) {
+                if (context instanceof Activity) {
+                    Window window = ((Activity) context).getWindow();
+                    return window != null ? WindowCompat.getInsetsController(window, view) : null;
+                }
+                context = ((ContextWrapper) context).getBaseContext();
             }
             return null;
         }
