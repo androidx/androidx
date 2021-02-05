@@ -411,7 +411,12 @@ public abstract class ComplicationProviderService extends Service {
         @SuppressLint("SyntheticAccessor")
         public android.support.wearable.complications.ComplicationData getComplicationPreviewData(
                 final int type) {
-            return getPreviewData(ComplicationType.fromWireType(type)).asWireComplicationData();
+            ComplicationData wireComplicationData =
+                    getPreviewData(ComplicationType.fromWireType(type));
+            if (wireComplicationData == null) {
+                return null;
+            }
+            return wireComplicationData.asWireComplicationData();
         }
     }
 }
