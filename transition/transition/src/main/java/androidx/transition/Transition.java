@@ -694,11 +694,8 @@ public abstract class Transition implements Cloneable {
      * with each set of start/end values on this transition. The
      * TransitionSet subclass overrides this method and delegates it to
      * each of its children in succession.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    protected void createAnimators(ViewGroup sceneRoot, TransitionValuesMaps startValues,
+    void createAnimators(ViewGroup sceneRoot, TransitionValuesMaps startValues,
             TransitionValuesMaps endValues, ArrayList<TransitionValues> startValuesList,
             ArrayList<TransitionValues> endValuesList) {
         if (DBG) {
