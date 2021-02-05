@@ -58,8 +58,7 @@ android {
 }
 
 dependencies {
-    // Remove this dependency on core after S SDK is final
-    implementation(projectOrArtifact(":core:core"))
+    implementation("androidx.core:core:1.5.0-beta01")
     annotationProcessor("androidx.room:room-compiler:2.2.5")
     implementation("androidx.room:room-runtime:2.2.5")
     androidTestImplementation("androidx.room:room-testing:2.2.5")
