@@ -549,7 +549,7 @@ private class SeparatorState<R : Any, T : R>(
         @Suppress("UNCHECKED_CAST")
         return event as PageEvent<R>
     }
-    
+
     suspend fun onLoadStateUpdate(event: LoadStateUpdate<T>): PageEvent<R> {
         // Check for redundant LoadStateUpdate events to avoid unnecessary mapping to empty inserts
         // that might cause terminal separators to get added out of place.

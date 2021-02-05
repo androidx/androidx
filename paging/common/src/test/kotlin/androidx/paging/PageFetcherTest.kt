@@ -422,7 +422,9 @@ class PageFetcherTest {
                 listOf<PageEvent<Int>>(
                     // LegacyLoadStateUpdate(REFRESH, false, Loading),
                     LoadStateUpdate(
-                        createCombinedLoadStates(REFRESH, false, Loading)
+                        localLoadStatesOf(
+                            refreshLocal = Loading
+                        )
                     ),
                     createRefresh(range = 50..51)
                 )
@@ -448,7 +450,9 @@ class PageFetcherTest {
                 listOf<PageEvent<Int>>(
                     // LegacyLoadStateUpdate(REFRESH, false, Loading),
                     LoadStateUpdate(
-                        createCombinedLoadStates(REFRESH, false, Loading)
+                        localLoadStatesOf(
+                            refreshLocal = Loading
+                        )
                     ),
                     createRefresh(range = 50..51)
                 )
@@ -474,7 +478,9 @@ class PageFetcherTest {
                 listOf<PageEvent<Int>>(
                     // LegacyLoadStateUpdate(REFRESH, false, Loading),
                     LoadStateUpdate(
-                        createCombinedLoadStates(REFRESH, false, Loading)
+                        localLoadStatesOf(
+                            refreshLocal = Loading
+                        )
                     ),
                     createRefresh(range = 50..51)
                 )
