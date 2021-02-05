@@ -29,6 +29,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -36,6 +37,7 @@ import androidx.core.net.toUri
 import androidx.navigation.NavGraph
 import androidx.navigation.NavHostController
 import androidx.navigation.testing.TestNavHostController
+import androidx.savedstate.SavedStateRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
@@ -268,6 +270,35 @@ class NavHostTest {
             assertWithMessage("The number shouldn't be restored")
                 .that(numberOnScreen2)
                 .isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun savedStateRegistryOwnerTest() {
+        lateinit var registry1: SavedStateRegistry
+        lateinit var registry2: SavedStateRegistry
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "First") {
+                composable("First") {
+                    registry1 = LocalSavedStateRegistryOwner.current.savedStateRegistry
+                }
+                composable("Second") {
+                    registry2 = LocalSavedStateRegistryOwner.current.savedStateRegistry
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate("Second")
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Each entry should have its own SavedStateRegistry")
+                .that(registry1)
+                .isNotEqualTo(registry2)
         }
     }
 }

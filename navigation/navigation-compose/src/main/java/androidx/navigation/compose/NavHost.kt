@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
@@ -115,7 +116,8 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
             CompositionLocalProvider(
                 LocalViewModelStoreOwner.asProvidableCompositionLocal()
                     provides currentNavBackStackEntry,
-                LocalLifecycleOwner provides currentNavBackStackEntry
+                LocalLifecycleOwner provides currentNavBackStackEntry,
+                LocalSavedStateRegistryOwner provides currentNavBackStackEntry
             ) {
                 saveableStateHolder.SaveableStateProvider {
                     destination.content(currentNavBackStackEntry)
