@@ -11,6 +11,7 @@ package androidx.wear.watchface.editor {
     method public final kotlinx.coroutines.CoroutineScope getCoroutineScope();
     method public suspend Object? launchComplicationProviderChooser(int p, kotlin.coroutines.Continuation<? super java.lang.Boolean> $completion);
     method protected abstract void releaseResources();
+    method protected final void requireNotClosed();
     method protected final void setClosed(boolean p);
     property public Integer? backgroundComplicationId;
     property protected final boolean closed;
