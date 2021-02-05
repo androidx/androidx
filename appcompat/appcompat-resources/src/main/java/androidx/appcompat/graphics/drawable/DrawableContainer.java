@@ -704,7 +704,9 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
                 mHasTintMode = orig.mHasTintMode;
                 if (orig.mDensity == mDensity) {
                     if (orig.mCheckedPadding) {
-                        mConstantPadding = new Rect(orig.mConstantPadding);
+                        // If there are no children, the constant padding is null.
+                        mConstantPadding = orig.mConstantPadding != null
+                                ? new Rect(orig.mConstantPadding) : null;
                         mCheckedPadding = true;
                     }
                     if (orig.mCheckedConstantSize) {
@@ -1122,7 +1124,9 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
          */
         public void growArray(int oldSize, int newSize) {
             Drawable[] newDrawables = new Drawable[newSize];
-            System.arraycopy(mDrawables, 0, newDrawables, 0, oldSize);
+            if (mDrawables != null) {
+                System.arraycopy(mDrawables, 0, newDrawables, 0, oldSize);
+            }
             mDrawables = newDrawables;
         }
 
