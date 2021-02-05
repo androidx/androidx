@@ -817,6 +817,7 @@ public final class MediaControllerCompat {
         /**
          * @hide
          */
+        @SuppressWarnings({"HiddenTypeParameter", "UnavailableSymbol"})
         @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
         public IMediaControllerCallback getIControllerCallback() {
             return mIControllerCallback;
