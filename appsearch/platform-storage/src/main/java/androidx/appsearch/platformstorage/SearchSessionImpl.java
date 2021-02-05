@@ -158,10 +158,14 @@ class SearchSessionImpl implements AppSearchSession {
     @Override
     @NonNull
     public ListenableFuture<Void> reportUsage(@NonNull ReportUsageRequest request) {
-        // TODO(b/177278213): Implement this once it is exposed in the platform API
-        ResolvableFuture<Void> result = ResolvableFuture.create();
-        result.set(null);
-        return result;
+        Preconditions.checkNotNull(request);
+        ResolvableFuture<Void> future = ResolvableFuture.create();
+        mPlatformSession.reportUsage(
+                RequestToPlatformConverter.toPlatformReportUsageRequest(request),
+                mExecutorService,
+                result -> AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
+                        result, future));
+        return future;
     }
 
     @Override

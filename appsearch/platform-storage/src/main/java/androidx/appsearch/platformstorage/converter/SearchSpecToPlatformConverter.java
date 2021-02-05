@@ -24,14 +24,19 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.SearchSpec;
 import androidx.core.util.Preconditions;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Translates between Platform and Jetpack versions of {@link SearchSpec}.
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
 public final class SearchSpecToPlatformConverter {
-    private SearchSpecToPlatformConverter() {}
+    private SearchSpecToPlatformConverter() {
+    }
 
     /** Translates from Jetpack to Platform version of {@link SearchSpec}. */
     @NonNull
@@ -44,13 +49,17 @@ public final class SearchSpecToPlatformConverter {
                 .setTermMatch(jetpackSearchSpec.getTermMatch())
                 .addFilterSchemas(jetpackSearchSpec.getFilterSchemas())
                 .addFilterNamespaces(jetpackSearchSpec.getFilterNamespaces())
+                .addFilterPackageNames(jetpackSearchSpec.getFilterPackageNames())
                 .setResultCountPerPage(jetpackSearchSpec.getResultCountPerPage())
                 .setRankingStrategy(jetpackSearchSpec.getRankingStrategy())
                 .setOrder(jetpackSearchSpec.getOrder())
                 .setSnippetCount(jetpackSearchSpec.getSnippetCount())
                 .setSnippetCountPerProperty(jetpackSearchSpec.getSnippetCountPerProperty())
                 .setMaxSnippetSize(jetpackSearchSpec.getMaxSnippetSize());
-                // TODO(b/175039682): Support projection paths
+        for (Map.Entry<String, List<String>> projection :
+                jetpackSearchSpec.getProjections().entrySet()) {
+            platformBuilder.addProjection(projection.getKey(), projection.getValue());
+        }
         return platformBuilder.build();
     }
 }

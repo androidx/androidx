@@ -28,10 +28,12 @@ import androidx.appsearch.app.GetByUriRequest;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByUriRequest;
+import androidx.appsearch.app.ReportUsageRequest;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.core.util.Preconditions;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -131,10 +133,15 @@ public final class RequestToPlatformConverter {
     public static android.app.appsearch.GetByUriRequest toPlatformGetByUriRequest(
             @NonNull GetByUriRequest jetpackRequest) {
         Preconditions.checkNotNull(jetpackRequest);
-        return new android.app.appsearch.GetByUriRequest.Builder()
-                .setNamespace(jetpackRequest.getNamespace())
-                .addUri(jetpackRequest.getUris())
-                .build();
+        android.app.appsearch.GetByUriRequest.Builder platformBuilder =
+                new android.app.appsearch.GetByUriRequest.Builder()
+                        .setNamespace(jetpackRequest.getNamespace())
+                        .addUri(jetpackRequest.getUris());
+        for (Map.Entry<String, List<String>> projection :
+                jetpackRequest.getProjectionsInternal().entrySet()) {
+            platformBuilder.addProjection(projection.getKey(), projection.getValue());
+        }
+        return platformBuilder.build();
     }
 
     /**
@@ -148,6 +155,21 @@ public final class RequestToPlatformConverter {
         return new android.app.appsearch.RemoveByUriRequest.Builder()
                 .setNamespace(jetpackRequest.getNamespace())
                 .addUri(jetpackRequest.getUris())
+                .build();
+    }
+
+    /**
+     * Translates a jetpack {@link androidx.appsearch.app.ReportUsageRequest} into a platform
+     * {@link android.app.appsearch.ReportUsageRequest}.
+     */
+    @NonNull
+    public static android.app.appsearch.ReportUsageRequest toPlatformReportUsageRequest(
+            @NonNull ReportUsageRequest jetpackRequest) {
+        Preconditions.checkNotNull(jetpackRequest);
+        return new android.app.appsearch.ReportUsageRequest.Builder()
+                .setNamespace(jetpackRequest.getNamespace())
+                .setUri(jetpackRequest.getUri())
+                .setUsageTimeMillis(jetpackRequest.getUsageTimeMillis())
                 .build();
     }
 }
