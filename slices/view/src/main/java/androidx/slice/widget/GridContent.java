@@ -277,7 +277,7 @@ public class GridContent extends SliceContent {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public int getHeight(@NonNull SliceStyle style, @NonNull SliceViewPolicy policy) {
         return style.getGridHeight(this, policy);
