@@ -115,9 +115,6 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
             Providers(
                 LocalViewModelStoreOwner.asProvidableCompositionLocal()
                     provides currentNavBackStackEntry,
-                @Suppress("DEPRECATION") // To be removed when we remove the one from compose:ui
-                androidx.compose.ui.platform.LocalViewModelStoreOwner provides
-                    currentNavBackStackEntry,
                 LocalLifecycleOwner provides currentNavBackStackEntry
             ) {
                 saveableStateHolder.SaveableStateProvider {
