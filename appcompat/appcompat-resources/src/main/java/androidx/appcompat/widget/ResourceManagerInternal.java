@@ -61,14 +61,17 @@ import java.util.WeakHashMap;
 public final class ResourceManagerInternal {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    interface ResourceManagerHooks {
+    public interface ResourceManagerHooks {
+        @Nullable
         Drawable createDrawableFor(@NonNull ResourceManagerInternal appCompatDrawableManager,
                 @NonNull Context context, @DrawableRes final int resId);
         boolean tintDrawable(@NonNull Context context, @DrawableRes int resId,
                 @NonNull Drawable drawable);
+        @Nullable
         ColorStateList getTintListForDrawableRes(@NonNull Context context, @DrawableRes int resId);
         boolean tintDrawableUsingColorFilter(@NonNull Context context,
                 @DrawableRes final int resId, @NonNull Drawable drawable);
+        @Nullable
         PorterDuff.Mode getTintModeForDrawableRes(final int resId);
     }
 
