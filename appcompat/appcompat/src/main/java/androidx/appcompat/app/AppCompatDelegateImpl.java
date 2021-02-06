@@ -349,8 +349,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         //    method overrides.
         // 3. Don't use createConfigurationContext() unless you're able to retain the base context's
         //    theme stack. Not the last theme applied -- the entire stack of applied themes.
-        // 4. Don't use applyOverrideConfiguration() unless you're able to retain the base context's
-        //    configuration overrides (as distinct from the entire configuration).
 
         final int modeToApply = mapNightMode(baseContext, calculateNightMode());
 
@@ -405,34 +403,34 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             return super.attachBaseContext2(baseContext);
         }
 
-        Configuration configOverlay = null;
+        // We can't trust the application resources returned from the base context, since they
+        // may have been altered by the caller, so instead we'll obtain them directly from the
+        // Package Manager.
+        final Configuration appConfig;
+        try {
+            appConfig = baseContext.getPackageManager().getResourcesForApplication(
+                    baseContext.getApplicationInfo()).getConfiguration();
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new RuntimeException("Application failed to obtain resources from itself", e);
+        }
 
-        if (Build.VERSION.SDK_INT >= 17) {
-            // There is a bug in createConfigurationContext where it applies overrides to the
-            // canonical configuration, e.g. ActivityThread.mCurrentConfig, rather than the base
-            // configuration, e.g. Activity.getResources().getConfiguration(). We can lean on this
-            // bug to obtain a reference configuration and reconstruct any custom configuration
-            // that may have been applied by the app, thereby avoiding the bug later on.
-            Configuration overrideConfig = new Configuration();
-            // We have to modify a value to receive a new Configuration, so use one that developers
-            // can't override.
-            overrideConfig.uiMode = -1;
-            // Workaround for incorrect default fontScale on earlier SDKs.
-            overrideConfig.fontScale = 0f;
-            Configuration referenceConfig =
-                    Api17Impl.createConfigurationContext(baseContext, overrideConfig)
-                            .getResources().getConfiguration();
-            // Revert the uiMode change so that the diff doesn't include uiMode.
-            Configuration baseConfig = baseContext.getResources().getConfiguration();
-            referenceConfig.uiMode = baseConfig.uiMode;
-
-            // Extract any customizations as an overlay.
-            if (!referenceConfig.equals(baseConfig)) {
-                configOverlay = generateConfigDelta(referenceConfig, baseConfig);
-                if (DEBUG) {
-                    Log.d(TAG, "Application config (" + referenceConfig + ") does not match base "
-                            + "config (" + baseConfig + "), using base overlay: " + configOverlay);
-                }
+        // The caller may have directly modified the base configuration, so we'll defensively
+        // re-structure their changes as a configuration overlay and merge them with our own
+        // night mode changes. Diffing against the application configuration reveals any changes.
+        final Configuration baseConfig = baseContext.getResources().getConfiguration();
+        final Configuration configOverlay;
+        if (!appConfig.equals(baseConfig)) {
+            configOverlay = generateConfigDelta(appConfig, baseConfig);
+            if (DEBUG) {
+                Log.d(TAG,
+                        "Application config (" + appConfig + ") does not match base config ("
+                                + baseConfig + "), using base overlay: " + configOverlay);
+            }
+        } else {
+            configOverlay = null;
+            if (DEBUG) {
+                Log.d(TAG, "Application config (" + appConfig + ") matches base context "
+                        + "config, using empty base overlay");
             }
         }
 
@@ -2424,8 +2422,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 return mode;
             case MODE_NIGHT_AUTO_TIME:
                 if (Build.VERSION.SDK_INT >= 23) {
-                    UiModeManager uiModeManager = (UiModeManager) context.getApplicationContext()
-                            .getSystemService(Context.UI_MODE_SERVICE);
+                    UiModeManager uiModeManager = context.getApplicationContext()
+                            .getSystemService(UiModeManager.class);
                     if (uiModeManager.getNightMode() == UiModeManager.MODE_NIGHT_AUTO) {
                         // If we're set to AUTO and the system's auto night mode is already enabled,
                         // we'll just let the system handle it by returning FOLLOW_SYSTEM
@@ -3280,7 +3278,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         @Override
         public int getApplyableNightMode() {
             if (Build.VERSION.SDK_INT >= 21) {
-                return Api21Impl.isPowerSaveMode(mPowerManager) ? MODE_NIGHT_YES : MODE_NIGHT_NO;
+                return mPowerManager.isPowerSaveMode() ? MODE_NIGHT_YES : MODE_NIGHT_NO;
             }
             return MODE_NIGHT_NO;
         }
@@ -3385,7 +3383,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         if (Build.VERSION.SDK_INT >= 24) {
-            Api24Impl.generateConfigDelta_locale(base, change, delta);
+            ConfigurationImplApi24.generateConfigDelta_locale(base, change, delta);
         } else {
             if (!ObjectsCompat.equals(base.locale, change.locale)) {
                 delta.locale = change.locale;
@@ -3437,7 +3435,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         if (Build.VERSION.SDK_INT >= 26) {
-            Api26Impl.generateConfigDelta_colorMode(base, change, delta);
+            ConfigurationImplApi26.generateConfigDelta_colorMode(base, change, delta);
         }
 
         if ((base.uiMode & Configuration.UI_MODE_TYPE_MASK)
@@ -3463,7 +3461,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         if (Build.VERSION.SDK_INT >= 17) {
-            Api17Impl.generateConfigDelta_densityDpi(base, change, delta);
+            ConfigurationImplApi17.generateConfigDelta_densityDpi(base, change, delta);
         }
 
         // Assets sequence and window configuration are not supported.
@@ -3472,8 +3470,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     @RequiresApi(17)
-    static class Api17Impl {
-        private Api17Impl() { }
+    static class ConfigurationImplApi17 {
+        private ConfigurationImplApi17() { }
 
         static void generateConfigDelta_densityDpi(@NonNull Configuration base,
                 @NonNull Configuration change, @NonNull Configuration delta) {
@@ -3481,25 +3479,11 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 delta.densityDpi = change.densityDpi;
             }
         }
-
-        static Context createConfigurationContext(@NonNull Context context,
-                @NonNull Configuration overrideConfiguration) {
-            return context.createConfigurationContext(overrideConfiguration);
-        }
-    }
-
-    @RequiresApi(21)
-    static class Api21Impl {
-        private Api21Impl() { }
-
-        static boolean isPowerSaveMode(PowerManager powerManager) {
-            return powerManager.isPowerSaveMode();
-        }
     }
 
     @RequiresApi(24)
-    static class Api24Impl {
-        private Api24Impl() { }
+    static class ConfigurationImplApi24 {
+        private ConfigurationImplApi24() { }
 
         static void generateConfigDelta_locale(@NonNull Configuration base,
                 @NonNull Configuration change, @NonNull Configuration delta) {
@@ -3513,8 +3497,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     @RequiresApi(26)
-    static class Api26Impl {
-        private Api26Impl() { }
+    static class ConfigurationImplApi26 {
+        private ConfigurationImplApi26() { }
 
         static void generateConfigDelta_colorMode(@NonNull Configuration base,
                 @NonNull Configuration change, @NonNull Configuration delta) {
