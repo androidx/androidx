@@ -16,21 +16,22 @@
 
 package androidx.car.app.testing;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import static java.util.Objects.requireNonNull;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.ICarHost;
 import androidx.car.app.IStartCarApp;
 import androidx.car.app.testing.navigation.TestNavigationManager;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -56,8 +57,6 @@ import java.util.Map;
  * {@link CarContext#startCarApp(Intent, Intent)}.
  */
 public class TestCarContext extends CarContext {
-    private static TestCarContext sLatestInstance;
-
     private final Map<String, Object> mOverriddenService = new HashMap<>();
     private final IStartCarApp mStartCarApp = new StartCarAppStub();
 
@@ -67,7 +66,7 @@ public class TestCarContext extends CarContext {
     private final TestNavigationManager mTestNavigationManager;
     private final TestScreenManager mTestScreenManager;
 
-    private final List<Intent> mStartCarAppIntents = new ArrayList<>();
+    final List<Intent> mStartCarAppIntents = new ArrayList<>();
     private boolean mHasCalledFinishCarApp;
 
     /** Resets the values tracked by this {@link TestCarContext}. */
@@ -78,7 +77,6 @@ public class TestCarContext extends CarContext {
     @NonNull
     @Override
     public <T> T getCarService(@NonNull Class<T> serviceClass) {
-        requireNonNull(serviceClass);
         String serviceName;
 
         if (serviceClass.isInstance(mTestAppManager)) {
@@ -91,7 +89,7 @@ public class TestCarContext extends CarContext {
             serviceName = getCarServiceName(serviceClass);
         }
 
-        return requireNonNull(requireNonNull(serviceClass).cast(getCarService(serviceName)));
+        return requireNonNull(serviceClass.cast(getCarService(serviceName)));
     }
 
     @Override
@@ -125,40 +123,55 @@ public class TestCarContext extends CarContext {
         mHasCalledFinishCarApp = true;
     }
 
-    /** Creates a {@link TestCarContext} to use for testing. */
+    /**
+     * Creates a {@link TestCarContext} to use for testing.
+     *
+     * @throws NullPointerException if {@code testContext} is null
+     */
+    @SuppressLint("BanUncheckedReflection")
     @NonNull
     public static TestCarContext createCarContext(@NonNull Context testContext) {
         requireNonNull(testContext);
 
-        sLatestInstance = new TestCarContext(new TestLifecycleOwner(), new HostDispatcher());
-        sLatestInstance.attachBaseContext(testContext);
+        TestCarContext carContext = new TestCarContext(new TestLifecycleOwner(),
+                new HostDispatcher());
+        carContext.attachBaseContext(testContext);
 
         try {
             Method method = CarContext.class.getDeclaredMethod("setCarHost", ICarHost.class);
             method.setAccessible(true);
-            method.invoke(sLatestInstance, sLatestInstance.mFakeHost.getCarHost());
+            method.invoke(carContext, carContext.mFakeHost.getCarHost());
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("Failed to attach the base context", e);
         }
 
-        return sLatestInstance;
+        return carContext;
     }
 
     /**
-     * Retrieves all {@link Intent}s sent via {@link CarContext#startCarApp}.
+     * Returns all {@link Intent}s sent via {@link CarContext#startCarApp}.
      *
-     * <p>The {@link Intent}s are stored in order of calls.
+     * <p>The {@link Intent}s are stored in the order of when they were sent, where the first
+     * intent in the list, is the first intent sent.
      *
      * <p>The results will be stored until {@link #reset} is called.
      */
     @NonNull
     public List<Intent> getStartCarAppIntents() {
-        return mStartCarAppIntents;
+        return CollectionUtils.unmodifiableCopy(mStartCarAppIntents);
     }
 
     /** Verifies if {@link CarContext#finishCarApp} has been called. */
     public boolean hasCalledFinishCarApp() {
         return mHasCalledFinishCarApp;
+    }
+
+    /**
+     * Retrieve the {@link FakeHost} being used.
+     */
+    @NonNull
+    public FakeHost getFakeHost() {
+        return mFakeHost;
     }
 
     /**
@@ -168,40 +181,22 @@ public class TestCarContext extends CarContext {
      *
      * <p>Internal use only.
      *
+     * @throws NullPointerException if either {@code serviceClass} or {@code service} are {@code
+     *                              null}
+     *
      * @hide
      */
-    @RestrictTo(LIBRARY)
+    @RestrictTo(LIBRARY_GROUP)
     public void overrideCarService(@NonNull Class<?> serviceClass, @NonNull Object service) {
         requireNonNull(service);
         requireNonNull(serviceClass);
 
         String serviceName = getCarServiceName(serviceClass);
-        if (serviceName == null) {
-            throw new IllegalArgumentException(
-                    "Not an expected car service class: " + serviceClass.getName());
-        }
         mOverriddenService.put(serviceName, service);
-    }
-
-    /**
-     * Retrieve the last instance of TestCarContext created for internal testing purposes.
-     *
-     * <p>Internal use only.
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    @Nullable
-    public static TestCarContext getLatestInstance() {
-        return sLatestInstance;
     }
 
     TestLifecycleOwner getLifecycleOwner() {
         return mTestLifecycleOwner;
-    }
-
-    FakeHost getFakeHost() {
-        return mFakeHost;
     }
 
     IStartCarApp getStartCarAppStub() {
@@ -213,7 +208,7 @@ public class TestCarContext extends CarContext {
     }
 
     /** Testing version of the start car app binder for notifications. */
-    private class StartCarAppStub extends IStartCarApp.Stub {
+    class StartCarAppStub extends IStartCarApp.Stub {
         @Override
         public void startCarApp(Intent intent) {
             mStartCarAppIntents.add(intent);

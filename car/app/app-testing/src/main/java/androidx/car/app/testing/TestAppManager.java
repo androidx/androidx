@@ -16,15 +16,20 @@
 
 package androidx.car.app.testing;
 
+import static java.util.Objects.requireNonNull;
+
+import android.annotation.SuppressLint;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.AppManager;
+import androidx.car.app.CarToast;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.model.Template;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,69 +47,70 @@ import java.util.List;
  * </ul>
  */
 public class TestAppManager extends AppManager {
-    private final List<SurfaceCallback> mSurfaceCallbacks = new ArrayList<>();
     private final List<CharSequence> mToastsShown = new ArrayList<>();
     private final List<Pair<Screen, Template>> mTemplatesReturned = new ArrayList<>();
+    private SurfaceCallback mSurfaceCallback;
 
     /**
-     * Resets the values tracked by this {@link TestAppManager} and all {@link ScreenController}
-     * s.
+     * Resets the values tracked by this {@link TestAppManager} and all {@link ScreenController}s.
      */
     public void reset() {
-        mSurfaceCallbacks.clear();
+        mSurfaceCallback = null;
         mToastsShown.clear();
         mTemplatesReturned.clear();
     }
 
     /**
-     * Retrieves all the {@link SurfaceCallback}s set via {@link AppManager#setSurfaceCallback}.
-     *
-     * <p>The listeners are stored in order of calls.
-     *
-     * <p>The listeners will be stored until {@link #reset} is called.
+     * Returns the callback set via {@link AppManager#setSurfaceCallback}, or {@code null} if not
+     * set.
      */
-    @NonNull
-    public List<SurfaceCallback> getSurfaceListeners() {
-        return mSurfaceCallbacks;
+    @Nullable
+    public SurfaceCallback getSurfaceListener() {
+        return mSurfaceCallback;
     }
 
     /**
-     * Retrieves all the toasts shown via {@link AppManager#showToast}.
+     * Returns all the toasts shown via {@link AppManager#showToast}.
      *
-     * <p>The toasts are stored in order of calls.
+     * <p>The toasts are stored in the order in which they are sent via
+     * {@link AppManager#showToast}, where the first toast in the list is the first toast that
+     * was sent.
      *
      * <p>The toasts will be stored until {@link #reset} is called.
      */
     @NonNull
     public List<CharSequence> getToastsShown() {
-        return mToastsShown;
+        return CollectionUtils.unmodifiableCopy(mToastsShown);
     }
 
     /**
-     * Retrieves all the {@link Template}s returned from {@link Screen#onGetTemplate} due to a call
+     * Returns all the {@link Template}s returned from {@link Screen#onGetTemplate} due to a call
      * to {@link AppManager#invalidate}, and the respective {@link Screen} instance that returned
      * it.
      *
-     * <p>The results are stored in order of calls.
+     * The results are stored in the order in which they were returned from
+     * {@link Screen#onGetTemplate}, where the first template in the list, is the first template
+     * returned.
      *
      * <p>The results will be stored until {@link #reset} is called.
      */
     @NonNull
     public List<Pair<Screen, Template>> getTemplatesReturned() {
-        return mTemplatesReturned;
+        return CollectionUtils.unmodifiableCopy(mTemplatesReturned);
     }
 
+    @SuppressLint("ExecutorRegistration")
     @Override
     public void setSurfaceCallback(@Nullable SurfaceCallback surfaceCallback) {
-        mSurfaceCallbacks.add(surfaceCallback);
+        mSurfaceCallback = surfaceCallback;
     }
 
     @Override
-    public void showToast(@NonNull CharSequence text, int duration) {
-        mToastsShown.add(text);
+    public void showToast(@NonNull CharSequence text, @CarToast.Duration int duration) {
+        mToastsShown.add(requireNonNull(text));
     }
 
-    void resetTemplatesStoredForScreen(@NonNull Screen screen) {
+    void resetTemplatesStoredForScreen(Screen screen) {
         List<Pair<Screen, Template>> templatesForOtherScreens = new ArrayList<>();
 
         for (Pair<Screen, Template> pair : mTemplatesReturned) {

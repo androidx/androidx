@@ -18,6 +18,7 @@ package androidx.car.app.testing;
 
 import static java.util.Objects.requireNonNull;
 
+import android.annotation.SuppressLint;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
@@ -42,11 +43,17 @@ import java.util.List;
  *       be reset with {@link #reset}.
  * </ul>
  */
+@SuppressWarnings("NotCloseable")
 public class ScreenController {
     private final TestCarContext mTestCarContext;
     private final Screen mScreen;
 
-    /** Creates a ScreenController to control a {@link Screen} for testing. */
+    /**
+     * Creates a ScreenController to control a {@link Screen} for testing.
+     *
+     * @throws NullPointerException if either {@code testCarContext} or {@code screen} are null
+     */
+    @NonNull
     public static ScreenController of(
             @NonNull TestCarContext testCarContext, @NonNull Screen screen) {
         return new ScreenController(requireNonNull(screen), requireNonNull(testCarContext));
@@ -58,10 +65,12 @@ public class ScreenController {
     }
 
     /**
-     * Retrieves all the {@link Template}s returned from {@link Screen#onGetTemplate} for the {@link
+     * Returns all the {@link Template}s returned from {@link Screen#onGetTemplate} for the {@link
      * Screen} being controlled.
      *
-     * <p>The templates are stored in order of calls.
+     * <p>The templates are stored in the order in which they were returned from
+     * {@link Screen#onGetTemplate}, where the first template in the list, is the first template
+     * returned.
      *
      * <p>The templates will be stored until {@link #reset} is called.
      */
@@ -156,7 +165,7 @@ public class ScreenController {
         return this;
     }
 
-    /** Retrieves the {@link Screen} being controlled. */
+    /** Returns the {@link Screen} being controlled. */
     @NonNull
     public Screen get() {
         return mScreen;
@@ -184,6 +193,7 @@ public class ScreenController {
         }
     }
 
+    @SuppressLint("BanUncheckedReflection")
     private void dispatchLifecycleEvent(Event event) {
         // Use reflection to call internal APIs for testing purposes.
         try {

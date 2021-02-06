@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package androidx.car.app.testing.navigation;
 
-import static java.util.Objects.requireNonNull;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.HostDispatcher;
@@ -25,9 +23,11 @@ import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.navigation.NavigationManagerCallback;
 import androidx.car.app.navigation.model.Trip;
 import androidx.car.app.testing.TestCarContext;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * The {@link NavigationManager} that is used for testing.
@@ -46,54 +46,53 @@ import java.util.List;
  */
 public class TestNavigationManager extends NavigationManager {
     private final List<Trip> mTripsSent = new ArrayList<>();
-    private final List<NavigationManagerCallback> mListenersSet = new ArrayList<>();
+    private NavigationManagerCallback mCallback;
     private int mNavigationStartedCount;
     private int mNavigationEndedCount;
 
     /** Resets the values tracked by this {@link TestNavigationManager}. */
     public void reset() {
         mTripsSent.clear();
-        mListenersSet.clear();
+        mCallback = null;
         mNavigationStartedCount = 0;
         mNavigationEndedCount = 0;
     }
 
     /**
-     * Retrieves all the {@link Trip}s sent via {@link NavigationManager#updateTrip}.
+     * Returns all the {@link Trip}s sent via {@link NavigationManager#updateTrip}.
      *
-     * <p>The trips are stored in order of calls.
+     * <p>The trips are stored in the order in which they were sent, where the first trip in the
+     * list, is the first trip sent.
      *
      * <p>The trips will be stored until {@link #reset} is called.
      */
     @NonNull
     public List<Trip> getTripsSent() {
-        return mTripsSent;
+        return CollectionUtils.unmodifiableCopy(mTripsSent);
     }
 
     /**
-     * Retrieves all the {@link NavigationManagerCallback}s added via {@link
-     * NavigationManager#setNavigationManagerCallback(NavigationManagerCallback)}.
+     * Returns the callback set via {@link NavigationManager#setNavigationManagerCallback}.
      *
-     * <p>The listeners are stored in order of calls.
-     *
-     * <p>The listeners will be stored until {@link #reset} is called.
+     * <p>The listener will be {@code null} if one was never set, or if
+     * {@link NavigationManager#clearNavigationManagerCallback()}  or {@link #reset} was called.
      */
-    @NonNull
-    public List<NavigationManagerCallback> getNavigationManagerCallbacksSet() {
-        return mListenersSet;
+    @Nullable
+    public NavigationManagerCallback getNavigationManagerCallback() {
+        return mCallback;
     }
 
     /**
-     * Retrieves the number of times that navigation was started via {@link
-     * NavigationManager#navigationStarted()} since the creation or the last call to {@link #reset}.
+     * Returns the number of times that navigation was started via {@link
+     * NavigationManager#navigationStarted()} since creation or the last call to {@link #reset}.
      */
     public int getNavigationStartedCount() {
         return mNavigationStartedCount;
     }
 
     /**
-     * Retrieves the number of times that navigation was ended via {@link
-     * NavigationManager#navigationEnded()} since the creation or the last call to {@link #reset}.
+     * Returns the number of times that navigation was ended via {@link
+     * NavigationManager#navigationEnded()} since creation or the last call to {@link #reset}.
      */
     public int getNavigationEndedCount() {
         return mNavigationEndedCount;
@@ -101,14 +100,21 @@ public class TestNavigationManager extends NavigationManager {
 
     @Override
     public void updateTrip(@NonNull Trip trip) {
-        mTripsSent.add(requireNonNull(trip));
+        mTripsSent.add(trip);
         super.updateTrip(trip);
     }
 
     @Override
-    public void setNavigationManagerCallback(@Nullable NavigationManagerCallback listener) {
-        mListenersSet.add(listener);
-        super.setNavigationManagerCallback(listener);
+    public void setNavigationManagerCallback(@NonNull /* @CallbackExecutor */ Executor executor,
+            @NonNull NavigationManagerCallback callback) {
+        mCallback = callback;
+        super.setNavigationManagerCallback(executor, callback);
+    }
+
+    @Override
+    public void clearNavigationManagerCallback() {
+        mCallback = null;
+        super.clearNavigationManagerCallback();
     }
 
     @Override
@@ -123,7 +129,8 @@ public class TestNavigationManager extends NavigationManager {
         super.navigationEnded();
     }
 
-    public TestNavigationManager(TestCarContext testCarContext, HostDispatcher hostDispatcher) {
+    public TestNavigationManager(@NonNull TestCarContext testCarContext,
+            @NonNull HostDispatcher hostDispatcher) {
         super(testCarContext, hostDispatcher);
     }
 }

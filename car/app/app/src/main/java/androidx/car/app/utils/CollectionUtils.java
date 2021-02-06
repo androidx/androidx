@@ -16,7 +16,7 @@
 
 package androidx.car.app.utils;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,7 +33,7 @@ import java.util.Map;
  *
  * @hide
  */
-@RestrictTo(LIBRARY)
+@RestrictTo(LIBRARY_GROUP)
 public final class CollectionUtils {
     /** Returns the input {@code list} if not {@code null}, or an empty list otherwise. */
     @NonNull

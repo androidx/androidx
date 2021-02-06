@@ -32,7 +32,6 @@ import androidx.car.app.Session;
 import androidx.lifecycle.Lifecycle.State;
 
 import java.lang.reflect.Field;
-import java.util.Objects;
 
 /**
  * A controller that allows testing of a {@link CarAppService}.
@@ -45,12 +44,19 @@ import java.util.Objects;
  *   <li>Moving a {@link CarAppService} through its different {@link State}s.
  * </ul>
  */
+@SuppressWarnings("NotCloseable")
 public class CarAppServiceController {
     private final TestCarContext mTestCarContext;
     private final CarAppService mCarAppService;
     private final ICarApp mCarAppStub;
 
-    /** Creates a {@link CarAppServiceController} to control the provided {@link CarAppService}. */
+    /**
+     * Creates a {@link CarAppServiceController} to control the provided {@link CarAppService}.
+     *
+     * @throws NullPointerException if {@code testCarContext}, {@code session} or {@code
+     *                              carAppService} are {@code null}
+     */
+    @NonNull
     public static CarAppServiceController of(
             @NonNull TestCarContext testCarContext,
             @NonNull Session session, @NonNull CarAppService carAppService) {
@@ -62,23 +68,15 @@ public class CarAppServiceController {
     /**
      * Initializes the {@link CarAppService} that is being controlled.
      *
-     * <p>This will send an empty {@link Intent} to the {@link Session} returned from
-     * {@link CarAppService#onCreateSession}.
+     * @param intent the intent that will be sent to {@link Session#onCreateScreen}. If it is
+     *               {@code null}, then an {@link Intent} with only the component set will be sent.
      */
-    public CarAppServiceController create() {
-        return create(
-                new Intent().setComponent(
-                        new ComponentName(mTestCarContext, mCarAppService.getClass())));
-    }
-
-    /**
-     * Initializes the {@link CarAppService} that is being controlled.
-     *
-     * <p>This will send the provided {@link Intent} to {@link Session#onCreateScreen}.
-     */
-    public CarAppServiceController create(@NonNull Intent intent) {
-        Objects.requireNonNull(intent);
-
+    @NonNull
+    public CarAppServiceController create(@Nullable Intent intent) {
+        if (intent == null) {
+            intent = new Intent().setComponent(
+                    new ComponentName(mTestCarContext, mCarAppService.getClass()));
+        }
         try {
             mCarAppStub.onAppCreate(
                     mTestCarContext.getCarHostStub(),
@@ -92,9 +90,14 @@ public class CarAppServiceController {
         return this;
     }
 
-    /** Sends the provided {@link Intent} to the {@link CarAppService} that is being controlled. */
+    /**
+     * Sends the provided {@link Intent} to the {@link CarAppService} that is being controlled.
+     *
+     * @throws NullPointerException if {@code intent} is {@code null}
+     */
+    @NonNull
     public CarAppServiceController newIntent(@NonNull Intent intent) {
-        Objects.requireNonNull(intent);
+        requireNonNull(intent);
 
         try {
             mCarAppStub.onNewIntent(intent, new TestOnDoneCallbackStub());
@@ -110,6 +113,7 @@ public class CarAppServiceController {
      *
      * @see Session#getLifecycle
      */
+    @NonNull
     public CarAppServiceController start() {
         try {
             mCarAppStub.onAppStart(new TestOnDoneCallbackStub());
@@ -125,6 +129,7 @@ public class CarAppServiceController {
      *
      * @see Session#getLifecycle
      */
+    @NonNull
     public CarAppServiceController resume() {
         try {
             mCarAppStub.onAppResume(new TestOnDoneCallbackStub());
@@ -140,6 +145,7 @@ public class CarAppServiceController {
      *
      * @see Session#getLifecycle
      */
+    @NonNull
     public CarAppServiceController pause() {
         try {
             mCarAppStub.onAppPause(new TestOnDoneCallbackStub());
@@ -155,6 +161,7 @@ public class CarAppServiceController {
      *
      * @see Session#getLifecycle
      */
+    @NonNull
     public CarAppServiceController stop() {
         try {
             mCarAppStub.onAppStop(new TestOnDoneCallbackStub());
@@ -169,13 +176,21 @@ public class CarAppServiceController {
      *
      * @see Session#getLifecycle
      */
+    @NonNull
     public CarAppServiceController destroy() {
         mCarAppService.onUnbind(new Intent());
         mCarAppService.onDestroy();
         return this;
     }
 
-    public void setHostInfo(@Nullable HostInfo hostInfo) {
+    /**
+     * Sets the {@link HostInfo} to aid in testing host validation logic.
+     *
+     * @throws NullPointerException if {@code hostInfo} is {@code null}
+     */
+    public void setHostInfo(@NonNull HostInfo hostInfo) {
+        requireNonNull(hostInfo);
+
         try {
             Field hostInfoField = CarAppService.class.getDeclaredField("mHostInfo");
             hostInfoField.setAccessible(true);
@@ -186,7 +201,14 @@ public class CarAppServiceController {
         }
     }
 
-    public void setAppInfo(@Nullable AppInfo appInfo) {
+    /**
+     * Sets the app to be at a specific {@link AppInfo} version to test code at specific versions.
+     *
+     * @throws NullPointerException if {@code appInfo} is {@code null}
+     */
+    public void setAppInfo(@NonNull AppInfo appInfo) {
+        requireNonNull(appInfo);
+
         try {
             Field appInfoField = CarAppService.class.getDeclaredField("mAppInfo");
             appInfoField.setAccessible(true);
@@ -197,7 +219,7 @@ public class CarAppServiceController {
         }
     }
 
-    /** Retrieves the {@link CarAppService} that is being controlled. */
+    /** Returns the {@link CarAppService} that is being controlled. */
     @NonNull
     public CarAppService get() {
         return mCarAppService;
