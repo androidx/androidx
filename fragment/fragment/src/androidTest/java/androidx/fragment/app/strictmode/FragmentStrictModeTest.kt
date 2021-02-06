@@ -47,9 +47,10 @@ public class FragmentStrictModeTest {
 
     @Test
     public fun penaltyDeath() {
-        FragmentStrictMode.setDefaultPolicy(FragmentStrictMode.Policy.Builder()
+        val policy = FragmentStrictMode.Policy.Builder()
             .penaltyDeath()
-            .build())
+            .build()
+        FragmentStrictMode.setDefaultPolicy(policy)
 
         var violation: Violation? = null
         try {
