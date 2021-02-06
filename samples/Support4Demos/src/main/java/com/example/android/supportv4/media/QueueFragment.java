@@ -58,6 +58,7 @@ public class QueueFragment extends Fragment {
     private MediaBrowserCompat.ConnectionCallback mConnectionCallback =
             new MediaBrowserCompat.ConnectionCallback() {
         @Override
+        @SuppressWarnings("ObjectToString")
         public void onConnected() {
             Log.d(TAG, "onConnected: session token " + mMediaBrowser.getSessionToken());
 
@@ -190,6 +191,7 @@ public class QueueFragment extends Fragment {
     }
 
 
+    @SuppressWarnings("ObjectToString")
     private void onPlaybackStateChanged(PlaybackStateCompat state) {
         Log.d(TAG, "onPlaybackStateChanged " + state);
         if (state == null) {

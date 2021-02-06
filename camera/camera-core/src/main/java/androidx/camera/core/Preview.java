@@ -632,6 +632,7 @@ public final class Preview extends UseCase {
     }
 
     /** Builder for a {@link Preview}. */
+    @SuppressWarnings("ObjectToString")
     public static final class Builder
             implements UseCaseConfig.Builder<Preview, PreviewConfig, Builder>,
             ImageOutputConfig.Builder<Builder>,

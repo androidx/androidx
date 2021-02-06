@@ -1451,6 +1451,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     };
 
     @Override
+    @SuppressWarnings("ObjectToString")
     public void onMeasure(Recycler recycler, State state, int widthSpec, int heightSpec) {
         saveContext(recycler, state);
 

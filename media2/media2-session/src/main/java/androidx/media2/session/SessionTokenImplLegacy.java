@@ -126,6 +126,7 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
     }
 
     @Override
+    @SuppressWarnings("ObjectToString")
     public String toString() {
         return "SessionToken {legacyToken=" + mLegacyToken + "}";
     }

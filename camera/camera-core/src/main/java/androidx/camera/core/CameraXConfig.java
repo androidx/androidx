@@ -201,6 +201,7 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
     }
 
     /** A builder for generating {@link CameraXConfig} objects. */
+    @SuppressWarnings("ObjectToString")
     public static final class Builder
             implements TargetConfig.Builder<CameraX, CameraXConfig.Builder> {
 
