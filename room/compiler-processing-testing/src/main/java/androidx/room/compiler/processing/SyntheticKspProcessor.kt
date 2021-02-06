@@ -22,6 +22,7 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.symbol.KSAnnotated
 
 class SyntheticKspProcessor(
     private val handler: (XTestInvocation) -> Unit
@@ -47,7 +48,7 @@ class SyntheticKspProcessor(
         this.logger = logger
     }
 
-    override fun process(resolver: Resolver) {
+    override fun process(resolver: Resolver): List<KSAnnotated> {
         val xEnv = XProcessingEnv.create(
             options,
             resolver,
@@ -65,6 +66,7 @@ class SyntheticKspProcessor(
                 }
             )
         }
+        return emptyList()
     }
 
     override fun getProcessingException(): Throwable? {

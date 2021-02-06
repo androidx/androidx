@@ -338,6 +338,7 @@ class XAnnotationBoxTest {
         runProcessorTest(sources = listOf(src)) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("Subject")
             subject.assertHasSuppressWithValue("onClass")
+            assertThat(subject.getConstructors()).hasSize(1)
             val constructor = subject.getConstructors().single()
             constructor.getParameter("x").assertHasSuppressWithValue("onConstructorParam")
             subject.getMethod("getX").assertHasSuppressWithValue("onGetter")
