@@ -18,6 +18,7 @@ package androidx.wear.complications;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
@@ -85,6 +86,9 @@ public class ComplicationProviderServiceTest {
         @Nullable
         @Override
         public ComplicationData getPreviewData(@NonNull ComplicationType type) {
+            if (type == ComplicationType.PHOTO_IMAGE) {
+                return null;
+            }
             return new LongTextComplicationData.Builder(
                     ComplicationText.plain("hello preview")
             ).build();
@@ -162,5 +166,13 @@ public class ComplicationProviderServiceTest {
         assertThat(mComplicationProvider.getComplicationPreviewData(
                 ComplicationType.LONG_TEXT.asWireComplicationType()
         ).getLongText().getTextAt(null, 0)).isEqualTo("hello preview");
+    }
+
+    @Test
+    public void testGetComplicationPreviewDataReturnsNull() throws Exception {
+        // The ComplicationProvider doesn't support PHOTO_IMAGE so null should be returned.
+        assertNull(mComplicationProvider.getComplicationPreviewData(
+                ComplicationType.PHOTO_IMAGE.asWireComplicationType())
+        );
     }
 }
