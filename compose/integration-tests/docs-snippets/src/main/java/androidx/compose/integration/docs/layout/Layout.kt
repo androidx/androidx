@@ -321,7 +321,7 @@ private object LayoutSnippet14 {
     ) {
         Layout(
             modifier = modifier,
-            children = content
+            content = content
         ) { measurables, constraints ->
             // measure and position children given constraints logic here
         }
