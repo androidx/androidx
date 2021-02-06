@@ -137,17 +137,33 @@ public class PlatformStorage {
     @NonNull
     public static ListenableFuture<AppSearchSession> createSearchSession(
             @NonNull SearchContext context) {
+        return createSearchSession(context, EXECUTOR_SERVICE);
+    }
+
+    /**
+     * Opens a new {@link AppSearchSession} on this storage with executor.
+     *
+     * @param context  The {@link SearchContext} contains all information to create a new
+     *                 {@link AppSearchSession}
+     * @param executor The executor of where tasks will execute.
+     * @hide
+     */
+    @NonNull
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static ListenableFuture<AppSearchSession> createSearchSession(
+            @NonNull SearchContext context, @NonNull ExecutorService executor) {
         Preconditions.checkNotNull(context);
+        Preconditions.checkNotNull(executor);
         AppSearchManager appSearchManager =
                 context.mContext.getSystemService(AppSearchManager.class);
         ResolvableFuture<AppSearchSession> future = ResolvableFuture.create();
         appSearchManager.createSearchSession(
                 SearchContextToPlatformConverter.toPlatformSearchContext(context),
-                EXECUTOR_SERVICE,
+                executor,
                 result -> {
                     if (result.isSuccess()) {
-                        future.set(
-                                new SearchSessionImpl(result.getResultValue(), EXECUTOR_SERVICE));
+                        future.set(new SearchSessionImpl(result.getResultValue(), executor));
                     } else {
                         future.setException(
                                 new AppSearchException(
