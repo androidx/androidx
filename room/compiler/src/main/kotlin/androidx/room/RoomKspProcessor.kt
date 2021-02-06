@@ -21,6 +21,7 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.symbol.KSAnnotated
 
 /**
  * Entry point for processing using KSP.
@@ -44,7 +45,7 @@ class RoomKspProcessor : SymbolProcessor {
         this.logger = logger
     }
 
-    override fun process(resolver: Resolver) {
+    override fun process(resolver: Resolver): List<KSAnnotated> {
         val processingEnv = XProcessingEnv.create(
             options,
             resolver,
@@ -55,5 +56,6 @@ class RoomKspProcessor : SymbolProcessor {
         DatabaseProcessingStep().executeInKsp(
             processingEnv
         )
+        return emptyList()
     }
 }

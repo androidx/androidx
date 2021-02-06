@@ -147,20 +147,22 @@ class FallbackLocationInformationTest {
             ).isEqualTo(
                 "foo.bar.JavaSubject"
             )
-            if (!invocation.isKsp) {
-                // TODO: re-enable after https://github.com/google/ksp/issues/273 is fixed.
-                javaSubject.getConstructors().single().let { constructor ->
-                    assertThat(
-                        constructor.fallbackLocationText
-                    ).isEqualTo(
-                        "foo.bar.JavaSubject.<init>(int)"
-                    )
-                    assertThat(
-                        constructor.parameters.single().fallbackLocationText
-                    ).isEqualTo(
-                        "arg0 in foo.bar.JavaSubject.<init>(int)"
-                    )
-                }
+            val argName = if (invocation.isKsp) { // ¯\_(ツ)_/¯
+                "p0"
+            } else {
+                "arg0"
+            }
+            javaSubject.getConstructors().single().let { constructor ->
+                assertThat(
+                    constructor.fallbackLocationText
+                ).isEqualTo(
+                    "foo.bar.JavaSubject.<init>(int)"
+                )
+                assertThat(
+                    constructor.parameters.single().fallbackLocationText
+                ).isEqualTo(
+                    "$argName in foo.bar.JavaSubject.<init>(int)"
+                )
             }
 
             assertThat(

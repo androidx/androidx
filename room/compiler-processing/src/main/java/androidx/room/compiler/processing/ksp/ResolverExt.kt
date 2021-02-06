@@ -23,7 +23,6 @@ import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.Nullability
 
@@ -66,31 +65,17 @@ internal fun Resolver.overrides(
     val ksOverrider = overriderElement.getDeclarationForOverride()
     val ksOverridee = overrideeElement.getDeclarationForOverride()
     if (overrides(ksOverrider, ksOverridee)) {
+        // Make sure it also overrides in JVM descriptors as well.
+        // This happens in cases where parent class has `<T>` type argument and child class
+        // declares it has `Int` (a type that might map to a primitive). In those cases,
+        // KAPT generates two methods, 1 w/ primitive and 1 boxed so we replicate that behavior
+        // here. This code would change when we generate kotlin code.
+        if (ksOverridee is KSFunctionDeclaration && ksOverrider is KSFunctionDeclaration) {
+            return ksOverrider.overridesInJvm(ksOverridee)
+        }
         return true
-    }
-    // workaround for: https://github.com/google/ksp/issues/175
-    if (ksOverrider is KSFunctionDeclaration && ksOverridee is KSFunctionDeclaration) {
-        return ksOverrider.overrides(ksOverridee)
-    }
-    if (ksOverrider is KSPropertyDeclaration && ksOverridee is KSPropertyDeclaration) {
-        return ksOverrider.overrides(ksOverridee)
     }
     return false
-}
-
-private fun KSFunctionDeclaration.overrides(other: KSFunctionDeclaration): Boolean {
-    val overridee = try {
-        findOverridee()
-    } catch (ignored: IllegalStateException) {
-        // workaround for https://github.com/google/ksp/issues/248
-        null
-    }
-    // before accepting this override, check if we have a primitive parameter that was a type
-    // reference in overridee. In those cases, kotlin will actually generate two jvm methods.
-    if (overridee == other && this.overridesInJvm(other)) {
-        return true
-    }
-    return overridee?.overrides(other) ?: false
 }
 
 /**
@@ -121,14 +106,6 @@ private fun KSFunctionDeclaration.overridesInJvm(
         }
     }
     return true
-}
-
-private fun KSPropertyDeclaration.overrides(other: KSPropertyDeclaration): Boolean {
-    val overridee = findOverridee()
-    if (overridee == other) {
-        return true
-    }
-    return overridee?.overrides(other) ?: false
 }
 
 @OptIn(KspExperimental::class)
