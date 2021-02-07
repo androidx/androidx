@@ -19,6 +19,7 @@ package androidx.navigation
 import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
 import android.os.Bundle
+import androidx.navigation.common.test.R
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -42,6 +43,7 @@ class NavTypeTest {
         private val booleans = booleanArrayOf(b, false)
         private val s = "a_string"
         private val strings = arrayOf("aa", "bb")
+        private val reference = R.id.nav_id_reference
         private val parcelable = ActivityInfo()
         private val parcelables = arrayOf(parcelable)
         private val en = Bitmap.Config.ALPHA_8
@@ -78,6 +80,8 @@ class NavTypeTest {
             .isEqualTo(NavType.StringType)
         assertThat(NavType.fromArgType("string[]", null))
             .isEqualTo(NavType.StringArrayType)
+        assertThat(NavType.fromArgType("reference", null))
+            .isEqualTo(NavType.ReferenceType)
         assertThat(NavType.fromArgType("android.content.pm.ActivityInfo", null))
             .isEqualTo(parcelableNavType)
         assertThat(NavType.fromArgType("android.content.pm.ActivityInfo[]", null))
@@ -194,6 +198,11 @@ class NavTypeTest {
         NavType.StringArrayType.put(bundle, key, strings)
         assertThat(NavType.StringArrayType.get(bundle, key))
             .isEqualTo(strings)
+        bundle.clear()
+
+        NavType.ReferenceType.put(bundle, key, reference)
+        assertThat(NavType.ReferenceType.get(bundle, key))
+            .isEqualTo(reference)
         bundle.clear()
 
         parcelableNavType.put(bundle, key, parcelable)
