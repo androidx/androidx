@@ -91,7 +91,8 @@ class SearchSessionImpl implements AppSearchSession {
             @NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
-        return execute(() -> {
+
+        ListenableFuture<SetSchemaResponse> future = execute(() -> {
             // Convert the inner set into a List since Binder can't handle Set.
             Map<String, Set<PackageIdentifier>> schemasPackageAccessible =
                     request.getSchemasVisibleToPackagesInternal();
@@ -182,6 +183,13 @@ class SearchSessionImpl implements AppSearchSession {
             // 6. Put all the migrated documents into the index, now that the new schema is set.
             return migrationHelper.readAndPutDocuments(responseBuilder);
         });
+
+        // setSchema will sync the schemas in the request to AppSearch, any existing schemas which
+        // is not included in the request will be delete if we force override incompatible schemas.
+        // And all documents of these types will be deleted as well. We should checkForOptimize for
+        // these deletion.
+        checkForOptimize();
+        return future;
     }
 
     @Override
@@ -200,7 +208,7 @@ class SearchSessionImpl implements AppSearchSession {
             @NonNull PutDocumentsRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
-        return execute(() -> {
+        ListenableFuture<AppSearchBatchResult<String, Void>> future = execute(() -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (int i = 0; i < request.getGenericDocuments().size(); i++) {
@@ -215,6 +223,11 @@ class SearchSessionImpl implements AppSearchSession {
             mIsMutated = true;
             return resultBuilder.build();
         });
+
+        // The existing documents with same URI will be deleted, so there maybe some
+        // resources could be released after optimize().
+        checkForOptimize(/*mutateBatchSize=*/ request.getGenericDocuments().size());
+        return future;
     }
 
     @Override
@@ -283,7 +296,7 @@ class SearchSessionImpl implements AppSearchSession {
             @NonNull RemoveByUriRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
-        return execute(() -> {
+        ListenableFuture<AppSearchBatchResult<String, Void>> future = execute(() -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (String uri : request.getUris()) {
@@ -297,6 +310,8 @@ class SearchSessionImpl implements AppSearchSession {
             mIsMutated = true;
             return resultBuilder.build();
         });
+        checkForOptimize(/*mutateBatchSize=*/ request.getUris().size());
+        return future;
     }
 
     @Override
@@ -306,11 +321,13 @@ class SearchSessionImpl implements AppSearchSession {
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
-        return execute(() -> {
+        ListenableFuture<Void> future = execute(() -> {
             mAppSearchImpl.removeByQuery(mPackageName, mDatabaseName, queryExpression, searchSpec);
             mIsMutated = true;
             return null;
         });
+        checkForOptimize();
+        return future;
     }
 
     @NonNull
@@ -435,5 +452,25 @@ class SearchSessionImpl implements AppSearchSession {
             migrationHelper.deleteTempFile();
             throw e;
         }
+    }
+
+    private void checkForOptimize(int mutateBatchSize) {
+        mExecutorService.execute(() -> {
+            try {
+                mAppSearchImpl.checkForOptimize(mutateBatchSize);
+            } catch (AppSearchException e) {
+                Log.w(TAG, "Error occurred when check for optimize", e);
+            }
+        });
+    }
+
+    private void checkForOptimize() {
+        mExecutorService.execute(() -> {
+            try {
+                mAppSearchImpl.checkForOptimize();
+            } catch (AppSearchException e) {
+                Log.w(TAG, "Error occurred when check for optimize", e);
+            }
+        });
     }
 }

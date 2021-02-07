@@ -340,23 +340,33 @@ public class AppSearchImplTest {
         GetOptimizeInfoResultProto optimizeInfo = mAppSearchImpl.getOptimizeInfoResultLocked();
         assertThat(optimizeInfo.getOptimizableDocs()).isEqualTo(0);
 
-        // delete 999 documents , we will reach the threshold to trigger optimize() in next
+        // delete 999 documents, we will reach the threshold to trigger optimize() in next
         // deletion.
         for (int i = 0; i < AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT - 1; i++) {
             mAppSearchImpl.remove("package", "database", "namespace", "uri" + i);
         }
 
-        // optimize() still not be triggered since we are in the interval to call getOptimizeInfo()
+        // Updates the check for optimize counter, checkForOptimize() will be triggered since
+        // CHECK_OPTIMIZE_INTERVAL is reached but optimize() won't since
+        // OPTIMIZE_THRESHOLD_DOC_COUNT is not.
+        mAppSearchImpl.checkForOptimize(
+                /*mutateBatchSize=*/ AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT - 1);
+
+        // Verify optimize() still not be triggered.
         optimizeInfo = mAppSearchImpl.getOptimizeInfoResultLocked();
         assertThat(optimizeInfo.getOptimizableDocs())
                 .isEqualTo(AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT - 1);
 
-        // Keep delete docs, will reach the interval this time and trigger optimize().
+        // Keep delete docs
         for (int i = AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT;
                 i < AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT
                         + AppSearchImpl.CHECK_OPTIMIZE_INTERVAL; i++) {
             mAppSearchImpl.remove("package", "database", "namespace", "uri" + i);
         }
+        // updates the check for optimize counter, will reach both CHECK_OPTIMIZE_INTERVAL and
+        // OPTIMIZE_THRESHOLD_DOC_COUNT this time and trigger a optimize().
+        mAppSearchImpl.checkForOptimize(
+                /*mutateBatchSize*/ AppSearchImpl.CHECK_OPTIMIZE_INTERVAL);
 
         // Verify optimize() is triggered
         optimizeInfo = mAppSearchImpl.getOptimizeInfoResultLocked();

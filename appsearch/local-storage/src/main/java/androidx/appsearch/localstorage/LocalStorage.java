@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -48,6 +49,7 @@ import java.util.concurrent.Executors;
  * delete, etc..).
  */
 public class LocalStorage {
+    private static final String TAG = "AppSearchLocalStorage";
     /**
      * The default empty database name.
      *
@@ -252,6 +254,14 @@ public class LocalStorage {
         // There is no global querier for a local storage instance.
         mAppSearchImpl = AppSearchImpl.create(icingDir, context, VisibilityStore.NO_OP_USER_ID,
                 /*globalQuerierPackage=*/ "");
+
+        EXECUTOR_SERVICE.execute(() -> {
+            try {
+                mAppSearchImpl.checkForOptimize();
+            } catch (AppSearchException e) {
+                Log.w(TAG, "Error occurred when check for optimize", e);
+            }
+        });
     }
 
     @NonNull

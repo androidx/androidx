@@ -156,7 +156,7 @@ public final class AppSearchImpl {
     private final Map<String, Set<String>> mNamespaceMapLocked = new HashMap<>();
 
     /**
-     * The counter to check when to call {@link #checkForOptimizeLocked(boolean)}. The
+     * The counter to check when to call {@link #checkForOptimize}. The
      * interval is
      * {@link #CHECK_OPTIMIZE_INTERVAL}.
      */
@@ -220,11 +220,6 @@ public final class AppSearchImpl {
                 addToMap(mNamespaceMapLocked, getPrefix(prefixedNamespace),
                         prefixedNamespace);
             }
-
-            // TODO(b/155939114): It's possible to optimize after init, which would reduce the time
-            //   to when we're able to serve queries. Consider moving this optimize call out.
-            checkForOptimizeLocked(/* force= */ true);
-
         } finally {
             mReadWriteLock.writeLock().unlock();
         }
@@ -325,15 +320,7 @@ public final class AppSearchImpl {
             mVisibilityStoreLocked.setVisibility(prefix,
                     prefixedSchemasNotPlatformSurfaceable, prefixedSchemasPackageAccessible);
 
-            // Determine whether to schedule an immediate optimize.
-            if (setSchemaResultProto.getDeletedSchemaTypesCount() > 0
-                    || (setSchemaResultProto.getIncompatibleSchemaTypesCount() > 0
-                    && forceOverride)) {
-                // Any existing schemas which is not in 'schemas' will be deleted, and all
-                // documents of these types were also deleted. And so well if we force override
-                // incompatible schemas.
-                checkForOptimizeLocked(/* force= */true);
-            }
+
             return SetSchemaResultToProtoConverter
                     .toSetSchemaResult(setSchemaResultProto, prefix);
         } finally {
@@ -417,9 +404,6 @@ public final class AppSearchImpl {
         try {
             putResultProto = mIcingSearchEngineLocked.put(documentBuilder.build());
             addToMap(mNamespaceMapLocked, prefix, documentBuilder.getNamespace());
-            // The existing documents with same URI will be deleted, so there maybe some resources
-            // could be released after optimize().
-            checkForOptimizeLocked(/* force= */ false);
         } finally {
             mReadWriteLock.writeLock().unlock();
         }
@@ -710,7 +694,6 @@ public final class AppSearchImpl {
         mReadWriteLock.writeLock().lock();
         try {
             deleteResultProto = mIcingSearchEngineLocked.delete(prefixedNamespace, uri);
-            checkForOptimizeLocked(/* force= */false);
         } finally {
             mReadWriteLock.writeLock().unlock();
         }
@@ -759,7 +742,6 @@ public final class AppSearchImpl {
             }
             deleteResultProto = mIcingSearchEngineLocked.deleteByQuery(
                     searchSpecBuilder.build());
-            checkForOptimizeLocked(/* force= */true);
         } finally {
             mReadWriteLock.writeLock().unlock();
         }
@@ -1273,34 +1255,75 @@ public final class AppSearchImpl {
     /**
      * Checks whether {@link IcingSearchEngine#optimize()} should be called to release resources.
      *
-     * <p>This method should be only called in mutate methods and get the WRITE lock to keep thread
-     * safety.
+     * <p>This method should be only called after a mutation to local storage backend which
+     * deletes a mass of data and could release lots resources after
+     * {@link IcingSearchEngine#optimize()}.
+     *
+     * <p>This method will trigger {@link IcingSearchEngine#getOptimizeInfo()} to check
+     * resources that could be released for every {@link #CHECK_OPTIMIZE_INTERVAL} mutations.
+     *
      * <p>{@link IcingSearchEngine#optimize()} should be called only if
      * {@link GetOptimizeInfoResultProto} shows there is enough resources could be released.
-     * <p>{@link IcingSearchEngine#getOptimizeInfo()} should be called once per
-     * {@link #CHECK_OPTIMIZE_INTERVAL} of remove executions.
      *
-     * @param force whether we should directly call {@link IcingSearchEngine#getOptimizeInfo()}.
+     * @param mutationSize The number of how many mutations have been executed for current request.
+     *                     An inside counter will accumulates it. Once the counter reaches
+     *                     {@link #CHECK_OPTIMIZE_INTERVAL},
+     *                     {@link IcingSearchEngine#getOptimizeInfo()} will be triggered and the
+     *                     counter will be reset.
      */
-    @GuardedBy("mReadWriteLock")
-    private void checkForOptimizeLocked(boolean force) throws AppSearchException {
-        ++mOptimizeIntervalCountLocked;
-        if (force || mOptimizeIntervalCountLocked >= CHECK_OPTIMIZE_INTERVAL) {
-            mOptimizeIntervalCountLocked = 0;
+    public void checkForOptimize(int mutationSize) throws AppSearchException {
+        mReadWriteLock.writeLock().lock();
+        try {
+            mOptimizeIntervalCountLocked += mutationSize;
+            if (mOptimizeIntervalCountLocked >= CHECK_OPTIMIZE_INTERVAL) {
+                checkForOptimize();
+            }
+        } finally {
+            mReadWriteLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Checks whether {@link IcingSearchEngine#optimize()} should be called to release resources.
+     *
+     * <p>This method will directly trigger {@link IcingSearchEngine#getOptimizeInfo()} to check
+     * resources that could be released.
+     *
+     * <p>{@link IcingSearchEngine#optimize()} should be called only if
+     * {@link GetOptimizeInfoResultProto} shows there is enough resources could be released.
+     */
+    public void checkForOptimize() throws AppSearchException {
+        mReadWriteLock.writeLock().lock();
+        try {
             GetOptimizeInfoResultProto optimizeInfo = getOptimizeInfoResultLocked();
             checkSuccess(optimizeInfo.getStatus());
+            mOptimizeIntervalCountLocked = 0;
             // Second threshold, decide when to call optimize().
             if (optimizeInfo.getOptimizableDocs() >= OPTIMIZE_THRESHOLD_DOC_COUNT
                     || optimizeInfo.getEstimatedOptimizableBytes()
                     >= OPTIMIZE_THRESHOLD_BYTES) {
-                // TODO(b/155939114): call optimize in the same thread will slow down api calls
-                //  significantly. Move this call to background.
-                OptimizeResultProto optimizeResultProto = mIcingSearchEngineLocked.optimize();
-                checkSuccess(optimizeResultProto.getStatus());
+                optimize();
             }
-            // TODO(b/147699081): Return OptimizeResultProto & log lost data detail once we add
-            //  a field to indicate lost_schema and lost_documents in OptimizeResultProto.
-            //  go/icing-library-apis.
+        } finally {
+            mReadWriteLock.writeLock().unlock();
+        }
+        // TODO(b/147699081): Return OptimizeResultProto & log lost data detail once we add
+        //  a field to indicate lost_schema and lost_documents in OptimizeResultProto.
+        //  go/icing-library-apis.
+    }
+
+    /**
+     * Triggers {@link IcingSearchEngine#optimize()} directly.
+     *
+     * <p>This method should be only called as a scheduled task in AppSearch Platform backend.
+     */
+    public void optimize() throws AppSearchException {
+        mReadWriteLock.writeLock().lock();
+        try {
+            OptimizeResultProto optimizeResultProto = mIcingSearchEngineLocked.optimize();
+            checkSuccess(optimizeResultProto.getStatus());
+        } finally {
+            mReadWriteLock.writeLock().unlock();
         }
     }
 
