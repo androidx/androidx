@@ -317,8 +317,7 @@ public abstract class NavType<T> {
         @NonNull
         @Override
         public Integer parseValue(@NonNull String value) {
-            throw new UnsupportedOperationException(
-                    "References don't support parsing string values.");
+            return Integer.parseInt(value);
         }
 
         @NonNull
