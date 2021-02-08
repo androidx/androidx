@@ -96,6 +96,22 @@ class WindowInsetsCompatTest {
         assertEquals(0, result.bottom)
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public fun inset_set_ime_insets() {
+        val start = Insets.of(10, 11, 12, 13)
+        val insets = WindowInsetsCompat.Builder()
+            .setInsets(Type.ime(), start)
+            .build()
+            .getInsets(Type.ime())
+
+        // And assert that we have 0 inset values
+        assertEquals(10, insets.left)
+        assertEquals(11, insets.top)
+        assertEquals(12, insets.right)
+        assertEquals(13, insets.bottom)
+    }
+
     /**
      * On API 29+ we can test more types.
      */
