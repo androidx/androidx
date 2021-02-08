@@ -16,9 +16,9 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.processor.BaseEntityParserTest
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeSpec
 import org.junit.Test
@@ -89,24 +89,29 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
         )
     }
 
-    fun generateAndMatch(
+    private fun generateAndMatch(
         input: String,
         output: String,
         attributes: Map<String, String> = mapOf()
     ) {
-        generate(input, attributes)
-            .compilesWithoutError()
-            .and()
-            .generatesSources(
-                JavaFileObjects.forSourceString(
-                    "foo.bar.MyEntity_CursorConverter",
-                    listOf(OUT_PREFIX, output, OUT_SUFFIX).joinToString("\n")
+        generate(input, attributes) {
+            it.assertCompilationResult {
+                generatedSource(
+                    Source.java(
+                        qName = "foo.bar.MyContainerClass",
+                        code = listOf(OUT_PREFIX, output, OUT_SUFFIX).joinToString("\n")
+                    )
                 )
-            )
+            }
+        }
     }
 
-    fun generate(input: String, attributes: Map<String, String> = mapOf()): CompileTester {
-        return singleEntity(input, attributes) { entity, invocation ->
+    private fun generate(
+        input: String,
+        attributes: Map<String, String> = mapOf(),
+        handler: (XTestInvocation) -> Unit
+    ) {
+        singleEntity(input, attributes) { entity, invocation ->
             val className = ClassName.get("foo.bar", "MyContainerClass")
             val writer = object : ClassWriter(className) {
                 override fun createTypeSpecBuilder(): TypeSpec.Builder {
@@ -117,6 +122,7 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
                 }
             }
             writer.write(invocation.processingEnv)
+            handler(invocation)
         }
     }
 }

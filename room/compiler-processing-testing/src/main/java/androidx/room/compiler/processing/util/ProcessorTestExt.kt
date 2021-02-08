@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.util.runner.TestCompilationParameters
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.tschuchort.compiletesting.KotlinCompilation
+import java.io.ByteArrayOutputStream
 import java.io.File
 
 private fun runTests(
@@ -226,10 +227,14 @@ fun runKspTest(
 fun compileFiles(
     sources: List<Source>
 ): File {
-    val compilation = KotlinCompilationUtil.prepareCompilation(sources = sources)
+    val outputStream = ByteArrayOutputStream()
+    val compilation = KotlinCompilationUtil.prepareCompilation(
+        sources = sources,
+        outputStream = outputStream
+    )
     val result = compilation.compile()
     check(result.exitCode == KotlinCompilation.ExitCode.OK) {
-        "compilation failed: ${result.messages}"
+        "compilation failed: ${outputStream.toString(Charsets.UTF_8)}"
     }
     return compilation.classesDir
 }
