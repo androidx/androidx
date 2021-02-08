@@ -865,6 +865,9 @@ public class WindowInsetsCompat {
 
         void copyWindowDataInto(@NonNull WindowInsetsCompat other) {
         }
+
+        public void setOverriddenInsets(Insets[] insetsTypeMask) {
+        }
     }
 
     @RequiresApi(20)
@@ -879,6 +882,9 @@ public class WindowInsetsCompat {
 
         @NonNull
         final WindowInsets mPlatformInsets;
+
+        // TODO(175859616) save all insets in the array
+        private Insets[] mOverriddenInsets;
 
         // Used to cache the wrapped value
         private Insets mSystemWindowInsets = null;
@@ -983,6 +989,11 @@ public class WindowInsetsCompat {
                     }
                 }
                 case Type.IME: {
+                    Insets overriddenInsets = mOverriddenInsets != null
+                            ? mOverriddenInsets[Type.indexOf(Type.IME)] : null;
+                    if (overriddenInsets != null) {
+                        return overriddenInsets;
+                    }
                     final Insets systemWindow = getSystemWindowInsets();
                     final Insets rootStable = getRootStableInsets();
 
@@ -1143,6 +1154,11 @@ public class WindowInsetsCompat {
                 logReflectionError(e);
             }
             return null;
+        }
+
+        @Override
+        public void setOverriddenInsets(Insets[] insetsTypeMask) {
+            mOverriddenInsets = insetsTypeMask;
         }
 
         @SuppressLint("PrivateApi")
@@ -1592,7 +1608,7 @@ public class WindowInsetsCompat {
     private static class BuilderImpl {
         private final WindowInsetsCompat mInsets;
 
-        private Insets[] mInsetsTypeMask;
+        Insets[] mInsetsTypeMask;
 
         BuilderImpl() {
             this(new WindowInsetsCompat((WindowInsetsCompat) null));
@@ -1673,6 +1689,10 @@ public class WindowInsetsCompat {
         }
     }
 
+    void setOverriddenInsets(Insets[] insetsTypeMask) {
+        mImpl.setOverriddenInsets(insetsTypeMask);
+    }
+
     @RequiresApi(api = 20)
     private static class BuilderImpl20 extends BuilderImpl {
         private static Field sConsumedField;
@@ -1703,7 +1723,10 @@ public class WindowInsetsCompat {
         @NonNull
         WindowInsetsCompat build() {
             applyInsetTypes();
-            return WindowInsetsCompat.toWindowInsetsCompat(mInsets);
+            WindowInsetsCompat windowInsetsCompat = WindowInsetsCompat.toWindowInsetsCompat(
+                    mInsets);
+            windowInsetsCompat.setOverriddenInsets(this.mInsetsTypeMask);
+            return windowInsetsCompat;
         }
 
         @Nullable
@@ -1805,7 +1828,10 @@ public class WindowInsetsCompat {
         @NonNull
         WindowInsetsCompat build() {
             applyInsetTypes();
-            return WindowInsetsCompat.toWindowInsetsCompat(mPlatBuilder.build());
+            WindowInsetsCompat windowInsetsCompat = WindowInsetsCompat.toWindowInsetsCompat(
+                    mPlatBuilder.build());
+            windowInsetsCompat.setOverriddenInsets(mInsetsTypeMask);
+            return windowInsetsCompat;
         }
     }
 
