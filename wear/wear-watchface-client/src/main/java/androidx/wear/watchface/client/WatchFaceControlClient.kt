@@ -163,6 +163,7 @@ internal class WatchFaceControlClientImpl internal constructor(
     private val service: IWatchFaceControlService,
     private val serviceConnection: ServiceConnection
 ) : WatchFaceControlClient {
+    private var closed = false
 
     override fun getInteractiveWatchFaceSysUiClientInstance(
         instanceId: String
@@ -176,6 +177,7 @@ internal class WatchFaceControlClientImpl internal constructor(
         surfaceWidth: Int,
         surfaceHeight: Int
     ): HeadlessWatchFaceClient? {
+        requireNotClosed()
         return service.createHeadlessWatchFaceInstance(
             HeadlessWatchFaceInstanceParams(
                 watchFaceName,
@@ -200,6 +202,7 @@ internal class WatchFaceControlClientImpl internal constructor(
         userStyle: Map<String, String>?,
         idToComplicationData: Map<Int, ComplicationData>?
     ): Deferred<InteractiveWatchFaceWcsClient> {
+        requireNotClosed()
         val deferredClient = CompletableDeferred<InteractiveWatchFaceWcsClient>()
 
         // [IWatchFaceControlService.getOrCreateInteractiveWatchFaceWCS] has an asynchronous
@@ -256,9 +259,19 @@ internal class WatchFaceControlClientImpl internal constructor(
         return deferredClient
     }
 
-    override fun getEditorServiceClient() = EditorServiceClientImpl(service.editorService)
+    override fun getEditorServiceClient(): EditorServiceClient {
+        requireNotClosed()
+        return EditorServiceClientImpl(service.editorService)
+    }
+
+    private fun requireNotClosed() {
+        require(!closed) {
+            "WatchFaceControlClient method called after close"
+        }
+    }
 
     override fun close() {
+        closed = true
         context.unbindService(serviceConnection)
     }
 }
