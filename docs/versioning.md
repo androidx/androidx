@@ -11,6 +11,41 @@ will follow the format `<major>.<minor>.<bugfix>` with an optional
 
 Also check out the [Versioning FAQ](faq.md#version).
 
+### Summary
+
+Major (`x.0.0`)
+:   An artifact's major version indicates a guaranteed forward-compatibility
+    window. For example, a developer could update an artifact versioned `2.0.0`
+    to `2.7.3` without taking any additional action.
+
+Minor (`1.x.0`)
+:   Minor indicates compatible public API changes. This number is incremented
+    when APIs are added, including the addition of `@Deprecated` annotations.
+    Binary compatibility must be preserved between minor version changes.
+
+Bugfix (`1.0.x`)
+:   Bugfix indicates internal changes to address broken behavior. Care should be
+    taken to ensure that existing clients are not broken, including clients that
+    may have been working around long-standing broken behavior.
+
+#### Pre-release
+
+Alpha (`1.0.0-alphaXY`)
+:   Feature development and API stabilization phase.
+
+Beta (`1.0.0-betaXY`)
+:   Functional stabilization phase.
+
+RC (`1.0.0-rcXY`)
+:   Verification phase.
+
+Stable (no-suffix)
+:   Final releases are well-tested, both by internal tests and external clients,
+    and their API surface is reviewed and finalized. While APIs may be
+    deprecated and removed in in future versions and removed in subsequent major
+    version bumps,, any APIs added at this stage must remain for at least a
+    year.
+
 ### Major (`x.0.0`) {#major}
 
 An artifact's major version indicates a guaranteed forward-compatibility window.
@@ -282,14 +317,6 @@ A few notes about version updates:
     need to update your version in `androidx-main` to `alpha01` of the next
     minor (or major) version.
 
-### Bi-weekly batched releases (every 2 weeks)
-
-If you participate in a bi-weekly (every 2 weeks) batched release, the Jetpack
-TPM will increment versions for you the day after the build cut deadline. The
-increments are defaulted to increments within the same pre-release suffix.
-
-For example, if you are releasing `1.1.0-alpha04`, the day after the build cut,
-the TPM will increment the version to `1.1.0-alpha05` for the next release.
 
 ### How to update your version
 

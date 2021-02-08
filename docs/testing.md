@@ -115,6 +115,12 @@ methods.
 To restrict to only phsyical devices, use
 [`@RequiresDevice`](https://developer.android.com/reference/androidx/test/filters/RequiresDevice).
 
+NOTE [Cuttlefish](https://source.android.com/setup/create/cuttlefish) is not
+affected by this annotation, only e.g. Studio emulators. If Cuttlefish is
+displaying behavior that differs from a physical device, they are considering
+that a bug in Cuttlefish, so please file those bugs instead of only looking for
+a workaround.
+
 ### Animations in tests
 
 Animations are disabled for tests by default. This helps avoid flakes due to
