@@ -23,6 +23,7 @@ import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.samples.createExampleOpenGLWatchFaceBuilder
 
 /** A simple OpenGL test watch face for integration tests. */
@@ -30,7 +31,8 @@ internal class TestGlesWatchFaceService(
     testContext: Context,
     private val handler: Handler,
     var mockSystemTimeMillis: Long,
-    var surfacHolderOverride: SurfaceHolder?
+    var surfacHolderOverride: SurfaceHolder?,
+    var directBootParams: WallpaperInteractiveWatchFaceInstanceParams?
 ) : WatchFaceService() {
 
     private val mutableWatchState = MutableWatchState()
@@ -64,4 +66,15 @@ internal class TestGlesWatchFaceService(
     override fun allowWatchFaceToAnimate() = false
 
     override fun getWallpaperSurfaceHolderOverride() = surfacHolderOverride
+
+    override fun readDirectBootPrefs(
+        context: Context,
+        fileName: String
+    ) = directBootParams
+
+    override fun writeDirectBootPrefs(
+        context: Context,
+        fileName: String,
+        prefs: WallpaperInteractiveWatchFaceInstanceParams
+    ) {}
 }

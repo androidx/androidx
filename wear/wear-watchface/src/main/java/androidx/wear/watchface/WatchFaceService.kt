@@ -252,10 +252,34 @@ public abstract class WatchFaceService : WallpaperService() {
         attachBaseContext(context)
     }
 
+    internal open fun readDirectBootPrefs(
+        context: Context,
+        fileName: String
+    ): WallpaperInteractiveWatchFaceInstanceParams? =
+        try {
+            val reader = context.openFileInput(fileName)
+            val result =
+                ParcelUtils.fromInputStream<WallpaperInteractiveWatchFaceInstanceParams>(reader)
+            reader.close()
+            result
+        } catch (e: FileNotFoundException) {
+            null
+        }
+
+    internal open fun writeDirectBootPrefs(
+        context: Context,
+        fileName: String,
+        prefs: WallpaperInteractiveWatchFaceInstanceParams
+    ) {
+        val writer = context.openFileOutput(fileName, Context.MODE_PRIVATE)
+        ParcelUtils.toOutputStream(prefs, writer)
+        writer.close()
+    }
+
     internal inner class EngineWrapper(
         private val uiThreadHandler: Handler
     ) : WallpaperService.Engine(), WatchFaceHostApi {
-        private val coroutineScope = CoroutineScope(getHandler().asCoroutineDispatcher())
+        internal val coroutineScope = CoroutineScope(getHandler().asCoroutineDispatcher())
         private val _context = this@WatchFaceService as Context
 
         internal lateinit var iWatchFaceService: IWatchFaceService
@@ -322,6 +346,7 @@ public abstract class WatchFaceService : WallpaperService() {
         internal var lastA11yLabels: Array<ContentDescriptionLabel>? = null
 
         private var watchFaceInitStarted = false
+        private var asyncWatchFaceConstructionPending = false
 
         private var initialUserStyle: UserStyleWireFormat? = null
         private lateinit var interactiveInstanceId: String
@@ -341,7 +366,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 if (params != null) {
                     coroutineScope.launch {
                         // In tests a watchface may already have been created.
-                        if (!watchFaceCreated()) {
+                        if (!watchFaceCreatedOrPending()) {
                             createInteractiveInstance(params).createWCSApi()
                         }
                         keepSerializedDirectBootParamsUpdated(params)
@@ -766,7 +791,7 @@ public abstract class WatchFaceService : WallpaperService() {
         suspend fun createHeadlessInstance(
             params: HeadlessWatchFaceInstanceParams
         ): HeadlessWatchFaceImpl {
-            require(!watchFaceCreated()) { "WatchFace already exists!" }
+            require(!watchFaceCreatedOrPending()) { "WatchFace already exists!" }
             setImmutableSystemState(params.deviceConfig)
 
             // Fake SurfaceHolder with just enough methods implemented for headless rendering.
@@ -827,11 +852,13 @@ public abstract class WatchFaceService : WallpaperService() {
             allowWatchfaceToAnimate = false
             mutableWatchState.isHeadless = true
             val watchState = mutableWatchState.asWatchState()
+            asyncWatchFaceConstructionPending = true
             watchFaceImpl = WatchFaceImpl(
                 createWatchFace(fakeSurfaceHolder, watchState),
                 this,
                 watchState
             )
+            asyncWatchFaceConstructionPending = false
 
             mutableWatchState.isVisible.value = true
             mutableWatchState.isAmbient.value = false
@@ -845,18 +872,20 @@ public abstract class WatchFaceService : WallpaperService() {
         suspend fun createInteractiveInstance(
             params: WallpaperInteractiveWatchFaceInstanceParams
         ): InteractiveWatchFaceImpl {
-            require(!watchFaceCreated()) { "WatchFace already exists!" }
+            require(!watchFaceCreatedOrPending()) { "WatchFace already exists!" }
 
             setImmutableSystemState(params.deviceConfig)
             setSystemState(params.systemState)
             initialUserStyle = params.userStyle
 
             val watchState = mutableWatchState.asWatchState()
+            asyncWatchFaceConstructionPending = true
             watchFaceImpl = WatchFaceImpl(
                 createWatchFace(getWallpaperSurfaceHolderOverride() ?: surfaceHolder, watchState),
                 this,
                 watchState
             )
+            asyncWatchFaceConstructionPending = false
 
             params.idAndComplicationDataWireFormats?.let { setComplicationDataList(it) }
 
@@ -869,6 +898,17 @@ public abstract class WatchFaceService : WallpaperService() {
 
             val instance = InteractiveWatchFaceImpl(this, params.instanceId, uiThreadHandler)
             InteractiveInstanceManager.addInstance(instance)
+
+            // WatchFace init is async so its possible we have a pending
+            // WallpaperInteractiveWatchFaceInstance request.
+            InteractiveInstanceManager.takePendingWallpaperInteractiveWatchFaceInstance()?.let {
+                require(it.params.instanceId == params.instanceId) {
+                    "Miss match between pendingWallpaperInstance id $it.params.instanceId and " +
+                        "constructed instance id $params.instanceId"
+                }
+                it.callback.onInteractiveWatchFaceWcsCreated(instance.createWCSApi())
+            }
+
             return instance
         }
 
@@ -882,7 +922,7 @@ public abstract class WatchFaceService : WallpaperService() {
             // To simplify handling of watch face state, we only construct the [WatchFaceImpl]
             // once iWatchFaceService have been initialized and pending properties sent.
             if (this::iWatchFaceService.isInitialized && pendingProperties != null &&
-                !watchFaceCreated()
+                !watchFaceCreatedOrPending()
             ) {
                 watchFaceInitStarted = true
 
@@ -891,11 +931,13 @@ public abstract class WatchFaceService : WallpaperService() {
                 pendingProperties = null
 
                 val watchState = mutableWatchState.asWatchState()
+                asyncWatchFaceConstructionPending = true
                 watchFaceImpl = WatchFaceImpl(
                     createWatchFace(surfaceHolder, watchState),
                     this,
                     watchState
                 )
+                asyncWatchFaceConstructionPending = false
                 watchFaceImpl.renderer.onPostCreate()
 
                 val backgroundAction = pendingBackgroundAction
@@ -1020,6 +1062,9 @@ public abstract class WatchFaceService : WallpaperService() {
 
         internal fun watchFaceCreated() = this::watchFaceImpl.isInitialized
 
+        internal fun watchFaceCreatedOrPending() =
+            watchFaceCreated() || asyncWatchFaceConstructionPending
+
         override fun setDefaultComplicationProviderWithFallbacks(
             watchFaceComplicationId: Int,
             providers: List<ComponentName>?,
@@ -1130,27 +1175,3 @@ internal fun <R> Handler.runOnHandler(task: () -> R) =
         @Suppress("UNCHECKED_CAST")
         returnVal as R
     }
-
-internal fun readDirectBootPrefs(
-    context: Context,
-    fileName: String
-): WallpaperInteractiveWatchFaceInstanceParams? =
-    try {
-        val reader = context.openFileInput(fileName)
-        val result =
-            ParcelUtils.fromInputStream<WallpaperInteractiveWatchFaceInstanceParams>(reader)
-        reader.close()
-        result
-    } catch (e: FileNotFoundException) {
-        null
-    }
-
-internal fun writeDirectBootPrefs(
-    context: Context,
-    fileName: String,
-    prefs: WallpaperInteractiveWatchFaceInstanceParams
-) {
-    val writer = context.openFileOutput(fileName, Context.MODE_PRIVATE)
-    ParcelUtils.toOutputStream(prefs, writer)
-    writer.close()
-}
