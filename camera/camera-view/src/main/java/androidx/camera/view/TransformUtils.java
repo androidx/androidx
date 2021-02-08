@@ -31,6 +31,8 @@ import androidx.annotation.RestrictTo;
  * {@link RectF}, a rotation degrees integer and a boolean flag for the rotation-direction
  * (clockwise v.s. counter-clockwise).
  *
+ * TODO(b/179827713): merge this with {@link androidx.camera.core.internal.utils.ImageUtil}.
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -116,7 +118,6 @@ public class TransformUtils {
         }
     }
 
-
     /**
      * Returns true if the rotation degrees is 90 or 270.
      */
@@ -146,5 +147,48 @@ public class TransformUtils {
     public static float[] rectToVertices(@NonNull RectF rectF) {
         return new float[]{rectF.left, rectF.top, rectF.right, rectF.top, rectF.right, rectF.bottom,
                 rectF.left, rectF.bottom};
+    }
+
+    /**
+     * Checks if aspect ratio matches while tolerating rounding error.
+     *
+     * <p> One example of the usage is comparing the viewport-based crop rect from different use
+     * cases. The crop rect is rounded because pixels are integers, which may introduce an error
+     * when we check if the aspect ratio matches. For example, when {@link PreviewView}'s
+     * width/height are prime numbers 601x797, the crop rect from other use cases cannot have a
+     * matching aspect ratio even if they are based on the same viewport. This method checks the
+     * aspect ratio while tolerating a rounding error.
+     *
+     * @param size1       the rounded size1
+     * @param isAccurate1 if size1 is accurate. e.g. it's true if it's the PreviewView's
+     *                    dimension which viewport is based on
+     * @param size2       the rounded size2
+     * @param isAccurate2 if size2 is accurate.
+     */
+    public static boolean isAspectRatioMatchingWithRoundingError(
+            @NonNull Size size1, boolean isAccurate1, @NonNull Size size2, boolean isAccurate2) {
+        // The input width/height are rounded values, so they are at most .5 away from their
+        // true values.
+        // First figure out the possible range of the aspect ratio's ture value.
+        float ratio1UpperBound;
+        float ratio1LowerBound;
+        if (isAccurate1) {
+            ratio1UpperBound = (float) size1.getWidth() / size1.getHeight();
+            ratio1LowerBound = ratio1UpperBound;
+        } else {
+            ratio1UpperBound = (size1.getWidth() + .5F) / (size1.getHeight() - .5F);
+            ratio1LowerBound = (size1.getWidth() - .5F) / (size1.getHeight() + .5F);
+        }
+        float ratio2UpperBound;
+        float ratio2LowerBound;
+        if (isAccurate2) {
+            ratio2UpperBound = (float) size2.getWidth() / size2.getHeight();
+            ratio2LowerBound = ratio2UpperBound;
+        } else {
+            ratio2UpperBound = (size2.getWidth() + .5F) / (size2.getHeight() - .5F);
+            ratio2LowerBound = (size2.getWidth() - .5F) / (size2.getHeight() + .5F);
+        }
+        // Then we check if the true value range overlaps.
+        return ratio1UpperBound >= ratio2LowerBound && ratio2UpperBound >= ratio1LowerBound;
     }
 }
