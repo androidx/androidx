@@ -28,6 +28,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.ProviderInfoRetriever
@@ -233,12 +234,16 @@ internal interface ProviderInfoRetrieverProvider {
     fun getProviderInfoRetriever(): ProviderInfoRetriever
 }
 
-internal abstract class BaseEditorSession(
-    protected val activity: ComponentActivity,
-    protected val providerInfoRetrieverProvider: ProviderInfoRetrieverProvider,
-    internal val coroutineScope: CoroutineScope
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public abstract class BaseEditorSession internal constructor(
+    activity: ComponentActivity,
+    private val providerInfoRetrieverProvider: ProviderInfoRetrieverProvider,
+    public val coroutineScope: CoroutineScope
 ) : EditorSession() {
-    protected var closed = false
+    protected var closed: Boolean = false
 
     // This is completed when [fetchComplicationPreviewData] has called [getPreviewData] for
     // each complication and each of those have been completed.
@@ -292,7 +297,7 @@ internal abstract class BaseEditorSession(
         return pendingComplicationProviderChooserResult!!.await()
     }
 
-    override val backgroundComplicationId by lazy {
+    override val backgroundComplicationId: Int? by lazy {
         require(!closed)
         complicationState.entries.firstOrNull {
             it.value.boundsType == ComplicationBoundsType.BACKGROUND
@@ -549,15 +554,24 @@ internal class ComplicationProviderChooserContract : ActivityResultContract<
 
     internal companion object {
         const val EXTRA_PROVIDER_INFO = "android.support.wearable.complications.EXTRA_PROVIDER_INFO"
+        internal var useTestComplicationHelperActivity = false
     }
 
-    override fun createIntent(context: Context, input: ComplicationProviderChooserRequest): Intent =
-        ComplicationHelperActivity.createProviderChooserHelperIntent(
+    override fun createIntent(context: Context, input: ComplicationProviderChooserRequest): Intent {
+        val intent = ComplicationHelperActivity.createProviderChooserHelperIntent(
             context,
             input.editorSession.watchFaceComponentName,
             input.complicationId,
             input.editorSession.complicationState[input.complicationId]!!.supportedTypes
         )
+        if (useTestComplicationHelperActivity) {
+            intent.component = ComponentName(
+                "androidx.wear.watchface.editor.test",
+                "androidx.wear.watchface.editor.TestComplicationHelperActivity"
+            )
+        }
+        return intent
+    }
 
     override fun parseResult(resultCode: Int, intent: Intent?): ComplicationProviderChooserResult {
         return ComplicationProviderChooserResult(intent?.getParcelableExtra(EXTRA_PROVIDER_INFO))
