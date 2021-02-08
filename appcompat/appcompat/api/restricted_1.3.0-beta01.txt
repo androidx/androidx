@@ -1044,7 +1044,6 @@ package androidx.appcompat.view.menu {
     method public void dismiss();
     method public int getGravity();
     method public android.widget.ListView! getListView();
-    method public androidx.appcompat.view.menu.MenuPopup getPopup();
     method public boolean isShowing();
     method protected void onDismiss();
     method public void setAnchorView(android.view.View);
@@ -1281,7 +1280,6 @@ package androidx.appcompat.widget {
     method public void setOverflowIcon(android.graphics.drawable.Drawable?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setOverflowReserved(boolean);
     method public void setPopupTheme(@StyleRes int);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setPresenter(androidx.appcompat.widget.ActionMenuPresenter!);
     method public boolean showOverflowMenu();
   }
 
@@ -1311,9 +1309,7 @@ package androidx.appcompat.widget {
     ctor public ActivityChooserView(android.content.Context, android.util.AttributeSet?);
     ctor public ActivityChooserView(android.content.Context, android.util.AttributeSet?, int);
     method public boolean dismissPopup();
-    method public androidx.appcompat.widget.ActivityChooserModel! getDataModel();
     method public boolean isShowingPopup();
-    method public void setActivityChooserModel(androidx.appcompat.widget.ActivityChooserModel!);
     method public void setDefaultActionButtonContentDescription(int);
     method public void setExpandActivityOverflowButtonContentDescription(int);
     method public void setExpandActivityOverflowButtonDrawable(android.graphics.drawable.Drawable!);
@@ -2059,7 +2055,6 @@ package androidx.appcompat.widget {
     method public void setLogo(android.graphics.drawable.Drawable!);
     method public void setLogoDescription(@StringRes int);
     method public void setLogoDescription(CharSequence!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setMenu(androidx.appcompat.view.menu.MenuBuilder!, androidx.appcompat.widget.ActionMenuPresenter!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setMenuCallbacks(androidx.appcompat.view.menu.MenuPresenter.Callback!, androidx.appcompat.view.menu.MenuBuilder.Callback!);
     method public void setNavigationContentDescription(@StringRes int);
     method public void setNavigationContentDescription(CharSequence?);
