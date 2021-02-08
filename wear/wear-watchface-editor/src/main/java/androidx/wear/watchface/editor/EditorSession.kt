@@ -285,7 +285,7 @@ public abstract class BaseEditorSession internal constructor(
         }
 
     override suspend fun launchComplicationProviderChooser(complicationId: Int): Boolean {
-        require(!closed)
+        requireNotClosed()
         require(!complicationState[complicationId]!!.fixedComplicationProvider) {
             "Can't configure fixed complication ID $complicationId"
         }
@@ -298,14 +298,14 @@ public abstract class BaseEditorSession internal constructor(
     }
 
     override val backgroundComplicationId: Int? by lazy {
-        require(!closed)
+        requireNotClosed()
         complicationState.entries.firstOrNull {
             it.value.boundsType == ComplicationBoundsType.BACKGROUND
         }?.key
     }
 
     override fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int? {
-        require(!closed)
+        requireNotClosed()
         return complicationState.entries.firstOrNull {
             it.value.isEnabled && when (it.value.boundsType) {
                 ComplicationBoundsType.ROUND_RECT -> it.value.bounds.contains(x, y)
@@ -384,7 +384,7 @@ public abstract class BaseEditorSession internal constructor(
     }
 
     override fun close() {
-        require(!closed)
+        requireNotClosed()
         coroutineScope.launch {
             val editorState = EditorStateWireFormat(
                 instanceId,
@@ -403,6 +403,12 @@ public abstract class BaseEditorSession internal constructor(
         }
     }
 
+    protected fun requireNotClosed() {
+        require(!closed) {
+            "EditorSession method called after close()"
+        }
+    }
+
     protected abstract fun releaseResources()
 }
 
@@ -417,7 +423,7 @@ internal class OnWatchFaceEditorSessionImpl(
     private lateinit var editorDelegate: WatchFace.EditorDelegate
 
     override val userStyleSchema by lazy {
-        require(!closed)
+        requireNotClosed()
         editorDelegate.userStyleRepository.schema
     }
 
@@ -425,7 +431,7 @@ internal class OnWatchFaceEditorSessionImpl(
 
     override val complicationState
         get() = editorDelegate.complicationsManager.complications.mapValues {
-            require(!closed)
+            requireNotClosed()
             ComplicationState(
                 it.value.computeBounds(editorDelegate.screenBounds),
                 it.value.boundsType,
@@ -445,14 +451,14 @@ internal class OnWatchFaceEditorSessionImpl(
     // side effects (it would apply to the active watch face).
     override var userStyle: UserStyle
         get() {
-            require(!closed)
+            requireNotClosed()
             if (_userStyle == null) {
                 _userStyle = UserStyle(editorDelegate.userStyleRepository.userStyle)
             }
             return _userStyle!!
         }
         set(value) {
-            require(!closed)
+            requireNotClosed()
             _userStyle = value
             editorDelegate.userStyleRepository.userStyle = UserStyle(value)
         }
@@ -464,7 +470,7 @@ internal class OnWatchFaceEditorSessionImpl(
         calendarTimeMillis: Long,
         idToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap {
-        require(!closed)
+        requireNotClosed()
         return editorDelegate.takeScreenshot(
             renderParameters,
             calendarTimeMillis,
@@ -519,7 +525,7 @@ internal class HeadlessEditorSession(
         calendarTimeMillis: Long,
         idToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap {
-        require(!closed)
+        requireNotClosed()
         return headlessWatchFaceClient.takeWatchFaceScreenshot(
             renderParameters,
             100,
