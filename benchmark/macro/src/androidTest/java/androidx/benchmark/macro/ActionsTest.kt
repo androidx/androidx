@@ -35,7 +35,7 @@ class ActionsTest {
     fun killTest() {
         val scope = MacrobenchmarkScope(PACKAGE_NAME, launchWithClearTask = true)
         scope.pressHome()
-        scope.launchPackageAndWait()
+        scope.startActivityAndWait()
         assertTrue(isProcessAlive(PACKAGE_NAME))
         scope.killProcess()
         assertFalse(isProcessAlive(PACKAGE_NAME))
@@ -51,7 +51,7 @@ class ActionsTest {
         compilation.compile(PACKAGE_NAME) {
             executions += 1
             scope.pressHome()
-            scope.launchPackageAndWait()
+            scope.startActivityAndWait()
         }
         assertEquals(iterations, executions)
     }

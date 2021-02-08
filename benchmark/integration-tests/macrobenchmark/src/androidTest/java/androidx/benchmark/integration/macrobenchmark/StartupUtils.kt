@@ -44,5 +44,5 @@ fun MacrobenchmarkRule.measureStartup(
     val intent = Intent()
     intent.setPackage(TARGET_PACKAGE)
     setupIntent(intent)
-    launchIntentAndWait(intent)
+    startActivityAndWait(intent)
 }
