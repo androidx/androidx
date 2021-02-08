@@ -7,9 +7,8 @@ package androidx.wear.watchface {
     method @UiThread public void onAttach(androidx.wear.watchface.Complication complication);
     method @UiThread public void onDetach();
     method @UiThread public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
-    method public void setIdAndData(androidx.wear.complications.data.IdAndComplicationData? p);
+    method public void setIdAndData(androidx.wear.complications.data.IdAndComplicationData? idAndComplicationData, boolean loadDrawablesAsynchronous);
     method public void setIsHighlighted(boolean p);
-    property public abstract androidx.wear.complications.data.IdAndComplicationData? idAndData;
     property public abstract boolean isHighlighted;
   }
 
@@ -17,17 +16,15 @@ package androidx.wear.watchface {
     ctor public CanvasComplicationDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable, androidx.wear.watchface.WatchState watchState);
     method public void drawOutline(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, @ColorInt int color);
     method public final androidx.wear.watchface.complications.rendering.ComplicationDrawable getDrawable();
-    method @UiThread public androidx.wear.complications.data.IdAndComplicationData? getIdAndData();
+    method public androidx.wear.complications.data.IdAndComplicationData? getIdAndData();
     method @UiThread public boolean isHighlighted();
     method public void onAttach(androidx.wear.watchface.Complication complication);
     method public void onDetach();
     method public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
     method public final void setDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable value);
-    method @UiThread public void setIdAndData(androidx.wear.complications.data.IdAndComplicationData? value);
-    method public void setIdComplicationDataSync(androidx.wear.complications.data.IdAndComplicationData? idAndComplicationData);
+    method public void setIdAndData(androidx.wear.complications.data.IdAndComplicationData? idAndComplicationData, boolean loadDrawablesAsynchronous);
     method @UiThread public void setIsHighlighted(boolean value);
     property public final androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable;
-    property @UiThread public androidx.wear.complications.data.IdAndComplicationData? idAndData;
     property @UiThread public boolean isHighlighted;
   }
 
