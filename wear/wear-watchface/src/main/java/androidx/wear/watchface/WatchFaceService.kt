@@ -294,7 +294,9 @@ public abstract class WatchFaceService : WallpaperService() {
                 if (destroyed) {
                     return
                 }
-                require(allowWatchfaceToAnimate)
+                require(allowWatchfaceToAnimate) {
+                    "Choreographer doFrame called but allowWatchfaceToAnimate is false"
+                }
                 frameCallbackPending = false
                 draw()
             }
@@ -759,7 +761,7 @@ public abstract class WatchFaceService : WallpaperService() {
         suspend fun createHeadlessInstance(
             params: HeadlessWatchFaceInstanceParams
         ): HeadlessWatchFaceImpl {
-            require(!watchFaceCreated())
+            require(!watchFaceCreated()) { "WatchFace already exists!" }
             setImmutableSystemState(params.deviceConfig)
 
             // Fake SurfaceHolder with just enough methods implemented for headless rendering.
@@ -838,7 +840,7 @@ public abstract class WatchFaceService : WallpaperService() {
         suspend fun createInteractiveInstance(
             params: WallpaperInteractiveWatchFaceInstanceParams
         ): InteractiveWatchFaceImpl {
-            require(!watchFaceCreated())
+            require(!watchFaceCreated()) { "WatchFace already exists!" }
 
             setImmutableSystemState(params.deviceConfig)
             setSystemState(params.systemState)
