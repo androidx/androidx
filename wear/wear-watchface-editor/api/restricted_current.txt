@@ -1,6 +1,22 @@
 // Signature format: 4.0
 package androidx.wear.watchface.editor {
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class BaseEditorSession extends androidx.wear.watchface.editor.EditorSession {
+    method public void close();
+    method protected final void fetchComplicationPreviewData();
+    method public Integer? getBackgroundComplicationId();
+    method protected final boolean getClosed();
+    method public Integer? getComplicationIdAt(@Px int x, @Px int y);
+    method public suspend Object? getComplicationPreviewData(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>> $completion);
+    method public final kotlinx.coroutines.CoroutineScope getCoroutineScope();
+    method public suspend Object? launchComplicationProviderChooser(int p, kotlin.coroutines.Continuation<? super java.lang.Boolean> $completion);
+    method protected abstract void releaseResources();
+    method protected final void setClosed(boolean p);
+    property public Integer? backgroundComplicationId;
+    property protected final boolean closed;
+    property public final kotlinx.coroutines.CoroutineScope coroutineScope;
+  }
+
   public final class EditorRequest {
     ctor public EditorRequest(android.content.ComponentName watchFaceComponentName, android.content.ComponentName editorComponentName, String? watchFaceInstanceId, java.util.Map<java.lang.String,java.lang.String>? initialUserStyle);
     method public static androidx.wear.watchface.editor.EditorRequest? createFromIntent(android.content.Intent intent);

@@ -15,6 +15,7 @@
  */
 
 import androidx.build.LibraryGroups
+import androidx.build.LibraryType
 import androidx.build.LibraryVersions
 import androidx.build.Publish
 
@@ -27,39 +28,31 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
-    api("androidx.versionedparcelable:versionedparcelable:1.1.0")
-    api("androidx.activity:activity:1.2.0-rc01")
     api(project(":wear:wear-watchface-client"))
-    api(project(":wear:wear-watchface-data"))
-    api(KOTLIN_STDLIB)
-    api(KOTLIN_COROUTINES_ANDROID)
+    api(KOTLIN_COROUTINES_GUAVA)
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
-    implementation("androidx.core:core:1.1.0")
-
-    androidTestImplementation(project(":wear:wear-watchface-editor-guava"))
+    androidTestImplementation project(":wear:wear-watchface-samples")
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(KOTLIN_COROUTINES_TEST)
     androidTestImplementation(TRUTH)
+}
+
+androidx {
+    name = "Android Wear Watchface Client Guava"
+    type = LibraryType.PUBLISHED_LIBRARY
+    mavenGroup = LibraryGroups.WEAR
+    mavenVersion = LibraryVersions.WEAR_WATCHFACE_CLIENT
+    inceptionYear = "2021"
+    description = "Guava wrappers for the Androidx Wear Watchface library"
 }
 
 android {
     defaultConfig {
         minSdkVersion 25
-        testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
     }
-}
-
-androidx {
-    name = "Android Wear Watchface Editor"
-    publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEAR
-    mavenVersion = LibraryVersions.WEAR_WATCHFACE_EDITOR
-    inceptionYear = "2020"
-    description = "Classes for building Android Wear watchface editors"
 }
