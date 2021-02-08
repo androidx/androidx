@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
@@ -35,6 +36,7 @@ import androidx.room.processor.TableEntityProcessor
 import androidx.room.solver.CodeGenScope
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
+import androidx.room.testing.context
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.writer.ClassWriter
 import com.google.common.io.Files
@@ -255,11 +257,36 @@ fun loadJavaCode(fileName: String, qName: String): JavaFileObject {
     return JavaFileObjects.forSourceString(qName, contents)
 }
 
+fun loadTestSource(fileName: String, qName: String): Source {
+    val contents = File("src/test/data/$fileName")
+    return Source.load(contents, qName)
+}
+
 fun createVerifierFromEntitiesAndViews(invocation: TestInvocation): DatabaseVerifier {
     return DatabaseVerifier.create(
         invocation.context, mock(XElement::class.java),
         invocation.getEntities(), invocation.getViews()
     )!!
+}
+
+fun createVerifierFromEntitiesAndViews(invocation: XTestInvocation): DatabaseVerifier {
+    return DatabaseVerifier.create(
+        invocation.context, mock(XElement::class.java),
+        invocation.getEntities(), invocation.getViews()
+    )!!
+}
+
+fun XTestInvocation.getViews(): List<androidx.room.vo.DatabaseView> {
+    return roundEnv.getTypeElementsAnnotatedWith(DatabaseView::class.java).map {
+        DatabaseViewProcessor(context, it).process()
+    }
+}
+
+fun XTestInvocation.getEntities(): List<androidx.room.vo.Entity> {
+    val entities = roundEnv.getTypeElementsAnnotatedWith(Entity::class.java).map {
+        TableEntityProcessor(context, it).process()
+    }
+    return entities
 }
 
 fun TestInvocation.getViews(): List<androidx.room.vo.DatabaseView> {
