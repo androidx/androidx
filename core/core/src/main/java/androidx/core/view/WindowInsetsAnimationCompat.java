@@ -643,8 +643,8 @@ public final class WindowInsetsAnimationCompat {
         }
 
         @SuppressLint("WrongConstant") // We iterate over all the constants.
-        static int buildAnimationMask(WindowInsetsCompat targetInsets,
-                WindowInsetsCompat currentInsets) {
+        static int buildAnimationMask(@NonNull WindowInsetsCompat targetInsets,
+                @NonNull WindowInsetsCompat currentInsets) {
             int animatingMask = 0;
             for (int i = WindowInsetsCompat.Type.FIRST; i <= WindowInsetsCompat.Type.LAST;
                     i = i << 1) {
@@ -720,14 +720,20 @@ public final class WindowInsetsAnimationCompat {
                     mLastInsets = ViewCompat.getRootWindowInsets(v);
                 }
 
-                if (DEBUG) {
-                    int allTypes = WindowInsetsCompat.Type.all();
-                    Log.d(TAG,
-                            String.format("lastInsets: %s\ntargetInsets: %s",
-                                    mLastInsets != null ? mLastInsets.getInsets(allTypes) : null,
-                                    targetInsets.getInsets(allTypes)));
+                if (mLastInsets == null) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Couldn't initialize last insets");
+                    }
+                    mLastInsets = targetInsets;
+                    return forwardToViewIfNeeded(v, insets);
                 }
 
+                if (DEBUG) {
+                    int allTypes = WindowInsetsCompat.Type.all();
+                    Log.d(TAG, String.format("lastInsets: %s\ntargetInsets: %s",
+                            mLastInsets.getInsets(allTypes),
+                            targetInsets.getInsets(allTypes)));
+                }
 
                 // When we start dispatching the insets animation, we save the instance of insets
                 // that have been dispatched first as a marker to avoid dispatching the callback

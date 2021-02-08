@@ -2613,6 +2613,8 @@ public class ViewCompat {
     public static WindowInsetsCompat getRootWindowInsets(@NonNull View view) {
         if (Build.VERSION.SDK_INT >= 23) {
             return Api23Impl.getRootWindowInsets(view);
+        } else if (Build.VERSION.SDK_INT >= 21) {
+            return Api21Impl.getRootWindowInsets(view);
         } else {
             return null;
         }
@@ -4711,6 +4713,11 @@ public class ViewCompat {
     private static class Api21Impl {
         private Api21Impl() {
             // private
+        }
+
+        @Nullable
+        public static WindowInsetsCompat getRootWindowInsets(@NonNull View v) {
+            return WindowInsetsCompat.getRootInsets(v);
         }
 
         static WindowInsetsCompat computeSystemWindowInsets(@NonNull View v,
