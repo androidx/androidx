@@ -70,10 +70,6 @@ def setupPlayground(settings, String relativePathToRoot) {
             new File(supportRoot, "testutils/testutils-common"))
     settings.includeProject(":internal-testutils-gradle-plugin",
             new File(supportRoot, "testutils/testutils-gradle-plugin"))
-
-    // AndroidXUiPlugin dependencies
-    settings.includeProject(":compose:internal-lint-checks",
-            new File(supportRoot, "compose/internal-lint-checks"))
 }
 
 /**
