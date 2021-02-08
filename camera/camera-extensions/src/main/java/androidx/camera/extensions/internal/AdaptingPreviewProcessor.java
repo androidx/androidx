@@ -16,6 +16,7 @@
 
 package androidx.camera.extensions.internal;
 
+import android.graphics.ImageFormat;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
@@ -62,7 +63,8 @@ public final class AdaptingPreviewProcessor implements CaptureProcessor,
 
         try {
             mImpl.onOutputSurface(surface, imageFormat);
-            mImpl.onImageFormatUpdate(imageFormat);
+            // No input formats other than YUV_420_888 are allowed.
+            mImpl.onImageFormatUpdate(ImageFormat.YUV_420_888);
         } finally {
             mAccessCounter.decrement();
         }
