@@ -185,7 +185,6 @@ public class TemplateView extends SliceChildView implements
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void setSliceActionListener(SliceView.OnSliceActionListener observer) {
         mObserver = observer;
