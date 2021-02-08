@@ -16,6 +16,7 @@
 
 package androidx.appcompat.widget;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
@@ -295,8 +296,10 @@ public class ActivityChooserView extends ViewGroup implements
     }
 
     /**
+     * @hide
      * {@inheritDoc}
      */
+    @RestrictTo(LIBRARY)
     @Override
     public void setActivityChooserModel(ActivityChooserModel dataModel) {
         mAdapter.setDataModel(dataModel);
@@ -478,6 +481,10 @@ public class ActivityChooserView extends ViewGroup implements
         }
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
     public ActivityChooserModel getDataModel() {
         return mAdapter.getDataModel();
     }
