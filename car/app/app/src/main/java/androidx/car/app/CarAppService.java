@@ -189,7 +189,7 @@ public abstract class CarAppService extends Service {
      * <pre>
      * &#64;Override
      * &#64;NonNull
-     * public HostValidator createHostValidation() {
+     * public HostValidator createHostValidator() {
      *     if ((getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
      *         return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR;
      *     } else {
