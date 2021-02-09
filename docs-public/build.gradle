@@ -49,7 +49,6 @@ dependencies {
     docs("androidx.compose.material:material-ripple:1.0.0-alpha12")
     samples("androidx.compose.material:material-samples:1.0.0-alpha12")
     docs("androidx.compose.runtime:runtime:1.0.0-alpha12")
-    docs("androidx.compose.runtime:runtime-dispatch:1.0.0-alpha12")
     docs("androidx.compose.runtime:runtime-livedata:1.0.0-alpha12")
     samples("androidx.compose.runtime:runtime-livedata-samples:1.0.0-alpha12")
     docs("androidx.compose.runtime:runtime-rxjava2:1.0.0-alpha12")
