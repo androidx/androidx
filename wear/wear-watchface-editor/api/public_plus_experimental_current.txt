@@ -2,13 +2,13 @@
 package androidx.wear.watchface.editor {
 
   public final class EditorRequest {
-    ctor public EditorRequest(android.content.ComponentName watchFaceComponentName, android.content.ComponentName editorComponentName, String? watchFaceInstanceId, java.util.Map<java.lang.String,java.lang.String>? initialUserStyle);
+    ctor public EditorRequest(android.content.ComponentName watchFaceComponentName, String editorPackageName, String? watchFaceInstanceId, java.util.Map<java.lang.String,java.lang.String>? initialUserStyle);
     method public static androidx.wear.watchface.editor.EditorRequest? createFromIntent(android.content.Intent intent);
-    method public android.content.ComponentName getEditorComponentName();
+    method public String getEditorPackageName();
     method public java.util.Map<java.lang.String,java.lang.String>? getInitialUserStyle();
     method public android.content.ComponentName getWatchFaceComponentName();
     method public String? getWatchFaceInstanceId();
-    property public final android.content.ComponentName editorComponentName;
+    property public final String editorPackageName;
     property public final java.util.Map<java.lang.String,java.lang.String>? initialUserStyle;
     property public final android.content.ComponentName watchFaceComponentName;
     property public final String? watchFaceInstanceId;
