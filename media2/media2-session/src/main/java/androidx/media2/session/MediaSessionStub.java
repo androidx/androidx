@@ -179,6 +179,7 @@ class MediaSessionStub extends IMediaSession.Stub {
             }
             mSessionImpl.getCallbackExecutor().execute(new Runnable() {
                 @Override
+                @SuppressWarnings("ObjectToString")
                 public void run() {
                     if (!mConnectedControllersManager.isConnected(controller)) {
                         return;
@@ -328,6 +329,7 @@ class MediaSessionStub extends IMediaSession.Stub {
                 new Controller2Cb(caller), connectionHints);
         mSessionImpl.getCallbackExecutor().execute(new Runnable() {
             @Override
+            @SuppressWarnings("ObjectToString")
             public void run() {
                 if (mSessionImpl.isClosed()) {
                     return;
@@ -640,6 +642,7 @@ class MediaSessionStub extends IMediaSession.Stub {
         final SessionCommand sessionCommand = MediaParcelUtils.fromParcelable(command);
         dispatchSessionTask(caller, seq, sessionCommand, new SessionCallbackTask<SessionResult>() {
             @Override
+            @SuppressWarnings("ObjectToString")
             public SessionResult run(final ControllerInfo controller) {
                 SessionResult result = mSessionImpl.getCallback().onCustomCommand(
                         mSessionImpl.getInstance(), controller, sessionCommand, args);

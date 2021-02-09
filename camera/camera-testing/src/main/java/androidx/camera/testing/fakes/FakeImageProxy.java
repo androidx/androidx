@@ -166,6 +166,7 @@ public final class FakeImageProxy implements ImageProxy {
      * Returns ListenableFuture that completes when the {@link FakeImageProxy} has closed.
      */
     @NonNull
+    @SuppressWarnings("ObjectToString")
     public ListenableFuture<Void> getCloseFuture() {
         synchronized (mReleaseLock) {
             if (mReleaseFuture == null) {

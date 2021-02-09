@@ -411,6 +411,7 @@ public class CameraXActivity extends AppCompatActivity {
                 });
     }
 
+    @SuppressWarnings("ObjectToString")
     private void setUpCameraDirectionButton() {
         mCameraDirectionButton.setOnClickListener(v -> {
             if (mCurrentCameraSelector == BACK_SELECTOR) {

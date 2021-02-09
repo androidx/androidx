@@ -58,6 +58,7 @@ public class BackgroundHelper {
         /**
          * Get cached bitmap by token, returns null if missing cache.
          */
+        @SuppressWarnings("ObjectToString")
         public Bitmap getCache(Object token) {
             if (token == null ? mLastToken == null : token.equals(mLastToken)) {
                 if (DEBUG) Log.v(TAG, "hitCache token:" + token + " " + mLastBitmap);
@@ -69,6 +70,7 @@ public class BackgroundHelper {
         /**
          * Add cached bitmap.
          */
+        @SuppressWarnings("ObjectToString")
         public void putCache(Object token, Bitmap bitmap) {
             if (DEBUG) Log.v(TAG, "putCache token:" + token + " " + bitmap);
             mLastToken = token;

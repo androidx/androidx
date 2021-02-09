@@ -179,6 +179,7 @@ public final class Query {
     }
 
     @Override
+    @SuppressWarnings("ObjectToString")
     public String toString() {
         return "Query{"
                 + "id:" + mId

@@ -217,6 +217,7 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         }
 
         @UiThread
+        @SuppressWarnings("ObjectToString")
         private void cancelPreviousRequest() {
             if (mSurfaceRequest != null) {
                 Logger.d(TAG, "Request canceled: " + mSurfaceRequest);
@@ -225,6 +226,7 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         }
 
         @UiThread
+        @SuppressWarnings("ObjectToString")
         private void invalidateSurface() {
             if (mSurfaceRequest != null) {
                 Logger.d(TAG, "Surface invalidated " + mSurfaceRequest);

@@ -212,6 +212,7 @@ final class OpenGLRenderer {
      * It should be safe to release resources associated with the output surface once this future
      * has completed.
      */
+    @SuppressWarnings("ObjectToString")
     ListenableFuture<Void> detachOutputSurface() {
         return CallbackToFutureAdapter.getFuture(completer -> {
             try {
