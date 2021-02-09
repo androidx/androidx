@@ -53,7 +53,7 @@ SUPPORT_ROOT="$(cd $SCRIPT_DIR/../.. && pwd)"
 BUILD_SCRIPTS_DIR="$SUPPORT_ROOT/busytown"
 
 # find the .sh files that enable build log validation
-target_scripts="$(cd $BUILD_SCRIPTS_DIR && find -name "*.sh" -type f | xargs grep -l androidx.validateNoUnrecognizedMessages | sed 's|^./||')"
+target_scripts="$(cd $BUILD_SCRIPTS_DIR && find -name "*.sh" -type f | xargs grep -l "impl/build.sh" | sed 's|^./||')"
 
 # find the target names that enable build log validation
 targets="$(echo $target_scripts | sed 's/\.sh//g')"
