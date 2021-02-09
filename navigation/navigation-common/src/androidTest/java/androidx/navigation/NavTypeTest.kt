@@ -19,6 +19,7 @@ package androidx.navigation
 import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
 import android.os.Bundle
+import androidx.navigation.common.test.R
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -42,6 +43,8 @@ class NavTypeTest {
         private val booleans = booleanArrayOf(b, false)
         private val s = "a_string"
         private val strings = arrayOf("aa", "bb")
+        private val reference = R.id.nav_id_reference
+        private val referenceHex = "0x" + R.id.nav_id_reference.toString(16)
         private val parcelable = ActivityInfo()
         private val parcelables = arrayOf(parcelable)
         private val en = Bitmap.Config.ALPHA_8
@@ -78,6 +81,8 @@ class NavTypeTest {
             .isEqualTo(NavType.StringType)
         assertThat(NavType.fromArgType("string[]", null))
             .isEqualTo(NavType.StringArrayType)
+        assertThat(NavType.fromArgType("reference", null))
+            .isEqualTo(NavType.ReferenceType)
         assertThat(NavType.fromArgType("android.content.pm.ActivityInfo", null))
             .isEqualTo(parcelableNavType)
         assertThat(NavType.fromArgType("android.content.pm.ActivityInfo[]", null))
@@ -97,6 +102,8 @@ class NavTypeTest {
         assertThat(NavType.inferFromValue("stringvalue"))
             .isEqualTo(NavType.StringType)
         assertThat(NavType.inferFromValue("123"))
+            .isEqualTo(NavType.IntType)
+        assertThat(NavType.inferFromValue("0xFF"))
             .isEqualTo(NavType.IntType)
         assertThat(NavType.inferFromValue("123L"))
             .isEqualTo(NavType.LongType)
@@ -196,6 +203,11 @@ class NavTypeTest {
             .isEqualTo(strings)
         bundle.clear()
 
+        NavType.ReferenceType.put(bundle, key, reference)
+        assertThat(NavType.ReferenceType.get(bundle, key))
+            .isEqualTo(reference)
+        bundle.clear()
+
         parcelableNavType.put(bundle, key, parcelable)
         assertThat(parcelableNavType.get(bundle, key))
             .isEqualTo(parcelable)
@@ -220,5 +232,14 @@ class NavTypeTest {
         assertThat(serializableArrayNavType.get(bundle, key))
             .isEqualTo(serializables)
         bundle.clear()
+    }
+
+    @Test
+    fun parseValueWithHex() {
+        assertThat(NavType.IntType.parseValue(referenceHex))
+            .isEqualTo(reference)
+
+        assertThat(NavType.ReferenceType.parseValue(referenceHex))
+            .isEqualTo(reference)
     }
 }
