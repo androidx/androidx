@@ -44,6 +44,7 @@ class NavTypeTest {
         private val s = "a_string"
         private val strings = arrayOf("aa", "bb")
         private val reference = R.id.nav_id_reference
+        private val referenceHex = "0x" + R.id.nav_id_reference.toString(16)
         private val parcelable = ActivityInfo()
         private val parcelables = arrayOf(parcelable)
         private val en = Bitmap.Config.ALPHA_8
@@ -101,6 +102,8 @@ class NavTypeTest {
         assertThat(NavType.inferFromValue("stringvalue"))
             .isEqualTo(NavType.StringType)
         assertThat(NavType.inferFromValue("123"))
+            .isEqualTo(NavType.IntType)
+        assertThat(NavType.inferFromValue("0xFF"))
             .isEqualTo(NavType.IntType)
         assertThat(NavType.inferFromValue("123L"))
             .isEqualTo(NavType.LongType)
@@ -229,5 +232,14 @@ class NavTypeTest {
         assertThat(serializableArrayNavType.get(bundle, key))
             .isEqualTo(serializables)
         bundle.clear()
+    }
+
+    @Test
+    fun parseValueWithHex() {
+        assertThat(NavType.IntType.parseValue(referenceHex))
+            .isEqualTo(reference)
+
+        assertThat(NavType.ReferenceType.parseValue(referenceHex))
+            .isEqualTo(reference)
     }
 }
