@@ -74,10 +74,8 @@ public final class StartScreen extends Screen {
                                         .build())
                         .setTitle("Navigation Demos")
                         .setOnClickListener(
-                                () -> {
-                                    getScreenManager()
-                                            .push(new NavigationDemosScreen(getCarContext()));
-                                })
+                                () -> getScreenManager()
+                                        .push(new NavigationDemosScreen(getCarContext())))
                         .setBrowsable(true)
                         .build());
 

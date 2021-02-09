@@ -193,11 +193,7 @@ public final class MiscDemoScreen extends Screen implements DefaultLifecycleObse
         }
 
         NotificationCompat.Builder builder;
-        if (VERSION.SDK_INT >= VERSION_CODES.O) {
-            builder = new NotificationCompat.Builder(getCarContext(), NOTIFICATION_CHANNEL_ID);
-        } else {
-            builder = new NotificationCompat.Builder(getCarContext());
-        }
+        builder = new NotificationCompat.Builder(getCarContext(), NOTIFICATION_CHANNEL_ID);
 
         Notification notification =
                 builder.setSmallIcon(R.drawable.ic_bug_report_24px)
