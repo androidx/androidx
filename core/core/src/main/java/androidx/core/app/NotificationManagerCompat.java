@@ -587,6 +587,7 @@ public final class NotificationManagerCompat {
      * or an empty list on older SDKs which don't support Notification Channels.
      */
     @NonNull
+    @SuppressWarnings("MixedMutabilityReturnType")
     public List<NotificationChannelCompat> getNotificationChannelsCompat() {
         if (Build.VERSION.SDK_INT >= 26) {
             List<NotificationChannel> channels = getNotificationChannels();
@@ -618,6 +619,7 @@ public final class NotificationManagerCompat {
      * or an empty list on older SDKs which don't support Notification Channels.
      */
     @NonNull
+    @SuppressWarnings("MixedMutabilityReturnType")
     public List<NotificationChannelGroupCompat> getNotificationChannelGroupsCompat() {
         if (Build.VERSION.SDK_INT >= 26) {
             List<NotificationChannelGroup> groups = getNotificationChannelGroups();

@@ -265,6 +265,7 @@ public class FontResourcesParserCompat {
      *
      * Provider cert entry must be cert string array or array of cert string array.
      */
+    @SuppressWarnings("MixedMutabilityReturnType")
     public static List<List<byte[]>> readCerts(Resources resources, @ArrayRes int certsId) {
         if (certsId == 0) {
             return Collections.<List<byte[]>>emptyList();

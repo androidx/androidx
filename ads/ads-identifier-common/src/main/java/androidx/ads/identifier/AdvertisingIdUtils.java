@@ -66,6 +66,7 @@ public class AdvertisingIdUtils {
      * <p>Only system-level providers will be returned.
      */
     @NonNull
+    @SuppressWarnings("MixedMutabilityReturnType")
     public static List<ServiceInfo> getAdvertisingIdProviderServices(
             @NonNull PackageManager packageManager) {
         Intent intent = new Intent(GET_AD_ID_ACTION);
