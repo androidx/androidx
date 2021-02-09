@@ -36,8 +36,8 @@ class UserStyleSettingTest {
                 null,
                 0.0,
                 1.0,
-                defaultValue,
-                listOf(Layer.BASE_LAYER)
+                listOf(Layer.BASE_LAYER),
+                defaultValue
             )
 
         assertThat(rangedUserStyleSetting.getOptionForId("not a number").id)
@@ -61,8 +61,8 @@ class UserStyleSettingTest {
                 null,
                 0.0,
                 1.0,
-                defaultValue,
-                listOf(Layer.BASE_LAYER)
+                listOf(Layer.BASE_LAYER),
+                defaultValue
             )
 
         assertThat(rangedUserStyleSetting.getOptionForId("0").id)
@@ -85,8 +85,8 @@ class UserStyleSettingTest {
             null,
             0.0,
             1.0,
-            1.0,
-            emptyList()
+            emptyList(),
+            1.0
         )
 
         try {
@@ -98,8 +98,8 @@ class UserStyleSettingTest {
                 null,
                 0.0,
                 1.0,
-                1.0,
-                emptyList()
+                emptyList(),
+                1.0
             )
             fail("Should have thrown an exception")
         } catch (e: Exception) {

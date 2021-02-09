@@ -286,14 +286,14 @@ public sealed class UserStyleSetting(
             /** Icon for use in the userStyle selection UI. */
             icon: Icon?,
 
-            /** The default value for this BooleanUserStyleSetting. */
-            defaultValue: Boolean,
-
             /**
              * Used by the style configuration UI. Describes which rendering layers this style
              * affects.
              */
-            affectsLayers: Collection<Layer>
+            affectsLayers: Collection<Layer>,
+
+            /** The default value for this BooleanUserStyleSetting. */
+            defaultValue: Boolean
         ) : super(
             id,
             displayName,
@@ -435,6 +435,7 @@ public sealed class UserStyleSetting(
                 )
         }
 
+        @JvmOverloads
         public constructor (
             /** Identifier for the element, must be unique. */
             id: String,
@@ -450,23 +451,24 @@ public sealed class UserStyleSetting(
             /** Icon for use in the userStyle selection UI. */
             icon: Icon?,
 
-            /**
-             * The configuration for affected complications. The first entry is the default value
-             */
+            /** The configuration for affected complications. */
             complicationConfig: List<ComplicationsOption>,
 
             /**
              * Used by the style configuration UI. Describes which rendering layers this style
              * affects, must include [Layer.COMPLICATIONS].
              */
-            affectsLayers: Collection<Layer>
+            affectsLayers: Collection<Layer>,
+
+            /** The default option, used when data isn't persisted. */
+            defaultOption: ComplicationsOption = complicationConfig.first()
         ) : super(
             id,
             displayName,
             description,
             icon,
             complicationConfig,
-            0,
+            complicationConfig.indexOf(defaultOption),
             affectsLayers
         ) {
             require(affectsLayers.contains(Layer.COMPLICATIONS))
@@ -585,14 +587,14 @@ public sealed class UserStyleSetting(
             /** Maximum value (inclusive). */
             maximumValue: Double,
 
-            /** The default value for this DoubleRangeUserStyleSetting. */
-            defaultValue: Double,
-
             /**
              * Used by the style configuration UI. Describes which rendering layers this style
              * affects.
              */
-            affectsLayers: Collection<Layer>
+            affectsLayers: Collection<Layer>,
+
+            /** The default value for this DoubleRangeUserStyleSetting. */
+            defaultValue: Double
         ) : super(
             id,
             displayName,
@@ -814,14 +816,14 @@ public sealed class UserStyleSetting(
             /** Maximum value (inclusive). */
             maximumValue: Long,
 
-            /** The default value for this LongRangeUserStyleSetting. */
-            defaultValue: Long,
-
             /**
              * Used by the style configuration UI. Describes which rendering layers this style
              * affects.
              */
-            affectsLayers: Collection<Layer>
+            affectsLayers: Collection<Layer>,
+
+            /** The default value for this LongRangeUserStyleSetting. */
+            defaultValue: Long
         ) : super(
             id,
             displayName,
@@ -926,14 +928,14 @@ public sealed class UserStyleSetting(
         }
 
         public constructor (
-            /** The default value. */
-            defaultValue: String,
-
             /**
              * Used by the style configuration UI. Describes which rendering layers this style
              * affects.
              */
-            affectsLayers: Collection<Layer>
+            affectsLayers: Collection<Layer>,
+
+            /** The default value. */
+            defaultValue: String
         ) : super(
             CUSTOM_VALUE_USER_STYLE_SETTING_ID,
             "",

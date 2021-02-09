@@ -75,8 +75,8 @@ class UserStyleRepositoryTest {
             null,
             0.25,
             1.0,
-            0.75,
-            listOf(Layer.TOP_LAYER)
+            listOf(Layer.TOP_LAYER),
+            0.75
         )
 
     private val mockListener1 = Mockito.mock(UserStyleRepository.UserStyleListener::class.java)
@@ -226,8 +226,8 @@ class UserStyleRepositoryTest {
     @Test
     fun userStyle_mapConstructor_customValueUserStyleSetting() {
         val customStyleSetting = CustomValueUserStyleSetting(
-            "default",
-            listOf(Layer.BASE_LAYER)
+            listOf(Layer.BASE_LAYER),
+            "default"
         )
 
         val userStyleRepository = UserStyleRepository(
@@ -251,12 +251,12 @@ class UserStyleRepositoryTest {
     @Test
     fun userStyle_multiple_CustomValueUserStyleSettings_notAllowed() {
         val customStyleSetting1 = CustomValueUserStyleSetting(
-            "default",
-            listOf(Layer.BASE_LAYER)
+            listOf(Layer.BASE_LAYER),
+            "default"
         )
         val customStyleSetting2 = CustomValueUserStyleSetting(
-            "default",
-            listOf(Layer.BASE_LAYER)
+            listOf(Layer.BASE_LAYER),
+            "default"
         )
 
         try {
@@ -275,8 +275,8 @@ class UserStyleRepositoryTest {
     @Test
     fun setAndGetCustomStyleSetting() {
         val customStyleSetting = CustomValueUserStyleSetting(
-            "default",
-            listOf(Layer.BASE_LAYER)
+            listOf(Layer.BASE_LAYER),
+            "default"
         )
 
         val userStyleRepository = UserStyleRepository(
