@@ -1039,6 +1039,7 @@ public final class MediaBrowserCompat {
         }
 
         @Override
+        @SuppressWarnings("ObjectToString")
         public void connect() {
             if (mState != CONNECT_STATE_DISCONNECTING && mState != CONNECT_STATE_DISCONNECTED) {
                 throw new IllegalStateException("connect() called while neigther disconnecting nor "
@@ -1486,7 +1487,7 @@ public final class MediaBrowserCompat {
         /**
          * Return true if {@code callback} is the current ServiceCallbacks. Also logs if it's not.
          */
-        @SuppressWarnings("ReferenceEquality")
+        @SuppressWarnings({"ReferenceEquality", "ObjectToString"})
         private boolean isCurrent(Messenger callback, String funcName) {
             if (mCallbacksMessenger != callback || mState == CONNECT_STATE_DISCONNECTING
                     || mState == CONNECT_STATE_DISCONNECTED) {
@@ -1502,6 +1503,7 @@ public final class MediaBrowserCompat {
         /**
          * Log internal state.
          */
+        @SuppressWarnings("ObjectToString")
         void dump() {
             Log.d(TAG, "MediaBrowserCompat...");
             Log.d(TAG, "  mServiceComponent=" + mServiceComponent);

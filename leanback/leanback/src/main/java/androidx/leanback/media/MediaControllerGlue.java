@@ -32,6 +32,7 @@ import android.util.Log;
  *             {@link PlaybackBannerControlGlue}.
  */
 @Deprecated
+@SuppressWarnings("ObjectToString")
 public abstract class MediaControllerGlue extends PlaybackControlGlue {
     static final String TAG = "MediaControllerGlue";
     static final boolean DEBUG = false;

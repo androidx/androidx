@@ -79,6 +79,7 @@ public final class LiveDataObservable<T> implements Observable<T> {
 
     @NonNull
     @Override
+    @SuppressWarnings("ObjectToString")
     public ListenableFuture<T> fetchData() {
         return CallbackToFutureAdapter.getFuture(new CallbackToFutureAdapter.Resolver<T>() {
             @Nullable

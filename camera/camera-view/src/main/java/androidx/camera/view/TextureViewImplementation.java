@@ -113,6 +113,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
     }
 
     @Override
+    @SuppressWarnings("ObjectToString")
     public void initializePreview() {
         Preconditions.checkNotNull(mParent);
         Preconditions.checkNotNull(mResolution);
@@ -205,7 +206,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
      * {@link SurfaceTexture} is available, and the {@link SurfaceRequest} was received from the
      * camera.
      */
-    @SuppressWarnings("WeakerAccess")
+    @SuppressWarnings({"WeakerAccess", "ObjectToString"})
     void tryToProvidePreviewSurface() {
         if (mResolution == null || mSurfaceTexture == null || mSurfaceRequest == null) {
             return;
