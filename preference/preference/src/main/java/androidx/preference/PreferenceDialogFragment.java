@@ -238,7 +238,6 @@ public abstract class PreferenceDialogFragment extends android.app.DialogFragmen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             Api30Impl.showIme(window);
         } else {
-            // TODO:(b/163914595) Remove the dependency of STATE_ALWAYS_VISIBLE for pre-R.
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
     }
