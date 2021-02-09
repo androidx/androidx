@@ -53,7 +53,7 @@ import java.util.List;
  * Extracts information required to present content in a list format from a slice.
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
 public class ListContent extends SliceContent {
 

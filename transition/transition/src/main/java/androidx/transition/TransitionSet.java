@@ -455,12 +455,8 @@ public class TransitionSet extends Transition {
 
     }
 
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    protected void createAnimators(ViewGroup sceneRoot, TransitionValuesMaps startValues,
+    void createAnimators(ViewGroup sceneRoot, TransitionValuesMaps startValues,
             TransitionValuesMaps endValues, ArrayList<TransitionValues> startValuesList,
             ArrayList<TransitionValues> endValuesList) {
         long startDelay = getStartDelay();
