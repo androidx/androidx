@@ -50,14 +50,14 @@ package androidx.compose.runtime {
     property public final boolean hasAwaiters;
   }
 
-  @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget}) public @interface Composable {
+  @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget}) public @interface Composable {
   }
 
   public final class ComposablesKt {
     method @androidx.compose.runtime.Composable public static inline <T extends java.lang.Object, reified E extends androidx.compose.runtime.Applier<?>> void ComposeNode(kotlin.jvm.functions.Function0<? extends T> factory, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,? extends kotlin.Unit> update);
     method @androidx.compose.runtime.Composable public static inline <T extends java.lang.Object, reified E extends androidx.compose.runtime.Applier<?>> void ComposeNode(kotlin.jvm.functions.Function0<? extends T> factory, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,? extends kotlin.Unit> update, kotlin.jvm.functions.Function0<? extends kotlin.Unit> content);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static inline <T, reified E extends androidx.compose.runtime.Applier<?>> void ComposeNode(kotlin.jvm.functions.Function0<? extends T> factory, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,? extends kotlin.Unit> update, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.SkippableUpdater<T>,? extends kotlin.Unit> skippableUpdate, kotlin.jvm.functions.Function0<? extends kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static androidx.compose.runtime.Composer getCurrentComposer();
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static androidx.compose.runtime.Composer getCurrentComposer();
     method @androidx.compose.runtime.Composable public static int getCurrentCompositeKeyHash();
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static androidx.compose.runtime.RecomposeScope getCurrentRecomposeScope();
     method @androidx.compose.runtime.Composable public static inline <T> T! key(Object![]? keys, kotlin.jvm.functions.Function0<? extends T> block);
@@ -155,7 +155,6 @@ package androidx.compose.runtime {
   }
 
   public final class CompositionContextKt {
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.CompositionContext rememberCompositionReference();
   }
 
   public final class CompositionKt {
@@ -226,19 +225,6 @@ package androidx.compose.runtime {
   }
 
   @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level, message="This is internal API for Compose modules that may change frequently " + "and without warning.") @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget}) public @interface InternalComposeApi {
-  }
-
-  @androidx.compose.runtime.InternalComposeApi public final class KeyInfo {
-    method public int getIndex();
-    method public int getKey();
-    method public int getLocation();
-    method public int getNodes();
-    method public Object? getObjectKey();
-    property public final int index;
-    property public final int key;
-    property public final int location;
-    property public final int nodes;
-    property public final Object? objectKey;
   }
 
   public interface MonotonicFrameClock extends kotlin.coroutines.CoroutineContext.Element {

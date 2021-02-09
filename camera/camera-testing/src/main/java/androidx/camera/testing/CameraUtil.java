@@ -844,6 +844,7 @@ public final class CameraUtil {
      * Throw exception with a specific message if the Camera doesn't have both front/back lens
      * facing in the daily testing.
      */
+    @SuppressWarnings("ObjectToString")
     static void dumpCameraLensFacingInfo() {
         boolean error = false;
 

@@ -17,11 +17,19 @@
 package androidx.inspection.gradle
 
 import com.android.build.gradle.api.BaseVariant
+import com.github.jengelman.gradle.plugins.shadow.relocation.RelocateClassContext
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.github.jengelman.gradle.plugins.shadow.transformers.Transformer
+import com.github.jengelman.gradle.plugins.shadow.transformers.TransformerContext
 import org.gradle.api.Project
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition
+import org.gradle.api.attributes.Attribute
+import org.gradle.api.file.FileTreeElement
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
+import shadow.org.apache.tools.zip.ZipEntry
+import shadow.org.apache.tools.zip.ZipOutputStream
 import java.io.File
 import java.util.jar.JarFile
 
@@ -46,6 +54,7 @@ fun Project.registerShadowDependenciesTask(
                 it.path = "lib/${it.path.removePrefix("jni")}"
             }
         }
+        it.transform(RenameServicesTransformer::class.java)
         it.destinationDirectory.set(taskWorkingDir(variant, "shadowedJar"))
         it.archiveBaseName.set("${project.name}-shadowed")
         it.dependsOn(zipTask)
@@ -67,12 +76,17 @@ fun Project.registerShadowDependenciesTask(
  */
 private fun Project.registerUberJarTask(variant: BaseVariant): TaskProvider<Jar> {
     return tasks.register("uberRuntimeDepsJar", Jar::class.java) {
+        it.dependsOn(variant.assembleProvider)
         it.archiveClassifier.set("uberRuntimeDepsJar")
-        it.dependsOn(variant.runtimeConfiguration)
         it.exclude("**/module-info.class")
+        it.exclude("META-INF/versions/9/**/*.class")
         it.from({
-            variant.runtimeConfiguration
-                .files.filter { it.name.endsWith("jar") }.map(::zipTree)
+            variant.runtimeConfiguration.incoming.artifactView {
+                it.attributes.attribute(
+                    Attribute.of("artifactType", String::class.java),
+                    ArtifactTypeDefinition.JAR_TYPE
+                )
+            }.files.filter { it.name.endsWith("jar") }.map(::zipTree)
         })
     }
 }
@@ -82,3 +96,42 @@ private fun Iterable<File>.extractPackageNames(): Set<String> = map(::JarFile)
     .filter { jarEntry -> jarEntry.name.endsWith(".class") }
     .map { jarEntry -> jarEntry.name.substringBeforeLast("/").replace('/', '.') }
     .toSet()
+
+/**
+ * Transformer that renames services included in META-INF.
+ */
+class RenameServicesTransformer : Transformer {
+    val renamed = mutableMapOf<String, String>()
+
+    override fun canTransformResource(element: FileTreeElement?): Boolean {
+        return element?.relativePath?.startsWith("META-INF/services") ?: false
+    }
+
+    override fun transform(context: TransformerContext?) {
+        if (context == null) return
+        val path = context.path.removePrefix("META-INF/services/")
+
+        renamed[context.relocateOrSelf(path)] = context.`is`.bufferedReader().use { it.readLines() }
+            .joinToString("\n") { line -> context.relocateOrSelf(line) }
+    }
+
+    override fun hasTransformedResource(): Boolean {
+        return renamed.isNotEmpty()
+    }
+
+    override fun modifyOutputStream(os: ZipOutputStream, preserveFileTimestamps: Boolean) {
+        renamed.forEach { (name, text) ->
+            val entry = ZipEntry("META-INF/services/$name")
+            entry.time = TransformerContext.getEntryTimestamp(preserveFileTimestamps, entry.time)
+            os.putNextEntry(entry)
+            text.byteInputStream().copyTo(os)
+            os.closeEntry()
+        }
+    }
+}
+
+private fun TransformerContext.relocateOrSelf(className: String): String {
+    val relocateContext = RelocateClassContext(className, stats)
+    val relocator = relocators.find { it.canRelocateClass(relocateContext) }
+    return relocator?.relocateClass(relocateContext) ?: className
+}

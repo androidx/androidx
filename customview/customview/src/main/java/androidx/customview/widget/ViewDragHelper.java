@@ -110,6 +110,8 @@ public class ViewDragHelper {
     private static final int BASE_SETTLE_DURATION = 256; // ms
     private static final int MAX_SETTLE_DURATION = 600; // ms
 
+    private static final boolean DEBUG = false;
+
     // Current drag state; idle, dragging or settling
     private int mDragState;
 
@@ -1194,9 +1196,11 @@ public class ViewDragHelper {
                     // If pointer index is not found then skip.
                     final int index = ev.findPointerIndex(mActivePointerId);
                     if (index == -1) {
-                        Log.w(TAG, "Failed to find pointer index for active pointer ID "
-                                + mActivePointerId + ", which may indicate an inconsistent "
-                                + "MotionEvent stream");
+                        if (DEBUG) {
+                            Log.e(TAG, "Failed to find pointer index for active pointer ID "
+                                    + mActivePointerId + ", which may indicate an inconsistent "
+                                    + "MotionEvent stream");
+                        }
                         break;
                     }
 
@@ -1545,9 +1549,12 @@ public class ViewDragHelper {
 
     private boolean isValidPointerForActionMove(int pointerId) {
         if (!isPointerDown(pointerId)) {
-            Log.e(TAG, "Ignoring pointerId=" + pointerId + " because ACTION_DOWN was not received "
-                    + "for this pointer before ACTION_MOVE. It likely happened because "
-                    + " ViewDragHelper did not receive all the events in the event stream.");
+            if (DEBUG) {
+                Log.e(TAG, "Ignoring pointerId=" + pointerId + " because ACTION_DOWN was not "
+                        + "received for this pointer before ACTION_MOVE. It likely happened "
+                        + "because ViewDragHelper did not receive all the events in the event "
+                        + "stream.");
+            }
             return false;
         }
         return true;

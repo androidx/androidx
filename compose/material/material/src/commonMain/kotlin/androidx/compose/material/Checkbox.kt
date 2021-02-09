@@ -26,7 +26,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Interaction
 import androidx.compose.foundation.InteractionState
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.triStateToggleable
 import androidx.compose.material.ripple.rememberRipple
@@ -53,6 +53,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+import kotlin.math.floor
 
 /**
  * A component that represents two states (checked / unchecked).
@@ -275,8 +276,8 @@ private fun CheckboxImpl(
     val checkColor by colors.checkmarkColor(value)
     val boxColor by colors.boxColor(enabled, value)
     val borderColor by colors.borderColor(enabled, value)
-    Canvas(modifier.wrapContentSize(Alignment.Center).size(CheckboxSize)) {
-        val strokeWidthPx = StrokeWidth.toPx()
+    Canvas(modifier.wrapContentSize(Alignment.Center).requiredSize(CheckboxSize)) {
+        val strokeWidthPx = floor(StrokeWidth.toPx())
         drawBox(
             boxColor = boxColor,
             borderColor = borderColor,

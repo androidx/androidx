@@ -86,16 +86,12 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * @hide
- */
 @RequiresApi(19)
 public class GridRowView extends SliceChildView implements View.OnClickListener,
         View.OnTouchListener {
 
     private static final String TAG = "GridRowView";
 
-    private static final int TITLE_TEXT_LAYOUT = R.layout.abc_slice_title;
     private static final int TEXT_LAYOUT = R.layout.abc_slice_secondary_text;
 
     // Max number of text items that can show in a cell
@@ -113,15 +109,45 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
 
     private int mHiddenItemCount;
 
+    /**
+     * @hide
+     */
     protected final View mForeground;
+    /**
+     * @hide
+     */
     protected int mRowIndex;
+    /**
+     * @hide
+     */
     protected int mRowCount;
+    /**
+     * @hide
+     */
     protected int mMaxCells = -1;
+    /**
+     * @hide
+     */
     protected @Nullable GridContent mGridContent;
+    /**
+     * @hide
+     */
     protected final int mLargeImageHeight;
+    /**
+     * @hide
+     */
     protected final int mSmallImageSize;
+    /**
+     * @hide
+     */
     protected final int mSmallImageMinWidth;
+    /**
+     * @hide
+     */
     protected final int mIconSize;
+    /**
+     * @hide
+     */
     protected final LinearLayout mViewContainer;
 
     public GridRowView(@NonNull Context context) {
@@ -154,6 +180,10 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     public void setInsets(int l, int t, int r, int b) {
         super.setInsets(l, t, r, b);
         mViewContainer.setPadding(l, t + getExtraTopPadding(), r, b + getExtraBottomPadding());
+    }
+
+    protected int getTitleTextLayout() {
+        return R.layout.abc_slice_title;
     }
 
     protected int getExtraTopPadding() {
@@ -484,7 +514,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         }
         boolean isTitle = SliceQuery.hasAnyHints(item, HINT_LARGE, HINT_TITLE);
         TextView tv = (TextView) LayoutInflater.from(getContext()).inflate(isTitle
-                ? TITLE_TEXT_LAYOUT : TEXT_LAYOUT, null);
+                ? getTitleTextLayout() : TEXT_LAYOUT, null);
         if (mSliceStyle != null && mRowStyle != null) {
             tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, isTitle
                     ? mSliceStyle.getGridTitleSize() : mSliceStyle.getGridSubtitleSize());
@@ -587,7 +617,8 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         }
         long dateTimeMillis = dateTimeItem.getLong();
 
-        TextView tv = (TextView) LayoutInflater.from(getContext()).inflate(TITLE_TEXT_LAYOUT, null);
+        TextView tv = (TextView) LayoutInflater.from(getContext()).inflate(getTitleTextLayout(),
+                null);
         if (mSliceStyle != null) {
             tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, mSliceStyle.getGridTitleSize());
             tv.setTextColor(mSliceStyle.getTitleColor());

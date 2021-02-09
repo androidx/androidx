@@ -802,7 +802,7 @@ public class ViewCompat {
      *       be {@link View#IMPORTANT_FOR_AUTOFILL_YES_EXCLUDE_DESCENDANTS}.
      * </ol>
      *
-     * <p><b>NOTE:</strong> setting the mode as does {@link View#IMPORTANT_FOR_AUTOFILL_NO} or
+     * <p><strong>NOTE:</strong> setting the mode as does {@link View#IMPORTANT_FOR_AUTOFILL_NO} or
      * {@link View#IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS} does not guarantee the view (and
      * its children) will be always be considered not important; for example, when the user
      * explicitly makes an autofill request, all views are considered important. See
@@ -2613,6 +2613,8 @@ public class ViewCompat {
     public static WindowInsetsCompat getRootWindowInsets(@NonNull View view) {
         if (Build.VERSION.SDK_INT >= 23) {
             return Api23Impl.getRootWindowInsets(view);
+        } else if (Build.VERSION.SDK_INT >= 21) {
+            return Api21Impl.getRootWindowInsets(view);
         } else {
             return null;
         }
@@ -4711,6 +4713,11 @@ public class ViewCompat {
     private static class Api21Impl {
         private Api21Impl() {
             // private
+        }
+
+        @Nullable
+        public static WindowInsetsCompat getRootWindowInsets(@NonNull View v) {
+            return WindowInsetsCompat.getRootInsets(v);
         }
 
         static WindowInsetsCompat computeSystemWindowInsets(@NonNull View v,

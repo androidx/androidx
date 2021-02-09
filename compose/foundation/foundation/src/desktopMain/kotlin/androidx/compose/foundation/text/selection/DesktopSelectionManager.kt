@@ -19,13 +19,11 @@
 package androidx.compose.foundation.text.selection
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.gesture.DragObserver
+import androidx.compose.foundation.legacygestures.DragObserver
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.platform.ClipboardManager
 
-@OptIn(ExperimentalTextApi::class)
 internal class DesktopSelectionManager(private val selectionRegistrar: SelectionRegistrarImpl) {
     private var dragBeginPosition = Offset.Zero
 

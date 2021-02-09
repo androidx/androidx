@@ -23,6 +23,7 @@ import androidx.compose.foundation.InteractionState
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
@@ -30,14 +31,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -67,7 +67,7 @@ fun PriorityInteractionStateSample() {
         Modifier
             .fillMaxSize()
             .wrapContentSize()
-            .preferredSize(width = 240.dp, height = 80.dp)
+            .size(width = 240.dp, height = 80.dp)
     ) {
         Box(
             Modifier
@@ -131,7 +131,7 @@ fun MultipleInteractionStateSample() {
         Row {
             Box(
                 Modifier
-                    .preferredSize(width = 240.dp, height = 80.dp)
+                    .size(width = 240.dp, height = 80.dp)
                     .then(clickable)
                     .border(BorderStroke(3.dp, Color.Blue))
                     .padding(3.dp)
@@ -145,7 +145,7 @@ fun MultipleInteractionStateSample() {
             }
             Box(
                 Modifier
-                    .preferredSize(width = 240.dp, height = 80.dp)
+                    .size(width = 240.dp, height = 80.dp)
                     .then(draggable)
                     .border(BorderStroke(3.dp, Color.Red))
                     .padding(3.dp)

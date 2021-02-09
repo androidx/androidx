@@ -416,6 +416,7 @@ final class CaptureSession {
      * <p>Once a session is released it can no longer be opened again. After the session is released
      * all method calls on it do nothing.
      */
+    @SuppressWarnings("ObjectToString")
     ListenableFuture<Void> release(boolean abortInFlightCaptures) {
         synchronized (mStateLock) {
             switch (mState) {

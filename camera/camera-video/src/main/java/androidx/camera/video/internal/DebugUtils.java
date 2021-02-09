@@ -64,6 +64,7 @@ public final class DebugUtils {
      * @return the formatted string.
      */
     @NonNull
+    @SuppressWarnings("ObjectToString")
     public static String readableBufferInfo(@NonNull MediaCodec.BufferInfo bufferInfo) {
         StringBuilder sb = new StringBuilder();
         sb.append("Dump BufferInfo: " + bufferInfo.toString() + "\n");

@@ -17,13 +17,15 @@
 package androidx.compose.foundation
 
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.SpringSpec
-import androidx.compose.foundation.animation.scrollBy
-import androidx.compose.foundation.animation.smoothScrollBy
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.gestures.smoothScrollBy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -37,7 +39,6 @@ import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
@@ -64,7 +65,7 @@ import kotlin.math.roundToInt
  * @param initial initial scroller position to start with
  */
 @Composable
-fun rememberScrollState(initial: Float = 0f): ScrollState {
+fun rememberScrollState(initial: Int = 0): ScrollState {
     return rememberSaveable(saver = ScrollState.Saver) {
         ScrollState(initial = initial)
     }
@@ -84,18 +85,18 @@ fun rememberScrollState(initial: Float = 0f): ScrollState {
  * @param initial value of the scroll
  */
 @Stable
-class ScrollState(initial: Float) : ScrollableState {
+class ScrollState(initial: Int) : ScrollableState {
 
     /**
      * current scroll position value in pixels
      */
-    var value by mutableStateOf(initial, structuralEqualityPolicy())
+    var value: Int by mutableStateOf(initial, structuralEqualityPolicy())
         private set
 
     /**
-     * maximum bound for [value], or [Float.POSITIVE_INFINITY] if still unknown
+     * maximum bound for [value], or [Int.MAX_VALUE] if still unknown
      */
-    var maxValue: Float
+    var maxValue: Int
         get() = _maxValueState.value
         internal set(newMax) {
             _maxValueState.value = newMax
@@ -111,14 +112,22 @@ class ScrollState(initial: Float) : ScrollableState {
      */
     val interactionState: InteractionState = InteractionState()
 
-    private var _maxValueState = mutableStateOf(Float.POSITIVE_INFINITY, structuralEqualityPolicy())
+    private var _maxValueState = mutableStateOf(Int.MAX_VALUE, structuralEqualityPolicy())
+
+    /**
+     * We receive scroll events in floats but represent the scroll position in ints so we have to
+     * manually accumulate the fractional part of the scroll to not completely ignore it.
+     */
+    private var accumulator: Float = 0f
 
     private val scrollableState = ScrollableState {
-        val absolute = (value + it)
-        val newValue = absolute.coerceIn(0f, maxValue)
+        val absolute = (value + it + accumulator)
+        val newValue = absolute.coerceIn(0f, maxValue.toFloat())
         val changed = absolute != newValue
         val consumed = newValue - value
-        value += consumed
+        val consumedInt = consumed.roundToInt()
+        value += consumedInt
+        accumulator = consumed - consumedInt
 
         // Avoid floating-point rounding error
         if (changed) consumed else it
@@ -143,10 +152,10 @@ class ScrollState(initial: Float) : ScrollableState {
      * @param spec animation curve for smooth scroll animation
      */
     suspend fun smoothScrollTo(
-        value: Float,
+        value: Int,
         spec: AnimationSpec<Float> = SpringSpec()
     ) {
-        this.smoothScrollBy(value - this.value, spec)
+        this.smoothScrollBy((value - this.value).toFloat(), spec)
     }
 
     /**
@@ -160,7 +169,7 @@ class ScrollState(initial: Float) : ScrollableState {
      * @param value number of pixels to scroll by
      * @return the amount of scroll consumed
      */
-    suspend fun scrollTo(value: Float): Float = this.scrollBy(value - this.value)
+    suspend fun scrollTo(value: Int): Float = this.scrollBy((value - this.value).toFloat())
 
     companion object {
         /**
@@ -184,21 +193,21 @@ class ScrollState(initial: Float) : ScrollableState {
  *
  * @param state state of the scroll
  * @param enabled whether or not scrolling via touch input is enabled
- * @param flingSpec fling animation configuration to use when drag ends with velocity. If `null`,
- * default fling configuration will be used.
+ * @param flingBehavior logic describing fling behavior when drag has finished with velocity. If
+ * `null`, default from [ScrollableDefaults.flingBehavior] will be used.
  * @param reverseScrolling reverse the direction of scrolling, when `true`, 0 [ScrollState.value]
  * will mean bottom, when `false`, 0 [ScrollState.value] will mean top
  */
 fun Modifier.verticalScroll(
     state: ScrollState,
     enabled: Boolean = true,
-    flingSpec: DecayAnimationSpec<Float>? = null,
+    flingBehavior: FlingBehavior? = null,
     reverseScrolling: Boolean = false
 ) = scroll(
     state = state,
     isScrollable = enabled,
     reverseScrolling = reverseScrolling,
-    flingSpec = flingSpec,
+    flingBehavior = flingBehavior,
     isVertical = true
 )
 
@@ -213,28 +222,28 @@ fun Modifier.verticalScroll(
  *
  * @param state state of the scroll
  * @param enabled whether or not scrolling via touch input is enabled
- * @param flingSpec fling animation configuration to use when drag ends with velocity. If `null`,
- * default fling configuration will be used.
+ * @param flingBehavior logic describing fling behavior when drag has finished with velocity. If
+ * `null`, default from [ScrollableDefaults.flingBehavior] will be used.
  * @param reverseScrolling reverse the direction of scrolling, when `true`, 0 [ScrollState.value]
  * will mean right, when `false`, 0 [ScrollState.value] will mean left
  */
 fun Modifier.horizontalScroll(
     state: ScrollState,
     enabled: Boolean = true,
-    flingSpec: DecayAnimationSpec<Float>? = null,
+    flingBehavior: FlingBehavior? = null,
     reverseScrolling: Boolean = false
 ) = scroll(
     state = state,
     isScrollable = enabled,
     reverseScrolling = reverseScrolling,
-    flingSpec = flingSpec,
+    flingBehavior = flingBehavior,
     isVertical = false
 )
 
 private fun Modifier.scroll(
     state: ScrollState,
     reverseScrolling: Boolean,
-    flingSpec: DecayAnimationSpec<Float>?,
+    flingBehavior: FlingBehavior?,
     isScrollable: Boolean,
     isVertical: Boolean
 ) = composed(
@@ -243,8 +252,8 @@ private fun Modifier.scroll(
         val semantics = Modifier.semantics {
             if (isScrollable) {
                 val accessibilityScrollState = ScrollAxisRange(
-                    value = { state.value },
-                    maxValue = { state.maxValue },
+                    value = { state.value.toFloat() },
+                    maxValue = { state.maxValue.toFloat() },
                     reverseScrolling = reverseScrolling
                 )
                 if (isVertical) {
@@ -275,7 +284,7 @@ private fun Modifier.scroll(
             reverseDirection = if (!isVertical && isRtl) reverseScrolling else !reverseScrolling,
             enabled = isScrollable,
             interactionState = state.interactionState,
-            flingSpec = flingSpec,
+            flingBehavior = flingBehavior,
             state = state
         )
         val layout = ScrollingLayoutModifier(state, reverseScrolling, isVertical)
@@ -285,7 +294,7 @@ private fun Modifier.scroll(
         name = "scroll"
         properties["state"] = state
         properties["reverseScrolling"] = reverseScrolling
-        properties["flingSpec"] = flingSpec
+        properties["flingBehavior"] = flingBehavior
         properties["isScrollable"] = isScrollable
         properties["isVertical"] = isVertical
     }
@@ -308,15 +317,15 @@ private data class ScrollingLayoutModifier(
         val placeable = measurable.measure(childConstraints)
         val width = placeable.width.coerceAtMost(constraints.maxWidth)
         val height = placeable.height.coerceAtMost(constraints.maxHeight)
-        val scrollHeight = placeable.height.toFloat() - height.toFloat()
-        val scrollWidth = placeable.width.toFloat() - width.toFloat()
+        val scrollHeight = placeable.height - height
+        val scrollWidth = placeable.width - width
         val side = if (isVertical) scrollHeight else scrollWidth
         return layout(width, height) {
             scrollerState.maxValue = side
-            val scroll = scrollerState.value.coerceIn(0f, side)
+            val scroll = scrollerState.value.coerceIn(0, side)
             val absScroll = if (isReversed) scroll - side else -scroll
-            val xOffset = if (isVertical) 0 else absScroll.roundToInt()
-            val yOffset = if (isVertical) absScroll.roundToInt() else 0
+            val xOffset = if (isVertical) 0 else absScroll
+            val yOffset = if (isVertical) absScroll else 0
             placeable.placeRelativeWithLayer(xOffset, yOffset)
         }
     }

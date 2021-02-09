@@ -21,10 +21,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.InteractionState
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.preferredSize
-import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextFieldScrollerPosition
 import androidx.compose.foundation.text.TextLayoutResultProxy
@@ -38,7 +39,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.InspectableValue
@@ -56,7 +56,6 @@ import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
-import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
@@ -90,7 +89,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationApi::class, InternalTextApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 class TextFieldScrollTest {
 
     private val TextfieldTag = "textField"
@@ -119,7 +118,7 @@ class TextFieldScrollTest {
         val scrollerPosition = TextFieldScrollerPosition(Orientation.Horizontal)
 
         rule.setupHorizontallyScrollableContent(
-            scrollerPosition, longText, Modifier.preferredSize(width = 300.dp, height = 50.dp)
+            scrollerPosition, longText, Modifier.size(width = 300.dp, height = 50.dp)
         )
 
         rule.runOnIdle {
@@ -135,7 +134,7 @@ class TextFieldScrollTest {
         rule.setupVerticallyScrollableContent(
             scrollerPosition = scrollerPosition,
             text = longText,
-            modifier = Modifier.preferredSize(width = 300.dp, height = 50.dp)
+            modifier = Modifier.size(width = 300.dp, height = 50.dp)
         )
 
         rule.runOnIdle {
@@ -149,7 +148,7 @@ class TextFieldScrollTest {
         val scrollerPosition = TextFieldScrollerPosition()
 
         rule.setupVerticallyScrollableContent(
-            modifier = Modifier.preferredWidth(100.dp),
+            modifier = Modifier.width(100.dp),
             scrollerPosition = scrollerPosition,
             text = longText,
             maxLines = 3
@@ -168,7 +167,7 @@ class TextFieldScrollTest {
         rule.setupHorizontallyScrollableContent(
             scrollerPosition = scrollerPosition,
             text = "text",
-            modifier = Modifier.preferredSize(width = 300.dp, height = 50.dp)
+            modifier = Modifier.size(width = 300.dp, height = 50.dp)
         )
 
         rule.runOnIdle {
@@ -183,7 +182,7 @@ class TextFieldScrollTest {
         rule.setupVerticallyScrollableContent(
             scrollerPosition = scrollerPosition,
             text = "text",
-            modifier = Modifier.preferredSize(width = 300.dp, height = 100.dp)
+            modifier = Modifier.size(width = 300.dp, height = 100.dp)
         )
 
         rule.runOnIdle {
@@ -203,12 +202,12 @@ class TextFieldScrollTest {
             rule.setContent {
                 Box(
                     Modifier
-                        .preferredSize(parentSize.toDp())
+                        .size(parentSize.toDp())
                         .background(color = Color.White)
                         .testTag(tag)
                 ) {
                     ScrollableContent(
-                        modifier = Modifier.preferredSize(textFieldSize.toDp()),
+                        modifier = Modifier.size(textFieldSize.toDp()),
                         scrollerPosition = TextFieldScrollerPosition(Orientation.Horizontal),
                         text = longText,
                         isVertical = false
@@ -238,12 +237,12 @@ class TextFieldScrollTest {
             rule.setContent {
                 Box(
                     Modifier
-                        .preferredSize(parentSize.toDp())
+                        .size(parentSize.toDp())
                         .background(color = Color.White)
                         .testTag(tag)
                 ) {
                     ScrollableContent(
-                        modifier = Modifier.preferredSize(textFieldSize.toDp()),
+                        modifier = Modifier.size(textFieldSize.toDp()),
                         scrollerPosition = TextFieldScrollerPosition(),
                         text = longText,
                         isVertical = true
@@ -268,7 +267,7 @@ class TextFieldScrollTest {
         rule.setupHorizontallyScrollableContent(
             scrollerPosition = scrollerPosition,
             text = longText,
-            modifier = Modifier.preferredSize(width = 300.dp, height = 50.dp)
+            modifier = Modifier.size(width = 300.dp, height = 50.dp)
         )
 
         rule.runOnIdle {
@@ -297,7 +296,7 @@ class TextFieldScrollTest {
         rule.setupVerticallyScrollableContent(
             scrollerPosition = scrollerPosition,
             text = longText,
-            modifier = Modifier.preferredSize(width = 300.dp, height = 50.dp)
+            modifier = Modifier.size(width = 300.dp, height = 50.dp)
         )
 
         rule.runOnIdle {
@@ -331,7 +330,7 @@ class TextFieldScrollTest {
                 TextFieldScrollerPosition(Orientation.Horizontal)
             }
             ScrollableContent(
-                modifier = Modifier.preferredSize(width = 300.dp, height = 50.dp),
+                modifier = Modifier.size(width = 300.dp, height = 50.dp),
                 scrollerPosition = scrollerPosition!!,
                 text = longText,
                 isVertical = false
@@ -386,7 +385,7 @@ class TextFieldScrollTest {
         """.trimIndent()
 
         val textFieldScrollPosition = TextFieldScrollerPosition()
-        val scrollerPosition = ScrollState(0f)
+        val scrollerPosition = ScrollState(0)
         var touchSlop = 0f
         val height = 60.dp
 
@@ -394,23 +393,23 @@ class TextFieldScrollTest {
             touchSlop = LocalViewConfiguration.current.touchSlop
             Column(
                 Modifier
-                    .preferredSize(size)
+                    .size(size)
                     .verticalScroll(scrollerPosition)
             ) {
                 ScrollableContent(
-                    modifier = Modifier.preferredSize(size, height),
+                    modifier = Modifier.size(size, height),
                     scrollerPosition = textFieldScrollPosition,
                     text = text,
                     isVertical = true
                 )
-                Box(Modifier.preferredSize(size))
-                Box(Modifier.preferredSize(size))
+                Box(Modifier.size(size))
+                Box(Modifier.size(size))
             }
         }
 
         assertThat(textFieldScrollPosition.offset).isEqualTo(0f)
         assertThat(textFieldScrollPosition.maximum).isGreaterThan(0f)
-        assertThat(scrollerPosition.value).isEqualTo(0f)
+        assertThat(scrollerPosition.value).isEqualTo(0)
 
         with(rule.density) {
             val x = 10.dp.toPx()
@@ -429,7 +428,7 @@ class TextFieldScrollTest {
         assertThat(textFieldScrollPosition.offset).isGreaterThan(0f)
         assertThat(textFieldScrollPosition.offset)
             .isWithin(0.5f).of(textFieldScrollPosition.maximum)
-        assertThat(scrollerPosition.value).isGreaterThan(0f)
+        assertThat(scrollerPosition.value).isGreaterThan(0)
     }
 
     private fun ComposeContentTestRule.setupHorizontallyScrollableContent(

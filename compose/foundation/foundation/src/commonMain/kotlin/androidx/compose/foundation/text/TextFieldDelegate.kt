@@ -23,11 +23,9 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextDelegate
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextPainter
 import androidx.compose.ui.text.TextRange
@@ -89,7 +87,7 @@ internal fun computeSizeForDefaultText(
 
 private fun Float.toIntPx(): Int = ceil(this).roundToInt()
 
-@OptIn(ExperimentalTextApi::class, InternalTextApi::class)
+@OptIn(InternalFoundationTextApi::class, InternalTextApi::class)
 internal class TextFieldDelegate {
     companion object {
         /**

@@ -30,8 +30,8 @@ import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.gesture.LongPressDragObserver
-import androidx.compose.ui.gesture.longPressDragGestureFilter
+import androidx.compose.foundation.legacygestures.LongPressDragObserver
+import androidx.compose.foundation.legacygestures.longPressDragGestureFilter
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
@@ -52,10 +52,7 @@ import androidx.compose.foundation.text.selection.SelectionRegistrar
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.TextDelegate
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
@@ -75,8 +72,8 @@ private typealias InlineContentRange = AnnotatedString.Range<@Composable (String
 /**
  * CoreText is a low level element that displays text with multiple different styles. The text to
  * display is described using a [AnnotatedString]. Typically you will instead want to use
- * [androidx.compose.foundation.Text], which is a higher level Text element that contains semantics and
- * consumes style information from a theme.
+ * [androidx.compose.foundation.text.BasicText], which is a higher level Text element that contains
+ * semantics and consumes style information from a theme.
  *
  * @param text AnnotatedString encoding a styled text.
  * @param modifier Modifier to apply to this layout node.
@@ -93,7 +90,7 @@ private typealias InlineContentRange = AnnotatedString.Range<@Composable (String
  * @param onTextLayout Callback that is executed when a new text layout is calculated.
  */
 @Composable
-@OptIn(ExperimentalTextApi::class, InternalTextApi::class)
+@OptIn(InternalFoundationTextApi::class)
 @Suppress("DEPRECATION") // longPressDragGestureFilter
 internal fun CoreText(
     text: AnnotatedString,
@@ -193,10 +190,7 @@ internal fun InlineChildren(
     }
 }
 
-@OptIn(
-    InternalTextApi::class,
-    ExperimentalTextApi::class
-)
+@OptIn(InternalFoundationTextApi::class)
 private class TextController(val state: TextState) {
     var selectionRegistrar: SelectionRegistrar? = null
 
@@ -346,10 +340,7 @@ private class TextController(val state: TextState) {
     }
 }
 
-@OptIn(
-    InternalTextApi::class,
-    ExperimentalTextApi::class
-)
+@OptIn(InternalFoundationTextApi::class)
 /*@VisibleForTesting*/
 internal class TextState(
     var textDelegate: TextDelegate
@@ -378,7 +369,7 @@ internal class TextState(
  * Returns the [TextDelegate] passed as a [current] param if the input didn't change
  * otherwise creates a new [TextDelegate].
  */
-@OptIn(InternalTextApi::class)
+@OptIn(InternalFoundationTextApi::class)
 internal fun updateTextDelegate(
     current: TextDelegate,
     text: AnnotatedString,
@@ -448,10 +439,6 @@ private fun resolveInlineContent(
     return Pair(placeholders, inlineComposables)
 }
 
-@OptIn(
-    InternalTextApi::class,
-    ExperimentalTextApi::class
-)
 /*@VisibleForTesting*/
 @Suppress("DEPRECATION") // LongPressDragObserver
 internal fun longPressDragObserver(

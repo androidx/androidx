@@ -294,7 +294,9 @@ public abstract class WatchFaceService : WallpaperService() {
                 if (destroyed) {
                     return
                 }
-                require(allowWatchfaceToAnimate)
+                require(allowWatchfaceToAnimate) {
+                    "Choreographer doFrame called but allowWatchfaceToAnimate is false"
+                }
                 frameCallbackPending = false
                 draw()
             }
@@ -325,11 +327,11 @@ public abstract class WatchFaceService : WallpaperService() {
         private lateinit var interactiveInstanceId: String
 
         init {
-            coroutineScope.launch { maybeCreateWCSApi() }
+            maybeCreateWCSApi()
         }
 
         @SuppressWarnings("NewApi")
-        private suspend fun maybeCreateWCSApi() {
+        private fun maybeCreateWCSApi() {
             val pendingWallpaperInstance =
                 InteractiveInstanceManager.takePendingWallpaperInteractiveWatchFaceInstance()
 
@@ -337,19 +339,26 @@ public abstract class WatchFaceService : WallpaperService() {
             if (pendingWallpaperInstance == null && !expectPreRInitFlow()) {
                 val params = readDirectBootPrefs(_context, DIRECT_BOOT_PREFS)
                 if (params != null) {
-                    createInteractiveInstance(params).createWCSApi()
-                    keepSerializedDirectBootParamsUpdated(params)
+                    coroutineScope.launch {
+                        // In tests a watchface may already have been created.
+                        if (!watchFaceCreated()) {
+                            createInteractiveInstance(params).createWCSApi()
+                        }
+                        keepSerializedDirectBootParamsUpdated(params)
+                    }
                 }
             }
 
             // If there's a pending WallpaperInteractiveWatchFaceInstance then create it.
             if (pendingWallpaperInstance != null) {
-                pendingWallpaperInstance.callback.onInteractiveWatchFaceWcsCreated(
-                    createInteractiveInstance(pendingWallpaperInstance.params).createWCSApi()
-                )
+                coroutineScope.launch {
+                    pendingWallpaperInstance.callback.onInteractiveWatchFaceWcsCreated(
+                        createInteractiveInstance(pendingWallpaperInstance.params).createWCSApi()
+                    )
+                    keepSerializedDirectBootParamsUpdated(pendingWallpaperInstance.params)
+                }
 
                 interactiveInstanceId = pendingWallpaperInstance.params.instanceId
-                keepSerializedDirectBootParamsUpdated(pendingWallpaperInstance.params)
             }
         }
 
@@ -622,7 +631,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 (getSystemService(Context.POWER_SERVICE) as PowerManager)
                     .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "$TAG:[AmbientUpdate]")
             // Disable reference counting for our wake lock so that we can use the same wake lock
-            // for user code in invaliate() and after that for having canvas drawn.
+            // for user code in invalidate() and after that for having canvas drawn.
             ambientUpdateWakelock.setReferenceCounted(false)
 
             // Rerender watch face if the surface changes.
@@ -752,7 +761,7 @@ public abstract class WatchFaceService : WallpaperService() {
         suspend fun createHeadlessInstance(
             params: HeadlessWatchFaceInstanceParams
         ): HeadlessWatchFaceImpl {
-            require(!watchFaceCreated())
+            require(!watchFaceCreated()) { "WatchFace already exists!" }
             setImmutableSystemState(params.deviceConfig)
 
             // Fake SurfaceHolder with just enough methods implemented for headless rendering.
@@ -831,7 +840,7 @@ public abstract class WatchFaceService : WallpaperService() {
         suspend fun createInteractiveInstance(
             params: WallpaperInteractiveWatchFaceInstanceParams
         ): InteractiveWatchFaceImpl {
-            require(!watchFaceCreated())
+            require(!watchFaceCreated()) { "WatchFace already exists!" }
 
             setImmutableSystemState(params.deviceConfig)
             setSystemState(params.systemState)
@@ -1112,7 +1121,9 @@ internal fun <R> Handler.runOnHandler(task: () -> R) =
                 throw exception as Exception
             }
         }
-        returnVal!!
+        // R might be nullable so we can't assert nullability here.
+        @Suppress("UNCHECKED_CAST")
+        returnVal as R
     }
 
 internal fun readDirectBootPrefs(

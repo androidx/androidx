@@ -16,15 +16,15 @@
 
 package androidx.wear.watchface.editor
 
+import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Icon
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.os.Parcel
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationProviderInfo
@@ -57,8 +57,8 @@ import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -75,22 +75,38 @@ import org.mockito.Mockito.`when`
 import org.mockito.Mockito.doAnswer
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.CoroutineContext
 
-private const val LEFT_COMPLICATION_ID = 1000
-private const val RIGHT_COMPLICATION_ID = 1001
-private const val BACKGROUND_COMPLICATION_ID = 1111
+public const val LEFT_COMPLICATION_ID: Int = 1000
+public const val RIGHT_COMPLICATION_ID: Int = 1001
+public const val BACKGROUND_COMPLICATION_ID: Int = 1111
+
+public val provider1: ComponentName = ComponentName("provider.app1", "provider.class1")
+public val provider2: ComponentName = ComponentName("provider.app2", "provider.class2")
+public val provider3: ComponentName = ComponentName("provider.app3", "provider.class3")
+
 private const val TIMEOUT_MILLIS = 500L
 
 /** Trivial "editor" which exposes the EditorSession for testing. */
-public class OnWatchFaceEditingTestActivity : ComponentActivity() {
+public open class OnWatchFaceEditingTestActivity : ComponentActivity() {
     public lateinit var editorSession: EditorSession
+
+    public val listenableEditorSession: ListenableEditorSession by lazy {
+        ListenableEditorSession(editorSession)
+    }
 
     public val providerIcon1: Icon =
         Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
     public val providerIcon2: Icon =
         Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
-    public val provider1: ComponentName = ComponentName("provider.app1", "provider.class1")
-    public val provider2: ComponentName = ComponentName("provider.app2", "provider.class2")
+
+    public val immediateCoroutineScope: CoroutineScope = CoroutineScope(
+        object : CoroutineDispatcher() {
+            override fun dispatch(context: CoroutineContext, block: Runnable) {
+                block.run()
+            }
+        }
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -127,13 +143,17 @@ public class OnWatchFaceEditingTestActivity : ComponentActivity() {
                                     LongTextComplicationData.Builder(
                                         ComplicationText.plain("Right")
                                     ).build().asWireComplicationData(),
+                                provider3 to
+                                    LongTextComplicationData.Builder(
+                                        ComplicationText.plain("Provider3")
+                                    ).build().asWireComplicationData(),
                             )
                         )
                     )
                 }
             )
 
-        CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher()).launch {
+        immediateCoroutineScope.launch {
             editorSession = deferredEditorSession.await()!!
         }
     }
@@ -170,8 +190,35 @@ private class FakeProviderInfoServiceV1(
     }
 }
 
+/** Fake ComplicationHelperActivity for testing. */
+public class TestComplicationHelperActivity : Activity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setResult(
+            123,
+            Intent().apply {
+                putExtra(
+                    "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
+                    ComplicationProviderInfo(
+                        "TestProvider3App",
+                        "TestProvider3",
+                        Icon.createWithBitmap(
+                            Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+                        ),
+                        ComplicationType.LONG_TEXT.asWireComplicationType(),
+                        provider3
+                    )
+                )
+            }
+        )
+        finish()
+    }
+}
+
 // Disables the requirement that watchFaceInstanceId has to be non-null on R and above.
-private class WatchFaceEditorContractForTest : WatchFaceEditorContract() {
+public class WatchFaceEditorContractForTest : WatchFaceEditorContract() {
     override fun nullWatchFaceInstanceIdOK() = true
 }
 
@@ -632,7 +679,41 @@ public class EditorSessionTest {
 
     @Test
     public fun launchComplicationProviderChooser() {
-        // TODO(alexclarke): Figure out a way of testing this.
+        ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
+
+        val scenario = createOnWatchFaceEditingTestActivity(
+            emptyList(),
+            listOf(leftComplication, rightComplication)
+        )
+
+        lateinit var editorSession: EditorSession
+        scenario.onActivity { activity ->
+            editorSession = activity.editorSession
+        }
+
+        runBlocking {
+            /**
+             * Invoke [TestComplicationHelperActivity] which will change the provider (and hence
+             * the preview data) for [LEFT_COMPLICATION_ID].
+             */
+            assertTrue(
+                editorSession.launchComplicationProviderChooser(
+                    LEFT_COMPLICATION_ID
+                )
+            )
+
+            // This should update the preview data to point to the updated provider3 data.
+            val previewComplication =
+                editorSession.getComplicationPreviewData()[LEFT_COMPLICATION_ID]
+                    as LongTextComplicationData
+
+            assertThat(
+                previewComplication.text.getTextAt(
+                    ApplicationProvider.getApplicationContext<Context>().resources,
+                    0
+                )
+            ).isEqualTo("Provider3")
+        }
     }
 
     @Test

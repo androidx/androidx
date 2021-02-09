@@ -31,7 +31,6 @@ import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -45,12 +44,8 @@ import androidx.compose.ui.window.PopupPositionProvider
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-/**
- * @suppress
- */
-@InternalTextApi // Used by TextField Selection from foundation
 @Composable
-actual fun SelectionHandle(
+internal actual fun SelectionHandle(
     startHandlePosition: Offset?,
     endHandlePosition: Offset?,
     isStartHandle: Boolean,
@@ -77,10 +72,6 @@ actual fun SelectionHandle(
     }
 }
 
-/**
- * @suppress
- */
-@InternalTextApi // Used by TextField Selection from foundation
 @Composable
 /*@VisibleForTesting*/
 internal fun DefaultSelectionHandle(
@@ -174,7 +165,6 @@ private fun HandleDrawLayout(
     }
 }
 
-@OptIn(InternalTextApi::class)
 @Composable
 private fun SelectionHandlePopup(
     startHandlePosition: Offset?,

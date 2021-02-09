@@ -19,7 +19,6 @@ package androidx.compose.foundation.gestures
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composer
-import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Recomposer
@@ -134,7 +133,7 @@ internal class SuspendingGestureTestUtil(
             previousUptimeMillis = lastTime,
             previousPosition = Offset(x, y),
             previousPressed = false,
-            ConsumedData(Offset.Zero, false)
+            ConsumedData()
         )
         activePointers[change.id] = change
         invokeOverAllPasses(change, initial, main, final)
@@ -297,7 +296,7 @@ internal class SuspendingGestureTestUtil(
         yield()
     }
 
-    @OptIn(InternalComposeApi::class, ExperimentalComposeApi::class)
+    @OptIn(InternalComposeApi::class)
     private fun compose(
         recomposer: Recomposer,
         block: @Composable () -> Unit
@@ -329,7 +328,6 @@ internal class SuspendingGestureTestUtil(
             onFrame(frameCh.receive())
     }
 
-    @OptIn(ExperimentalComposeApi::class)
     class EmptyApplier : Applier<Unit> {
         override val current: Unit = Unit
         override fun down(node: Unit) {}

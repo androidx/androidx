@@ -20,13 +20,14 @@ import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Interaction
 import androidx.compose.foundation.InteractionState
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
@@ -41,7 +42,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.compositeOver
@@ -107,7 +107,7 @@ fun Switch(
             )
             .wrapContentSize(Alignment.Center)
             .padding(DefaultSwitchPadding)
-            .size(SwitchWidth, SwitchHeight)
+            .requiredSize(SwitchWidth, SwitchHeight)
     ) {
         SwitchImpl(
             checked = checked,
@@ -178,7 +178,7 @@ private fun BoxScope.SwitchImpl(
                 interactionState = interactionState,
                 indication = rememberRipple(bounded = false, radius = ThumbRippleRadius)
             )
-            .size(ThumbDiameter),
+            .requiredSize(ThumbDiameter),
         content = {}
     )
 }

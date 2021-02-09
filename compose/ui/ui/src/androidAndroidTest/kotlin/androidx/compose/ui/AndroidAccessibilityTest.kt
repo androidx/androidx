@@ -32,11 +32,10 @@ import androidx.activity.ComponentActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -94,10 +93,7 @@ import org.mockito.internal.matchers.apachecommons.ReflectionEquals
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(
-    ExperimentalFoundationApi::class,
-    ExperimentalComposeApi::class
-)
+@OptIn(ExperimentalFoundationApi::class)
 class AndroidAccessibilityTest {
     @get:Rule
     val rule = createAndroidComposeRule<ComponentActivity>()
@@ -180,13 +176,13 @@ class AndroidAccessibilityTest {
                             Modifier
                                 .zIndex(1f)
                                 .testTag(OverlappedChildOneTag)
-                                .size(50.dp)
+                                .requiredSize(50.dp)
                         )
                         BasicText(
                             "Child Two",
                             Modifier
                                 .testTag(OverlappedChildTwoTag)
-                                .size(50.dp)
+                                .requiredSize(50.dp)
                         )
                     }
                     if (isTextFieldVisible) {

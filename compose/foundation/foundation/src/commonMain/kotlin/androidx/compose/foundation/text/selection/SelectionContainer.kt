@@ -25,18 +25,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.dragGestureFilter
+import androidx.compose.foundation.legacygestures.dragGestureFilter
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalTextToolbar
-import androidx.compose.ui.text.InternalTextApi
 
 /**
  * Enables text selection for it's direct or indirection children.
  *
  * @sample androidx.compose.foundation.samples.SelectionSample
  */
-@OptIn(InternalTextApi::class)
 @Composable
 fun SelectionContainer(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     var selection by remember { mutableStateOf<Selection?>(null) }
@@ -69,11 +67,8 @@ fun DisableSelection(content: @Composable () -> Unit) {
  *
  * The selection composable wraps composables and let them to be selectable. It paints the selection
  * area with start and end handles.
- *
- * @suppress
  */
 @Suppress("ComposableLambdaParameterNaming", "DEPRECATION")
-@InternalTextApi // Used by foundation
 @Composable
 internal fun SelectionContainer(
     /** A [Modifier] for SelectionContainer. */

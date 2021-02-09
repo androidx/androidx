@@ -197,7 +197,7 @@ build completes.
 
 ## Making changes {#changes}
 
-Similar to Android framework development, library developmnent should occur in
+Similar to Android framework development, library development should occur in
 CL-specific working branches. Use `repo` to create, upload, and abandon local
 branches. Use `git` to manage changes within a local branch.
 

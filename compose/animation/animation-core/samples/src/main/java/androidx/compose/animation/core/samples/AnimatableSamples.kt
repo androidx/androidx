@@ -25,7 +25,7 @@ import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.animation.androidFlingDecay
+import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.verticalDrag
@@ -43,7 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.gesture.util.VelocityTracker
+import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -123,7 +123,7 @@ fun AnimatableDecayAndAnimateToSample() {
                     val velocity = velocityTracker.calculateVelocity().y
                     launch {
                         // Either fling vertically up, or spring back
-                        val decay = androidFlingDecay<Float>(this@pointerInput)
+                        val decay = splineBasedDecay<Float>(this@pointerInput)
                         // Checks where the animation will end using decay
                         if (decay.calculateTargetValue(
                                 animatedOffset.value,

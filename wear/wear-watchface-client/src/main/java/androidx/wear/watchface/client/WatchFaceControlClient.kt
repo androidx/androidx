@@ -122,8 +122,7 @@ public interface WatchFaceControlClient : AutoCloseable {
      * @param deviceConfig The hardware [DeviceConfig]
      * @param surfaceWidth The width of screen shots taken by the [HeadlessWatchFaceClient]
      * @param surfaceHeight The height of screen shots taken by the [HeadlessWatchFaceClient]
-     * @return The [HeadlessWatchFaceClient] or `null` if [watchFaceName] is unrecognized, or
-     *    [ServiceNotBoundException] if the WatchFaceControlService is not bound.
+     * @return The [HeadlessWatchFaceClient] or `null` if [watchFaceName] is unrecognized.
      */
     public fun createHeadlessWatchFaceClient(
         watchFaceName: ComponentName,
@@ -164,20 +163,22 @@ internal class WatchFaceControlClientImpl internal constructor(
     private val service: IWatchFaceControlService,
     private val serviceConnection: ServiceConnection
 ) : WatchFaceControlClient {
+    private var closed = false
 
     override fun getInteractiveWatchFaceSysUiClientInstance(
         instanceId: String
-    ) = InteractiveWatchFaceSysUiClientImpl(
-        service.getInteractiveWatchFaceInstanceSysUI(instanceId)
-    )
+    ) = service.getInteractiveWatchFaceInstanceSysUI(instanceId)?.let {
+        InteractiveWatchFaceSysUiClientImpl(it)
+    }
 
     override fun createHeadlessWatchFaceClient(
         watchFaceName: ComponentName,
         deviceConfig: DeviceConfig,
         surfaceWidth: Int,
         surfaceHeight: Int
-    ) = HeadlessWatchFaceClientImpl(
-        service.createHeadlessWatchFaceInstance(
+    ): HeadlessWatchFaceClient? {
+        requireNotClosed()
+        return service.createHeadlessWatchFaceInstance(
             HeadlessWatchFaceInstanceParams(
                 watchFaceName,
                 androidx.wear.watchface.data.DeviceConfig(
@@ -189,8 +190,10 @@ internal class WatchFaceControlClientImpl internal constructor(
                 surfaceWidth,
                 surfaceHeight
             )
-        )
-    )
+        )?.let {
+            HeadlessWatchFaceClientImpl(it)
+        }
+    }
 
     override fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClientAsync(
         id: String,
@@ -199,6 +202,7 @@ internal class WatchFaceControlClientImpl internal constructor(
         userStyle: Map<String, String>?,
         idToComplicationData: Map<Int, ComplicationData>?
     ): Deferred<InteractiveWatchFaceWcsClient> {
+        requireNotClosed()
         val deferredClient = CompletableDeferred<InteractiveWatchFaceWcsClient>()
 
         // [IWatchFaceControlService.getOrCreateInteractiveWatchFaceWCS] has an asynchronous
@@ -255,9 +259,19 @@ internal class WatchFaceControlClientImpl internal constructor(
         return deferredClient
     }
 
-    override fun getEditorServiceClient() = EditorServiceClientImpl(service.editorService)
+    override fun getEditorServiceClient(): EditorServiceClient {
+        requireNotClosed()
+        return EditorServiceClientImpl(service.editorService)
+    }
+
+    private fun requireNotClosed() {
+        require(!closed) {
+            "WatchFaceControlClient method called after close"
+        }
+    }
 
     override fun close() {
+        closed = true
         context.unbindService(serviceConnection)
     }
 }

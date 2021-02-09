@@ -62,6 +62,12 @@ class ComposeErrorMessages : DefaultErrorMessages.Extension {
         )
 
         MAP.put(
+            ComposeErrors.NONREADONLY_CALL_IN_READONLY_COMPOSABLE,
+            "Composables marked with @ReadOnlyComposable can only call other @ReadOnlyComposable " +
+                "composables"
+        )
+
+        MAP.put(
             ComposeErrors.COMPOSABLE_PROPERTY_BACKING_FIELD,
             "Composable properties are not able to have backing fields"
         )
@@ -98,11 +104,6 @@ class ComposeErrorMessages : DefaultErrorMessages.Extension {
                 " was expected",
             RENDER_TYPE_WITH_ANNOTATIONS,
             RENDER_TYPE_WITH_ANNOTATIONS
-        )
-        MAP.put(
-            ComposeErrors.DEPRECATED_COMPOSABLE_PROPERTY,
-            "@Composable properties should be declared with the @Composable annotation " +
-                "on the getter, and not the property itself."
         )
     }
 }

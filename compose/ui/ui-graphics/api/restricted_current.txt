@@ -48,7 +48,6 @@ package androidx.compose.ui.graphics {
   public final class AndroidImageBitmapKt {
     method public static android.graphics.Bitmap asAndroidBitmap(androidx.compose.ui.graphics.ImageBitmap);
     method public static androidx.compose.ui.graphics.ImageBitmap asImageBitmap(android.graphics.Bitmap);
-    method public static androidx.compose.ui.graphics.ImageBitmap imageFromResource(android.content.res.Resources res, int resId);
   }
 
   public final class AndroidMatrixConversionsKt {
@@ -341,10 +340,6 @@ package androidx.compose.ui.graphics {
     method @androidx.compose.runtime.Stable public androidx.compose.ui.graphics.ColorFilter tint-aamYUWA(long color, optional androidx.compose.ui.graphics.BlendMode blendMode);
   }
 
-  public final class ColorFilterKt {
-    method @Deprecated public static androidx.compose.ui.graphics.ColorFilter ColorFilter-aamYUWA(long color, androidx.compose.ui.graphics.BlendMode blendMode);
-  }
-
   public final class ColorKt {
     method @androidx.compose.runtime.Stable public static long Color(float red, float green, float blue, optional float alpha, optional androidx.compose.ui.graphics.colorspace.ColorSpace colorSpace);
     method @androidx.compose.runtime.Stable public static long Color(int color);
@@ -409,6 +404,10 @@ package androidx.compose.ui.graphics {
     property public abstract boolean hasAlpha;
     property public abstract int height;
     property public abstract int width;
+    field public static final androidx.compose.ui.graphics.ImageBitmap.Companion Companion;
+  }
+
+  public static final class ImageBitmap.Companion {
   }
 
   public enum ImageBitmapConfig {

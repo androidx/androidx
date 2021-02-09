@@ -16,8 +16,9 @@
 
 package androidx.compose.foundation.lazy
 
-import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.assertNotNestingScrollableContainers
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,7 +31,6 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -54,8 +54,8 @@ internal fun LazyList(
     reverseLayout: Boolean,
     /** The layout orientation of the list */
     isVertical: Boolean,
-    /** fling configuration for flinging */
-    flingSpec: DecayAnimationSpec<Float>?,
+    /** fling behavior to be used for flinging */
+    flingBehavior: FlingBehavior,
     /** The alignment to align items horizontally. Required when isVertical is true */
     horizontalAlignment: Alignment.Horizontal? = null,
     /** The vertical arrangement for items. Required when isVertical is true */
@@ -84,7 +84,7 @@ internal fun LazyList(
                 orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal,
                 reverseDirection = reverseScrollDirection,
                 interactionState = state.interactionState,
-                flingSpec = flingSpec,
+                flingBehavior = flingBehavior,
                 state = state
             )
             .clipToBounds()

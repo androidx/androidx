@@ -26,7 +26,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.MultiParagraphIntrinsics
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextDelegate
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.EditProcessor
@@ -39,7 +38,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.input.buildTextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.IntSize
 import com.google.common.truth.Truth.assertThat
@@ -56,7 +54,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(InternalTextApi::class)
+@OptIn(InternalTextApi::class, InternalFoundationTextApi::class)
 @RunWith(JUnit4::class)
 class TextFieldDelegateTest {
 
@@ -152,7 +150,7 @@ class TextFieldDelegateTest {
     fun on_blur() {
         val inputSessionToken = 10 // We are not using this value in this test.
 
-        val editorState = buildTextFieldValue(
+        val editorState = TextFieldValue(
             text = "Hello, World",
             selection = TextRange(1),
             composition = TextRange(3, 5)
@@ -178,7 +176,7 @@ class TextFieldDelegateTest {
     fun on_blur_with_hiding() {
         val inputSessionToken = 10 // We are not using this value in this test.
 
-        val editorState = buildTextFieldValue(
+        val editorState = TextFieldValue(
             text = "Hello, World",
             selection = TextRange(1),
             composition = TextRange(3, 5)

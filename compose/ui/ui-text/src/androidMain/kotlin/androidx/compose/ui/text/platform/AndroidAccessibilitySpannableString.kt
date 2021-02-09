@@ -24,6 +24,7 @@ import android.text.style.ScaleXSpan
 import android.text.style.StyleSpan
 import android.text.style.TypefaceSpan
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.SpanStyle
@@ -44,8 +45,11 @@ import androidx.compose.ui.util.fastForEach
 
 /**
  * Convert an AnnotatedString into SpannableString for Android text to speech support.
+ *
+ * @suppress
  */
-@InternalTextApi // Used by compose:ui:ui"
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalTextApi // used in ui:ui
 fun AnnotatedString.toAccessibilitySpannableString(
     density: Density,
     resourceLoader: Font.ResourceLoader

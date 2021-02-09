@@ -492,6 +492,7 @@ public final class ComplicationDrawable extends Drawable {
      * @param theme  Ignored by ComplicationDrawable
      */
     @Override
+    @SuppressWarnings("ObjectToString")
     public void inflate(@NonNull Resources r, @NonNull XmlPullParser parser,
             @NonNull AttributeSet attrs, @Nullable Theme theme)
             throws XmlPullParserException, IOException {

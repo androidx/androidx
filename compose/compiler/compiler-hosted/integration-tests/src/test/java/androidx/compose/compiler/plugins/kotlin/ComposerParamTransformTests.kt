@@ -34,13 +34,11 @@ class ComposerParamTransformTests : ComposeIrTransformTest() {
     ) = verifyComposeIrTransform(
         """
             @file:OptIn(
-              ExperimentalComposeApi::class,
               InternalComposeApi::class,
               ComposeCompilerApi::class
             )
             package test
 
-            import androidx.compose.runtime.ExperimentalComposeApi
             import androidx.compose.runtime.InternalComposeApi
             import androidx.compose.runtime.ComposeCompilerApi
             import androidx.compose.runtime.Composable
@@ -365,7 +363,7 @@ class ComposerParamTransformTests : ComposeIrTransformTest() {
             """
                 @Composable
                 fun Wrapper(block: Function2<Composer, Int, Unit>, %composer: Composer?, %changed: Int) {
-                  %composer.startRestartGroup(<>, "C(Wrapper)<block(...>:Test.kt#2487m")
+                  %composer = %composer.startRestartGroup(<>, "C(Wrapper)<block(...>:Test.kt#2487m")
                   val %dirty = %changed
                   if (%changed and 0b1110 === 0) {
                     %dirty = %dirty or if (%composer.changed(block)) 0b0100 else 0b0010
@@ -381,7 +379,7 @@ class ComposerParamTransformTests : ComposeIrTransformTest() {
                 }
                 @Composable
                 fun Leaf(text: String, %composer: Composer?, %changed: Int) {
-                  %composer.startRestartGroup(<>, "C(Leaf):Test.kt#2487m")
+                  %composer = %composer.startRestartGroup(<>, "C(Leaf):Test.kt#2487m")
                   val %dirty = %changed
                   if (%changed and 0b1110 === 0) {
                     %dirty = %dirty or if (%composer.changed(text)) 0b0100 else 0b0010
@@ -396,7 +394,7 @@ class ComposerParamTransformTests : ComposeIrTransformTest() {
                 }
                 @Composable
                 fun Test(value: Int, %composer: Composer?, %changed: Int) {
-                  %composer.startRestartGroup(<>, "C(Test):Test.kt#2487m")
+                  %composer = %composer.startRestartGroup(<>, "C(Test):Test.kt#2487m")
                   val %dirty = %changed
                   if (%changed and 0b1110 === 0) {
                     %dirty = %dirty or if (%composer.changed(value)) 0b0100 else 0b0010
@@ -481,7 +479,7 @@ class ComposerParamTransformTests : ComposeIrTransformTest() {
             """
                 @Composable
                 fun composeVector(composable: Function2<Composer, Int, Unit>, %composer: Composer?, %changed: Int) {
-                  %composer.startRestartGroup(<>, "C(composeVector)<emit>:Test.kt#2487m")
+                  %composer = %composer.startRestartGroup(<>, "C(composeVector)<emit>:Test.kt#2487m")
                   val %dirty = %changed
                   if (%changed and 0b1110 === 0) {
                     %dirty = %dirty or if (%composer.changed(composable)) 0b0100 else 0b0010

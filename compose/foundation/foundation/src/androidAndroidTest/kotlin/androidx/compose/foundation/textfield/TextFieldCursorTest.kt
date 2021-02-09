@@ -20,7 +20,7 @@ import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -71,7 +71,7 @@ class TextFieldCursorTest {
                 onValueChange = {},
                 textStyle = TextStyle(color = Color.White, background = Color.White),
                 modifier = Modifier
-                    .preferredSize(width, height)
+                    .size(width, height)
                     .background(Color.White)
                     .onFocusChanged { if (it.isFocused) isFocused = true },
                 cursorBrush = SolidColor(Color.Red)
@@ -102,7 +102,7 @@ class TextFieldCursorTest {
                 onValueChange = {},
                 textStyle = TextStyle(color = Color.White, background = Color.White),
                 modifier = Modifier
-                    .preferredSize(width, height)
+                    .size(width, height)
                     .background(Color.White)
                     .onFocusChanged { if (it.isFocused) isFocused = true },
                 cursorBrush = Brush.verticalGradient(
@@ -145,7 +145,7 @@ class TextFieldCursorTest {
                     onValueChange = {},
                     textStyle = TextStyle(color = Color.White, background = Color.White),
                     modifier = Modifier
-                        .preferredSize(width, height)
+                        .size(width, height)
                         .background(Color.White)
                         .onFocusChanged { if (it.isFocused) isFocused = true },
                     cursorBrush = SolidColor(Color.Red)
@@ -193,7 +193,7 @@ class TextFieldCursorTest {
                     onValueChange = {},
                     textStyle = TextStyle(color = Color.White, background = Color.White),
                     modifier = Modifier
-                        .preferredSize(width, height)
+                        .size(width, height)
                         .background(Color.White)
                         .onFocusChanged { if (it.isFocused) isFocused = true },
                     cursorBrush = SolidColor(Color.Unspecified)
@@ -245,7 +245,7 @@ class TextFieldCursorTest {
                     onValueChange = { text.value = it },
                     textStyle = TextStyle(color = Color.White, background = Color.White),
                     modifier = Modifier
-                        .preferredSize(width, height)
+                        .size(width, height)
                         .background(Color.White)
                         .onFocusChanged { if (it.isFocused) isFocused = true },
                     cursorBrush = SolidColor(Color.Red)
@@ -263,7 +263,7 @@ class TextFieldCursorTest {
 
         // change text field value
         rule.onNode(hasSetTextAction())
-            .performTextReplacement("", true)
+            .performTextReplacement("")
 
         // cursor would have been invisible during next 500 ms if cursor blinks while typing.
         // To prevent blinking while typing we restart animation when new symbol is typed.

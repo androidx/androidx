@@ -434,110 +434,6 @@ package androidx.compose.ui.focus {
 
 }
 
-package androidx.compose.ui.gesture {
-
-  public final class DragGestureFilterKt {
-    method @Deprecated public static androidx.compose.ui.Modifier dragGestureFilter(androidx.compose.ui.Modifier, androidx.compose.ui.gesture.DragObserver dragObserver, optional boolean startDragImmediately);
-    method @Deprecated public static androidx.compose.ui.Modifier rawDragGestureFilter(androidx.compose.ui.Modifier, androidx.compose.ui.gesture.DragObserver dragObserver, optional kotlin.jvm.functions.Function0<java.lang.Boolean>? canStartDragging);
-    method @Deprecated public static androidx.compose.ui.Modifier rawPressStartGestureFilter(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit> onPressStart, optional boolean enabled, optional androidx.compose.ui.input.pointer.PointerEventPass executionPass);
-  }
-
-  @Deprecated public interface DragObserver {
-    method @Deprecated public default void onCancel();
-    method @Deprecated public default long onDrag-k-4lQ0M(long dragDistance);
-    method @Deprecated public default void onStart-k-4lQ0M(long downPosition);
-    method @Deprecated public default void onStop-k-4lQ0M(long velocity);
-  }
-
-  public final class LongPressDragGestureFilterKt {
-    method @Deprecated public static androidx.compose.ui.Modifier longPressDragGestureFilter(androidx.compose.ui.Modifier, androidx.compose.ui.gesture.LongPressDragObserver longPressDragObserver);
-  }
-
-  @Deprecated public interface LongPressDragObserver {
-    method @Deprecated public default void onCancel();
-    method @Deprecated public default long onDrag-k-4lQ0M(long dragDistance);
-    method @Deprecated public default void onDragStart();
-    method @Deprecated public default void onLongPress-k-4lQ0M(long pxPosition);
-    method @Deprecated public default void onStop-k-4lQ0M(long velocity);
-  }
-
-  public final class PressIndicatorGestureFilterKt {
-    method @Deprecated public static androidx.compose.ui.Modifier pressIndicatorGestureFilter(androidx.compose.ui.Modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit>? onStart, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onStop, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel, optional boolean enabled);
-  }
-
-  @Deprecated public interface ScrollCallback {
-    method @Deprecated public default void onCancel();
-    method @Deprecated public default float onScroll(float scrollDistance);
-    method @Deprecated public default void onStart-k-4lQ0M(long downPosition);
-    method @Deprecated public default void onStop(float velocity);
-  }
-
-  public final class ScrollGestureFilterKt {
-    method @Deprecated public static androidx.compose.ui.Modifier scrollGestureFilter(androidx.compose.ui.Modifier, androidx.compose.ui.gesture.ScrollCallback scrollCallback, androidx.compose.ui.gesture.scrollorientationlocking.Orientation orientation, optional boolean startDragImmediately);
-  }
-
-  public final class TapGestureFilterKt {
-    method @Deprecated public static androidx.compose.ui.Modifier tapGestureFilter(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit> onTap);
-  }
-
-}
-
-package androidx.compose.ui.gesture.nestedscroll {
-
-  public interface NestedScrollConnection {
-    method public default suspend Object? onPostFling-k5p9STU(long consumed, long available, kotlin.coroutines.Continuation<? super androidx.compose.ui.unit.Velocity> p);
-    method public default long onPostScroll-l-UAZDg(long consumed, long available, androidx.compose.ui.gesture.nestedscroll.NestedScrollSource source);
-    method public default suspend Object? onPreFling-bHeVL4A(long available, kotlin.coroutines.Continuation<? super androidx.compose.ui.unit.Velocity> p);
-    method public default long onPreScroll-vG6bCaM(long available, androidx.compose.ui.gesture.nestedscroll.NestedScrollSource source);
-  }
-
-  public final class NestedScrollDelegatingWrapperKt {
-  }
-
-  public final class NestedScrollDispatcher {
-    ctor public NestedScrollDispatcher();
-    method public suspend Object? dispatchPostFling-k5p9STU(long consumed, long available, kotlin.coroutines.Continuation<? super androidx.compose.ui.unit.Velocity> p);
-    method public long dispatchPostScroll-l-UAZDg(long consumed, long available, androidx.compose.ui.gesture.nestedscroll.NestedScrollSource source);
-    method public suspend Object? dispatchPreFling-bHeVL4A(long available, kotlin.coroutines.Continuation<? super androidx.compose.ui.unit.Velocity> p);
-    method public long dispatchPreScroll-vG6bCaM(long available, androidx.compose.ui.gesture.nestedscroll.NestedScrollSource source);
-    method public kotlinx.coroutines.CoroutineScope getCoroutineScope();
-    property public final kotlinx.coroutines.CoroutineScope coroutineScope;
-  }
-
-  public final class NestedScrollModifierKt {
-    method public static androidx.compose.ui.Modifier nestedScroll(androidx.compose.ui.Modifier, androidx.compose.ui.gesture.nestedscroll.NestedScrollConnection connection, optional androidx.compose.ui.gesture.nestedscroll.NestedScrollDispatcher? dispatcher);
-  }
-
-  public enum NestedScrollSource {
-    enum_constant public static final androidx.compose.ui.gesture.nestedscroll.NestedScrollSource Drag;
-    enum_constant public static final androidx.compose.ui.gesture.nestedscroll.NestedScrollSource Fling;
-  }
-
-}
-
-package androidx.compose.ui.gesture.scrollorientationlocking {
-
-  public enum Orientation {
-    enum_constant public static final androidx.compose.ui.gesture.scrollorientationlocking.Orientation Horizontal;
-    enum_constant public static final androidx.compose.ui.gesture.scrollorientationlocking.Orientation Vertical;
-  }
-
-}
-
-package androidx.compose.ui.gesture.util {
-
-  public final class VelocityTracker {
-    ctor public VelocityTracker();
-    method public void addPosition-OX7LsLU(long timeMillis, long position);
-    method public long calculateVelocity-9UxMQ8M();
-    method public void resetTracking();
-  }
-
-  public final class VelocityTrackerKt {
-  }
-
-}
-
 package androidx.compose.ui.graphics {
 
   public final class GraphicsLayerModifierKt {
@@ -649,6 +545,7 @@ package androidx.compose.ui.graphics.vector {
     property public final long tintColor;
     property public final float viewportHeight;
     property public final float viewportWidth;
+    field public static final androidx.compose.ui.graphics.vector.ImageVector.Companion Companion;
   }
 
   public static final class ImageVector.Builder {
@@ -656,6 +553,9 @@ package androidx.compose.ui.graphics.vector {
     method public androidx.compose.ui.graphics.vector.ImageVector.Builder addPath(java.util.List<? extends androidx.compose.ui.graphics.vector.PathNode> pathData, optional androidx.compose.ui.graphics.PathFillType pathFillType, optional String name, optional androidx.compose.ui.graphics.Brush? fill, optional float fillAlpha, optional androidx.compose.ui.graphics.Brush? stroke, optional float strokeAlpha, optional float strokeLineWidth, optional androidx.compose.ui.graphics.StrokeCap strokeLineCap, optional androidx.compose.ui.graphics.StrokeJoin strokeLineJoin, optional float strokeLineMiter, optional float trimPathStart, optional float trimPathEnd, optional float trimPathOffset);
     method public androidx.compose.ui.graphics.vector.ImageVector build();
     method public androidx.compose.ui.graphics.vector.ImageVector.Builder clearGroup();
+  }
+
+  public static final class ImageVector.Companion {
   }
 
   public final class ImageVectorKt {
@@ -1439,6 +1339,39 @@ package androidx.compose.ui.input.key {
 
 }
 
+package androidx.compose.ui.input.nestedscroll {
+
+  public interface NestedScrollConnection {
+    method public default suspend Object? onPostFling-k5p9STU(long consumed, long available, kotlin.coroutines.Continuation<? super androidx.compose.ui.unit.Velocity> p);
+    method public default long onPostScroll-61dr0bI(long consumed, long available, androidx.compose.ui.input.nestedscroll.NestedScrollSource source);
+    method public default suspend Object? onPreFling-bHeVL4A(long available, kotlin.coroutines.Continuation<? super androidx.compose.ui.unit.Velocity> p);
+    method public default long onPreScroll-ScU7Jk8(long available, androidx.compose.ui.input.nestedscroll.NestedScrollSource source);
+  }
+
+  public final class NestedScrollDelegatingWrapperKt {
+  }
+
+  public final class NestedScrollDispatcher {
+    ctor public NestedScrollDispatcher();
+    method public suspend Object? dispatchPostFling-k5p9STU(long consumed, long available, kotlin.coroutines.Continuation<? super androidx.compose.ui.unit.Velocity> p);
+    method public long dispatchPostScroll-61dr0bI(long consumed, long available, androidx.compose.ui.input.nestedscroll.NestedScrollSource source);
+    method public suspend Object? dispatchPreFling-bHeVL4A(long available, kotlin.coroutines.Continuation<? super androidx.compose.ui.unit.Velocity> p);
+    method public long dispatchPreScroll-ScU7Jk8(long available, androidx.compose.ui.input.nestedscroll.NestedScrollSource source);
+    method public kotlinx.coroutines.CoroutineScope getCoroutineScope();
+    property public final kotlinx.coroutines.CoroutineScope coroutineScope;
+  }
+
+  public final class NestedScrollModifierKt {
+    method public static androidx.compose.ui.Modifier nestedScroll(androidx.compose.ui.Modifier, androidx.compose.ui.input.nestedscroll.NestedScrollConnection connection, optional androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher? dispatcher);
+  }
+
+  public enum NestedScrollSource {
+    enum_constant public static final androidx.compose.ui.input.nestedscroll.NestedScrollSource Drag;
+    enum_constant public static final androidx.compose.ui.input.nestedscroll.NestedScrollSource Fling;
+  }
+
+}
+
 package androidx.compose.ui.input.pointer {
 
   public final class AndroidMouseKt {
@@ -1456,12 +1389,14 @@ package androidx.compose.ui.input.pointer {
   }
 
   public final class ConsumedData {
+    ctor public ConsumedData(boolean positionChange, boolean downChange);
+    ctor public ConsumedData();
     method public boolean getDownChange();
-    method public long getPositionChange-F1C5BW0();
+    method public boolean getPositionChange();
     method public void setDownChange(boolean p);
-    method public void setPositionChange-k-4lQ0M(long p);
+    method public void setPositionChange(boolean p);
     property public final boolean downChange;
-    property public final long positionChange;
+    property public final boolean positionChange;
   }
 
   public final class HitPathTrackerKt {
@@ -1483,16 +1418,16 @@ package androidx.compose.ui.input.pointer {
 
   public final class PointerEventKt {
     method public static boolean anyChangeConsumed(androidx.compose.ui.input.pointer.PointerInputChange);
-    method public static boolean anyPositionChangeConsumed(androidx.compose.ui.input.pointer.PointerInputChange);
     method public static boolean changedToDown(androidx.compose.ui.input.pointer.PointerInputChange);
     method public static boolean changedToDownIgnoreConsumed(androidx.compose.ui.input.pointer.PointerInputChange);
     method public static boolean changedToUp(androidx.compose.ui.input.pointer.PointerInputChange);
     method public static boolean changedToUpIgnoreConsumed(androidx.compose.ui.input.pointer.PointerInputChange);
     method public static void consumeAllChanges(androidx.compose.ui.input.pointer.PointerInputChange);
     method public static void consumeDownChange(androidx.compose.ui.input.pointer.PointerInputChange);
-    method public static void consumePositionChange(androidx.compose.ui.input.pointer.PointerInputChange, float consumedDx, float consumedDy);
+    method public static void consumePositionChange(androidx.compose.ui.input.pointer.PointerInputChange);
     method public static boolean isOutOfBounds-MReStF0(androidx.compose.ui.input.pointer.PointerInputChange, long size);
     method public static long positionChange(androidx.compose.ui.input.pointer.PointerInputChange);
+    method public static boolean positionChangeConsumed(androidx.compose.ui.input.pointer.PointerInputChange);
     method public static long positionChangeIgnoreConsumed(androidx.compose.ui.input.pointer.PointerInputChange);
     method public static boolean positionChanged(androidx.compose.ui.input.pointer.PointerInputChange);
     method public static boolean positionChangedIgnoreConsumed(androidx.compose.ui.input.pointer.PointerInputChange);
@@ -1589,6 +1524,20 @@ package androidx.compose.ui.input.pointer {
     method public static androidx.compose.ui.Modifier pointerInput(androidx.compose.ui.Modifier, Object? key1, kotlin.jvm.functions.Function2<? super androidx.compose.ui.input.pointer.PointerInputScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
     method public static androidx.compose.ui.Modifier pointerInput(androidx.compose.ui.Modifier, Object? key1, Object? key2, kotlin.jvm.functions.Function2<? super androidx.compose.ui.input.pointer.PointerInputScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
     method public static androidx.compose.ui.Modifier pointerInput(androidx.compose.ui.Modifier, Object![]? keys, kotlin.jvm.functions.Function2<? super androidx.compose.ui.input.pointer.PointerInputScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+  }
+
+}
+
+package androidx.compose.ui.input.pointer.util {
+
+  public final class VelocityTracker {
+    ctor public VelocityTracker();
+    method public void addPosition-OX7LsLU(long timeMillis, long position);
+    method public long calculateVelocity-9UxMQ8M();
+    method public void resetTracking();
+  }
+
+  public final class VelocityTrackerKt {
   }
 
 }
@@ -1962,7 +1911,6 @@ package androidx.compose.ui.platform {
     method protected final void onLayout(boolean changed, int left, int top, int right, int bottom);
     method protected final void onMeasure(int widthMeasureSpec, int heightMeasureSpec);
     method public final void setParentCompositionContext(androidx.compose.runtime.CompositionContext? parent);
-    method @Deprecated public final void setParentCompositionReference(androidx.compose.runtime.CompositionContext? parent);
     method public final void setShowLayoutBounds(boolean value);
     method public final void setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy strategy);
     property public final boolean hasComposition;
@@ -2222,11 +2170,8 @@ package androidx.compose.ui.platform {
 
   public final class WindowRecomposerKt {
     method public static androidx.compose.runtime.CompositionContext? findViewTreeCompositionContext(android.view.View);
-    method @Deprecated public static androidx.compose.runtime.CompositionContext? findViewTreeCompositionReference(android.view.View);
     method public static androidx.compose.runtime.CompositionContext? getCompositionContext(android.view.View);
-    method @Deprecated public static androidx.compose.runtime.CompositionContext? getCompositionReference(android.view.View);
     method public static void setCompositionContext(android.view.View, androidx.compose.runtime.CompositionContext? value);
-    method @Deprecated public static void setCompositionReference(android.view.View, androidx.compose.runtime.CompositionContext? value);
   }
 
   @androidx.compose.ui.InternalComposeUiApi public final class WindowRecomposerPolicy {
@@ -2260,38 +2205,17 @@ package androidx.compose.ui.res {
     method @androidx.compose.runtime.Composable public static long colorResource(@ColorRes int id);
   }
 
-  @Deprecated @androidx.compose.runtime.Stable public final class DeferredResource<T> {
-    method @Deprecated public androidx.compose.ui.res.Resource<T> getResource();
-    property public final androidx.compose.ui.res.Resource<T> resource;
-  }
-
-  @Deprecated public final class FailedResource<T> extends androidx.compose.ui.res.Resource<T> {
-    ctor @Deprecated public FailedResource(T? resource, Throwable? throwable);
-    method @Deprecated public Throwable? getThrowable();
-    property public final Throwable? throwable;
-  }
-
   public final class FontResourcesKt {
     method @androidx.compose.runtime.Composable public static androidx.compose.ui.text.font.Typeface fontResource(androidx.compose.ui.text.font.FontFamily fontFamily);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.ui.res.DeferredResource<androidx.compose.ui.text.font.Typeface> loadFontResource(androidx.compose.ui.text.font.FontFamily fontFamily, optional androidx.compose.ui.text.font.FontFamily? pendingFontFamily, optional androidx.compose.ui.text.font.FontFamily? failedFontFamily);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.ui.res.DeferredResource<androidx.compose.ui.text.font.Typeface> loadFontResource(androidx.compose.ui.text.font.FontFamily fontFamily, optional androidx.compose.ui.text.font.Typeface? pendingTypeface, optional androidx.compose.ui.text.font.Typeface? failedTypeface);
   }
 
   public final class ImageResourcesKt {
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.ImageBitmap imageResource(@DrawableRes int id);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.ui.res.DeferredResource<androidx.compose.ui.graphics.ImageBitmap> loadImageResource(int id, optional androidx.compose.ui.graphics.ImageBitmap? pendingImage, optional androidx.compose.ui.graphics.ImageBitmap? failedImage);
-  }
-
-  @Deprecated public final class LoadedResource<T> extends androidx.compose.ui.res.Resource<T> {
-    ctor @Deprecated public LoadedResource(T? resource);
+    method public static androidx.compose.ui.graphics.ImageBitmap imageResource(androidx.compose.ui.graphics.ImageBitmap.Companion, android.content.res.Resources res, @DrawableRes int id);
+    method @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.ImageBitmap imageResource(androidx.compose.ui.graphics.ImageBitmap.Companion, @DrawableRes int id);
   }
 
   public final class PainterResourcesKt {
     method @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.painter.Painter painterResource(@DrawableRes int id);
-  }
-
-  @Deprecated public final class PendingResource<T> extends androidx.compose.ui.res.Resource<T> {
-    ctor @Deprecated public PendingResource(T? resource);
   }
 
   public final class PrimitiveResourcesKt {
@@ -2301,14 +2225,6 @@ package androidx.compose.ui.res {
     method @androidx.compose.runtime.Composable public static int integerResource(@IntegerRes int id);
   }
 
-  @Deprecated public abstract sealed class Resource<T> {
-    method @Deprecated public final T? getResource();
-    property public final T? resource;
-  }
-
-  public final class ResourcesKt {
-  }
-
   public final class StringResourcesKt {
     method @androidx.compose.runtime.Composable public static String![] stringArrayResource(@ArrayRes int id);
     method @androidx.compose.runtime.Composable public static String stringResource(@StringRes int id);
@@ -2316,8 +2232,8 @@ package androidx.compose.ui.res {
   }
 
   public final class VectorResourcesKt {
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.ui.res.DeferredResource<androidx.compose.ui.graphics.vector.ImageVector> loadVectorResource(int id, optional androidx.compose.ui.graphics.vector.ImageVector? pendingResource, optional androidx.compose.ui.graphics.vector.ImageVector? failedResource);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.vector.ImageVector vectorResource(@DrawableRes int id);
+    method @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.vector.ImageVector vectorResource(androidx.compose.ui.graphics.vector.ImageVector.Companion, @DrawableRes int id);
+    method @kotlin.jvm.Throws(exceptionClasses=XmlPullParserException::class) public static androidx.compose.ui.graphics.vector.ImageVector vectorResource(androidx.compose.ui.graphics.vector.ImageVector.Companion, optional android.content.res.Resources.Theme? theme, android.content.res.Resources res, int resId) throws org.xmlpull.v1.XmlPullParserException;
   }
 
 }

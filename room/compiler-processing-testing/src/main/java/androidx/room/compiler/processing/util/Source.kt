@@ -144,7 +144,9 @@ sealed class Source {
             file: File,
             qName: String
         ): Source {
-            check(file.exists())
+            check(file.exists()) {
+                "file does not exist: ${file.absolutePath}"
+            }
             return when {
                 file.name.endsWith(".kt") -> loadKotlinSource(file)
                 file.name.endsWith(".java") -> loadJavaSource(file, qName)

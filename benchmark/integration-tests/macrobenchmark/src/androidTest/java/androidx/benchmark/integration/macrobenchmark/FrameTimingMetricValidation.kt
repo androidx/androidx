@@ -59,7 +59,7 @@ class FrameTimingMetricValidation(
             setupBlock = {
                 val intent = Intent()
                 intent.action = ACTION
-                launchIntentAndWait(intent)
+                startActivityAndWait(intent)
             }
         ) {
             val recycler = device.findObject(By.res(PACKAGE_NAME, RESOURCE_ID))

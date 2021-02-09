@@ -326,6 +326,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         final ControllerInfo controller = getCurrentController();
         mLibrarySessionImpl.getCallbackExecutor().execute(new Runnable() {
             @Override
+            @SuppressWarnings("ObjectToString")
             public void run() {
                 SessionCommand command = new SessionCommand(action, null);
                 if (!getConnectedControllersManager().isAllowedCommand(controller, command)) {
@@ -539,6 +540,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
 
         @Override
+        @SuppressWarnings("ObjectToString")
         void onSearchResultChanged(int seq, @NonNull String query, int itemCount,
                 LibraryParams params) throws RemoteException {
             // In MediaLibrarySession/MediaBrowser, we have two different APIs for getting size of

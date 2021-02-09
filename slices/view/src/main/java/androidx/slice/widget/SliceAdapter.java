@@ -287,7 +287,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
     private View inflateForType(int viewType) {
         switch (viewType) {
             case TYPE_GRID:
-                return LayoutInflater.from(mContext).inflate(R.layout.abc_slice_grid, null);
+                return getGridRowView();
             case TYPE_MESSAGE:
                 return LayoutInflater.from(mContext).inflate(R.layout.abc_slice_message, null);
             case TYPE_MESSAGE_LOCAL:
@@ -296,6 +296,18 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
             default:
                 return getRowView();
         }
+    }
+
+    /**
+     * Provides an opportunity for sub SliceAdapter to pass a custom GridRowView.
+     */
+    @NonNull
+    public GridRowView getGridRowView() {
+        View view = LayoutInflater.from(mContext).inflate(R.layout.abc_slice_grid, null);
+        if (view instanceof GridRowView) {
+            return (GridRowView) view;
+        }
+        return new GridRowView(mContext, null);
     }
 
     /**

@@ -28,6 +28,7 @@ import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.platform.WindowRecomposerPolicy
+import androidx.compose.ui.platform.textInputServiceFactory
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.IdlingResource
@@ -45,10 +46,8 @@ import androidx.compose.ui.test.junit4.android.EspressoLink
 import androidx.compose.ui.test.junit4.android.awaitComposeRoots
 import androidx.compose.ui.test.junit4.android.runEspressoOnIdle
 import androidx.compose.ui.test.junit4.android.waitForComposeRoots
-import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.textInputServiceFactory
 import androidx.compose.ui.unit.Density
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -166,8 +165,6 @@ class AndroidComposeTestRule<R : TestRule, A : ComponentActivity>(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     internal val composeIdlingResource: IdlingResource
 
-    private val clockTestRule: MonotonicFrameClockTestRule
-
     private val recomposer: Recomposer
     @OptIn(ExperimentalCoroutinesApi::class)
     private val testCoroutineDispatcher: TestCoroutineDispatcher
@@ -201,7 +198,6 @@ class AndroidComposeTestRule<R : TestRule, A : ComponentActivity>(
         composeIdlingResource = ComposeIdlingResource(
             composeRootRegistry, mainClockImpl, recomposer
         )
-        clockTestRule = MonotonicFrameClockTestRule()
         registerIdlingResource(composeIdlingResource)
     }
 
@@ -220,7 +216,6 @@ class AndroidComposeTestRule<R : TestRule, A : ComponentActivity>(
             .outerRule { base, _ -> composeRootRegistry.getStatementFor(base) }
             .around { base, _ -> idlingResourceRegistry.getStatementFor(base) }
             .around { base, _ -> espressoLink.getStatementFor(base) }
-            .around(clockTestRule)
             .around { base, _ -> AndroidComposeStatement(base) }
             .around(activityRule)
             .apply(base, description)
@@ -337,12 +332,10 @@ class AndroidComposeTestRule<R : TestRule, A : ComponentActivity>(
             }
         }
 
-        @OptIn(InternalTextApi::class)
+        @OptIn(InternalComposeUiApi::class)
         private fun evaluateInner() {
-            @Suppress("DEPRECATION_ERROR")
             val oldTextInputFactory = textInputServiceFactory
             try {
-                @Suppress("DEPRECATION_ERROR")
                 textInputServiceFactory = {
                     TextInputServiceForTests(it)
                 }
@@ -355,7 +348,6 @@ class AndroidComposeTestRule<R : TestRule, A : ComponentActivity>(
                 frameCoroutineScope.cancel()
                 @OptIn(ExperimentalCoroutinesApi::class)
                 testCoroutineDispatcher.cleanupTestCoroutines()
-                @Suppress("DEPRECATION_ERROR")
                 textInputServiceFactory = oldTextInputFactory
                 // Dispose the content
                 if (disposeContentHook != null) {
@@ -402,7 +394,7 @@ class AndroidComposeTestRule<R : TestRule, A : ComponentActivity>(
         override fun sendTextInputCommand(node: SemanticsNode, command: List<EditCommand>) {
             val owner = node.root as ViewRootForTest
 
-            runOnUiThread {
+            runOnIdle {
                 val textInputService = owner.getTextInputServiceOrDie()
                 val onEditCommand = textInputService.onEditCommand
                     ?: throw IllegalStateException("No input session started. Missing a focus?")
@@ -414,7 +406,7 @@ class AndroidComposeTestRule<R : TestRule, A : ComponentActivity>(
         override fun sendImeAction(node: SemanticsNode, actionSpecified: ImeAction) {
             val owner = node.root as ViewRootForTest
 
-            runOnUiThread {
+            runOnIdle {
                 val textInputService = owner.getTextInputServiceOrDie()
                 val onImeActionPerformed = textInputService.onImeActionPerformed
                     ?: throw IllegalStateException("No input session started. Missing a focus?")

@@ -20,7 +20,7 @@ import androidx.compose.foundation.Interaction
 import androidx.compose.foundation.InteractionState
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -36,7 +36,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performGesture
 import androidx.compose.ui.test.up
-import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -48,7 +47,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(InternalTextApi::class)
 class TextFieldInteractionsTest {
 
     @get:Rule
@@ -119,7 +117,7 @@ class TextFieldInteractionsTest {
                 interactionState = interactionState
             )
             Box(
-                modifier = Modifier.size(10.dp).focusRequester(focusRequester).focusable(),
+                modifier = Modifier.requiredSize(10.dp).focusRequester(focusRequester).focusable(),
             )
         }
         assertThat(interactionState.value).doesNotContain(Interaction.Focused)
@@ -193,7 +191,7 @@ class TextFieldInteractionsTest {
         val interactionState = InteractionState()
         rule.setContent {
             BasicTextField(
-                modifier = Modifier.size(50.dp).testTag(testTag),
+                modifier = Modifier.requiredSize(50.dp).testTag(testTag),
                 value = state.value,
                 maxLines = 3,
                 onValueChange = { state.value = it },
@@ -220,7 +218,7 @@ class TextFieldInteractionsTest {
         val interactionState = InteractionState()
         rule.setContent {
             BasicTextField(
-                modifier = Modifier.size(50.dp).testTag(testTag),
+                modifier = Modifier.requiredSize(50.dp).testTag(testTag),
                 value = state.value,
                 maxLines = 3,
                 onValueChange = { state.value = it },

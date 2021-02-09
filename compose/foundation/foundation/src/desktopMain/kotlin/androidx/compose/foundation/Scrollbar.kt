@@ -34,9 +34,9 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.gesture.DragObserver
-import androidx.compose.ui.gesture.pressIndicatorGestureFilter
-import androidx.compose.ui.gesture.rawDragGestureFilter
+import androidx.compose.foundation.legacygestures.DragObserver
+import androidx.compose.foundation.legacygestures.pressIndicatorGestureFilter
+import androidx.compose.foundation.legacygestures.rawDragGestureFilter
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlin.math.roundToInt
 import kotlin.math.sign
 
 /**
@@ -340,14 +341,14 @@ fun ScrollbarAdapter(
 private class ScrollableScrollbarAdapter(
     private val scrollState: ScrollState
 ) : ScrollbarAdapter {
-    override val scrollOffset: Float get() = scrollState.value
+    override val scrollOffset: Float get() = scrollState.value.toFloat()
 
     override suspend fun scrollTo(containerSize: Int, scrollOffset: Float) {
-        scrollState.scrollTo(scrollOffset)
+        scrollState.scrollTo(scrollOffset.roundToInt())
     }
 
     override fun maxScrollOffset(containerSize: Int) =
-        scrollState.maxValue
+        scrollState.maxValue.toFloat()
 }
 
 // TODO(demin): if item height is different then slider will have wrong

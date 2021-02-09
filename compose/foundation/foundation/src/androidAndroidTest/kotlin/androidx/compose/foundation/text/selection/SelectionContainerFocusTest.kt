@@ -22,7 +22,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.CoreText
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
@@ -40,7 +40,6 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.performGesture
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontStyle
@@ -63,7 +62,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 
-@OptIn(InternalTextApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class SelectionContainerFocusTest {
@@ -206,7 +204,7 @@ class SelectionContainerFocusTest {
                         )
                     }
 
-                    Box(Modifier.preferredSize(boxSize, boxSize).testTag("box"))
+                    Box(Modifier.size(boxSize, boxSize).testTag("box"))
                 }
             }
         }

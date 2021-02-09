@@ -72,9 +72,6 @@ package androidx.compose.ui.text {
     method public static inline <R> R withStyle(androidx.compose.ui.text.AnnotatedString.Builder, androidx.compose.ui.text.ParagraphStyle style, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
   }
 
-  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level, message="This is an experimental text API that may change without warning.") @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget}) public @interface ExperimentalTextApi {
-  }
-
   @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level, message="This is internal API that may change frequently and without warning.") @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget}) public @interface InternalTextApi {
   }
 
@@ -82,8 +79,6 @@ package androidx.compose.ui.text {
   }
 
   public final class JvmCharHelpersKt {
-    method @androidx.compose.ui.text.InternalTextApi public static int findFollowingBreak(String, int index);
-    method @androidx.compose.ui.text.InternalTextApi public static int findPrecedingBreak(String, int index);
   }
 
   public final class MultiParagraph {
@@ -305,9 +300,6 @@ package androidx.compose.ui.text {
     method public static String toUpperCase(String, androidx.compose.ui.text.intl.LocaleList localeList);
   }
 
-  public final class TextLayoutHelperKt {
-  }
-
   public final class TextLayoutInput {
     method public androidx.compose.ui.text.TextLayoutInput copy-ih31NyA(optional androidx.compose.ui.text.AnnotatedString text, optional androidx.compose.ui.text.TextStyle style, optional java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.Placeholder>> placeholders, optional int maxLines, optional boolean softWrap, optional androidx.compose.ui.text.style.TextOverflow overflow, optional androidx.compose.ui.unit.Density density, optional androidx.compose.ui.unit.LayoutDirection layoutDirection, optional androidx.compose.ui.text.font.Font.ResourceLoader resourceLoader, optional long constraints);
     method public operator boolean equals(Object? other);
@@ -355,6 +347,7 @@ package androidx.compose.ui.text {
     method public float getLineRight(int lineIndex);
     method public int getLineStart(int lineIndex);
     method public float getLineTop(int lineIndex);
+    method public androidx.compose.ui.text.MultiParagraph getMultiParagraph();
     method public int getOffsetForPosition-k-4lQ0M(long position);
     method public androidx.compose.ui.text.style.ResolvedTextDirection getParagraphDirection(int offset);
     method public androidx.compose.ui.graphics.Path getPathForRange(int start, int end);
@@ -369,6 +362,7 @@ package androidx.compose.ui.text {
     property public final float lastBaseline;
     property public final androidx.compose.ui.text.TextLayoutInput layoutInput;
     property public final int lineCount;
+    property public final androidx.compose.ui.text.MultiParagraph multiParagraph;
     property public final java.util.List<androidx.compose.ui.geometry.Rect> placeholderRects;
     property public final long size;
   }
@@ -505,9 +499,6 @@ package androidx.compose.ui.text.android {
 }
 
 package androidx.compose.ui.text.android.style {
-
-  public final class FontWeightStyleSpanKt {
-  }
 
   public final class PlaceholderSpanKt {
   }
@@ -858,9 +849,8 @@ package androidx.compose.ui.text.input {
 
   @androidx.compose.runtime.Immutable public final class TextFieldValue {
     method public androidx.compose.ui.text.input.TextFieldValue commitComposition();
-    method public androidx.compose.ui.text.input.TextFieldValue copy-5zc-tL8(optional long selection);
-    method public androidx.compose.ui.text.input.TextFieldValue copy-bLOX0OE(optional androidx.compose.ui.text.AnnotatedString annotatedString, optional long selection);
-    method public androidx.compose.ui.text.input.TextFieldValue copy-rJy5ZHU(String text, optional long selection);
+    method public androidx.compose.ui.text.input.TextFieldValue copy-Dr2r1M0(String text, optional long selection, optional androidx.compose.ui.text.TextRange? composition);
+    method public androidx.compose.ui.text.input.TextFieldValue copy-ec4yWi8(optional androidx.compose.ui.text.AnnotatedString annotatedString, optional long selection, optional androidx.compose.ui.text.TextRange? composition);
     method public androidx.compose.ui.text.AnnotatedString getAnnotatedString();
     method public androidx.compose.ui.text.TextRange? getComposition-MzsxiRA();
     method public long getSelection-d9O1mEE();
@@ -969,7 +959,6 @@ package androidx.compose.ui.text.intl {
 package androidx.compose.ui.text.platform {
 
   public final class AndroidAccessibilitySpannableStringKt {
-    method @androidx.compose.ui.text.InternalTextApi public static android.text.SpannableString toAccessibilitySpannableString(androidx.compose.ui.text.AnnotatedString, androidx.compose.ui.unit.Density density, androidx.compose.ui.text.font.Font.ResourceLoader resourceLoader);
   }
 
   public final class AndroidParagraphHelperKt {

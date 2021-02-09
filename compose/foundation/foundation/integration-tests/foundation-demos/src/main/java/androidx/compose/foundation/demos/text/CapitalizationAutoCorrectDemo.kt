@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.demos.text
 
-import androidx.compose.foundation.layout.defaultMinSizeConstraints
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
@@ -28,8 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.SoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -37,7 +35,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalTextApi::class)
 private val KeyboardOptionsList = listOf(
     ImeOptionsData(
         keyboardOptions = KeyboardOptions(
@@ -77,7 +74,6 @@ private val KeyboardOptionsList = listOf(
     )
 )
 
-@OptIn(ExperimentalTextApi::class)
 @Composable
 fun CapitalizationAutoCorrectDemo() {
     LazyColumn {
@@ -89,17 +85,13 @@ fun CapitalizationAutoCorrectDemo() {
 }
 
 @Composable
-@OptIn(
-    ExperimentalTextApi::class,
-    InternalTextApi::class
-)
 private fun MyTextField(data: ImeOptionsData) {
     val controller = remember { mutableStateOf<SoftwareKeyboardController?>(null) }
     val state = rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue())
     }
     BasicTextField(
-        modifier = demoTextFieldModifiers.defaultMinSizeConstraints(100.dp),
+        modifier = demoTextFieldModifiers.defaultMinSize(100.dp),
         value = state.value,
         keyboardOptions = data.keyboardOptions,
         keyboardActions = KeyboardActions { controller.value?.hideSoftwareKeyboard() },
