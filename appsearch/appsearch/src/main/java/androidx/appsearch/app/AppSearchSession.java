@@ -167,46 +167,68 @@ public interface AppSearchSession extends Closeable {
             @NonNull GetByUriRequest request);
 
     /**
-     * Searches for documents based on a given query string.
+     * Retrieves documents from the open {@link AppSearchSession} that match a given query string
+     * and type of search provided.
      *
-     * <p>Currently we support following features in the raw query format:
+     * <p>Query strings can be empty, contain one term with no operators, or contain multiple
+     * terms and operators.
+     *
+     * <p>For query strings that are empty, all documents that match the {@link SearchSpec} will be
+     * returned.
+     *
+     * <p>For query strings with a single term and no operators, documents that match the
+     * provided query string and {@link SearchSpec} will be returned.
+     *
+     * <p>The following operators are supported:
+     *
      * <ul>
-     *     <li>AND
-     *     <p>AND joins (e.g. “match documents that have both the terms ‘dog’ and
-     *     ‘cat’”).
-     *     Example: hello world matches documents that have both ‘hello’ and ‘world’
+     *     <li>AND (implicit)
+     *     <p>AND is an operator that matches documents that contain <i>all</i>
+     *     provided terms.
+     *     <p><b>NOTE:</b> A space between terms is treated as an "AND" operator. Explicitly
+     *     including "AND" in a query string will treat "AND" as a term, returning documents that
+     *     also contain "AND".
+     *     <p>Example: "apple AND banana" matches documents that contain the
+     *     terms "apple", "and", "banana".
+     *     <p>Example: "apple banana" matches documents that contain both "apple" and
+     *     "banana".
+     *     <p>Example: "apple banana cherry" matches documents that contain "apple", "banana", and
+     *     "cherry".
+     *
      *     <li>OR
-     *     <p>OR joins (e.g. “match documents that have either the term ‘dog’ or
-     *     ‘cat’”).
-     *     Example: dog OR puppy
-     *     <li>Exclusion
-     *     <p>Exclude a term (e.g. “match documents that do
-     *     not have the term ‘dog’”).
-     *     Example: -dog excludes the term ‘dog’
-     *     <li>Grouping terms
-     *     <p>Allow for conceptual grouping of subqueries to enable hierarchical structures (e.g.
-     *     “match documents that have either ‘dog’ or ‘puppy’, and either ‘cat’ or ‘kitten’”).
-     *     Example: (dog puppy) (cat kitten) two one group containing two terms.
-     *     <li>Property restricts
-     *     <p> Specifies which properties of a document to specifically match terms in (e.g.
-     *     “match documents where the ‘subject’ property contains ‘important’”).
-     *     Example: subject:important matches documents with the term ‘important’ in the
-     *     ‘subject’ property
-     *     <li>Schema type restricts
-     *     <p>This is similar to property restricts, but allows for restricts on top-level document
-     *     fields, such as schema_type. Clients should be able to limit their query to documents of
-     *     a certain schema_type (e.g. “match documents that are of the ‘Email’ schema_type”).
-     *     Example: { schema_type_filters: “Email”, “Video”,query: “dog” } will match documents
-     *     that contain the query term ‘dog’ and are of either the ‘Email’ schema type or the
-     *     ‘Video’ schema type.
+     *     <p>OR is an operator that matches documents that contain <i>any</i> provided term.
+     *     <p>Example: "apple OR banana" matches documents that contain either "apple" or "banana".
+     *     <p>Example: "apple OR banana OR cherry" matches documents that contain any of
+     *     "apple", "banana", or "cherry".
+     *
+     *     <li>Exclusion (-)
+     *     <p>Exclusion (-) is an operator that matches documents that <i>do not</i> contain the
+     *     provided term.
+     *     <p>Example: "-apple" matches documents that do not contain "apple".
+     *
+     *     <li>Grouped Terms
+     *     <p>For queries that require multiple operators and terms, terms can be grouped into
+     *     subqueries. Subqueries are contained within an open "(" and close ")" parenthesis.
+     *     <p>Example: "(donut OR bagel) (coffee OR tea)" matches documents that contain
+     *     either "donut" or "bagel" and either "coffee" or "tea".
+     *
+     *     <li>Property Restricts
+     *     <p>For queries that require a term to match a specific {@link AppSearchSchema}
+     *     property of a document, a ":" must be included between the property name and the term.
+     *     <p>Example: "subject:important" matches documents that contain the term "important" in
+     *     the "subject" property.
      * </ul>
      *
-     * <p> This method is lightweight. The heavy work will be done in
+     * <p>Additional search specifications, such as filtering by {@link AppSearchSchema} type or
+     * adding projection, can be set by calling the corresponding {@link SearchSpec.Builder} setter.
+     *
+     * <p>This method is lightweight. The heavy work will be done in
      * {@link SearchResults#getNextPage()}.
      *
-     * @param queryExpression Query String to search.
-     * @param searchSpec      Spec for setting filters, raw query etc.
-     * @return The search result of performing this operation.
+     * @param queryExpression query string to search.
+     * @param searchSpec      spec for setting document filters, adding projection, setting term
+     *                        match type, etc.
+     * @return a {@link SearchResults} object for retrieved matched documents.
      */
     @NonNull
     SearchResults search(@NonNull String queryExpression, @NonNull SearchSpec searchSpec);
