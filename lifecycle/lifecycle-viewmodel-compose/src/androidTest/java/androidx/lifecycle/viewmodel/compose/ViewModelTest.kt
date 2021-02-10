@@ -42,9 +42,7 @@ public class ViewModelTest {
     public fun viewModelCreatedViaDefaultFactory() {
         val owner = FakeViewModelStoreOwner()
         rule.setContent {
-            CompositionLocalProvider(
-                LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner
-            ) {
+            CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
                 viewModel<TestViewModel>()
             }
         }
@@ -57,9 +55,7 @@ public class ViewModelTest {
         val owner = FakeViewModelStoreOwner()
         var createdInComposition: Any? = null
         rule.setContent {
-            CompositionLocalProvider(
-                LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner
-            ) {
+            CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
                 createdInComposition = viewModel<TestViewModel>()
             }
         }
@@ -74,9 +70,7 @@ public class ViewModelTest {
         val owner = FakeViewModelStoreOwner()
         var createdInComposition: Any? = null
         rule.setContent {
-            CompositionLocalProvider(
-                LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner
-            ) {
+            CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
                 createdInComposition = viewModel<TestViewModel>()
             }
         }
@@ -91,9 +85,7 @@ public class ViewModelTest {
         val owner = FakeViewModelStoreOwner()
         var createdInComposition: Any? = null
         rule.setContent {
-            CompositionLocalProvider(
-                LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner
-            ) {
+            CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
                 createdInComposition =
                     viewModel<TestViewModel>(key = "test")
             }
@@ -109,9 +101,7 @@ public class ViewModelTest {
         val owner = FakeViewModelStoreOwner()
         val customFactory = FakeViewModelProviderFactory()
         rule.setContent {
-            CompositionLocalProvider(
-                LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner
-            ) {
+            CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
                 viewModel<TestViewModel>(factory = customFactory)
             }
         }
@@ -124,9 +114,7 @@ public class ViewModelTest {
         val owner = FakeViewModelStoreOwner()
         val customFactory = FakeViewModelProviderFactory()
         rule.setContent {
-            CompositionLocalProvider(
-                LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner
-            ) {
+            CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
                 viewModel<TestViewModel>(factory = customFactory)
             }
         }
@@ -140,9 +128,7 @@ public class ViewModelTest {
         var createdInComposition: Any? = null
         val customFactory = FakeViewModelProviderFactory()
         rule.setContent {
-            CompositionLocalProvider(
-                LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner
-            ) {
+            CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
                 createdInComposition = viewModel<TestViewModel>()
             }
         }
@@ -158,9 +144,7 @@ public class ViewModelTest {
         var createdInComposition: Any? = null
         val customFactory = FakeViewModelProviderFactory()
         rule.setContent {
-            CompositionLocalProvider(
-                LocalViewModelStoreOwner.asProvidableCompositionLocal() provides owner
-            ) {
+            CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
                 createdInComposition =
                     viewModel<TestViewModel>(key = "test")
             }
