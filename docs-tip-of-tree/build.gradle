@@ -58,7 +58,6 @@ dependencies {
     docs(project(":compose:material:material-icons-extended"))
     samples(project(":compose:material:material:material-samples"))
     docs(project(":compose:runtime:runtime"))
-    docs(project(":compose:runtime:runtime-dispatch"))
     docs(project(":compose:runtime:runtime-livedata"))
     samples(project(":compose:runtime:runtime-livedata:runtime-livedata-samples"))
     docs(project(":compose:runtime:runtime-rxjava2"))
