@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// @exportToFramework:skipFile()
 package androidx.appsearch.localstorage;
 
 import static androidx.appsearch.app.AppSearchResult.throwableToFailedResult;
@@ -22,9 +22,10 @@ import android.os.Bundle;
 import android.os.Parcel;
 
 import androidx.annotation.NonNull;
-import androidx.appsearch.app.AppSearchBatchResult;
-import androidx.appsearch.app.AppSearchMigrationHelper;
+import androidx.annotation.WorkerThread;
+import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaResponse;
@@ -34,6 +35,7 @@ import androidx.core.util.Preconditions;
 import com.google.android.icing.protobuf.CodedInputStream;
 import com.google.android.icing.protobuf.CodedOutputStream;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -42,18 +44,20 @@ import java.io.InputStream;
 import java.util.Map;
 
 /**
- * An implementation of {@link AppSearchMigrationHelper} which query document and save
- * post-migrated documents to locally in the app's storage space.
+ * The helper class for {@link AppSearchSchema} migration.
+ *
+ * <p>It will query and migrate {@link GenericDocument} in given type to a new version.
  */
-class AppSearchMigrationHelperImpl implements AppSearchMigrationHelper {
+class AppSearchMigrationHelper implements Closeable {
     private final AppSearchImpl mAppSearchImpl;
     private final String mPackageName;
     private final String mDatabaseName;
     private final File mFile;
     private final Map<String, Integer> mCurrentVersionMap;
     private final Map<String, Integer> mFinalVersionMap;
+    private boolean mAreDocumentsMigrated = false;
 
-    AppSearchMigrationHelperImpl(@NonNull AppSearchImpl appSearchImpl,
+    AppSearchMigrationHelper(@NonNull AppSearchImpl appSearchImpl,
             @NonNull Map<String, Integer> currentVersionMap,
             @NonNull Map<String, Integer> finalVersionMap,
             @NonNull String packageName,
@@ -66,10 +70,22 @@ class AppSearchMigrationHelperImpl implements AppSearchMigrationHelper {
         mFile = File.createTempFile(/*prefix=*/"appsearch", /*suffix=*/null);
     }
 
-    @Override
-    public void queryAndTransform(@NonNull String schemaType,
-            @NonNull AppSearchMigrationHelper.Transformer migrator)
-            throws Exception {
+    /**
+     * Queries all documents that need to be migrated to new version, and transform documents to
+     * new version by passing them to the provided Transformer.
+     *
+     * <p>This method will be invoked on the background worker thread.
+     *
+     * @param schemaType   The schema that need be updated and migrated {@link GenericDocument}
+     *                     under this type.
+     * @param migrator     The {@link Migrator} that will upgrade or downgrade a
+     *                     {@link GenericDocument} to new version.
+     * @throws IOException        on i/o problem
+     * @throws AppSearchException on AppSearch problem
+     */
+    @WorkerThread
+    public void queryAndTransform(@NonNull String schemaType, @NonNull Migrator migrator)
+            throws IOException, AppSearchException {
         Preconditions.checkState(mFile.exists(), "Internal temp file does not exist.");
         int currentVersion = mCurrentVersionMap.get(schemaType);
         int finalVersion = mFinalVersionMap.get(schemaType);
@@ -84,9 +100,16 @@ class AppSearchMigrationHelperImpl implements AppSearchMigrationHelper {
                             .build());
             while (!searchResultPage.getResults().isEmpty()) {
                 for (int i = 0; i < searchResultPage.getResults().size(); i++) {
-                    GenericDocument newDocument = migrator.transform(
-                            currentVersion, finalVersion,
-                            searchResultPage.getResults().get(i).getGenericDocument());
+                    GenericDocument newDocument;
+                    if (currentVersion < finalVersion) {
+                        newDocument = migrator.onUpgrade(
+                                currentVersion, finalVersion,
+                                searchResultPage.getResults().get(i).getGenericDocument());
+                    } else {
+                        newDocument = migrator.onDowngrade(
+                                currentVersion, finalVersion,
+                                searchResultPage.getResults().get(i).getGenericDocument());
+                    }
                     Bundle bundle = newDocument.getBundle();
                     Parcel parcel = Parcel.obtain();
                     parcel.writeBundle(bundle);
@@ -99,6 +122,7 @@ class AppSearchMigrationHelperImpl implements AppSearchMigrationHelper {
                 outputStream.flush();
             }
         }
+        mAreDocumentsMigrated = true;
     }
 
     /**
@@ -106,12 +130,19 @@ class AppSearchMigrationHelperImpl implements AppSearchMigrationHelper {
      *
      * <p> This method should be only called once.
      *
-     * @return  the {@link AppSearchBatchResult} for migration documents.
+     * @return  the {@link SetSchemaResponse} for this
+     *          {@link androidx.appsearch.app.AppSearchSession#setSchema} call.
+     *
+     * @throws IOException        on i/o problem
+     * @throws AppSearchException on AppSearch problem
      */
     @NonNull
-    public SetSchemaResponse readAndPutDocuments(SetSchemaResponse.Builder responseBuilder)
+    public SetSchemaResponse readAndPutDocuments(@NonNull SetSchemaResponse.Builder responseBuilder)
             throws IOException, AppSearchException {
         Preconditions.checkState(mFile.exists(), "Internal temp file does not exist.");
+        if (!mAreDocumentsMigrated) {
+            return responseBuilder.build();
+        }
         try (InputStream inputStream = new FileInputStream(mFile)) {
             CodedInputStream codedInputStream = CodedInputStream.newInstance(inputStream);
             while (!codedInputStream.isAtEnd()) {
@@ -129,15 +160,10 @@ class AppSearchMigrationHelperImpl implements AppSearchMigrationHelper {
                 }
             }
             mAppSearchImpl.persistToDisk();
-            return responseBuilder.build();
-        } finally {
-            mFile.delete();
         }
+        return responseBuilder.build();
     }
 
-    void deleteTempFile() {
-        mFile.delete();
-    }
 
     /**
      * Reads {@link GenericDocument} from given {@link CodedInputStream}.
@@ -158,5 +184,10 @@ class AppSearchMigrationHelperImpl implements AppSearchMigrationHelper {
         parcel.recycle();
 
         return new GenericDocument(bundle);
+    }
+
+    @Override
+    public void close() {
+        mFile.delete();
     }
 }

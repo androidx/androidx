@@ -127,9 +127,8 @@ public class SetSchemaResponse {
      * Returns a {@link Set} of schema type whose new definitions set in the
      * {@link AppSearchSession#setSchema} call were incompatible with the pre-existing schema.
      *
-     * <p>If a {@link androidx.appsearch.app.AppSearchSchema.Migrator} is provided for this type
-     * and the migration is success triggered. The type will also appear in
-     * {@link #getMigratedTypes()}.
+     * <p>If a {@link Migrator} is provided for this type and the migration is success triggered.
+     * The type will also appear in {@link #getMigratedTypes()}.
      *
      * @see AppSearchSession#setSchema
      * @see SetSchemaRequest.Builder#setForceOverride
