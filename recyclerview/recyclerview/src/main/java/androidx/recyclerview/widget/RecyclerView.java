@@ -7016,7 +7016,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                         Log.d(TAG, "offsetPositionRecordsForInsert cached " + i + " holder "
                                 + holder + " now at position " + (holder.mPosition + count));
                     }
-                    holder.offsetPosition(count, true);
+                    // insertions only affect post layout hence don't apply them to pre-layout.
+                    holder.offsetPosition(count, false);
                 }
             }
         }
